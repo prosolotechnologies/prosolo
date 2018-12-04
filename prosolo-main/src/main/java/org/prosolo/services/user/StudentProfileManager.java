@@ -87,4 +87,22 @@ public interface StudentProfileManager extends AbstractManager {
      * @throws DbConnectionException
      */
     List<CompetenceEvidenceProfileData> getCompetenceEvidenceProfileData(long competenceProfileConfigId);
+
+    /**
+     * Returns credential assessments profile data
+     *
+     * @param credentialProfileConfigId
+     * @return
+     * @throws DbConnectionException
+     */
+    List<AssessmentByTypeProfileData> getCredentialAssessmentsProfileData(long credentialProfileConfigId);
+
+    /**
+     * Returns competence assessments profile data
+     *
+     * @param competenceProfileConfigId
+     * @return
+     * @throws DbConnectionException
+     */
+    List<AssessmentByTypeProfileData> getCompetenceAssessmentsProfileData(long competenceProfileConfigId);
 }

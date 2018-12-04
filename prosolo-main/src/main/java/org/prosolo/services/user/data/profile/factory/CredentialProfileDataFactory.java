@@ -1,21 +1,23 @@
 package org.prosolo.services.user.data.profile.factory;
 
+import org.prosolo.common.domainmodel.assessment.AssessmentType;
+import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
+import org.prosolo.common.domainmodel.credential.BlindAssessmentMode;
+import org.prosolo.common.domainmodel.credential.Credential1;
+import org.prosolo.common.domainmodel.credential.CredentialAssessmentConfig;
 import org.prosolo.common.domainmodel.credential.CredentialCategory;
-import org.prosolo.common.domainmodel.studentprofile.CompetenceEvidenceProfileConfig;
-import org.prosolo.common.domainmodel.studentprofile.CompetenceProfileConfig;
-import org.prosolo.common.domainmodel.studentprofile.CredentialProfileConfig;
+import org.prosolo.common.domainmodel.studentprofile.*;
 import org.prosolo.common.util.date.DateUtil;
+import org.prosolo.services.assessment.data.grading.AssessmentGradeSummary;
 import org.prosolo.services.common.data.LazyInitData;
+import org.prosolo.services.common.data.SelectableData;
 import org.prosolo.services.nodes.data.organization.CredentialCategoryData;
 import org.prosolo.services.nodes.util.TimeUtil;
-import org.prosolo.services.user.data.profile.CategorizedCredentialsProfileData;
-import org.prosolo.services.user.data.profile.CompetenceEvidenceProfileData;
-import org.prosolo.services.user.data.profile.CompetenceProfileData;
-import org.prosolo.services.user.data.profile.CredentialProfileData;
+import org.prosolo.services.user.data.parameterobjects.CredentialAssessmentWithGradeSummaryData;
+import org.prosolo.services.user.data.profile.*;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -24,7 +26,7 @@ import java.util.stream.Collectors;
  * @since 1.2.0
  */
 @Component
-public class CredentialProfileDataFactory {
+public class CredentialProfileDataFactory extends ProfileDataFactory {
 
     public CredentialProfileData getCredentialProfileData(CredentialProfileConfig credentialProfileConfig, long assessmentsCount, long competencesCount) {
         CredentialCategory category = credentialProfileConfig.getTargetCredential().getCredential().getCategory();
@@ -94,6 +96,58 @@ public class CredentialProfileDataFactory {
                 competenceEvidenceProfileConfig.getCompetenceEvidence().getEvidence().getType(),
                 competenceEvidenceProfileConfig.getCompetenceEvidence().getEvidence().getUrl(),
                 DateUtil.getMillisFromDate(competenceEvidenceProfileConfig.getCompetenceEvidence().getDateCreated()));
+    }
+
+    public List<AssessmentByTypeProfileData> getCredentialAssessmentsProfileData(List<CredentialAssessmentProfileConfig> assessmentProfileConfigs) {
+        List<AssessmentByTypeProfileData> assessments = assessmentProfileConfigs
+                .stream()
+                .collect(Collectors.groupingBy(
+                        conf -> conf.getCredentialAssessment().getType(),
+                        LinkedHashMap::new,
+                        Collectors.mapping(
+                                conf -> getCredentialAssessmentProfileData(
+                                        conf.getCredentialAssessment(),
+                                        new AssessmentGradeSummary(conf.getGrade(), conf.getMaxGrade()),
+                                        getBlindAssessmentMode(conf, conf.getCredentialAssessment().getType())),
+                                Collectors.toList())))
+                .entrySet().stream()
+                .map(entry -> new AssessmentByTypeProfileData(entry.getKey(), entry.getValue()))
+                .collect(Collectors.toList());
+        assessments.sort((a1, a2) -> compareAssessmentTypes(a1.getAssessmentType(), a2.getAssessmentType()));
+        return assessments;
+    }
+
+    public List<AssessmentByTypeProfileData> getCompetenceAssessmentsProfileData(List<CompetenceAssessmentProfileConfig> assessmentProfileConfigs) {
+        List<AssessmentByTypeProfileData> assessments = assessmentProfileConfigs
+                .stream()
+                .collect(Collectors.groupingBy(
+                        conf -> conf.getCompetenceAssessment().getType(),
+                        LinkedHashMap::new,
+                        Collectors.mapping(
+                                conf -> getCompetenceAssessmentProfileData(
+                                        conf.getCompetenceAssessment(),
+                                        new AssessmentGradeSummary(conf.getGrade(), conf.getMaxGrade()),
+                                        /*
+                                        we use credential assessment config here because it overrides competency assessment config
+                                        when there is a credential competency is added to, which is the case here
+                                        where we observe this competency as a part of the credential on profile
+                                         */
+                                        getBlindAssessmentMode(conf, conf.getCompetenceAssessment().getType())),
+                                Collectors.toList())))
+                .entrySet().stream()
+                .map(entry -> new AssessmentByTypeProfileData(entry.getKey(), entry.getValue()))
+                .collect(Collectors.toList());
+        assessments.sort((a1, a2) -> compareAssessmentTypes(a1.getAssessmentType(), a2.getAssessmentType()));
+        return assessments;
+    }
+
+    private BlindAssessmentMode getBlindAssessmentMode(AssessmentProfileConfig conf, AssessmentType assessmentType) {
+        return conf.getTargetCredential().getCredential().getAssessmentConfig()
+                .stream()
+                .filter(credAssessmentConf -> credAssessmentConf.getAssessmentType() == assessmentType)
+                .findFirst()
+                .get()
+                .getBlindAssessmentMode();
     }
 
 }

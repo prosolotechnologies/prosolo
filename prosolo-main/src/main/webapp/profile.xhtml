@@ -4,7 +4,6 @@
                 xmlns:ui="http://java.sun.com/jsf/facelets"
                 xmlns:p="http://primefaces.org/ui"
                 template="templates/masterLayout2.xhtml"
-                xmlns:a="http://xmlns.jcp.org/jsf/passthrough"
                 xmlns:util="http://www.prosolo.com/util"
                 xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
                 xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
@@ -214,7 +213,14 @@
                                                 <a class="numberAssessments disabled">assessments</a>
                                             </ui:fragment>
                                             <ui:fragment rendered="#{cred.assessments.count gt 0}">
-                                                <a href="#" class="numberAssessments" data-toggle="modal" data-target="#assessmentsList">assessments</a>
+                                                <p:commandLink
+                                                        styleClass="numberAssessments"
+                                                        pt:data-toggle="modal"
+                                                        action="#{profileBean.initCredentialAssessmentsIfNotInitialized(cred)}"
+                                                        update="profileGrowl panelAssessments"
+                                                        oncomplete="$('#assessmentsList').modal('show')">
+                                                    assessments
+                                                </p:commandLink>
                                             </ui:fragment>
                                             <div class="duration">#{cred.duration}</div>
                                         </div>
@@ -242,10 +248,17 @@
                                                                 </p:commandLink>
                                                             </ui:fragment>
                                                             <ui:fragment rendered="#{comp.assessments.count le 0}">
-                                                                <a class="numberAssessments disabled"/>
+                                                                <a class="numberAssessments disabled">assessments</a>
                                                             </ui:fragment>
                                                             <ui:fragment rendered="#{comp.assessments.count gt 0}">
-                                                                <a href="#" class="numberAssessments" data-toggle="modal" data-target="#assessmentsList">assessments</a>
+                                                                <p:commandLink
+                                                                        styleClass="numberAssessments"
+                                                                        pt:data-toggle="modal"
+                                                                        action="#{profileBean.initCompetenceAssessmentsIfNotInitialized(comp)}"
+                                                                        update="profileGrowl panelAssessments"
+                                                                        oncomplete="$('#assessmentsList').modal('show')">
+                                                                    assessments
+                                                                </p:commandLink>
                                                             </ui:fragment>
                                                         </div>
                                                     </li>
@@ -402,7 +415,7 @@
 
         <div class="modal fade" id="assessmentsList" tabindex="-1" role="dialog" aria-labelledby="assessmentsListModal">
             <div class="modal-dialog" role="document">
-                <div class="modal-content">
+                <h:panelGroup layout="block" id="panelAssessments" styleClass="modal-content">
                     <div class="modal-header alignLeft">
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
                         <h2 class="modal-title" id="assessmentsListModal">Assessments</h2>
@@ -410,109 +423,64 @@
                     <div class="assessmentModalMeta">
                         <div class="assessmentModalMetaLine">
                             <div class="assessmentModalMetaLeft">
-                                #{msg['label.competence']}:
+                                #{profileBean.selectedResourceType eq 'CREDENTIAL' ? msg['label.credential'] : msg['label.competence']}:
                             </div>
                             <div class="assessmentModalMetaRight">
-                                <h3>1.3 Students with diverse linguistic, cultural, religious and socioeconomic backgrounds</h3>
+                                <h3>#{profileBean.selectedResourceTitle}</h3>
                             </div>
                         </div>
                     </div>
                     <div class="modal-body alignLeft">
                         <div class="top30"></div>
                         <ul class="nav nav-tabs innerSubmenu" role="tablist">
-                            <li role="presentation" class="active"><a href="#instructorAssessments" aria-controls="instructorAssessments" role="tab" data-toggle="tab">Instructor Assessments</a></li>
-                            <li role="presentation"><a href="#peerAssessments" aria-controls="peerAssessments" role="tab" data-toggle="tab">Peer Assessments</a></li>
-                            <li role="presentation"><a href="#selfAssessments" aria-controls="selfAssessments" role="tab" data-toggle="tab">Self Assessments</a></li>
+                            <ui:repeat value="#{profileBean.selectedResourceAssessmentsByType}" var="assessmentType" varStatus="status">
+                                <li role="presentation" class="#{profileBean.isAssessmentTabInitiallyActive(assessmentType.assessmentType) ? 'active' : ''}">
+                                    <a href="#assessmentsContent#{status.index}" aria-controls="assessmentsContent#{status.index}" role="tab" data-toggle="tab">#{msg['label.assessment.type.'.concat(assessmentType.assessmentType).concat('.plural')]}</a>
+                                </li>
+                            </ui:repeat>
                         </ul>
                         <div class="tab-content">
-                            <div role="tabpanel" class="tab-pane fade active in" id="instructorAssessments">
-                                <div class="assessmentsListInModal">
-                                    <div class="assessmentItem">
-                                        <div class="assessmentLeft">
-                                            <div class="assessmentsStar rubricStars has2Stars rubricStar01">
-                                                <div class="star"></div>
+                            <ui:repeat value="#{profileBean.selectedResourceAssessmentsByType}" var="assessmentType" varStatus="status">
+                                <div role="tabpanel" class="tab-pane fade #{profileBean.isAssessmentTabInitiallyActive(assessmentType.assessmentType) ? 'active in' : ''}" id="assessmentsContent#{status.index}">
+                                    <div class="assessmentsListInModal">
+                                        <ui:repeat value="#{assessmentType.assessments}" var="assessment">
+                                            <div class="assessmentItem">
+                                                <div class="assessmentLeft">
+                                                    <div class="assessmentsStar #{styleUtilBean.getGradeStarClass(assessment.assessmentGradeSummary)}">
+                                                        <div class="star #{styleUtilBean.getEmptyStarClass(assessment.assessmentGradeSummary)}"></div>
+                                                    </div>
+                                                    <div class="user32">
+                                                        <assessment:assessmentActorAvatar
+                                                                actorId="#{assessment.userBasicData.id}"
+                                                                avatarUrl="#{assessment.userBasicData.avatar}"
+                                                                actorFullName="#{assessment.userBasicData.fullName}"
+                                                                blindAssessmentMode="#{assessment.blindAssessmentMode}"
+                                                                actorType="ASSESSOR"
+                                                        />
+                                                        <h3>
+                                                            <assessment:assessmentActorName
+                                                                    actorId="#{assessment.userBasicData.id}"
+                                                                    actorFullName="#{assessment.userBasicData.fullName}"
+                                                                    blindAssessmentMode="#{assessment.blindAssessmentMode}"
+                                                                    actorType="ASSESSOR"
+                                                            />
+                                                        </h3>
+                                                    </div>
+                                                </div>
+                                                <div class="assessmentRight">
+                                                    <utilcomp:convertTimeOutput
+                                                            millis="#{assessment.dateApproved}"
+                                                            format="MMM DD, YYYY"
+                                                    />
+                                                </div>
                                             </div>
-                                            <div class="user32">
-                                                <a href="#"><img src="images2/temp-walter.png" class="img-circle" width="32" height="32" alt="Walter White"></img></a>
-                                                <h3><a href="#">Gustavo Fring</a></h3>
-                                            </div>
-                                        </div>
-                                        <div class="assessmentRight">
-                                            Sep 24, 2017
-                                        </div>
-                                    </div>
-                                    <div class="assessmentItem">
-                                        <div class="assessmentLeft">
-                                            <div class="assessmentsStar rubricStars has2Stars rubricStar02">
-                                                <div class="star"></div>
-                                            </div>
-                                            <div class="user32">
-                                                <img src="images2/avatar-ph.png" class="img-circle" width="32" height="32" alt=""/>
-                                                <h3>Anonomoys Assessor</h3>
-                                            </div>
-                                        </div>
-                                        <div class="assessmentRight">
-                                            Sep 24, 2017
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div role="tabpanel" class="tab-pane fade" id="peerAssessments">
-                                <div class="assessmentsListInModal">
-                                    <div class="assessmentItem">
-                                        <div class="assessmentLeft">
-                                            <div class="assessmentsStar rubricStars has2Stars rubricStar02">
-                                                <div class="star"></div>
-                                            </div>
-                                            <div class="user32">
-                                                <img src="images2/avatar-ph.png" class="img-circle" width="32" height="32" alt=""/>
-                                                <h3>Anonomoys Assessor</h3>
-                                            </div>
-                                        </div>
-                                        <div class="assessmentRight">
-                                            Sep 24, 2017
-                                        </div>
+                                        </ui:repeat>
                                     </div>
                                 </div>
-                            </div>
-                            <div role="tabpanel" class="tab-pane fade" id="selfAssessments">
-                                <div class="assessmentsListInModal">
-                                    <div class="assessmentItem">
-                                        <div class="assessmentLeft">
-                                            <div class="assessmentsStar rubricStars has2Stars rubricStar02">
-                                                <div class="star"></div>
-                                            </div>
-                                            <div class="user32">
-                                                <img src="images2/avatar-ph.png" class="img-circle" width="32" height="32" alt=""/>
-                                                <h3>Anonomoys Assessor</h3>
-                                            </div>
-                                        </div>
-                                        <div class="assessmentRight">
-                                            Sep 24, 2017
-                                        </div>
-                                    </div>
-                                    <div class="assessmentItem">
-                                        <div class="assessmentLeft">
-                                            <div class="assessmentsStar rubricStars has2Stars rubricStar01">
-                                                <div class="star"></div>
-                                            </div>
-                                            <div class="user32">
-                                                <a href="#"><img src="images2/temp-walter.png" class="img-circle" width="32" height="32" alt="Walter White"/></a>
-                                                <h3><a href="#">Gustavo Fring</a></h3>
-                                            </div>
-                                        </div>
-                                        <div class="assessmentRight">
-                                            Sep 24, 2017
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                            </ui:repeat>
                         </div>
                     </div>
-                    <div class="modal-footer alignLeft">
-                        <a href="#">View All</a>
-                    </div>
-                </div>
+                </h:panelGroup>
             </div>
         </div>
 

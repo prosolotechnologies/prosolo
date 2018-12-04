@@ -5,7 +5,6 @@ import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.studentprofile.*;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.common.data.SelectableData;
-import org.prosolo.services.user.data.factory.UserBasicDataFactory;
 import org.prosolo.services.user.data.parameterobjects.CompetenceAssessmentWithGradeSummaryData;
 import org.prosolo.services.user.data.parameterobjects.CompetenceProfileOptionsParam;
 import org.prosolo.services.user.data.parameterobjects.CredentialAssessmentWithGradeSummaryData;
@@ -13,7 +12,6 @@ import org.prosolo.services.user.data.parameterobjects.CredentialProfileOptionsP
 import org.prosolo.services.user.data.profile.*;
 import org.springframework.stereotype.Component;
 
-import javax.inject.Inject;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -23,9 +21,7 @@ import java.util.stream.Collectors;
  * @since 1.2.0
  */
 @Component
-public class CredentialProfileOptionsDataFactory {
-
-    @Inject private UserBasicDataFactory userBasicDataFactory;
+public class CredentialProfileOptionsDataFactory extends ProfileDataFactory {
 
     public CredentialProfileOptionsData getCredentialProfileOptionsData(CredentialProfileOptionsParam param) {
         TargetCredential1 targetCredential = param.getTargetCredential();
@@ -56,21 +52,13 @@ public class CredentialProfileOptionsDataFactory {
                 if (assessmentsForType != null) {
                     assessmentsForType.forEach(a -> selectableAssessmentsForType.add(
                             new SelectableData<>(
-                                    getCredentialAssessmentProfileData(a, conf.getBlindAssessmentMode()), assessmentProfileConfigs.stream().filter(apConf -> apConf.getCredentialAssessment().getId() == a.getCredentialAssessment().getId()).findFirst().isPresent())));
+                                    getCredentialAssessmentProfileData(a.getCredentialAssessment(), a.getGradeSummary(), conf.getBlindAssessmentMode()), assessmentProfileConfigs.stream().filter(apConf -> apConf.getCredentialAssessment().getId() == a.getCredentialAssessment().getId()).findFirst().isPresent())));
                 }
                 assessmentsByTypeProfileOptions.add(new AssessmentByTypeProfileOptionsData(conf.getAssessmentType(), selectableAssessmentsForType));
             }
         }
+        assessmentsByTypeProfileOptions.sort((a1, a2) -> compareAssessmentTypes(a1.getAssessmentType(), a2.getAssessmentType()));
         return assessmentsByTypeProfileOptions;
-    }
-
-    private AssessmentProfileData getCredentialAssessmentProfileData(CredentialAssessmentWithGradeSummaryData ca, BlindAssessmentMode blindAssessmentMode) {
-        return new AssessmentProfileData(
-                ca.getCredentialAssessment().getId(),
-                userBasicDataFactory.getBasicUserData(ca.getCredentialAssessment().getAssessor()),
-                blindAssessmentMode,
-                DateUtil.getMillisFromDate(ca.getCredentialAssessment().getLastAssessment()),
-                ca.getGradeSummary());
     }
 
     private List<CompetenceProfileOptionsData> getCompetenceProfileOptions(Collection<CredentialAssessmentConfig> credentialAssessmentConfigs, List<CompetenceProfileOptionsParam> params) {
@@ -140,20 +128,13 @@ public class CredentialProfileOptionsDataFactory {
                 if (assessmentsForType != null) {
                     assessmentsForType.forEach(a -> selectableAssessmentsForType.add(
                             new SelectableData<>(
-                                    getCompetenceAssessmentProfileData(a, conf.getBlindAssessmentMode()), assessmentProfileConfigs.stream().filter(apConf -> apConf.getCompetenceAssessment().getId() == a.getCompetenceAssessment().getId()).findFirst().isPresent())));
+                                    getCompetenceAssessmentProfileData(a.getCompetenceAssessment(), a.getGradeSummary(), conf.getBlindAssessmentMode()), assessmentProfileConfigs.stream().filter(apConf -> apConf.getCompetenceAssessment().getId() == a.getCompetenceAssessment().getId()).findFirst().isPresent())));
                 }
                 assessmentsByTypeProfileOptions.add(new AssessmentByTypeProfileOptionsData(conf.getAssessmentType(), selectableAssessmentsForType));
             }
         }
+        assessmentsByTypeProfileOptions.sort((a1, a2) -> compareAssessmentTypes(a1.getAssessmentType(), a2.getAssessmentType()));
         return assessmentsByTypeProfileOptions;
     }
 
-    private AssessmentProfileData getCompetenceAssessmentProfileData(CompetenceAssessmentWithGradeSummaryData ca, BlindAssessmentMode blindAssessmentMode) {
-        return new AssessmentProfileData(
-                ca.getCompetenceAssessment().getId(),
-                userBasicDataFactory.getBasicUserData(ca.getCompetenceAssessment().getAssessor()),
-                blindAssessmentMode,
-                DateUtil.getMillisFromDate(ca.getCompetenceAssessment().getLastAssessment()),
-                ca.getGradeSummary());
-    }
 }

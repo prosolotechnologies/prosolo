@@ -151,6 +151,46 @@ public class StudentProfileManagerImpl extends AbstractManagerImpl implements St
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public List<AssessmentByTypeProfileData> getCredentialAssessmentsProfileData(long credentialProfileConfigId) {
+        try {
+            String query =
+                    "SELECT conf FROM CredentialAssessmentProfileConfig conf " +
+                    "INNER JOIN fetch conf.credentialAssessment ca " +
+                    "INNER JOIN fetch ca.assessor " +
+                    "WHERE conf.credentialProfileConfig.id = :credProfileConfigId";
+            List<CredentialAssessmentProfileConfig> confList = (List<CredentialAssessmentProfileConfig>) persistence.currentManager()
+                    .createQuery(query)
+                    .setLong("credProfileConfigId", credentialProfileConfigId)
+                    .list();
+            return credentialProfileDataFactory.getCredentialAssessmentsProfileData(confList);
+        } catch (Exception e) {
+            logger.error("error", e);
+            throw new DbConnectionException("Error loading credential assessments profile data");
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<AssessmentByTypeProfileData> getCompetenceAssessmentsProfileData(long competenceProfileConfigId) {
+        try {
+            String query =
+                    "SELECT conf FROM CompetenceAssessmentProfileConfig conf " +
+                    "INNER JOIN fetch conf.competenceAssessment ca " +
+                    "INNER JOIN fetch ca.assessor " +
+                    "WHERE conf.competenceProfileConfig.id = :compProfileConfigId";
+            List<CompetenceAssessmentProfileConfig> confList = (List<CompetenceAssessmentProfileConfig>) persistence.currentManager()
+                    .createQuery(query)
+                    .setLong("compProfileConfigId", competenceProfileConfigId)
+                    .list();
+            return credentialProfileDataFactory.getCompetenceAssessmentsProfileData(confList);
+        } catch (Exception e) {
+            logger.error("error", e);
+            throw new DbConnectionException("Error loading competency assessments profile data");
+        }
+    }
+
+    @Override
     @Transactional
     public void addCredentialsToProfile(long userId, List<Long> idsOfTargetCredentialsToAdd) {
         try {
@@ -253,7 +293,9 @@ public class StudentProfileManagerImpl extends AbstractManagerImpl implements St
                     .getCredentialAssessments(
                             targetCredentialId,
                             true,
-                            SortOrder.<AssessmentSortOrder>builder().addOrder(
+                            SortOrder.<AssessmentSortOrder>builder()
+                                    .addOrder(AssessmentSortOrder.ASSESSMENT_TYPE, SortingOption.ASC)
+                                    .addOrder(
                                     AssessmentSortOrder.LAST_ASSESSMENT_DATE,
                                     SortingOption.ASC).build());
             List<CredentialAssessmentWithGradeSummaryData> credentialAssessmentsWithGradeSummaryData =

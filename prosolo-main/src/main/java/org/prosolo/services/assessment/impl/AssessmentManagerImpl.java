@@ -4033,7 +4033,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 				String order = so.getSortOption() == SortingOption.DESC ? " DESC" : "";
 				switch (so.getSortField()) {
 					case ASSESSMENT_TYPE:
-						orderBy.add("case when " + assessmentTableAlias + ".type = " + AssessmentType.INSTRUCTOR_ASSESSMENT.name() + " then 1 when " + assessmentTableAlias + ".type = " + AssessmentType.PEER_ASSESSMENT.name() + " then 2 else 3" + order);
+						orderBy.add("case when " + assessmentTableAlias + ".type = '" + AssessmentType.INSTRUCTOR_ASSESSMENT.name() + "' then 1 when " + assessmentTableAlias + ".type = '" + AssessmentType.PEER_ASSESSMENT.name() + "' then 2 else 3 end " + order);
 						break;
 					case LAST_ASSESSMENT_DATE:
 						orderBy.add(assessmentTableAlias + ".lastAssessment " + order);

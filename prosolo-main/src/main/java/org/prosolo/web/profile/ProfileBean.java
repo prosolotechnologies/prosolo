@@ -4,6 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.StaleDataException;
+import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.messaging.Message;
 import org.prosolo.common.domainmodel.studentprofile.CompetenceProfileConfig;
 import org.prosolo.common.event.context.data.UserContextData;
@@ -114,6 +115,34 @@ public class ProfileBean {
 			}
 		}
 	}
+
+	public void initCredentialAssessmentsIfNotInitialized(CredentialProfileData credentialProfileData) {
+		this.selectedResourceType = LearningResourceType.CREDENTIAL;
+		this.selectedCredentialProfileData = credentialProfileData;
+		if (!credentialProfileData.getAssessments().isInitialized()) {
+			try {
+				credentialProfileData.getAssessments().init(
+						studentProfileManager.getCredentialAssessmentsProfileData(credentialProfileData.getCredentialProfileConfigId()));
+			} catch (DbConnectionException e) {
+				logger.error("error", e);
+				PageUtil.fireErrorMessage("Error loading the data");
+			}
+		}
+	}
+
+    public void initCompetenceAssessmentsIfNotInitialized(CompetenceProfileData compProfileData) {
+        this.selectedResourceType = LearningResourceType.COMPETENCE;
+        this.selectedCompetenceProfileData = compProfileData;
+        if (!compProfileData.getAssessments().isInitialized()) {
+            try {
+                compProfileData.getAssessments().init(
+                        studentProfileManager.getCompetenceAssessmentsProfileData(compProfileData.getId()));
+            } catch (DbConnectionException e) {
+                logger.error("error", e);
+                PageUtil.fireErrorMessage("Error loading the data");
+            }
+        }
+    }
 
 	public void prepareAddingCredentials() {
 		try {
@@ -296,4 +325,25 @@ public class ProfileBean {
 				? selectedCompetenceProfileData.getEvidence().getData()
 				: Collections.emptyList();
 	}
+
+	public LearningResourceType getSelectedResourceType() {
+		return selectedResourceType;
+	}
+
+	public List<AssessmentByTypeProfileData> getSelectedResourceAssessmentsByType() {
+		return selectedResourceType != null
+				? selectedResourceType == LearningResourceType.CREDENTIAL
+						? selectedCredentialProfileData.getAssessments().getData()
+						: selectedCompetenceProfileData.getAssessments().getData()
+				: null;
+	}
+
+	public boolean isAssessmentTabInitiallyActive(AssessmentType type) {
+	    List<AssessmentByTypeProfileData> assessments = getSelectedResourceAssessmentsByType();
+	    if (assessments != null && !assessments.isEmpty()) {
+	        return assessments.get(0).getAssessmentType() == type;
+        }
+	    return false;
+    }
+
 }
