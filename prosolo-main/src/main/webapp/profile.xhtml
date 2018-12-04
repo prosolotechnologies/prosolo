@@ -295,12 +295,12 @@
                 </h:panelGroup>
                 <div class="col-md-4">
                     <div class="sidebarBlock">
-                        <div class="whiteBox paddingNone sidebarProfileStats">
+                        <h:panelGroup layout="block" id="panelStats" styleClass="whiteBox paddingNone sidebarProfileStats">
                             <table>
                                 <tr class="row01">
                                     <td class="col01">
                                         <div class="line01">
-                                            00
+                                            #{profileBean.getFormattedStatsNumber(profileBean.profileSummaryData.numberOfCompletedCredentials)}
                                         </div>
                                         <div class="line02">
                                             Completed<br/>#{msg['label.credential.plural']}
@@ -308,7 +308,7 @@
                                     </td>
                                     <td class="col02">
                                         <div class="line01">
-                                            00
+                                            #{profileBean.getFormattedStatsNumber(profileBean.profileSummaryData.numberOfCompletedCompetencies)}
                                         </div>
                                         <div class="line02">
                                             Completed<br/>#{msg['label.competence.plural']}
@@ -318,7 +318,7 @@
                                 <tr class="row02">
                                     <td class="col01">
                                         <div class="line01">
-                                            00
+                                            #{profileBean.getFormattedStatsNumber(profileBean.profileSummaryData.numberOfAssessments)}
                                         </div>
                                         <div class="line02">
                                             Assessments
@@ -326,7 +326,7 @@
                                     </td>
                                     <td class="col02">
                                         <div class="line01">
-                                            00
+                                            #{profileBean.getFormattedStatsNumber(profileBean.profileSummaryData.numberOfPiecesOfEvidence)}
                                         </div>
                                         <div class="line02">
                                             Pieces of Evidence
@@ -334,7 +334,7 @@
                                     </td>
                                 </tr>
                             </table>
-                        </div>
+                        </h:panelGroup>
                     </div>
                 </div>
             </div>
@@ -349,23 +349,31 @@
                             <h2 class="modal-title" id="addStandardModal">Add #{msg['label.credential']}</h2>
                         </div>
                         <div class="modal-body alignLeft">
-                            <p>Select #{msg['label.credential.plural'].toLowerCase()} that you want to display on your profile page:</p>
+                            <ui:fragment rendered="#{not empty profileBean.credentialsToAdd}">
+                                <p>Select #{msg['label.credential.plural'].toLowerCase()} that you want to display on your profile page:</p>
+                            </ui:fragment>
+                            <ui:fragment rendered="#{empty profileBean.credentialsToAdd}">
+                                    <p>No #{msg['label.credential.plural'].toLowerCase()} available to add</p>
+                            </ui:fragment>
                             <ui:repeat value="#{profileBean.credentialsToAdd}" var="cred">
                                 <div class="checkbox checkLine">
                                     <h:selectBooleanCheckbox id="checkStandard1" value="#{cred.selected}"/>
                                     <h:outputLabel for="checkStandard1" value="#{cred.data.title}"/>
                                 </div>
                             </ui:repeat>
-                            <div class="bottom30 top20">
-                                <small>Note: Approved assessments and evidence are not displayed by default. You can select which of them you want to display by choosing the “Edit” option for a #{msg['label.credential'].toLowerCase()}.</small>
-                            </div>
+                            <ui:fragment rendered="#{not empty profileBean.credentialsToAdd}">
+                                <div class="bottom30 top20">
+                                    <small>Note: Approved assessments and evidence are not displayed by default. You can select which of them you want to display by choosing the “Edit” option for a #{msg['label.credential'].toLowerCase()}.</small>
+                                </div>
+                            </ui:fragment>
                         </div>
                         <div class="modal-footer alignLeft">
                             <utilcomp:singleClickLink
+                                    rendered="#{not empty profileBean.credentialsToAdd}"
                                     styleClass="btn btn-green"
                                     value="Add"
                                     action="#{profileBean.addCredentials()}"
-                                    update="profileGrowl panelCredentials"
+                                    update="profileGrowl panelCredentials panelStats"
                                     oncomplete="$('#addStandard').modal('hide');"
                             />
                             <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
@@ -497,6 +505,11 @@
                                 <p>Select approved #{msg['label.assessment.type.INSTRUCTOR_ASSESSMENT.short'].toLowerCase()}, #{msg['label.assessment.type.PEER_ASSESSMENT.short'].toLowerCase()} or #{msg['label.assessment.type.SELF_ASSESSMENT.short'].toLowerCase()} assessments for the #{msg['label.credential'].toLowerCase()} you want to be displayed on your profile:</p>
 
                                 <div class="standardInModal bottom30">
+                                    <ui:fragment rendered="#{profileBean.totalNumberOfCredentialAssessmentsAvailableToAdd eq 0}">
+                                        <div class="assessmentItem">
+                                            No approved #{msg['label.credential'].toLowerCase()} assessments
+                                        </div>
+                                    </ui:fragment>
                                     <ui:repeat value="#{profileBean.credentialForEdit.assessments}" var="assessmentType" varStatus="status">
                                         <ui:fragment rendered="#{not empty assessmentType.assessments}">
                                             <div class="checkbox checkLine">
@@ -559,6 +572,11 @@
                                 <ui:repeat value="#{profileBean.credentialForEdit.competences}" var="comp" varStatus="status">
                                     <div class="standardInModal bottom30">
                                         <h3>#{comp.title}</h3>
+                                        <ui:fragment rendered="#{empty comp.evidence}">
+                                            <div class="evidence">
+                                                No evidence
+                                            </div>
+                                        </ui:fragment>
                                         <ui:fragment rendered="#{not empty comp.evidence}">
                                             <div class="checkbox checkLine">
                                                 <input type="checkbox" id="checkPiecesOfEvidence_comp#{comp.targetCompetenceId}_ind_#{status.index}"></input>
@@ -590,6 +608,11 @@
                                                         bindCheckAllOnclick('checkPiecesOfEvidence_comp#{comp.targetCompetenceId}_ind_#{status.index}');
                                                     </script>
                                                 </ui:repeat>
+                                            </div>
+                                        </ui:fragment>
+                                        <ui:fragment rendered="#{profileBean.getTotalNumberOfCompetenceAssessmentsAvailableToAdd(comp) eq 0}">
+                                            <div class="assessmentItem">
+                                                No approved #{msg['label.competence'].toLowerCase()} assessments
                                             </div>
                                         </ui:fragment>
                                         <ui:repeat value="#{comp.assessments}" var="assessmentType" varStatus="status">
@@ -651,12 +674,12 @@
                         </div>
                         <ui:fragment rendered="#{not empty profileBean.credentialForEdit}">
                             <div class="modal-footer alignLeft">
-                                <p:commandLink
+                                <utilcomp:singleClickLink
                                         id="linkUpdateCred"
                                         styleClass="btn btn-green"
                                         value="Done"
                                         action="#{profileBean.updateCredentialProfileOptions()}"
-                                        update="profileGrowl panelCredentials"
+                                        update="profileGrowl panelCredentials panelStats"
                                         oncomplete="$('#editStandard').modal('hide');"
                                 />
                                 <p:defaultCommand target="linkUpdateCred"/>
@@ -679,12 +702,12 @@
                         <p>Are you sure you want to remove this #{msg['label.credential'].toLowerCase()} from your profile page?</p>
                     </div>
                     <div class="modal-footer">
-                        <p:commandLink
-                            styleClass="btn btn-red"
-                            value="Remove"
-                            action="#{profileBean.removeCredentialFromProfile()}"
-                            update="profileGrowl panelCredentials"
-                            oncomplete="$('#removeStandard').modal('hide');"
+                        <utilcomp:singleClickLink
+                                styleClass="btn btn-red"
+                                value="Remove"
+                                action="#{profileBean.removeCredentialFromProfile()}"
+                                update="profileGrowl panelCredentials panelStats"
+                                oncomplete="$('#removeStandard').modal('hide');"
                         />
                         <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
                     </div>

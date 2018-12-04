@@ -63,7 +63,7 @@ public class StudentProfileManagerImpl extends AbstractManagerImpl implements St
                 return Optional.empty();
             } else {
                 UserSocialNetworksData userSocialNetworkData = socialNetworksManager.getUserSocialNetworkData(userId);
-                return Optional.of(new StudentProfileData(userData, userSocialNetworkData, null, getCredentialProfileData(userId)));
+                return Optional.of(new StudentProfileData(userData, userSocialNetworkData, getProfileLearningData(userId)));
             }
         } catch (DbConnectionException e) {
             logger.error("error", e);
@@ -76,6 +76,49 @@ public class StudentProfileManagerImpl extends AbstractManagerImpl implements St
 
     @Override
     @Transactional(readOnly = true)
+    public ProfileLearningData getProfileLearningData(long userId) {
+        return new ProfileLearningData(
+                getProfileSummaryData(userId),
+                getCredentialProfileData(userId));
+    }
+
+    private ProfileSummaryData getProfileSummaryData(long userId) {
+        try {
+            String query =
+                    "SELECT type(conf), count(conf.id) FROM StudentProfileConfig conf " +
+                            "WHERE conf.student.id = :userId " +
+                            "GROUP BY type(conf)";
+            List<Object[]> counts = (List<Object[]>) persistence.currentManager()
+                    .createQuery(query)
+                    .setLong("userId", userId)
+                    .list();
+
+            long numberOfCompletedCredentials = 0;
+            long numberOfCompletedCompetences = 0;
+            long numberOfCredentialAssessments = 0;
+            long numberOfCompetenceAssessments = 0;
+            long numberOfPiecesOfEvidence = 0;
+            for (Object[] row : counts) {
+                Class<? extends StudentProfileConfig> confClass = (Class<? extends StudentProfileConfig>) row[0];
+                if (confClass == CredentialProfileConfig.class) {
+                    numberOfCompletedCredentials = (long) row[1];
+                } else if (confClass == CompetenceProfileConfig.class) {
+                    numberOfCompletedCompetences = (long) row[1];
+                } else if (confClass == CredentialAssessmentProfileConfig.class) {
+                    numberOfCredentialAssessments = (long) row[1];
+                } else if (confClass == CompetenceAssessmentProfileConfig.class) {
+                    numberOfCompetenceAssessments = (long) row[1];
+                } else if (confClass == CompetenceEvidenceProfileConfig.class) {
+                    numberOfPiecesOfEvidence = (long) row[1];
+                }
+            }
+            return new ProfileSummaryData(numberOfCompletedCredentials, numberOfCompletedCompetences, numberOfCredentialAssessments + numberOfCompetenceAssessments, numberOfPiecesOfEvidence);
+        } catch (Exception e) {
+            logger.error("error", e);
+            throw new DbConnectionException("Error loading profile summary data");
+        }
+    }
+
     public List<CategorizedCredentialsProfileData> getCredentialProfileData(long userId) {
         try {
             String query =
@@ -214,12 +257,14 @@ public class StudentProfileManagerImpl extends AbstractManagerImpl implements St
                 config.getTargetCredential().getCredential().getId(),
                 config.getStudent().getId());
         for (TargetCompetence1 tc : targetCompetences) {
-            CompetenceProfileConfig competenceProfileConfig = new CompetenceProfileConfig();
-            competenceProfileConfig.setTargetCredential(config.getTargetCredential());
-            competenceProfileConfig.setStudent(config.getStudent());
-            competenceProfileConfig.setCredentialProfileConfig(config);
-            competenceProfileConfig.setTargetCompetence(tc);
-            saveEntity(competenceProfileConfig);
+            if (tc.getProgress() == 100) {
+                CompetenceProfileConfig competenceProfileConfig = new CompetenceProfileConfig();
+                competenceProfileConfig.setTargetCredential(config.getTargetCredential());
+                competenceProfileConfig.setStudent(config.getStudent());
+                competenceProfileConfig.setCredentialProfileConfig(config);
+                competenceProfileConfig.setTargetCompetence(tc);
+                saveEntity(competenceProfileConfig);
+            }
         }
     }
 

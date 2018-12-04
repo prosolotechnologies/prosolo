@@ -6,7 +6,6 @@ import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.messaging.Message;
-import org.prosolo.common.domainmodel.studentprofile.CompetenceProfileConfig;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.services.common.data.SelectableData;
 import org.prosolo.services.interaction.MessagingManager;
@@ -181,7 +180,7 @@ public class ProfileBean {
 	private boolean refreshProfile() {
 		//reload credentials
 		try {
-			studentProfileData.setCredentialProfileData(studentProfileManager.getCredentialProfileData(ownerOfAProfileUserId));
+			studentProfileData.setProfileLearningData(studentProfileManager.getProfileLearningData(ownerOfAProfileUserId));
 			return true;
 		} catch (Exception e) {
 			logger.error("error", e);
@@ -215,6 +214,22 @@ public class ProfileBean {
 			logger.error("error", e);
 			PageUtil.fireErrorMessage("Error loading the data");
 		}
+	}
+
+	public int getTotalNumberOfCredentialAssessmentsAvailableToAdd() {
+		return getTotalNumberOfAssessmentsAvailableToAdd(
+				credentialForEdit != null ? credentialForEdit.getAssessments() : Collections.emptyList());
+	}
+
+	public int getTotalNumberOfCompetenceAssessmentsAvailableToAdd(CompetenceProfileOptionsData competenceProfileOptionsData) {
+		return getTotalNumberOfAssessmentsAvailableToAdd(competenceProfileOptionsData.getAssessments());
+	}
+
+	private int getTotalNumberOfAssessmentsAvailableToAdd(List<AssessmentByTypeProfileOptionsData> assessments) {
+		return assessments
+				.stream()
+				.mapToInt(assessmentByType -> assessmentByType.getAssessments().size())
+				.sum();
 	}
 
 	public void updateCredentialProfileOptions() {
@@ -305,8 +320,12 @@ public class ProfileBean {
 	}
 
 	public List<CategorizedCredentialsProfileData> getCredentialProfileData() {
-	    return studentProfileData != null ? studentProfileData.getCredentialProfileData() : null;
+	    return studentProfileData != null ? studentProfileData.getProfileLearningData().getCredentialProfileData() : null;
     }
+
+	public ProfileSummaryData getProfileSummaryData() {
+		return studentProfileData != null ? studentProfileData.getProfileLearningData().getProfileSummaryData() : null;
+	}
 
 	public CredentialProfileOptionsData getCredentialForEdit() {
 		return credentialForEdit;
@@ -344,6 +363,10 @@ public class ProfileBean {
 	        return assessments.get(0).getAssessmentType() == type;
         }
 	    return false;
+    }
+
+    public String getFormattedStatsNumber(long number) {
+        return String.format("%02d", number);
     }
 
 }

@@ -25,12 +25,13 @@ public interface StudentProfileManager extends AbstractManager {
     Optional<StudentProfileData> getStudentProfileData(long userId);
 
     /**
-     * Returns credential profile data grouped by credential category for the given user
+     * Returns student profile learning data
      *
      * @param userId
      * @return
+     * @throws DbConnectionException
      */
-    List<CategorizedCredentialsProfileData> getCredentialProfileData(long userId);
+    ProfileLearningData getProfileLearningData(long userId);
 
     /**
      * Adds credentials from the passed list to the profile of a user with given id
