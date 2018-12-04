@@ -36,8 +36,13 @@
 						<h:outputText rendered="#{not cc.attrs.titleIsClickable}" value="#{cc.attrs.evidence.title}" />
 					</h3>
 				</div>
-				<c:if test="#{cc.attrs.showEvidenceManagementOptions}">
-					<div class="evidenceTopRight">
+				<div class="evidenceTopRight">
+					<utilcomp:convertTimeOutput
+							millis="#{cc.attrs.evidence.dateCreated}"
+							format="MMM DD, YYYY"
+					/>
+
+					<c:if test="#{cc.attrs.showEvidenceManagementOptions}">
 						<h:panelGroup layout="block" rendered="#{cc.attrs.canEdit}" styleClass="dropdown optMoreMenu">
 							<a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">options menu</a>
 							<ul class="dropdown-menu bullet pull-center" aria-labelledby="dropdownMenu2">
@@ -59,12 +64,14 @@
 						<ui:fragment rendered="#{cc.attrs.evidence.type ne 'TEXT'}">
 							<a href="#{cc.attrs.evidence.url}" target="_blank" class="btn btn-green btn-sm">#{cc.attrs.evidence.type eq 'LINK' ? 'Open' : 'Download'}</a>
 						</ui:fragment>
-					</div>
-				</c:if>
+					</c:if>
+				</div>
 			</div>
-			<c:if test="#{cc.attrs.showDetails}">
-				<p><h:outputText escape="false" value="#{cc.attrs.evidence.text}"/></p>
-			</c:if>
+
+			<span class="#{!cc.attrs.showDetails ? 'textLimit4' : ''}">
+				<h:outputText escape="false" value="#{cc.attrs.evidence.text}"/>
+			</span>
+
 			<table>
 				<ui:fragment rendered="#{cc.attrs.showCompetences}">
 					<tr>
@@ -101,15 +108,6 @@
 								<li>#{kw}</li>
 							</ui:repeat>
 						</ul>
-					</td>
-				</tr>
-				<tr>
-					<td class="col01">Created:</td>
-					<td>
-						<utilcomp:convertTimeOutput
-								millis="#{cc.attrs.evidence.dateCreated}"
-								format="MMM DD, YYYY"
-						/>
 					</td>
 				</tr>
 			</table>

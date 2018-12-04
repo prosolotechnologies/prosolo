@@ -97,6 +97,11 @@
 											</h3>
 										</div>
 										<div class="evidenceTopRight">
+											<utilcomp:convertTimeOutput
+													millis="#{ev.dateCreated}"
+													format="MMM DD, YYYY"
+											/>
+
 											<div class="dropdown optMoreMenu">
 												<a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">options menu</a>
 												<ul class="dropdown-menu bullet pull-center" aria-labelledby="dropdownMenu2">
@@ -115,8 +120,28 @@
 											</ui:fragment>
 										</div>
 									</div>
-									<p><h:outputText escape="false" value="#{ev.text}"/></p>
+
+									<span class="textLimit4">
+										<h:outputText escape="false" value="#{ev.text}"/>
+									</span>
+
 									<table>
+										<tr>
+											<td class="col01">In #{msg['label.competence.plural']}:</td>
+											<td>
+												<ui:fragment rendered="#{empty ev.competences}">
+													<span class="lightText">no #{msg['label.competence.plural'].toLowerCase()}</span>
+												</ui:fragment>
+												<ui:repeat value="#{ev.competences}" var="c" varStatus="status">
+													<h:link outcome="/competence"
+															value="#{c.title}">
+														<f:param name="compId" value="#{util:encodeId(c.id)}"/>
+													</h:link>
+													- #{c.description}
+													<ui:fragment rendered="#{status.index + 1 ne ev.competences.size()}"><br/></ui:fragment>
+												</ui:repeat>
+											</td>
+										</tr>
 										<tr>
 											<td class="col01">Keywords:</td>
 											<td>
@@ -129,19 +154,6 @@
 													</ui:repeat>
 												</ul>
 											</td>
-										</tr>
-										<tr>
-											<td class="col01">Added:</td>
-											<td>
-												<utilcomp:convertTimeOutput
-														millis="#{ev.dateAttached}"
-														format="MMM DD, YYYY"
-												/>
-											</td>
-										</tr>
-										<tr>
-										    <td class="col01">Relation:</td>
-											<td>#{ev.relationToCompetence}</td>
 										</tr>
 									</table>
 								</div>

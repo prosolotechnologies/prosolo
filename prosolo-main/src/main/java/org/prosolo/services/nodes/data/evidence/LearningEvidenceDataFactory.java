@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 @Component
 public class LearningEvidenceDataFactory {
 
-    public LearningEvidenceData getCompetenceLearningEvidenceData(LearningEvidence evidence, CompetenceEvidence compEvidence, Set<Tag> tags) {
+    public LearningEvidenceData getLearningEvidenceData(LearningEvidence evidence, CompetenceEvidence competenceEvidence, Set<Tag> tags, List<BasicObjectInfo> competences) {
         LearningEvidenceData evidenceData = new LearningEvidenceData();
         evidenceData.setId(evidence.getId());
         evidenceData.setUserId(evidence.getUser().getId());
@@ -34,19 +34,15 @@ public class LearningEvidenceDataFactory {
         evidenceData.setUrl(evidence.getUrl());
         evidenceData.setDateCreated(DateUtil.getMillisFromDate(evidence.getDateCreated()));
 
-        if (compEvidence != null) {
-            evidenceData.setCompetenceEvidenceId(compEvidence.getId());
-            evidenceData.setDateAttached(DateUtil.getMillisFromDate(compEvidence.getDateCreated()));
-            evidenceData.setRelationToCompetence(compEvidence.getDescription());
+        if (competenceEvidence != null) {
+            evidenceData.setCompetenceEvidenceId(competenceEvidence.getId());
+            evidenceData.setDateAttached(DateUtil.getMillisFromDate(competenceEvidence.getDateCreated()));
+            evidenceData.setRelationToCompetence(competenceEvidence.getDescription());
+        }
+
+        if (competences != null) {
+            evidenceData.addCompetences(competences);
         }
         return evidenceData;
-    }
-
-    public LearningEvidenceData getLearningEvidenceData(LearningEvidence evidence, Set<Tag> tags, List<BasicObjectInfo> competences) {
-        LearningEvidenceData ev = getCompetenceLearningEvidenceData(evidence, null, tags);
-        if (competences != null) {
-            ev.addCompetences(competences);
-        }
-        return ev;
     }
 }

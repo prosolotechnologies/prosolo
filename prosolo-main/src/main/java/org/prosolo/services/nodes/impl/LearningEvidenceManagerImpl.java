@@ -72,7 +72,8 @@ public class LearningEvidenceManagerImpl extends AbstractManagerImpl implements 
             }
 
             CompetenceEvidence ce = attachEvidenceToCompetence(targetCompId, ev, evidence.getRelationToCompetence());
-            res.setResult(learningEvidenceDataFactory.getCompetenceLearningEvidenceData(ev, ce, ev.getTags()));
+
+            res.setResult(learningEvidenceDataFactory.getLearningEvidenceData(ev, ce, ev.getTags(), getCompetencesWithAddedEvidence(evidence.getId())));
             return res;
         } catch (DbConnectionException|ConstraintViolationException|DataIntegrityViolationException e) {
             throw e;
@@ -170,8 +171,8 @@ public class LearningEvidenceManagerImpl extends AbstractManagerImpl implements 
                     .list();
             List<LearningEvidenceData> evidenceData = new ArrayList<>();
             for (CompetenceEvidence ce : evidence) {
-                evidenceData.add(learningEvidenceDataFactory.getCompetenceLearningEvidenceData(
-                        ce.getEvidence(), ce, loadTags ? ce.getEvidence().getTags() : null));
+                evidenceData.add(learningEvidenceDataFactory.getLearningEvidenceData(
+                        ce.getEvidence(), ce, loadTags ? ce.getEvidence().getTags() : null, getCompetencesWithAddedEvidence(ce.getEvidence().getId())));
             }
             return evidenceData;
         } catch (Exception e) {
@@ -222,7 +223,7 @@ public class LearningEvidenceManagerImpl extends AbstractManagerImpl implements 
     public LearningEvidenceData getLearningEvidence(long evidenceId) throws DbConnectionException {
         try {
             LearningEvidence le = (LearningEvidence) persistence.currentManager().load(LearningEvidence.class, evidenceId);
-            return learningEvidenceDataFactory.getLearningEvidenceData(le, null, null);
+            return learningEvidenceDataFactory.getLearningEvidenceData(le, null, null, null);
         } catch (Exception e) {
             logger.error("Error", e);
             throw new DbConnectionException("Error loading the evidence");
@@ -262,7 +263,7 @@ public class LearningEvidenceManagerImpl extends AbstractManagerImpl implements 
                 .list();
 
         return evidences.stream()
-                .map(ev -> learningEvidenceDataFactory.getLearningEvidenceData(ev, ev.getTags(), getCompetencesWithAddedEvidence(ev.getId())))
+                .map(ev -> learningEvidenceDataFactory.getLearningEvidenceData(ev, null, ev.getTags(), getCompetencesWithAddedEvidence(ev.getId())))
                 .collect(Collectors.toList());
     }
 
@@ -356,7 +357,7 @@ public class LearningEvidenceManagerImpl extends AbstractManagerImpl implements 
 
             Set<Tag> tags = loadTags ? evidence.getTags() : null;
             List<BasicObjectInfo> competences = loadCompetencesWithEvidence ? getCompetencesWithAddedEvidence(evidence.getId()) : Collections.emptyList();
-            return learningEvidenceDataFactory.getLearningEvidenceData(evidence, tags, competences);
+            return learningEvidenceDataFactory.getLearningEvidenceData(evidence, null, tags, competences);
         } catch (Exception e) {
             logger.error("Error", e);
             throw new DbConnectionException("Error loading the learning evidence");
