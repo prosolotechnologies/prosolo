@@ -89,13 +89,7 @@ public class CredentialProfileDataFactory extends ProfileDataFactory {
     }
 
     public CompetenceEvidenceProfileData getCompetenceEvidenceProfileData(CompetenceEvidenceProfileConfig competenceEvidenceProfileConfig) {
-        return new CompetenceEvidenceProfileData(
-                competenceEvidenceProfileConfig.getCompetenceEvidence().getEvidence().getId(),
-                competenceEvidenceProfileConfig.getCompetenceEvidence().getId(),
-                competenceEvidenceProfileConfig.getCompetenceEvidence().getEvidence().getTitle(),
-                competenceEvidenceProfileConfig.getCompetenceEvidence().getEvidence().getType(),
-                competenceEvidenceProfileConfig.getCompetenceEvidence().getEvidence().getUrl(),
-                DateUtil.getMillisFromDate(competenceEvidenceProfileConfig.getCompetenceEvidence().getDateCreated()));
+        return getCompetenceEvidenceProfileData(competenceEvidenceProfileConfig.getCompetenceEvidence());
     }
 
     public List<AssessmentByTypeProfileData> getCredentialAssessmentsProfileData(List<CredentialAssessmentProfileConfig> assessmentProfileConfigs) {

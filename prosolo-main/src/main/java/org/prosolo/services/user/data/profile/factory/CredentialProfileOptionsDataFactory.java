@@ -96,13 +96,7 @@ public class CredentialProfileOptionsDataFactory extends ProfileDataFactory {
         List<SelectableData<CompetenceEvidenceProfileData>> evidence = new ArrayList<>();
         for (CompetenceEvidence ce : evidences) {
             evidence.add(new SelectableData<>(
-                    new CompetenceEvidenceProfileData(
-                        ce.getEvidence().getId(),
-                        ce.getId(),
-                        ce.getEvidence().getTitle(),
-                        ce.getEvidence().getType(),
-                        ce.getEvidence().getUrl(),
-                        DateUtil.getMillisFromDate(ce.getDateCreated())),
+                    getCompetenceEvidenceProfileData(ce),
                     evidenceProfileConfigs.stream().filter(conf -> conf.getCompetenceEvidence().getId() == ce.getId()).findFirst().isPresent()));
         }
         return evidence;

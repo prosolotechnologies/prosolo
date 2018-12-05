@@ -369,4 +369,7 @@ public class ProfileBean {
         return String.format("%02d", number);
     }
 
+	public long getOwnerOfAProfileUserId() {
+		return ownerOfAProfileUserId;
+	}
 }
