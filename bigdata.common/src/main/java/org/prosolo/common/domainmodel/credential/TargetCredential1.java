@@ -26,10 +26,6 @@ public class TargetCredential1 extends BaseEntity {
 	
 	private int progress;
 	
-	private boolean credentialAssessmentsDisplayed;
-	private boolean competenceAssessmentsDisplayed;
-	private boolean evidenceDisplayed;
-	
 	private long nextCompetenceToLearnId;
 	
 	private String finalReview;
@@ -144,33 +140,6 @@ public class TargetCredential1 extends BaseEntity {
 
 	public void setLastAction(Date lastAction) {
 		this.lastAction = lastAction;
-	}
-
-	@Column(columnDefinition = "bit(1) DEFAULT 1")
-	public boolean isCredentialAssessmentsDisplayed() {
-		return credentialAssessmentsDisplayed;
-	}
-
-	public void setCredentialAssessmentsDisplayed(boolean credentialAssessmentsDisplayed) {
-		this.credentialAssessmentsDisplayed = credentialAssessmentsDisplayed;
-	}
-
-	@Column(columnDefinition = "bit(1) DEFAULT 1")
-	public boolean isCompetenceAssessmentsDisplayed() {
-		return competenceAssessmentsDisplayed;
-	}
-
-	public void setCompetenceAssessmentsDisplayed(boolean competenceAssessmentsDisplayed) {
-		this.competenceAssessmentsDisplayed = competenceAssessmentsDisplayed;
-	}
-
-	@Column(columnDefinition = "bit(1) DEFAULT 1")
-	public boolean isEvidenceDisplayed() {
-		return evidenceDisplayed;
-	}
-
-	public void setEvidenceDisplayed(boolean evidenceDisplayed) {
-		this.evidenceDisplayed = evidenceDisplayed;
 	}
 
 	@OneToMany(mappedBy = "targetCredential")

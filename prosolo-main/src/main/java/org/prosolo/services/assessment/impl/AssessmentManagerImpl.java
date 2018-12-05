@@ -410,7 +410,6 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		 */
 		if (!shouldCredentialAssessmentDataBeLoaded(assessment, loadConfig)) {
 			AssessmentDataFull data = new AssessmentDataFull();
-			data.setAssessmentDisplayEnabled(assessment.getTargetCredential().isCredentialAssessmentsDisplayed());
 			data.setApproved(assessment.isApproved());
 			data.setTitle(assessment.getTargetCredential().getCredential().getTitle());
 			data.setStudentFullName(assessment.getStudent().getName() + " " + assessment.getStudent().getLastname());
@@ -439,8 +438,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	}
 
 	private boolean shouldCredentialAssessmentDataBeLoaded(CredentialAssessment assessment, AssessmentLoadConfig loadConfig) {
-		return (loadConfig.isLoadDataIfAssessmentNotApproved() || assessment.isApproved())
-				&& (loadConfig.isLoadDataIfStudentDisabledAssessmentDisplay() || assessment.getTargetCredential().isCredentialAssessmentsDisplayed());
+		return (loadConfig.isLoadDataIfAssessmentNotApproved() || assessment.isApproved());
 	}
 
 	//individual credential assessment grade summary

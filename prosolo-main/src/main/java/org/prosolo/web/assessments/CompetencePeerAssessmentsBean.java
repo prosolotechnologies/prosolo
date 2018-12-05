@@ -100,7 +100,7 @@ public abstract class CompetencePeerAssessmentsBean implements Paginable, Serial
 	}
 
 	private boolean shouldLoadOnlyApprovedAssessments() {
-		return getAssessmentDisplayMode() == AssessmentDisplayMode.PUBLIC;
+		return false;
 	}
 
 	public boolean isPeerAssessmentEnabled() {

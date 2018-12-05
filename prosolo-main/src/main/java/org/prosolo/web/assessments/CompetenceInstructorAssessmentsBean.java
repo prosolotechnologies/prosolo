@@ -45,7 +45,7 @@ public abstract class CompetenceInstructorAssessmentsBean implements Serializabl
 
 	public void loadInitialAssessmentData() {
 		assessments = assessmentManager.getInstructorCompetenceAssessmentsForStudent(
-				decodedCompId, getStudentId(), getAssessmentDisplayMode() == AssessmentDisplayMode.PUBLIC, new SimpleDateFormat("MMMM dd, yyyy"));
+				decodedCompId, getStudentId(), false, new SimpleDateFormat("MMMM dd, yyyy"));
 		competenceTitle = compManager.getCompetenceTitle(decodedCompId);
 		if (decodedCredId > 0) {
 			credentialTitle = credManager.getCredentialTitle(decodedCredId);

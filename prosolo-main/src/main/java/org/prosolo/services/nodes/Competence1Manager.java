@@ -378,15 +378,6 @@ public interface Competence1Manager {
 										 UserContextData context) throws DbConnectionException;
 
 	List<Tag> getTagsForCompetence(long competenceId) throws DbConnectionException;
-	
-	/**
-	 * Update whether a competence should be visible on the profile or not.
-	 * 
-	 * @param compId
-	 * @param hiddenFromProfile
-	 * @throws DbConnectionException
-	 */
-	void updateHiddenTargetCompetenceFromProfile(long compId, boolean hiddenFromProfile) throws DbConnectionException;
 
 	Result<Void> changeOwnerAndGetEvents(long compId, long newOwnerId, UserContextData context) throws DbConnectionException;
 
@@ -441,15 +432,6 @@ public interface Competence1Manager {
 	List<AssessmentTypeConfig> getCompetenceAssessmentTypesConfig(long compId, boolean loadBlindAssessmentMode) throws DbConnectionException;
 
 	long getTargetCompetenceId(long compId, long studentId) throws DbConnectionException;
-
-	/**
-	 *
-	 * @param competenceId
-	 * @param studentId
-	 * @return
-	 * @throws DbConnectionException
-	 */
-	boolean isCompetenceAssessmentDisplayEnabled(long competenceId, long studentId);
 
 	/**
 	 * Returns the most restrictive blind assessment mode from all credentials with given competency and for given assessment type

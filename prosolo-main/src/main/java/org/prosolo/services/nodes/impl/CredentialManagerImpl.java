@@ -4039,22 +4039,6 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 	@Override
 	@Transactional
-	public CredentialData getTargetCredentialDataWithEvidencesAndAssessmentCount(long credentialId, long studentId) {
-		try {
-			TargetCredential1 tc = getTargetCredentialForStudentAndCredential(credentialId, studentId, persistence.currentManager());
-			return getTargetCredentialData(credentialId, studentId,
-					CredentialLoadConfig.builder().setLoadCompetences(true).setLoadCreator(true).setLoadStudent(true).setLoadTags(true).setLoadAssessmentCount(tc.isCredentialAssessmentsDisplayed())
-							.setCompetenceLoadConfig(CompetenceLoadConfig.builder().setLoadEvidence(tc.isEvidenceDisplayed()).setLoadAssessmentCount(tc.isCompetenceAssessmentsDisplayed()).create()).create());
-		} catch (DbConnectionException e) {
-			throw e;
-		} catch (Exception e) {
-			logger.error("Error", e);
-			throw new DbConnectionException("Error in method getTargetCredentialDataWithEvidencesAndAssessmentCount");
-		}
-	}
-
-	@Override
-	@Transactional
 	public TargetCredential1 getTargetCredentialForStudentAndCredential(long credentialId, long studentId, Session session) {
 		try {
 			String q =
@@ -4068,61 +4052,6 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		} catch (Exception e) {
 			logger.error("Error", e);
 			throw new DbConnectionException("Error loading target credential");
-		}
-	}
-
-	@Override
-	@Transactional
-	public void updateCredentialAssessmentsVisibility(long targetCredentialId, boolean displayAssessments) {
-		try {
-			TargetCredential1 tc = (TargetCredential1) persistence.currentManager().load(TargetCredential1.class, targetCredentialId);
-			tc.setCredentialAssessmentsDisplayed(displayAssessments);
-		} catch (Exception e) {
-			logger.error("Error", e);
-			throw new DbConnectionException("Error updating credentialAssessmentsDisplayed field of a target credential " + targetCredentialId);
-		}
-	}
-
-	@Override
-	@Transactional
-	public void updateCompetenceAssessmentsVisibility(long targetCredentialId, boolean displayAssessments) {
-		try {
-			TargetCredential1 tc = (TargetCredential1) persistence.currentManager().load(TargetCredential1.class, targetCredentialId);
-			tc.setCompetenceAssessmentsDisplayed(displayAssessments);
-		} catch (Exception e) {
-			logger.error("Error", e);
-			throw new DbConnectionException("Error updating competenceAssessmentsDisplayed field of a target credential " + targetCredentialId);
-		}
-	}
-
-	@Override
-	@Transactional
-	public void updateEvidenceVisibility(long targetCredentialId, boolean displayEvidence) {
-		try {
-			TargetCredential1 tc = (TargetCredential1) persistence.currentManager().load(TargetCredential1.class, targetCredentialId);
-			tc.setEvidenceDisplayed(displayEvidence);
-		} catch (Exception e) {
-			logger.error("Error", e);
-			throw new DbConnectionException("Error updating evidenceDisplayed field of a target credential " + targetCredentialId);
-		}
-	}
-
-	@Override
-	@Transactional (readOnly = true)
-	public boolean isCredentialAssessmentDisplayEnabled(long credId, long studentId) {
-		try {
-			String q =
-					"SELECT tc.credentialAssessmentsDisplayed FROM TargetCredential1 tc " +
-					"WHERE tc.credential.id = :credId AND tc.user.id = :studentId";
-
-			Boolean res = (Boolean) persistence.currentManager().createQuery(q)
-					.setLong("credId", credId)
-					.setLong("studentId", studentId)
-					.uniqueResult();
-			return res != null && res.booleanValue();
-		} catch (Exception e) {
-			logger.error("Error", e);
-			throw new DbConnectionException("Error checking if credential assessment display is enabled");
 		}
 	}
 

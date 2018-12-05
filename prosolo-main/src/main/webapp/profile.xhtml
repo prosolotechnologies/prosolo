@@ -152,8 +152,7 @@
                                     <h2>
                                         <h:link	outcome="/public-credential">
                                             #{cred.title}
-                                            <f:param name="credId" value="#{util:encodeId(cred.credentialId)}"/>
-                                            <f:param name="studentId" value="#{util:encodeId(profileBean.userData.id)}"/>
+                                            <f:param name="id" value="#{util:encodeId(cred.credentialId)}"/>
                                         </h:link>
                                     </h2>
                                     <ui:fragment rendered="#{profileBean.personalProfile}" >
