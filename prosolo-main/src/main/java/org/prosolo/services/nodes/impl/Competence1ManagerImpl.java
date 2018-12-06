@@ -316,42 +316,6 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	}
 
 	@Override
-	public CompetenceData1 enrollInCompetenceAndGetCompetenceData(long compId, long userId, UserContextData context)
-			throws DbConnectionException {
-		Result<CompetenceData1> res = self.enrollInCompetenceGetCompetenceDataAndGetEvents(compId, userId, context);
-		eventFactory.generateEvents(res.getEventQueue());
-		return res.getResult();
-	}
-
-	@Override
-	@Transactional
-	public Result<CompetenceData1> enrollInCompetenceGetCompetenceDataAndGetEvents(long compId, long userId, UserContextData context)
-			throws DbConnectionException {
-		try {
-			Result<TargetCompetence1> res = enrollInCompetenceAndGetEvents(compId, userId, context);
-			TargetCompetence1 targetComp = res.getResult();
-			CompetenceData1 cd = competenceFactory.getCompetenceData(targetComp.getCompetence().getCreatedBy(), 
-					targetComp, 0, targetComp.getCompetence().getAssessmentConfig(), targetComp.getCompetence().getTags(), null, false);
-			
-			if(targetComp.getTargetActivities() != null) {
-				for(TargetActivity1 ta : targetComp.getTargetActivities()) {
-					ActivityData act = activityFactory.getActivityData(ta, null, null, null, false, 0, false);
-					cd.addActivity(act);
-				}
-			}
-			
-			Result<CompetenceData1> result = new Result<>();
-			result.setResult(cd);
-			result.appendEvents(res.getEventQueue());
-			return result;
-		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
-			throw new DbConnectionException("Error while enrolling a competence");
-		}
-	}
-
-	@Override
 	public TargetCompetence1 enrollInCompetence(long compId, long userId, UserContextData context)
 			throws DbConnectionException {
 		Result<TargetCompetence1> res = self.enrollInCompetenceAndGetEvents(compId, userId, context);
@@ -2955,6 +2919,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 					"INNER JOIN cred.assessmentConfig conf " +
 					"WITH conf.assessmentType = :assessmentType " +
 					"WHERE cc.competence.id = :compId " +
+					"AND cred.type = :deliveryType " +
 					"ORDER BY CASE WHEN conf.blindAssessmentMode = :doubleBlindMode THEN 1 WHEN conf.blindAssessmentMode = :blindMode THEN 2 ELSE 3 END";
 
 			return (BlindAssessmentMode) persistence.currentManager()
@@ -2963,6 +2928,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 					.setString("assessmentType", assessmentType.name())
 					.setString("doubleBlindMode", BlindAssessmentMode.DOUBLE_BLIND.name())
 					.setString("blindMode", BlindAssessmentMode.BLIND.name())
+					.setString("deliveryType", CredentialType.Delivery.name())
 					.setMaxResults(1)
 					.uniqueResult();
 		} catch (Exception e) {
