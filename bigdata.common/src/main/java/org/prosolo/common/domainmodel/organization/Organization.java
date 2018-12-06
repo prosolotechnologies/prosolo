@@ -17,7 +17,7 @@ import java.util.Set;
  */
 
 @Entity
-@Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"title"})})
+//unique constraint added from the script
 public class Organization extends BaseEntity {
 
 	private static final long serialVersionUID = -144242317896188428L;

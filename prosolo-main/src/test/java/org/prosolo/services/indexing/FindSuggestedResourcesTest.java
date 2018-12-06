@@ -32,7 +32,7 @@ public class FindSuggestedResourcesTest {
 		List<RecommendedDocument> foundDocs = new ArrayList<RecommendedDocument>();
 		QueryBuilder qb = null;
 		// create the query
-		qb = QueryBuilders.moreLikeThisQuery("file").likeText(likeText).minTermFreq(1).minDocFreq(1).maxQueryTerms(1);
+		//qb = QueryBuilders.moreLikeThisQuery("file").likeText(likeText).minTermFreq(1).minDocFreq(1).maxQueryTerms(1);
 	/*
 		TermFilterBuilder publicVisibilityTerm = FilterBuilders.termFilter("visibility", "public");
 		TermFilterBuilder privateVisibilityTerm = FilterBuilders.termFilter("visibility", "private");

@@ -1,19 +1,16 @@
 package org.prosolo.common.domainmodel.comment;
 
-import java.util.Date;
-import java.util.List;
-
-import javax.persistence.*;
-
 import org.hibernate.annotations.Type;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
 
+import javax.persistence.*;
+import java.util.Date;
+import java.util.List;
+
 @Entity
-@Table(indexes = {
-		@Index(columnList = "commented_resource_id,resource_type", name = "index_comment1_commented_resource_id_resource_type")
-})
+//index added from the script
 public class Comment1 extends BaseEntity {
 
 	private static final long serialVersionUID = -620642224761542131L;

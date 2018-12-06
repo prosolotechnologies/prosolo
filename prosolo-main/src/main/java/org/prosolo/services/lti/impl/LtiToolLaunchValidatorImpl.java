@@ -19,33 +19,33 @@ public class LtiToolLaunchValidatorImpl implements LtiToolLaunchValidator {
 	@Inject private OauthService oauthService;
 	
 	@Override
-	public void validateLaunch(LtiTool tool, String consumerKey, LtiVersion version, HttpServletRequest request) throws RuntimeException{
+	public void validateLaunch(LtiTool tool, String consumerKey, LtiVersion version, HttpServletRequest request) throws RuntimeException {
 		if (tool == null){
 
 			throw new LtiToolAccessDeniedException();
 		}
-		if(!tool.isEnabled()){
+		if (!tool.isEnabled()){
 			throw new LtiToolDisabledException();
 		}
-		if(tool.isDeleted()){
+		if (tool.isDeleted()) {
 			throw new LtiToolDeletedException();
 		}
 		LtiConsumer consumer = tool.getToolSet().getConsumer();
-		String key = null;
-		String secret = null;
-		if(LtiVersion.V1.equals(version)){
+		String key;
+		String secret;
+		if (LtiVersion.V1.equals(version)){
 			key = consumer.getKeyLtiOne();
 			secret = consumer.getSecretLtiOne();
-		}else{
+		} else {
 			key = consumer.getKeyLtiTwo();
 			secret = consumer.getSecretLtiTwo();
 		}
-		if(consumer == null || !key.equals(consumerKey) ){
+		if (consumer == null || !key.equals(consumerKey) ){
 			throw new LtiToolAccessDeniedException();
 		}
-		try{
+		try {
 			oauthService.validatePostRequest(request, tool.getLaunchUrl(), key, secret);
-		}catch(Exception e){
+		} catch(Exception e) {
 			throw new LtiToolAccessDeniedException();
 		}
 	}

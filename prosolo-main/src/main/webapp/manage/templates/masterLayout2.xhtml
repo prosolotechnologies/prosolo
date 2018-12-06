@@ -132,10 +132,10 @@
 					</h:panelGroup>
 					
 					<h:form id="messagePollingForm">
-						<p:poll interval="#{topInboxBean.refreshRate}" 
+						<p:poll interval="#{topInboxBean.refreshRate}"
 							process="@this"
-							update=":messagesLink :unreadNotificationsDot :notificationsContainer" 
-							widgetVar="messagesPoll" 
+							update=":messagesLink :unreadNotificationsDot :notificationsContainer"
+							widgetVar="messagesPoll"
 							autoStart="true" />
 					</h:form>
 					

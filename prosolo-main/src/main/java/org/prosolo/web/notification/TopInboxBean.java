@@ -1,34 +1,45 @@
 package org.prosolo.web.notification;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.annotation.PostConstruct;
-import javax.faces.bean.ManagedBean;
-import javax.faces.context.FacesContext;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.log4j.Logger;
 import org.prosolo.app.Settings;
 import org.prosolo.common.domainmodel.messaging.MessageThread;
+import org.prosolo.services.authentication.annotations.AuthenticationChangeType;
+import org.prosolo.services.authentication.annotations.SessionAttributeScope;
 import org.prosolo.services.interaction.MessagingManager;
 import org.prosolo.web.LoggedUserBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
+import javax.faces.bean.ManagedBean;
+import javax.faces.context.FacesContext;
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+
 @ManagedBean(name = "topInboxBean")
 @Component("topInboxBean")
 @Scope("session")
+@SessionAttributeScope(end = AuthenticationChangeType.USER_AUTHENTICATION_CHANGE)
 public class TopInboxBean implements Serializable {
 
 	private static final long serialVersionUID = -6523581537208723654L;
 	protected static Logger logger = Logger.getLogger(TopInboxBean.class);
 
+	/*
+	store user id to make sure this bean is in sync with user currently logged in.
+
+	There is a small possibility for this bean to be out of sync when user makes two parallel
+	requests (one of them being reauthentication request: LTI, Login as) where with some unlucky timing this bean
+	could hold values for previously authenticated user but this is only theoretical possibility
+	and will probably never happen in practice.
+	 */
+	private long userId;
 	private int refreshRate = Settings.getInstance().config.application.messagesInboxRefreshRate;
-	private List<Long> unreadThreadIds = new ArrayList<>();
+	private List<Long> unreadThreadIds;
 	
 	@Autowired
 	private MessagingManager messagingManager;
@@ -37,13 +48,20 @@ public class TopInboxBean implements Serializable {
 
 	@PostConstruct
 	public void checkUnreadMessages() {
-
-		List<MessageThread> unreadThreads = messagingManager.getUnreadMessageThreads(loggedUser.getUserId());
+		this.userId = loggedUser.getUserId();
+		this.unreadThreadIds =  new ArrayList<>();
+		List<MessageThread> unreadThreads = messagingManager.getUnreadMessageThreads(this.userId);
 
 		if (CollectionUtils.isNotEmpty(unreadThreads)) {
 			for(MessageThread thread : unreadThreads) {
 				unreadThreadIds.add(thread.getId());
 			}
+		}
+	}
+
+	private void refreshDataIfNotInSync() {
+		if (loggedUser.getUserId() != this.userId) {
+			checkUnreadMessages();
 		}
 	}
 
@@ -85,6 +103,7 @@ public class TopInboxBean implements Serializable {
 	}
 
 	public List<Long> getUnreadThreadIds() {
+		refreshDataIfNotInSync();
 		return unreadThreadIds;
 	}
 

@@ -105,6 +105,7 @@ public class EventFactory {
 		genericEvent.setActorId(context.getActorId());
 		genericEvent.setOrganizationId(context.getOrganizationId());
 		genericEvent.setSessionId(context.getSessionId());
+		genericEvent.setIpAddress(context.getIpAddress());
 		genericEvent.setDateCreated(new Date());
 		genericEvent.setObject(object);
 		genericEvent.setTarget(target);

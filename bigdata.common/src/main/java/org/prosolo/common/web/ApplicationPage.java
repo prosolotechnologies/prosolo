@@ -51,7 +51,6 @@ public enum ApplicationPage {
 	ANNOUNCEMENT("/announcement.xhtml"),
 	ASSESSMENT("/assessments.xhtml"),
 	//STUDENT_REASSIGN("/manage/credential-instructors-reassign.xhtml"),
-	LTI_PROVIDER_LAUNCH("/ltiproviderlaunch.xhtml"),
 	//COMPETENCE_ACTIVITIES("/manage/competence-activities.xhtml"),
 	EMAIL("/email.xhtml"),
 	USER_CREDENTIAL("/credential.xhtml"),

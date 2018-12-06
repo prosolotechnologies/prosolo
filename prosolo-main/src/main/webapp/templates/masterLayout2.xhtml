@@ -128,10 +128,10 @@
 					</ui:remove>
 
 					<h:form id="messagePollingForm">
-						<p:poll interval="#{topInboxBean.refreshRate}" 
+						<p:poll interval="#{topInboxBean.refreshRate}"
 							process="@this"
 							update=":messagesLink :notificationsIcon :notificationsContainer"
-							widgetVar="messagesPoll" 
+							widgetVar="messagesPoll"
 							autoStart="true" />
 					</h:form>
 					
