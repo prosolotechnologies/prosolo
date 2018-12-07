@@ -50,7 +50,7 @@
 				</ui:fragment>
 				<li>
 					<h:link outcome="/admin/units"
-							value="#{util:shortenAndAddCommas(activityViewBeanAdmin.organizationTitle)}">
+							value="#{util:shortenAndAddDots(activityViewBeanAdmin.organizationTitle)}">
 						<f:param name="id" value="#{param.orgId}" />
 					</h:link>
 				</li>
@@ -62,7 +62,7 @@
 				</li>
 				<li>
 					<h:link outcome="/admin/unit-credentials"
-							value="#{util:shortenAndAddCommas(activityViewBeanAdmin.unitTitle)}">
+							value="#{util:shortenAndAddDots(activityViewBeanAdmin.unitTitle)}">
 						<f:param name="id" value="#{param.orgId}" />
 						<f:param name="unitId" value="#{param.unitId}" />
 					</h:link>
@@ -77,7 +77,7 @@
 					</li>
 					<li>
 						<h:link outcome="/admin/credential"
-								value="#{util:shortenAndAddCommas(activityViewBeanAdmin.competenceData.credentialTitle)}">
+								value="#{util:shortenAndAddDots(activityViewBeanAdmin.competenceData.credentialTitle)}">
 							<f:param name="orgId" value="#{param.orgId}"/>
 							<f:param name="unitId" value="#{param.unitId}" />
 							<f:param name="id" value="#{param.credId}" />
@@ -86,14 +86,14 @@
 				</ui:fragment>
 				<li>
 					<h:link outcome="/admin/competence"
-							value="#{util:shortenAndAddCommas(activityViewBeanAdmin.competenceData.title)}">
+							value="#{util:shortenAndAddDots(activityViewBeanAdmin.competenceData.title)}">
 						<f:param name="orgId" value="#{param.orgId}"/>
 						<f:param name="unitId" value="#{param.unitId}" />
 						<f:param name="credId" value="#{param.credId}" disable="#{empty param.credId}"/>
 						<f:param name="compId" value="#{param.compId}" />
 					</h:link>
 				</li>
-				<li class="active">#{util:shortenAndAddCommas(activityViewBeanAdmin.competenceData.activityToShowWithDetails.title)}</li>
+				<li class="active">#{util:shortenAndAddDots(activityViewBeanAdmin.competenceData.activityToShowWithDetails.title)}</li>
 			</ol>
 		</div>
 

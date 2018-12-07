@@ -96,7 +96,7 @@
 	            <li><h:link outcome="credentialLibrary">#{msg['label.credential.plural']}</h:link></li>
 	            <li> 
 	            	<h:link outcome="credential"
-							value="#{util:shortenAndAddCommas(announcementBeanStudent.credentialData.idData.title)}">
+							value="#{util:shortenAndAddDots(announcementBeanStudent.credentialData.idData.title)}">
 						<f:param name="id" value="#{param['id']}"></f:param>
 			        </h:link>
 			    </li>
@@ -105,7 +105,7 @@
 						<f:param name="id" value="#{param['id']}"></f:param>
 					</h:link>
 				</li>
-	            <li class="active">#{util:shortenAndAddCommas(announcementBeanStudent.announcementData.title)}</li>
+	            <li class="active">#{util:shortenAndAddDots(announcementBeanStudent.announcementData.title)}</li>
 	        </ol>
 	    </div>
 	    

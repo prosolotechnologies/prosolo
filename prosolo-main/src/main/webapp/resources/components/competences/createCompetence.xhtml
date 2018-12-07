@@ -43,13 +43,13 @@
 		            	<h:link value="#{msg['label.credential.plural']}" outcome="credentialLibrary"/>
 		            </li>
 		            <li>
-						<h:link value="#{util:shortenAndAddCommas(competenceEditBean.credentialIdData.fullTitle)}"
+						<h:link value="#{util:shortenAndAddDots(competenceEditBean.credentialIdData.fullTitle)}"
 								outcome="/manage/credential-create">
 							<f:param name="id" value="#{param.credId}"></f:param>
 						</h:link>
 		            </li>
 		            <ui:fragment rendered="#{!competenceEditBean.isCreateUseCase()}">
-		            	<li class="active">#{util:shortenAndAddCommas(competenceEditBean.competenceData.title)}</li>
+		            	<li class="active">#{util:shortenAndAddDots(competenceEditBean.competenceData.title)}</li>
 		            </ui:fragment>
 		            <ui:fragment rendered="#{competenceEditBean.isCreateUseCase()}">
 		            	<li class="active">New #{msg['label.competence']}</li>
@@ -62,7 +62,7 @@
 		            	<h:link value="#{msg['label.competence.plural']}" outcome="competenceLibrary"/>
 		            </li> 
 	    			<ui:fragment rendered="#{!competenceEditBean.isCreateUseCase()}">
-		            	<li class="active">#{util:shortenAndAddCommas(competenceEditBean.competenceData.title)}</li>
+		            	<li class="active">#{util:shortenAndAddDots(competenceEditBean.competenceData.title)}</li>
 		            </ui:fragment>
 		            <ui:fragment rendered="#{competenceEditBean.isCreateUseCase()}">
 		            	<li class="active">New #{msg['label.competence']}</li>
@@ -141,7 +141,7 @@
 			                                        <ul class="addedItems">
 			                                        	<ui:repeat var="cred" value="#{competenceEditBean.competenceData.credentialsWithIncludedCompetence}">
 			                                        		<li>
-			                                        			<h:link value="#{util:shortenAndAddCommas(cred.title)}"
+			                                        			<h:link value="#{util:shortenAndAddDots(cred.title)}"
 																		outcome="credential">
 			                                        				<f:param name="id" value="#{util:encodeId(cred.id)}" />
 			                                        			</h:link>

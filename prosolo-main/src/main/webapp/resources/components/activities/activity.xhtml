@@ -80,7 +80,7 @@
 						</li>
 			            <li>
 							<ui:fragment rendered="#{cc.attrs.role eq 'USER'}">
-								<h:link value="#{util:shortenAndAddCommas(cc.attrs.bean.competenceData.credentialTitle)}"
+								<h:link value="#{util:shortenAndAddDots(cc.attrs.bean.competenceData.credentialTitle)}"
 										outcome="/credential"
 										onclick="sendLogPageNavigation('/credential.xhtml',
 																		'#{facesContext.viewRoot.viewId}',
@@ -90,7 +90,7 @@
 								</h:link>
 							</ui:fragment>
 							<ui:fragment rendered="#{cc.attrs.role eq 'MANAGER'}">
-								<h:link value="#{util:shortenAndAddCommas(cc.attrs.bean.credentialIdData.fullTitle)}"
+								<h:link value="#{util:shortenAndAddDots(cc.attrs.bean.credentialIdData.fullTitle)}"
 										outcome="/manage/credential"
 										onclick="sendLogPageNavigation('/manage/credential.xhtml',
 																		'#{facesContext.viewRoot.viewId}',
@@ -101,7 +101,7 @@
 							</ui:fragment>
 			            </li>
 			            <li>
-			            	<h:link value="#{util:shortenAndAddCommas(cc.attrs.bean.competenceData.title)}"
+			            	<h:link value="#{util:shortenAndAddDots(cc.attrs.bean.competenceData.title)}"
 									outcome="competence"
 									onclick="sendLogPageNavigation('/competence.xhtml',
 																	'#{facesContext.viewRoot.viewId}',
@@ -111,7 +111,7 @@
 			            		<f:param name="credId" value="#{param['credId']}"></f:param>
 			            	</h:link>
 			            </li>
-			            <li class="active">#{util:shortenAndAddCommas(cc.attrs.bean.competenceData.activityToShowWithDetails.title)}</li>
+			            <li class="active">#{util:shortenAndAddDots(cc.attrs.bean.competenceData.activityToShowWithDetails.title)}</li>
 			        </ol>
 		    	</ui:fragment>
 		        <ui:fragment rendered="#{cc.attrs.bean.competenceData.credentialId == 0}">
@@ -120,12 +120,12 @@
 		    				<h:link value="#{msg['label.competence.plural']}" outcome="competenceLibrary"/>
 			            </li> 
 		    			<li>
-			            	<h:link value="#{util:shortenAndAddCommas(cc.attrs.bean.competenceData.title)}"
+			            	<h:link value="#{util:shortenAndAddDots(cc.attrs.bean.competenceData.title)}"
 									outcome="competence">
 			            		<f:param name="compId" value="#{param['compId']}"></f:param>  
 			            	</h:link>
 			            </li>         
-			            <li class="active">#{util:shortenAndAddCommas(cc.attrs.bean.competenceData.activityToShowWithDetails.title)}</li>
+			            <li class="active">#{util:shortenAndAddDots(cc.attrs.bean.competenceData.activityToShowWithDetails.title)}</li>
 			        </ol>
 		    	</ui:fragment>
 		    </div>

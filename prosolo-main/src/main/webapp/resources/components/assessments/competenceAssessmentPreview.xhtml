@@ -82,13 +82,13 @@
 						<h:link value="#{msg['label.credential.plural']}" outcome="credentialLibrary"/>
 					</li>
 					<li>
-						<h:link value="#{util:shortenAndAddCommas(competenceAssessmentBean.credentialTitle)}"
+						<h:link value="#{util:shortenAndAddDots(competenceAssessmentBean.credentialTitle)}"
 								outcome="credential">
 							<f:param name="id" value="#{param.credId}"></f:param>
 						</h:link>
 					</li>
 					<li>
-						<h:link value="#{util:shortenAndAddCommas(competenceAssessmentBean.competenceAssessmentData.title)}"
+						<h:link value="#{util:shortenAndAddDots(competenceAssessmentBean.competenceAssessmentData.title)}"
 								outcome="competence">
 							<f:param name="credId" value="#{param.credId}"/>
 							<f:param name="compId" value="#{param.compId}"/>
@@ -107,7 +107,7 @@
 						</h:link>
 					</li>
 					<li>
-						<h:link value="#{util:shortenAndAddCommas(competenceAssessmentBean.competenceAssessmentData.title)}"
+						<h:link value="#{util:shortenAndAddDots(competenceAssessmentBean.competenceAssessmentData.title)}"
 								outcome="competence">
 							<f:param name="compId" value="#{param.compId}"/>
 						</h:link>

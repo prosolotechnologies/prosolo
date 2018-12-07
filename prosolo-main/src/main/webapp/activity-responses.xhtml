@@ -50,7 +50,7 @@
 	            </li>
 	            <li>
 	            	<h:link 
-	            		value="#{util:shortenAndAddCommas(activityResultsBeanUser.competenceData.credentialTitle)}"
+	            		value="#{util:shortenAndAddDots(activityResultsBeanUser.competenceData.credentialTitle)}"
 	            		outcome="/credential"
 	            		onclick="sendLogPageNavigation('/credential.xhtml', 
 													'#{facesContext.viewRoot.viewId}',
@@ -60,7 +60,7 @@
 	            	</h:link>
 	            </li>
 	            <li>
-	            	<h:link value="#{util:shortenAndAddCommas(activityResultsBeanUser.competenceData.title)}"
+	            	<h:link value="#{util:shortenAndAddDots(activityResultsBeanUser.competenceData.title)}"
 							outcome="/competence"
 							onclick="sendLogPageNavigation('/competence.xhtml',
 															'#{facesContext.viewRoot.viewId}',
@@ -71,7 +71,7 @@
 	            	</h:link>
 	            </li>
 	            <li>
-	            	<h:link value="#{util:shortenAndAddCommas(activityResultsBeanUser.competenceData.activityToShowWithDetails.title)}"
+	            	<h:link value="#{util:shortenAndAddDots(activityResultsBeanUser.competenceData.activityToShowWithDetails.title)}"
 							outcome="/activity"
 							onclick="sendLogPageNavigation('/activity.xhtml',
 															'#{facesContext.viewRoot.viewId}',
@@ -93,7 +93,7 @@
     				<h:link value="#{msg['label.competence.plural']}" outcome="competenceLibrary"/>
 	            </li> 
     			<li>
-	            	<h:link value="#{util:shortenAndAddCommas(activityResultsBeanUser.competenceData.title)}"
+	            	<h:link value="#{util:shortenAndAddDots(activityResultsBeanUser.competenceData.title)}"
 							outcome="/competence"
 							onclick="sendLogPageNavigation('/competence.xhtml',
 														'#{facesContext.viewRoot.viewId}',
@@ -103,7 +103,7 @@
 	            	</h:link>
 	            </li>         
 	            <li>
-	            	<h:link value="#{util:shortenAndAddCommas(activityResultsBeanUser.competenceData.activityToShowWithDetails.title)}"
+	            	<h:link value="#{util:shortenAndAddDots(activityResultsBeanUser.competenceData.activityToShowWithDetails.title)}"
 							outcome="/activity"
 							onclick="sendLogPageNavigation('/activity.xhtml',
 															'#{facesContext.viewRoot.viewId}',

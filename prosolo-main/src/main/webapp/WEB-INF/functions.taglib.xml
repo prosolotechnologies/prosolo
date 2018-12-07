@@ -103,9 +103,9 @@
 	</function>
 
 	<function>
-		<function-name>shortenAndAddCommas</function-name>
+		<function-name>shortenAndAddDots</function-name>
 		<function-class>org.prosolo.util.StringUtils</function-class>
-		<function-signature>java.lang.String shortenAndAddCommas(java.lang.String)</function-signature>
+		<function-signature>java.lang.String shortenAndAddDots(java.lang.String)</function-signature>
 	</function>
 
 </facelet-taglib>

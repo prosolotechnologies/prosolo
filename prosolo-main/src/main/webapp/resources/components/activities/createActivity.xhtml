@@ -45,20 +45,20 @@
 				            	<h:link value="#{msg['label.credential.plural']}" outcome="credentialLibrary"/>
 				            </li>
 				            <li>
-								<h:link value="#{util:shortenAndAddCommas(activityEditBean.credentialIdData.fullTitle)}"
+								<h:link value="#{util:shortenAndAddDots(activityEditBean.credentialIdData.fullTitle)}"
 										outcome="/manage/credential-create">
 									<f:param name="id" value="#{param.credId}"></f:param>
 								</h:link>
 				            </li>
 				            <li>
-				            	<h:link value="#{util:shortenAndAddCommas(activityEditBean.activityData.competenceName)}"
+				            	<h:link value="#{util:shortenAndAddDots(activityEditBean.activityData.competenceName)}"
 				            			outcome="create-competence">
 				            		<f:param name="id" value="#{param['compId']}" />
 				            		<f:param name="credId" value="#{param['credId']}" />
 				            	</h:link>
 				            </li>
 				            <ui:fragment rendered="#{!activityEditBean.isCreateUseCase()}">
-				            	<li class="active">#{util:shortenAndAddCommas(activityEditBean.activityData.title)}</li>
+				            	<li class="active">#{util:shortenAndAddDots(activityEditBean.activityData.title)}</li>
 				            </ui:fragment>
 				            <ui:fragment rendered="#{activityEditBean.isCreateUseCase()}">
 				            	<li class="active">New Activity</li>
@@ -71,13 +71,13 @@
 				            	<h:link value="#{msg['label.competence.plural']}" outcome="competenceLibrary"/>
 				            </li> 
 			    			<li>
-				            	<h:link value="#{util:shortenAndAddCommas(activityEditBean.activityData.competenceName)}"
+				            	<h:link value="#{util:shortenAndAddDots(activityEditBean.activityData.competenceName)}"
 				            			outcome="create-competence">
 				            		<f:param name="id" value="#{param['compId']}" />
 				            	</h:link>
 				            </li>
 				            <ui:fragment rendered="#{!activityEditBean.isCreateUseCase()}">
-				            	<li class="active">#{util:shortenAndAddCommas(activityEditBean.activityData.title)}</li>
+				            	<li class="active">#{util:shortenAndAddDots(activityEditBean.activityData.title)}</li>
 				            </ui:fragment>
 				            <ui:fragment rendered="#{activityEditBean.isCreateUseCase()}">
 				            	<li class="active">New Activity</li>

@@ -100,7 +100,7 @@
                 <li>
                     <h:link value="#{msg['label.credential.plural']}" outcome="credentialLibrary"/>
                 </li>
-                <li><h:link value="#{util:shortenAndAddCommas(announcementBeanStudent.credentialData.idData.title)}"
+                <li><h:link value="#{util:shortenAndAddDots(announcementBeanStudent.credentialData.idData.title)}"
                             outcome="credential"
                             onclick="sendLogPageNavigation('/credential.xhtml',
                                         '#{facesContext.viewRoot.viewId}',

@@ -57,9 +57,9 @@ public class StringUtils {
 		return null;
 	}
 
-	public static String shortenAndAddCommas(String str) {
+	public static String shortenAndAddDots(String str) {
 		if (str != null && str.length() > 100) {
-			return str.substring(0, 101) + "...";
+			return str.substring(0, 100) + "...";
 		}
 		return str;
 	}
