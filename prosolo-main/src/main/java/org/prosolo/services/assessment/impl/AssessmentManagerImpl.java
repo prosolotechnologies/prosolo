@@ -1227,6 +1227,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			}
 
 			credentialAssessment.setApproved(true);
+			credentialAssessment.setDateApproved(new Date());
 			credentialAssessment.setReview(reviewText);
 			/*
 			if assessor has notification that he should assess student, this notification is turned off
@@ -1665,32 +1666,35 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		try {
 			Result<Void> result = new Result();
 			CompetenceAssessment competenceAssessment = (CompetenceAssessment) persistence.currentManager().load(CompetenceAssessment.class, competenceAssessmentId);
-			competenceAssessment.setApproved(true);
-			competenceAssessment.setAssessorNotified(false);
-			//if instructor assessment, mark approved competence as completed if not already
-			if (competenceAssessment.getType() == AssessmentType.INSTRUCTOR_ASSESSMENT) {
-				TargetCompetence1 tc = compManager.getTargetCompetence(competenceAssessment.getCompetence().getId(), competenceAssessment.getStudent().getId());
-				if (tc.getProgress() < 100) {
-					result.appendEvents(compManager.completeCompetenceAndGetEvents(tc.getId(), context).getEventQueue());
+			if (!competenceAssessment.isApproved()) {
+				competenceAssessment.setApproved(true);
+				competenceAssessment.setDateApproved(new Date());
+				competenceAssessment.setAssessorNotified(false);
+				//if instructor assessment, mark approved competence as completed if not already
+				if (competenceAssessment.getType() == AssessmentType.INSTRUCTOR_ASSESSMENT) {
+					TargetCompetence1 tc = compManager.getTargetCompetence(competenceAssessment.getCompetence().getId(), competenceAssessment.getStudent().getId());
+					if (tc.getProgress() < 100) {
+						result.appendEvents(compManager.completeCompetenceAndGetEvents(tc.getId(), context).getEventQueue());
+					}
 				}
-			}
 
-			/*
-			 only if request for competence assessment approve is direct we should generate this event
-			 if competence is being approved as a part of approving credential assessment this
-			 event is not generated
+				/*
+				 only if request for competence assessment approve is direct we should generate this event
+				 if competence is being approved as a part of approving credential assessment this
+				 event is not generated
 
-			 TODO event refactor - should we generate this event and filter it out in some other place
-			 or not generate it like we are doing now
-			  */
-			if (directRequestForCompetenceAssessmentApprove) {
-				CompetenceAssessment compAssessmentObj = new CompetenceAssessment();
-				compAssessmentObj.setId(competenceAssessmentId);
-				User student = new User();
-				student.setId(competenceAssessment.getStudent().getId());
+				 TODO event refactor - should we generate this event and filter it out in some other place
+				 or not generate it like we are doing now
+				  */
+				if (directRequestForCompetenceAssessmentApprove) {
+					CompetenceAssessment compAssessmentObj = new CompetenceAssessment();
+					compAssessmentObj.setId(competenceAssessmentId);
+					User student = new User();
+					student.setId(competenceAssessment.getStudent().getId());
 
-				result.appendEvent(eventFactory.generateEventData(EventType.AssessmentApproved, context,
-						compAssessmentObj, student, null, null));
+					result.appendEvent(eventFactory.generateEventData(EventType.AssessmentApproved, context,
+							compAssessmentObj, student, null, null));
+				}
 			}
 			return result;
 		} catch (Exception e) {

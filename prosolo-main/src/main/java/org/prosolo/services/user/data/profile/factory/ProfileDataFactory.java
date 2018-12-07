@@ -26,7 +26,7 @@ public class ProfileDataFactory {
                 ca.getId(),
                 userBasicDataFactory.getBasicUserData(ca.getAssessor()),
                 blindAssessmentMode,
-                DateUtil.getMillisFromDate(ca.getLastAssessment()),
+                DateUtil.getMillisFromDate(ca.getDateApproved()),
                 gradeSummary);
     }
 
@@ -35,7 +35,7 @@ public class ProfileDataFactory {
                 ca.getId(),
                 userBasicDataFactory.getBasicUserData(ca.getAssessor()),
                 blindAssessmentMode,
-                DateUtil.getMillisFromDate(ca.getLastAssessment()),
+                DateUtil.getMillisFromDate(ca.getDateApproved()),
                 gradeSummary);
     }
 

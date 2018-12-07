@@ -20,6 +20,7 @@ public class CredentialAssessment extends BaseEntity {
 	private User student;
 	private TargetCredential1 targetCredential;
 	private boolean approved;
+	private Date dateApproved;
 	private Set<CredentialCompetenceAssessment> competenceAssessments;
 	private AssessmentType type;
 	private boolean assessed;
@@ -177,5 +178,13 @@ public class CredentialAssessment extends BaseEntity {
 
 	public void setAssessed(boolean assessed) {
 		this.assessed = assessed;
+	}
+
+	public Date getDateApproved() {
+		return dateApproved;
+	}
+
+	public void setDateApproved(Date dateApproved) {
+		this.dateApproved = dateApproved;
 	}
 }
