@@ -272,10 +272,6 @@ public class CredentialMembersBean implements Serializable, Paginable {
 		return members;
 	}
 
-	public void setMembers(List<StudentData> members) {
-		this.members = members;
-	}
-
 	public String getSearchTerm() {
 		return searchTerm;
 	}
