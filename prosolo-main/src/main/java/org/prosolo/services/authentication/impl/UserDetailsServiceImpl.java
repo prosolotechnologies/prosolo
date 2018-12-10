@@ -24,7 +24,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 	@Inject private UserAuthenticationService authService;
 
 	@Override
-	@Transactional(readOnly = true)
+	@Transactional
 	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
 		try {
 			logger.debug("Loading user details for the user: " + email);
