@@ -95,7 +95,7 @@
 					</ui:fragment>
 					<li>
 						<h:link outcome="/admin/units">
-							#{usersBean.orgTitle}
+							#{util:shortenAndAddDots(usersBean.orgTitle)}
 							<f:param name="id" value="#{usersBean.orgId}" />
 						</h:link>
 					</li>
