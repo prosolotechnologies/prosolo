@@ -24,7 +24,6 @@ public class CredentialProfileData implements Serializable {
     private final long credentialId;
     private final String title;
     private final String description;
-    private final String duration;
     private final List<String> keywords;
     private final long dateCompleted;
     private final LazyInitData<AssessmentByTypeProfileData> assessments;

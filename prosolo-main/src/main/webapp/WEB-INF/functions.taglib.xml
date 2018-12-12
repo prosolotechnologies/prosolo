@@ -107,6 +107,12 @@
 		<function-class>org.prosolo.web.util.UserIdEncoder</function-class>
 		<function-signature>java.lang.String encodeId(long)</function-signature>
 	</function>
+
+	<function>
+		<function-name>areAllItemsSelected</function-name>
+		<function-class>org.prosolo.web.util.SelectableDataUtil</function-class>
+		<function-signature>boolean areAllItemsSelected(java.util.List)</function-signature>
+	</function>
 	
 	<!-- Components -->
 	
