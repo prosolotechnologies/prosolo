@@ -1,19 +1,23 @@
 package org.prosolo.core.hibernate;
 
-import java.io.Serializable;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-
 import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Example;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.engine.jdbc.connections.spi.ConnectionProvider;
+import org.hibernate.internal.SessionFactoryImpl;
 import org.prosolo.core.persistance.PersistenceManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+
+import javax.sql.DataSource;
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Optional;
 
 @Repository("org.prosolo.core.persistance.PersistenceManager")
 public class HibernatePersistenceManager implements PersistenceManager<Session> {
@@ -210,6 +214,14 @@ public class HibernatePersistenceManager implements PersistenceManager<Session> 
 		sessionFactory.getCache().evictEntityRegions();
 		sessionFactory.getCache().evictQueryRegions();
 		sessionFactory.getCache().evictDefaultQueryRegion();
+	}
+
+	public Optional<DataSource> getDataSource() {
+		ConnectionProvider cp = ((SessionFactoryImpl) sessionFactory).getConnectionProvider();
+		return cp.isUnwrappableAs(DataSource.class)
+				? Optional.of(cp.unwrap(DataSource.class))
+				: Optional.empty();
+
 	}
  
 

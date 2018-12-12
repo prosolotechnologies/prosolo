@@ -168,10 +168,10 @@ public class BusinessCase5_UniSA {
 		User userHelenCampbell = extractResultAndAddEvents(events, createUser(org.getId(), "Helen", "Campbell", "helen.campbell@gmail.com", genericPassword, "Student", "female13.png", roleUser));
 
 		// create 4 instructors
-		User userPhilArmstrong = extractResultAndAddEvents(events, createUser(org.getId(), "Phil", "Armstrong", "phil.armstrong@gmail.com", genericPassword, "Tutor", "male7.png", roleInstructor));
-		User userKarenWhite = extractResultAndAddEvents(events, createUser(org.getId(), "Karen", "White", "karen.white@gmail.com", genericPassword, "Tutor", "female10.png", roleInstructor));
-		User userAnnaHallowell = extractResultAndAddEvents(events, createUser(org.getId(), "Anna", "Hallowell", "anna.hallowell@gmail.com", genericPassword, "Tutor", "female11.png", roleInstructor));
-		User userErikaAmes = extractResultAndAddEvents(events, createUser(org.getId(), "Erika", "Ames", "erika.ames@gmail.com", genericPassword, "Tutor", "female12.png", roleInstructor));
+		User userPhilArmstrong = extractResultAndAddEvents(events, createUser(org.getId(), "Phil", "Armstrong", "phil.armstrong@gmail.com", genericPassword, "Teaching Assistant", "male7.png", roleInstructor));
+		User userKarenWhite = extractResultAndAddEvents(events, createUser(org.getId(), "Karen", "White", "karen.white@gmail.com", genericPassword, "Teaching Assistant", "female10.png", roleInstructor));
+		User userAnnaHallowell = extractResultAndAddEvents(events, createUser(org.getId(), "Anna", "Hallowell", "anna.hallowell@gmail.com", genericPassword, "Teaching Assistant", "female11.png", roleInstructor));
+		User userErikaAmes = extractResultAndAddEvents(events, createUser(org.getId(), "Erika", "Ames", "erika.ames@gmail.com", genericPassword, "Teaching Assistant", "female12.png", roleInstructor));
 
 
 		//////////////////////////////
@@ -567,33 +567,8 @@ public class BusinessCase5_UniSA {
 		//////////////////////////////////
 		// Create Status wall posts
 		//////////////////////////////////
-		SocialActivityData1 newSocialActivity = new SocialActivityData1();
-		newSocialActivity.setText("Market analysis and future prospects of Online Education market.");
-
-		try {
-			LinkParser parser = LinkParserFactory.buildParser(StringUtil.cleanHtml("https://www.marketwatch.com/press-release/online-education-market-2018-top-key-players-k12-inc-pearson-white-hat-managemen-georg-von-holtzbrinck-gmbh-co-2018-08-22"));
-			AttachmentPreview1 attachmentPreview1 = parser.parse();
-			newSocialActivity.setAttachmentPreview(attachmentPreview1);
-		} catch (LinkParserException e) {
-			e.printStackTrace();
-			logger.error("Error", e);
-		}
-
-		PostSocialActivity1 postSocialActivity1 = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(SocialActivityManager.class).createNewPostAndGetEvents(
-				newSocialActivity, createUserContext(userLoriAbner)));
-
-		// HACK: manually add minute to the lastEvent of the postSocialActivity1 so it would be listed on the Status Wall after UnitWelcomePostSocialActivity
-		Session session2 = (Session) ServiceLocator.getInstance().getService(DefaultManager.class).getPersistence().openSession();
-		try {
-			postSocialActivity1 = (PostSocialActivity1) session2.merge(postSocialActivity1);
-			postSocialActivity1.setLastAction(DateUtils.addMinutes(postSocialActivity1.getLastAction(), 5));
-			session2.save(postSocialActivity1);
-		} catch (Exception e) {
-			e.printStackTrace();
-			logger.error("Error", e);
-		} finally {
-			HibernateUtil.close(session2);
-		}
+		createSocialActivity(events, userLoriAbner, "Market analysis and future prospects of Online Education market.", "https://www.marketwatch.com/press-release/online-education-market-2018-top-key-players-k12-inc-pearson-white-hat-managemen-georg-von-holtzbrinck-gmbh-co-2018-08-22");
+		createSocialActivity(events, userHelenCampbell, "", "https://www.teachermagazine.com.au/articles/numeracy-is-everyones-business");
 
 
 		// fire all events
@@ -604,6 +579,37 @@ public class BusinessCase5_UniSA {
 			ServiceLocator.getInstance().getService(BulkDataAdministrationService.class).deleteAndReindexDBESIndexes();
 		} catch (IndexingServiceNotAvailable indexingServiceNotAvailable) {
 			logger.error(indexingServiceNotAvailable);
+		}
+	}
+
+	private void createSocialActivity(EventQueue events, User user, String text, String url) {
+		SocialActivityData1 newSocialActivity = new SocialActivityData1();
+		newSocialActivity.setText(text);
+
+		try {
+			LinkParser parser = LinkParserFactory.buildParser(StringUtil.cleanHtml(url));
+			AttachmentPreview1 attachmentPreview1 = parser.parse();
+			newSocialActivity.setAttachmentPreview(attachmentPreview1);
+		} catch (LinkParserException e) {
+			e.printStackTrace();
+			logger.error("Error", e);
+		}
+
+		PostSocialActivity1 postSocialActivity1 = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(SocialActivityManager.class).createNewPostAndGetEvents(
+				newSocialActivity, createUserContext(user)));
+
+		// HACK: manually add 5 minutes to the lastEvent of the postSocialActivity1 so it would be listed on the Status Wall after UnitWelcomePostSocialActivity
+		Session session2 = (Session) ServiceLocator.getInstance().getService(DefaultManager.class).getPersistence().openSession();
+		try {
+			postSocialActivity1 = (PostSocialActivity1) session2.merge(postSocialActivity1);
+			postSocialActivity1.setLastAction(DateUtils.addMinutes(postSocialActivity1.getLastAction(), 5));
+			postSocialActivity1.setDateCreated(DateUtils.addMinutes(postSocialActivity1.getDateCreated(), 5));
+			session2.flush();
+		} catch (Exception e) {
+			e.printStackTrace();
+			logger.error("Error", e);
+		} finally {
+			HibernateUtil.close(session2);
 		}
 	}
 
@@ -641,7 +647,7 @@ public class BusinessCase5_UniSA {
 	}
 
 	private void enrollToDelivery(EventQueue events, Organization org, Credential1 delivery, User user) {
-		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CredentialManager.class).enrollInCredentialAndGetEvents(delivery.getId(), user.getId(), 0, UserContextData.of(user.getId(), org.getId(), null, null)));
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CredentialManager.class).enrollInCredentialAndGetEvents(delivery.getId(), user.getId(), 0, UserContextData.of(user.getId(), org.getId(), null, null, null)));
 	}
 
 	private void givePrivilegeToUsersOnDelivery(EventQueue events, Credential1 delivery, UserGroupPrivilege userGroupPrivilege, User actor, Organization org, List<User> students) {
@@ -655,7 +661,7 @@ public class BusinessCase5_UniSA {
 
 		events.appendEvents(ServiceLocator.getInstance().getService(CredentialManager.class).updateCredentialVisibilityAndGetEvents(
 				delivery.getId(), new LinkedList<>(), studentsToAdd,false, false,
-				UserContextData.of(actor.getId(), org.getId(), null, null)));
+				UserContextData.of(actor.getId(), org.getId(), null, null, null)));
 	}
 
 	private void givePrivilegeToGroupOnDelivery(EventQueue events, Credential1 delivery, UserGroupPrivilege userGroupPrivilege, User actor, Organization org, List<Long> groupIds) {
@@ -669,7 +675,7 @@ public class BusinessCase5_UniSA {
 
 		events.appendEvents(ServiceLocator.getInstance().getService(CredentialManager.class).updateCredentialVisibilityAndGetEvents(
 				delivery.getId(), groupsToAdd, new LinkedList<>(), false, false,
-				UserContextData.of(actor.getId(), org.getId(), null, null)));
+				UserContextData.of(actor.getId(), org.getId(), null, null, null)));
 	}
 
 	private long getDaysFromNow(int days) {
@@ -702,7 +708,7 @@ public class BusinessCase5_UniSA {
 	}
 
 	private UserContextData createUserContext(User user) {
-		return UserContextData.of(user.getId(), user.getOrganization().getId(), null, null);
+		return UserContextData.of(user.getId(), user.getOrganization().getId(), null, null, null);
 	}
 
 	private <T> T extractResultAndAddEvents(EventQueue events, Result<T> result) {

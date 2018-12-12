@@ -119,6 +119,8 @@ public class PageUtil {
 	/**
 	 * Redirects to the url specified by {@code url} argument after prepending application context path.
 	 *
+	 * NOTE: This method works only for internal urls
+	 *
 	 * @param url - relative url
 	 */
 	public static void redirect(String url) {

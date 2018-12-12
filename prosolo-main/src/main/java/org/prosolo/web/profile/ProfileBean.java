@@ -15,6 +15,7 @@ import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.SocialNetworksManager;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.nodes.data.competence.TargetCompetenceData;
 import org.prosolo.services.nodes.data.credential.CategorizedCredentialsData;
 import org.prosolo.services.nodes.data.credential.TargetCredentialData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
@@ -27,6 +28,7 @@ import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
+
 import javax.faces.bean.ManagedBean;
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -82,7 +84,6 @@ public class ProfileBean {
 	public void init() {
 		decodedStudentId = idEncoder.decodeId(studentId);
 		if (StringUtils.isNotBlank(studentId) &&
-                loggedUserBean.isInitialized() &&
                 decodedStudentId != loggedUserBean.getUserId()) {
 			personalProfile = false;
 			userData = userManager.getUserData(decodedStudentId);

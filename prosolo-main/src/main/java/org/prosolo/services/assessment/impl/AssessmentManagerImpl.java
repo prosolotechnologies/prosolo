@@ -1,6 +1,7 @@
 package org.prosolo.services.assessment.impl;
 
 import com.google.common.collect.Lists;
+import org.apache.commons.lang3.SerializationUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -196,6 +197,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		} catch (IllegalDataStateException e) {
 			throw e;
 		} catch (ConstraintViolationException|DataIntegrityViolationException e) {
+			logger.error("Error", e);
 			throw new IllegalDataStateException("Assessment already created");
 		} catch (Exception e) {
 			logger.error("Error", e);
@@ -2012,9 +2014,10 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			long activityAssessmentId, GradeData grade, UserContextData context)
 			throws DbConnectionException {
 		try {
+			GradeData gradeCopy = SerializationUtils.clone(grade);
 			Result<GradeData> result = new Result<>();
-			boolean wasAssessed = grade.isAssessed();
-			int gradeValue = grade.calculateGrade();
+			boolean wasAssessed = gradeCopy.isAssessed();
+			int gradeValue = gradeCopy.calculateGrade();
 			//non negative grade means that grade is given, that user is assessed
 			if (gradeValue >= 0) {
 				ActivityAssessment ad = (ActivityAssessment) persistence.currentManager().load(
@@ -2022,7 +2025,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 //
 				ad.setPoints(gradeValue);
 
-				setAdditionalGradeData(grade, ad.getId(), wasAssessed, LearningResourceType.ACTIVITY);
+				setAdditionalGradeData(gradeCopy, ad.getId(), wasAssessed, LearningResourceType.ACTIVITY);
 
 				saveEntity(ad);
 
@@ -2032,21 +2035,21 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 				//update assessment star data
 				Map<Long, RubricAssessmentGradeSummary> actAssessmentGradeSummary = getActivityAssessmentsRubricGradeSummary(
 						Arrays.asList(activityAssessmentId));
-				GradeDataFactory.updateAssessmentStarData(grade, actAssessmentGradeSummary.get(activityAssessmentId));
+				GradeDataFactory.updateAssessmentStarData(gradeCopy, actAssessmentGradeSummary.get(activityAssessmentId));
 
 				ActivityAssessment aa = new ActivityAssessment();
 				aa.setId(ad.getId());
 				Map<String, String> params = new HashMap<>();
 				params.put("grade", gradeValue + "");
 
-				if (grade instanceof RubricGradeData) {
-					params.put("rubricGrade", ((RubricGradeData) grade).getRubricGrade() + "");
+				if (gradeCopy instanceof RubricGradeData) {
+					params.put("rubricGrade", ((RubricGradeData) gradeCopy).getRubricGrade() + "");
 				}
 
 				result.appendEvent(eventFactory.generateEventData(
 						EventType.GRADE_ADDED, context, aa, null,null, params));
 				result.appendEvents(updateCompScoreEvents);
-				result.setResult(grade);
+				result.setResult(gradeCopy);
 			}
 			return result;
 		} catch (Exception e) {
@@ -2077,9 +2080,10 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			long assessmentId, GradeData grade, UserContextData context)
 			throws DbConnectionException {
 		try {
+			GradeData gradeCopy = SerializationUtils.clone(grade);
 			Result<GradeData> result = new Result<>();
-			boolean wasAssessed = grade.isAssessed();
-			int gradeValue = grade.calculateGrade();
+			boolean wasAssessed = gradeCopy.isAssessed();
+			int gradeValue = gradeCopy.calculateGrade();
 			//non negative grade means that grade is given, that user is assessed
 			if (gradeValue >= 0) {
 				CompetenceAssessment ca = (CompetenceAssessment) persistence.currentManager().load(
@@ -2089,7 +2093,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 				ca.setLastAssessment(new Date());
 				ca.setAssessorNotified(false);
 
-				setAdditionalGradeData(grade, ca.getId(), wasAssessed, LearningResourceType.COMPETENCE);
+				setAdditionalGradeData(gradeCopy, ca.getId(), wasAssessed, LearningResourceType.COMPETENCE);
 
 				saveEntity(ca);
 
@@ -2098,25 +2102,24 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 				//update assessment star data
 				Map<Long, RubricAssessmentGradeSummary> compAssessmentGradeSummary = getCompetenceAssessmentsRubricGradeSummary(Arrays.asList(assessmentId));
-				GradeDataFactory.updateAssessmentStarData(grade, compAssessmentGradeSummary.get(assessmentId));
+				GradeDataFactory.updateAssessmentStarData(gradeCopy, compAssessmentGradeSummary.get(assessmentId));
 
 				CompetenceAssessment compA = new CompetenceAssessment();
 				compA.setId(ca.getId());
 				Map<String, String> params = new HashMap<>();
 				params.put("grade", gradeValue + "");
 
-				if (grade instanceof RubricGradeData) {
-					params.put("rubricGrade", ((RubricGradeData) grade).getRubricGrade() + "");
+				if (gradeCopy instanceof RubricGradeData) {
+					params.put("rubricGrade", ((RubricGradeData) gradeCopy).getRubricGrade() + "");
 				}
 
 				result.appendEvent(eventFactory.generateEventData(
 						EventType.GRADE_ADDED, context, compA, null,null, params));
-				result.setResult(grade);
+				result.setResult(gradeCopy);
 			}
 			return result;
 		} catch (Exception e) {
-			logger.error(e);
-			e.printStackTrace();
+			logger.error("Error", e);
 			throw new DbConnectionException("Error updating the grade");
 		}
 	}
@@ -2191,9 +2194,10 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			long assessmentId, GradeData grade, UserContextData context)
 			throws DbConnectionException {
 		try {
+			GradeData gradeCopy = SerializationUtils.clone(grade);
 			Result<GradeData> result = new Result<>();
-			boolean wasAssessed = grade.isAssessed();
-			int gradeValue = grade.calculateGrade();
+			boolean wasAssessed = gradeCopy.isAssessed();
+			int gradeValue = gradeCopy.calculateGrade();
 			//non negative grade means that grade is given, that user is assessed
 			if (gradeValue >= 0) {
 				CredentialAssessment ca = (CredentialAssessment) persistence.currentManager().load(
@@ -2202,7 +2206,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 				ca.setPoints(gradeValue);
 				ca.setAssessed(true);
 
-				setAdditionalGradeData(grade, ca.getId(), wasAssessed, LearningResourceType.CREDENTIAL);
+				setAdditionalGradeData(gradeCopy, ca.getId(), wasAssessed, LearningResourceType.CREDENTIAL);
 				/*
 				if assessor has notification that he should assess student, this notification is turned off
 				when credential is assessed
@@ -2214,25 +2218,24 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 				//update assessment star data
 				RubricAssessmentGradeSummary credGradeSummary = getCredentialAssessmentRubricGradeSummary(ca);
-				GradeDataFactory.updateAssessmentStarData(grade, credGradeSummary);
+				GradeDataFactory.updateAssessmentStarData(gradeCopy, credGradeSummary);
 
 				CredentialAssessment credA = new CredentialAssessment();
 				credA.setId(ca.getId());
 				Map<String, String> params = new HashMap<>();
 				params.put("grade", gradeValue + "");
 
-				if (grade instanceof RubricGradeData) {
-					params.put("rubricGrade", ((RubricGradeData) grade).getRubricGrade() + "");
+				if (gradeCopy instanceof RubricGradeData) {
+					params.put("rubricGrade", ((RubricGradeData) gradeCopy).getRubricGrade() + "");
 				}
 
 				result.appendEvent(eventFactory.generateEventData(
 						EventType.GRADE_ADDED, context, credA, null,null, params));
-				result.setResult(grade);
+				result.setResult(gradeCopy);
 			}
 			return result;
 		} catch (Exception e) {
-			logger.error(e);
-			e.printStackTrace();
+			logger.error("Error", e);
 			throw new DbConnectionException("Error updating the grade");
 		}
 	}
@@ -2455,13 +2458,16 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 					"FROM CredentialAssessment assessment " +	
 					"LEFT JOIN assessment.assessor assessor " +	
 					"WHERE assessment.student.id = :assessedStudentId " +
-						"AND assessment.targetCredential.credential.id = :credentialId";
+						"AND assessment.targetCredential.credential.id = :credentialId " +
+					"ORDER BY CASE WHEN assessment.type = :instructorAssessment THEN 1 WHEN assessment.type = :selfAssessment THEN 2 ELSE 3 END, assessor.name, assessor.lastname";
 			
 			@SuppressWarnings("unchecked")
 			List<Object[]> result = persistence.currentManager()
 					.createQuery(query)
 					.setLong("assessedStudentId", assessedStudentId)
 					.setLong("credentialId", credentialId)
+					.setString("instructorAssessment", AssessmentType.INSTRUCTOR_ASSESSMENT.name())
+					.setString("selfAssessment", AssessmentType.SELF_ASSESSMENT.name())
 					.list();
 
 			BlindAssessmentMode blindAssessmentMode = BlindAssessmentMode.OFF;

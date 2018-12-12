@@ -22,6 +22,9 @@ public class ConnectionConfig {
 	
 	@Element(name = "use-unicode")
 	public String useUnicode;
+
+	@Element(name = "connection-collation")
+	public String connectionCollation;
 	
 	@Element(name = "autocommit")
 	public String autocommit;

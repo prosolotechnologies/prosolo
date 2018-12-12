@@ -454,7 +454,7 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 
 	private void addNewCommentToAssessmentData(AssessmentDiscussionMessageData newComment) {
 		if (loggedUserBean.getUserId() == fullAssessmentData.getAssessorId()) {
-			newComment.setSenderInstructor(true);
+			newComment.setSenderAssessor(true);
 		}
 		fullAssessmentData.getMessages().add(newComment);
 		fullAssessmentData.setNumberOfMessages(fullAssessmentData.getNumberOfMessages() + 1);
@@ -579,9 +579,11 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 		List<CompetenceAssessmentData> competenceAssessmentData = fullAssessmentData.getCompetenceAssessmentData();
 		if (CollectionUtils.isNotEmpty(competenceAssessmentData)) {
 			for (CompetenceAssessmentData comp : competenceAssessmentData) {
-				for (ActivityAssessmentData act : comp.getActivityAssessmentData()) {
-					if (encodedActivityDiscussionId.equals(act.getEncodedActivityAssessmentId())) {
-						return Optional.of(act);
+				if (comp.getActivityAssessmentData() != null) {
+					for (ActivityAssessmentData act : comp.getActivityAssessmentData()) {
+						if (encodedActivityDiscussionId.equals(act.getEncodedActivityAssessmentId())) {
+							return Optional.of(act);
+						}
 					}
 				}
 			}

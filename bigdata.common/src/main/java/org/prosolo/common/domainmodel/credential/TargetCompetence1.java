@@ -5,13 +5,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
+import javax.persistence.*;
 
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
@@ -28,13 +22,13 @@ public class TargetCompetence1 extends BaseEntity {
 	private Competence1 competence;
 	private User user;
 	private List<TargetActivity1> targetActivities;
-	private boolean hiddenFromProfile;
-	
+
 	private Date dateCompleted;
 	
 	private long nextActivityToLearnId;
 
 	private Set<CompetenceEvidence> evidences;
+	private String evidenceSummary;
 	
 	public TargetCompetence1() {
 		targetActivities = new ArrayList<>();
@@ -66,14 +60,6 @@ public class TargetCompetence1 extends BaseEntity {
 
 	public void setTargetActivities(List<TargetActivity1> targetActivities) {
 		this.targetActivities = targetActivities;
-	}
-
-	public boolean isHiddenFromProfile() {
-		return hiddenFromProfile;
-	}
-
-	public void setHiddenFromProfile(boolean hiddenFromProfile) {
-		this.hiddenFromProfile = hiddenFromProfile;
 	}
 	
 	public Date getDateCompleted() {
@@ -109,5 +95,14 @@ public class TargetCompetence1 extends BaseEntity {
 
 	public void setEvidences(Set<CompetenceEvidence> evidences) {
 		this.evidences = evidences;
+	}
+
+	@Column(length = 9000)
+	public String getEvidenceSummary() {
+		return evidenceSummary;
+	}
+
+	public void setEvidenceSummary(String evidenceSummary) {
+		this.evidenceSummary = evidenceSummary;
 	}
 }

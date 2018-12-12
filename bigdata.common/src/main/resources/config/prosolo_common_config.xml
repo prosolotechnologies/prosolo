@@ -7,7 +7,7 @@
 		<developer-email>name.lastname@gmail.com</developer-email>
 		<support-email>administrator@prosolo.ca</support-email>
 		<maintenance>false</maintenance>
-		<domain>http://localhost:8080/</domain>  <!-- This URL must include context root if exists, and a trailing slash (/), e.g. http://example.com/prosolo/ -->
+		<domain>http://localhost:8080/prosolo/</domain>  <!-- This URL must include context root if exists, and a trailing slash (/), e.g. http://example.com/prosolo/ -->
 		<url-encoding>
 			<salt>prosoloidencodingsalt</salt>
 		</url-encoding>
@@ -42,15 +42,17 @@
 			<es-host>
 				<host>192.168.2.219</host>
 				<port>9300</port>
+				<http-port>9200</http-port>
 			</es-host>
 		</es-hosts>
 		<home-path>/home/zoran/elasticsearch</home-path>
 		<cluster-name>elasticsearch</cluster-name>
 		<replicas-number>0</replicas-number>
 		<shards-number>5</shards-number>
-		<nodes-index>nodes</nodes-index>
+		<credentials-index>credentials</credentials-index>
+		<competences-index>competences</competences-index>
 		<users-index>users</users-index>
-		<associationrules-index>associationrules</associationrules-index>
+		<!--<associationrules-index>associationrules</associationrules-index>-->
 		<recommendationdata-index>recommendationdata</recommendationdata-index>
 		<userGroup-index>usergroups</userGroup-index>
 		<logs-index>logs</logs-index>
@@ -77,6 +79,7 @@
 			<charSet>UTF-8</charSet>
 			<character-encoding>UTF-8</character-encoding>
 			<use-unicode>true</use-unicode>
+			<connection-collation>utf8mb4_unicode_520_ci</connection-collation>
 			<autocommit>false</autocommit>
 			<!-- 
 				READ_UNCOMMITED - 1

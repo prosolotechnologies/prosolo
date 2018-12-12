@@ -10,6 +10,8 @@ import org.prosolo.common.domainmodel.rubric.RubricType;
  */
 public class PointRubricGradeData extends RubricGradeData<PointRubricCriteriaGradeData> {
 
+    private static final long serialVersionUID = -4999447240504059810L;
+
     private PointGradeValues gradeInfo;
 
     public PointRubricGradeData() {}

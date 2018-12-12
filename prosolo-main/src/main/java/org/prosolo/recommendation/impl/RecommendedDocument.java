@@ -1,13 +1,13 @@
 package org.prosolo.recommendation.impl;
 
-import java.io.Serializable;
-import java.util.Map;
-
 import org.apache.log4j.Logger;
+import org.elasticsearch.common.document.DocumentField;
 import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.SearchHitField;
 import org.prosolo.app.Settings;
 import org.prosolo.common.config.CommonSettings;
+
+import java.io.Serializable;
+import java.util.Map;
 
 /**
 zoran
@@ -26,7 +26,7 @@ public class RecommendedDocument implements Serializable {
 	private DocumentType documentType;
 	
 	public RecommendedDocument(SearchHit searchHit) {
-		Map<String, SearchHitField> hitSource = searchHit.getFields();//.getSource();
+		Map<String, DocumentField> hitSource = searchHit.getFields();//.getSource();
 		String type = (String) hitSource.get("contentType").getValue().toString().toUpperCase();
 		
 		if (hitSource.containsKey("title")) {

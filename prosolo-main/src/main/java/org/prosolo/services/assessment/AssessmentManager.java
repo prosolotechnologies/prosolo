@@ -121,6 +121,17 @@ public interface AssessmentManager {
 	void updateInstructorAssessmentsAssessor(List<Long> targetCredIds, long assessorId)
 			throws DbConnectionException;
 
+	/**
+	 * Updates grade and returns populated GradeData object.
+	 *
+	 * NOTE: Object returned is not the same instance as {@code grade} passed as a method argument
+	 *
+	 * @param activityAssessmentId
+	 * @param grade
+	 * @param context
+	 * @return
+	 * @throws DbConnectionException
+	 */
 	GradeData updateGradeForActivityAssessment(
             long activityAssessmentId, GradeData grade, UserContextData context)
 			throws DbConnectionException;
@@ -140,7 +151,7 @@ public interface AssessmentManager {
 			throws DbConnectionException;
 
 	/**
-	 * Load all credential assessments for the given user, but excluding the specific assessment id
+	 * Load all credential assessments for the given user
 	 *
 	 * @param assessedStudentId
 	 * @param credentialId
@@ -243,7 +254,18 @@ public interface AssessmentManager {
 																			  long assessorId, AssessmentType type, boolean isExplicitRequest, UserContextData context)
 			throws IllegalDataStateException, DbConnectionException;
 
-	GradeData updateGradeForCompetenceAssessment(
+	/**
+	 * Updates grade and returns populated GradeData object.
+	 *
+	 * NOTE: Object returned is not the same instance as {@code grade} passed as a method argument
+	 *
+	 * @param assessmentId
+	 * @param grade
+	 * @param context
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	 GradeData updateGradeForCompetenceAssessment(
 			long assessmentId, GradeData grade, UserContextData context)
 			throws DbConnectionException;
 
@@ -251,6 +273,16 @@ public interface AssessmentManager {
 			long assessmentId, GradeData grade, UserContextData context)
 			throws DbConnectionException;
 
+	/**
+	 * Updates grade and returns populated GradeData object.
+	 *
+	 * NOTE: Object returned is not the same instance as {@code grade} passed as a method argument
+	 * @param assessmentId
+	 * @param grade
+	 * @param context
+	 * @return
+	 * @throws DbConnectionException
+	 */
 	GradeData updateGradeForCredentialAssessment(
 			long assessmentId, GradeData grade, UserContextData context)
 			throws DbConnectionException;

@@ -1,13 +1,13 @@
 package org.prosolo.common.domainmodel.credential;
 
-import javax.persistence.*;
-
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.UserGroup;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 
+import javax.persistence.*;
+
 @Entity
-@Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"credential", "user_group", "privilege"})})
+//unique constraint added from the script
 public class CredentialUserGroup extends BaseEntity {
 
 	private static final long serialVersionUID = -2117827525725237618L;

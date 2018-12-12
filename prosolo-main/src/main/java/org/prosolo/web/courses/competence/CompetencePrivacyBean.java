@@ -7,6 +7,7 @@ import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.data.UnitData;
+import org.prosolo.services.nodes.data.credential.CredentialIdData;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
@@ -43,7 +44,7 @@ public class CompetencePrivacyBean implements Serializable {
 	private String competenceTitle;
 
 	private String credId;
-	private String credTitle;
+	private CredentialIdData credentialIdData;
 
 	private List<UnitData> units;
 
@@ -63,7 +64,7 @@ public class CompetencePrivacyBean implements Serializable {
 					if (competenceTitle != null) {
 						long decodedCredId = idEncoder.decodeId(credId);
 						if (decodedCredId > 0){
-							this.credTitle = credManager.getCredentialTitle(decodedCredId);
+							this.credentialIdData = credManager.getCredentialIdData(decodedCredId, null);
 						}
 
 						loadData();
@@ -136,6 +137,10 @@ public class CompetencePrivacyBean implements Serializable {
 	}
 
 	public String getCredTitle() {
-		return credTitle;
+		return credentialIdData.getTitle();
+	}
+
+	public CredentialIdData getCredentialIdData() {
+		return credentialIdData;
 	}
 }

@@ -7,7 +7,6 @@ import org.hibernate.exception.ConstraintViolationException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.domainmodel.user.following.FollowedEntity;
 import org.prosolo.common.domainmodel.user.following.FollowedUserEntity;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.search.impl.PaginatedResult;
@@ -19,7 +18,6 @@ import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.interaction.FollowResourceManager;
 import org.prosolo.services.nodes.data.UserData;
-import org.prosolo.services.util.roles.SystemRoleNames;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -61,20 +59,19 @@ public class FollowResourceManagerImpl extends AbstractManagerImpl implements Fo
 				User follower = loadResource(User.class, context.getActorId());
 				User userToFollow = loadResource(User.class, userToFollowId);
 				
-				FollowedEntity followedEntity = new FollowedUserEntity();
+				FollowedUserEntity followedEntity = new FollowedUserEntity();
 				followedEntity.setUser(follower);
-				followedEntity.setFollowedResource(userToFollow);
+				followedEntity.setFollowedUser(userToFollow);
 				followedEntity.setStartedFollowing(new Date());
-				persistence.currentManager().saveOrUpdate(followedEntity);
-				
-				persistence.currentManager().flush();
+				saveEntity(followedEntity);
 
 				Result<User> res = new Result<>();
 				res.setResult(follower);
-				User eventObject = new User();
-				eventObject.setId(userToFollowId);
-				res.appendEvent(eventFactory.generateEventData(EventType.Follow, context, eventObject, null, null, null));
-				
+
+				User userToFollowObj = new User();
+				userToFollowObj.setId(userToFollowId);
+				res.appendEvent(eventFactory.generateEventData(EventType.Follow, context, userToFollowObj, null, null, null));
+
 				logger.debug(follower.getName() + " started following user " + userToFollow.getId());
 				return res;
 			}
@@ -112,12 +109,12 @@ public class FollowResourceManagerImpl extends AbstractManagerImpl implements Fo
 		if (users != null) {
 			return users;
 		}
-		return new ArrayList<User>();
+		return new ArrayList<>();
 	}
 	
 	@Override
 	@Transactional 
-	public List<User> getFollowingUsers(long userId) throws DbConnectionException{
+	public List<User> getFollowingUsers(long userId, Session session) throws DbConnectionException{
 		try {
 			String query = 
 				"SELECT DISTINCT fUser " + 
@@ -128,7 +125,7 @@ public class FollowResourceManagerImpl extends AbstractManagerImpl implements Fo
 				"ORDER BY fUser.name, fUser.lastname";
 		
 			@SuppressWarnings("unchecked")
-			List<User> users = persistence.currentManager().createQuery(query)
+			List<User> users = session.createQuery(query)
 				.setLong("userId", userId)
 				.list();
 			
@@ -139,7 +136,7 @@ public class FollowResourceManagerImpl extends AbstractManagerImpl implements Fo
 			logger.error(e);
 			throw new DbConnectionException("Error while retrieving follwing users");
 		}
-		return new ArrayList<User>();
+		return new ArrayList<>();
 	}
 	
 	@Override 
@@ -181,14 +178,12 @@ public class FollowResourceManagerImpl extends AbstractManagerImpl implements Fo
 					.setLong("userToUnfollowId", userToUnfollowId)
 					.executeUpdate();
 
-			User userToUnfollow = loadResource(User.class, userToUnfollowId);
-
 			Result<Boolean> res = new Result<>();
 			res.setResult(deleted > 0);
 			if (deleted > 0) {
-				User eventObject = new User();
-				eventObject.setId(userToUnfollowId);
-				res.appendEvent(eventFactory.generateEventData(EventType.Unfollow, context, eventObject, null, null, null));
+				User userToUnfollowObj = new User();
+				userToUnfollowObj.setId(userToUnfollowId);
+				res.appendEvent(eventFactory.generateEventData(EventType.Unfollow, context, userToUnfollowObj, null, null, null));
 			}
 			return res;
 		} catch (Exception e) {
@@ -481,17 +476,17 @@ public class FollowResourceManagerImpl extends AbstractManagerImpl implements Fo
 	@SuppressWarnings("unchecked")
 	@Override
 	@Transactional(readOnly = true)
-	public List<User> getFollowers(long userId) throws DbConnectionException {
+	public List<User> getFollowers(long userId, Session session) throws DbConnectionException {
 		try {
 			String query = 
 					"SELECT DISTINCT user " + 
-					"FROM FollowedEntity fEnt " + 
+					"FROM FollowedUserEntity fEnt " +
 					"LEFT JOIN fEnt.user user "+
 					"JOIN fEnt.followedUser fUser " + 
 					"WHERE fUser.id = :userId " +
 					"ORDER BY user.name, user.lastname";
 			
-			Query q = persistence.currentManager().createQuery(query)
+			Query q = session.createQuery(query)
 					.setLong("userId", userId);
 			
 			List<User> users = q.list();
@@ -499,9 +494,9 @@ public class FollowResourceManagerImpl extends AbstractManagerImpl implements Fo
 			if (users != null) {
 				return users;
 			}
-			return new ArrayList<User>();
+			return new ArrayList<>();
 		} catch (DbConnectionException e) {
-			logger.error(e);
+			logger.error("Error", e);
 			throw new DbConnectionException("Error while retrieving notification data");
 		}
 	}

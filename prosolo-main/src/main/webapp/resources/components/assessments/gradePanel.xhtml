@@ -114,7 +114,18 @@
 											</h:panelGroup>
 										</small>
 									</div>
-									<h:inputTextarea placeholder="Type comments here (optional)..." value="#{c.comment}"/>
+									<h:inputTextarea
+											id="textareaCriterionComment"
+											label="Comment"
+											placeholder="Type comments here (optional)..."
+											value="#{c.comment}">
+											<f:validateLength maximum="1000"/>
+									</h:inputTextarea>
+									<small class="redText bottom30 topMinus30 displayBlock">
+										<h:panelGroup id="panelCriterionCommentMsg" styleClass="validationMsgSelector">
+											<h:message for="textareaCriterionComment"></h:message>
+										</h:panelGroup>
+									</small>
 								</ui:repeat>
 								<c:if test="#{cc.attrs.gradeData.pointBasedGrading == true}">
 									<p class="totalPoints"><strong>Total Points: <span id="spanTotalPoints">#{cc.attrs.gradeData.currentGrade != null and cc.attrs.gradeData.isAssessed() ? cc.attrs.gradeData.currentGrade : '-'}</span></strong></p>

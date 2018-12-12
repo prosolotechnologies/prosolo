@@ -44,10 +44,11 @@
 				            	<h:link value="#{msg['label.credential.plural']}" outcome="credentialLibrary"/>
 				            </li>
 				            <li>
-				            	<h:link value="#{activityEditBean.credentialTitle}"
-				            		outcome="credential-create">
-				            		<f:param name="id" value="#{param['credId']}" />
-				            	</h:link>
+								<h:link
+										value="#{activityEditBean.credentialIdData.fullTitle}"
+										outcome="/manage/credential-create">
+									<f:param name="id" value="#{param.credId}"></f:param>
+								</h:link>
 				            </li>
 				            <li>
 				            	<h:link 

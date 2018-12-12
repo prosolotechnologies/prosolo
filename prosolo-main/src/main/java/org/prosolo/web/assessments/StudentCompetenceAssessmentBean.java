@@ -77,9 +77,11 @@ public class StudentCompetenceAssessmentBean extends CompetenceAssessmentBean {
 	}
 
 	private Optional<ActivityAssessmentData> getActivityAssessmentByEncodedId(String encodedActivityDiscussionId) {
-		for (ActivityAssessmentData act : getCompetenceAssessmentData().getActivityAssessmentData()) {
-			if (encodedActivityDiscussionId.equals(act.getEncodedActivityAssessmentId())) {
-				return Optional.of(act);
+		if (getCompetenceAssessmentData().getActivityAssessmentData() != null) {
+			for (ActivityAssessmentData act : getCompetenceAssessmentData().getActivityAssessmentData()) {
+				if (encodedActivityDiscussionId.equals(act.getEncodedActivityAssessmentId())) {
+					return Optional.of(act);
+				}
 			}
 		}
 		return Optional.empty();
@@ -359,7 +361,7 @@ public class StudentCompetenceAssessmentBean extends CompetenceAssessmentBean {
 
 	private void addNewCommentToAssessmentData(AssessmentDiscussionMessageData newComment) {
 		if (loggedUserBean.getUserId() == getCompetenceAssessmentData().getAssessorId()) {
-			newComment.setSenderInstructor(true);
+			newComment.setSenderAssessor(true);
 		}
 		getCompetenceAssessmentData().getMessages().add(newComment);
 		getCompetenceAssessmentData().setNumberOfMessages(getCompetenceAssessmentData().getNumberOfMessages() + 1);
@@ -378,8 +380,7 @@ public class StudentCompetenceAssessmentBean extends CompetenceAssessmentBean {
 
 			PageUtil.fireSuccessfulInfoMessage("The grade has been updated");
 		} catch (DbConnectionException e) {
-			e.printStackTrace();
-			logger.error(e);
+			logger.error("Error", e);
 			PageUtil.fireErrorMessage("Error updating the grade");
 			throw e;
 		}

@@ -1,31 +1,30 @@
 <ui:component xmlns="http://www.w3.org/1999/xhtml"
-			  xmlns:h="http://java.sun.com/jsf/html"
-			  xmlns:f="http://java.sun.com/jsf/core"
-			  xmlns:ui="http://java.sun.com/jsf/facelets"
-			  xmlns:p="http://primefaces.org/ui"
-			  template="templates/masterLayout2.xhtml"
-			  xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
-			  xmlns:composite="http://java.sun.com/jsf/composite"
-			  xmlns:util="http://www.prosolo.com/util"
-			  xmlns:assessment="http://java.sun.com/jsf/composite/components/assessments">
+              xmlns:h="http://java.sun.com/jsf/html"
+              xmlns:f="http://java.sun.com/jsf/core"
+              xmlns:ui="http://java.sun.com/jsf/facelets"
+              xmlns:p="http://primefaces.org/ui"
+              template="templates/masterLayout2.xhtml"
+              xmlns:composite="http://java.sun.com/jsf/composite"
+              xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+              xmlns:assessment="http://java.sun.com/jsf/composite/components/assessments">
 
-	<composite:interface>
-		<composite:attribute name="bean" required="true" />
-		<composite:attribute name="messages" required="true" />
-		<composite:attribute name="studentId" required="true"/>
-		<composite:attribute name="assessorId" required="true"/>
-		<composite:attribute name="blindAssessmentMode" required="true"/>
-		<composite:attribute name="toUpdate" default=""/>
-		<composite:attribute name="learningContext" default="" />
-	</composite:interface>
+    <composite:interface>
+        <composite:attribute name="bean" required="true"/>
+        <composite:attribute name="messages" required="true"/>
+        <composite:attribute name="studentId" required="true"/>
+        <composite:attribute name="assessorId" required="true"/>
+        <composite:attribute name="blindAssessmentMode" required="true"/>
+        <composite:attribute name="toUpdate" default=""/>
+        <composite:attribute name="learningContext" default=""/>
+    </composite:interface>
 
 
-	<composite:implementation>
-		<h:outputStylesheet library="css2" name="bootstrap-slider.css" />
-		<script
-				src="#{request.contextPath}/resources/javascript2/bootstrap-slider.min.js"></script>
+    <composite:implementation>
+        <h:outputStylesheet library="css2" name="bootstrap-slider.css"/>
+        <script
+                src="#{request.contextPath}/resources/javascript2/bootstrap-slider.min.js"></script>
 
-		<script>
+        <script>
             //comment form hide/show
             function displaySubmitButtonPrivateConvModal(inputElem) {
                 if ($(inputElem).val().length == 0) {
@@ -34,200 +33,226 @@
                     $(inputElem).parent().find('a.btn-green').removeClass('hidden');
                 }
             }
-		</script>
+        </script>
 
-		<h:form id="formPrivateConversation">
-			<div class="modal fade assessmentCommentsModal"
-				 id="assessmentCommentsModal1" tabindex="-1" role="dialog"
-				 aria-labelledby="assessmentCommentsModal">
-				<div class="modal-dialog modal-lg">
-					<h:panelGroup id="panelModalPrivateConversation" layout="block"
-								  styleClass="modal-content">
-						<div class="modal-header alignLeft">
-							<button type="button" class="close" data-dismiss="modal"
-									aria-label="Close">
-								<span aria-hidden="true">&#215;</span>
-							</button>
-							<h2 class="modal-title">Comments</h2>
-						</div>
-						<div class="discussion">
-							<div class="comments">
-								<ui:fragment rendered="#{not empty cc.attrs.messages}">
-									<ul class="media-list">
-										<ui:repeat var="activityMessageData" value="#{cc.attrs.messages}">
-											<li class="media">
-												<div class="media-left">
-													<ui:fragment rendered="#{activityMessageData.senderId ne cc.attrs.studentId and not activityMessageData.senderInstructor}">
-														<utilcomp:userAvatar
-																avatar="#{activityMessageData.senderAvatarUrl}"
-																fullName="#{activityMessageData.senderFullName}" />
-													</ui:fragment>
-													<ui:fragment rendered="#{activityMessageData.senderId eq cc.attrs.studentId or activityMessageData.senderInstructor}">
-														<assessment:assessmentActorAvatar
-																actorId="#{activityMessageData.senderId}"
-																avatarUrl="#{activityMessageData.senderAvatarUrl}"
-																actorFullName="#{activityMessageData.senderFullName}"
-																blindAssessmentMode="#{cc.attrs.blindAssessmentMode}"
-																actorType="#{activityMessageData.senderInstructor ? 'ASSESSOR' : 'STUDENT'}"
-														/>
-													</ui:fragment>
-												</div>
+        <h:form id="formPrivateConversation">
+            <div class="modal fade assessmentCommentsModal"
+                 id="assessmentCommentsModal1" tabindex="-1" role="dialog"
+                 aria-labelledby="assessmentCommentsModal">
 
-												<div class="media-body">
-													<ui:fragment
-															rendered="#{cc.attrs.bean.isCurrentUserMessageSender(activityMessageData)}">
-														<div class="commentMain">
+                <div class="modal-dialog modal-lg">
+                    <h:panelGroup id="panelModalPrivateConversation" layout="block"
+                                  styleClass="modal-content">
+                        <div class="modal-header alignLeft">
+                            <button type="button" class="close" data-dismiss="modal"
+                                    aria-label="Close">
+                                <span aria-hidden="true">&#215;</span>
+                            </button>
+                            <h2 class="modal-title">Comments</h2>
+                        </div>
+
+                        <div class="discussion">
+                            <div class="comments">
+                                <ui:fragment rendered="#{not empty cc.attrs.messages}">
+                                    <ul class="media-list">
+                                        <ui:repeat var="activityMessageData" value="#{cc.attrs.messages}">
+                                            <li class="media">
+                                                <div class="media-left">
+                                                    <ui:fragment
+                                                            rendered="#{activityMessageData.senderId ne cc.attrs.studentId and not activityMessageData.senderAssessor}">
+                                                        <utilcomp:userAvatar
+                                                                avatar="#{activityMessageData.senderAvatarUrl}"
+                                                                fullName="#{activityMessageData.senderFullName}"/>
+                                                    </ui:fragment>
+                                                    <ui:fragment
+                                                            rendered="#{activityMessageData.senderId eq cc.attrs.studentId or activityMessageData.senderAssessor}">
+                                                        <assessment:assessmentActorAvatar
+                                                                actorId="#{activityMessageData.senderId}"
+                                                                avatarUrl="#{activityMessageData.senderAvatarUrl}"
+                                                                actorFullName="#{activityMessageData.senderFullName}"
+                                                                blindAssessmentMode="#{cc.attrs.blindAssessmentMode}"
+                                                                actorType="#{activityMessageData.senderAssessor ? 'ASSESSOR' : 'STUDENT'}"/>
+                                                    </ui:fragment>
+                                                </div>
+
+                                                <div class="media-body">
+                                                    <ui:fragment
+                                                            rendered="#{cc.attrs.bean.isCurrentUserMessageSender(activityMessageData)}">
+                                                        <div class="commentMain">
 															<span class="commentTime"> Edited:
-																#{activityMessageData.dateUpdatedFormat} </span>
+                                                                #{activityMessageData.dateUpdatedFormat}
+                                                            </span>
 
-															<h3 class="media-heading">
-																<ui:fragment rendered="#{activityMessageData.senderId ne cc.attrs.studentId and not activityMessageData.senderInstructor}">
-																	#{activityMessageData.senderFullName}
-																</ui:fragment>
-																<ui:fragment rendered="#{activityMessageData.senderId eq cc.attrs.studentId or activityMessageData.senderInstructor}">
-																	<assessment:assessmentActorName
-																			actorId="#{activityMessageData.senderId}"
-																			actorFullName="#{activityMessageData.senderFullName}"
-																			blindAssessmentMode="#{cc.attrs.blindAssessmentMode}"
-																			actorType="#{activityMessageData.senderInstructor ? 'ASSESSOR' : 'STUDENT'}"
-																	/>
-																</ui:fragment>
-																<ui:fragment
-																		rendered="#{activityMessageData.senderInstructor and cc.attrs.bean.type != 'SELF_ASSESSMENT'}">
-																	<span>#{msg['label.instructor'].toUpperCase()}</span>
-																</ui:fragment>
-															</h3>
+                                                            <h3 class="media-heading">
+                                                                <ui:fragment
+                                                                        rendered="#{activityMessageData.senderId ne cc.attrs.studentId and not activityMessageData.senderAssessor}">
+                                                                    #{activityMessageData.senderFullName}
+                                                                </ui:fragment>
+                                                                <ui:fragment
+                                                                        rendered="#{activityMessageData.senderId eq cc.attrs.studentId or activityMessageData.senderAssessor}">
+                                                                    <assessment:assessmentActorName
+                                                                            actorId="#{activityMessageData.senderId}"
+                                                                            actorFullName="#{activityMessageData.senderFullName}"
+                                                                            blindAssessmentMode="#{cc.attrs.blindAssessmentMode}"
+                                                                            actorType="#{activityMessageData.senderAssessor ? 'ASSESSOR' : 'STUDENT'}"
+                                                                    />
+                                                                </ui:fragment>
+                                                                <ui:fragment
+                                                                        rendered="#{activityMessageData.senderAssessor and cc.attrs.bean.type == 'INSTRUCTOR_ASSESSMENT'}">
+                                                                    <span>#{msg['label.instructor'].toUpperCase()}</span>
+                                                                </ui:fragment>
+                                                            </h3>
 
-															<p class="commentText">#{activityMessageData.content}</p>
-															<div class="editComment hidden">
-																<p:inputTextarea name="name"
-																				 styleClass="contentEditableComment"
-																				 style="width:100%;" rows="1"
-																				 value="#{activityMessageData.content}"
-																				 onkeyup="displaySubmitButtonPrivateConvModal(this)"></p:inputTextarea>
-																<p:commandLink styleClass="btn btn-sm btn-green"
-																			   oncomplete="hideEditPrivateConversationComment(this);"
-																			   update=":#{cc.clientId}:formPrivateConversation:panelModalPrivateConversation"
-																			   actionListener="#{cc.attrs.bean.editComment(activityMessageData.content, activityMessageData.encodedMessageId)}"
-																			   type="button" name="button">
-																	Submit
-																</p:commandLink>
+                                                            <p class="commentText #{compEditComment.isValid() ? '' : 'hidden'}">#{activityMessageData.content}</p>
 
-																<a href="javascript:void(0)"
-																   class="btn btn-sm btn-green-stroke"
-																   onclick="hideEditPrivateConversationComment(this)">Cancel</a>
-															</div>
+                                                            <div class="editComment #{compEditComment.isValid() ? 'hidden' : ''}">
+                                                                <p:inputTextarea
+                                                                        id="textareaEditComment"
+                                                                        binding="#{compEditComment}"
+                                                                        label="Comment"
+                                                                        name="name"
+                                                                        styleClass="contentEditableComment"
+                                                                        style="width:100%;" rows="1"
+                                                                        value="#{activityMessageData.content}"
+                                                                        onkeyup="displaySubmitButtonPrivateConvModal(this)">
+                                                                    <f:validateLength maximum="9000"/>
+                                                                </p:inputTextarea>
 
-															<div class="commentOptions">
-																<a href="javascript:void(0)" class="edit"
-																   onclick="showEditComment(this)"> <span
-																		class="icon"></span>Edit
-																</a>
-															</div>
-														</div>
-													</ui:fragment>
+                                                                <small class="redText bottom30 displayBlock">
+                                                                    <h:message for="textareaEditComment"></h:message>
+                                                                </small>
 
-													<ui:fragment
-															rendered="#{not cc.attrs.bean.isCurrentUserMessageSender(activityMessageData)}">
-														<div class="commentMain">
+                                                                <utilcomp:singleClickLink
+                                                                        styleClass="btn btn-sm btn-green"
+                                                                        value="Submit"
+                                                                        action="#{cc.attrs.bean.editComment(activityMessageData.content, activityMessageData.encodedMessageId)}"
+                                                                        update=":#{cc.clientId}:formPrivateConversation:panelModalPrivateConversation"/>
+
+                                                                <a href="javascript:void(0)"
+                                                                   class="btn btn-sm btn-green-stroke"
+                                                                   onclick="hideEditPrivateConversationComment(this)">Cancel</a>
+                                                            </div>
+
+                                                            <div class="commentOptions">
+                                                                <a href="javascript:void(0)" class="edit #{compEditComment.isValid() ? '' : 'hidden'}"
+                                                                   onclick="showEditComment(this)">
+                                                                    <span class="icon"></span>Edit
+                                                                </a>
+                                                            </div>
+                                                        </div>
+                                                    </ui:fragment>
+
+                                                    <ui:fragment rendered="#{not cc.attrs.bean.isCurrentUserMessageSender(activityMessageData)}">
+                                                        <div class="commentMain">
 															<span class="commentTime"> Edited:
-																#{activityMessageData.dateCreatedFormat} </span>
-															<h3 class="media-heading">
-																<ui:fragment rendered="#{activityMessageData.senderId ne cc.attrs.studentId and not activityMessageData.senderInstructor}">
-																	#{activityMessageData.senderFullName}
-																</ui:fragment>
-																<ui:fragment rendered="#{activityMessageData.senderId eq cc.attrs.studentId or activityMessageData.senderInstructor}">
-																	<assessment:assessmentActorName
-																			actorId="#{activityMessageData.senderId}"
-																			actorFullName="#{activityMessageData.senderFullName}"
-																			blindAssessmentMode="#{cc.attrs.blindAssessmentMode}"
-																			actorType="#{activityMessageData.senderInstructor ? 'ASSESSOR' : 'STUDENT'}"
-																	/>
-																</ui:fragment>
-																<ui:fragment
-																		rendered="#{activityMessageData.senderInstructor}">
-																	<span>#{msg['label.instructor'].toUpperCase()}</span>
-																</ui:fragment>
-															</h3>
-															<p>#{activityMessageData.content}</p>
-														</div>
+                                                                #{activityMessageData.dateCreatedFormat} </span>
 
-														<div class="media replyInput hidden">
-															<div class="media-left">
-																<ui:fragment rendered="#{activityMessageData.senderId ne cc.attrs.studentId and not activityMessageData.senderInstructor}">
-																	<utilcomp:userAvatar
-																			avatar="#{activityMessageData.senderAvatarUrl}"
-																			fullName="#{activityMessageData.senderFullName}" />
-																</ui:fragment>
-																<ui:fragment rendered="#{activityMessageData.senderId eq cc.attrs.studentId or activityMessageData.senderInstructor}">
-																	<assessment:assessmentActorAvatar
-																			actorId="#{activityMessageData.senderId}"
-																			avatarUrl="#{activityMessageData.senderAvatarUrl}"
-																			actorFullName="#{activityMessageData.senderFullName}"
-																			blindAssessmentMode="#{cc.attrs.blindAssessmentMode}"
-																			actorType="#{activityMessageData.senderInstructor ? 'ASSESSOR' : 'STUDENT'}"
-																	/>
-																</ui:fragment>
-															</div>
+                                                            <h3 class="media-heading">
+                                                                <ui:fragment
+                                                                        rendered="#{activityMessageData.senderId ne cc.attrs.studentId and not activityMessageData.senderAssessor}">
+                                                                    #{activityMessageData.senderFullName}
+                                                                </ui:fragment>
+                                                                <ui:fragment rendered="#{activityMessageData.senderId eq cc.attrs.studentId or activityMessageData.senderAssessor}">
+                                                                    <assessment:assessmentActorName
+                                                                            actorId="#{activityMessageData.senderId}"
+                                                                            actorFullName="#{activityMessageData.senderFullName}"
+                                                                            blindAssessmentMode="#{cc.attrs.blindAssessmentMode}"
+                                                                            actorType="#{activityMessageData.senderAssessor ? 'ASSESSOR' : 'STUDENT'}" />
+                                                                </ui:fragment>
 
-															<div class="media-body replyComment">
-																<div class="commentForm">
+                                                                <ui:fragment rendered="#{activityMessageData.senderAssessor and cc.attrs.bean.type == 'INSTRUCTOR_ASSESSMENT'}">
+                                                                    <span>#{msg['label.instructor'].toUpperCase()}</span>
+                                                                </ui:fragment>
+                                                            </h3>
+                                                            <p>#{activityMessageData.content}</p>
+                                                        </div>
+
+                                                        <div class="media replyInput hidden">
+                                                            <div class="media-left">
+                                                                <ui:fragment rendered="#{activityMessageData.senderId ne cc.attrs.studentId and not activityMessageData.senderAssessor}">
+                                                                    <utilcomp:userAvatar
+                                                                            avatar="#{activityMessageData.senderAvatarUrl}"
+                                                                            fullName="#{activityMessageData.senderFullName}"/>
+                                                                </ui:fragment>
+
+                                                                <ui:fragment rendered="#{activityMessageData.senderId eq cc.attrs.studentId or activityMessageData.senderAssessor}">
+                                                                    <assessment:assessmentActorAvatar
+                                                                            actorId="#{activityMessageData.senderId}"
+                                                                            avatarUrl="#{activityMessageData.senderAvatarUrl}"
+                                                                            actorFullName="#{activityMessageData.senderFullName}"
+                                                                            blindAssessmentMode="#{cc.attrs.blindAssessmentMode}"
+                                                                            actorType="#{activityMessageData.senderAssessor ? 'ASSESSOR' : 'STUDENT'}"
+                                                                    />
+                                                                </ui:fragment>
+                                                            </div>
+
+                                                            <div class="media-body replyComment">
+                                                                <div class="commentForm">
 																	<textarea placeholder="Add Comment..."
-																			  onkeyup="displaySubmitButtonPrivateConvModal(this)"></textarea>
-																	<button type="button"
-																			class="btn btn-sm btn-green hidden" name="button">
-																		Submit</button>
-																</div>
-															</div>
-														</div>
-													</ui:fragment>
-												</div>
-											</li>
-										</ui:repeat>
-									</ul>
-								</ui:fragment>
-							</div>
-							<div class="addComment">
-								<ui:fragment rendered="#{loggeduser.userId ne cc.attrs.studentId and loggeduser.userId ne cc.attrs.assessorId}">
-									<utilcomp:userAvatar avatar="#{loggeduser.avatar}"
-														 fullName="#{loggeduser.fullName}" />
-								</ui:fragment>
-								<ui:fragment rendered="#{loggeduser.userId eq cc.attrs.studentId or loggeduser.userId eq cc.attrs.assessorId}">
-									<assessment:assessmentActorAvatar
-											actorId="#{loggeduser.userId}"
-											avatarUrl="#{loggeduser.avatar}"
-											actorFullName="#{loggeduser.fullName}"
-											blindAssessmentMode="#{cc.attrs.blindAssessmentMode}"
-											actorType="#{loggeduser.userId eq cc.attrs.assessorId ? 'ASSESSOR' : 'STUDENT'}"
-									/>
-								</ui:fragment>
+                                                                              onkeyup="displaySubmitButtonPrivateConvModal(this)"></textarea>
+                                                                    <button type="button"
+                                                                            class="btn btn-sm btn-green hidden"
+                                                                            name="button">
+                                                                        Submit
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </ui:fragment>
+                                                </div>
+                                            </li>
+                                        </ui:repeat>
+                                    </ul>
+                                </ui:fragment>
+                            </div>
+                            <div class="addComment">
+                                <ui:fragment rendered="#{loggeduser.userId ne cc.attrs.studentId and loggeduser.userId ne cc.attrs.assessorId}">
+                                    <utilcomp:userAvatar avatar="#{loggeduser.avatar}"
+                                                         fullName="#{loggeduser.fullName}"/>
+                                </ui:fragment>
 
-								<div class="commentForm">
-									<p:inputTextarea styleClass="contentEditableComment"
-													 style="width:100%;" rows="1"
-													 value="#{cc.attrs.bean.newCommentValue}"
-													 placeholder="Add Comment..."
-													 onkeyup="displaySubmitButtonPrivateConvModal(this)" />
+                                <ui:fragment rendered="#{loggeduser.userId eq cc.attrs.studentId or loggeduser.userId eq cc.attrs.assessorId}">
+                                    <assessment:assessmentActorAvatar
+                                            actorId="#{loggeduser.userId}"
+                                            avatarUrl="#{loggeduser.avatar}"
+                                            actorFullName="#{loggeduser.fullName}"
+                                            blindAssessmentMode="#{cc.attrs.blindAssessmentMode}"
+                                            actorType="#{loggeduser.userId eq cc.attrs.assessorId ? 'ASSESSOR' : 'STUDENT'}"
+                                    />
+                                </ui:fragment>
 
-									<p:commandLink
-											action="#{cc.attrs.bean.addCommentToAssessmentDiscussion()}"
-											type="button" styleClass="btn btn-sm btn-green hidden"
-											name="button"
-											update=":#{cc.clientId}:formPrivateConversation:panelModalPrivateConversation #{cc.attrs.toUpdate}">
-										Submit
-										<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
-										<f:param name="learningContext" value="#{cc.attrs.learningContext}" />
-										<f:param name="service" value="name:result_private_conversation_dialog" />
-									</p:commandLink>
+                                <div class="commentForm">
+                                    <p:inputTextarea
+                                            id="textareaAddNewComment"
+                                            label="Comment"
+                                            styleClass="contentEditableComment"
+                                            style="width:100%;" rows="1"
+                                            value="#{cc.attrs.bean.newCommentValue}"
+                                            placeholder="Add Comment..."
+                                            onkeyup="displaySubmitButtonPrivateConvModal(this)">
+                                            <f:validateLength maximum="9000"/>
+                                    </p:inputTextarea>
 
-								</div>
-							</div>
-							<div class="clear"></div>
-						</div>
-					</h:panelGroup>
-				</div>
-			</div>
-		</h:form>
-	</composite:implementation>
+                                    <small class="redText bottom30 displayBlock">
+                                        <h:message for="textareaAddNewComment"></h:message>
+                                    </small>
+
+                                    <utilcomp:singleClickLink styleClass="btn btn-sm btn-green hidden"
+                                                              value="Submit"
+                                                              action="#{cc.attrs.bean.addCommentToAssessmentDiscussion()}"
+                                                              update=":#{cc.clientId}:formPrivateConversation:panelModalPrivateConversation #{cc.attrs.toUpdate}">
+                                        <f:param name="page" value="#{facesContext.viewRoot.viewId}"/>
+                                        <f:param name="learningContext" value="#{cc.attrs.learningContext}"/>
+                                        <f:param name="service" value="name:result_private_conversation_dialog"/>
+                                    </utilcomp:singleClickLink>
+                                </div>
+                            </div>
+                            <div class="clear"></div>
+                        </div>
+                    </h:panelGroup>
+                </div>
+            </div>
+        </h:form>
+    </composite:implementation>
 
 </ui:component>

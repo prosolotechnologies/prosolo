@@ -4,18 +4,20 @@ import org.prosolo.services.util.SortingOption;
 
 public enum CompetenceStudentsSortOption {
 
-	STUDENT_NAME("Alphabetically", new String[] {"lastname", "name"}, SortingOption.ASC),  
-	DATE("Recent", new String[] {"competences.dateEnrolled"}, SortingOption.DESC);
+	STUDENT_NAME("Alphabetically", new String[] {"lastname.sort", "name.sort"}, false, SortingOption.ASC),
+	DATE("Recent", new String[] {"competences.dateEnrolled"}, true, SortingOption.DESC);
 	
 	//ui label
 	private String label;
 	//fields in elasticsearch corresponding to sort option
 	private String[] sortFields;
+	private boolean nestedSort;
 	private SortingOption sortOrder;
 	
-	private CompetenceStudentsSortOption(String label, String[] sortFields, SortingOption sortOrder) {
+	CompetenceStudentsSortOption(String label, String[] sortFields, boolean nestedSort, SortingOption sortOrder) {
 		this.label = label;
 		this.sortFields = sortFields;
+		this.nestedSort = nestedSort;
 		this.sortOrder = sortOrder;
 	}
 
@@ -31,5 +33,7 @@ public enum CompetenceStudentsSortOption {
 		return sortOrder;
 	}
 
-	
+	public boolean isNestedSort() {
+		return nestedSort;
+	}
 }

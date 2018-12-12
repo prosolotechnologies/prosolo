@@ -130,10 +130,10 @@
 								    outcome="/manage/create-competence.xhtml" /></li>
 						</ul>
 					</h:panelGroup>
-					
+
 					<div class="dropdown notificationsMenu">
 						<p:commandLink id="iconNotificationsId"
-							styleClass="iconNotifications active" 
+							styleClass="iconNotifications #{managerNotificationsBean.unreadNotificationsNo > 0 ? 'active' : ''}"
 							pt:data-toggle="dropdown" 
 							pt:aria-haspopup="true" 
 							pt:aria-expanded="true"

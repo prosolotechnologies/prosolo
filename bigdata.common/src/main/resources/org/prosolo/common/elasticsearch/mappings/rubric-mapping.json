@@ -1,0 +1,21 @@
+{
+  "rubric":{
+    "properties":{
+      "id":{
+        "store": false,
+        "type":"long"
+      },
+      "name":{
+        "store": false,
+        "type": "text",
+        "fields": {
+          "sort": {
+            "type": "keyword",
+            "normalizer": "ci_normalizer"
+          }
+        }
+      }
+    }
+  }
+
+}

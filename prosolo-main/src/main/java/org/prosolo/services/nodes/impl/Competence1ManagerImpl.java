@@ -2882,9 +2882,20 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	}
 
 	@Override
+	@Transactional
+	public void saveEvidenceSummary(long targetCompetenceId, String evidenceSummary) {
+		try {
+			TargetCompetence1 tc = (TargetCompetence1) persistence.currentManager().load(TargetCompetence1.class, targetCompetenceId);
+			tc.setEvidenceSummary(evidenceSummary);
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error updating the evidence summary for target competence with id: " + targetCompetenceId);
+		}
+	}
+
+	@Override
 	@Transactional(readOnly = true)
 	public long getIdOfFirstCredentialCompetenceIsAddedToAndStudentHasLearnPrivilegeFor(long compId, long studentId) {
-		CompetenceData1 compData = null;
 		try {
 			String query = "SELECT cred.id, tc.id " +
 					"FROM CredentialCompetence1 cc " +

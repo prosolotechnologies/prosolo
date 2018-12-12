@@ -9,6 +9,7 @@ import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
+import org.prosolo.services.nodes.data.credential.CredentialIdData;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
@@ -49,7 +50,7 @@ public class CompetenceViewBeanManager implements Serializable {
 	private ResourceAccessData access;
 	private CommentsData commentsData;
 
-	private String credentialTitle;
+	private CredentialIdData credentialIdData;
 
 	public void init() {	
 		decodedCompId = idEncoder.decodeId(compId);
@@ -84,8 +85,8 @@ public class CompetenceViewBeanManager implements Serializable {
 				commentBean.loadComments(commentsData);
 //					commentBean.init(CommentedResourceType.Competence, competenceData.getCompetenceId(),
 //							hasInstructorCapability);
-				if(decodedCredId > 0) {
-					credentialTitle = credManager.getCredentialTitle(decodedCredId);
+				if (decodedCredId > 0) {
+					credentialIdData = credManager.getCredentialIdData(decodedCredId, null);
 					competenceData.setCredentialId(decodedCredId);
 				}
 			} catch (AccessDeniedException ade) {
@@ -194,6 +195,10 @@ public class CompetenceViewBeanManager implements Serializable {
 	}
 
 	public String getCredentialTitle() {
-		return credentialTitle;
+		return credentialIdData.getTitle();
+	}
+
+	public CredentialIdData getCredentialIdData() {
+		return credentialIdData;
 	}
 }

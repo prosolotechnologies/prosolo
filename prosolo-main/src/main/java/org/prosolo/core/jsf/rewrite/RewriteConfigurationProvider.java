@@ -146,11 +146,11 @@ public class RewriteConfigurationProvider extends HttpConfigurationProvider {
 				.addRule(Join.path("/manage/credentials/{id}/assessments").to("/manage/credential-delivery-assessments.xhtml"))
 				.addRule(Join.path("/manage/credentials/{id}/assessments/activities/{activityId}").to("/manage/credential-delivery-assessments-activity.xhtml"))
 				.addRule(Join.path("/manage/credentials/{credentialId}/assessments/competencies/{competenceId}").to("/manage/credential-delivery-assessments-competence.xhtml"))
-				.addRule(Join.path("/manage/credentials/{credId}/assessments/activities/{actId}/{targetActId}").to("/manage/credential-delivery-activity-assessment.xhtml"))
+//				.addRule(Join.path("/manage/credentials/{credId}/assessments/activities/{actId}/{targetActId}").to("/manage/credential-delivery-activity-assessment.xhtml"))
 				/* instructor viewing single assessment where he is instructor (manage-assessment-preview.html) */
 				.addRule(Join.path("/manage/credentials/{id}/assessments/{assessmentId}").to("/manage/credential-assessment.xhtml"))
 				.addRule(Join.path("/manage/credentials/{id}/feeds").to("/manage/courseFeeds.xhtml"))
-				.addRule(Join.path("/manage/credentials/{id}/assessments/{assId}").to("/manage/assessment-preview.xhtml"))
+//				.addRule(Join.path("/manage/credentials/{id}/assessments/{assId}").to("/manage/assessment-preview.xhtml"))
 				.addRule(Join.path("/manage/credentials/{id}/rss").to("/manage/credential-rss.xhtml"))
 				.addRule(Join.path("/manage/credentials/{id}/announcements").to("/manage/announcements.xhtml"))
 				.addRule(Join.path("/manage/credentials/{id}/deliveries").to("/manage/credential-deliveries.xhtml"))

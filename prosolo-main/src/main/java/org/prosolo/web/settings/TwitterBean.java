@@ -1,15 +1,5 @@
 package org.prosolo.web.settings;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.Map;
-
-import javax.faces.bean.ManagedBean;
-import javax.faces.context.ExternalContext;
-import javax.faces.context.FacesContext;
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.log4j.Logger;
 import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.user.oauth.OauthAccessToken;
@@ -25,8 +15,16 @@ import org.prosolo.web.util.page.PageSection;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-
 import twitter4j.TwitterException;
+
+import javax.faces.bean.ManagedBean;
+import javax.faces.context.ExternalContext;
+import javax.faces.context.FacesContext;
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.Map;
 
 /**
  * @author Zoran Jeremic 2013-08-04
@@ -108,8 +106,8 @@ public class TwitterBean implements Serializable {
 				accessToken = twitterApiManager.getOauthAccessToken(loggedUser.getUserId());
 			}
 		} catch (Exception e) {
-			logger.error("Exception in checking twitter status for user:" + loggedUser.getSessionData().getName() + " "
-					+ loggedUser.getSessionData().getLastName(), e);
+			logger.error("Exception in checking twitter status for user:" + loggedUser.getName() + " "
+					+ loggedUser.getLastName(), e);
 		}
 		
 		if (!redirected) {
