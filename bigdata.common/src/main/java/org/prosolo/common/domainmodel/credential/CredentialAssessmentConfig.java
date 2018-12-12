@@ -12,7 +12,7 @@ import javax.persistence.*;
  * @since 1.2.0
  */
 @Entity
-@Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"credential", "assessment_type"})})
+//unique constraint added from the script
 public class CredentialAssessmentConfig extends BaseEntity {
 
     private Credential1 credential;

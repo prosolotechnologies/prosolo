@@ -55,7 +55,7 @@ public class AskForCredentialAssessmentBean extends AskForAssessmentBean impleme
                             .getPeerAssessorIdsForUserAndCredential(resourceId, loggedUser.getUserId()));
                 }
 
-                PaginatedResult<UserData> result = userTextSearch.searchPeersWithoutAssessmentRequest(
+                PaginatedResult<UserData> result = userTextSearch.searchCredentialPeers(
                         loggedUser.getOrganizationId(), peerSearchTerm, 3, resourceId, usersToExcludeFromPeerSearch);
                 peersForAssessment = result.getFoundNodes();
             } catch (Exception e) {

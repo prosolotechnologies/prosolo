@@ -2,7 +2,7 @@ package org.prosolo.services.user.data.profile;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.prosolo.services.common.data.LazyInitData;
+import org.prosolo.services.common.data.LazyInitCollection;
 import org.prosolo.services.nodes.data.organization.CredentialCategoryData;
 
 import java.io.Serializable;
@@ -26,8 +26,8 @@ public class CredentialProfileData implements Serializable {
     private final String description;
     private final List<String> keywords;
     private final long dateCompleted;
-    private final LazyInitData<AssessmentByTypeProfileData> assessments;
-    private final LazyInitData<CompetenceProfileData> competences;
+    private final LazyInitCollection<AssessmentByTypeProfileData> assessments;
+    private final LazyInitCollection<CompetenceProfileData> competences;
     private final CredentialCategoryData category;
 
 }

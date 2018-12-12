@@ -7,7 +7,7 @@ import org.prosolo.common.domainmodel.credential.CredentialType;
 import org.prosolo.services.assessment.data.AssessmentTypeConfig;
 import org.prosolo.services.assessment.data.LearningResourceAssessmentSettings;
 import org.prosolo.services.assessment.data.grading.AssessmentGradeSummary;
-import org.prosolo.services.common.data.LazyInitData;
+import org.prosolo.services.common.data.LazyInitCollection;
 import org.prosolo.services.common.observable.StandardObservable;
 import org.prosolo.services.nodes.data.LearningResourceLearningStage;
 import org.prosolo.services.nodes.data.ObjectStatus;
@@ -73,8 +73,8 @@ public class CredentialData extends StandardObservable implements Serializable {
 	private CredentialType type;
 	//is delivery active
 	private CredentialDeliveryStatus deliveryStatus;
-	private LazyInitData<String> studentsWhoCanLearn;
-	private LazyInitData<String> groupsThatCanLearn;
+	private LazyInitCollection<String> studentsWhoCanLearn;
+	private LazyInitCollection<String> groupsThatCanLearn;
 
 	//for original
 	private CredentialDeliveriesSummaryData credentialDeliveriesSummaryData;
@@ -660,19 +660,19 @@ public class CredentialData extends StandardObservable implements Serializable {
 		return idData;
 	}
 
-	public LazyInitData<String> getStudentsWhoCanLearn() {
+	public LazyInitCollection<String> getStudentsWhoCanLearn() {
 		return studentsWhoCanLearn;
 	}
 
-	public void setStudentsWhoCanLearn(LazyInitData<String> studentsWhoCanLearn) {
+	public void setStudentsWhoCanLearn(LazyInitCollection<String> studentsWhoCanLearn) {
 		this.studentsWhoCanLearn = studentsWhoCanLearn;
 	}
 
-	public LazyInitData<String> getGroupsThatCanLearn() {
+	public LazyInitCollection<String> getGroupsThatCanLearn() {
 		return groupsThatCanLearn;
 	}
 
-	public void setGroupsThatCanLearn(LazyInitData<String> groupsThatCanLearn) {
+	public void setGroupsThatCanLearn(LazyInitCollection<String> groupsThatCanLearn) {
 		this.groupsThatCanLearn = groupsThatCanLearn;
 	}
 

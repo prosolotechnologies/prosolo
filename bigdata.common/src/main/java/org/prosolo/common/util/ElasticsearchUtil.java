@@ -23,6 +23,8 @@ import java.util.TimeZone;
 public class ElasticsearchUtil {
     private static Logger logger = Logger.getLogger(ElasticsearchUtil.class);
 
+    public static final String DEFAULT_SCRIPT_LANG = "painless";
+
     public static String copyToStringFromClasspath(String path) throws IOException {
         InputStream is = Streams.class.getResourceAsStream(path);
         if (is == null) {

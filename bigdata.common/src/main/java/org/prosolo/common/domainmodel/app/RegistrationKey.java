@@ -20,7 +20,7 @@ public class RegistrationKey extends BaseEntity {
 	private String uid;
 	private RegistrationType registrationType;
 	
-	@Column(unique = true)
+	//unique constraint added from the script
 	public String getUid() {
 		return uid;
 	}

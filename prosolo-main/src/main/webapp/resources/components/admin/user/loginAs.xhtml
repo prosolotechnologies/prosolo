@@ -2,14 +2,14 @@
 		xmlns:ui="http://java.sun.com/jsf/facelets"
 		xmlns:h="http://java.sun.com/jsf/html"
 		xmlns:composite="http://java.sun.com/jsf/composite"
-		xmlns:p="http://primefaces.org/ui"
+		xmlns:util="http://www.prosolo.com/util"
 >
 
 	<composite:interface>
 	</composite:interface>
 
 	<composite:implementation>
-		<h:form id="formLoginAs">
+		<form id="formLoginAs" method="POST" action="#{request.contextPath}/loginAs/login">
 			<div class="modal fade" id="loginAs" tabindex="-1" role="dialog" aria-labelledby="loginAsAdmin">
 				<div class="modal-dialog" role="document">
 					<h:panelGroup id="panelLoginAs" layout="block" styleClass="modal-content">
@@ -23,20 +23,14 @@
 							</p>
 						</div>
 						<div class="modal-footer">
-							<p:commandLink
-									ajax="false"
-									id="proceedBtn"
-									styleClass="btn btn-green"
-									process="@this"
-									action="#{loggeduser.loginAs()}">
-								Proceed
-							</p:commandLink>
-							<p:defaultCommand target="proceedBtn" />
+							<input type="hidden" id="j_username" name="j_username" value="#{loggeduser.loginAsUser.email}"/>
+							<input type="hidden" id="failureUrl" name="failureUrl" value="#{util:getForwardedUri('error=Error trying to log in as '.concat(loggeduser.loginAsUser.fullName))}"/>
+							<input id="loginAsBtn" type="submit" class="btn btn-green" value="Proceed"/>
 							<a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
 						</div>
 					</h:panelGroup>
 				</div>
 			</div>
-		</h:form>
+		</form>
 	</composite:implementation>
 </ui:component>

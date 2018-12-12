@@ -1,20 +1,17 @@
 package org.prosolo.bigdata.dal.persistence.impl;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
 import org.apache.log4j.Logger;
-import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.dal.persistence.CourseDAO;
 import org.prosolo.bigdata.dal.persistence.HibernateUtil;
-import org.prosolo.bigdata.es.impl.CredentialIndexerImpl;
-import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialType;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 public class CourseDAOImpl extends GenericDAOImpl implements CourseDAO {
 
@@ -247,5 +244,32 @@ public class CourseDAOImpl extends GenericDAOImpl implements CourseDAO {
 			ex.printStackTrace();
 			throw new DbConnectionException("Error while retrieving user credentials ids");
 		}
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public long getOrganizationIdForCredential(long credentialId) {
+		Session session = HibernateUtil.getSessionFactory().openSession();
+		Transaction t = null;
+		String query =
+				"SELECT cred.organization.id " +
+				"FROM Credential1 cred " +
+				"WHERE cred.id = :credentialId";
+		try {
+			t = session.beginTransaction();
+			Long id = (Long) session.createQuery(query)
+					.setLong("credentialId", credentialId)
+					.uniqueResult();
+			t.commit();
+			return id != null ? id.longValue() : 0;
+		} catch(Exception ex) {
+			logger.error("Error", ex);
+			if (t != null) {
+				t.rollback();
+			}
+		} finally {
+			session.close();
+		}
+		return 0;
 	}
 }

@@ -1,6 +1,8 @@
 package org.prosolo.services.notifications.impl;
 
 import java.io.Serializable;
+import java.util.Locale;
+import java.util.Optional;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpSession;
@@ -9,6 +11,8 @@ import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
+import org.prosolo.core.spring.security.authentication.sessiondata.ProsoloUserDetails;
+import org.prosolo.services.authentication.AuthenticatedUserService;
 import org.prosolo.services.notifications.NotificationCacheUpdater;
 import org.prosolo.services.notifications.NotificationManager;
 import org.prosolo.services.notifications.eventprocessing.data.NotificationData;
@@ -32,17 +36,18 @@ public class NotificationCacheUpdaterImpl implements NotificationCacheUpdater, S
 	
 	@Inject
 	private NotificationManager notificationManager;
+	@Inject private AuthenticatedUserService authenticatedUserService;
 
 	@Override
 	public void updateNotificationData(long notificationId, HttpSession userSession, Session session) throws ResourceCouldNotBeLoadedException {
 		if (userSession != null) {
 			StudentNotificationsBean studentNotificationsBean = (StudentNotificationsBean) userSession.getAttribute("studentNotificationsBean");
 			ManagerNotificationsBean managerNotificationsBean = (ManagerNotificationsBean) userSession.getAttribute("managerNotificationsBean");
-			LoggedUserBean loggedUserBean = (LoggedUserBean) userSession.getAttribute("loggeduser");
-
+			Optional<ProsoloUserDetails> prosoloUserDetails = authenticatedUserService.getUserDetailsFromSession(userSession);
+			Locale locale = prosoloUserDetails.isPresent() ? prosoloUserDetails.get().getLocale() : new Locale("en", "US");
 			if(studentNotificationsBean != null || managerNotificationsBean != null) {
 				NotificationData notificationData = notificationManager
-						.getNotificationData(notificationId, false, session, loggedUserBean.getLocale());
+						.getNotificationData(notificationId, false, session, locale);
 
 				switch (notificationData.getSection()) {
 					case STUDENT:

@@ -131,7 +131,7 @@ public class ActivityAssessmentBean extends LearningResourceAssessmentBean {
 
 	private void addNewCommentToAssessmentData(AssessmentDiscussionMessageData newComment) {
 		if (loggedUserBean.getUserId() == activityAssessmentData.getAssessorId()) {
-			newComment.setSenderInstructor(true);
+			newComment.setSenderAssessor(true);
 		}
 		activityAssessmentData.getActivityDiscussionMessageData().add(newComment);
 		activityAssessmentData.setNumberOfMessages(activityAssessmentData.getNumberOfMessages() + 1);
