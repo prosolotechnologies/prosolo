@@ -1,4 +1,4 @@
-package org.prosolo.web.search.data;
+package org.prosolo.search.data;
 
 /**
  * @author Nikola Milikic

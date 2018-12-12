@@ -133,17 +133,20 @@
 			                                </div>
 			                                
 			                                <div class="modal-body alignLeft">
-			                                     <p:inputTextarea placeholder="Type a message..." value="#{profileBean.message}" id="messageContentTextarea" >
-                                    			 </p:inputTextarea>
-                                    			  <script>try{expandTextarea("messageContentTextarea")}catch(e){}</script>
+												<p:inputTextarea id="messageContentTextarea"
+																 placeholder="Type a message..."
+																 value="#{profileBean.message}" />
+												<script>
+													try{expandTextarea("messageContentTextarea")}catch(e){}
+												</script>
 			                                </div>
 			                                
 			                                <div class="modal-footer alignLeft">
-			                                    <p:commandLink action="#{profileBean.sendMessage()}"
-                                            			styleClass="btn btn-green"
-                                            			process="@form"
+			                                    <p:commandLink styleClass="btn btn-green"
+														action="#{profileBean.sendMessage}"
+                                            			process="messageContentTextarea"
                                             			update="profileGrowl"
-                                            			oncomplete="hideMessageDialog('message')">
+                                            			oncomplete="$('#message').modal('hide');">
 			                                    	Send
 			                                    </p:commandLink>
 			                                </div>
@@ -500,5 +503,15 @@
 	    <!-- Include all compiled plugins (below), or include individual files as needed -->
 	    <script src="#{request.contextPath}/resources/javascript2/bootstrap-tagsinput.min.js"></script>
 	    <script src="#{request.contextPath}/resources/javascript2/bootstrap-tagsinput-angular.min.js"></script>
+
+		<script>
+			$(function () {
+                $('#message').on('shown.bs.modal', function() {
+                    $('#'+escapeColons('whiteBarProfileForm:messageContentTextarea')).focus();
+                }).on('hidden.bs.modal', function() {
+                    $('#'+escapeColons('whiteBarProfileForm:messageContentTextarea')).val('');
+                });
+            })
+		</script>
 	</ui:define>
 </ui:composition>

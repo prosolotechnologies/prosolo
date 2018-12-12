@@ -4,242 +4,200 @@
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:composite="http://java.sun.com/jsf/composite"
 	xmlns:p="http://primefaces.org/ui"
-	xmlns:comp="http://java.sun.com/jsf/composite/components"
-	xmlns:c="http://java.sun.com/jsp/jstl/core"
-	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
-	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
-	xmlns:util="http://www.prosolo.com/util">
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
 
 	<composite:interface>
-	
 	</composite:interface>
 	
 	<composite:implementation>
 		<script src="#{request.contextPath}/resources/javascript2/search.js"></script>
 		<script>
 			function changeConversation(threadId) {
-				$('.messagesList li.active').removeClass('active');
-				$('.messagesList li[thread-id='+threadId+']').addClass('active');
-				setQueryParam('id', threadId);
-			}
-			
-			function hideConfirmDialog(dialogId) {
-				$('#messages\\:'+dialogId).modal('hide');
-				$("body").removeAttr("class").removeAttr("style")
-				$("div.modal-backdrop.fade.in").remove()
-			}
-			
-			//function expandTextarea(id) {
-			  //  var $element = $('#messages\\:'+id).get(0);  
-			  //  $element.addEventListener('keyup', function() {
-			  //     this.style.overflow = 'hidden';
-			  //     this.style.height = 0;
-			  //     this.style.height = this.scrollHeight + 'px';
-			  //  }, false);
-			//}
-			
-			function returnFocusMessageText() {
-				$("#messages\\:messageContentTextarea").focus();
-			}
-			
-			function setRecipient(name,id) {
-				setupNewMessageThreadRecievers([{name:'newThreadRecipients', value:id}])
-				resetPeopleSearchParameters()
-				$("#messages\\:messageRecievingUserName").val(name)
-				$("[id*='#messages\\:newMessageContentTextarea']").focus()
+			    if (typeof threadId != 'undefined') {
+                    $('.messagesList li.active').removeClass('active');
+                    $('.messagesList li[thread-id='+threadId+']').addClass('active');
+                    history.replaceState("", "", "#{request.contextPath}/messages/" + threadId);
+                }
 			}
 		</script>
 		
 	    <div class="whiteBar"></div>
-	
+
 		<div class="container">
-			<h:panelGroup class="row" id="rowDiv" layout="block">
-	            <h:panelGroup id="messageItemsContainer" layout="block" class="col-md-3">
-	                <div class="messagesListHead">
-	                    <div class="dropdown showDrop">
-	                        <a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-	                            #{messagesBean.archiveView == true ? 'Archive' : 'Inbox'}
-	                            <span class="arrowDown">arrowDown</span>
-	                        </a>
-	                        
-	                        <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-	                            <li>
-	                            	<p:commandLink 
-										action="#{messagesBean.setArchiveView(false)}"
-										update=":#{cc.clientId}:rowDiv"
-										oncomplete="resetPeopleSearchParameters()">
-										Inbox
-									</p:commandLink>
-								</li>
-	                            <li>
-	                            	<p:commandLink
-										action="#{messagesBean.setArchiveView(true)}"
-										update=":#{cc.clientId}:rowDiv"
-										oncomplete="resetPeopleSearchParameters()">
-										Archive
-									</p:commandLink>
-	                            </li>
-                        	</ul>
-                    	</div>
-                    	
-                    	<p:commandLink styleClass="newMessageBtn" 
-	                 				   action="#{messagesBean.setNewMessageView(true)}"
-	                 				   update=":#{cc.clientId}:rowDiv"
-	                 				   oncomplete="$('##{cc.clientId}\\:messageRecievingUserName').focus()"
-	                 				   disabled="#{messagesBean.newMessageView}"
-	                 				   process="@this">
-                   			<span></span>New Message 
-                    	</p:commandLink>
-                	</div>
-                	
-					<h:panelGroup rendered="#{messagesBean.messagesThreads.size() > 0}" layout="block" class="messagesList">
-						<ul>
-							<ui:repeat value="#{messagesBean.messagesThreads}" var="messageThreadData" varStatus="iterator">
-								<li thread-readed="#{messageThreadData.readed}" thread-id="#{messageThreadData.id}" 
-			                		 		class="#{messageThreadData.id == messagesBean.threadData.id ? 'active' : ''} #{messageThreadData.readed == false ? 'unreadMessage' : ''}">
-			                		 	
-		                		 	<p:commandLink 
-										action="#{messagesBean.changeThread(messageThreadData)}"
-										update=":#{cc.clientId}:rowDiv"
-										onclick="changeConversation(#{messageThreadData.id})"
-										oncomplete="resetPeopleSearchParameters()">
-										<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
-										<f:param name="context" value="name:messages" />
-										
-										<div class="media">
-			                                <div class="media-left">
-			                                    <utilcomp:userAvatar
-				                                	avatar="#{messageThreadData.participantsWithoutLoggedUser.get(0).avatarUrl}"
-				                                	fullName="#{messageThreadData.participantsWithoutLoggedUser.get(0).name}" />
-			                                </div>
-			                                
-			                                <div class="media-body">
-			                                    <h3 class="media-heading">#{messageThreadData.participantsWithoutLoggedUser.get(0).name}</h3>
-			                                    <span>
-													<utilcomp:convertTimeOutput
-															millis="#{messageThreadData.lastUpdatedTime}"
-															format="MM/DD/YYYY"
-													/>
-												</span>
-			                                    <div class="clear"></div>
-			                                    <p style="color: #859095 !important;">#{messageThreadData.latest.shortContent}</p>
-			                                </div>
-			                            </div>
-			                            
-			                            <h:panelGroup rendered="#{!messageThreadData.readed}" id="markerSpan" class="unread hidden" />
-		                            </p:commandLink>
-								</li>
-							</ui:repeat>
-						</ul>
-					</h:panelGroup>
-		                
-		            <h:panelGroup rendered="#{messagesBean.messagesThreads.size() == 0}" layout="block" class="messagesList">
-						<div class="noMessagesList">
-							No Messages.
+			<div class="row">
+				<h:form id="threadsForm">
+					<div class="col-md-3">
+						<div class="messagesListHead">
+							<div class="dropdown showDrop">
+								<a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+									#{messagesBean.archiveView == true ? 'Archive' : 'Inbox'}
+									<span class="arrowDown">arrowDown</span>
+								</a>
+
+								<ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+									<li>
+										<p:commandLink id="inboxBtn"
+													   value="Inbox"
+													   action="#{messagesBean.setArchiveView(false)}"
+													   update=":#{cc.clientId}:threadsForm :#{cc.clientId}:messagesForm"
+													   oncomplete="changeConversation($('.messagesList .active').attr('thread-id'));" />
+									</li>
+									<li>
+										<p:commandLink id="archiveBtn"
+													   value="Archive"
+													   action="#{messagesBean.setArchiveView(true)}"
+													   update=":#{cc.clientId}:threadsForm :#{cc.clientId}:messagesForm"
+													   oncomplete="changeConversation($('.messagesList .active').attr('thread-id'));"/>
+									</li>
+								</ul>
+							</div>
+
+							<p:commandLink styleClass="newMessageBtn"
+										   action="#{messagesBean.setNewMessageView(true)}"
+										   update=":#{cc.clientId}:messagesForm :#{cc.clientId}:threadsForm @this"
+										   oncomplete="$('##{cc.clientId}\\:messageRecievingUserName').focus()"
+										   disabled="#{messagesBean.newMessageView}"
+										   process="@this">
+								<span></span>New Message
+							</p:commandLink>
 						</div>
-	                </h:panelGroup>
-				</h:panelGroup>
-	                
-				<!-- displayed when there are no messages *** TRY TO MERGE THESE TWO!!! -->
-				<h:panelGroup rendered="#{messagesBean.messagesThreads.size() == 0 and !messagesBean.newMessageView}" layout="block" class="col-md-6 messageColumn">
-					<section class="whiteBox messagesPane noSelected">
-						<h2>No message selected.</h2>
-					</section>
-				</h:panelGroup>
-				
-				<!-- displayed when there are messages-->
-				<h:panelGroup rendered="#{messagesBean.messagesThreads.size() > 0 and !messagesBean.newMessageView}" layout="block" class="col-md-6 messageColumn">
-					<section class="whiteBox messagesPane"></section>
-				</h:panelGroup>
-	
-	              
-				<!-- BEGIN MESSAGE PANEL FOR DISPLAYING/SENDING MESSAGES -->
-				<h:form id="messagesForm" prependId="false">
-					<p:remoteCommand name="setupNewMessageThreadRecievers" 
-						update="typeBoxNewMessageThread" 
-						process="@this" 
-						actionListener="#{messagesBean.setupNewMessageThreadRecievers()}" />
-					
-					<p:remoteCommand name="resetPeopleSearchParameters" 
-						update="usersListPanel" 
-						process="@this" 
-						actionListener="#{searchPeopleBean.resetSearch()}" />
-              
-              		<p:growl id="messagesFormGrowl" showDetail="true" />
-              		
-					<h:panelGroup rendered="#{messagesBean.messagesThreads.size() > 0 and !messagesBean.newMessageView}" layout="block" id="messagesContainer" class="col-md-6 messageColumn">
-						<section class="whiteBox messagesPane">
-							<div class="messagePaneHead">
-								<h2>#{messagesBean.threadData.participantsListWithoutLoggedUser}</h2>
-								<div class="dropdown messageMenu">
-									<a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">message menu</a>
-									<ul class="dropdown-menu dropdown-menu-right bullet pull-center" aria-labelledby="dropdownMenu1">
-										<li>
-											<p:commandLink rendered="#{!messagesBean.archiveView}" 
-												action="#{messagesBean.archiveCurrentThread}" 
-												update=":#{cc.clientId}:rowDiv">Archive
-											</p:commandLink>
-										</li>
-										<li>
-											<a href="#" data-toggle="modal" data-target="#deleteConv">Delete Conversation</a>
-										</li>
-									</ul>
-									
-									<div class="modal fade" id="deleteConv" tabindex="-1" role="dialog" aria-labelledby="deleteConversation">
-										<div class="modal-dialog" role="document">
-											<div class="modal-content">
-												<div class="modal-header">
-													<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
-													<h2 class="modal-title" id="deleteConversation">Delete Conversation?</h2>
+
+						<h:panelGroup layout="block"
+									  id="threadList"
+									  class="messagesList"
+									  rendered="#{messagesBean.messageThreads.size() > 0}">
+							<ul>
+								<ui:repeat value="#{messagesBean.messageThreads}" var="messageThreadData" varStatus="iterator">
+									<li thread-readed="#{messageThreadData.readed}"
+										thread-id="#{util:encodeId(messageThreadData.id)}"
+										class="#{messageThreadData.id == messagesBean.selectedThread.id ? 'active' : ''} #{messageThreadData.readed == false ? 'unreadMessage' : ''}">
+
+										<p:commandLink action="#{messagesBean.changeThread(messageThreadData)}"
+													   update=":#{cc.clientId}:threadsForm :#{cc.clientId}:messagesForm"
+													   onclick="changeConversation('#{util:encodeId(messageThreadData.id)}')"
+													   oncomplete="resetPeopleSearchParameters()">
+											<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
+											<f:param name="context" value="name:messages" />
+
+											<div class="media">
+												<div class="media-left">
+													<utilcomp:userAvatar
+															avatar="#{messageThreadData.receiver.avatarUrl}"
+															fullName="#{messageThreadData.receiver.fullName}" />
 												</div>
-		                                        <div class="modal-body">
-		                                            <p>Are you sure you want to delete this conversation?</p>
-		                                        </div>
-		                                        <div class="modal-footer">
-													<p:commandLink action="#{messagesBean.deleteCurrentThread()}" 
-                                            			styleClass="btn btn-red"
-                                            			process="@this"
-                                            			update=":#{cc.clientId}:rowDiv"
-                                            			oncomplete="hideConfirmDialog('deleteConv')">
-                                            			Delete
-		                                            </p:commandLink>
-													<a id="deleteConfirmDialogClose" href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+
+												<div class="media-body">
+													<h3 class="media-heading">#{messageThreadData.receiver.fullName}</h3>
+													<span>
+														<utilcomp:convertTimeOutput
+																millis="#{messageThreadData.lastUpdated.created.time}"
+																format="rel"
+														/>
+													</span>
+													<div class="clear"></div>
+													<p style="color: #859095 !important;">#{messageThreadData.lastUpdated.shortContent}</p>
 												</div>
 											</div>
-										</div>
-									</div>
-								</div>
+
+											<h:panelGroup rendered="#{messagesBean.selectedThread.id == messageThreadData.id ? messagesBean.selectedThreadUnread : !messageThreadData.readed}" class="unread" />
+										</p:commandLink>
+									</li>
+								</ui:repeat>
+							</ul>
+							<div class="loadMoreThreads">
+								<p:commandLink rendered="#{messagesBean.loadMoreThreads}"
+											   value="Load more..."
+											   action="#{messagesBean.loadMoreThreads()}"
+											   update=":#{cc.clientId}:threadsForm:threadList"/>
 							</div>
-	                    	<!-- BEGIN : SEPARATOR OF MESSAGES HEADER AND ACTUAL MESSAGES -->
+							<script>
+								$(function(){
+                                    changeConversation($('.messagesList .active').attr('thread-id'));
+								});
+							</script>
+						</h:panelGroup>
+
+						<h:panelGroup rendered="#{messagesBean.messageThreads.size() == 0}" layout="block" class="messagesList">
+							<div class="noMessagesList">
+								No conversations.
+							</div>
+						</h:panelGroup>
+					</div>
+				</h:form>
+
+				<!-- PANEL WITH MESSAGES -->
+				<h:form id="messagesForm" prependId="false">
+					<p:remoteCommand name="resetPeopleSearchParameters"
+						update="usersListPanel" 
+						process="@this" 
+						action="#{messagesBean.resetSearch}" />
+              
+              		<p:growl id="messagesFormGrowl" showDetail="true" />
+
+					<!-- displayed when there ARE NO messages -->
+					<h:panelGroup layout="block"
+								  rendered="#{messagesBean.selectedThread == null and
+								   messagesBean.messageRecipient == null and
+								   !messagesBean.newMessageView}"
+								  class="col-md-6 messageColumn">
+						<section class="whiteBox messagesPane noSelected">
+							<h2>No conversation selected.</h2>
+						</section>
+					</h:panelGroup>
+
+					<!-- displayed when there ARE messages -->
+					<h:panelGroup layout="block" id="messagesContainer"
+								  rendered="#{(messagesBean.selectedThread != null or messagesBean.messageRecipient != null) and !messagesBean.newMessageView}"
+								  class="col-md-6 messageColumn">
+
+						<section class="whiteBox messagesPane">
+							<div class="messagePaneHead">
+								<h2>#{messagesBean.messageRecipient.fullName}</h2>
+
+								<ui:fragment rendered="#{messagesBean.selectedThread != null}">
+									<div class="dropdown messageMenu">
+										<a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">message menu</a>
+										<ul class="dropdown-menu dropdown-menu-right bullet pull-center" aria-labelledby="dropdownMenu1">
+											<li>
+												<p:commandLink rendered="#{!messagesBean.archiveView}"
+															   value="Archive"
+															   action="#{messagesBean.archiveSelectedThread}"
+															   update=":#{cc.clientId}:threadsForm :#{cc.clientId}:messagesForm" />
+												<p:commandLink rendered="#{messagesBean.archiveView}"
+															   value="Revoke from archive"
+															   action="#{messagesBean.revokeFromArchiveSelectedThread}"
+															   update=":#{cc.clientId}:threadsForm :#{cc.clientId}:messagesForm" />
+											</li>
+											<li>
+												<a href="#" data-toggle="modal" data-target="#deleteConv">Delete</a>
+											</li>
+										</ul>
+									</div>
+								</ui:fragment>
+							</div>
 	                    	<div class="greyBar"></div>
-	                    	<!-- END : SEPARATOR OF MESSAGES HEADER AND ACTUAL MESSAGES -->
-	                    	<ui:remove>
-		                    	<h:panelGroup layout="block" rendered="#{messagesBean.loadMore}">
-											<p:commandButton value="Load earlier messages" 
-											update=":#{cc.clientId}:messagesForm"
-											actionListener="#{messagesBean.increaseLimit()}"
-											process="@this"/>
-		                    	</h:panelGroup>
-		                    	<h:panelGroup layout="block" rendered="#{!messagesBean.loadMore and messagesBean.messages.size() > 5}">
-											<p:commandButton value="Hide earlier messages" 
-											update=":#{cc.clientId}:messagesForm"
-											actionListener="#{messagesBean.resetLimit()}"
-											process="@this"/>
-		                    	</h:panelGroup>
-	                    	</ui:remove>
-	                    	<div class="innerWrapper">
-	                    		<!-- FIRST SHOW MESSAGES THAT ARE READ -->
+
+							<!-- PANEL DISPLAYING MESSAGES -->
+							<div class="innerWrapper">
+								<ui:fragment rendered="#{messagesBean.loadMoreMessages}">
+									<div class="loadMoreMsgs">
+										<p:commandLink value="Load more..."
+													   update=":#{cc.clientId}:messagesForm"
+													   action="#{messagesBean.loadMoreMessages()}"
+													   process="@this" />
+									</div>
+								</ui:fragment>
+
+	                    		<!-- READ MESSAGES -->
 	                    		<ui:repeat value="#{messagesBean.readMessages}" var="message" varStatus="iterator">
 	                    			<div class="media">
-	                    				<!-- when avatar is null, display initials div -->
-	                    				<h:panelGroup layout="block" rendered="#{empty message.actor.avatarUrl}" class="media-left">
-	                                		<span class="letterAvatar letterAvatar32 img-circle">#{message.actor.initials}</span>
-	                            		</h:panelGroup>
-	                            		<h:panelGroup layout="block" rendered="#{not empty message.actor.avatarUrl}" class="media-left">
-	                                		<img src="#{message.actor.avatarUrl}" class="img-circle media-object" width="32" height="32" alt="#{message.actor.name}" />
-	                            		</h:panelGroup>
+	                    				<div class="media-left">
+											<utilcomp:userAvatar
+													avatar="#{message.actor.avatarUrl}"
+													fullName="#{message.actor.fullName}" />
+										</div>
 	                            		<div class="media-body">
-	                                		<h3 class="media-heading">#{message.actor.name}</h3>
+	                                		<h3 class="media-heading">#{message.actor.fullName}</h3>
 	                               			<span>
 												<utilcomp:convertTimeOutput
 														millis="#{message.createdTime}"
@@ -251,22 +209,21 @@
 	                            		</div>
 	                        		</div>
 	                    		</ui:repeat>
-	                    		<!-- SEPARATE THEM BY SEPARATOR -->
+
 	                    		<h:panelGroup layout="block" class="newMessagesSeparator" rendered="#{messagesBean.unreadMessages.size() > 0}" >
-	                    		New Messages
+	                    			New Messages
 	                    		</h:panelGroup>
-	                    		<!-- FOLLOWED BY UNREAD MESSAGES -->
+
+	                    		<!-- UNREAD MESSAGES -->
 	                    		<ui:repeat value="#{messagesBean.unreadMessages}" var="message" varStatus="iterator">
 	                    			<div class="media">
-	                            		<!-- when avatar is null, display initials div -->
-	                    				<h:panelGroup layout="block" rendered="#{empty message.actor.avatarUrl}" class="media-left">
-	                                		<span class="letterAvatar letterAvatar32 img-circle">#{message.actor.initials}</span>
-	                            		</h:panelGroup>
-	                            		<h:panelGroup layout="block" rendered="#{not empty message.actor.avatarUrl}" class="media-left">
-	                                		<img src="#{message.actor.avatarUrl}" class="img-circle media-object" width="32" height="32" alt="#{message.actor.name}" />
-	                            		</h:panelGroup>
+	                    				<div class="media-left">
+											<utilcomp:userAvatar
+													avatar="#{message.actor.avatarUrl}"
+													fullName="#{message.actor.fullName}" />
+										</div>
 	                            		<div class="media-body">
-	                                		<h3 class="media-heading">#{message.actor.name}</h3>
+	                                		<h3 class="media-heading">#{message.actor.fullName}</h3>
 	                               			<span>
 												<utilcomp:convertTimeOutput
 														millis="#{message.createdTime}"
@@ -279,24 +236,32 @@
 	                        		</div>
 	                    		</ui:repeat>
 	                    	</div>
-	   
+
 	                    	<div class="typeBox">
 		                        <div class="media">
 		                            <div class="media-left">
 										<utilcomp:userAvatar
 											avatar="#{loggeduser.avatar}"
 											fullName="#{loggeduser.fullName}" />
-											
 		                            </div>
 		                            <div class="media-body">
 		                                <div class="">
-		                                    <p:inputTextarea placeholder="Write message..." value="#{messagesBean.messageText}" id="messageContentTextarea" />
-		                                    
-		                                    <p:commandLink value="Send"
-		                                    	styleClass="btn btn-green btn-sm" 
-		                                    	action="#{messagesBean.sendMessage()}" 
-		                                    	update=":#{cc.clientId}:rowDiv" 
+		                                    <p:inputTextarea id="messageContentTextarea"
+															 placeholder="Write message..."
+															 value="#{messagesBean.messageText}"
+															 onkeyup="displaySubmitButton(this);" />
+
+		                                    <utilcomp:singleClickLink value="Send"
+																	  styleClass="btn btn-green btn-sm hidden submitBtn"
+																	  action="#{messagesBean.sendMessage()}"
+																	  update=":#{cc.clientId}:threadsForm :#{cc.clientId}:messagesForm"
 	                                    	/>
+
+											<script>
+                                                $(function(){
+                                                    $('#' + escapeColons('messages:messageContentTextarea')).focus();
+                                                })
+											</script>
 		                                </div>
 		                            </div>
 		                        </div>
@@ -305,78 +270,79 @@
 		          	</h:panelGroup>
 		          	
 		          	<!-- PANEL FOR WRITTING NEW MESSAGES -->
-		          	<h:panelGroup layout="block" id="writeNewMessageContainer" rendered="#{messagesBean.newMessageView}" class="col-md-6 messageColumn">
+		          	<h:panelGroup layout="block" id="writeNewMessageContainer"
+								  rendered="#{messagesBean.newMessageView}" class="col-md-6 messageColumn">
 		          		<script>$("#messageRecievingUserName").focus()</script>
+
 		          		<section class="whiteBox messagesPane">
-							<div id="messagePaneHead" class="messagePaneHead">
+							<h:panelGroup id="messagePaneHead"
+										  rendered="#{messagesBean.messageRecipient == null}"
+										  class="messagePaneHead">
 								<div class="toBox">To:</div>
-								<h:inputText
-									onkeyup="searchListener(execSearchUsers);"
-									value="#{searchPeopleBean.query}" 
-									id="messageRecievingUserName"
-									name="messageRecievingUserName"
-									autocomplete="off"/>
+
+								<h:inputText id="messageRecievingUserName"
+											 name="messageRecievingUserName"
+											 placeholder="Type name..."
+											 value="#{messagesBean.query}"
+											 onkeyup="searchListener(execSearchUsers);"
+											 autocomplete="off" />
 								
-								<p:remoteCommand 
-									name="execSearchUsers" 
-									process="messageRecievingUserName"
-									action="#{searchPeopleBean.searchPeople()}" 
-									update="usersListPanel"
-								/>
-								
+								<p:remoteCommand name="execSearchUsers"
+												 process="messageRecievingUserName"
+												 action="#{messagesBean.search}"
+												 update="usersListPanel" />
+
 								<h:panelGroup id="usersListPanel">
-									<h:panelGroup rendered="#{searchPeopleBean.userSize > 0}">
+									<ui:fragment rendered="#{messagesBean.userSize > 0}">
 										<ul id="usersList" class="dropdown-menu searchResultsDrop"
 											data-toggle="dropdown" aria-haspopup="true"
 											aria-expanded="true" style="display: block;">
-											<ui:repeat value="#{searchPeopleBean.users}" var="user" varStatus="iterator">
+
+											<ui:repeat value="#{messagesBean.users}" var="user" varStatus="iterator">
 												<li>
-													<a style="cursor: pointer;"
-														onclick="setRecipient('#{user.name}','#{user.id}')"
-														id="userlink-#{user.id}"> 
-														<h:panelGroup styleClass="letterAvatar letterAvatar32 img-circle"
-															rendered="#{empty user.avatarUrl}">
-				                                			#{user.initials}
-				                                		</h:panelGroup>
-				                                		<h:graphicImage
-															rendered="#{not empty user.avatarUrl}"
-															value="#{user.avatarUrl}"
-															styleClass="img-circle media-object" width="32"
-															height="32" alt="#{user.commaSeparatedFullName}" />
-														<h3>#{user.name}</h3>
-													</a>
+													<p:commandLink styleClass="cursor: pointer;"
+																   action="#{messagesBean.setMessageRecipient(user)}"
+																   process="@this"
+																   update=":#{cc.clientId}:threadsForm :#{cc.clientId}:messagesForm" >
+														<utilcomp:userAvatar avatar="#{user.avatarUrl}"
+																			 fullName="#{user.commaSeparatedFullName}"/>
+														<h3>#{user.fullName}</h3>
+													</p:commandLink>
 												</li>
 											</ui:repeat>
 										</ul>
 										<input type="hidden" id="messageRecipientIds" />
-									</h:panelGroup>
+									</ui:fragment>
 								</h:panelGroup>
-							</div>
-							
-							<h:panelGroup id="typeBoxNewMessageThread" layout="block">
-		                        <h:panelGroup styleClass="media typeBox" layout="block" rendered="#{messagesBean.newMessageThreadParticipantIds.size() > 0}">
-		                            <div class="media-left">
-										<utilcomp:userAvatar
-											avatar="#{loggeduser.avatar}"
-											fullName="#{loggeduser.fullName}" />
-		                            </div>
-		                            <div class="media-body">
-		                                <div class="">
-		                                    <p:inputTextarea placeholder="Write message..." value="#{messagesBean.messageText}" id="messageContentTextarea2" />
-		                                   
-		                                    <p:commandLink value="Send"
-		                                    	styleClass="btn btn-green btn-sm" 
-		                                    	action="#{messagesBean.sendMessage()}" 
-		                                    	update=":#{cc.clientId}:rowDiv"
-	                                    	/>
-		                                </div>
-		                            </div>
-		                        </h:panelGroup>
-	                    	</h:panelGroup>
+							</h:panelGroup>
 		                </section>
 		          	</h:panelGroup>
+
+					<div class="modal fade" id="deleteConv" tabindex="-1" role="dialog" aria-labelledby="deleteConversation">
+						<div class="modal-dialog" role="document">
+							<div class="modal-content">
+								<div class="modal-header">
+									<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+									<h2 class="modal-title" id="deleteConversation">Delete Conversation?</h2>
+								</div>
+								<div class="modal-body">
+									<p>Are you sure you want to delete this conversation?</p>
+								</div>
+								<div class="modal-footer">
+									<p:commandLink value="Delete"
+												   styleClass="btn btn-red"
+												   process="@this"
+												   onclick="$('#deleteConv').modal('hide');"
+												   action="#{messagesBean.deleteCurrentThread()}"
+												   update=":#{cc.clientId}:threadsForm :#{cc.clientId}:messagesForm" />
+									<a id="deleteConfirmDialogClose" href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+								</div>
+							</div>
+						</div>
+					</div>
 				</h:form>
-			</h:panelGroup>
+				<!-- END PANEL FOR READING MESSAGES -->
+			</div>
 		</div>
 	    <script src="#{request.contextPath}/resources/javascript2/dropdowns-enhancement.js"></script>
 	</composite:implementation>

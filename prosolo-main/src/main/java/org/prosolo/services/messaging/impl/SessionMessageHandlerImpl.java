@@ -24,56 +24,46 @@ public class SessionMessageHandlerImpl implements MessageHandler<SessionMessage>
 
 	private static Logger logger = Logger.getLogger(SessionMessageHandlerImpl.class.getName());
 
-	@Inject private ActiveUsersSessionRegistry activeUsersSessionRegistry;
-	@Autowired
+	@Inject
+	private ActiveUsersSessionRegistry activeUsersSessionRegistry;
+	@Inject
 	private DefaultManager defaultManager;
-	@Autowired
+	@Inject
 	private MessageInboxUpdater messageInboxUpdater;
-	@Autowired
+	@Inject
 	private NotificationCacheUpdater notificationCacheUpdater;
 
 	@Override
 	public void handle(SessionMessage message) throws WorkerException {
-		Session session = (Session) defaultManager.getPersistence().openSession();
-
 		long receiverId = message.getReceiverId();
 		Set<HttpSession> userSessions = activeUsersSessionRegistry.getAllUserSessions(receiverId);
-		try {
-			long resourceId = message.getResourceId();
 
-			switch (message.getServiceType()) {
-			case DIRECT_MESSAGE:
-				if (!userSessions.isEmpty()) {
-					Message directMessage = (Message) session.load(Message.class, resourceId);
+		if (!userSessions.isEmpty()) {
+			Session session = (Session) defaultManager.getPersistence().openSession();
 
-					MessageThread messagesThread = directMessage.getMessageThread();
-					messagesThread = (MessageThread) session.merge(messagesThread);
-					for (HttpSession httpSession : userSessions) {
-						messageInboxUpdater.updateOnNewMessage(directMessage, messagesThread, httpSession);
-					}
+			try {
+				long resourceId = message.getResourceId();
+
+				switch (message.getServiceType()) {
+					case DIRECT_MESSAGE:
+						for (HttpSession httpSession : userSessions) {
+							messageInboxUpdater.updateOnNewMessage(httpSession);
+						}
+						break;
+					case ADD_NOTIFICATION:
+						for (HttpSession httpSession : userSessions) {
+							notificationCacheUpdater.updateNotificationData(resourceId, httpSession, session);
+						}
+						break;
+					default:
+						break;
 				}
-				break;
-			case ADD_NEW_MESSAGE_THREAD:
-				if (!userSessions.isEmpty()) {
-					MessageThread messagesThread = (MessageThread) session.load(MessageThread.class, resourceId);
-					for (HttpSession httpSession : userSessions) {
-						messageInboxUpdater.addNewMessageThread(messagesThread, httpSession);
-					}
-				}
-				break;
-			case ADD_NOTIFICATION:
-				for (HttpSession httpSession : userSessions) {
-					notificationCacheUpdater.updateNotificationData(resourceId, httpSession, session);
-				}
-				break;
-			default:
-				break;
+			} catch (Exception e) {
+				logger.error("Exception in handling message", e);
+				throw new WorkerException();
+			} finally {
+				HibernateUtil.close(session);
 			}
-		} catch (Exception e) {
-			logger.error("Exception in handling message", e);
-			throw new WorkerException();
-		} finally {
-			HibernateUtil.close(session);
 		}
 	}
 

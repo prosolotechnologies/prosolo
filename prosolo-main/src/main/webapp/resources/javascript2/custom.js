@@ -19,7 +19,7 @@ var custom = {
 
 //comment form hide/show
 function displaySubmitButton(inputElem) {
-    if (($(inputElem).is('input') && $(inputElem).val().length == 0) ||
+    if ((($(inputElem).is('input') || $(inputElem).is('textarea')) && $(inputElem).val().length == 0) ||
 			($(inputElem).is('div') && !stripTags($(inputElem).html()).trim())) {
         $(inputElem).parent().find('.submitBtn').addClass('hidden');
      } else {

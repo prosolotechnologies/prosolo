@@ -1,7 +1,7 @@
 package org.prosolo.search.util;
 
 import org.elasticsearch.search.sort.SortOrder;
-import org.prosolo.web.search.data.SortingOption;
+import org.prosolo.search.data.SortingOption;
 
 public class ESSortOrderTranslator {
 	

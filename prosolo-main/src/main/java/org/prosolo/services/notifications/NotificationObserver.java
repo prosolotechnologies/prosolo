@@ -91,10 +91,10 @@ public class NotificationObserver extends EventObserver {
 				 */
 				if (!notifications.isEmpty()) {
 					
-					for (Notification1 notification : notifications) {					
+					for (Notification1 notification : notifications) {
 						if (CommonSettings.getInstance().config.rabbitMQConfig.distributed) {
 							messageDistributer.distributeMessage(
-									ServiceType.ADD_NOTIFICATION, 
+									ServiceType.ADD_NOTIFICATION,
 									notification.getReceiver().getId(),
 									notification.getId(), 
 									null, 

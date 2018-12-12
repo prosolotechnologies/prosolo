@@ -146,7 +146,7 @@ public class SocialActivityDataFactory {
 			sad.setType(SocialActivityType.Twitter_Post);
 			//if(twitterUserType.intValue() == UserType.TWITTER_USER.ordinal()) {
 			if(sad.getActor() == null) {
-				sad.setActor(new UserData(0, twitterActorName, twitterActorAvatar, null, null, true));
+				sad.setActor(new UserData(0, twitterActorName, null, twitterActorAvatar, null, null, true));
 				sad.getActor().setType(UserType.TWITTER_USER);
 			}
 			ap = richContentFactory.getAttachmentPreviewForTwitterPost(twitterActorNick, twitterProfileUrl, 
