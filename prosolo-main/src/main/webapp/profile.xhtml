@@ -161,28 +161,30 @@
                                             <f:param name="studentId" value="#{util:encodeId(profileBean.userData.id)}"/>
                                         </h:link>
                                     </h2>
-                                    <div class="dropdown optMoreMenu">
-                                        <a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">options menu</a>
-                                        <ul class="dropdown-menu bullet pull-center" aria-labelledby="dropdownMenu1">
-                                            <li>
-                                                <p:commandLink
-                                                        value="Edit"
+                                    <ui:fragment rendered="#{profileBean.personalProfile}" >
+                                        <div class="dropdown optMoreMenu">
+                                            <a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">options menu</a>
+                                            <ul class="dropdown-menu bullet pull-center" aria-labelledby="dropdownMenu1">
+                                                <li>
+                                                    <p:commandLink
+                                                            value="Edit"
+                                                            pt:data-toggle="modal"
+                                                            action="#{profileBean.prepareEditCredential(cred)}"
+                                                            update="profileGrowl :formEditCredential:panelEditCredential"
+                                                            oncomplete="$('#editStandard').modal('show')">
+                                                    </p:commandLink>
+                                                </li>
+                                                <li>
+                                                    <p:commandLink
+                                                        value="Remove"
                                                         pt:data-toggle="modal"
-                                                        action="#{profileBean.prepareEditCredential(cred)}"
-                                                        update="profileGrowl :formEditCredential:panelEditCredential"
-                                                        oncomplete="$('#editStandard').modal('show')">
-                                                </p:commandLink>
-                                            </li>
-                                            <li>
-                                                <p:commandLink
-                                                    value="Remove"
-                                                    pt:data-toggle="modal"
-                                                    action="#{profileBean.prepareRemovingCredentialFromProfile(cred)}"
-                                                    oncomplete="$('#removeStandard').modal('show')"
-                                                />
-                                            </li>
-                                        </ul>
-                                    </div>
+                                                        action="#{profileBean.prepareRemovingCredentialFromProfile(cred)}"
+                                                        oncomplete="$('#removeStandard').modal('show')"
+                                                    />
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </ui:fragment>
                                     <div class="clear"></div>
                                     <p class="cardDescription">
                                         #{util:cleanHTMLTags(cred.description)}
@@ -410,11 +412,16 @@
                                 <div class="evidence">
                                     <div class="evidenceLeft #{ev.type eq 'TEXT' ? 'evidenceText' : styleUtilBean.getEvidenceFileTypeIcon(ev.url)}">
                                         <div class="icon iconType"></div>
-                                        <h3>#{ev.title}</h3>
+                                        <h3>
+                                            <h:link outcome="/student-profile-evidence" target="_blank" value="#{ev.title}">
+                                                <f:param name="studentId" value="#{util:encodeId(profileBean.ownerOfAProfileUserId)}"/>
+                                                <f:param name="competenceEvidenceId" value="#{util:encodeId(ev.competenceEvidenceId)}"/>
+                                            </h:link>
+                                        </h3>
                                     </div>
                                     <div class="evidenceRight">
                                         <utilcomp:convertTimeOutput
-                                                millis="#{ev.dateAttached}"
+                                                millis="#{ev.dateCreated}"
                                                 format="MMM DD, YYYY"/>
                                     </div>
                                 </div>
@@ -510,9 +517,9 @@
 
                                 <div class="standardInModal bottom30">
                                     <ui:fragment rendered="#{profileBean.totalNumberOfCredentialAssessmentsAvailableToAdd eq 0}">
-                                        <div class="assessmentItem">
-                                            No approved #{msg['label.credential'].toLowerCase()} assessments
-                                        </div>
+                                    <div class="lightText">
+                                        No approved #{msg['label.credential'].toLowerCase()} assessments
+                                    </div>
                                     </ui:fragment>
                                     <ui:repeat value="#{profileBean.credentialForEdit.assessments}" var="assessmentType" varStatus="status">
                                         <ui:fragment rendered="#{not empty assessmentType.assessments}">
@@ -577,9 +584,7 @@
                                     <div class="standardInModal bottom30">
                                         <h3>#{comp.title}</h3>
                                         <ui:fragment rendered="#{empty comp.evidence}">
-                                            <div class="evidence">
-                                                No evidence
-                                            </div>
+                                            <div class="lightText">No evidence</div>
                                         </ui:fragment>
                                         <ui:fragment rendered="#{not empty comp.evidence}">
                                             <div class="checkbox checkLine">
@@ -604,7 +609,7 @@
                                                         </div>
                                                         <div class="evidenceRight">
                                                             <utilcomp:convertTimeOutput
-                                                                    millis="#{evidence.data.dateAttached}"
+                                                                    millis="#{evidence.data.dateCreated}"
                                                                     format="MMM DD, YYYY"/>
                                                         </div>
                                                     </div>
@@ -615,7 +620,7 @@
                                             </div>
                                         </ui:fragment>
                                         <ui:fragment rendered="#{profileBean.getTotalNumberOfCompetenceAssessmentsAvailableToAdd(comp) eq 0}">
-                                            <div class="assessmentItem">
+                                            <div class="lightText">
                                                 No approved #{msg['label.competence'].toLowerCase()} assessments
                                             </div>
                                         </ui:fragment>

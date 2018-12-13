@@ -26,7 +26,6 @@ public class CompetenceEvidenceProfileData implements Serializable {
     private final String title;
     private final LearningEvidenceType type;
     private final String url;
-    //date when evidence is added to the competence
-    private final long dateAttached;
+    private final long dateCreated;
 
 }

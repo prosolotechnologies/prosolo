@@ -14,6 +14,7 @@ import org.prosolo.services.nodes.config.competence.CompetenceLoadConfig;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.credential.TargetCredentialData;
+import org.prosolo.services.nodes.data.evidence.LearningEvidenceLoadConfig;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.services.user.UserManager;
 import org.prosolo.web.LoggedUserBean;
@@ -216,7 +217,7 @@ public class StudentProfileBean implements Serializable {
 			} else {
 				// load evidence only if student enrolled in a competence, otherwise he could not post evidence
 				if (cd.getId() > 0) {
-					cd.setEvidences(learningEvidenceManager.getUserEvidencesForACompetence(cd.getId(), false));
+					cd.setEvidences(learningEvidenceManager.getUserEvidencesForACompetence(cd.getId(), LearningEvidenceLoadConfig.builder().build()));
 				}
 			}
 

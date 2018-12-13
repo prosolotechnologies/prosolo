@@ -33,6 +33,7 @@ import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.config.competence.CompetenceLoadConfig;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.LearningResourceType;
+import org.prosolo.services.nodes.data.evidence.LearningEvidenceLoadConfig;
 import org.prosolo.services.user.data.UserData;
 import org.prosolo.services.nodes.data.assessments.AssessmentNotificationData;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
@@ -3720,7 +3721,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		if (cd.getLearningPathType() == LearningPathType.ACTIVITY) {
 			cd.setActivities(activityManager.getTargetActivitiesData(tc.getId()));
 		} else {
-			cd.setEvidences(learningEvidenceManager.getUserEvidencesForACompetence(tc.getId(), false));
+			cd.setEvidences(learningEvidenceManager.getUserEvidencesForACompetence(tc.getId(), LearningEvidenceLoadConfig.builder().build()));
 		}
 		Map<Long, RubricAssessmentGradeSummary> compRubricGradeSummary = getCompetenceAssessmentsRubricGradeSummary(Arrays.asList(compAssessment.getId()));
 		Map<Long, RubricAssessmentGradeSummary> activitiesRubricGradeSummary = getActivityAssessmentsRubricGradeSummary(compAssessment.getActivityDiscussions().stream().map(ActivityAssessment::getId).collect(Collectors.toList()));

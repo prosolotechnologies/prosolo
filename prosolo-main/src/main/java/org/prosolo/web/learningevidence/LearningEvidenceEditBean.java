@@ -4,6 +4,7 @@ import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.LearningEvidenceManager;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceData;
+import org.prosolo.services.nodes.data.evidence.LearningEvidenceLoadConfig;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageUtil;
@@ -42,7 +43,7 @@ public class LearningEvidenceEditBean implements Serializable {
                 submitEvidenceBean.init(new LearningEvidenceData());
             } else {
                 decodedEvidenceId = idEncoder.decodeId(evidenceId);
-                submitEvidenceBean.init(learningEvidenceManager.getLearningEvidence(decodedEvidenceId, true, false));
+                submitEvidenceBean.init(learningEvidenceManager.getLearningEvidence(decodedEvidenceId, LearningEvidenceLoadConfig.builder().loadTags(true).build()));
             }
         } catch (DbConnectionException e) {
             logger.error("Error", e);
