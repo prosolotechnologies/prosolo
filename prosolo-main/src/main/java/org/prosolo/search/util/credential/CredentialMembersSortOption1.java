@@ -1,6 +1,6 @@
 package org.prosolo.search.util.credential;
 
-import org.prosolo.web.search.data.SortingOption;
+import org.prosolo.search.data.SortingOption;
 
 @Deprecated
 public class CredentialMembersSortOption1 {

@@ -4,8 +4,8 @@ import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.services.common.data.LazyInitCollection;
-import org.prosolo.services.nodes.UserGroupManager;
 import org.prosolo.services.nodes.data.credential.CredentialData;
+import org.prosolo.services.user.UserGroupManager;
 
 import javax.inject.Inject;
 import java.io.Serializable;

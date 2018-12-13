@@ -19,12 +19,12 @@ import org.prosolo.services.assessment.data.grading.GradingMode;
 import org.prosolo.services.assessment.data.grading.RubricCriteriaGradeData;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.LearningResourceType;
-import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.data.credential.CredentialIdData;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
+import org.prosolo.services.user.data.UserData;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.assessments.util.AssessmentDisplayMode;
 import org.prosolo.web.assessments.util.AssessmentUtil;
@@ -204,9 +204,8 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 		if full display mode user can access page if user is student or assessor in current context
 		and if public display mode user can access page if assessment display is enabled by student
 		 */
-		return displayMode == AssessmentDisplayMode.FULL
-				? isUserAssessedStudentInCurrentContext() || isUserAssessorInCurrentContext()
-				: fullAssessmentData.isAssessmentDisplayEnabled();
+		return displayMode == AssessmentDisplayMode.FULL &&
+				(isUserAssessedStudentInCurrentContext() || isUserAssessorInCurrentContext());
 	}
 
 	private AssessmentLoadConfig getLoadConfig() {

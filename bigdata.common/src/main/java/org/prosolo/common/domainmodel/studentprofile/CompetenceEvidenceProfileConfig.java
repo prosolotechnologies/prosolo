@@ -1,5 +1,6 @@
 package org.prosolo.common.domainmodel.studentprofile;
 
+import org.prosolo.common.domainmodel.credential.CompetenceEvidence;
 import org.prosolo.common.domainmodel.credential.LearningEvidence;
 
 import javax.persistence.DiscriminatorValue;
@@ -21,7 +22,7 @@ public class CompetenceEvidenceProfileConfig extends StudentProfileConfig {
     private static final long serialVersionUID = 8446745422185792044L;
 
     private CompetenceProfileConfig competenceProfileConfig;
-    private LearningEvidence learningEvidence;
+    private CompetenceEvidence competenceEvidence;
 
     @ManyToOne (fetch = FetchType.LAZY)
     public CompetenceProfileConfig getCompetenceProfileConfig() {
@@ -33,11 +34,11 @@ public class CompetenceEvidenceProfileConfig extends StudentProfileConfig {
     }
 
     @ManyToOne (fetch = FetchType.LAZY)
-    public LearningEvidence getLearningEvidence() {
-        return learningEvidence;
+    public CompetenceEvidence getCompetenceEvidence() {
+        return competenceEvidence;
     }
 
-    public void setLearningEvidence(LearningEvidence learningEvidence) {
-        this.learningEvidence = learningEvidence;
+    public void setCompetenceEvidence(CompetenceEvidence competenceEvidence) {
+        this.competenceEvidence = competenceEvidence;
     }
 }

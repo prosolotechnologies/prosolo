@@ -19,7 +19,7 @@ var custom = {
 
 //comment form hide/show
 function displaySubmitButton(inputElem) {
-    if (($(inputElem).is('input') && $(inputElem).val().length == 0) ||
+    if ((($(inputElem).is('input') || $(inputElem).is('textarea')) && $(inputElem).val().length == 0) ||
 			($(inputElem).is('div') && !stripTags($(inputElem).html()).trim())) {
         $(inputElem).parent().find('.submitBtn').addClass('hidden');
      } else {
@@ -256,4 +256,13 @@ function hidePopupSidebar (sidebarSelector) {
 function preventDoubleClick(elem) {
     $(elem).prop("onclick", "").off("click");
     $(elem).attr("onclick", "return false;").unbind("click");
+}
+
+function bindCheckAllOnclick(checkAllCheckboxId) {
+	$('#' + checkAllCheckboxId).on('change', function() {
+        $('[data-check-id="' + checkAllCheckboxId + '"]').prop("checked", $(this).is(':checked'));
+	});
+	$('[data-check-id="' + checkAllCheckboxId + '"]').on('change', function() {
+		$('#' + checkAllCheckboxId).prop("checked", $('[data-check-id="' + checkAllCheckboxId + '"]:checked').length == $('[data-check-id="' + checkAllCheckboxId + '"]').length);
+	});
 }

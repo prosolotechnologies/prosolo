@@ -8,7 +8,7 @@ import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.core.spring.security.authentication.sessiondata.ProsoloUserDetails;
 import org.prosolo.services.authentication.AuthenticatedUserService;
 import org.prosolo.services.event.EventFactory;
-import org.prosolo.services.nodes.UserManager;
+import org.prosolo.services.user.UserManager;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;

@@ -1,7 +1,6 @@
 package org.prosolo.app.bc;
 
 import org.apache.log4j.Logger;
-import org.hibernate.exception.ConstraintViolationException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
@@ -36,8 +35,9 @@ import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.credential.CredentialData;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceData;
 import org.prosolo.services.nodes.data.organization.OrganizationData;
+import org.prosolo.services.user.UserManager;
+import org.prosolo.services.user.data.UserData;
 import org.prosolo.services.util.roles.SystemRoleNames;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -240,8 +240,7 @@ public class BusinessCase4_EDX {
             createActivity(events, org.getId(),
                     userNickPowell,
                     "Network Modularity and Community Identification",
-                    "Dragan Gasevic discusses network modularity and community identification in social network analysis for week 3 of DALMOOC. The presentation describes the notion of network modularity as a method used" +
-                            "\n",
+                    "Dragan Gasevic discusses network modularity and community identification in social network analysis for week 3 of DALMOOC. The presentation describes the notion of network modularity as a method used",
                     "https://www.slideshare.net/dgasevic/network-modularity-and-community-identification",
                     ActivityType.SLIDESHARE,
                     comp1cred1.getId(),
@@ -272,8 +271,8 @@ public class BusinessCase4_EDX {
 							+ "methods, it would be useful to reflect on what you have learned so far. Please, prepare a reflection "
 							+ "piece (about 300 words) in which you will address the following issues:</p><ul><li>Outline your "
 							+ "understanding of social network structure and main methods for social network analysis (centrality, "
-							+ "density, and modularity);</li><li>Discus potential benefits of the use of social network analysis for "
-							+ "the study of learning and learning contexts</li><li>Describe potential applications of soofcial network "
+							+ "density, and modularity);</li><li>Discuss potential benefits of the use of social network analysis for "
+							+ "the study of learning and learning contexts</li><li>Describe potential applications of social network "
 							+ "analysis for the study of learning. Reflect on the methods that could be used for data collection, "
 							+ "steps to be taken for the analysis, potential conclusions, and possible issues (e.g., incomplete "
 							+ "network, triangulation with other types of analysis, or ethics) that would need to be addressed in "

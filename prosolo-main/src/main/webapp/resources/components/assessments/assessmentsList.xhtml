@@ -30,7 +30,7 @@
 					<h:link value="#{msg['label.credential.plural']}" outcome="credentialLibrary"/>
 				</li>
 				<li>
-					<h:link value="#{cc.attrs.bean.credentialTitle}" outcome="credential">
+					<h:link value="#{util:shortenAndAddDots(cc.attrs.bean.credentialTitle)}" outcome="credential">
 						<f:param name="id" value="#{util:encodeId(cc.attrs.bean.decodedId)}"/>
 					</h:link>
 				</li>

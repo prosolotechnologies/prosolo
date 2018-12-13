@@ -2,7 +2,7 @@ package org.prosolo.services.authentication.impl;
 
 import org.apache.log4j.Logger;
 import org.prosolo.services.authentication.UserAuthenticationService;
-import org.prosolo.services.nodes.UserManager;
+import org.prosolo.services.user.UserManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -24,7 +24,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 	@Inject private UserAuthenticationService authService;
 
 	@Override
-	@Transactional(readOnly = true)
+	@Transactional
 	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
 		try {
 			logger.debug("Loading user details for the user: " + email);

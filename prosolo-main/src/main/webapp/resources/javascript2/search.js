@@ -1,7 +1,4 @@
 function searchListener(execFunction) {
-	var $this = this;
-	// this.updateUrlQuery();
-
 	var delayedSearch = function() {
 		execFunction();
 	};

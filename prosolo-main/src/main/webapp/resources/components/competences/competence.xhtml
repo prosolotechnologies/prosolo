@@ -158,7 +158,7 @@
 						</li>
 			            <li>
 							<ui:fragment rendered="#{cc.attrs.role eq 'USER'}">
-								<h:link value="#{cc.attrs.bean.credentialTitle}"
+								<h:link value="#{util:shortenAndAddDots(cc.attrs.bean.credentialTitle)}"
 										outcome="credential"
 										onclick="sendLogPageNavigation('/credential.xhtml',
 											'#{facesContext.viewRoot.viewId}',
@@ -169,7 +169,7 @@
 							</ui:fragment>
 							<ui:fragment rendered="#{cc.attrs.role eq 'MANAGER'}">
 								<h:link
-										value="#{cc.attrs.bean.credentialIdData.fullTitle}"
+										value="#{util:shortenAndAddDots(cc.attrs.bean.credentialIdData.fullTitle)}"
 										outcome="/manage/credential"
 										onclick="sendLogPageNavigation('/manage/credential.xhtml',
 											'#{facesContext.viewRoot.viewId}',
@@ -179,7 +179,7 @@
 								</h:link>
 							</ui:fragment>
 			            </li>
-			            <li class="active">#{cc.attrs.bean.competenceData.title}</li>
+			            <li class="active">#{util:shortenAndAddDots(cc.attrs.bean.competenceData.title)}</li>
 			        </ol>
 		    	</ui:fragment>
 		        <ui:fragment rendered="#{empty param.credId}">
@@ -187,7 +187,7 @@
 		    			<li>
 			            	<h:link value="#{msg['label.competence.plural']}" outcome="competenceLibrary"/>
 			            </li>
-			            <li class="active">#{cc.attrs.bean.competenceData.title}</li>
+			            <li class="active">#{util:shortenAndAddDots(cc.attrs.bean.competenceData.title)}</li>
 			        </ol>
 		    	</ui:fragment>
 		    </div>

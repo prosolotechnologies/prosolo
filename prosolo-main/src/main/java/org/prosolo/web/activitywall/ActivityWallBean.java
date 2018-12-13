@@ -19,13 +19,12 @@ import org.prosolo.services.activityWall.factory.RichContentDataFactory;
 import org.prosolo.services.activityWall.impl.data.ObjectData;
 import org.prosolo.services.activityWall.impl.data.SocialActivityData1;
 import org.prosolo.services.activityWall.impl.data.SocialActivityType;
-import org.prosolo.services.htmlparser.HTMLParser;
 import org.prosolo.services.htmlparser.LinkParser;
 import org.prosolo.services.htmlparser.LinkParserFactory;
 import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.interfaceSettings.InterfaceSettingsManager;
 import org.prosolo.services.media.util.LinkParserException;
-import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.user.data.UserData;
 import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview1;
 import org.prosolo.services.nodes.data.activity.attachmentPreview.MediaData;
 import org.prosolo.services.upload.UploadManager;
@@ -260,7 +259,8 @@ public class ActivityWallBean implements Serializable {
 			populateDataForNewPost(postShareSocialActivity, postShare, SocialActivityType.Post_Reshare);
 			ObjectData obj = objectFactory.getObjectData(socialActivityForShare.getId(), null,
 					ResourceType.PostSocialActivity, socialActivityForShare.getActor().getId(), 
-					socialActivityForShare.getActor().getFullName(), 
+					socialActivityForShare.getActor().getName(),
+					socialActivityForShare.getActor().getLastName(),
 					loggedUser.getLocale());
 			postShareSocialActivity.setObject(obj);
 			postShareSocialActivity.setText(postShareText);

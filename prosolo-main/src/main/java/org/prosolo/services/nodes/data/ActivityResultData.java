@@ -9,6 +9,7 @@ import org.prosolo.services.common.observable.StandardObservable;
 import org.prosolo.services.interaction.data.ResultCommentInfo;
 import org.prosolo.services.assessment.data.ActivityAssessmentData;
 import org.prosolo.services.interaction.data.CommentsData;
+import org.prosolo.services.user.data.UserData;
 
 public class ActivityResultData extends StandardObservable implements Serializable {
 

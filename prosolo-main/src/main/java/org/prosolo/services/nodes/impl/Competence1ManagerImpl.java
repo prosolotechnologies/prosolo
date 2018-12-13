@@ -40,11 +40,15 @@ import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.competence.TargetCompetenceData;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceData;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceDataFactory;
+import org.prosolo.services.nodes.data.evidence.LearningEvidenceLoadConfig;
 import org.prosolo.services.nodes.data.resourceAccess.*;
 import org.prosolo.services.nodes.factory.ActivityDataFactory;
 import org.prosolo.services.nodes.factory.CompetenceDataFactory;
 import org.prosolo.services.nodes.factory.UserDataFactory;
 import org.prosolo.services.nodes.observers.learningResources.CompetenceChangeTracker;
+import org.prosolo.services.user.UserGroupManager;
+import org.prosolo.services.user.data.UserData;
+import org.prosolo.services.user.data.UserLearningProgress;
 import org.prosolo.services.util.roles.SystemRoleNames;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -287,7 +291,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 									compData.setActivities(activities);
 								} else if (compData.getLearningPathType() == LearningPathType.EVIDENCE && compLoadConfig.isLoadEvidence()) {
 									//load user evidences
-									List<LearningEvidenceData> compEvidences = learningEvidenceManager.getUserEvidencesForACompetence(compData.getTargetCompId(), false);
+									List<LearningEvidenceData> compEvidences = learningEvidenceManager.getUserEvidencesForACompetence(compData.getTargetCompId(), LearningEvidenceLoadConfig.builder().build());
 									compData.setEvidences(compEvidences);
 								}
 								//load number of competence assessments if needed
@@ -312,42 +316,6 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error while loading competence data");
-		}
-	}
-
-	@Override
-	public CompetenceData1 enrollInCompetenceAndGetCompetenceData(long compId, long userId, UserContextData context)
-			throws DbConnectionException {
-		Result<CompetenceData1> res = self.enrollInCompetenceGetCompetenceDataAndGetEvents(compId, userId, context);
-		eventFactory.generateEvents(res.getEventQueue());
-		return res.getResult();
-	}
-
-	@Override
-	@Transactional
-	public Result<CompetenceData1> enrollInCompetenceGetCompetenceDataAndGetEvents(long compId, long userId, UserContextData context)
-			throws DbConnectionException {
-		try {
-			Result<TargetCompetence1> res = enrollInCompetenceAndGetEvents(compId, userId, context);
-			TargetCompetence1 targetComp = res.getResult();
-			CompetenceData1 cd = competenceFactory.getCompetenceData(targetComp.getCompetence().getCreatedBy(), 
-					targetComp, 0, targetComp.getCompetence().getAssessmentConfig(), targetComp.getCompetence().getTags(), null, false);
-			
-			if(targetComp.getTargetActivities() != null) {
-				for(TargetActivity1 ta : targetComp.getTargetActivities()) {
-					ActivityData act = activityFactory.getActivityData(ta, null, null, null, false, 0, false);
-					cd.addActivity(act);
-				}
-			}
-			
-			Result<CompetenceData1> result = new Result<>();
-			result.setResult(cd);
-			result.appendEvents(res.getEventQueue());
-			return result;
-		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
-			throw new DbConnectionException("Error while enrolling a competence");
 		}
 	}
 
@@ -722,43 +690,6 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		credentialManager.updateDurationForCredentialsWithCompetence(compId, durationChange, op);
 	}
 
-	// @Transactional(readOnly = true)
-	// public long getCompetenceDuration(long compId) throws
-	// DbConnectionException {
-	// try {
-	// String query = "SELECT comp.duration " +
-	// "FROM Competence1 comp " +
-	// "WHERE comp.id = :compId";
-	//
-	// Long duration = (Long) persistence.currentManager()
-	// .createQuery(query)
-	// .setLong("compId", compId)
-	// .uniqueResult();
-	//
-	// return duration;
-	// } catch(Exception e) {
-	// logger.error(e);
-	// e.printStackTrace();
-	// throw new DbConnectionException("Error while retrieving competence
-	// duration");
-	// }
-	// }
-
-	// private void updateCredentialsDuration(long compId, long newDuration,
-	// long oldDuration) {
-	// long durationChange = newDuration - oldDuration;
-	// Operation op = null;
-	// if(durationChange > 0) {
-	// op = Operation.Add;
-	// } else {
-	// durationChange = -durationChange;
-	// op = Operation.Subtract;
-	// }
-	// credentialManager.updateDurationForCredentialsWithCompetence(compId,
-	// durationChange, op);
-	//
-	// }
-
 	@Override
 	@Transactional(readOnly = true)
 	public List<CompetenceData1> getCredentialCompetencesData(long credentialId, boolean loadCreator,
@@ -851,59 +782,6 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		}
 	}
 	
-//	@Override
-//	@Transactional(readOnly = true)
-//	public CompetenceData1 getTargetCompetenceData(long targetCompId, boolean loadActivities, 
-//			boolean loadCredentialTitle) throws DbConnectionException {
-//		CompetenceData1 compData = null;
-//		try {			
-//			String query = "SELECT targetComp " +
-//						   "FROM TargetCompetence1 targetComp " + 
-//						   "INNER JOIN fetch targetComp.createdBy user " + 
-//						   "LEFT JOIN fetch targetComp.tags tags " +
-//						   "WHERE targetComp.id = :id";
-//
-//			TargetCompetence1 res = (TargetCompetence1) persistence.currentManager()
-//					.createQuery(query)
-//					.setLong("id", targetCompId)
-//					.uniqueResult();
-//
-//			if (res != null) {
-//				Credential1 cred = null;
-//				if(loadCredentialTitle) {
-//					String query1 = "SELECT cred.id, cred.title " +
-//									"FROM TargetCompetence1 comp " +
-//									"INNER JOIN comp.targetCredential targetCred " +
-//									"INNER JOIN targetCred.credential cred " +
-//									"WHERE comp = :comp";
-//					Object[] credentialData = (Object[]) persistence.currentManager()
-//							.createQuery(query1)
-//							.setEntity("comp", res)
-//							.uniqueResult();
-//					
-//					cred = new Credential1();
-//					cred.setId((long) credentialData[0]);
-//					cred.setTitle((String) credentialData[1]);
-//					
-//				}
-//				compData = competenceFactory.getCompetenceData(res.getCreatedBy(), res, 
-//						res.getTags(), cred, true);
-//				
-//				if(compData != null && loadActivities) {
-//					List<ActivityData> activities = activityManager
-//							.getTargetActivitiesData(targetCompId);
-//					compData.setActivities(activities);
-//				}
-//				return compData;
-//			}
-//			return null;
-//		} catch (Exception e) {
-//			logger.error(e);
-//			e.printStackTrace();
-//			throw new DbConnectionException("Error while loading competence data");
-//		}
-//	}
-
 	@Override
 	@Transactional(readOnly = true)
 	public List<Tag> getCompetenceTags(long compId) throws DbConnectionException {
@@ -1195,7 +1073,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 						compData.setActivities(activities);
 					} else {
 						//load user evidences
-						List<LearningEvidenceData> compEvidences = learningEvidenceManager.getUserEvidencesForACompetence(compData.getTargetCompId(), true);
+						List<LearningEvidenceData> compEvidences = learningEvidenceManager.getUserEvidencesForACompetence(compData.getTargetCompId(), LearningEvidenceLoadConfig.builder().loadTags(true).build());
 						compData.setEvidences(compEvidences);
 					}
 					if (loadAssessmentConfig) {
@@ -2531,119 +2409,6 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		
 		return res;
 	}
-	
-	@Override
-	@Transactional (readOnly = false)
-	public void updateHiddenTargetCompetenceFromProfile(long compId, boolean hiddenFromProfile)
-			throws DbConnectionException {
-		try {
-			String query = 
-				"UPDATE TargetCompetence1 targetComptence1 " +
-				"SET targetComptence1.hiddenFromProfile = :hiddenFromProfile " +
-				"WHERE targetComptence1.id = :compId ";
-	
-			persistence.currentManager()
-				.createQuery(query)
-				.setLong("compId", compId)
-				.setBoolean("hiddenFromProfile", hiddenFromProfile)
-				.executeUpdate();
-		} catch (Exception e) {
-			logger.error(e);
-			throw new DbConnectionException("Error while updating hiddenFromProfile field of a competence " + compId);
-		}
-	}
-	
-	@SuppressWarnings("unchecked")
-	@Override
-	@Transactional (readOnly = true)
-	public List<TargetCompetenceData> getAllCompletedCompetences(long userId, boolean onlyPubliclyVisible) throws DbConnectionException {
-		return getTargetCompetences(userId, onlyPubliclyVisible, true, UserLearningProgress.COMPLETED);
-	}
-
-	@Override
-	@SuppressWarnings({ "unchecked" })
-	@Transactional (readOnly = true)
-	public List<TargetCompetenceData> getAllInProgressCompetences(long userId, boolean onlyPubliclyVisible) throws DbConnectionException {
-		return getTargetCompetences(userId, onlyPubliclyVisible, true, UserLearningProgress.IN_PROGRESS);
-	}
-
-	@SuppressWarnings("unchecked")
-	private List<TargetCompetenceData> getTargetCompetences(long userId, boolean onlyPubliclyVisible, boolean loadNumberOfAssessments,
-															UserLearningProgress progress)
-			throws DbConnectionException {
-		try {
-			String query =
-					"SELECT targetComptence1 " +
-							"FROM TargetCompetence1 targetComptence1 " +
-							"INNER JOIN targetComptence1.competence comp " +
-							"WHERE targetComptence1.user.id = :userId ";
-
-			switch (progress) {
-				case COMPLETED:
-					query += "AND targetComptence1.progress = 100 ";
-					break;
-				case IN_PROGRESS:
-					query += "AND targetComptence1.progress < 100 ";
-					break;
-				default:
-					break;
-			}
-
-			if (onlyPubliclyVisible) {
-				query += " AND targetComptence1.hiddenFromProfile = false ";
-			}
-
-			query += "ORDER BY comp.title";
-
-			List<TargetCompetenceData> resultList = new ArrayList<>();
-
-			List<TargetCompetence1> res = persistence.currentManager()
-					.createQuery(query)
-					.setLong("userId", userId)
-					.list();
-
-			for(TargetCompetence1 targetCompetence1 : res) {
-				int numberOfAssessments = 0;
-				boolean assessmentDisplayEnabled = false;
-				if (loadNumberOfAssessments) {
-					numberOfAssessments = assessmentManager.getNumberOfApprovedAssessmentsForUserCompetence(targetCompetence1.getCompetence().getId(), targetCompetence1.getUser().getId());
-					assessmentDisplayEnabled = isCompetenceAssessmentDisplayEnabled(targetCompetence1.getCompetence().getId(), targetCompetence1.getUser().getId());
-				}
-				resultList.add(new TargetCompetenceData(targetCompetence1, numberOfAssessments, assessmentDisplayEnabled));
-			}
-			return resultList;
-
-		} catch (Exception e) {
-			logger.error(e);
-			throw new DbConnectionException();
-		}
-	}
-
-	@Override
-	@Transactional(readOnly = true)
-	public boolean isCompetenceAssessmentDisplayEnabled(long competenceId, long studentId) {
-		try {
-			String q =
-					"SELECT comp.id FROM Competence1 comp " +
-							"INNER JOIN comp.credentialCompetences cc " +
-							"INNER JOIN cc.credential cred " +
-							"INNER JOIN cred.targetCredentials tCred " +
-							"WITH tCred.user.id = :studentId " +
-							"AND tCred.competenceAssessmentsDisplayed IS TRUE " +
-							"WHERE comp.id = :compId";
-
-			Long res = (Long) persistence.currentManager().createQuery(q)
-					.setLong("studentId", studentId)
-					.setLong("compId", competenceId)
-					.setMaxResults(1)
-					.uniqueResult();
-
-			return res != null;
-		} catch (Exception e) {
-			logger.error("Error", e);
-			throw new DbConnectionException("Error checking if competence assessment display is enabled");
-		}
-	}
 
 	@Override
 	//nt
@@ -2955,6 +2720,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 					"INNER JOIN cred.assessmentConfig conf " +
 					"WITH conf.assessmentType = :assessmentType " +
 					"WHERE cc.competence.id = :compId " +
+					"AND cred.type = :deliveryType " +
 					"ORDER BY CASE WHEN conf.blindAssessmentMode = :doubleBlindMode THEN 1 WHEN conf.blindAssessmentMode = :blindMode THEN 2 ELSE 3 END";
 
 			return (BlindAssessmentMode) persistence.currentManager()
@@ -2963,6 +2729,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 					.setString("assessmentType", assessmentType.name())
 					.setString("doubleBlindMode", BlindAssessmentMode.DOUBLE_BLIND.name())
 					.setString("blindMode", BlindAssessmentMode.BLIND.name())
+					.setString("deliveryType", CredentialType.Delivery.name())
 					.setMaxResults(1)
 					.uniqueResult();
 		} catch (Exception e) {

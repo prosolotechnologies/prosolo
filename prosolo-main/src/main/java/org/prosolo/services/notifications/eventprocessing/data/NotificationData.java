@@ -6,7 +6,7 @@ import java.util.Date;
 import org.prosolo.common.domainmodel.user.notifications.NotificationType;
 import org.prosolo.common.domainmodel.user.notifications.ResourceType;
 import org.prosolo.common.util.date.DateUtil;
-import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.user.data.UserData;
 import org.prosolo.web.util.page.PageSection;
 
 public class NotificationData implements Serializable {
