@@ -225,7 +225,7 @@
 									styleClass="collapseButton collapsed"
 									process="@this"
 									action="#{cc.attrs.bean.loadCompetenceActivitiesIfNotLoaded(comp)}"
-									update=":#{cc.clientId}:compList:actList :#{cc.clientId}:compList:panelExpandActivityList"
+									update=":#{cc.clientId}:compList:actList :#{cc.clientId}:compList:panelExpandActivityList #{cc.attrs.growlToUpdate}"
 									oncomplete="$('#comp#{comp.competenceId}').collapse();">
 									<span class="textShow">Show Activities</span>
 									<span class="arrowDown">down</span>
@@ -238,7 +238,7 @@
 				</article>
 
 				<h:panelGroup
-					rendered="#{cc.attrs.bean.credentialData.hasMoreCompetences(status.index) or cc.attrs.isEdit}"
+					rendered="#{cc.attrs.bean.credentialData.hasMoreCompetences(status.index)}"
 					layout="block"
 					styleClass="mandatoryArrow"
 					style="#{cc.attrs.bean.credentialData.mandatoryFlow ? '' : 'display:none;'}">

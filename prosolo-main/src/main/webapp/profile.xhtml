@@ -70,11 +70,11 @@
                                 <h:link outcome="settings" class="btn btn-green-stroke btn-sm">Edit Your Info</h:link>
                             </ui:fragment>
 
-                            <ui:fragment rendered="#{not profileBean.personalProfile}" >
+                            <ui:fragment rendered="#{loginbean.isUserLoggedIn() and not profileBean.personalProfile}" >
                                 <p:commandLink id="followButton"
                                                rendered="#{!peopleActionBean.isLoggedUserFollowingUser(profileBean.decodedStudentId)}"
                                                action="#{peopleActionBean.followCollegueById(profileBean.userData.fullName, profileBean.decodedStudentId)}"
-                                               update="@form"
+                                               update="@form profileGrowl"
                                                process="@this"
                                                styleClass="btn btn-green btn-sm">
                                     <f:param name="page" value="/profile.xhtml" />
@@ -157,8 +157,7 @@
                                     <h2>
                                         <h:link	outcome="/public-credential">
                                             #{cred.title}
-                                            <f:param name="credId" value="#{util:encodeId(cred.credentialId)}"/>
-                                            <f:param name="studentId" value="#{util:encodeId(profileBean.userData.id)}"/>
+                                            <f:param name="id" value="#{util:encodeId(cred.credentialId)}"/>
                                         </h:link>
                                     </h2>
                                     <ui:fragment rendered="#{profileBean.personalProfile}" >

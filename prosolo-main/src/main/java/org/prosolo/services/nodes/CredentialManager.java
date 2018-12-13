@@ -448,30 +448,6 @@ public interface CredentialManager extends AbstractManager {
 	 *
 	 * @param credentialId
 	 * @param studentId
-	 * @return
-	 * @throws DbConnectionException
-	 */
-	CredentialData getTargetCredentialDataWithEvidencesAndAssessmentCount(long credentialId, long studentId);
-
-	void updateCredentialAssessmentsVisibility(long targetCredentialId, boolean displayAssessments);
-
-	void updateCompetenceAssessmentsVisibility(long targetCredentialId, boolean displayAssessments);
-
-	void updateEvidenceVisibility(long targetCredentialId, boolean displayEvidence);
-
-	/**
-	 *
-	 * @param credId
-	 * @param studentId
-	 * @return
-	 * @throws DbConnectionException
-	 */
-	boolean isCredentialAssessmentDisplayEnabled(long credId, long studentId);
-
-	/**
-	 *
-	 * @param credentialId
-	 * @param studentId
 	 * @param session
 	 * @return
 	 * @throws DbConnectionException
