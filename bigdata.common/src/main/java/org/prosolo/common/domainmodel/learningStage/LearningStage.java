@@ -14,7 +14,7 @@ import java.util.Set;
  * @since 1.2.0
  */
 @Entity
-@Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"organization", "title"})})
+//unique constraint added from the script
 public class LearningStage extends BaseEntity {
 
     private int order;

@@ -2,8 +2,9 @@ package org.prosolo.services.indexing;
 
 import org.hibernate.Session;
 import org.prosolo.common.domainmodel.credential.Credential1;
+import org.prosolo.common.elasticsearch.AbstractESIndexer;
 
-public interface CredentialESService  extends AbstractBaseEntityESService {
+public interface CredentialESService extends AbstractESIndexer {
 
 	/**
 	 * @param cred

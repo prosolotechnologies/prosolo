@@ -59,19 +59,19 @@
                                             <li class="media">
                                                 <div class="media-left">
                                                     <ui:fragment
-                                                            rendered="#{activityMessageData.senderId ne cc.attrs.studentId and not activityMessageData.senderInstructor}">
+                                                            rendered="#{activityMessageData.senderId ne cc.attrs.studentId and not activityMessageData.senderAssessor}">
                                                         <utilcomp:userAvatar
                                                                 avatar="#{activityMessageData.senderAvatarUrl}"
                                                                 fullName="#{activityMessageData.senderFullName}"/>
                                                     </ui:fragment>
                                                     <ui:fragment
-                                                            rendered="#{activityMessageData.senderId eq cc.attrs.studentId or activityMessageData.senderInstructor}">
+                                                            rendered="#{activityMessageData.senderId eq cc.attrs.studentId or activityMessageData.senderAssessor}">
                                                         <assessment:assessmentActorAvatar
                                                                 actorId="#{activityMessageData.senderId}"
                                                                 avatarUrl="#{activityMessageData.senderAvatarUrl}"
                                                                 actorFullName="#{activityMessageData.senderFullName}"
                                                                 blindAssessmentMode="#{cc.attrs.blindAssessmentMode}"
-                                                                actorType="#{activityMessageData.senderInstructor ? 'ASSESSOR' : 'STUDENT'}"/>
+                                                                actorType="#{activityMessageData.senderAssessor ? 'ASSESSOR' : 'STUDENT'}"/>
                                                     </ui:fragment>
                                                 </div>
 
@@ -85,20 +85,20 @@
 
                                                             <h3 class="media-heading">
                                                                 <ui:fragment
-                                                                        rendered="#{activityMessageData.senderId ne cc.attrs.studentId and not activityMessageData.senderInstructor}">
+                                                                        rendered="#{activityMessageData.senderId ne cc.attrs.studentId and not activityMessageData.senderAssessor}">
                                                                     #{activityMessageData.senderFullName}
                                                                 </ui:fragment>
                                                                 <ui:fragment
-                                                                        rendered="#{activityMessageData.senderId eq cc.attrs.studentId or activityMessageData.senderInstructor}">
+                                                                        rendered="#{activityMessageData.senderId eq cc.attrs.studentId or activityMessageData.senderAssessor}">
                                                                     <assessment:assessmentActorName
                                                                             actorId="#{activityMessageData.senderId}"
                                                                             actorFullName="#{activityMessageData.senderFullName}"
                                                                             blindAssessmentMode="#{cc.attrs.blindAssessmentMode}"
-                                                                            actorType="#{activityMessageData.senderInstructor ? 'ASSESSOR' : 'STUDENT'}"
+                                                                            actorType="#{activityMessageData.senderAssessor ? 'ASSESSOR' : 'STUDENT'}"
                                                                     />
                                                                 </ui:fragment>
                                                                 <ui:fragment
-                                                                        rendered="#{activityMessageData.senderInstructor and cc.attrs.bean.type != 'SELF_ASSESSMENT'}">
+                                                                        rendered="#{activityMessageData.senderAssessor and cc.attrs.bean.type == 'INSTRUCTOR_ASSESSMENT'}">
                                                                     <span>#{msg['label.instructor'].toUpperCase()}</span>
                                                                 </ui:fragment>
                                                             </h3>
@@ -149,18 +149,18 @@
 
                                                             <h3 class="media-heading">
                                                                 <ui:fragment
-                                                                        rendered="#{activityMessageData.senderId ne cc.attrs.studentId and not activityMessageData.senderInstructor}">
+                                                                        rendered="#{activityMessageData.senderId ne cc.attrs.studentId and not activityMessageData.senderAssessor}">
                                                                     #{activityMessageData.senderFullName}
                                                                 </ui:fragment>
-                                                                <ui:fragment rendered="#{activityMessageData.senderId eq cc.attrs.studentId or activityMessageData.senderInstructor}">
+                                                                <ui:fragment rendered="#{activityMessageData.senderId eq cc.attrs.studentId or activityMessageData.senderAssessor}">
                                                                     <assessment:assessmentActorName
                                                                             actorId="#{activityMessageData.senderId}"
                                                                             actorFullName="#{activityMessageData.senderFullName}"
                                                                             blindAssessmentMode="#{cc.attrs.blindAssessmentMode}"
-                                                                            actorType="#{activityMessageData.senderInstructor ? 'ASSESSOR' : 'STUDENT'}" />
+                                                                            actorType="#{activityMessageData.senderAssessor ? 'ASSESSOR' : 'STUDENT'}" />
                                                                 </ui:fragment>
 
-                                                                <ui:fragment rendered="#{activityMessageData.senderInstructor}">
+                                                                <ui:fragment rendered="#{activityMessageData.senderAssessor and cc.attrs.bean.type == 'INSTRUCTOR_ASSESSMENT'}">
                                                                     <span>#{msg['label.instructor'].toUpperCase()}</span>
                                                                 </ui:fragment>
                                                             </h3>
@@ -169,19 +169,19 @@
 
                                                         <div class="media replyInput hidden">
                                                             <div class="media-left">
-                                                                <ui:fragment rendered="#{activityMessageData.senderId ne cc.attrs.studentId and not activityMessageData.senderInstructor}">
+                                                                <ui:fragment rendered="#{activityMessageData.senderId ne cc.attrs.studentId and not activityMessageData.senderAssessor}">
                                                                     <utilcomp:userAvatar
                                                                             avatar="#{activityMessageData.senderAvatarUrl}"
                                                                             fullName="#{activityMessageData.senderFullName}"/>
                                                                 </ui:fragment>
 
-                                                                <ui:fragment rendered="#{activityMessageData.senderId eq cc.attrs.studentId or activityMessageData.senderInstructor}">
+                                                                <ui:fragment rendered="#{activityMessageData.senderId eq cc.attrs.studentId or activityMessageData.senderAssessor}">
                                                                     <assessment:assessmentActorAvatar
                                                                             actorId="#{activityMessageData.senderId}"
                                                                             avatarUrl="#{activityMessageData.senderAvatarUrl}"
                                                                             actorFullName="#{activityMessageData.senderFullName}"
                                                                             blindAssessmentMode="#{cc.attrs.blindAssessmentMode}"
-                                                                            actorType="#{activityMessageData.senderInstructor ? 'ASSESSOR' : 'STUDENT'}"
+                                                                            actorType="#{activityMessageData.senderAssessor ? 'ASSESSOR' : 'STUDENT'}"
                                                                     />
                                                                 </ui:fragment>
                                                             </div>

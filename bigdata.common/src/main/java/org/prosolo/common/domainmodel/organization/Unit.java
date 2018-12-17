@@ -1,14 +1,12 @@
 package org.prosolo.common.domainmodel.organization;
 
-import java.util.List;
-
-
-import javax.persistence.*;
-
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.rubric.RubricUnit;
+
+import javax.persistence.*;
+import java.util.List;
 
 /**
  * @author Bojan
@@ -17,7 +15,7 @@ import org.prosolo.common.domainmodel.rubric.RubricUnit;
  */
 
 @Entity
-@Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"title","organization"})})
+//unique constraint added from the script
 public class Unit extends BaseEntity {
 
 	private static final long serialVersionUID = 6378214271994742348L;

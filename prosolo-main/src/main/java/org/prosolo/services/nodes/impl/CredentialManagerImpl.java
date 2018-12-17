@@ -33,7 +33,7 @@ import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.assessment.RubricManager;
 import org.prosolo.services.assessment.data.AssessmentTypeConfig;
-import org.prosolo.services.common.data.LazyInitData;
+import org.prosolo.services.common.data.LazyInitCollection;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventFactory;
@@ -2871,8 +2871,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			studentsWhoCanLearnCount = userGroupManager.countCredentialVisibilityUsers(d.getId(), UserGroupPrivilege.Learn);
 			groupsThatCanLearnCount = userGroupManager.countCredentialUserGroups(d.getId(), UserGroupPrivilege.Learn);
 		}
-		deliveryData.setStudentsWhoCanLearn(new LazyInitData<>(studentsWhoCanLearnCount));
-		deliveryData.setGroupsThatCanLearn(new LazyInitData<>(groupsThatCanLearnCount));
+		deliveryData.setStudentsWhoCanLearn(new LazyInitCollection<>(studentsWhoCanLearnCount));
+		deliveryData.setGroupsThatCanLearn(new LazyInitCollection<>(groupsThatCanLearnCount));
 	}
 
 	@Override

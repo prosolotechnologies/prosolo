@@ -1,6 +1,9 @@
 package org.prosolo.common.domainmodel.credential;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 
 /**
  * @author stefanvuckovic
@@ -8,7 +11,7 @@ import javax.persistence.*;
  * @since 1.2.0
  */
 @Entity
-@Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"credential", "assessment_type"})})
+//unique constraint added from the script
 public class CredentialAssessmentConfig extends AssessmentConfig {
 
     private Credential1 credential;

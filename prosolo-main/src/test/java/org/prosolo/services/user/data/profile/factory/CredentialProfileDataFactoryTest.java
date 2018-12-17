@@ -129,6 +129,6 @@ public class CredentialProfileDataFactoryTest {
     }
 
     private CredentialProfileData getCredentialProfileTestData(long id, CredentialCategoryData credentialCategory) {
-        return new CredentialProfileData(0, id, 0, null, null, null, null, 0, null, null, credentialCategory);
+        return new CredentialProfileData(0, id, 0, null, null, null, 0, null, null, credentialCategory);
     }
 }

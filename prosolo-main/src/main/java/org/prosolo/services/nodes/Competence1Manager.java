@@ -300,13 +300,6 @@ public interface Competence1Manager {
 	Result<TargetCompetence1> enrollInCompetenceAndGetEvents(long compId, long userId, UserContextData context)
 			throws DbConnectionException;
 	
-	CompetenceData1 enrollInCompetenceAndGetCompetenceData(long compId, long userId,
-														   UserContextData context)
-			throws DbConnectionException;
-
-	Result<CompetenceData1> enrollInCompetenceGetCompetenceDataAndGetEvents(long compId, long userId, UserContextData context)
-			throws DbConnectionException;
-	
 	long countNumberOfStudentsLearningCompetence(long compId) throws DbConnectionException;
 	
 	void archiveCompetence(long compId, UserContextData context) throws DbConnectionException;

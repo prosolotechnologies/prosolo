@@ -18,6 +18,7 @@ import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.search.util.roles.RoleFilter;
+import org.prosolo.services.authentication.AuthenticatedUserService;
 import org.prosolo.services.authentication.PasswordResetManager;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventFactory;
@@ -66,6 +67,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	@Inject
 	private RoleManager roleManager;
 	@Inject private PasswordResetManager passwordResetManager;
+	@Inject private AuthenticatedUserService authenticatedUserService;
 
 	@Override
 	@Transactional (readOnly = true)
@@ -424,8 +426,11 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 				.setString("newPassEncrypted", newPassEncrypted)
 				.setParameter("newPassEncryptedLength", newPassEncrypted.length())
 				.executeUpdate();
+			flush();
+			//refresh user session data
+			authenticatedUserService.refreshUserSessionData();
 		} catch(Exception e) {
-			logger.error(e);
+			logger.error("error", e);
 			throw new DbConnectionException("Error while updating user password");
 		}
 		return newPassEncrypted;
@@ -460,10 +465,17 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	}
 	@Override
 	@Transactional (readOnly = false)
-	public User changeAvatar(long userId, String newAvatarPath) throws ResourceCouldNotBeLoadedException {
-		User user = loadResource(User.class, userId);
-		user.setAvatarUrl(newAvatarPath);
-		return saveEntity(user);
+	public void changeAvatar(long userId, String newAvatarPath) throws ResourceCouldNotBeLoadedException {
+		try {
+			User user = loadResource(User.class, userId);
+			user.setAvatarUrl(newAvatarPath);
+			flush();
+			//refresh user session data
+			authenticatedUserService.refreshUserSessionData();
+		} catch (Exception e) {
+			logger.error("error", e);
+			throw new DbConnectionException("Error updating the user avatar for the user: " + userId);
+		}
 	}
 
 	@Override
@@ -1258,33 +1270,39 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	@Override
 	@Transactional (readOnly = false)
 	public Result<Void> saveAccountChangesAndGetEvents(UserData accountData, UserContextData contextData)
-			throws DbConnectionException, ResourceCouldNotBeLoadedException {
+			throws DbConnectionException {
+		try {
+			User user = loadResource(User.class, contextData.getActorId());
 
-		User user = loadResource(User.class, contextData.getActorId());
+			user.setName(accountData.getName());
+			user.setLastname(accountData.getLastName());
+			user.setPosition(accountData.getPosition());
 
-		user.setName(accountData.getName());
-		user.setLastname(accountData.getLastName());
-		user.setPosition(accountData.getPosition());
+			if (accountData.getLocationName() == null ||
+					accountData.getLocationName().isEmpty()) {
+				user.setLocationName(null);
+				user.setLatitude(null);
+				user.setLongitude(null);
+			} else {
+				user.setLocationName(accountData.getLocationName());
+				user.setLatitude(accountData.getLatitude());
+				user.setLongitude(accountData.getLongitude());
+			}
 
-		if (accountData.getLocationName() == null ||
-				accountData.getLocationName().isEmpty()) {
-			user.setLocationName(null);
-			user.setLatitude(null);
-			user.setLongitude(null);
-		} else {
-			user.setLocationName(accountData.getLocationName());
-			user.setLatitude(accountData.getLatitude());
-			user.setLongitude(accountData.getLongitude());
+			Result<Void> result = new Result<>();
+
+			saveEntity(user);
+			//refresh user session data
+			authenticatedUserService.refreshUserSessionData();
+
+			result.appendEvent(eventFactory.generateEventData(EventType.Edit_Profile, contextData,
+					null, null, null, null));
+
+			return result;
+		} catch (Exception e) {
+			logger.error("error", e);
+			throw new DbConnectionException("Error updating account data for user: " + accountData.getId());
 		}
-
-		Result<Void> result = new Result<>();
-
-		saveEntity(user);
-
-		result.appendEvent(eventFactory.generateEventData(EventType.Edit_Profile, contextData,
-				null, null, null, null));
-
-		return result;
 	}
 
 }

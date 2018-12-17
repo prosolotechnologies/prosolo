@@ -1,9 +1,14 @@
 package org.prosolo.bigdata.jobs;
 
-import static org.quartz.JobKey.jobKey;
-import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
-import static org.quartz.TriggerKey.triggerKey;
-import static org.quartz.impl.matchers.EverythingMatcher.allJobs;
+import org.apache.log4j.Logger;
+import org.prosolo.bigdata.config.QuartzJobConfig;
+import org.prosolo.bigdata.config.SchedulerConfig;
+import org.prosolo.bigdata.config.Settings;
+import org.prosolo.bigdata.utils.ScriptRunner;
+import org.prosolo.common.config.CommonSettings;
+import org.prosolo.common.config.MySQLConfig;
+import org.quartz.*;
+import org.quartz.impl.StdSchedulerFactory;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -15,27 +20,12 @@ import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.Date;
 
+import static org.quartz.JobKey.jobKey;
+import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
+import static org.quartz.TriggerKey.triggerKey;
+import static org.quartz.impl.matchers.EverythingMatcher.allJobs;
+
 //import org.apache.http.ParseException;
-import org.apache.log4j.Logger;
-import org.prosolo.bigdata.config.QuartzJobConfig;
-import org.prosolo.bigdata.config.SchedulerConfig;
-import org.prosolo.bigdata.config.Settings;
-import org.prosolo.bigdata.utils.ScriptRunner;
-import org.prosolo.common.config.CommonSettings;
-import org.prosolo.common.config.MySQLConfig;
-import org.quartz.CronScheduleBuilder;
-import org.quartz.DateBuilder;
-import org.quartz.Job;
-import org.quartz.JobBuilder;
-import org.quartz.JobDetail;
-import org.quartz.JobKey;
-import org.quartz.Scheduler;
-import org.quartz.SchedulerException;
-import org.quartz.SchedulerFactory;
-import org.quartz.SimpleScheduleBuilder;
-import org.quartz.Trigger;
-import org.quartz.TriggerBuilder;
-import org.quartz.impl.StdSchedulerFactory;
 
 /**
  * @author Zoran Jeremic May 18, 2015
@@ -169,7 +159,7 @@ public class CronSchedulerImpl implements CronScheduler {
 		int port = mySQLConfig.port;
 		 String database = mySQLConfig.database;
 		//String database="prosolo2";
-		String url="jdbc:mysql://"+ host + ":" + port + "/" + database+"?useSSL=false";
+		String url="jdbc:mysql://"+ host + ":" + port + "/" + database+"?useSSL=false&connectionCollation=" + CommonSettings.getInstance().config.hibernateConfig.connection.connectionCollation;
 
 		// String
 		// mongoUri="mongodb://"+serverConfig.dbHost+":"+serverConfig.dbPort;
@@ -200,23 +190,23 @@ public class CronSchedulerImpl implements CronScheduler {
 		System.setProperty("org.quartz.dataSource.quartzDataSource.password",mySQLConfig.password);
 		System.setProperty("org.quartz.dataSource.quartzDataSource.maxConnections","8");
 		System.setProperty("org.quartz.dataSource.quartzDataSource.validationQuery","SELECT 1");
-if(Settings.getInstance().config.initConfig.formatDB || Settings.getInstance().config.schedulerConfig.createTables){
-	try{
-		Connection con = DriverManager.getConnection(url, mySQLConfig.user, mySQLConfig.password);
-		ScriptRunner runner = new ScriptRunner(con, true, false);
-		logger.info("CREATE QUARTZ TABLES...");
-		InputStream inpStream = Thread.currentThread().getContextClassLoader()
-				.getResourceAsStream("config/quartz_tables_mysql_innodb.sql");
-		runner.runScript(new InputStreamReader(inpStream));
-	}catch(SQLException ex){
-		logger.error(ex);
-	}catch(FileNotFoundException fex){
-		logger.error(fex);
-	}catch(IOException ioex){
-		logger.error(ioex);
-	}
-}
 
+		if(Settings.getInstance().config.initConfig.formatDB || Settings.getInstance().config.schedulerConfig.createTables){
+			try{
+				Connection con = DriverManager.getConnection(url, mySQLConfig.user, mySQLConfig.password);
+				ScriptRunner runner = new ScriptRunner(con, true, false);
+				logger.info("CREATE QUARTZ TABLES...");
+				InputStream inpStream = Thread.currentThread().getContextClassLoader()
+						.getResourceAsStream("config/quartz_tables_mysql_innodb.sql");
+				runner.runScript(new InputStreamReader(inpStream));
+			} catch (SQLException ex){
+				logger.error("Error", ex);
+			} catch (FileNotFoundException fex){
+				logger.error("Error", fex);
+			} catch (IOException ioex){
+				logger.error("Error", ioex);
+			}
+		}
 
 		SchedulerFactory sf = new StdSchedulerFactory();
 

@@ -2,22 +2,26 @@ package org.prosolo.services.indexing;/**
  * Created by zoran on 28/09/16.
  */
 
-import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.apache.log4j.Logger;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.Client;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.prosolo.bigdata.common.enums.ESIndexTypes;
 import org.prosolo.common.ESIndexNames;
 import org.prosolo.common.domainmodel.events.EventType;
+import org.prosolo.common.elasticsearch.ElasticSearchConnector;
+import org.prosolo.common.elasticsearch.client.ESRestClient;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -60,7 +64,10 @@ class LogsFilter{
     public void setBeforeDate(Long beforeDate) { this.beforeDate = beforeDate;    }
   }
 public class LoggingESServiceTest {
-    private static Client client;
+
+    private static Logger logger = Logger.getLogger(LoggingESServiceTest.class);
+
+    private static ESRestClient client;
     private static List<Long> actors;
     private static List<Long> courses;
     private static LogsFilter f1;
@@ -68,7 +75,7 @@ public class LoggingESServiceTest {
     public static void initializeClient(){
         String indexName = ESIndexNames.INDEX_LOGS;
         String indexType = ESIndexTypes.LOG;
-        client = ElasticSearchFactory.getClient();
+        client = ElasticSearchConnector.getClient();
 
         System.out.println("ES CLIENT INITIALIZED");
         actors=new ArrayList();
@@ -110,7 +117,7 @@ public class LoggingESServiceTest {
         LogsFilter logsFilter=f1;
         BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
         int bQueryMinShouldMatch=0;
-        if(logsFilter.getCredentials().size()>0){
+        if (logsFilter.getCredentials().size()>0) {
             System.out.println("HAS CREDENTIALS:"+logsFilter.getCredentials().size());
             BoolQueryBuilder contextQueryBuilder =createContextQueryBuilder(logsFilter.getCredentials(),"Credential1",1);
 
@@ -118,39 +125,39 @@ public class LoggingESServiceTest {
             bQueryMinShouldMatch++;
         }
 
-        if(logsFilter.getCompetences().size()>0){
+        if (logsFilter.getCompetences().size()>0) {
             System.out.println("HAS COMPETENCES:"+logsFilter.getCompetences().size());
             BoolQueryBuilder contextQueryBuilder =createContextQueryBuilder(logsFilter.getCompetences(),"Competence1",2);
             bQueryBuilder.should(contextQueryBuilder);
             bQueryMinShouldMatch++;
         }
-        if(logsFilter.getActivities().size()>0){
+        if (logsFilter.getActivities().size()>0) {
             System.out.println("HAS Activities:"+logsFilter.getActivities().size());
             BoolQueryBuilder contextQueryBuilder = createContextQueryBuilder(logsFilter.getActivities(),"Activity1",3);
             bQueryBuilder.should(contextQueryBuilder);
             bQueryMinShouldMatch++;
         }
-        if(logsFilter.getStudents().size()>0){
+        if (logsFilter.getStudents().size()>0) {
             System.out.println("HAS STUDENTS:"+logsFilter.getStudents().size());
             BoolQueryBuilder studentsQueryBuilder=QueryBuilders.boolQuery();
             for(Long studentId: logsFilter.getStudents()){
                 studentsQueryBuilder.should(QueryBuilders.matchQuery("actorId",studentId));
             }
-            studentsQueryBuilder.minimumNumberShouldMatch(1);
+            studentsQueryBuilder.minimumShouldMatch(1);
             bQueryBuilder.should(studentsQueryBuilder);
             bQueryMinShouldMatch++;
         }
-        if(logsFilter.getEventTypes().size()>0){
+        if (logsFilter.getEventTypes().size()>0) {
             System.out.println("HAS EVENT TYPES:"+logsFilter.getEventTypes().size());
             BoolQueryBuilder eventTypesQueryBuilder=QueryBuilders.boolQuery();
             for(EventType eventType:logsFilter.getEventTypes()){
                 eventTypesQueryBuilder.should(QueryBuilders.matchQuery("eventType",eventType.name()));
             }
-            eventTypesQueryBuilder.minimumNumberShouldMatch(1);
+            eventTypesQueryBuilder.minimumShouldMatch(1);
             bQueryBuilder.should(eventTypesQueryBuilder);
             bQueryMinShouldMatch++;
         }
-        if(logsFilter.getAfterDate()>0 && logsFilter.getBeforeDate()>0){
+        if (logsFilter.getAfterDate()>0 && logsFilter.getBeforeDate()>0) {
             System.out.println("HAS AFTER AND BEFORE DATE");
             RangeQueryBuilder datesQueryBuilder=QueryBuilders.rangeQuery("date")
                     .from(logsFilter.getAfterDate())
@@ -161,21 +168,22 @@ public class LoggingESServiceTest {
             bQueryMinShouldMatch++;
         }
 
+        bQueryBuilder.minimumShouldMatch( bQueryMinShouldMatch);
 
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        searchSourceBuilder
+                .query(bQueryBuilder)
+                .from(logsFilter.getFrom())
+                .size(logsFilter.getSize())
+                .sort(new FieldSortBuilder("timestamp").order(SortOrder.DESC));
 
-        bQueryBuilder.minimumNumberShouldMatch( bQueryMinShouldMatch);
-       SearchRequestBuilder searchRequestBuilder=client.prepareSearch(ESIndexNames.INDEX_LOGS)
-               .setTypes(ESIndexTypes.LOG)
-               .setQuery( bQueryBuilder)
-               .setFrom(logsFilter.getFrom())
-               .setSize(logsFilter.getSize())
-               .addSort("timestamp", SortOrder.DESC);
-
-        System.out.println("QUERY:"+ searchRequestBuilder.toString());
-        SearchResponse sResponse=searchRequestBuilder
-                .execute().actionGet();
-        System.out.println("EXECUTED");
-        printSearchResponse(sResponse);
+        try {
+            SearchResponse sResponse = ElasticSearchConnector.getClient().search(searchSourceBuilder, ESIndexNames.INDEX_LOGS, ESIndexTypes.LOG);
+            System.out.println("EXECUTED");
+            printSearchResponse(sResponse);
+        } catch (IOException e) {
+            logger.error("Error", e);
+        }
     }
 
     private BoolQueryBuilder createContextQueryBuilder(List<Long> objectIds, String objectType, int contextLevel){
@@ -188,10 +196,10 @@ public class LoggingESServiceTest {
             BoolQueryBuilder objQueryBuilder=QueryBuilders.boolQuery();
             objQueryBuilder.should(QueryBuilders.matchQuery(contextKey+".object_type",objectType));
             objQueryBuilder.should(QueryBuilders.matchQuery(contextKey+".id",objId));
-            objQueryBuilder.minimumNumberShouldMatch(2);
+            objQueryBuilder.minimumShouldMatch(2);
             contextQueryBuilder.should(objQueryBuilder);
         }
-        contextQueryBuilder.minimumNumberShouldMatch(1);
+        contextQueryBuilder.minimumShouldMatch(1);
         return contextQueryBuilder;
     }
 
@@ -203,25 +211,31 @@ public class LoggingESServiceTest {
         for (Long cId:courses) {
             courseQueryBuilder.should(QueryBuilders.matchQuery("courseId",cId));
         }
-        courseQueryBuilder.minimumNumberShouldMatch(1);
+        courseQueryBuilder.minimumShouldMatch(1);
         bQueryBuilder.should(courseQueryBuilder);
         BoolQueryBuilder userQueryBuilder=QueryBuilders.boolQuery();
 
         for (Long aId:actors) {
             userQueryBuilder.should(QueryBuilders.matchQuery("actorId",aId));
         }
-        userQueryBuilder.minimumNumberShouldMatch(1);
+        userQueryBuilder.minimumShouldMatch(1);
         bQueryBuilder.should(userQueryBuilder);
-        bQueryBuilder.minimumNumberShouldMatch(2);
+        bQueryBuilder.minimumShouldMatch(2);
         System.out.println("QUERY:"+ bQueryBuilder.toString());
-        SearchResponse sResponse=client.prepareSearch(ESIndexNames.INDEX_LOGS)
-                .setTypes(ESIndexTypes.LOG)
-                .setQuery( bQueryBuilder)
-                        .setFrom(0)
-                        .setSize(100)
-                        .execute().actionGet();
-        System.out.println("EXECUTED");
-        printSearchResponse(sResponse);
+
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        searchSourceBuilder
+                .query(bQueryBuilder)
+                .from(0)
+                .size(100);
+
+        try {
+            SearchResponse sResponse = ElasticSearchConnector.getClient().search(searchSourceBuilder, ESIndexNames.INDEX_LOGS, ESIndexTypes.LOG);
+            System.out.println("EXECUTED");
+            printSearchResponse(sResponse);
+        } catch (IOException e) {
+            logger.error("Error", e);
+        }
     }
 
 
@@ -234,19 +248,25 @@ public class LoggingESServiceTest {
 
         QueryBuilder qb1= QueryBuilders.matchQuery("learningContext.context.object_type","Long");
         QueryBuilder qb2= QueryBuilders.matchQuery("learningContext.context.id","1");
-        qbL1.should(qb1).should(qb2).minimumNumberShouldMatch(2);
+        qbL1.should(qb1).should(qb2).minimumShouldMatch(2);
 
 
         qb.should(qbL1);
         System.out.println("QUERY:"+ qb.toString());
-        SearchResponse sResponse=client.prepareSearch(ESIndexNames.INDEX_LOGS)
-                .setTypes(ESIndexTypes.LOG)
-                .setQuery( qb)
-                .setFrom(0)
-                .setSize(100)
-                .execute().actionGet();
-        System.out.println("EXECUTED testLogsFilteringByContext");
-        printSearchResponse(sResponse);
+
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        searchSourceBuilder
+                .query(qb)
+                .from(0)
+                .size(100);
+
+        try {
+            SearchResponse sResponse = ElasticSearchConnector.getClient().search(searchSourceBuilder, ESIndexNames.INDEX_LOGS, ESIndexTypes.LOG);
+            System.out.println("EXECUTED testLogsFilteringByContext");
+            printSearchResponse(sResponse);
+        } catch (IOException e) {
+            logger.error("Error", e);
+        }
     }
     private void printSearchResponse(SearchResponse sResponse){
         if(sResponse != null) {
@@ -255,12 +275,12 @@ public class LoggingESServiceTest {
             SearchHits searchHits = sResponse.getHits();
             if(searchHits != null) {
                 for (SearchHit hit : sResponse.getHits()) {
-                    String actorId=hit.getSource().get("actorId").toString();
-                    String courseId=hit.getSource().get("courseId").toString();
-                    String eventType=hit.getSource().get("eventType").toString();
-                    String learningContext=hit.getSource().get("learningContext").toString();
-                    String timestamp=hit.getSource().get("timestamp").toString();
-                    String date=hit.getSource().get("date").toString();
+                    String actorId=hit.getSourceAsMap().get("actorId").toString();
+                    String courseId=hit.getSourceAsMap().get("courseId").toString();
+                    String eventType=hit.getSourceAsMap().get("eventType").toString();
+                    String learningContext=hit.getSourceAsMap().get("learningContext").toString();
+                    String timestamp=hit.getSourceAsMap().get("timestamp").toString();
+                    String date=hit.getSourceAsMap().get("date").toString();
                    // System.out.println(timestamp);
                     System.out.println("HIT:actor:"+actorId+" course:"+courseId+" eventType:"+eventType+" timestamp:"+timestamp+" date:"+date+" context:"+learningContext);
                 }

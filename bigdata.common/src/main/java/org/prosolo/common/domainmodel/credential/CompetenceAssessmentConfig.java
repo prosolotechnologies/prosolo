@@ -1,10 +1,9 @@
 package org.prosolo.common.domainmodel.credential;
 
-import org.hibernate.annotations.Type;
-import org.prosolo.common.domainmodel.assessment.AssessmentType;
-import org.prosolo.common.domainmodel.general.BaseEntity;
-
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 
 /**
  * @author stefanvuckovic

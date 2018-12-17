@@ -1,0 +1,167 @@
+{
+	"org_user": {
+		"properties": {
+			"id": {
+				"store": false,
+				"type": "long"
+			},
+			"url": {
+				"store": false,
+				"type": "keyword"
+			},
+			"name": {
+				"store": false,
+				"type": "text",
+				"analyzer": "whitespace_lowercase_analyzer",
+				"fields": {
+					"sort": {
+						"type": "keyword",
+						"normalizer": "ci_normalizer"
+					}
+				}
+			},
+			"lastname": {
+				"store": false,
+				"type": "text",
+				"analyzer": "whitespace_lowercase_analyzer",
+				"fields": {
+					"sort": {
+						"type": "keyword",
+						"normalizer": "ci_normalizer"
+					}
+				}
+			},
+			"system": {
+				"store": false,
+				"type": "boolean"
+			},
+			"avatar": {
+				"store": false,
+				"type": "keyword"
+			},
+
+			"position": {
+				"store": false,
+				"type": "keyword"
+			},
+
+			"location": {
+				"type": "geo_point"
+			},
+
+			"roles": {
+				"type": "nested",
+				"properties": {
+					"id": {
+						"store": false,
+						"type": "long"
+					},
+					"units" : {
+						"properties": {
+							"id": {
+								"store": false,
+								"type": "long"
+							}
+						}
+					}
+				}
+			},
+
+			"credentials": {
+				"type": "nested",
+				"properties": {
+					"id": {
+						"store": false,
+						"type": "long"
+					},
+					"progress": {
+						"store": false,
+						"type": "integer"
+					},
+					"instructorId": {
+						"store": false,
+						"type": "long"
+					},
+					"dateEnrolled":{
+						"store": false,
+						"type":"date",
+						"format":"yyyy/MM/dd HH:mm:ss"
+					},
+					"assessorNotified": {
+						"store": false,
+						"type": "boolean"
+					},
+					"assessed": {
+						"store": false,
+						"type": "boolean"
+					}
+				}
+			},
+			
+			"competences": {
+				"type": "nested",
+				"properties": {
+					"id": {
+						"store": false,
+						"type": "long"
+					},
+					"progress": {
+						"store": false,
+						"type": "integer"
+					},
+					"dateEnrolled":{
+						"store": false,
+						"type":"date",
+						"format":"yyyy/MM/dd HH:mm:ss"
+					},
+					"dateCompleted":{
+						"store": false,
+						"type": "date",
+						"format": "yyyy/MM/dd HH:mm:ss"
+					}
+				}
+			},
+			
+			"credentialsWithInstructorRole": {
+				"properties": {
+					"id": {
+						"store": false,
+						"type": "long"
+					},
+					"dateAssigned":{
+						"store": false,
+						"type":"date",
+						"format":"yyyy/MM/dd HH:mm:ss"
+					}
+				}
+			},
+			
+			"followers": {
+				"properties": {
+					"id": {
+						"store": false,
+						"type": "long"
+					}
+				}
+			},
+			"following": {
+				"properties": {
+					"id": {
+						"store": false,
+						"type": "long"
+					}
+				}
+			},
+
+			"groups": {
+				"properties": {
+					"id": {
+						"store": false,
+						"type": "long"
+					}
+				}
+			}
+			
+		}
+	}
+}

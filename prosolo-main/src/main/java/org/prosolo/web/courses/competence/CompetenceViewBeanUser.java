@@ -167,14 +167,22 @@ public class CompetenceViewBeanUser implements Serializable {
 	
 	public void enrollInCompetence() {
 		try {
-			competenceData = competenceManager.enrollInCompetenceAndGetCompetenceData(
+			competenceManager.enrollInCompetence(
 					competenceData.getCompetenceId(), loggedUser.getUserId(), loggedUser.getUserContext());
-			access.userEnrolled();
-			if (competenceData.getLearningPathType() == LearningPathType.EVIDENCE) {
-				//student enrolled so he can now upload/post evidence
-				submitEvidenceBean.init(new LearningEvidenceData());
-			}
 			PageUtil.fireSuccessfulInfoMessage("You have started the " + ResourceBundleUtil.getMessage("label.competence").toLowerCase());
+			try {
+				RestrictedAccessResult<CompetenceData1> res = competenceManager
+						.getFullTargetCompetenceOrCompetenceData(decodedCredId, decodedCompId,
+								loggedUser.getUserId());
+				unpackResult(res);
+				if (competenceData.getLearningPathType() == LearningPathType.EVIDENCE) {
+					//student enrolled so he can now upload/post evidence
+					submitEvidenceBean.init(new LearningEvidenceData());
+				}
+			} catch (Exception e) {
+				logger.error("error", e);
+				PageUtil.fireErrorMessage("Error loading the data, try to refresh the page");
+			}
 		} catch (DbConnectionException e) {
 			logger.error("Error", e);
 			PageUtil.fireErrorMessage("Error starting the " + ResourceBundleUtil.getMessage("label.competence").toLowerCase());

@@ -91,8 +91,16 @@ public interface UserManager extends AbstractManager {
 	String changePassword(long userId, String newPassword) throws ResourceCouldNotBeLoadedException;
 	
 	String changePasswordWithResetKey(String resetKey, String newPassword);
-	
-	User changeAvatar(long userId, String newAvatarPath) throws ResourceCouldNotBeLoadedException;
+
+	/**
+	 *
+	 * @param userId
+	 * @param newAvatarPath
+	 * @return
+	 * @throws ResourceCouldNotBeLoadedException
+	 * @throws DbConnectionException
+	 */
+	void changeAvatar(long userId, String newAvatarPath) throws ResourceCouldNotBeLoadedException;
 
 	List<User> loadUsers(List<Long> ids);
 

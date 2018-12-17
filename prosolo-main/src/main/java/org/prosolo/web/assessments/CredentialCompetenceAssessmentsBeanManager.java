@@ -432,9 +432,11 @@ public class CredentialCompetenceAssessmentsBeanManager implements AssessmentCom
 		List<CompetenceAssessmentData> competenceAssessmentData = assessmentsSummary.getAssessments().getFoundNodes();
 		if (CollectionUtils.isNotEmpty(competenceAssessmentData)) {
 			for (CompetenceAssessmentData comp : competenceAssessmentData) {
-				for (ActivityAssessmentData act : comp.getActivityAssessmentData()) {
-					if (encodedActivityDiscussionId.equals(act.getEncodedActivityAssessmentId())) {
-						return Optional.of(act);
+				if (comp.getActivityAssessmentData() != null) {
+					for (ActivityAssessmentData act : comp.getActivityAssessmentData()) {
+						if (encodedActivityDiscussionId.equals(act.getEncodedActivityAssessmentId())) {
+							return Optional.of(act);
+						}
 					}
 				}
 			}

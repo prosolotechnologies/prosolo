@@ -2,8 +2,7 @@ package org.prosolo.services.user.data.profile;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.prosolo.common.domainmodel.credential.LearningPathType;
-import org.prosolo.services.common.data.LazyInitData;
+import org.prosolo.services.common.data.LazyInitCollection;
 
 import java.io.Serializable;
 
@@ -20,7 +19,7 @@ public class CompetenceProfileData implements Serializable {
 
     private final long id;
     private final String title;
-    private final LazyInitData<CompetenceEvidenceProfileData> evidence;
-    private final LazyInitData<AssessmentByTypeProfileData> assessments;
+    private final LazyInitCollection<CompetenceEvidenceProfileData> evidence;
+    private final LazyInitCollection<AssessmentByTypeProfileData> assessments;
 
 }

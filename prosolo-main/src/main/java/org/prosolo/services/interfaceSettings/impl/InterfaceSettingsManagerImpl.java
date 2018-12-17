@@ -8,6 +8,7 @@ import java.util.Date;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
+import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.interfacesettings.ActivityWallSettings;
 import org.prosolo.common.domainmodel.interfacesettings.FilterType;
 import org.prosolo.common.domainmodel.interfacesettings.LocaleSettings;
@@ -81,12 +82,18 @@ public class InterfaceSettingsManagerImpl extends AbstractManagerImpl implements
 	
 	@Override
 	@Transactional
-	public boolean changeActivityWallFilter(UserSettings userSettings, FilterType filter, long courseId) {
-		ActivityWallSettings awSettings = userSettings.getActivityWallSettings();
-		awSettings.setChosenFilter(filter);
-		awSettings.setCourseId(courseId);
-		saveEntity(awSettings);
-		return true;
+	public boolean changeActivityWallFilter(long userId, FilterType filter, long courseId) {
+		try {
+			UserSettings userSettings = getOrCreateUserSettings(userId);
+			ActivityWallSettings awSettings = userSettings.getActivityWallSettings();
+			awSettings.setChosenFilter(filter);
+			awSettings.setCourseId(courseId);
+			saveEntity(awSettings);
+			return true;
+		} catch (Exception e) {
+			logger.error("error", e);
+			throw new DbConnectionException("Error updating the chosen status wall filter");
+		}
 	}
 	
 	@Override
@@ -123,6 +130,18 @@ public class InterfaceSettingsManagerImpl extends AbstractManagerImpl implements
 		userSettings.getPagesTutorialPlayed().add(page);
 		session.saveOrUpdate(userSettings);
 		return userSettings;
+	}
+
+	@Override
+	@Transactional
+	public FilterType getChosenFilter(long userId) {
+		try {
+			UserSettings userSettings = getOrCreateUserSettings(userId);
+			return userSettings.getActivityWallSettings().getChosenFilter();
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error loading chosen status wall filter type");
+		}
 	}
 	
 }
