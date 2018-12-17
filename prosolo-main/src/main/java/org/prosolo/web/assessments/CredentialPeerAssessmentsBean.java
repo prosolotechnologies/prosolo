@@ -82,7 +82,7 @@ public abstract class CredentialPeerAssessmentsBean implements Paginable, Serial
 		return AssessmentUtil.isSelfAssessmentEnabled(assessmentTypesConfig);
 	}
 
-	public BlindAssessmentMode getPeerAssessmentBlindAssessmentMode() {
+	protected BlindAssessmentMode getPeerAssessmentBlindAssessmentMode() {
 		return AssessmentUtil.getBlindAssessmentMode(assessmentTypesConfig, AssessmentType.PEER_ASSESSMENT);
 	}
 

@@ -2,10 +2,7 @@ package org.prosolo.services.assessment.data.factory;
 
 import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
 import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
-import org.prosolo.common.domainmodel.credential.Activity1;
-import org.prosolo.common.domainmodel.credential.Competence1;
-import org.prosolo.common.domainmodel.credential.Credential1;
-import org.prosolo.common.domainmodel.credential.GradingMode;
+import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.ImageFormat;
 import org.prosolo.services.assessment.data.ActivityAssessmentsSummaryData;
@@ -81,15 +78,15 @@ public class AssessmentDataFactory implements Serializable {
     }
 
     public AssessmentData getCredentialAssessmentData(CredentialAssessment ca, User student, User assessor, DateFormat dateFormat) {
-        return getAssessmentData(ca.getId(), ca.getDateCreated(), ca.isApproved(), student, assessor, dateFormat);
+        return getAssessmentData(ca.getId(), ca.getDateCreated(), ca.isApproved(), student, assessor, dateFormat, ca.getBlindAssessmentMode());
     }
 
     public AssessmentData getCompetenceAssessmentData(CompetenceAssessment ca, User student, User assessor, DateFormat dateFormat) {
-        return getAssessmentData(ca.getId(), ca.getDateCreated(), ca.isApproved(), student, assessor, dateFormat);
+        return getAssessmentData(ca.getId(), ca.getDateCreated(), ca.isApproved(), student, assessor, dateFormat, ca.getBlindAssessmentMode());
     }
 
     public AssessmentData getAssessmentData(
-            long assessmentId, Date dateCreated, boolean approved, User student, User assessor, DateFormat dateFormat) {
+            long assessmentId, Date dateCreated, boolean approved, User student, User assessor, DateFormat dateFormat, BlindAssessmentMode blindAssessmentMode) {
         AssessmentData data = new AssessmentData();
         data.setAssessmentId(assessmentId);
         data.setDateValue(dateFormat.format(dateCreated));
@@ -104,6 +101,7 @@ public class AssessmentDataFactory implements Serializable {
             data.setAssessorAvatarUrl(AvatarUtils.getAvatarUrlInFormat(assessor, ImageFormat.size120x120));
             data.setAssessorId(assessor.getId());
         }
+        data.setBlindAssessmentMode(blindAssessmentMode);
 
         return data;
     }

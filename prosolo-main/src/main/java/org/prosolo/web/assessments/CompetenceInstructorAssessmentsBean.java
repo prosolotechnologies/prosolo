@@ -1,8 +1,6 @@
 package org.prosolo.web.assessments;
 
 import org.apache.log4j.Logger;
-import org.prosolo.common.domainmodel.assessment.AssessmentType;
-import org.prosolo.common.domainmodel.credential.BlindAssessmentMode;
 import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.assessment.data.AssessmentTypeConfig;
 import org.prosolo.services.assessment.data.CompetenceAssessmentData;
@@ -51,7 +49,7 @@ public abstract class CompetenceInstructorAssessmentsBean implements Serializabl
 			credentialTitle = credManager.getCredentialTitle(decodedCredId);
 		}
 
-		assessmentTypesConfig = compManager.getCompetenceAssessmentTypesConfig(decodedCompId, false);
+		assessmentTypesConfig = compManager.getCompetenceAssessmentTypesConfig(decodedCompId);
 	}
 
 	void decodeCredentialAndCompetenceIds() {
@@ -68,10 +66,6 @@ public abstract class CompetenceInstructorAssessmentsBean implements Serializabl
 
 	public boolean isSelfAssessmentEnabled() {
 		return AssessmentUtil.isSelfAssessmentEnabled(assessmentTypesConfig);
-	}
-
-	public BlindAssessmentMode getBlindAssessmentMode() {
-		return AssessmentUtil.getBlindAssessmentMode(assessmentTypesConfig, AssessmentType.INSTRUCTOR_ASSESSMENT);
 	}
 
 	/*

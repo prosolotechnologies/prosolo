@@ -49,6 +49,10 @@ public class StudentCredentialPeerAssessmentsBean extends CredentialPeerAssessme
 	}
 
 	public void initAskForAssessment() {
+		/*
+		in this context new assessment request is always initiated so blind assessment mode is
+		loaded from credential.
+		 */
 		askForAssessmentBean.init(getDecodedId(), targetCredId, AssessmentType.PEER_ASSESSMENT, getPeerAssessmentBlindAssessmentMode());
 	}
 

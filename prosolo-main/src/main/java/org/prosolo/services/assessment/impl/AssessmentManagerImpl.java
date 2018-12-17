@@ -17,6 +17,7 @@ import org.prosolo.common.domainmodel.rubric.*;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
+import org.prosolo.common.util.ImageFormat;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.assessment.config.AssessmentLoadConfig;
@@ -42,6 +43,7 @@ import org.prosolo.services.nodes.factory.ActivityAssessmentDataFactory;
 import org.prosolo.services.nodes.factory.CompetenceDataFactory;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.util.Util;
+import org.prosolo.web.util.AvatarUtils;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -125,6 +127,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			if (assessorId > 0) {
 				assessor = (User) persistence.currentManager().load(User.class, assessorId);
 			}
+			BlindAssessmentMode blindAssessmentMode = getBlindAssessmentModeFromAssessmentConfig(targetCredential.getCredential().getAssessmentConfig(), type);
 			CredentialAssessment assessment = new CredentialAssessment();
 			Date creationDate = new Date();
 			assessment.setDateCreated(creationDate);
@@ -133,6 +136,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			if (assessor != null) {
 				assessment.setAssessor(assessor);
 			}
+			assessment.setBlindAssessmentMode(blindAssessmentMode);
 			//assessment.setTitle(credentialTitle);
 			assessment.setTargetCredential(targetCredential);
 			assessment.setType(type);
@@ -163,7 +167,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			boolean atLeastOneCompGraded = false;
 			for (CompetenceData1 comp : comps) {
 				Result<CompetenceAssessment> res = getOrCreateCompetenceAssessmentAndGetEvents(
-						comp, studentId, assessorId, type,false, context);
+						comp, studentId, assessorId, type, blindAssessmentMode,false, context);
 				CredentialCompetenceAssessment cca = new CredentialCompetenceAssessment();
 				cca.setCredentialAssessment(assessment);
 				cca.setCompetenceAssessment(res.getResult());
@@ -207,6 +211,10 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		}
 	}
 
+	private BlindAssessmentMode getBlindAssessmentModeFromAssessmentConfig(Collection<? extends AssessmentConfig> configs, AssessmentType type) {
+		return configs.stream().filter(conf -> conf.getAssessmentType() == type).findFirst().get().getBlindAssessmentMode();
+	}
+
 	/**
 	 * Returns credential assessment of given target credential, student and assessor if it exists and it's type is
 	 * not instructor assessment
@@ -248,21 +256,23 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	@Override
 	@Transactional
 	public Result<CompetenceAssessment> createSelfCompetenceAssessmentAndGetEvents(long competenceId, long studentId, UserContextData context) throws DbConnectionException, IllegalDataStateException {
-		CompetenceData1 competenceData = compManager.getTargetCompetenceData(0, competenceId, studentId, false, true);
-		return getOrCreateCompetenceAssessmentAndGetEvents(competenceData, studentId, studentId, AssessmentType.SELF_ASSESSMENT, false, context);
+		CompetenceData1 competenceData = compManager.getTargetCompetenceData(0, competenceId, studentId, true, true);
+		AssessmentType type = AssessmentType.SELF_ASSESSMENT;
+		return getOrCreateCompetenceAssessmentAndGetEvents(competenceData, studentId, studentId, type, competenceData.getAssessmentTypeConfig(type).getBlindAssessmentMode(), false, context);
 	}
 
 	@Override
 	@Transactional
 	public Result<CompetenceAssessment> requestCompetenceAssessmentAndGetEvents(long competenceId, long studentId, long assessorId, UserContextData context) throws DbConnectionException, IllegalDataStateException {
-		CompetenceData1 competenceData = compManager.getTargetCompetenceData(0, competenceId, studentId, false, true);
-		return getOrCreateCompetenceAssessmentAndGetEvents(competenceData, studentId, assessorId, AssessmentType.PEER_ASSESSMENT, true, context);
+		CompetenceData1 competenceData = compManager.getTargetCompetenceData(0, competenceId, studentId, true, true);
+		AssessmentType type = AssessmentType.PEER_ASSESSMENT;
+		return getOrCreateCompetenceAssessmentAndGetEvents(competenceData, studentId, assessorId, type, competenceData.getAssessmentTypeConfig(type).getBlindAssessmentMode(), true, context);
 	}
 
 	@Override
 	@Transactional (readOnly = true)
 	public Result<CompetenceAssessment> getOrCreateCompetenceAssessmentAndGetEvents(CompetenceData1 comp, long studentId,
-															long assessorId, AssessmentType type, boolean isExplicitRequest, UserContextData context)
+															long assessorId, AssessmentType type, BlindAssessmentMode blindAssessmentMode, boolean isExplicitRequest, UserContextData context)
 			throws IllegalDataStateException, DbConnectionException {
 		try {
 			Result<CompetenceAssessment> res = new Result<>();
@@ -292,6 +302,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			if (assessorId > 0) {
 				compAssessment.setAssessor((User) persistence.currentManager().load(User.class, assessorId));
 			}
+			compAssessment.setBlindAssessmentMode(blindAssessmentMode);
 			compAssessment.setType(type);
 			saveEntity(compAssessment);
 			res.setResult(compAssessment);
@@ -398,11 +409,6 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			return null;
 		}
 
-		BlindAssessmentMode blindAssessmentMode = BlindAssessmentMode.OFF;
-		if (assessment.getType() == AssessmentType.PEER_ASSESSMENT) {
-			blindAssessmentMode = credManager.getCredentialBlindAssessmentModeForAssessmentType(
-					assessment.getTargetCredential().getCredential().getId(), assessment.getType());
-		}
 		/*
 		if data should not be loaded when assessment display is disabled or assessment is not approved
 		these cases should be covered and data should not be populated, empty data with basic info should be
@@ -414,7 +420,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			data.setTitle(assessment.getTargetCredential().getCredential().getTitle());
 			data.setStudentFullName(assessment.getStudent().getName() + " " + assessment.getStudent().getLastname());
 			data.setAssessedStudentId(assessment.getStudent().getId());
-			data.setBlindAssessmentMode(blindAssessmentMode);
+			data.setBlindAssessmentMode(assessment.getBlindAssessmentMode());
 
 			return data;
 		}
@@ -434,7 +440,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 						.map(aa -> aa.getId())
 						.collect(Collectors.toList()));
 
-		return AssessmentDataFull.fromAssessment(assessment, currentGrade, blindAssessmentMode, userComps, credGradeSummary, compAssessmentsGradeSummary, actAssessmentsGradeSummary, encoder, userId, dateFormat, loadConfig.isLoadDiscussion());
+		return AssessmentDataFull.fromAssessment(assessment, currentGrade, userComps, credGradeSummary, compAssessmentsGradeSummary, actAssessmentsGradeSummary, encoder, userId, dateFormat, loadConfig.isLoadDiscussion());
 	}
 
 	private boolean shouldCredentialAssessmentDataBeLoaded(CredentialAssessment assessment, AssessmentLoadConfig loadConfig) {
@@ -2613,57 +2619,42 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	public List<AssessmentData> loadOtherAssessmentsForUserAndCredential(long assessedStudentId, long credentialId) {
 		try {
 			String query = 
-					"SELECT assessment.id, assessor.name, assessor.lastname, assessor.avatarUrl, assessor.id, assessment.type, assessment.approved " +
+					"SELECT assessment " +
 					"FROM CredentialAssessment assessment " +	
-					"LEFT JOIN assessment.assessor assessor " +	
+					"LEFT JOIN fetch assessment.assessor " +
 					"WHERE assessment.student.id = :assessedStudentId " +
 						"AND assessment.targetCredential.credential.id = :credentialId";
 			
 			@SuppressWarnings("unchecked")
-			List<Object[]> result = persistence.currentManager()
+			List<CredentialAssessment> result = (List<CredentialAssessment>) persistence.currentManager()
 					.createQuery(query)
 					.setLong("assessedStudentId", assessedStudentId)
 					.setLong("credentialId", credentialId)
 					.list();
-
-			BlindAssessmentMode blindAssessmentMode = BlindAssessmentMode.OFF;
-			boolean blindAssessmentModeLoaded = false;
 			
 			List<AssessmentData> assessments = new LinkedList<>();
 				
 			if (result != null) {
-				for (Object[] record : result) {
+				for (CredentialAssessment assessment : result) {
 					AssessmentData assessmentData = new AssessmentData();
-					assessmentData.setEncodedAssessmentId(encoder.encodeId((long) record[0]));
+					assessmentData.setEncodedAssessmentId(encoder.encodeId(assessment.getId()));
 					assessmentData.setEncodedCredentialId(encoder.encodeId(credentialId));
-					assessmentData.setType((AssessmentType) record[5]);
-					assessmentData.setApproved(Boolean.parseBoolean(record[6].toString()));
+					assessmentData.setType(assessment.getType());
+					assessmentData.setApproved(assessment.isApproved());
 
-					if (record[3] != null)
-						assessmentData.setAssessorAvatarUrl(record[3].toString());
-
-					// can be null in default assessment when there is no instructor set yet
-					if (record[4] != null) {
-						assessmentData.setAssessorId((long) record[4]);
-						assessmentData.setAssessorFullName(record[1].toString() + " " + record[2].toString());
+					if (assessment.getAssessor() != null) {
+						assessmentData.setAssessorAvatarUrl(AvatarUtils.getAvatarUrlInFormat(assessment.getAssessor().getAvatarUrl(), ImageFormat.size120x120));
+						assessmentData.setAssessorId(assessment.getAssessor().getId());
+						assessmentData.setAssessorFullName(assessment.getAssessor().getFullName());
 					}
-					if (assessmentData.getType() == AssessmentType.PEER_ASSESSMENT) {
-						if (!blindAssessmentModeLoaded) {
-							blindAssessmentMode = credManager.getCredentialBlindAssessmentModeForAssessmentType(
-									credentialId, assessmentData.getType());
-							blindAssessmentModeLoaded = true;
-						}
-						assessmentData.setBlindAssessmentMode(blindAssessmentMode);
-					}
-
+					assessmentData.setBlindAssessmentMode(assessment.getBlindAssessmentMode());
 					assessments.add(assessmentData);
 				}
 			}
 			
 			return assessments;
 		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
+			logger.error("error", e);
 			throw new DbConnectionException("Error while retrieving activity assessment");
 		}
 	}
@@ -3772,6 +3763,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 				data.setStudentFullName(ca.getStudent().getName() + " " + ca.getStudent().getLastname());
 				data.setStudentId(ca.getStudent().getId());
 				data.setType(ca.getType());
+				data.setBlindAssessmentMode(ca.getBlindAssessmentMode());
 
 				return data;
 			}

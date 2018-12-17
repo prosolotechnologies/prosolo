@@ -66,7 +66,7 @@ public abstract class CompetencePeerAssessmentsBean implements Paginable, Serial
 						if (page > 0) {
 							paginationData.setPage(page);
 						}
-						assessmentTypesConfig = compManager.getCompetenceAssessmentTypesConfig(decodedCompId, true);
+						assessmentTypesConfig = compManager.getCompetenceAssessmentTypesConfig(decodedCompId);
 						if (!isPeerAssessmentEnabled()) {
 							PageUtil.notFound("This page is no longer available");
 						} else {
@@ -120,7 +120,7 @@ public abstract class CompetencePeerAssessmentsBean implements Paginable, Serial
 		}
 	}
 
-    public BlindAssessmentMode getBlindAssessmentMode() {
+    protected BlindAssessmentMode getBlindAssessmentMode() {
         return AssessmentUtil.getBlindAssessmentMode(assessmentTypesConfig, AssessmentType.PEER_ASSESSMENT);
     }
 
