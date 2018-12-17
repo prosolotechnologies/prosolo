@@ -147,6 +147,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 					cac.setCompetence(comp);
 					cac.setAssessmentType(atc.getType());
 					cac.setEnabled(atc.isEnabled());
+					cac.setBlindAssessmentMode(atc.getBlindAssessmentMode());
 					saveEntity(cac);
 				}
 			}
@@ -606,6 +607,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 				if (atc.hasObjectChanged()) {
 					CompetenceAssessmentConfig cac = (CompetenceAssessmentConfig) persistence.currentManager().load(CompetenceAssessmentConfig.class, atc.getId());
 					cac.setEnabled(atc.isEnabled());
+					cac.setBlindAssessmentMode(atc.getBlindAssessmentMode());
 				}
 			}
 		}

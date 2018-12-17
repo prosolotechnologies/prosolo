@@ -223,9 +223,29 @@
 												<div class="formLineRight">
 													<ui:repeat value="#{competenceEditBean.competenceData.assessmentTypes}" var="at">
 														<div class="checkbox checkLine">
-															<h:selectBooleanCheckbox value="#{at.enabled}" id="checkAssessmentType" disabled="#{at.mandatory}"/>
+															<h:selectBooleanCheckbox
+																	value="#{at.enabled}"
+																	id="checkAssessmentType"
+																	binding="#{checkBlindAssessmentModeComp}"
+																	disabled="#{at.mandatory}"
+															/>
 															<h:outputLabel for="checkAssessmentType">#{msg['label.assessment.type.'.concat(at.type)]} #{at.mandatory ? '(mandatory)' : ''}</h:outputLabel>
 														</div>
+
+														<ui:fragment rendered="#{at.type.name() eq 'PEER_ASSESSMENT'}">
+															<span id="blindAssessmentPanel" style="#{at.enabled ? '' : 'display: none;'}">
+																<label>Blind assessment process:</label>
+																<div class="formLineRight">
+																	<h:selectOneMenu value="#{at.blindAssessmentMode}" styleClass="selectpicker bottom20 selectBlindAssessmentModeSelector">
+																		<f:selectItems value="#{competenceEditBean.blindAssessmentModes}" var="mode" itemLabel="#{msg['label.enum.BlindAssessmentMode.'.concat(mode.name())]}" itemValue="#{mode}" />
+																	</h:selectOneMenu>
+																</div>
+															</span>
+															<script>
+																bindBlindAssessmentOnChange(escapeColons('#{checkBlindAssessmentModeComp.clientId}'));
+																$('.selectpicker').selectpicker('refresh');
+															</script>
+														</ui:fragment>
 													</ui:repeat>
 												</div>
 											</div>
