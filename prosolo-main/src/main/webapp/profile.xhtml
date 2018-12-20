@@ -245,7 +245,8 @@
                                                             <ui:fragment rendered="#{comp.evidence.count gt 0}">
                                                                 <p:commandLink
                                                                         styleClass="numberEvidences"
-                                                                        pt:data-toggle="modal"
+                                                                        pt:data-toggle="tooltip"
+                                                                        pt:title="#{comp.evidence.count} piece#{comp.evidence.count > 1 ? 's' : ''} of evidence"
                                                                         action="#{profileBean.initCompetenceEvidenceIfNotInitialized(comp)}"
                                                                         update="profileGrowl panelCompetenceEvidence"
                                                                         oncomplete="$('#evidencesList').modal('show')">
@@ -258,7 +259,8 @@
                                                             <ui:fragment rendered="#{comp.assessments.count gt 0}">
                                                                 <p:commandLink
                                                                         styleClass="numberAssessments"
-                                                                        pt:data-toggle="modal"
+                                                                        pt:data-toggle="tooltip"
+                                                                        pt:title="#{comp.assessments.count}&#160;assessment#{comp.assessments.count > 1 ? 's' : ''}"
                                                                         action="#{profileBean.initCompetenceAssessmentsIfNotInitialized(comp)}"
                                                                         update="profileGrowl panelAssessments"
                                                                         oncomplete="$('#assessmentsList').modal('show')">
