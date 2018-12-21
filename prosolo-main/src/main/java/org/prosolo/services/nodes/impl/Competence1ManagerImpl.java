@@ -2699,34 +2699,6 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		}
 	}
 
-//	@Override
-//	@Transactional(readOnly = true)
-//	public BlindAssessmentMode getTheMostRestrictiveCredentialBlindAssessmentModeForAssessmentTypeAndCompetence(long compId, AssessmentType assessmentType) {
-//		try {
-//			String q =
-//					"SELECT conf.blindAssessmentMode FROM CredentialCompetence1 cc " +
-//					"INNER JOIN cc.credential cred " +
-//					"INNER JOIN cred.assessmentConfig conf " +
-//					"WITH conf.assessmentType = :assessmentType " +
-//					"WHERE cc.competence.id = :compId " +
-//					"AND cred.type = :deliveryType " +
-//					"ORDER BY CASE WHEN conf.blindAssessmentMode = :doubleBlindMode THEN 1 WHEN conf.blindAssessmentMode = :blindMode THEN 2 ELSE 3 END";
-//
-//			return (BlindAssessmentMode) persistence.currentManager()
-//					.createQuery(q)
-//					.setLong("compId", compId)
-//					.setString("assessmentType", assessmentType.name())
-//					.setString("doubleBlindMode", BlindAssessmentMode.DOUBLE_BLIND.name())
-//					.setString("blindMode", BlindAssessmentMode.BLIND.name())
-//					.setString("deliveryType", CredentialType.Delivery.name())
-//					.setMaxResults(1)
-//					.uniqueResult();
-//		} catch (Exception e) {
-//			logger.error("Error", e);
-//			throw new DbConnectionException("Error loading the blind assessment mode for competency");
-//		}
-//	}
-
 	@Override
 	@Transactional
 	public void saveEvidenceSummary(long targetCompetenceId, String evidenceSummary) {

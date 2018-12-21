@@ -8,7 +8,7 @@ import javax.inject.Inject;
 import org.apache.log4j.Logger;
 import org.hibernate.ObjectNotFoundException;
 import org.hibernate.Session;
-import org.prosolo.core.hibernate.HibernateUtil;
+import org.prosolo.core.db.hibernate.HibernateUtil;
 import org.prosolo.core.persistance.PersistenceManager;
 import org.prosolo.core.spring.deadlock.DeadlockRetry;
 import org.prosolo.common.domainmodel.general.BaseEntity;

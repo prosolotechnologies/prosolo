@@ -6,7 +6,7 @@ import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.activitywall.SocialActivityConfig;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
-import org.prosolo.core.hibernate.HibernateUtil;
+import org.prosolo.core.db.hibernate.HibernateUtil;
 import org.prosolo.services.activityWall.ActivityWallActionsManager;
 import org.prosolo.services.activityWall.impl.data.SocialActivityData1;
 import org.prosolo.services.nodes.DefaultManager;
