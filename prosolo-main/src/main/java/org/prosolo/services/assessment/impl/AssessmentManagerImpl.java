@@ -10,8 +10,8 @@ import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.common.domainmodel.assessment.*;
-import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.credential.GradingMode;
+import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.rubric.*;
 import org.prosolo.common.domainmodel.user.User;
@@ -34,14 +34,14 @@ import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.config.competence.CompetenceLoadConfig;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.LearningResourceType;
-import org.prosolo.services.nodes.data.evidence.LearningEvidenceLoadConfig;
-import org.prosolo.services.user.data.UserData;
 import org.prosolo.services.nodes.data.assessments.AssessmentNotificationData;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
+import org.prosolo.services.nodes.data.evidence.LearningEvidenceLoadConfig;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.factory.ActivityAssessmentDataFactory;
 import org.prosolo.services.nodes.factory.CompetenceDataFactory;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
+import org.prosolo.services.user.data.UserData;
 import org.prosolo.util.Util;
 import org.prosolo.web.util.AvatarUtils;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -4044,18 +4044,23 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<CompetenceAssessment> getCredentialCompetenceAssessments(long targetCredId, long competenceId, long userId, boolean loadOnlyApproved, SortOrder<AssessmentSortOrder> sortOrder) {
+	public List<CompetenceAssessment> getIndependentAndCompetenceAssessmentsBelongingToCredential(long targetCredId, long competenceId, long userId, boolean loadOnlyApproved, SortOrder<AssessmentSortOrder> sortOrder) {
 		try {
 			String query =
-					"SELECT ca FROM CredentialCompetenceAssessment cca " +
-					"INNER JOIN cca.competenceAssessment ca " +
-					"INNER JOIN cca.credentialAssessment credA " +
-					"WHERE credA.targetCredential.id = :tcId " +
-					"AND ca.competence.id = :compId " +
-					"AND ca.student.id = :userId ";
+					"SELECT ca FROM CompetenceAssessment ca " +
+					"WHERE ca.competence.id = :compId " +
+					"AND ca.student.id = :userId " +
+					"AND (exists " +
+							"(SELECT cca.id FROM CredentialCompetenceAssessment cca " +
+							"INNER JOIN cca.credentialAssessment credA WITH credA.targetCredential.id = :tcId " +
+							"WHERE cca.competenceAssessment.id = ca.id) " +
+						  "OR not exists " +
+							"(SELECT cca.id FROM CredentialCompetenceAssessment cca " +
+							"WHERE cca.competenceAssessment.id = ca.id)) ";
 			if (loadOnlyApproved) {
 				query += "AND ca.approved is TRUE ";
 			}
+
 			query += getOrderByClause(sortOrder, "ca");
 
 			return (List<CompetenceAssessment>) persistence.currentManager()
