@@ -87,8 +87,8 @@ public class SocialNetworksManagerImpl extends AbstractManagerImpl implements So
 		return result;
 	}
 
-	@Transactional(readOnly = false)
-	public UserSocialNetworksData getUserSocialNetworkData(long userId) throws ResourceCouldNotBeLoadedException {
+	@Transactional
+	public UserSocialNetworksData getUserSocialNetworkData(long userId) {
 		try {
 			UserSocialNetworks userSocialNetworks = getSocialNetworks(userId);
 
@@ -100,10 +100,10 @@ public class SocialNetworksManagerImpl extends AbstractManagerImpl implements So
 				userSocialNetworksData.setAccount(account);
 			}
 			return userSocialNetworksData;
-		} catch (ResourceCouldNotBeLoadedException e) {
-			logger.error(e);
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error loading user social network data");
 		}
-		return null;
 	}
 
 	@Override

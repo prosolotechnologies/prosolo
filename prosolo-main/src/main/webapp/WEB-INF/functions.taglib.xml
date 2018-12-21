@@ -103,6 +103,12 @@
 	</function>
 
 	<function>
+		<function-name>areAllItemsSelected</function-name>
+		<function-class>org.prosolo.web.util.SelectableDataUtil</function-class>
+		<function-signature>boolean areAllItemsSelected(java.util.List)</function-signature>
+	</function>
+	
+	<function>
 		<function-name>getForwardedUri</function-name>
 		<function-class>org.prosolo.web.util.URLUtil</function-class>
 		<function-signature>java.lang.String getForwardedUriWithoutContextWithAttachedQueryString(java.lang.String)</function-signature>
@@ -113,5 +119,4 @@
 		<function-class>org.prosolo.util.StringUtils</function-class>
 		<function-signature>java.lang.String shortenAndAddDots(java.lang.String)</function-signature>
 	</function>
-
 </facelet-taglib>

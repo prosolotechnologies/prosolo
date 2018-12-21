@@ -1,6 +1,7 @@
 package org.prosolo.services.nodes.data;
 
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.services.user.data.UserData;
 
 import java.io.Serializable;
 

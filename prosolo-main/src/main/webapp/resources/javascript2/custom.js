@@ -257,3 +257,12 @@ function preventDoubleClick(elem) {
     $(elem).prop("onclick", "").off("click");
     $(elem).attr("onclick", "return false;").unbind("click");
 }
+
+function bindCheckAllOnclick(checkAllCheckboxId) {
+	$('#' + checkAllCheckboxId).on('change', function() {
+        $('[data-check-id="' + checkAllCheckboxId + '"]').prop("checked", $(this).is(':checked'));
+	});
+	$('[data-check-id="' + checkAllCheckboxId + '"]').on('change', function() {
+		$('#' + checkAllCheckboxId).prop("checked", $('[data-check-id="' + checkAllCheckboxId + '"]:checked').length == $('[data-check-id="' + checkAllCheckboxId + '"]').length);
+	});
+}

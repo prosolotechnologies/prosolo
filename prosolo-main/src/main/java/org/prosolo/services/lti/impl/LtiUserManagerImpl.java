@@ -11,8 +11,8 @@ import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.lti.LtiUserManager;
 import org.prosolo.services.nodes.RoleManager;
-import org.prosolo.services.nodes.UserManager;
-import org.prosolo.services.nodes.data.UserCreationData;
+import org.prosolo.services.user.UserManager;
+import org.prosolo.services.user.data.UserCreationData;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

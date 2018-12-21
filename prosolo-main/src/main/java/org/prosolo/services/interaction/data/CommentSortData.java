@@ -2,7 +2,7 @@ package org.prosolo.services.interaction.data;
 
 import java.util.Date;
 
-import org.prosolo.services.util.SortingOption;
+import org.prosolo.services.common.data.SortingOption;
 
 public class CommentSortData {
 

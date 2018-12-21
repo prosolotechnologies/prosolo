@@ -10,6 +10,7 @@ import org.prosolo.services.media.util.LinkParserException;
 import org.prosolo.services.media.util.SlideShareUtils;
 import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.data.ActivityResultType;
+import org.prosolo.services.user.data.UserData;
 import org.prosolo.services.util.url.URLUtil;
 import org.prosolo.util.nodes.AnnotationUtil;
 import org.springframework.stereotype.Component;

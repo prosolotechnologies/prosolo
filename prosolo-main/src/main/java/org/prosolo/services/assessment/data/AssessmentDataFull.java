@@ -50,8 +50,6 @@ public class AssessmentDataFull {
 	private String review;
 	private boolean assessorNotified;
 
-	private boolean assessmentDisplayEnabled;
-
 	private BlindAssessmentMode blindAssessmentMode;
 
 	private List<CompetenceAssessmentData> competenceAssessmentData;
@@ -82,7 +80,6 @@ public class AssessmentDataFull {
 		data.calculateDurationString();
 		data.setTargetCredentialId(assessment.getTargetCredential().getId());
 		data.setType(assessment.getType());
-		data.setAssessmentDisplayEnabled(assessment.getTargetCredential().isCredentialAssessmentsDisplayed());
 
 		int maxPoints = 0;
 		List<CompetenceAssessmentData> compDatas = new ArrayList<>();
@@ -376,14 +373,6 @@ public class AssessmentDataFull {
 
 	public void setAssessorNotified(boolean assessorNotified) {
 		this.assessorNotified = assessorNotified;
-	}
-
-	public void setAssessmentDisplayEnabled(boolean assessmentDisplayEnabled) {
-		this.assessmentDisplayEnabled = assessmentDisplayEnabled;
-	}
-
-	public boolean isAssessmentDisplayEnabled() {
-		return assessmentDisplayEnabled;
 	}
 
 	public BlindAssessmentMode getBlindAssessmentMode() {

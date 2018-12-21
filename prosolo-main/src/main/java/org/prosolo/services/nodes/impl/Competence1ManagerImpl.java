@@ -40,11 +40,15 @@ import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.competence.TargetCompetenceData;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceData;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceDataFactory;
+import org.prosolo.services.nodes.data.evidence.LearningEvidenceLoadConfig;
 import org.prosolo.services.nodes.data.resourceAccess.*;
 import org.prosolo.services.nodes.factory.ActivityDataFactory;
 import org.prosolo.services.nodes.factory.CompetenceDataFactory;
 import org.prosolo.services.nodes.factory.UserDataFactory;
 import org.prosolo.services.nodes.observers.learningResources.CompetenceChangeTracker;
+import org.prosolo.services.user.UserGroupManager;
+import org.prosolo.services.user.data.UserData;
+import org.prosolo.services.user.data.UserLearningProgress;
 import org.prosolo.services.util.roles.SystemRoleNames;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -287,7 +291,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 									compData.setActivities(activities);
 								} else if (compData.getLearningPathType() == LearningPathType.EVIDENCE && compLoadConfig.isLoadEvidence()) {
 									//load user evidences
-									List<LearningEvidenceData> compEvidences = learningEvidenceManager.getUserEvidencesForACompetence(compData.getTargetCompId(), false);
+									List<LearningEvidenceData> compEvidences = learningEvidenceManager.getUserEvidencesForACompetence(compData.getTargetCompId(), LearningEvidenceLoadConfig.builder().build());
 									compData.setEvidences(compEvidences);
 								}
 								//load number of competence assessments if needed
@@ -1069,7 +1073,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 						compData.setActivities(activities);
 					} else {
 						//load user evidences
-						List<LearningEvidenceData> compEvidences = learningEvidenceManager.getUserEvidencesForACompetence(compData.getTargetCompId(), true);
+						List<LearningEvidenceData> compEvidences = learningEvidenceManager.getUserEvidencesForACompetence(compData.getTargetCompId(), LearningEvidenceLoadConfig.builder().loadTags(true).build());
 						compData.setEvidences(compEvidences);
 					}
 					if (loadAssessmentConfig) {
@@ -2404,119 +2408,6 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			.list();
 		
 		return res;
-	}
-	
-	@Override
-	@Transactional (readOnly = false)
-	public void updateHiddenTargetCompetenceFromProfile(long compId, boolean hiddenFromProfile)
-			throws DbConnectionException {
-		try {
-			String query = 
-				"UPDATE TargetCompetence1 targetComptence1 " +
-				"SET targetComptence1.hiddenFromProfile = :hiddenFromProfile " +
-				"WHERE targetComptence1.id = :compId ";
-	
-			persistence.currentManager()
-				.createQuery(query)
-				.setLong("compId", compId)
-				.setBoolean("hiddenFromProfile", hiddenFromProfile)
-				.executeUpdate();
-		} catch (Exception e) {
-			logger.error(e);
-			throw new DbConnectionException("Error while updating hiddenFromProfile field of a competence " + compId);
-		}
-	}
-	
-	@SuppressWarnings("unchecked")
-	@Override
-	@Transactional (readOnly = true)
-	public List<TargetCompetenceData> getAllCompletedCompetences(long userId, boolean onlyPubliclyVisible) throws DbConnectionException {
-		return getTargetCompetences(userId, onlyPubliclyVisible, true, UserLearningProgress.COMPLETED);
-	}
-
-	@Override
-	@SuppressWarnings({ "unchecked" })
-	@Transactional (readOnly = true)
-	public List<TargetCompetenceData> getAllInProgressCompetences(long userId, boolean onlyPubliclyVisible) throws DbConnectionException {
-		return getTargetCompetences(userId, onlyPubliclyVisible, true, UserLearningProgress.IN_PROGRESS);
-	}
-
-	@SuppressWarnings("unchecked")
-	private List<TargetCompetenceData> getTargetCompetences(long userId, boolean onlyPubliclyVisible, boolean loadNumberOfAssessments,
-															UserLearningProgress progress)
-			throws DbConnectionException {
-		try {
-			String query =
-					"SELECT targetComptence1 " +
-							"FROM TargetCompetence1 targetComptence1 " +
-							"INNER JOIN targetComptence1.competence comp " +
-							"WHERE targetComptence1.user.id = :userId ";
-
-			switch (progress) {
-				case COMPLETED:
-					query += "AND targetComptence1.progress = 100 ";
-					break;
-				case IN_PROGRESS:
-					query += "AND targetComptence1.progress < 100 ";
-					break;
-				default:
-					break;
-			}
-
-			if (onlyPubliclyVisible) {
-				query += " AND targetComptence1.hiddenFromProfile = false ";
-			}
-
-			query += "ORDER BY comp.title";
-
-			List<TargetCompetenceData> resultList = new ArrayList<>();
-
-			List<TargetCompetence1> res = persistence.currentManager()
-					.createQuery(query)
-					.setLong("userId", userId)
-					.list();
-
-			for(TargetCompetence1 targetCompetence1 : res) {
-				int numberOfAssessments = 0;
-				boolean assessmentDisplayEnabled = false;
-				if (loadNumberOfAssessments) {
-					numberOfAssessments = assessmentManager.getNumberOfApprovedAssessmentsForUserCompetence(targetCompetence1.getCompetence().getId(), targetCompetence1.getUser().getId());
-					assessmentDisplayEnabled = isCompetenceAssessmentDisplayEnabled(targetCompetence1.getCompetence().getId(), targetCompetence1.getUser().getId());
-				}
-				resultList.add(new TargetCompetenceData(targetCompetence1, numberOfAssessments, assessmentDisplayEnabled));
-			}
-			return resultList;
-
-		} catch (Exception e) {
-			logger.error(e);
-			throw new DbConnectionException();
-		}
-	}
-
-	@Override
-	@Transactional(readOnly = true)
-	public boolean isCompetenceAssessmentDisplayEnabled(long competenceId, long studentId) {
-		try {
-			String q =
-					"SELECT comp.id FROM Competence1 comp " +
-							"INNER JOIN comp.credentialCompetences cc " +
-							"INNER JOIN cc.credential cred " +
-							"INNER JOIN cred.targetCredentials tCred " +
-							"WITH tCred.user.id = :studentId " +
-							"AND tCred.competenceAssessmentsDisplayed IS TRUE " +
-							"WHERE comp.id = :compId";
-
-			Long res = (Long) persistence.currentManager().createQuery(q)
-					.setLong("studentId", studentId)
-					.setLong("compId", competenceId)
-					.setMaxResults(1)
-					.uniqueResult();
-
-			return res != null;
-		} catch (Exception e) {
-			logger.error("Error", e);
-			throw new DbConnectionException("Error checking if competence assessment display is enabled");
-		}
 	}
 
 	@Override
