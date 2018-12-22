@@ -3833,7 +3833,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		if (loadOnlyApproved) {
 		    q += "AND ca.approved IS TRUE ";
         }
-        q += "ORDER BY ca.dateCreated";
+        q += "ORDER BY ca.dateCreated DESC";
 
 		List<CredentialAssessment> assessments = persistence.currentManager().createQuery(q)
 				.setLong("credentialId", credId)
@@ -3901,7 +3901,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		if (loadOnlyApproved) {
 			q += "AND ca.approved IS TRUE ";
 		}
-		q += "ORDER BY ca.dateCreated";
+		q += "ORDER BY ca.dateCreated DESC";
 
 		List<CompetenceAssessment> assessments = persistence.currentManager().createQuery(q)
 				.setLong("compId", compId)
