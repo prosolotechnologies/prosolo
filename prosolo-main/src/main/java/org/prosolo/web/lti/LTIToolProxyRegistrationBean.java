@@ -25,6 +25,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Logger;
+import org.prosolo.core.spring.security.authentication.lti.util.LTIConstants;
 import org.prosolo.services.lti.LtiConsumerManager;
 import org.prosolo.services.lti.ToolSetManager;
 import org.prosolo.services.oauth.OauthService;
@@ -246,11 +247,12 @@ public class LTIToolProxyRegistrationBean implements Serializable {
 
 	// wrap POST parameters in ToolProxyRegistrationMessage
 	private ToolProxyRegistrationMessage createToolProxyRegistrationMessage() throws Exception {
-		try{
-			LtiMessageBuilder msgE = LtiMessageBuilderFactory.createMessageExtractor();
-			ToolProxyRegistrationMessage msg = (ToolProxyRegistrationMessage) msgE.getLtiMessage();
+		try {
+			HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
+			LtiMessageBuilder msgE = LtiMessageBuilderFactory.createMessageExtractor(request);
+			ToolProxyRegistrationMessage msg = (ToolProxyRegistrationMessage) msgE.getLtiMessage(request);
 			return msg;
-		}catch(Exception e) {
+		} catch(Exception e) {
 			logger.error("Error", e);
 			throw new Exception("Required parameters missing or not valid");
 		}

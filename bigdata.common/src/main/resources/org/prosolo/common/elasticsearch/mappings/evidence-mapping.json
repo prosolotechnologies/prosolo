@@ -1,0 +1,42 @@
+{
+  "evidence":{
+    "properties": {
+      "id": {
+        "store": false,
+        "type":"long"
+      },
+      "userId" : {
+        "store" : false,
+        "type" : "long"
+      },
+      "name": {
+        "store": false,
+        "type":"text",
+        "fields": {
+          "sort": {
+            "type":  "keyword",
+            "normalizer": "ci_normalizer"
+          }
+        }
+      },
+      "type":{
+        "store": false,
+        "type":"keyword"
+      },
+      "dateCreated": {
+        "store": false,
+        "type":"date",
+        "format":"yyyy/MM/dd HH:mm:ss"
+      },
+      "tags": {
+        "properties":{
+          "title":{
+            "store": false,
+            "type":"keyword"
+          }
+        }
+      }
+    }
+  }
+
+}

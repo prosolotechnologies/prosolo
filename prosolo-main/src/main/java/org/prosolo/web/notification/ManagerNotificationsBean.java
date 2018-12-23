@@ -1,10 +1,11 @@
 package org.prosolo.web.notification;
 
 import org.prosolo.common.domainmodel.user.notifications.NotificationSection;
+import org.prosolo.services.authentication.annotations.AuthenticationChangeType;
+import org.prosolo.services.authentication.annotations.SessionAttributeScope;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 
 /**
@@ -15,6 +16,7 @@ import javax.faces.bean.ManagedBean;
 @ManagedBean(name = "managerNotificationsBean")
 @Component("managerNotificationsBean")
 @Scope("session")
+@SessionAttributeScope(end = AuthenticationChangeType.USER_AUTHENTICATION_CHANGE)
 public class ManagerNotificationsBean extends TopNotificationsBean1 {
 
     @Override

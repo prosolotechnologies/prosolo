@@ -7,8 +7,8 @@ import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
-import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
+import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.learningStage.LearningStage;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.UserContextData;
@@ -297,13 +297,6 @@ public interface Competence1Manager {
 			throws DbConnectionException;
 
 	Result<TargetCompetence1> enrollInCompetenceAndGetEvents(long compId, long userId, UserContextData context)
-			throws DbConnectionException;
-	
-	CompetenceData1 enrollInCompetenceAndGetCompetenceData(long compId, long userId,
-														   UserContextData context)
-			throws DbConnectionException;
-
-	Result<CompetenceData1> enrollInCompetenceGetCompetenceDataAndGetEvents(long compId, long userId, UserContextData context)
 			throws DbConnectionException;
 	
 	long countNumberOfStudentsLearningCompetence(long compId) throws DbConnectionException;

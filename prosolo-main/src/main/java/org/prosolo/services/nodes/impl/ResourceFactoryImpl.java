@@ -46,14 +46,11 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 
     private static final long serialVersionUID = 2968104792929090003L;
 
-    @Autowired private PasswordEncoder passwordEncoder;
-    @Autowired private RoleManager roleManager;
     @Inject private CredentialManager credentialManager;
     @Inject private Competence1Manager competenceManager;
     @Inject private Activity1Manager activityManager;
     @Inject private TagManager tagManager;
     @Inject private AvatarProcessor avatarProcessor;
-    @Inject private UnitManager unitManager;
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)

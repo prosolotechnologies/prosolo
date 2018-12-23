@@ -42,7 +42,7 @@
 			<ol class="breadcrumb">
 				<ui:fragment rendered="#{profileCompetencePeerAssessmentsBean.blindAssessmentMode eq 'OFF'}">
 					<li>
-						<h:link value="#{profileCompetencePeerAssessmentsBean.student.fullName}" outcome="profile">
+						<h:link value="#{util:shortenAndAddDots(profileCompetencePeerAssessmentsBean.student.fullName)}" outcome="profile">
 							<f:param name="id" value="#{param.studentId}"/>
 						</h:link>
 					</li>

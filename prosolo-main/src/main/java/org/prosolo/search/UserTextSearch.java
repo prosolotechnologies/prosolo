@@ -23,9 +23,9 @@ import java.util.List;
  */
 public interface UserTextSearch extends AbstractManager {
 
-	TextSearchResponse searchUsers(long orgId, String searchString,
-			int page, int limit, boolean loadOneMore,
-			Collection<Long> excludeUserIds);
+	PaginatedResult<UserData> searchUsers(long orgId, String searchString,
+										  int page, int limit, boolean loadOneMore,
+										  Collection<Long> excludeUserIds);
 	
 	/**
 	 * Returns list of students currently learning credential specified by {@code credId}.
@@ -110,7 +110,7 @@ public interface UserTextSearch extends AbstractManager {
 	 * @param peersToExcludeFromSearch user ids to exclude from search
 	 * @return response containing initialized UserData that matches the search.
 	 */
-	PaginatedResult<UserData> searchPeersWithoutAssessmentRequest(
+	PaginatedResult<UserData> searchCredentialPeers(
 			long orgId, String searchTerm, long limit, long credId, List<Long> peersToExcludeFromSearch);
 
 	PaginatedResult<UserData> searchUsersLearningCompetence(

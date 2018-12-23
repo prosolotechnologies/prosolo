@@ -52,14 +52,13 @@
                                 <h:link value="#{msg['label.credential.plural']}" outcome="/manage/library"/>
                             </li>
                             <li>
-                                <h:link
-                                        value="#{competenceUserPrivilegeBean.credentialIdData.fullTitle}"
+                                <h:link value="#{util:shortenAndAddDots(competenceUserPrivilegeBean.credentialIdData.fullTitle)}"
                                         outcome="/manage/credential">
                                     <f:param name="id" value="#{param['credId']}"></f:param>
                                 </h:link>
                             </li>
                             <li>
-                                <h:link value="#{competenceUserPrivilegeBean.competenceTitle}" outcome="create-competence">
+                                <h:link value="#{util:shortenAndAddDots(competenceUserPrivilegeBean.competenceTitle)}" outcome="create-competence">
                                     <f:param name="id" value="#{competenceUserPrivilegeBean.competenceId}"></f:param>
                                     <f:param name="credId" value="#{competenceUserPrivilegeBean.credId}"></f:param>
                                 </h:link>
@@ -73,7 +72,7 @@
                                 <h:link value="#{msg['label.competence.plural']}" outcome="competenceLibrary"/>
                             </li>
                             <li>
-                                <h:link value="#{competenceUserPrivilegeBean.competenceTitle}" outcome="create-competence">
+                                <h:link value="#{util:shortenAndAddDots(competenceUserPrivilegeBean.competenceTitle)}" outcome="create-competence">
                                     <f:param name="id" value="#{competenceUserPrivilegeBean.competenceId}"></f:param>
                                 </h:link>
                             </li>

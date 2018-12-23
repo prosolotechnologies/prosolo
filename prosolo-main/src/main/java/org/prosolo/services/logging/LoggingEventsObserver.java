@@ -77,29 +77,15 @@ public class LoggingEventsObserver extends EventObserver {
 				targetId = target.getId();
 			}
 	
-			String ipAddress = null;
+			String ipAddress = event.getIpAddress();
 			Map<String, String> params = event.getParameters();
-			
-			if (params != null && params.containsKey("ip")) {
+			//this is temporary check while migration to ipAddress field from event is not done and tested
+			if (ipAddress == null && params != null && params.containsKey("ip")) {
 				ipAddress = event.getParameters().get("ip");
-			} else if (event.getActorId() > 0) {
-				HttpSession httpSession = applicationBean.getUserSession(event.getActorId());
-				
-	
-				if (httpSession != null) {
-					LoggedUserBean loggedUserBean = (LoggedUserBean) httpSession
-							.getAttribute("loggeduser");
-					
-					if (loggedUserBean != null) {
-						if (!loggedUserBean.isInitialized()) {
-							loggedUserBean.initializeSessionData(httpSession);
-						}
-					
-						ipAddress = loggedUserBean.getIpAddress();
-					}
-				}
-			} else {
-				logger.debug("Event without actor:"+event.getAction().name()+" "+event.getObject().getClass().getName());
+			}
+
+			if (event.getActorId() == 0) {
+				logger.debug("Event without actor:"+event.getAction().name()+" " + (event.getObject() != null ? event.getObject().getClass().getName() : ""));
 			}
 	
 			try {

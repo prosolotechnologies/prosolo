@@ -49,12 +49,6 @@
 	</function>
 		
 	<function>
-		<function-name>longToString</function-name>
-		<function-class>org.prosolo.util.StringUtils</function-class>
-		<function-signature>java.lang.String longToString(java.lang.Long)</function-signature>
-	</function>
-		
-	<function>
 		<function-name>contextUrl</function-name>
 		<function-class>org.prosolo.web.util.URLUtil</function-class>
 		<function-signature>java.lang.String getContextUrl()</function-signature>
@@ -107,12 +101,17 @@
 		<function-class>org.prosolo.web.util.UserIdEncoder</function-class>
 		<function-signature>java.lang.String encodeId(long)</function-signature>
 	</function>
-	
-	<!-- Components -->
-	
-	<tag>
-        <tag-name>listpeople</tag-name>
-        <source>../resources/components/listpeople.xhtml</source>
-    </tag>
-	
+
+	<function>
+		<function-name>getForwardedUri</function-name>
+		<function-class>org.prosolo.web.util.URLUtil</function-class>
+		<function-signature>java.lang.String getForwardedUriWithoutContextWithAttachedQueryString(java.lang.String)</function-signature>
+	</function>
+
+	<function>
+		<function-name>shortenAndAddDots</function-name>
+		<function-class>org.prosolo.util.StringUtils</function-class>
+		<function-signature>java.lang.String shortenAndAddDots(java.lang.String)</function-signature>
+	</function>
+
 </facelet-taglib>

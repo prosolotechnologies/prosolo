@@ -4,14 +4,15 @@ package org.prosolo.es.impl;/**
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.apache.log4j.Logger;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.Client;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 import org.prosolo.bigdata.common.dal.pojo.LogsFilter;
 import org.prosolo.bigdata.common.dal.pojo.LogsRecord;
@@ -24,11 +25,11 @@ import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.credential.Activity1;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
+import org.prosolo.common.elasticsearch.ElasticSearchConnector;
 import org.prosolo.common.event.context.Context;
 import org.prosolo.common.event.context.LearningContext;
-import org.prosolo.services.context.ContextJsonParserService;
 import org.prosolo.es.LogsSearch;
-import org.prosolo.services.indexing.ElasticSearchFactory;
+import org.prosolo.services.context.ContextJsonParserService;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -41,6 +42,8 @@ import java.util.List;
 @Service("org.prosolo.es.LogsSearch")
 public class LogsSearchImpl implements LogsSearch {
 
+    private static Logger logger = Logger.getLogger(LogsSearchImpl.class);
+
     //@Inject
     private ContextJsonParserService contextParser;
 
@@ -50,7 +53,6 @@ public class LogsSearchImpl implements LogsSearch {
     }
     @Override
     public List<LogsRecord> findLogsByFilter(LogsFilter logsFilter){
-        Client client = ElasticSearchFactory.getClient();
         BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
         int bQueryMinShouldMatch=0;
         if(logsFilter.getCredentials().size()>0){
@@ -79,7 +81,7 @@ public class LogsSearchImpl implements LogsSearch {
             for(Long studentId: logsFilter.getStudents()){
                 studentsQueryBuilder.should(QueryBuilders.matchQuery("actorId",studentId));
             }
-            studentsQueryBuilder.minimumNumberShouldMatch(1);
+            studentsQueryBuilder.minimumShouldMatch(1);
             bQueryBuilder.should(studentsQueryBuilder);
             bQueryMinShouldMatch++;
         }
@@ -89,7 +91,7 @@ public class LogsSearchImpl implements LogsSearch {
             for(EventType eventType:logsFilter.getEventTypes()){
                 eventTypesQueryBuilder.should(QueryBuilders.matchQuery("eventType",eventType.name()));
             }
-            eventTypesQueryBuilder.minimumNumberShouldMatch(1);
+            eventTypesQueryBuilder.minimumShouldMatch(1);
             bQueryBuilder.should(eventTypesQueryBuilder);
             bQueryMinShouldMatch++;
         }
@@ -103,19 +105,25 @@ public class LogsSearchImpl implements LogsSearch {
             bQueryBuilder.should(datesQueryBuilder);
             bQueryMinShouldMatch++;
         }
-        bQueryBuilder.minimumNumberShouldMatch( bQueryMinShouldMatch);
-        SearchRequestBuilder searchRequestBuilder=client.prepareSearch(ESIndexNames.INDEX_LOGS)
-                .setTypes(ESIndexTypes.LOG)
-                .setQuery( bQueryBuilder)
-                .setFrom(logsFilter.getFrom())
-                .setSize(logsFilter.getSize())
-                .addSort("timestamp", SortOrder.DESC);
+        bQueryBuilder.minimumShouldMatch( bQueryMinShouldMatch);
 
-        //System.out.println("QUERY:"+ searchRequestBuilder.toString());
-        SearchResponse sResponse=searchRequestBuilder.execute().actionGet();
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        searchSourceBuilder
+                .query(bQueryBuilder)
+                .from(logsFilter.getFrom())
+                .size(logsFilter.getSize())
+                .sort(new FieldSortBuilder("timestamp").order(SortOrder.DESC));
 
-      //  System.out.println("EXECUTED");
-        return buildLogsResults(sResponse);
+        try {
+            //System.out.println("QUERY:"+ searchRequestBuilder.toString());
+            SearchResponse sResponse = ElasticSearchConnector.getClient().search(searchSourceBuilder, ESIndexNames.INDEX_LOGS, ESIndexTypes.LOG);
+
+            //  System.out.println("EXECUTED");
+            return buildLogsResults(sResponse);
+        } catch (Exception e) {
+            logger.error("Error", e);
+            return null;
+        }
     }
     private BoolQueryBuilder createContextQueryBuilder(List<Long> objectIds, String objectType, int contextLevel){
         BoolQueryBuilder contextQueryBuilder = QueryBuilders.boolQuery();
@@ -127,10 +135,10 @@ public class LogsSearchImpl implements LogsSearch {
             BoolQueryBuilder objQueryBuilder=QueryBuilders.boolQuery();
             objQueryBuilder.should(QueryBuilders.matchQuery(contextKey+".object_type",objectType));
             objQueryBuilder.should(QueryBuilders.matchQuery(contextKey+".id",objId));
-            objQueryBuilder.minimumNumberShouldMatch(2);
+            objQueryBuilder.minimumShouldMatch(2);
             contextQueryBuilder.should(objQueryBuilder);
         }
-        contextQueryBuilder.minimumNumberShouldMatch(1);
+        contextQueryBuilder.minimumShouldMatch(1);
         return contextQueryBuilder;
     }
 
@@ -142,13 +150,13 @@ public class LogsSearchImpl implements LogsSearch {
             SearchHits searchHits = sResponse.getHits();
             if(searchHits != null) {
                 for (SearchHit hit : sResponse.getHits()) {
-                    String actorId=hit.getSource().get("actorId").toString();
-                    String courseId=hit.getSource().get("courseId").toString();
-                    String eventTypeString=hit.getSource().get("eventType").toString();
-                    String learningContextString=hit.getSource().get("learningContext").toString();
-                    String timestamp=hit.getSource().get("timestamp").toString();
-                    String sessionId=hit.getSource().get("sessionId").toString();
-                    String date=hit.getSource().get("date").toString();
+                    String actorId=hit.getSourceAsMap().get("actorId").toString();
+                    String courseId=hit.getSourceAsMap().get("courseId").toString();
+                    String eventTypeString=hit.getSourceAsMap().get("eventType").toString();
+                    String learningContextString=hit.getSourceAsMap().get("learningContext").toString();
+                    String timestamp=hit.getSourceAsMap().get("timestamp").toString();
+                    String sessionId=hit.getSourceAsMap().get("sessionId").toString();
+                    String date=hit.getSourceAsMap().get("date").toString();
 
                     GsonBuilder gsonBuilder = new GsonBuilder();
                     gsonBuilder.registerTypeAdapter(LearningContext.class,

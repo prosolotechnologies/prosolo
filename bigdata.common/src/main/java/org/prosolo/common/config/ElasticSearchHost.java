@@ -13,4 +13,7 @@ public class ElasticSearchHost {
 	
 	@Element (name="port")
 	public int port;
+
+	@Element (name="http-port")
+	public int httpPort;
 }

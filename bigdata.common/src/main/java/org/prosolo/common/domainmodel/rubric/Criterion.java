@@ -13,7 +13,7 @@ import java.util.Set;
  */
 
 @Entity
-@Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"title","rubric"})})
+//unique constraint added from the script
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 public class Criterion extends BaseEntity {
 

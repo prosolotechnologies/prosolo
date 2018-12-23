@@ -37,8 +37,8 @@ public class MessageThread extends BaseEntity {
 	private List<Message> messages;
 
 	public MessageThread() {
-		setParticipants(new HashSet<ThreadParticipant>());
-		setMessages(new ArrayList<Message>());
+		setParticipants(new HashSet<>());
+		setMessages(new ArrayList<>());
 	}
 
 	@ManyToOne

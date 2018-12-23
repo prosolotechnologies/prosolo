@@ -10,11 +10,11 @@ import org.prosolo.bigdata.common.enums.ESIndexTypes;
 //import org.prosolo.bigdata.config.Settings;
 //import org.prosolo.services.indexing.ESIndexNames;
 //import org.prosolo.services.indexing.ElasticSearchFactory;
-import org.prosolo.bigdata.es.AbstractESIndexer;
 import org.prosolo.bigdata.es.CredentialIndexer;
 import org.prosolo.common.ESIndexNames;
+import org.prosolo.common.elasticsearch.impl.AbstractESIndexerImpl;
 
-public class CredentialIndexerImpl extends AbstractESIndexer implements
+public class CredentialIndexerImpl extends AbstractESIndexerImpl implements
 		CredentialIndexer, Serializable {
 	
 	private static final long serialVersionUID = -1740927229182115398L;
@@ -41,7 +41,7 @@ public class CredentialIndexerImpl extends AbstractESIndexer implements
 			    .startObject()
 		        .field("published", published)
 		        .endObject();
-			partialUpdate(ESIndexNames.INDEX_NODES, ESIndexTypes.CREDENTIAL, credentialId + "", doc);
+			partialUpdate(ESIndexNames.INDEX_CREDENTIALS, ESIndexTypes.CREDENTIAL, credentialId + "", doc);
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();

@@ -80,41 +80,38 @@
 						</li>
 			            <li>
 							<ui:fragment rendered="#{cc.attrs.role eq 'USER'}">
-								<h:link
-									value="#{cc.attrs.bean.competenceData.credentialTitle}"
-									outcome="/credential"
-									onclick="sendLogPageNavigation('/credential.xhtml',
-											'#{facesContext.viewRoot.viewId}',
-											'#{util:addSubContext(learningContext, &#34;name:breadcrumbs|context:/name:CREDENTIAL|id:&#34;.concat(cc.attrs.bean.decodedCredId).concat(&#34;/&#34;))}',
-											'#{cc.attrs.service}');">
+								<h:link value="#{util:shortenAndAddDots(cc.attrs.bean.competenceData.credentialTitle)}"
+										outcome="/credential"
+										onclick="sendLogPageNavigation('/credential.xhtml',
+																		'#{facesContext.viewRoot.viewId}',
+																		'#{util:addSubContext(learningContext, &#34;name:breadcrumbs|context:/name:CREDENTIAL|id:&#34;.concat(cc.attrs.bean.decodedCredId).concat(&#34;/&#34;))}',
+																		'#{cc.attrs.service}');">
 									<f:param name="id" value="#{param['credId']}"></f:param>
 								</h:link>
 							</ui:fragment>
 							<ui:fragment rendered="#{cc.attrs.role eq 'MANAGER'}">
-								<h:link
-										value="#{cc.attrs.bean.credentialIdData.fullTitle}"
+								<h:link value="#{util:shortenAndAddDots(cc.attrs.bean.credentialIdData.fullTitle)}"
 										outcome="/manage/credential"
 										onclick="sendLogPageNavigation('/manage/credential.xhtml',
-											'#{facesContext.viewRoot.viewId}',
-											'#{util:addSubContext(learningContext, &#34;name:breadcrumbs|context:/name:CREDENTIAL|id:&#34;.concat(cc.attrs.bean.decodedCredId).concat(&#34;/&#34;))}',
-											'#{cc.attrs.service}');">
+																		'#{facesContext.viewRoot.viewId}',
+																		'#{util:addSubContext(learningContext, &#34;name:breadcrumbs|context:/name:CREDENTIAL|id:&#34;.concat(cc.attrs.bean.decodedCredId).concat(&#34;/&#34;))}',
+																		'#{cc.attrs.service}');">
 									<f:param name="id" value="#{param.credId}"></f:param>
 								</h:link>
 							</ui:fragment>
 			            </li>
 			            <li>
-			            	<h:link 
-			            		value="#{cc.attrs.bean.competenceData.title}"
-			            		outcome="competence"
-			            		onclick="sendLogPageNavigation('/competence.xhtml', 
-										'#{facesContext.viewRoot.viewId}', 
-										'#{util:addSubContext(learningContext, &#34;name:breadcrumbs|context:/name:COMPETENCE|id:&#34;.concat(cc.attrs.bean.decodedCompId).concat(&#34;/&#34;))}', 
-										'#{cc.attrs.service}');">
+			            	<h:link value="#{util:shortenAndAddDots(cc.attrs.bean.competenceData.title)}"
+									outcome="competence"
+									onclick="sendLogPageNavigation('/competence.xhtml',
+																	'#{facesContext.viewRoot.viewId}',
+																	'#{util:addSubContext(learningContext, &#34;name:breadcrumbs|context:/name:COMPETENCE|id:&#34;.concat(cc.attrs.bean.decodedCompId).concat(&#34;/&#34;))}',
+																	'#{cc.attrs.service}');">
 			            		<f:param name="compId" value="#{param['compId']}"></f:param>
 			            		<f:param name="credId" value="#{param['credId']}"></f:param>
 			            	</h:link>
 			            </li>
-			            <li class="active">#{cc.attrs.bean.competenceData.activityToShowWithDetails.title}</li>
+			            <li class="active">#{util:shortenAndAddDots(cc.attrs.bean.competenceData.activityToShowWithDetails.title)}</li>
 			        </ol>
 		    	</ui:fragment>
 		        <ui:fragment rendered="#{cc.attrs.bean.competenceData.credentialId == 0}">
@@ -123,26 +120,24 @@
 		    				<h:link value="#{msg['label.competence.plural']}" outcome="competenceLibrary"/>
 			            </li> 
 		    			<li>
-			            	<h:link 
-			            		value="#{cc.attrs.bean.competenceData.title}"
-			            		outcome="competence">
+			            	<h:link value="#{util:shortenAndAddDots(cc.attrs.bean.competenceData.title)}"
+									outcome="competence">
 			            		<f:param name="compId" value="#{param['compId']}"></f:param>  
 			            	</h:link>
 			            </li>         
-			            <li class="active">#{cc.attrs.bean.competenceData.activityToShowWithDetails.title}</li>
+			            <li class="active">#{util:shortenAndAddDots(cc.attrs.bean.competenceData.activityToShowWithDetails.title)}</li>
 			        </ol>
 		    	</ui:fragment>
 		    </div>
 
-			<activities:activityContent
-				id="activityContent"
-				bean="#{cc.attrs.bean}"
-				learningContext="#{learningContext}"
-				role="#{cc.attrs.role}"
-				growlToUpdate=":#{cc.clientId}:growlMain"
-				readOnly="#{!cc.attrs.bean.access.canAccess and not cc.attrs.bean.competenceData.activityToShowWithDetails.enrolled}"
-				panelCompProgressId="panelCompProgress"
-				updateProgress=":#{cc.clientId}:header:formMain:panelComplete"
+			<activities:activityContent id="activityContent"
+										bean="#{cc.attrs.bean}"
+										learningContext="#{learningContext}"
+										role="#{cc.attrs.role}"
+										growlToUpdate=":#{cc.clientId}:growlMain"
+										readOnly="#{!cc.attrs.bean.access.canAccess and not cc.attrs.bean.competenceData.activityToShowWithDetails.enrolled}"
+										panelCompProgressId="panelCompProgress"
+										updateProgress=":#{cc.clientId}:header:formMain:panelComplete"
 			/>
 
 		</div>

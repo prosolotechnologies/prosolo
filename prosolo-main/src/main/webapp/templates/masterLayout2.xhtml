@@ -128,18 +128,18 @@
 					</ui:remove>
 
 					<h:form id="messagePollingForm">
-						<p:poll interval="#{topInboxBean.refreshRate}" 
+						<p:poll interval="#{topInboxBean.refreshRate}"
 							process="@this"
 							update=":messagesLink :notificationsIcon :notificationsContainer"
-							widgetVar="messagesPoll" 
+							widgetVar="messagesPoll"
 							autoStart="true" />
 					</h:form>
 					
-					<h:link id="messagesLink" class="iconMessages #{topInboxBean.unreadThreadIds.size() > 0 ? 'active' : ''}"
+					<h:link id="messagesLink" class="iconMessages #{topInboxBean.hasUnreadMessages ? 'active' : ''}"
 						onclick="sendLogPageNavigation('messages','mainmenu');"
 						outcome="/messages">
 						Messages
-						<span class="#{topInboxBean.unreadThreadIds.size() > 0 ? 'unreadDot' : ''}">
+						<span class="#{topInboxBean.hasUnreadMessages ? 'unreadDot' : ''}">
 							unreadDot
 						</span>
 					</h:link>

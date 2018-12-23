@@ -3,9 +3,7 @@ package org.prosolo.web.profile;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
-import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.messaging.Message;
-import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.socialNetworks.SocialNetworkName;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
@@ -16,17 +14,19 @@ import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.SocialNetworksManager;
 import org.prosolo.services.nodes.UserManager;
 import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.nodes.data.competence.TargetCompetenceData;
 import org.prosolo.services.nodes.data.credential.CategorizedCredentialsData;
 import org.prosolo.services.nodes.data.credential.TargetCredentialData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.services.nodes.data.competence.TargetCompetenceData;
+import org.prosolo.web.messaging.data.MessageData;
 import org.prosolo.web.profile.data.UserSocialNetworksData;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
+
 import javax.faces.bean.ManagedBean;
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -82,7 +82,6 @@ public class ProfileBean {
 	public void init() {
 		decodedStudentId = idEncoder.decodeId(studentId);
 		if (StringUtils.isNotBlank(studentId) &&
-                loggedUserBean.isInitialized() &&
                 decodedStudentId != loggedUserBean.getUserId()) {
 			personalProfile = false;
 			userData = userManager.getUserData(decodedStudentId);
@@ -106,23 +105,18 @@ public class ProfileBean {
 		if (StringUtils.isNotBlank(studentId)) {
 			if ( decodedStudentId != loggedUserBean.getUserId()) {
 				try {
-					Message message = messagingManager.sendMessage(loggedUserBean.getUserId(), decodedStudentId, this.message);
-					logger.debug("User "+loggedUserBean.getUserId()+" sent a message to "+decodedStudentId+" with content: '"+message+"'");
+					MessageData messageData = messagingManager.sendMessage(0, loggedUserBean.getUserId(), decodedStudentId, this.message, loggedUserBean.getUserContext());
+					logger.debug("User "+loggedUserBean.getUserId()+" sent a message to "+decodedStudentId+" with content: '"+messageData+"'");
 					
 					List<UserData> participants = new ArrayList<UserData>();
 					
 					participants.add(new UserData(loggedUserBean.getUserId(), loggedUserBean.getFullName()));
 					
-					final Message message1 = message;
+					final Message message1 = new Message();
+					message1.setId(messageData.getId());
 
 					UserContextData userContext = loggedUserBean.getUserContext();
-					taskExecutor.execute(() -> {
-						Map<String, String> parameters = new HashMap<String, String>();
-						parameters.put("user", String.valueOf(decodedStudentId));
-						parameters.put("message", String.valueOf(message1.getId()));
-						eventFactory.generateEvent(EventType.SEND_MESSAGE, userContext, message1,
-								null, null, parameters);
-					});
+
 					this.message = "";
 					
 					PageUtil.fireSuccessfulInfoMessage("profileGrowl", "Your message is sent");

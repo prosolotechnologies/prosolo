@@ -32,14 +32,12 @@ import org.prosolo.services.logging.exception.LoggingException;
 import org.prosolo.services.messaging.LogsMessageDistributer;
 import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.web.ApplicationBean;
-import org.prosolo.web.LoggedUserBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
-import javax.servlet.http.HttpSession;
 import java.util.*;
 
 import static java.lang.String.format;
@@ -613,27 +611,6 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 			}*/
 
 	//	}
-	}
-
-	@Deprecated
-	private String getSessionId(long userId){
-		System.out.println("getSessionIdForUser:"+userId);
-		String sessionId="";
-		if(userId>0){
-			HttpSession httpSession = applicationBean.getUserSession(userId);
-			if (httpSession != null) {
-				LoggedUserBean loggedUserBean = (LoggedUserBean) httpSession
-						.getAttribute("loggeduser");
-				if (loggedUserBean != null) {
-					if (!loggedUserBean.isInitialized()) {
-						loggedUserBean.initializeSessionData(httpSession);
-					}
-					sessionId=loggedUserBean.getSessionData().getSessionId();
-					System.out.println("SESSION ID:"+sessionId);
-				}
-			}
-		}
-		return sessionId;
 	}
 	
 	@Override

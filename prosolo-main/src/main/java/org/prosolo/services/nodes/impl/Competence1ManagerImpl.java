@@ -316,42 +316,6 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	}
 
 	@Override
-	public CompetenceData1 enrollInCompetenceAndGetCompetenceData(long compId, long userId, UserContextData context)
-			throws DbConnectionException {
-		Result<CompetenceData1> res = self.enrollInCompetenceGetCompetenceDataAndGetEvents(compId, userId, context);
-		eventFactory.generateEvents(res.getEventQueue());
-		return res.getResult();
-	}
-
-	@Override
-	@Transactional
-	public Result<CompetenceData1> enrollInCompetenceGetCompetenceDataAndGetEvents(long compId, long userId, UserContextData context)
-			throws DbConnectionException {
-		try {
-			Result<TargetCompetence1> res = enrollInCompetenceAndGetEvents(compId, userId, context);
-			TargetCompetence1 targetComp = res.getResult();
-			CompetenceData1 cd = competenceFactory.getCompetenceData(targetComp.getCompetence().getCreatedBy(), 
-					targetComp, 0, targetComp.getCompetence().getAssessmentConfig(), targetComp.getCompetence().getTags(), null, false);
-			
-			if(targetComp.getTargetActivities() != null) {
-				for(TargetActivity1 ta : targetComp.getTargetActivities()) {
-					ActivityData act = activityFactory.getActivityData(ta, null, null, null, false, 0, false);
-					cd.addActivity(act);
-				}
-			}
-			
-			Result<CompetenceData1> result = new Result<>();
-			result.setResult(cd);
-			result.appendEvents(res.getEventQueue());
-			return result;
-		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
-			throw new DbConnectionException("Error while enrolling a competence");
-		}
-	}
-
-	@Override
 	public TargetCompetence1 enrollInCompetence(long compId, long userId, UserContextData context)
 			throws DbConnectionException {
 		Result<TargetCompetence1> res = self.enrollInCompetenceAndGetEvents(compId, userId, context);
@@ -722,43 +686,6 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		credentialManager.updateDurationForCredentialsWithCompetence(compId, durationChange, op);
 	}
 
-	// @Transactional(readOnly = true)
-	// public long getCompetenceDuration(long compId) throws
-	// DbConnectionException {
-	// try {
-	// String query = "SELECT comp.duration " +
-	// "FROM Competence1 comp " +
-	// "WHERE comp.id = :compId";
-	//
-	// Long duration = (Long) persistence.currentManager()
-	// .createQuery(query)
-	// .setLong("compId", compId)
-	// .uniqueResult();
-	//
-	// return duration;
-	// } catch(Exception e) {
-	// logger.error(e);
-	// e.printStackTrace();
-	// throw new DbConnectionException("Error while retrieving competence
-	// duration");
-	// }
-	// }
-
-	// private void updateCredentialsDuration(long compId, long newDuration,
-	// long oldDuration) {
-	// long durationChange = newDuration - oldDuration;
-	// Operation op = null;
-	// if(durationChange > 0) {
-	// op = Operation.Add;
-	// } else {
-	// durationChange = -durationChange;
-	// op = Operation.Subtract;
-	// }
-	// credentialManager.updateDurationForCredentialsWithCompetence(compId,
-	// durationChange, op);
-	//
-	// }
-
 	@Override
 	@Transactional(readOnly = true)
 	public List<CompetenceData1> getCredentialCompetencesData(long credentialId, boolean loadCreator,
@@ -851,59 +778,6 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		}
 	}
 	
-//	@Override
-//	@Transactional(readOnly = true)
-//	public CompetenceData1 getTargetCompetenceData(long targetCompId, boolean loadActivities, 
-//			boolean loadCredentialTitle) throws DbConnectionException {
-//		CompetenceData1 compData = null;
-//		try {			
-//			String query = "SELECT targetComp " +
-//						   "FROM TargetCompetence1 targetComp " + 
-//						   "INNER JOIN fetch targetComp.createdBy user " + 
-//						   "LEFT JOIN fetch targetComp.tags tags " +
-//						   "WHERE targetComp.id = :id";
-//
-//			TargetCompetence1 res = (TargetCompetence1) persistence.currentManager()
-//					.createQuery(query)
-//					.setLong("id", targetCompId)
-//					.uniqueResult();
-//
-//			if (res != null) {
-//				Credential1 cred = null;
-//				if(loadCredentialTitle) {
-//					String query1 = "SELECT cred.id, cred.title " +
-//									"FROM TargetCompetence1 comp " +
-//									"INNER JOIN comp.targetCredential targetCred " +
-//									"INNER JOIN targetCred.credential cred " +
-//									"WHERE comp = :comp";
-//					Object[] credentialData = (Object[]) persistence.currentManager()
-//							.createQuery(query1)
-//							.setEntity("comp", res)
-//							.uniqueResult();
-//					
-//					cred = new Credential1();
-//					cred.setId((long) credentialData[0]);
-//					cred.setTitle((String) credentialData[1]);
-//					
-//				}
-//				compData = competenceFactory.getCompetenceData(res.getCreatedBy(), res, 
-//						res.getTags(), cred, true);
-//				
-//				if(compData != null && loadActivities) {
-//					List<ActivityData> activities = activityManager
-//							.getTargetActivitiesData(targetCompId);
-//					compData.setActivities(activities);
-//				}
-//				return compData;
-//			}
-//			return null;
-//		} catch (Exception e) {
-//			logger.error(e);
-//			e.printStackTrace();
-//			throw new DbConnectionException("Error while loading competence data");
-//		}
-//	}
-
 	@Override
 	@Transactional(readOnly = true)
 	public List<Tag> getCompetenceTags(long compId) throws DbConnectionException {
@@ -2955,6 +2829,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 					"INNER JOIN cred.assessmentConfig conf " +
 					"WITH conf.assessmentType = :assessmentType " +
 					"WHERE cc.competence.id = :compId " +
+					"AND cred.type = :deliveryType " +
 					"ORDER BY CASE WHEN conf.blindAssessmentMode = :doubleBlindMode THEN 1 WHEN conf.blindAssessmentMode = :blindMode THEN 2 ELSE 3 END";
 
 			return (BlindAssessmentMode) persistence.currentManager()
@@ -2963,6 +2838,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 					.setString("assessmentType", assessmentType.name())
 					.setString("doubleBlindMode", BlindAssessmentMode.DOUBLE_BLIND.name())
 					.setString("blindMode", BlindAssessmentMode.BLIND.name())
+					.setString("deliveryType", CredentialType.Delivery.name())
 					.setMaxResults(1)
 					.uniqueResult();
 		} catch (Exception e) {

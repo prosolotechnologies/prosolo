@@ -4,180 +4,170 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
-import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.string.StringUtil;
-import org.prosolo.common.web.activitywall.data.UserData;
 import org.prosolo.search.UserTextSearch;
-import org.prosolo.search.impl.TextSearchResponse;
-import org.prosolo.services.activityWall.UserDataFactory;
-import org.prosolo.web.util.ResourceDataUtil;
+import org.prosolo.search.impl.PaginatedResult;
+import org.prosolo.services.nodes.data.UserData;
 
 /**
-@author Zoran Jeremic Feb 1, 2014
+ * @author Zoran Jeremic Feb 1, 2014
  */
-//@ManagedBean(name = "logsFilterBean")
-//@Component("logsFilterBean")
-//@Scope("view")
-	@Deprecated
+@Deprecated
 public class LogsFilterBean implements Serializable {
 
-	private static final long serialVersionUID = -5452146059271122076L;
+    private static final long serialVersionUID = -5452146059271122076L;
 
-	@Inject private UserTextSearch userTextSearch;
-	//@Autowired private LoggingDBManager loggingDBManager;
-	
-	private List<UserData> usersList;
-	private String searchText;
-	private boolean twitterPosts;
-	private List<UserData> userSearchResults;
-	private List<String> eventTypes;
-	private List<String> selectedEventTypes;
-	private List<String> objectTypes;
-	private List<String> selectedObjectTypes;
-	private Date startDate;
-	private Date endDate;
-	
-	@PostConstruct
-	public void init(){
-		System.out.println("Logs filter bean...init");
-		usersList = new ArrayList<UserData>();
-		userSearchResults = new ArrayList<UserData>();
-		//setEventTypes(loggingDBManager.getAllDistinctValuesOfEventField("eventType"));
-		//setObjectTypes(loggingDBManager.getAllDistinctValuesOfEventField("objectType"));
-		selectedEventTypes = new ArrayList<String>();
-		selectedObjectTypes = new ArrayList<String>();
-		startDate = null;
-		endDate = null;
-	}
-	
-	public void executeTextSearch(String toExcludeString) {
-		long[] moreToExclude = StringUtil.fromStringToLong(toExcludeString);
-		
-		List<Long> totalListToExclude = new ArrayList<Long>();
-		
-		if (moreToExclude != null) {
-			for (long l : moreToExclude) {
-				totalListToExclude.add(l);
-			}
-		}
-		
-		userSearchResults.clear();
-		TextSearchResponse usersResponse = userTextSearch.searchUsers(0, searchText, 0, 4, false, totalListToExclude);
-		
-		@SuppressWarnings("unchecked")
-		List<User> result = (List<User>) usersResponse.getFoundNodes();
-		
-		for (User user : result) {
-			UserData userData = UserDataFactory.createUserData(user);
-			userSearchResults.add(userData);
-		}
-	}
-	
-	public void addUser(UserData userData) {
-		userSearchResults.clear();
-		searchText = "";
-		
-		if (!usersList.contains(userData)) {
-			usersList.add(userData);
-		}
-	}
+    @Inject
+    private UserTextSearch userTextSearch;
+    //@Autowired private LoggingDBManager loggingDBManager;
 
-	public void removeUser(UserData userData) {
-		if (usersList.contains(userData)) {
-			usersList.remove(userData);
-		}
-	}
-	
-	public String getToExcludeIds() {
-		return ResourceDataUtil.getUserIds(usersList).toString();
-	}
-	
-	/*
-	 * GETTERS / SETTERS
-	 */
-	
-	public List<UserData> getUsersList() {
-		return usersList;
-	}
+    private List<UserData> usersList;
+    private String searchText;
+    private boolean twitterPosts;
+    private List<UserData> userSearchResults;
+    private List<String> eventTypes;
+    private List<String> selectedEventTypes;
+    private List<String> objectTypes;
+    private List<String> selectedObjectTypes;
+    private Date startDate;
+    private Date endDate;
 
-	public void setUsersList(List<UserData> usersList) {
-		this.usersList = usersList;
-	}
+    @PostConstruct
+    public void init() {
+        System.out.println("Logs filter bean...init");
+        usersList = new ArrayList<UserData>();
+        userSearchResults = new ArrayList<UserData>();
+        //setEventTypes(loggingDBManager.getAllDistinctValuesOfEventField("eventType"));
+        //setObjectTypes(loggingDBManager.getAllDistinctValuesOfEventField("objectType"));
+        selectedEventTypes = new ArrayList<String>();
+        selectedObjectTypes = new ArrayList<String>();
+        startDate = null;
+        endDate = null;
+    }
 
-	public String getSearchText() {
-		return searchText;
-	}
+    public void executeTextSearch(String toExcludeString) {
+        long[] moreToExclude = StringUtil.fromStringToLong(toExcludeString);
 
-	public void setSearchText(String searchText) {
-		this.searchText = searchText;
-	}
+        List<Long> totalListToExclude = new ArrayList<Long>();
 
-	public List<UserData> getUserSearchResults() {
-		return userSearchResults;
-	}
+        if (moreToExclude != null) {
+            for (long l : moreToExclude) {
+                totalListToExclude.add(l);
+            }
+        }
 
-	public void setUserSearchResults(List<UserData> userSearchResults) {
-		this.userSearchResults = userSearchResults;
-	}
+        userSearchResults.clear();
+        PaginatedResult<UserData> usersResponse = userTextSearch.searchUsers(0, searchText, 0, 4, false, totalListToExclude);
 
-	public boolean isTwitterPosts() {
-		return twitterPosts;
-	}
+        userSearchResults = usersResponse.getFoundNodes();
+    }
 
-	public void setTwitterPosts(boolean twitterPosts) {
-		this.twitterPosts = twitterPosts;
-	}
+    public void addUser(UserData userData) {
+        userSearchResults.clear();
+        searchText = "";
 
-	public List<String> getEventTypes() {
-		return eventTypes;
-	}
+        if (!usersList.contains(userData)) {
+            usersList.add(userData);
+        }
+    }
 
-	public void setEventTypes(List<String> eventTypes) {
-		this.eventTypes = eventTypes;
-	}
+    public void removeUser(UserData userData) {
+        if (usersList.contains(userData)) {
+            usersList.remove(userData);
+        }
+    }
 
-	public List<String> getSelectedEventTypes() {
-		return selectedEventTypes;
-	}
+    public String getToExcludeIds() {
+        return usersList.stream().map(u -> u.getId()).collect(Collectors.toList()).toString();
+    }
 
-	public void setSelectedEventTypes(List<String> selectedEventTypes) {
-		this.selectedEventTypes = selectedEventTypes;
-	}
+    /*
+     * GETTERS / SETTERS
+     */
 
-	public List<String> getObjectTypes() {
-		return objectTypes;
-	}
+    public List<UserData> getUsersList() {
+        return usersList;
+    }
 
-	public void setObjectTypes(List<String> objectTypes) {
-		this.objectTypes = objectTypes;
-	}
+    public void setUsersList(List<UserData> usersList) {
+        this.usersList = usersList;
+    }
 
-	public List<String> getSelectedObjectTypes() {
-		return selectedObjectTypes;
-	}
+    public String getSearchText() {
+        return searchText;
+    }
 
-	public void setSelectedObjectTypes(List<String> selectedObjectTypes) {
-		this.selectedObjectTypes = selectedObjectTypes;
-	}
+    public void setSearchText(String searchText) {
+        this.searchText = searchText;
+    }
 
-	public Date getStartDate() {
-		return startDate;
-	}
+    public List<UserData> getUserSearchResults() {
+        return userSearchResults;
+    }
 
-	public void setStartDate(Date startDate) {
-		this.startDate = startDate;
-	}
+    public void setUserSearchResults(List<UserData> userSearchResults) {
+        this.userSearchResults = userSearchResults;
+    }
 
-	public Date getEndDate() {
-		return endDate;
-	}
+    public boolean isTwitterPosts() {
+        return twitterPosts;
+    }
 
-	public void setEndDate(Date endDate) {
-		this.endDate = endDate;
-	}
+    public void setTwitterPosts(boolean twitterPosts) {
+        this.twitterPosts = twitterPosts;
+    }
+
+    public List<String> getEventTypes() {
+        return eventTypes;
+    }
+
+    public void setEventTypes(List<String> eventTypes) {
+        this.eventTypes = eventTypes;
+    }
+
+    public List<String> getSelectedEventTypes() {
+        return selectedEventTypes;
+    }
+
+    public void setSelectedEventTypes(List<String> selectedEventTypes) {
+        this.selectedEventTypes = selectedEventTypes;
+    }
+
+    public List<String> getObjectTypes() {
+        return objectTypes;
+    }
+
+    public void setObjectTypes(List<String> objectTypes) {
+        this.objectTypes = objectTypes;
+    }
+
+    public List<String> getSelectedObjectTypes() {
+        return selectedObjectTypes;
+    }
+
+    public void setSelectedObjectTypes(List<String> selectedObjectTypes) {
+        this.selectedObjectTypes = selectedObjectTypes;
+    }
+
+    public Date getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(Date startDate) {
+        this.startDate = startDate;
+    }
+
+    public Date getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(Date endDate) {
+        this.endDate = endDate;
+    }
 
 }
