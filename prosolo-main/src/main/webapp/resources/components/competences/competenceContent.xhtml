@@ -97,11 +97,6 @@
 											</h3>
 										</div>
 										<div class="evidenceTopRight">
-											<utilcomp:convertTimeOutput
-													millis="#{ev.dateCreated}"
-													format="MMM DD, YYYY"
-											/>
-
 											<div class="dropdown optMoreMenu">
 												<a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">options menu</a>
 												<ul class="dropdown-menu bullet pull-center" aria-labelledby="dropdownMenu2">
@@ -153,6 +148,14 @@
 														<li>#{kw}</li>
 													</ui:repeat>
 												</ul>
+											</td>
+										</tr>
+										<tr>
+											<td class="col01">Created:</td>
+											<td>
+												<utilcomp:convertTimeOutput
+														millis="#{ev.dateCreated}"
+														format="MMM DD, YYYY" />
 											</td>
 										</tr>
 									</table>
