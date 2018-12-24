@@ -7,6 +7,6 @@ package org.prosolo.web.assessments.util;
  */
 public enum AssessmentDisplayMode {
 
-    FULL,
-    PUBLIC
+    FULL
+    //PUBLIC
 }

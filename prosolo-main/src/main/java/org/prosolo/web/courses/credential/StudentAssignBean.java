@@ -11,7 +11,7 @@ import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.search.util.credential.StudentAssignSearchFilter;
 import org.prosolo.services.nodes.CredentialInstructorManager;
 import org.prosolo.services.nodes.CredentialManager;
-import org.prosolo.services.nodes.data.StudentData;
+import org.prosolo.services.user.data.StudentData;
 import org.prosolo.services.nodes.data.instructor.InstructorData;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageUtil;

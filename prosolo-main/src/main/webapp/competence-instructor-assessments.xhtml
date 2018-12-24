@@ -152,7 +152,6 @@
                                     <div class="col-md-9">
                                         <assessment:competenceAssessment
                                                 competenceAssessment="#{competenceAssessment}"
-                                                blindAssessmentMode="#{competenceInstructorAssessmentsBean.blindAssessmentMode}"
                                                 bean="#{competenceAssessmentBean}"
                                                 credentialId="#{competenceAssessment.credentialId}"
                                                 role="USER"
@@ -173,7 +172,7 @@
                                                 styleClass="btn btn-green"
                                                 pt:data-toggle="modal"
                                                 value="Ask for #{msg['label.assessment.type.INSTRUCTOR_ASSESSMENT']}"
-                                                action="#{competenceAssessmentBean.initAskForAssessment(competenceAssessment, competenceInstructorAssessmentsBean.assessmentTypesConfig)}"
+                                                action="#{competenceAssessmentBean.initAskForAssessment(competenceAssessment)}"
                                                 update="formAskForAssessment:askForAssessment:askForAssessmentPanel"
                                                 oncomplete="$('#askAssessment').modal('show');">
                                         </p:commandLink>
@@ -192,7 +191,7 @@
                 bean="#{competenceAssessmentBean.currentAssessmentBean}"
                 studentId="#{competenceAssessmentBean.currentStudentId}"
                 assessorId="#{competenceAssessmentBean.currentAssessorId}"
-                blindAssessmentMode="#{competenceInstructorAssessmentsBean.blindAssessmentMode}"
+                blindAssessmentMode="#{competenceAssessmentBean.currentBlindAssessmentMode}"
                 learningContext="#{competenceAssessmentBean.currentResType eq 'ACTIVITY'
 					? 'name:credential|id:'.concat(activityAssessmentBean.activityAssessmentData.credentialId).concat('|context:/name:CREDENTIAL_ASSESSMENT|id:'.concat(activityAssessmentBean.activityAssessmentData.credAssessmentId).concat('|context:/name:competence|id:').concat(activityAssessmentBean.activityAssessmentData.competenceId).concat('|context:/name:COMPETENCE_ASSESSMENT|id:').concat(activityAssessmentBean.activityAssessmentData.compAssessment.competenceAssessmentId).concat('|context:/name:activity|id:').concat(activityAssessmentBean.activityAssessmentData.activityId).concat('|context:/name:ACTIVITY_ASSESSMENT|id:').concat(activityAssessmentBean.activityAssessmentData.activityAssessmentId).concat('/').concat('/').concat('/').concat('/').concat('/'))
 					: 'name:credential|id:'.concat(competenceAssessmentBean.competenceAssessmentData.credentialId).concat('|context:/name:CREDENTIAL_ASSESSMENT|id:'.concat(competenceAssessmentBean.competenceAssessmentData.credentialAssessmentId).concat('|context:/name:competence|id:').concat(competenceAssessmentBean.competenceAssessmentData.competenceId).concat('|context:/name:COMPETENCE_ASSESSMENT|id:').concat(competenceAssessmentBean.competenceAssessmentData.competenceAssessmentId).concat('///'))}"

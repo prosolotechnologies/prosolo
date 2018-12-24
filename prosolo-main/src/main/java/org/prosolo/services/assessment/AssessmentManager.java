@@ -9,6 +9,7 @@ import org.prosolo.common.domainmodel.assessment.ActivityAssessment;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
 import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
+import org.prosolo.common.domainmodel.credential.BlindAssessmentMode;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
@@ -18,10 +19,11 @@ import org.prosolo.services.assessment.data.*;
 import org.prosolo.services.assessment.data.grading.AssessmentGradeSummary;
 import org.prosolo.services.assessment.data.grading.GradeData;
 import org.prosolo.services.assessment.data.grading.RubricAssessmentGradeSummary;
+import org.prosolo.services.common.data.SortOrder;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventQueue;
 import org.prosolo.services.nodes.data.ActivityData;
-import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.user.data.UserData;
 import org.prosolo.services.nodes.data.assessments.AssessmentNotificationData;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
@@ -251,7 +253,7 @@ public interface AssessmentManager {
 	 * @throws DbConnectionException
 	 */
 	 Result<CompetenceAssessment> getOrCreateCompetenceAssessmentAndGetEvents(CompetenceData1 comp, long studentId,
-																			  long assessorId, AssessmentType type, boolean isExplicitRequest, UserContextData context)
+																			  long assessorId, AssessmentType type, BlindAssessmentMode blindAssessmentMode, boolean isExplicitRequest, UserContextData context)
 			throws IllegalDataStateException, DbConnectionException;
 
 	/**
@@ -383,4 +385,29 @@ public interface AssessmentManager {
 
 	CredentialAssessment getInstructorCredentialAssessment(long credId, long userId) throws DbConnectionException;
 
+	/**
+	 * Returns all credential assessments for given target credential sorted by specified criteria
+	 *
+	 * @param targetCredentialId
+	 * @param sortOrder
+	 * @return
+	 */
+	List<CredentialAssessment> getCredentialAssessments(long targetCredentialId, boolean loadOnlyApproved, SortOrder<AssessmentSortOrder> sortOrder);
+
+	/**
+	 * Returns grade summary for credential assessment
+	 *
+	 * @param credAssessmentId
+	 * @return
+	 */
+	AssessmentGradeSummary getCredentialAssessmentGradeSummary(long credAssessmentId);
+
+	List<CompetenceAssessment> getCredentialCompetenceAssessments(long targetCredId, long competenceId, long userId, boolean loadOnlyApproved, SortOrder<AssessmentSortOrder> sortOrder);
+
+	/**
+	 * Returns grade summary for competence assessment
+	 * @param compAssessmentId
+	 * @return
+	 */
+	AssessmentGradeSummary getCompetenceAssessmentGradeSummary(long compAssessmentId);
 }

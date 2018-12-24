@@ -50,13 +50,11 @@ public class AssessmentDataFull {
 	private String review;
 	private boolean assessorNotified;
 
-	private boolean assessmentDisplayEnabled;
-
 	private BlindAssessmentMode blindAssessmentMode;
 
 	private List<CompetenceAssessmentData> competenceAssessmentData;
 
-	public static AssessmentDataFull fromAssessment(CredentialAssessment assessment, int credAssessmentPoints, BlindAssessmentMode blindAssessmentMode, List<CompetenceData1> userComps,
+	public static AssessmentDataFull fromAssessment(CredentialAssessment assessment, int credAssessmentPoints, List<CompetenceData1> userComps,
 													RubricAssessmentGradeSummary credAssessmentGradeSummary, Map<Long, RubricAssessmentGradeSummary> compAssessmentsGradeSummary,
 													Map<Long, RubricAssessmentGradeSummary> actAssessmentsGradeSummary, UrlIdEncoder encoder, long userId, DateFormat dateFormat, boolean loadDiscussion) {
 		AssessmentDataFull data = new AssessmentDataFull();
@@ -71,7 +69,7 @@ public class AssessmentDataFull {
 			data.setAssessorAvatarUrl(AvatarUtils.getAvatarUrlInFormat(assessment.getAssessor(), ImageFormat.size120x120));
 			data.setAssessorId(assessment.getAssessor().getId());
 		}
-		data.setBlindAssessmentMode(blindAssessmentMode);
+		data.setBlindAssessmentMode(assessment.getBlindAssessmentMode());
 		data.setDateValue(dateFormat.format(assessment.getDateCreated()));
 		data.setTitle(assessment.getTargetCredential().getCredential().getTitle());
 		data.setApproved(assessment.isApproved());
@@ -82,7 +80,6 @@ public class AssessmentDataFull {
 		data.calculateDurationString();
 		data.setTargetCredentialId(assessment.getTargetCredential().getId());
 		data.setType(assessment.getType());
-		data.setAssessmentDisplayEnabled(assessment.getTargetCredential().isCredentialAssessmentsDisplayed());
 
 		int maxPoints = 0;
 		List<CompetenceAssessmentData> compDatas = new ArrayList<>();
@@ -376,14 +373,6 @@ public class AssessmentDataFull {
 
 	public void setAssessorNotified(boolean assessorNotified) {
 		this.assessorNotified = assessorNotified;
-	}
-
-	public void setAssessmentDisplayEnabled(boolean assessmentDisplayEnabled) {
-		this.assessmentDisplayEnabled = assessmentDisplayEnabled;
-	}
-
-	public boolean isAssessmentDisplayEnabled() {
-		return assessmentDisplayEnabled;
 	}
 
 	public BlindAssessmentMode getBlindAssessmentMode() {

@@ -17,7 +17,7 @@ import org.prosolo.services.event.Event;
 import org.prosolo.services.indexing.*;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.OrganizationManager;
-import org.prosolo.services.nodes.UserGroupManager;
+import org.prosolo.services.user.UserGroupManager;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;

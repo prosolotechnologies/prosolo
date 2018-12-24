@@ -12,8 +12,8 @@ import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
-import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
+import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.learningStage.LearningStage;
 import org.prosolo.common.domainmodel.organization.Organization;
@@ -37,14 +37,16 @@ import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.config.competence.CompetenceLoadConfig;
 import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
-import org.prosolo.services.nodes.data.competence.TargetCompetenceData;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceData;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceDataFactory;
+import org.prosolo.services.nodes.data.evidence.LearningEvidenceLoadConfig;
 import org.prosolo.services.nodes.data.resourceAccess.*;
 import org.prosolo.services.nodes.factory.ActivityDataFactory;
 import org.prosolo.services.nodes.factory.CompetenceDataFactory;
 import org.prosolo.services.nodes.factory.UserDataFactory;
 import org.prosolo.services.nodes.observers.learningResources.CompetenceChangeTracker;
+import org.prosolo.services.user.UserGroupManager;
+import org.prosolo.services.user.data.UserData;
 import org.prosolo.services.util.roles.SystemRoleNames;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -145,6 +147,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 					cac.setCompetence(comp);
 					cac.setAssessmentType(atc.getType());
 					cac.setEnabled(atc.isEnabled());
+					cac.setBlindAssessmentMode(atc.getBlindAssessmentMode());
 					saveEntity(cac);
 				}
 			}
@@ -287,7 +290,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 									compData.setActivities(activities);
 								} else if (compData.getLearningPathType() == LearningPathType.EVIDENCE && compLoadConfig.isLoadEvidence()) {
 									//load user evidences
-									List<LearningEvidenceData> compEvidences = learningEvidenceManager.getUserEvidencesForACompetence(compData.getTargetCompId(), false);
+									List<LearningEvidenceData> compEvidences = learningEvidenceManager.getUserEvidencesForACompetence(compData.getTargetCompId(), LearningEvidenceLoadConfig.builder().build());
 									compData.setEvidences(compEvidences);
 								}
 								//load number of competence assessments if needed
@@ -604,6 +607,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 				if (atc.hasObjectChanged()) {
 					CompetenceAssessmentConfig cac = (CompetenceAssessmentConfig) persistence.currentManager().load(CompetenceAssessmentConfig.class, atc.getId());
 					cac.setEnabled(atc.isEnabled());
+					cac.setBlindAssessmentMode(atc.getBlindAssessmentMode());
 				}
 			}
 		}
@@ -1069,17 +1073,13 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 						compData.setActivities(activities);
 					} else {
 						//load user evidences
-						List<LearningEvidenceData> compEvidences = learningEvidenceManager.getUserEvidencesForACompetence(compData.getTargetCompId(), true);
+						List<LearningEvidenceData> compEvidences = learningEvidenceManager.getUserEvidencesForACompetence(compData.getTargetCompId(), LearningEvidenceLoadConfig.builder().loadTags(true).build());
 						compData.setEvidences(compEvidences);
 					}
 					if (loadAssessmentConfig) {
 						for (AssessmentTypeConfig conf : compData.getAssessmentTypes()) {
 							if (conf.isEnabled()) {
 								conf.setGradeSummary(assessmentManager.getCompetenceAssessmentsGradeSummary(compId, userId, conf.getType()));
-							}
-							//TODO hack - load the most restrictive credential blind assessment mode for Peer Assessment from all credentials with this competency
-							if (conf.getType() == AssessmentType.PEER_ASSESSMENT) {
-								conf.setBlindAssessmentMode(getTheMostRestrictiveCredentialBlindAssessmentModeForAssessmentTypeAndCompetence(compId, conf.getType()));
 							}
 						}
 					}
@@ -2405,119 +2405,6 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		
 		return res;
 	}
-	
-	@Override
-	@Transactional (readOnly = false)
-	public void updateHiddenTargetCompetenceFromProfile(long compId, boolean hiddenFromProfile)
-			throws DbConnectionException {
-		try {
-			String query = 
-				"UPDATE TargetCompetence1 targetComptence1 " +
-				"SET targetComptence1.hiddenFromProfile = :hiddenFromProfile " +
-				"WHERE targetComptence1.id = :compId ";
-	
-			persistence.currentManager()
-				.createQuery(query)
-				.setLong("compId", compId)
-				.setBoolean("hiddenFromProfile", hiddenFromProfile)
-				.executeUpdate();
-		} catch (Exception e) {
-			logger.error(e);
-			throw new DbConnectionException("Error while updating hiddenFromProfile field of a competence " + compId);
-		}
-	}
-	
-	@SuppressWarnings("unchecked")
-	@Override
-	@Transactional (readOnly = true)
-	public List<TargetCompetenceData> getAllCompletedCompetences(long userId, boolean onlyPubliclyVisible) throws DbConnectionException {
-		return getTargetCompetences(userId, onlyPubliclyVisible, true, UserLearningProgress.COMPLETED);
-	}
-
-	@Override
-	@SuppressWarnings({ "unchecked" })
-	@Transactional (readOnly = true)
-	public List<TargetCompetenceData> getAllInProgressCompetences(long userId, boolean onlyPubliclyVisible) throws DbConnectionException {
-		return getTargetCompetences(userId, onlyPubliclyVisible, true, UserLearningProgress.IN_PROGRESS);
-	}
-
-	@SuppressWarnings("unchecked")
-	private List<TargetCompetenceData> getTargetCompetences(long userId, boolean onlyPubliclyVisible, boolean loadNumberOfAssessments,
-															UserLearningProgress progress)
-			throws DbConnectionException {
-		try {
-			String query =
-					"SELECT targetComptence1 " +
-							"FROM TargetCompetence1 targetComptence1 " +
-							"INNER JOIN targetComptence1.competence comp " +
-							"WHERE targetComptence1.user.id = :userId ";
-
-			switch (progress) {
-				case COMPLETED:
-					query += "AND targetComptence1.progress = 100 ";
-					break;
-				case IN_PROGRESS:
-					query += "AND targetComptence1.progress < 100 ";
-					break;
-				default:
-					break;
-			}
-
-			if (onlyPubliclyVisible) {
-				query += " AND targetComptence1.hiddenFromProfile = false ";
-			}
-
-			query += "ORDER BY comp.title";
-
-			List<TargetCompetenceData> resultList = new ArrayList<>();
-
-			List<TargetCompetence1> res = persistence.currentManager()
-					.createQuery(query)
-					.setLong("userId", userId)
-					.list();
-
-			for(TargetCompetence1 targetCompetence1 : res) {
-				int numberOfAssessments = 0;
-				boolean assessmentDisplayEnabled = false;
-				if (loadNumberOfAssessments) {
-					numberOfAssessments = assessmentManager.getNumberOfApprovedAssessmentsForUserCompetence(targetCompetence1.getCompetence().getId(), targetCompetence1.getUser().getId());
-					assessmentDisplayEnabled = isCompetenceAssessmentDisplayEnabled(targetCompetence1.getCompetence().getId(), targetCompetence1.getUser().getId());
-				}
-				resultList.add(new TargetCompetenceData(targetCompetence1, numberOfAssessments, assessmentDisplayEnabled));
-			}
-			return resultList;
-
-		} catch (Exception e) {
-			logger.error(e);
-			throw new DbConnectionException();
-		}
-	}
-
-	@Override
-	@Transactional(readOnly = true)
-	public boolean isCompetenceAssessmentDisplayEnabled(long competenceId, long studentId) {
-		try {
-			String q =
-					"SELECT comp.id FROM Competence1 comp " +
-							"INNER JOIN comp.credentialCompetences cc " +
-							"INNER JOIN cc.credential cred " +
-							"INNER JOIN cred.targetCredentials tCred " +
-							"WITH tCred.user.id = :studentId " +
-							"AND tCred.competenceAssessmentsDisplayed IS TRUE " +
-							"WHERE comp.id = :compId";
-
-			Long res = (Long) persistence.currentManager().createQuery(q)
-					.setLong("studentId", studentId)
-					.setLong("compId", competenceId)
-					.setMaxResults(1)
-					.uniqueResult();
-
-			return res != null;
-		} catch (Exception e) {
-			logger.error("Error", e);
-			throw new DbConnectionException("Error checking if competence assessment display is enabled");
-		}
-	}
 
 	@Override
 	//nt
@@ -2771,7 +2658,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<AssessmentTypeConfig> getCompetenceAssessmentTypesConfig(long compId, boolean loadBlindAssessmentMode) throws DbConnectionException {
+	public List<AssessmentTypeConfig> getCompetenceAssessmentTypesConfig(long compId) throws DbConnectionException {
 		try {
 			String q =
 					"SELECT conf FROM CompetenceAssessmentConfig conf " +
@@ -2782,13 +2669,6 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 					.setLong("compId", compId)
 					.list();
 			List<AssessmentTypeConfig> res = competenceFactory.getAssessmentConfig(assessmentTypesConfig);
-			if (loadBlindAssessmentMode) {
-				res
-						.stream()
-						.filter(conf -> conf.getType() == AssessmentType.PEER_ASSESSMENT)
-						.findFirst().get()
-						.setBlindAssessmentMode(getTheMostRestrictiveCredentialBlindAssessmentModeForAssessmentTypeAndCompetence(compId, AssessmentType.PEER_ASSESSMENT));
-			}
 			return res;
 		} catch (Exception e) {
 			logger.error("Error", e);
@@ -2819,33 +2699,33 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		}
 	}
 
-	@Override
-	@Transactional(readOnly = true)
-	public BlindAssessmentMode getTheMostRestrictiveCredentialBlindAssessmentModeForAssessmentTypeAndCompetence(long compId, AssessmentType assessmentType) {
-		try {
-			String q =
-					"SELECT conf.blindAssessmentMode FROM CredentialCompetence1 cc " +
-					"INNER JOIN cc.credential cred " +
-					"INNER JOIN cred.assessmentConfig conf " +
-					"WITH conf.assessmentType = :assessmentType " +
-					"WHERE cc.competence.id = :compId " +
-					"AND cred.type = :deliveryType " +
-					"ORDER BY CASE WHEN conf.blindAssessmentMode = :doubleBlindMode THEN 1 WHEN conf.blindAssessmentMode = :blindMode THEN 2 ELSE 3 END";
-
-			return (BlindAssessmentMode) persistence.currentManager()
-					.createQuery(q)
-					.setLong("compId", compId)
-					.setString("assessmentType", assessmentType.name())
-					.setString("doubleBlindMode", BlindAssessmentMode.DOUBLE_BLIND.name())
-					.setString("blindMode", BlindAssessmentMode.BLIND.name())
-					.setString("deliveryType", CredentialType.Delivery.name())
-					.setMaxResults(1)
-					.uniqueResult();
-		} catch (Exception e) {
-			logger.error("Error", e);
-			throw new DbConnectionException("Error loading the blind assessment mode for competency");
-		}
-	}
+//	@Override
+//	@Transactional(readOnly = true)
+//	public BlindAssessmentMode getTheMostRestrictiveCredentialBlindAssessmentModeForAssessmentTypeAndCompetence(long compId, AssessmentType assessmentType) {
+//		try {
+//			String q =
+//					"SELECT conf.blindAssessmentMode FROM CredentialCompetence1 cc " +
+//					"INNER JOIN cc.credential cred " +
+//					"INNER JOIN cred.assessmentConfig conf " +
+//					"WITH conf.assessmentType = :assessmentType " +
+//					"WHERE cc.competence.id = :compId " +
+//					"AND cred.type = :deliveryType " +
+//					"ORDER BY CASE WHEN conf.blindAssessmentMode = :doubleBlindMode THEN 1 WHEN conf.blindAssessmentMode = :blindMode THEN 2 ELSE 3 END";
+//
+//			return (BlindAssessmentMode) persistence.currentManager()
+//					.createQuery(q)
+//					.setLong("compId", compId)
+//					.setString("assessmentType", assessmentType.name())
+//					.setString("doubleBlindMode", BlindAssessmentMode.DOUBLE_BLIND.name())
+//					.setString("blindMode", BlindAssessmentMode.BLIND.name())
+//					.setString("deliveryType", CredentialType.Delivery.name())
+//					.setMaxResults(1)
+//					.uniqueResult();
+//		} catch (Exception e) {
+//			logger.error("Error", e);
+//			throw new DbConnectionException("Error loading the blind assessment mode for competency");
+//		}
+//	}
 
 	@Override
 	@Transactional

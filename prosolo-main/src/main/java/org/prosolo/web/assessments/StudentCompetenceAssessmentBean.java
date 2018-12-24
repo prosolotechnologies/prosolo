@@ -4,6 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
+import org.prosolo.common.domainmodel.credential.BlindAssessmentMode;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.assessment.RubricManager;
@@ -14,7 +15,7 @@ import org.prosolo.services.assessment.data.CompetenceAssessmentData;
 import org.prosolo.services.assessment.data.grading.GradeData;
 import org.prosolo.services.assessment.data.grading.RubricCriteriaGradeData;
 import org.prosolo.services.nodes.data.LearningResourceType;
-import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.user.data.UserData;
 import org.prosolo.web.assessments.util.AssessmentDisplayMode;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
@@ -37,7 +38,7 @@ import java.util.Optional;
 @ManagedBean(name = "competenceAssessmentBean")
 @Component("competenceAssessmentBean")
 @Scope("view")
-public class StudentCompetenceAssessmentBean extends CompetenceAssessmentBean {
+public class StudentCompetenceAssessmentBean extends CompetenceAssessmentBean implements AssessmentCommentsAware {
 
 	private static final long serialVersionUID = 1614497321079210618L;
 
@@ -191,6 +192,7 @@ public class StudentCompetenceAssessmentBean extends CompetenceAssessmentBean {
 		return 0;
 	}
 
+	@Override
 	public List<AssessmentDiscussionMessageData> getCurrentAssessmentMessages() {
 		if (currentResType == null) {
 			return null;
@@ -204,6 +206,21 @@ public class StudentCompetenceAssessmentBean extends CompetenceAssessmentBean {
 		return null;
 	}
 
+	@Override
+	public BlindAssessmentMode getCurrentBlindAssessmentMode() {
+		if (currentResType == null) {
+			return null;
+		}
+		switch (currentResType) {
+			case ACTIVITY:
+				return activityAssessmentBean.getActivityAssessmentData().getCompAssessment().getBlindAssessmentMode();
+			case COMPETENCE:
+				return getCompetenceAssessmentData().getBlindAssessmentMode();
+		}
+		return null;
+	}
+
+	@Override
 	public LearningResourceAssessmentBean getCurrentAssessmentBean() {
 		if (currentResType == null) {
 			return null;
@@ -393,10 +410,10 @@ public class StudentCompetenceAssessmentBean extends CompetenceAssessmentBean {
 
 	//STUDENT ONLY CODE
 	public void initAskForAssessment() {
-		initAskForAssessment(getCompetenceAssessmentData(), getAssessmentTypesConfig());
+		initAskForAssessment(getCompetenceAssessmentData());
 	}
 
-	public void initAskForAssessment(CompetenceAssessmentData compAssessment, List<AssessmentTypeConfig> assessmentTypesConfig) {
+	public void initAskForAssessment(CompetenceAssessmentData compAssessment) {
 		UserData assessor = null;
 		if (compAssessment.getAssessorId() > 0) {
 			assessor = new UserData();
@@ -404,7 +421,11 @@ public class StudentCompetenceAssessmentBean extends CompetenceAssessmentBean {
 			assessor.setFullName(compAssessment.getAssessorFullName());
 			assessor.setAvatarUrl(compAssessment.getAssessorAvatarUrl());
 		}
-		askForAssessmentBean.init(compAssessment.getCredentialId(), compAssessment.getCompetenceId(), compAssessment.getTargetCompetenceId(), compAssessment.getType(), assessor, getBlindAssessmentMode(compAssessment, assessmentTypesConfig));
+		/*
+		in this context we are always initiating assessor notification request and never
+		new assessment request so blind assessment mode is retrieved from competence assessment
+		 */
+		askForAssessmentBean.init(compAssessment.getCredentialId(), compAssessment.getCompetenceId(), compAssessment.getTargetCompetenceId(), compAssessment.getType(), assessor, compAssessment.getBlindAssessmentMode());
 
 		setCompetenceAssessmentData(compAssessment);
 	}

@@ -86,14 +86,7 @@ public class CompetenceAssessmentCommentEventProcessor extends AssessmentComment
 
 	@Override
 	protected BlindAssessmentMode getBlindAssessmentMode() {
-		/*
-		if credential assessment id is available blind assessment mode for credential is retrieved because
-		notification is generated for credential assessment page, otherwise competence blind assessment mode
-		is retrieved
-		 */
-		return credentialAssessmentId > 0
-				? credentialManager.getCredentialBlindAssessmentModeForAssessmentType(credentialId, getBasicAssessmentInfo().getType())
-				: competenceManager.getTheMostRestrictiveCredentialBlindAssessmentModeForAssessmentTypeAndCompetence(compAssessment.getCompetence().getId(), getBasicAssessmentInfo().getType());
+		return compAssessment.getBlindAssessmentMode();
 	}
 
 	@Override

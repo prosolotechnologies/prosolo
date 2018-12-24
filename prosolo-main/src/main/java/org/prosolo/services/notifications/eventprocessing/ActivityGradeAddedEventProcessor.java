@@ -13,8 +13,6 @@ import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.context.ContextJsonParserService;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
-import org.prosolo.services.nodes.Competence1Manager;
-import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.notifications.NotificationManager;
 import org.prosolo.services.notifications.eventprocessing.util.AssessmentLinkUtil;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
@@ -27,9 +25,6 @@ public class ActivityGradeAddedEventProcessor extends GradeAddedEventProcessor {
 	private ContextJsonParserService contextJsonParserService;
 	private AssessmentManager assessmentManager;
 
-	private CredentialManager credentialManager;
-	private Competence1Manager competenceManager;
-
 	private ActivityAssessment assessment;
 	private long credentialId;
 	private long competenceId;
@@ -37,13 +32,10 @@ public class ActivityGradeAddedEventProcessor extends GradeAddedEventProcessor {
 
 	public ActivityGradeAddedEventProcessor(Event event, Session session, NotificationManager notificationManager,
 											NotificationsSettingsManager notificationsSettingsManager, UrlIdEncoder idEncoder,
-											ContextJsonParserService contextJsonParserService, AssessmentManager assessmentManager,
-											CredentialManager credentialManager, Competence1Manager competenceManager) {
+											ContextJsonParserService contextJsonParserService, AssessmentManager assessmentManager) {
 		super(event, session, notificationManager, notificationsSettingsManager, idEncoder);
 		this.contextJsonParserService = contextJsonParserService;
 		this.assessmentManager = assessmentManager;
-		this.credentialManager = credentialManager;
-		this.competenceManager = competenceManager;
 		context = contextJsonParserService.parseContext(event.getContext());
 		credentialId = Context.getIdFromSubContextWithName(context, ContextName.CREDENTIAL);
 		competenceId = Context.getIdFromSubContextWithName(context, ContextName.COMPETENCE);
@@ -63,9 +55,7 @@ public class ActivityGradeAddedEventProcessor extends GradeAddedEventProcessor {
 
 	@Override
 	protected BlindAssessmentMode getBlindAssessmentMode() {
-		return credentialId > 0
-				? credentialManager.getCredentialBlindAssessmentModeForAssessmentType(credentialId, assessment.getType())
-				: competenceManager.getTheMostRestrictiveCredentialBlindAssessmentModeForAssessmentTypeAndCompetence(competenceId, assessment.getType());
+		return assessment.getAssessment().getBlindAssessmentMode();
 	}
 
 	@Override
