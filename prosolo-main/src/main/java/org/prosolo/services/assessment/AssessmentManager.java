@@ -9,6 +9,7 @@ import org.prosolo.common.domainmodel.assessment.ActivityAssessment;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
 import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
+import org.prosolo.common.domainmodel.credential.BlindAssessmentMode;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
@@ -22,11 +23,11 @@ import org.prosolo.services.common.data.SortOrder;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventQueue;
 import org.prosolo.services.nodes.data.ActivityData;
-import org.prosolo.services.user.data.UserData;
 import org.prosolo.services.nodes.data.assessments.AssessmentNotificationData;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
+import org.prosolo.services.user.data.UserData;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import java.text.DateFormat;
@@ -252,7 +253,7 @@ public interface AssessmentManager {
 	 * @throws DbConnectionException
 	 */
 	 Result<CompetenceAssessment> getOrCreateCompetenceAssessmentAndGetEvents(CompetenceData1 comp, long studentId,
-																			  long assessorId, AssessmentType type, boolean isExplicitRequest, UserContextData context)
+																			  long assessorId, AssessmentType type, BlindAssessmentMode blindAssessmentMode, boolean isExplicitRequest, UserContextData context)
 			throws IllegalDataStateException, DbConnectionException;
 
 	/**
@@ -401,7 +402,17 @@ public interface AssessmentManager {
 	 */
 	AssessmentGradeSummary getCredentialAssessmentGradeSummary(long credAssessmentId);
 
-	List<CompetenceAssessment> getCredentialCompetenceAssessments(long targetCredId, long competenceId, long userId, boolean loadOnlyApproved, SortOrder<AssessmentSortOrder> sortOrder);
+	/**
+	 * Returns all competence assessments given as a part of a credential assessment, but also the ones given directly to a competency, apart from a credential assessment.
+	 *
+	 * @param targetCredId
+	 * @param competenceId
+	 * @param userId
+	 * @param loadOnlyApproved
+	 * @param sortOrder
+	 * @return
+	 */
+	List<CompetenceAssessment> getIndependentAndCompetenceAssessmentsBelongingToCredential(long targetCredId, long competenceId, long userId, boolean loadOnlyApproved, SortOrder<AssessmentSortOrder> sortOrder);
 
 	/**
 	 * Returns grade summary for competence assessment

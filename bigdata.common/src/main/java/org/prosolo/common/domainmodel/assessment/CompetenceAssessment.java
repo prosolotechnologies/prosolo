@@ -2,6 +2,7 @@ package org.prosolo.common.domainmodel.assessment;
 
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
+import org.prosolo.common.domainmodel.credential.BlindAssessmentMode;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
@@ -28,6 +29,7 @@ public class CompetenceAssessment extends BaseEntity {
 	private Date lastAskedForAssessment;
 	private boolean assessorNotified;
 	private Date lastAssessment;
+	private BlindAssessmentMode blindAssessmentMode = BlindAssessmentMode.OFF;
 
 	private Set<CredentialCompetenceAssessment> credentialAssessments;
 	private Set<CompetenceAssessmentDiscussionParticipant> participants;
@@ -184,5 +186,15 @@ public class CompetenceAssessment extends BaseEntity {
 
 	public void setAssessorNotified(boolean assessorNotified) {
 		this.assessorNotified = assessorNotified;
+	}
+
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
+	public BlindAssessmentMode getBlindAssessmentMode() {
+		return blindAssessmentMode;
+	}
+
+	public void setBlindAssessmentMode(BlindAssessmentMode blindAssessmentMode) {
+		this.blindAssessmentMode = blindAssessmentMode;
 	}
 }

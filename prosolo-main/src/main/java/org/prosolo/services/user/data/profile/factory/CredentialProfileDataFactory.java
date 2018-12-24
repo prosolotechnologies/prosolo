@@ -1,7 +1,5 @@
 package org.prosolo.services.user.data.profile.factory;
 
-import org.prosolo.common.domainmodel.assessment.AssessmentType;
-import org.prosolo.common.domainmodel.credential.BlindAssessmentMode;
 import org.prosolo.common.domainmodel.credential.CredentialCategory;
 import org.prosolo.common.domainmodel.studentprofile.*;
 import org.prosolo.common.util.date.DateUtil;
@@ -96,8 +94,7 @@ public class CredentialProfileDataFactory extends ProfileDataFactory {
                         Collectors.mapping(
                                 conf -> getCredentialAssessmentProfileData(
                                         conf.getCredentialAssessment(),
-                                        new AssessmentGradeSummary(conf.getGrade(), conf.getMaxGrade()),
-                                        getBlindAssessmentMode(conf, conf.getCredentialAssessment().getType())),
+                                        new AssessmentGradeSummary(conf.getGrade(), conf.getMaxGrade())),
                                 Collectors.toList())))
                 .entrySet().stream()
                 .map(entry -> new AssessmentByTypeProfileData(entry.getKey(), entry.getValue()))
@@ -115,28 +112,13 @@ public class CredentialProfileDataFactory extends ProfileDataFactory {
                         Collectors.mapping(
                                 conf -> getCompetenceAssessmentProfileData(
                                         conf.getCompetenceAssessment(),
-                                        new AssessmentGradeSummary(conf.getGrade(), conf.getMaxGrade()),
-                                        /*
-                                        we use credential assessment config here because it overrides competency assessment config
-                                        when there is a credential competency is added to, which is the case here
-                                        where we observe this competency as a part of the credential on profile
-                                         */
-                                        getBlindAssessmentMode(conf, conf.getCompetenceAssessment().getType())),
+                                        new AssessmentGradeSummary(conf.getGrade(), conf.getMaxGrade())),
                                 Collectors.toList())))
                 .entrySet().stream()
                 .map(entry -> new AssessmentByTypeProfileData(entry.getKey(), entry.getValue()))
                 .collect(Collectors.toList());
         assessments.sort((a1, a2) -> compareAssessmentTypes(a1.getAssessmentType(), a2.getAssessmentType()));
         return assessments;
-    }
-
-    private BlindAssessmentMode getBlindAssessmentMode(AssessmentProfileConfig conf, AssessmentType assessmentType) {
-        return conf.getTargetCredential().getCredential().getAssessmentConfig()
-                .stream()
-                .filter(credAssessmentConf -> credAssessmentConf.getAssessmentType() == assessmentType)
-                .findFirst()
-                .get()
-                .getBlindAssessmentMode();
     }
 
 }

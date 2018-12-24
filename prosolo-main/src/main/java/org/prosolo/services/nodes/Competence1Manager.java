@@ -6,7 +6,6 @@ import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.annotation.Tag;
-import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.learningStage.LearningStage;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
@@ -422,7 +421,7 @@ public interface Competence1Manager {
 			long compId, long studentId, boolean loadAssessmentConfig, boolean loadLearningPathContent,
 			boolean loadCreator, boolean loadTags) throws DbConnectionException;
 
-	List<AssessmentTypeConfig> getCompetenceAssessmentTypesConfig(long compId, boolean loadBlindAssessmentMode) throws DbConnectionException;
+	List<AssessmentTypeConfig> getCompetenceAssessmentTypesConfig(long compId) throws DbConnectionException;
 
 	long getTargetCompetenceId(long compId, long studentId) throws DbConnectionException;
 
@@ -434,7 +433,7 @@ public interface Competence1Manager {
 	 * @return
 	 * @throws DbConnectionException
 	 */
-	BlindAssessmentMode getTheMostRestrictiveCredentialBlindAssessmentModeForAssessmentTypeAndCompetence(long compId, AssessmentType assessmentType);
+//	BlindAssessmentMode getTheMostRestrictiveCredentialBlindAssessmentModeForAssessmentTypeAndCompetence(long compId, AssessmentType assessmentType);
 
 	/**
 	 * Updates the {@code evidenceSummary} field of an instance of the {@link org.prosolo.common.domainmodel.credential.TargetCompetence1} class

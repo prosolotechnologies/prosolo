@@ -1,6 +1,7 @@
 package org.prosolo.services.assessment.data;
 
 import org.prosolo.common.domainmodel.assessment.*;
+import org.prosolo.common.domainmodel.credential.BlindAssessmentMode;
 import org.prosolo.common.domainmodel.credential.GradingMode;
 import org.prosolo.common.domainmodel.credential.LearningPathType;
 import org.prosolo.common.domainmodel.rubric.RubricType;
@@ -54,6 +55,7 @@ public class CompetenceAssessmentData {
 	private AssessmentType type;
 	private LearningPathType learningPathType;
 	private String evidenceSummary;
+	private BlindAssessmentMode blindAssessmentMode;
 
 //	public static CompetenceAssessmentData from(CompetenceAssessment compAssessment, UrlIdEncoder encoder,
 //			long userId, DateFormat dateFormat) {
@@ -175,6 +177,7 @@ public class CompetenceAssessmentData {
 		if (dateFormat != null) {
 			data.setDateValue(dateFormat.format(compAssessment.getDateCreated()));
 		}
+		data.setBlindAssessmentMode(compAssessment.getBlindAssessmentMode());
 
 		return data;
 	}
@@ -418,5 +421,13 @@ public class CompetenceAssessmentData {
 
 	public void setLearningPathType(LearningPathType learningPathType) {
 		this.learningPathType = learningPathType;
+	}
+
+	public BlindAssessmentMode getBlindAssessmentMode() {
+		return blindAssessmentMode;
+	}
+
+	public void setBlindAssessmentMode(BlindAssessmentMode blindAssessmentMode) {
+		this.blindAssessmentMode = blindAssessmentMode;
 	}
 }

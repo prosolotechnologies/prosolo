@@ -5,6 +5,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
+import org.prosolo.common.domainmodel.credential.BlindAssessmentMode;
 import org.prosolo.common.domainmodel.credential.CredentialType;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.UserContextData;
@@ -46,7 +47,7 @@ import java.util.Optional;
 @ManagedBean(name = "credentialAssessmentBean")
 @Component("credentialAssessmentBean")
 @Scope("view")
-public class CredentialAssessmentBean extends LearningResourceAssessmentBean implements Serializable {
+public class CredentialAssessmentBean extends LearningResourceAssessmentBean implements AssessmentCommentsAware, Serializable {
 
 	private static final long serialVersionUID = 7344090333263528353L;
 	private static Logger logger = Logger.getLogger(CredentialAssessmentBean.class);
@@ -316,6 +317,7 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 
 	// ASSESSMENT COMMENTS MODAL
 
+	@Override
 	public List<AssessmentDiscussionMessageData> getCurrentAssessmentMessages() {
 		if (currentResType == null) {
 			return null;
@@ -331,6 +333,23 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 		return null;
 	}
 
+	@Override
+	public BlindAssessmentMode getCurrentBlindAssessmentMode() {
+		if (currentResType == null) {
+			return null;
+		}
+		switch (currentResType) {
+			case ACTIVITY:
+				return activityAssessmentBean.getActivityAssessmentData().getCompAssessment().getBlindAssessmentMode();
+			case COMPETENCE:
+				return compAssessmentBean.getCompetenceAssessmentData().getBlindAssessmentMode();
+			case CREDENTIAL:
+				return fullAssessmentData.getBlindAssessmentMode();
+		}
+		return null;
+	}
+
+	@Override
 	public LearningResourceAssessmentBean getCurrentAssessmentBean() {
 		if (currentResType == null) {
 			return null;
@@ -691,6 +710,11 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 			assessor.setFullName(fullAssessmentData.getAssessorFullName());
 			assessor.setAvatarUrl(fullAssessmentData.getAssessorAvatarUrl());
 		}
+		/*
+		in this context assessor can be notified for existing assessment,
+		but there is no way to ask for new assessment request and that is why
+		blind assessment mode is retrieved from credential assessment
+		 */
 		askForAssessmentBean.init(decodedId, fullAssessmentData.getTargetCredentialId(), fullAssessmentData.getType(), assessor, fullAssessmentData.getBlindAssessmentMode());
 	}
 

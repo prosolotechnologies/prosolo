@@ -23,20 +23,20 @@ public class ProfileDataFactory {
 
     @Inject private UserBasicDataFactory userBasicDataFactory;
 
-    protected AssessmentProfileData getCredentialAssessmentProfileData(CredentialAssessment ca, AssessmentGradeSummary gradeSummary, BlindAssessmentMode blindAssessmentMode) {
+    protected AssessmentProfileData getCredentialAssessmentProfileData(CredentialAssessment ca, AssessmentGradeSummary gradeSummary) {
         return new AssessmentProfileData(
                 ca.getId(),
                 userBasicDataFactory.getBasicUserData(ca.getAssessor()),
-                blindAssessmentMode,
+                ca.getBlindAssessmentMode(),
                 DateUtil.getMillisFromDate(ca.getLastAssessment()),
                 gradeSummary);
     }
 
-    protected AssessmentProfileData getCompetenceAssessmentProfileData(CompetenceAssessment ca, AssessmentGradeSummary gradeSummary, BlindAssessmentMode blindAssessmentMode) {
+    protected AssessmentProfileData getCompetenceAssessmentProfileData(CompetenceAssessment ca, AssessmentGradeSummary gradeSummary) {
         return new AssessmentProfileData(
                 ca.getId(),
                 userBasicDataFactory.getBasicUserData(ca.getAssessor()),
-                blindAssessmentMode,
+                ca.getBlindAssessmentMode(),
                 DateUtil.getMillisFromDate(ca.getLastAssessment()),
                 gradeSummary);
     }

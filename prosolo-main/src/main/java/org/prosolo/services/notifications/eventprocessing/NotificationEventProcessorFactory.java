@@ -116,7 +116,7 @@ public class NotificationEventProcessorFactory {
 				BaseEntity assessment = event.getObject();
 				if (assessment instanceof ActivityAssessment) {
 					return new ActivityGradeAddedEventProcessor(event, session, notificationManager,
-							notificationsSettingsManager, idEncoder, contextJsonParserService, assessmentManager, credentialManager, competenceManager);
+							notificationsSettingsManager, idEncoder, contextJsonParserService, assessmentManager);
 				} else if (assessment instanceof CompetenceAssessment) {
 					return new CompetenceGradeAddedEventProcessor(event, session, notificationManager,
 							notificationsSettingsManager, idEncoder, contextJsonParserService, assessmentManager, credentialManager, competenceManager);

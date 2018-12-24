@@ -11,7 +11,7 @@
 >
 
 	<composite:interface>
-		<composite:attribute name="bean" required="true" />
+		<composite:attribute name="bean" required="true" type="org.prosolo.web.assessments.CredentialAssessmentBean"/>
 		<composite:attribute name="learningContext" default="" />
 		<composite:attribute name="service" default="" />
 		<composite:attribute name="role" default="USER" />
@@ -438,7 +438,6 @@
 								<ui:repeat varStatus="compAssIndex" var="competenceAssessment" value="#{cc.attrs.bean.fullAssessmentData.competenceAssessmentData}">
 									<assessment:competenceAssessment
 											competenceAssessment="#{competenceAssessment}"
-											blindAssessmentMode="#{cc.attrs.bean.fullAssessmentData.blindAssessmentMode}"
 											bean="#{cc.attrs.bean}"
 											fullDisplayMode="#{cc.attrs.bean.fullDisplayMode}"
 											credentialId="#{cc.attrs.bean.fullAssessmentData.credentialId}"
@@ -547,7 +546,7 @@
 					bean="#{cc.attrs.bean.currentAssessmentBean}"
 					studentId="#{cc.attrs.bean.fullAssessmentData.assessedStudentId}"
 					assessorId="#{cc.attrs.bean.fullAssessmentData.assessorId}"
-					blindAssessmentMode="#{cc.attrs.bean.fullAssessmentData.blindAssessmentMode}"
+					blindAssessmentMode="#{cc.attrs.bean.currentBlindAssessmentMode}"
 					learningContext="#{cc.attrs.bean.currentResType eq 'ACTIVITY'
 						? util:addSubContext(learningContext, 'name:competence|id:'.concat(activityAssessmentBean.activityAssessmentData.competenceId).concat('|context:/name:COMPETENCE_ASSESSMENT|id:').concat(activityAssessmentBean.activityAssessmentData.compAssessment.competenceAssessmentId).concat('|context:/name:activity|id:').concat(activityAssessmentBean.activityAssessmentData.activityId).concat('|context:/name:ACTIVITY_ASSESSMENT|id:').concat(activityAssessmentBean.activityAssessmentData.activityAssessmentId).concat('/').concat('/').concat('/'))
 						: cc.attrs.bean.currentResType eq 'COMPETENCE'

@@ -5,6 +5,7 @@ import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.bigdata.common.exceptions.StaleDataException;
+import org.prosolo.common.domainmodel.credential.BlindAssessmentMode;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.CredentialType;
 import org.prosolo.common.event.context.data.PageContextData;
@@ -76,7 +77,9 @@ public class CompetenceEditBean extends CompoundLearningResourceAssessmentSettin
 	private LearningPathDescription[] learningPaths;
 	
 	private CredentialIdData credentialIdData;
-	
+
+	private BlindAssessmentMode[] blindAssessmentModes;
+
 	private String context;
 	
 	private boolean manageSection;
@@ -85,6 +88,7 @@ public class CompetenceEditBean extends CompoundLearningResourceAssessmentSettin
 		try {
 			manageSection = PageSection.MANAGE.equals(PageUtil.getSectionForView());
 			initializeValues();
+			blindAssessmentModes = BlindAssessmentMode.values();
 			decodedCredId = idEncoder.decodeId(credId);
 			if (id == null) {
 				competenceData = new CompetenceData1(false);
@@ -577,5 +581,9 @@ public class CompetenceEditBean extends CompoundLearningResourceAssessmentSettin
 
 	public CredentialIdData getCredentialIdData() {
 		return credentialIdData;
+	}
+
+	public BlindAssessmentMode[] getBlindAssessmentModes() {
+		return blindAssessmentModes;
 	}
 }

@@ -117,7 +117,7 @@
 																actorId="#{assessment.assessorId}"
 																avatarUrl="#{assessment.assessorAvatarUrl}"
 																actorFullName="#{assessment.assessorFullName}"
-																blindAssessmentMode="#{studentCompetencePeerAssessmentsBean.blindAssessmentMode}"
+																blindAssessmentMode="#{assessment.blindAssessmentMode}"
 																actorType="ASSESSOR"
 														/>
 														<f:param value="#{util:encodeId(assessment.assessmentId)}" name="assessmentId" />
@@ -130,7 +130,7 @@
 															<assessment:assessmentActorName
 																	actorId="#{assessment.assessorId}"
 																	actorFullName="#{assessment.assessorFullName}"
-																	blindAssessmentMode="#{studentCompetencePeerAssessmentsBean.blindAssessmentMode}"
+																	blindAssessmentMode="#{assessment.blindAssessmentMode}"
 																	actorType="ASSESSOR"
 															/>
 															<f:param value="#{util:encodeId(assessment.assessmentId)}" name="assessmentId" />
