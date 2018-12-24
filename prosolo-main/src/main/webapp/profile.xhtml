@@ -70,7 +70,7 @@
                                 <h:link outcome="settings" class="btn btn-green-stroke btn-sm">Edit Your Info</h:link>
                             </ui:fragment>
 
-                            <ui:fragment rendered="#{loginbean.isUserLoggedIn() and not profileBean.personalProfile}" >
+                            <ui:fragment rendered="#{loggeduser.hasCapability('basic.user.access') and not profileBean.personalProfile}" >
                                 <p:commandLink id="followButton"
                                                rendered="#{!peopleActionBean.isLoggedUserFollowingUser(profileBean.decodedStudentId)}"
                                                action="#{peopleActionBean.followCollegueById(profileBean.userData.fullName, profileBean.decodedStudentId)}"
