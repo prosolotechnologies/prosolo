@@ -402,6 +402,16 @@ public interface AssessmentManager {
 	 */
 	AssessmentGradeSummary getCredentialAssessmentGradeSummary(long credAssessmentId);
 
+	/**
+	 * Returns all competence assessments given as a part of a credential assessment, but also the ones given directly to a competency, apart from a credential assessment.
+	 *
+	 * @param targetCredId
+	 * @param competenceId
+	 * @param userId
+	 * @param loadOnlyApproved
+	 * @param sortOrder
+	 * @return
+	 */
 	List<CompetenceAssessment> getIndependentAndCompetenceAssessmentsBelongingToCredential(long targetCredId, long competenceId, long userId, boolean loadOnlyApproved, SortOrder<AssessmentSortOrder> sortOrder);
 
 	/**
