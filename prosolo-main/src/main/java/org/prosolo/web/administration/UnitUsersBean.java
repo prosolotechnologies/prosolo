@@ -1,5 +1,6 @@
 package org.prosolo.web.administration;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.search.UserTextSearch;
@@ -53,6 +54,7 @@ public class UnitUsersBean implements Serializable, Paginable {
 	private String id;
 	private long decodedId;
 	private int page;
+	private String error;
 
 	private long roleId;
 	//users currently added to unit with role
@@ -92,6 +94,7 @@ public class UnitUsersBean implements Serializable, Paginable {
 							paginationData.setPage(page);
 						}
 						loadUsersFromDB();
+						fireErrorMsg();
 					} else {
 						PageUtil.notFound();
 					}
@@ -104,6 +107,12 @@ public class UnitUsersBean implements Serializable, Paginable {
 		} catch (Exception e) {
 			logger.error("Error", e);
 			PageUtil.fireErrorMessage("Error while loading page");
+		}
+	}
+
+	private void fireErrorMsg() {
+		if (StringUtils.isNotBlank(error)) {
+			PageUtil.fireErrorMessage(error);
 		}
 	}
 
@@ -242,6 +251,14 @@ public class UnitUsersBean implements Serializable, Paginable {
 
 	public void setPage(int page) {
 		this.page = page;
+	}
+
+	public String getError() {
+		return error;
+	}
+
+	public void setError(String error) {
+		this.error = error;
 	}
 }
 

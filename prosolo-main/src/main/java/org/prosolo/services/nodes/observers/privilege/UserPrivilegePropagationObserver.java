@@ -11,7 +11,7 @@ import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.UserGroup;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.UserContextData;
-import org.prosolo.core.hibernate.HibernateUtil;
+import org.prosolo.core.db.hibernate.HibernateUtil;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.event.EventFactory;
@@ -74,7 +74,7 @@ private static Logger logger = Logger.getLogger(UserPrivilegePropagationObserver
 					if (object instanceof Competence1) {
 						res = userGroupManager.propagateUserGroupPrivilegesFromCredentialToCompetenceAndGetEvents(target.getId(), 
 								object.getId(), UserContextData.of(event.getActorId(), event.getOrganizationId(),
-										event.getSessionId(), null),  session);
+										event.getSessionId(), event.getIpAddress(), null),  session);
 					}
 					break;
 			    //on detach remove all comp groups in detached competence inherited from that credential
@@ -82,7 +82,7 @@ private static Logger logger = Logger.getLogger(UserPrivilegePropagationObserver
 					if (object instanceof Competence1) {
 						res = userGroupManager.removeUserGroupPrivilegesPropagatedFromCredentialAndGetEvents(object.getId(), 
 								target.getId(), UserContextData.of(event.getActorId(), event.getOrganizationId(),
-										event.getSessionId(), null), session);
+										event.getSessionId(), event.getIpAddress(), null), session);
 					}
 					break;
 				//on user group added to resource add that group to all competences in a credential
@@ -94,7 +94,7 @@ private static Logger logger = Logger.getLogger(UserPrivilegePropagationObserver
 						if (privilege == UserGroupPrivilege.Edit || privilege == UserGroupPrivilege.Instruct) {
 							res = userGroupManager.propagateUserGroupPrivilegeFromCredentialAndGetEvents(credUserGroupId,
 									UserContextData.of(event.getActorId(), event.getOrganizationId(),
-											event.getSessionId(), null), session);
+											event.getSessionId(), event.getIpAddress(), null), session);
 						}
 					}
 					break;
@@ -110,7 +110,7 @@ private static Logger logger = Logger.getLogger(UserPrivilegePropagationObserver
 									res = userGroupManager.removeUserGroupPrivilegePropagatedFromCredentialAndGetEvents(
 											target.getId(), object.getId(), UserContextData.of(
 													event.getActorId(), event.getOrganizationId(), event.getSessionId(),
-													null), session);
+													event.getIpAddress(),null), session);
 								}
 							}
 						}
@@ -119,7 +119,7 @@ private static Logger logger = Logger.getLogger(UserPrivilegePropagationObserver
 				case ENROLL_COURSE:
 					res = userGroupManager.addLearnPrivilegeToCredentialCompetencesAndGetEvents(
 							object.getId(), event.getActorId(), UserContextData.of(event.getActorId(),
-									event.getOrganizationId(), event.getSessionId(), null), session);
+									event.getOrganizationId(), event.getSessionId(), event.getIpAddress(), null), session);
 					break;
 				default:
 					break;

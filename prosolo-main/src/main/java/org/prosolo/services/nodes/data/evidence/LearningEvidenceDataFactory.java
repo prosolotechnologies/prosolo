@@ -20,13 +20,16 @@ import java.util.stream.Collectors;
 @Component
 public class LearningEvidenceDataFactory {
 
-    public LearningEvidenceData getCompetenceLearningEvidenceData(LearningEvidence evidence, CompetenceEvidence compEvidence, Set<Tag> tags) {
+    public LearningEvidenceData getCompetenceLearningEvidenceData(LearningEvidence evidence, CompetenceEvidence compEvidence, Set<Tag> tags, LearningEvidenceLoadConfig loadConfig) {
         LearningEvidenceData evidenceData = new LearningEvidenceData();
         evidenceData.setId(evidence.getId());
         evidenceData.setUserId(evidence.getUser().getId());
+        if (loadConfig.isLoadUserName()) {
+            evidenceData.setUserFullName(evidence.getUser().getFullName());
+        }
         evidenceData.setTitle(evidence.getTitle());
         evidenceData.setText(evidence.getDescription());
-        if (tags != null) {
+        if (loadConfig.isLoadTags() && tags != null) {
             evidenceData.setTags(tags.stream().map(Tag::getTitle).collect(Collectors.toSet()));
             evidenceData.setTagsString(AnnotationUtil.getAnnotationsAsSortedCSV(tags));
         }
@@ -39,12 +42,17 @@ public class LearningEvidenceDataFactory {
             evidenceData.setDateAttached(DateUtil.getMillisFromDate(compEvidence.getDateCreated()));
             evidenceData.setRelationToCompetence(compEvidence.getDescription());
         }
+
+        if (loadConfig.isLoadCompetenceTitle()) {
+            evidenceData.setCompetenceTitle(compEvidence.getCompetence().getCompetence().getTitle());
+        }
+
         return evidenceData;
     }
 
-    public LearningEvidenceData getLearningEvidenceData(LearningEvidence evidence, Set<Tag> tags, List<BasicObjectInfo> competences) {
-        LearningEvidenceData ev = getCompetenceLearningEvidenceData(evidence, null, tags);
-        if (competences != null) {
+    public LearningEvidenceData getLearningEvidenceData(LearningEvidence evidence, Set<Tag> tags, List<BasicObjectInfo> competences, LearningEvidenceLoadConfig loadConfig) {
+        LearningEvidenceData ev = getCompetenceLearningEvidenceData(evidence, null, tags, loadConfig);
+        if (loadConfig.isLoadCompetences() && competences != null) {
             ev.addCompetences(competences);
         }
         return ev;

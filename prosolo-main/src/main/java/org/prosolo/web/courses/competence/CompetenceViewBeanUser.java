@@ -126,6 +126,12 @@ public class CompetenceViewBeanUser implements Serializable {
 	}
 
 	public void initAskForAssessment(AssessmentType aType) {
+		/*
+		passing competence level blind assessment mode is fine in this context because if
+		peer assessment request is initiated here it will always be new assessment request.
+		For tutor assessment it does not matter where are we getting blind assessment mode from
+		because blind assessment mode is of importance only for peer assessments.
+		 */
 		askForAssessmentBean.init(decodedCredId, decodedCompId, competenceData.getTargetCompId(), aType, competenceData.getAssessmentTypeConfig(aType).getBlindAssessmentMode());
 	}
 	
@@ -161,14 +167,22 @@ public class CompetenceViewBeanUser implements Serializable {
 	
 	public void enrollInCompetence() {
 		try {
-			competenceData = competenceManager.enrollInCompetenceAndGetCompetenceData(
+			competenceManager.enrollInCompetence(
 					competenceData.getCompetenceId(), loggedUser.getUserId(), loggedUser.getUserContext());
-			access.userEnrolled();
-			if (competenceData.getLearningPathType() == LearningPathType.EVIDENCE) {
-				//student enrolled so he can now upload/post evidence
-				submitEvidenceBean.init(new LearningEvidenceData());
-			}
 			PageUtil.fireSuccessfulInfoMessage("You have started the " + ResourceBundleUtil.getMessage("label.competence").toLowerCase());
+			try {
+				RestrictedAccessResult<CompetenceData1> res = competenceManager
+						.getFullTargetCompetenceOrCompetenceData(decodedCredId, decodedCompId,
+								loggedUser.getUserId());
+				unpackResult(res);
+				if (competenceData.getLearningPathType() == LearningPathType.EVIDENCE) {
+					//student enrolled so he can now upload/post evidence
+					submitEvidenceBean.init(new LearningEvidenceData());
+				}
+			} catch (Exception e) {
+				logger.error("error", e);
+				PageUtil.fireErrorMessage("Error loading the data, try to refresh the page");
+			}
 		} catch (DbConnectionException e) {
 			logger.error("Error", e);
 			PageUtil.fireErrorMessage("Error starting the " + ResourceBundleUtil.getMessage("label.competence").toLowerCase());

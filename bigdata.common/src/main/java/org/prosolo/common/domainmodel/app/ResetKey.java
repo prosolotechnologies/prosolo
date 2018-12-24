@@ -30,7 +30,7 @@ public class ResetKey extends BaseEntity {
 		this.user = user;
 	}
 	
-	@Column(unique = true)
+	//unique constraint added from the script
 	public String getUid() {
 		return uid;
 	}

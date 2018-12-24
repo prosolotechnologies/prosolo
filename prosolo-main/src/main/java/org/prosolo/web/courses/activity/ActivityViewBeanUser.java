@@ -9,11 +9,16 @@ import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.services.assessment.RubricManager;
+import org.prosolo.services.assessment.data.grading.RubricCriteriaGradeData;
 import org.prosolo.services.interaction.CommentManager;
 import org.prosolo.services.interaction.data.CommentsData;
-import org.prosolo.services.nodes.*;
-import org.prosolo.services.nodes.data.*;
-import org.prosolo.services.assessment.data.grading.RubricCriteriaGradeData;
+import org.prosolo.services.nodes.Activity1Manager;
+import org.prosolo.services.nodes.Competence1Manager;
+import org.prosolo.services.nodes.CredentialManager;
+import org.prosolo.services.nodes.RoleManager;
+import org.prosolo.services.nodes.data.ActivityData;
+import org.prosolo.services.nodes.data.ActivityResultData;
+import org.prosolo.services.nodes.data.ActivityResultType;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
@@ -74,26 +79,6 @@ public class ActivityViewBeanUser implements Serializable {
 	private long nextCompToLearn;
 	
 	private String roles="Learner";
-	
-	/*public String getRoles() {
-		return roles;
-	}*/
-	public String getRoles(){
-		System.out.println("GET ROLES IN ACTIVITY VIEW BEAN USER...");
-		String selectedRole=loggedUser.getSessionData().getSelectedRole();
-		System.out.println("Selected role for LTI:"+selectedRole);
-		String role="Learner";
-		if(selectedRole!=null){
-			if( selectedRole.equalsIgnoreCase("manager")){
-				role= "Instructor";
-			}else if(selectedRole.equalsIgnoreCase("admin")){
-				role= "Administrator";
-			}
-		}
-
-		return role;
-		//return this.roles;
-	}
 
 	private long nextActivityToLearn;
 	private boolean mandatoryOrder;

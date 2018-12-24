@@ -9,10 +9,10 @@ import org.prosolo.common.util.ImageFormat;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.assessment.data.AssessmentTypeConfig;
 import org.prosolo.services.nodes.data.ResourceCreator;
-import org.prosolo.services.user.data.UserData;
 import org.prosolo.services.nodes.data.credential.CredentialData;
 import org.prosolo.services.nodes.data.organization.CredentialCategoryData;
 import org.prosolo.services.nodes.data.organization.LearningStageData;
+import org.prosolo.services.user.data.UserData;
 import org.prosolo.util.nodes.AnnotationUtil;
 import org.prosolo.web.util.AvatarUtils;
 import org.springframework.stereotype.Component;
@@ -149,10 +149,6 @@ public class CredentialDataFactory {
 		if (assessmentConfig != null) {
 			cred.setAssessmentTypes(getAssessmentConfig(assessmentConfig));
 		}
-
-		cred.setCredentialAssessmentsDisplayed(credential.isCredentialAssessmentsDisplayed());
-		cred.setCompetenceAssessmentsDisplayed(credential.isCompetenceAssessmentsDisplayed());
-		cred.setEvidenceDisplayed(credential.isEvidenceDisplayed());
 
 		if (shouldTrackChanges) {
 			cred.startObservingChanges();

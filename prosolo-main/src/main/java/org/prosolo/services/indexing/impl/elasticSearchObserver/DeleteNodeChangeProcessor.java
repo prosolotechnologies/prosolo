@@ -4,6 +4,7 @@ import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.indexing.NodeEntityESService;
 
+@Deprecated
 public class DeleteNodeChangeProcessor implements NodeChangeProcessor {
 
 	private Event event;

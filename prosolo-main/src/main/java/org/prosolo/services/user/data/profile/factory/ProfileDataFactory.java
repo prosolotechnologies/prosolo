@@ -3,12 +3,12 @@ package org.prosolo.services.user.data.profile.factory;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
 import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
-import org.prosolo.common.domainmodel.credential.BlindAssessmentMode;
+import org.prosolo.common.domainmodel.credential.CompetenceEvidence;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.assessment.data.grading.AssessmentGradeSummary;
 import org.prosolo.services.user.data.factory.UserBasicDataFactory;
-import org.prosolo.services.user.data.profile.AssessmentByTypeProfileOptionsData;
 import org.prosolo.services.user.data.profile.AssessmentProfileData;
+import org.prosolo.services.user.data.profile.CompetenceEvidenceProfileData;
 
 import javax.inject.Inject;
 
@@ -21,22 +21,32 @@ public class ProfileDataFactory {
 
     @Inject private UserBasicDataFactory userBasicDataFactory;
 
-    protected AssessmentProfileData getCredentialAssessmentProfileData(CredentialAssessment ca, AssessmentGradeSummary gradeSummary, BlindAssessmentMode blindAssessmentMode) {
+    protected AssessmentProfileData getCredentialAssessmentProfileData(CredentialAssessment ca, AssessmentGradeSummary gradeSummary) {
         return new AssessmentProfileData(
                 ca.getId(),
                 userBasicDataFactory.getBasicUserData(ca.getAssessor()),
-                blindAssessmentMode,
+                ca.getBlindAssessmentMode(),
                 DateUtil.getMillisFromDate(ca.getDateApproved()),
                 gradeSummary);
     }
 
-    protected AssessmentProfileData getCompetenceAssessmentProfileData(CompetenceAssessment ca, AssessmentGradeSummary gradeSummary, BlindAssessmentMode blindAssessmentMode) {
+    protected AssessmentProfileData getCompetenceAssessmentProfileData(CompetenceAssessment ca, AssessmentGradeSummary gradeSummary) {
         return new AssessmentProfileData(
                 ca.getId(),
                 userBasicDataFactory.getBasicUserData(ca.getAssessor()),
-                blindAssessmentMode,
+                ca.getBlindAssessmentMode(),
                 DateUtil.getMillisFromDate(ca.getDateApproved()),
                 gradeSummary);
+    }
+
+    protected CompetenceEvidenceProfileData getCompetenceEvidenceProfileData(CompetenceEvidence ce) {
+        return new CompetenceEvidenceProfileData(
+                ce.getEvidence().getId(),
+                ce.getId(),
+                ce.getEvidence().getTitle(),
+                ce.getEvidence().getType(),
+                ce.getEvidence().getUrl(),
+                DateUtil.getMillisFromDate(ce.getEvidence().getDateCreated()));
     }
 
     /**

@@ -3,7 +3,6 @@ package org.prosolo.services.user.data.profile.factory;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.studentprofile.*;
-import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.common.data.SelectableData;
 import org.prosolo.services.user.data.parameterobjects.CompetenceAssessmentWithGradeSummaryData;
 import org.prosolo.services.user.data.parameterobjects.CompetenceProfileOptionsParam;
@@ -52,7 +51,7 @@ public class CredentialProfileOptionsDataFactory extends ProfileDataFactory {
                 if (assessmentsForType != null) {
                     assessmentsForType.forEach(a -> selectableAssessmentsForType.add(
                             new SelectableData<>(
-                                    getCredentialAssessmentProfileData(a.getCredentialAssessment(), a.getGradeSummary(), conf.getBlindAssessmentMode()), assessmentProfileConfigs.stream().filter(apConf -> apConf.getCredentialAssessment().getId() == a.getCredentialAssessment().getId()).findFirst().isPresent())));
+                                    getCredentialAssessmentProfileData(a.getCredentialAssessment(), a.getGradeSummary()), assessmentProfileConfigs.stream().filter(apConf -> apConf.getCredentialAssessment().getId() == a.getCredentialAssessment().getId()).findFirst().isPresent())));
                 }
                 assessmentsByTypeProfileOptions.add(new AssessmentByTypeProfileOptionsData(conf.getAssessmentType(), selectableAssessmentsForType));
             }
@@ -96,13 +95,7 @@ public class CredentialProfileOptionsDataFactory extends ProfileDataFactory {
         List<SelectableData<CompetenceEvidenceProfileData>> evidence = new ArrayList<>();
         for (CompetenceEvidence ce : evidences) {
             evidence.add(new SelectableData<>(
-                    new CompetenceEvidenceProfileData(
-                        ce.getEvidence().getId(),
-                        ce.getId(),
-                        ce.getEvidence().getTitle(),
-                        ce.getEvidence().getType(),
-                        ce.getEvidence().getUrl(),
-                        DateUtil.getMillisFromDate(ce.getDateCreated())),
+                    getCompetenceEvidenceProfileData(ce),
                     evidenceProfileConfigs.stream().filter(conf -> conf.getCompetenceEvidence().getId() == ce.getId()).findFirst().isPresent()));
         }
         return evidence;
@@ -128,7 +121,7 @@ public class CredentialProfileOptionsDataFactory extends ProfileDataFactory {
                 if (assessmentsForType != null) {
                     assessmentsForType.forEach(a -> selectableAssessmentsForType.add(
                             new SelectableData<>(
-                                    getCompetenceAssessmentProfileData(a.getCompetenceAssessment(), a.getGradeSummary(), conf.getBlindAssessmentMode()), assessmentProfileConfigs.stream().filter(apConf -> apConf.getCompetenceAssessment().getId() == a.getCompetenceAssessment().getId()).findFirst().isPresent())));
+                                    getCompetenceAssessmentProfileData(a.getCompetenceAssessment(), a.getGradeSummary()), assessmentProfileConfigs.stream().filter(apConf -> apConf.getCompetenceAssessment().getId() == a.getCompetenceAssessment().getId()).findFirst().isPresent())));
                 }
                 assessmentsByTypeProfileOptions.add(new AssessmentByTypeProfileOptionsData(conf.getAssessmentType(), selectableAssessmentsForType));
             }

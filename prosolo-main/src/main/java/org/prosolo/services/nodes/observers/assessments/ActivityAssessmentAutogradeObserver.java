@@ -9,7 +9,7 @@ import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.common.event.context.data.UserContextData;
-import org.prosolo.core.hibernate.HibernateUtil;
+import org.prosolo.core.db.hibernate.HibernateUtil;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.event.EventFactory;
@@ -63,7 +63,7 @@ public class ActivityAssessmentAutogradeObserver extends EventObserver {
 				lcd.setLearningContext("name:autograde|id:" + ta.getId());
 				result = assessmentManager.updateActivityAutomaticGradeInAllAssessmentsAndGetEvents(
 						ta.getTargetCompetence().getUser().getId(), ta.getActivity().getId(), ta.getActivity().getMaxPoints(), session,
-						UserContextData.of(event.getActorId(), event.getOrganizationId(), event.getSessionId(), lcd));
+						UserContextData.of(event.getActorId(), event.getOrganizationId(), event.getSessionId(), event.getIpAddress(), lcd));
 			}
 			transaction.commit();
 		} catch (Exception e) {

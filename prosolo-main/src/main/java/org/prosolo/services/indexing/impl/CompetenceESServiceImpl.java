@@ -7,11 +7,14 @@ import org.hibernate.Session;
 import org.prosolo.bigdata.common.enums.ESIndexTypes;
 import org.prosolo.common.ESIndexNames;
 import org.prosolo.common.domainmodel.annotation.Tag;
-import org.prosolo.common.domainmodel.credential.*;
+import org.prosolo.common.domainmodel.credential.Competence1;
+import org.prosolo.common.domainmodel.credential.CompetenceBookmark;
+import org.prosolo.common.domainmodel.credential.CompetenceUserGroup;
+import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.domainmodel.user.UserGroupUser;
+import org.prosolo.common.elasticsearch.impl.AbstractESIndexerImpl;
 import org.prosolo.common.util.ElasticsearchUtil;
-import org.prosolo.services.indexing.AbstractBaseEntityESServiceImpl;
 import org.prosolo.services.indexing.CompetenceESService;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.UnitManager;
@@ -27,7 +30,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service("org.prosolo.services.indexing.CompetenceESService")
-public class CompetenceESServiceImpl extends AbstractBaseEntityESServiceImpl implements CompetenceESService {
+public class CompetenceESServiceImpl extends AbstractESIndexerImpl implements CompetenceESService {
 	
 	private static Logger logger = Logger.getLogger(CompetenceESServiceImpl.class);
 	
@@ -78,7 +81,7 @@ public class CompetenceESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 				builder.endObject();
 				System.out.println("JSON: " + builder.prettyPrint().string());
 				indexNode(builder, String.valueOf(competence.getId()),
-						ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, competence.getOrganization().getId()),
+						ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_COMPETENCES, competence.getOrganization().getId()),
 						ESIndexTypes.COMPETENCE);
 			}
 		} catch (Exception e) {
@@ -173,7 +176,7 @@ public class CompetenceESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			builder.field("visibleToAll", value);
 			builder.endObject();
 			
-			partialUpdate(ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, organizationId),
+			partialUpdate(ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_COMPETENCES, organizationId),
 					ESIndexTypes.COMPETENCE, compId + "", builder);
 		} catch(Exception e) {
 			logger.error("Error", e);
@@ -188,7 +191,7 @@ public class CompetenceESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			addUsersWithPrivileges(builder, compId, session);
 			builder.endObject();
 			
-			partialUpdate(ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, organizationId),
+			partialUpdate(ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_COMPETENCES, organizationId),
 					ESIndexTypes.COMPETENCE, compId + "", builder);
 		} catch(Exception e) {
 			logger.error("Error", e);
@@ -204,7 +207,7 @@ public class CompetenceESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 				doc.field("datePublished", ElasticsearchUtil.getDateStringRepresentation(comp.getDatePublished()));
 			}
 			doc.endObject();
-			partialUpdate(ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, organizationId),
+			partialUpdate(ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_COMPETENCES, organizationId),
 					ESIndexTypes.COMPETENCE, comp.getId() + "", doc);
 		} catch(Exception e) {
 			logger.error("Error", e);
@@ -220,7 +223,7 @@ public class CompetenceESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			builder.endObject();
 
 			partialUpdate(
-					ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, organizationId),
+					ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_COMPETENCES, organizationId),
 					ESIndexTypes.COMPETENCE, compId + "", builder);
 		} catch(Exception e) {
 			logger.error("Error", e);
@@ -236,7 +239,7 @@ public class CompetenceESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			builder.endObject();
 
 			partialUpdate(
-					ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, organizationId),
+					ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_COMPETENCES, organizationId),
 					ESIndexTypes.COMPETENCE, compId + "", builder);
 		} catch(Exception e) {
 			logger.error("Error", e);
@@ -252,7 +255,7 @@ public class CompetenceESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			builder.endObject();
 
 			partialUpdate(
-					ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, organizationId),
+					ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_COMPETENCES, organizationId),
 					ESIndexTypes.COMPETENCE, compId + "", builder);
 		} catch (Exception e) {
 			logger.error("Error", e);
@@ -266,7 +269,7 @@ public class CompetenceESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			    .startObject()
 		        .field("archived", archived)
 		        .endObject();
-			partialUpdate(ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, organizationId),
+			partialUpdate(ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_COMPETENCES, organizationId),
 					ESIndexTypes.COMPETENCE, compId + "", doc);
 		} catch(Exception e) {
 			logger.error("Error", e);
@@ -281,7 +284,7 @@ public class CompetenceESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			builder.field("creatorId", newOwnerId);
 			builder.endObject();
 
-			partialUpdate(ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, organizationId),
+			partialUpdate(ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_COMPETENCES, organizationId),
 					ESIndexTypes.COMPETENCE, compId + "", builder);
 		} catch(Exception e) {
 			logger.error("Error", e);
@@ -297,7 +300,7 @@ public class CompetenceESServiceImpl extends AbstractBaseEntityESServiceImpl imp
 			builder.endObject();
 
 			partialUpdate(
-					ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, comp.getOrganization().getId()),
+					ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_COMPETENCES, comp.getOrganization().getId()),
 					ESIndexTypes.COMPETENCE, comp.getId() + "", builder);
 		} catch (Exception e) {
 			logger.error("Error", e);

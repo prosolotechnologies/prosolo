@@ -67,14 +67,14 @@
                                         update="profileGrowl :formAddCredentials:panelAddCredentials"
                                         oncomplete="$('#addStandard').modal('show');">
                                 </p:commandLink>
-                                <h:link outcome="settings" class="btn btn-green-stroke btn-sm">Edit Profile</h:link>
+                                <h:link outcome="settings" class="btn btn-green-stroke btn-sm">Edit Your Info</h:link>
                             </ui:fragment>
 
-                            <ui:fragment rendered="#{not profileBean.personalProfile}" >
+                            <ui:fragment rendered="#{loginbean.isUserLoggedIn() and not profileBean.personalProfile}" >
                                 <p:commandLink id="followButton"
                                                rendered="#{!peopleActionBean.isLoggedUserFollowingUser(profileBean.decodedStudentId)}"
                                                action="#{peopleActionBean.followCollegueById(profileBean.userData.fullName, profileBean.decodedStudentId)}"
-                                               update="@form"
+                                               update="@form profileGrowl"
                                                process="@this"
                                                styleClass="btn btn-green btn-sm">
                                     <f:param name="page" value="/profile.xhtml" />
@@ -142,6 +142,11 @@
         <div class="container">
             <div class="row">
                 <h:panelGroup layout="block" id="panelCredentials" styleClass="col-md-8">
+                    <ui:fragment rendered="#{empty profileBean.credentialProfileData}">
+                        <div class="noContentMessage">
+                            <p> No #{msg['label.credential.plural'].toLowerCase()}. </p>
+                        </div>
+                    </ui:fragment>
                     <ui:repeat value="#{profileBean.credentialProfileData}" var="credProfileData">
                         <h:panelGroup layout="block" rendered="#{not empty credProfileData.category}" styleClass="categorySeparator">
                             #{credProfileData.category.title}
@@ -152,32 +157,33 @@
                                     <h2>
                                         <h:link	outcome="/public-credential">
                                             #{cred.title}
-                                            <f:param name="credId" value="#{util:encodeId(cred.credentialId)}"/>
-                                            <f:param name="studentId" value="#{util:encodeId(profileBean.userData.id)}"/>
+                                            <f:param name="id" value="#{util:encodeId(cred.credentialId)}"/>
                                         </h:link>
                                     </h2>
-                                    <div class="dropdown optMoreMenu">
-                                        <a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">options menu</a>
-                                        <ul class="dropdown-menu bullet pull-center" aria-labelledby="dropdownMenu1">
-                                            <li>
-                                                <p:commandLink
-                                                        value="Edit"
+                                    <ui:fragment rendered="#{profileBean.personalProfile}" >
+                                        <div class="dropdown optMoreMenu">
+                                            <a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">options menu</a>
+                                            <ul class="dropdown-menu bullet pull-center" aria-labelledby="dropdownMenu1">
+                                                <li>
+                                                    <p:commandLink
+                                                            value="Edit"
+                                                            pt:data-toggle="modal"
+                                                            action="#{profileBean.prepareEditCredential(cred)}"
+                                                            update="profileGrowl :formEditCredential:panelEditCredential"
+                                                            oncomplete="$('#editStandard').modal('show')">
+                                                    </p:commandLink>
+                                                </li>
+                                                <li>
+                                                    <p:commandLink
+                                                        value="Remove"
                                                         pt:data-toggle="modal"
-                                                        action="#{profileBean.prepareEditCredential(cred)}"
-                                                        update="profileGrowl :formEditCredential:panelEditCredential"
-                                                        oncomplete="$('#editStandard').modal('show')">
-                                                </p:commandLink>
-                                            </li>
-                                            <li>
-                                                <p:commandLink
-                                                    value="Remove"
-                                                    pt:data-toggle="modal"
-                                                    action="#{profileBean.prepareRemovingCredentialFromProfile(cred)}"
-                                                    oncomplete="$('#removeStandard').modal('show')"
-                                                />
-                                            </li>
-                                        </ul>
-                                    </div>
+                                                        action="#{profileBean.prepareRemovingCredentialFromProfile(cred)}"
+                                                        oncomplete="$('#removeStandard').modal('show')"
+                                                    />
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </ui:fragment>
                                     <div class="clear"></div>
                                     <p class="cardDescription">
                                         #{util:cleanHTMLTags(cred.description)}
@@ -210,7 +216,7 @@
                                         </div>
                                         <div class="metaRight">
                                             <ui:fragment rendered="#{cred.assessments.count le 0}">
-                                                <a class="numberAssessments disabled">assessments</a>
+                                                <a class="numberAssessments disabled" data-toggle="tooltip" title="No assessments">assessments</a>
                                             </ui:fragment>
                                             <ui:fragment rendered="#{cred.assessments.count gt 0}">
                                                 <p:commandLink
@@ -222,7 +228,6 @@
                                                     assessments
                                                 </p:commandLink>
                                             </ui:fragment>
-                                            <div class="duration">#{cred.duration}</div>
                                         </div>
                                     </div>
                                 </div>
@@ -235,7 +240,7 @@
                                                         <a>#{comp.title}</a>
                                                         <div class="activityOptions">
                                                             <ui:fragment rendered="#{comp.evidence.count le 0}">
-                                                                <a class="numberEvidences disabled">evidences</a>
+                                                                <a class="numberEvidences disabled" data-toggle="tooltip" title="No evidence">evidences</a>
                                                             </ui:fragment>
                                                             <ui:fragment rendered="#{comp.evidence.count gt 0}">
                                                                 <p:commandLink
@@ -248,7 +253,7 @@
                                                                 </p:commandLink>
                                                             </ui:fragment>
                                                             <ui:fragment rendered="#{comp.assessments.count le 0}">
-                                                                <a class="numberAssessments disabled">assessments</a>
+                                                                <a class="numberAssessments disabled" data-toggle="tooltip" title="No assessments">assessments</a>
                                                             </ui:fragment>
                                                             <ui:fragment rendered="#{comp.assessments.count gt 0}">
                                                                 <p:commandLink
@@ -353,7 +358,7 @@
                                 <p>Select #{msg['label.credential.plural'].toLowerCase()} that you want to display on your profile page:</p>
                             </ui:fragment>
                             <ui:fragment rendered="#{empty profileBean.credentialsToAdd}">
-                                    <p>No #{msg['label.credential.plural'].toLowerCase()} available to add</p>
+                                    <p>No #{msg['label.credential.plural'].toLowerCase()} available to add.</p>
                             </ui:fragment>
                             <ui:repeat value="#{profileBean.credentialsToAdd}" var="cred">
                                 <div class="checkbox checkLine">
@@ -406,11 +411,16 @@
                                 <div class="evidence">
                                     <div class="evidenceLeft #{ev.type eq 'TEXT' ? 'evidenceText' : styleUtilBean.getEvidenceFileTypeIcon(ev.url)}">
                                         <div class="icon iconType"></div>
-                                        <h3>#{ev.title}</h3>
+                                        <h3>
+                                            <h:link outcome="/student-profile-evidence" target="_blank" value="#{ev.title}">
+                                                <f:param name="studentId" value="#{util:encodeId(profileBean.ownerOfAProfileUserId)}"/>
+                                                <f:param name="competenceEvidenceId" value="#{util:encodeId(ev.competenceEvidenceId)}"/>
+                                            </h:link>
+                                        </h3>
                                     </div>
                                     <div class="evidenceRight">
                                         <utilcomp:convertTimeOutput
-                                                millis="#{ev.dateAttached}"
+                                                millis="#{ev.dateCreated}"
                                                 format="MMM DD, YYYY"/>
                                     </div>
                                 </div>
@@ -506,15 +516,15 @@
 
                                 <div class="standardInModal bottom30">
                                     <ui:fragment rendered="#{profileBean.totalNumberOfCredentialAssessmentsAvailableToAdd eq 0}">
-                                        <div class="assessmentItem">
-                                            No approved #{msg['label.credential'].toLowerCase()} assessments
-                                        </div>
+                                    <div class="lightText">
+                                        No approved #{msg['label.credential'].toLowerCase()} assessments
+                                    </div>
                                     </ui:fragment>
                                     <ui:repeat value="#{profileBean.credentialForEdit.assessments}" var="assessmentType" varStatus="status">
                                         <ui:fragment rendered="#{not empty assessmentType.assessments}">
                                             <div class="checkbox checkLine">
-                                                <input type="checkbox" id="checkCredentialAssessments#{status.index}"></input>
-                                                <label for="checkCredentialAssessments#{status.index}">#{msg['label.assessment.type.'.concat(assessmentType.assessmentType.name()).concat('.plural')]}:</label>
+                                                <h:selectBooleanCheckbox id="checkCredentialAssessments" binding="#{checkAllCredAssessmentsComp}" checked="#{util:areAllItemsSelected(assessmentType.assessments)}"/>
+                                                <h:outputLabel for="checkCredentialAssessments" value="#{msg['label.assessment.type.'.concat(assessmentType.assessmentType.name()).concat('.plural')]}:"/>
                                             </div>
                                             <div class="assessmentsListInModal">
                                                 <ui:repeat value="#{assessmentType.assessments}" var="assessment" varStatus="statusAssessment">
@@ -525,7 +535,7 @@
                                                                 <h:selectBooleanCheckbox
                                                                         id="checkCredentialAssessment"
                                                                         value="#{assessment.selected}"
-                                                                        pt:data-check-id="checkCredentialAssessments#{status.index}"/>
+                                                                        pt:data-check-id="#{checkAllCredAssessmentsComp.clientId}"/>
                                                                 <h:outputLabel for="checkCredentialAssessment"/>
                                                             </div>
                                                             <div class="assessmentsStar #{styleUtilBean.getGradeStarClass(assessment.data.assessmentGradeSummary)}">
@@ -559,7 +569,7 @@
                                                 </ui:repeat>
                                             </div>
                                             <script>
-                                                bindCheckAllOnclick('checkCredentialAssessments#{status.index}');
+                                                bindCheckAllOnclick(escapeColons('#{checkAllCredAssessmentsComp.clientId}'));
                                             </script>
                                         </ui:fragment>
                                     </ui:repeat>
@@ -573,14 +583,12 @@
                                     <div class="standardInModal bottom30">
                                         <h3>#{comp.title}</h3>
                                         <ui:fragment rendered="#{empty comp.evidence}">
-                                            <div class="evidence">
-                                                No evidence
-                                            </div>
+                                            <div class="lightText">No evidence</div>
                                         </ui:fragment>
                                         <ui:fragment rendered="#{not empty comp.evidence}">
                                             <div class="checkbox checkLine">
-                                                <input type="checkbox" id="checkPiecesOfEvidence_comp#{comp.targetCompetenceId}_ind_#{status.index}"></input>
-                                                <label for="checkPiecesOfEvidence_comp#{comp.targetCompetenceId}_ind_#{status.index}">Evidence:</label>
+                                                <h:selectBooleanCheckbox id="checkPiecesOfEvidence" binding="#{checkAllCompEvidenceComp}" checked="#{util:areAllItemsSelected(comp.evidence)}"/>
+                                                <h:outputLabel for="checkPiecesOfEvidence" value="Evidence:"/>
                                             </div>
                                             <div class="evidencesListInModal">
                                                 <ui:repeat value="#{comp.evidence}" var="evidence" varStatus="statusEvidence">
@@ -591,7 +599,7 @@
                                                                 <h:selectBooleanCheckbox
                                                                         id="checkEvidence"
                                                                         value="#{evidence.selected}"
-                                                                        pt:data-check-id="checkPiecesOfEvidence_comp#{comp.targetCompetenceId}_ind_#{status.index}"
+                                                                        pt:data-check-id="#{checkAllCompEvidenceComp.clientId}"
                                                                 />
                                                                 <h:outputLabel for="checkEvidence"/>
                                                             </div>
@@ -600,26 +608,26 @@
                                                         </div>
                                                         <div class="evidenceRight">
                                                             <utilcomp:convertTimeOutput
-                                                                    millis="#{evidence.data.dateAttached}"
+                                                                    millis="#{evidence.data.dateCreated}"
                                                                     format="MMM DD, YYYY"/>
                                                         </div>
                                                     </div>
                                                     <script>
-                                                        bindCheckAllOnclick('checkPiecesOfEvidence_comp#{comp.targetCompetenceId}_ind_#{status.index}');
+                                                        bindCheckAllOnclick(escapeColons('#{checkAllCompEvidenceComp.clientId}'));
                                                     </script>
                                                 </ui:repeat>
                                             </div>
                                         </ui:fragment>
                                         <ui:fragment rendered="#{profileBean.getTotalNumberOfCompetenceAssessmentsAvailableToAdd(comp) eq 0}">
-                                            <div class="assessmentItem">
+                                            <div class="lightText">
                                                 No approved #{msg['label.competence'].toLowerCase()} assessments
                                             </div>
                                         </ui:fragment>
                                         <ui:repeat value="#{comp.assessments}" var="assessmentType" varStatus="status">
                                             <ui:fragment rendered="#{not empty assessmentType.assessments}">
                                                 <div class="checkbox checkLine">
-                                                    <input type="checkbox" id="checkCompetenceAssessments_comp#{comp.targetCompetenceId}_ind_#{status.index}"></input>
-                                                    <label for="checkCompetenceAssessments_comp#{comp.targetCompetenceId}_ind_#{status.index}">#{msg['label.assessment.type.'.concat(assessmentType.assessmentType.name()).concat('.plural')]}:</label>
+                                                    <h:selectBooleanCheckbox id="checkCompetenceAssessments" binding="#{checkAllCompAssessmentsComp}" checked="#{util:areAllItemsSelected(assessmentType.assessments)}"/>
+                                                    <h:outputLabel for="checkCompetenceAssessments" value="#{msg['label.assessment.type.'.concat(assessmentType.assessmentType.name()).concat('.plural')]}:"/>
                                                 </div>
                                                 <div class="assessmentsListInModal">
                                                     <ui:repeat value="#{assessmentType.assessments}" var="assessment" varStatus="statusAssessment">
@@ -630,7 +638,7 @@
                                                                     <h:selectBooleanCheckbox
                                                                             id="checkCompetenceAssessment"
                                                                             value="#{assessment.selected}"
-                                                                            pt:data-check-id="checkCompetenceAssessments_comp#{comp.targetCompetenceId}_ind_#{status.index}"/>
+                                                                            pt:data-check-id="#{checkAllCompAssessmentsComp.clientId}"/>
                                                                     <h:outputLabel for="checkCompetenceAssessment"/>
                                                                 </div>
                                                                 <div class="assessmentsStar #{styleUtilBean.getGradeStarClass(assessment.data.assessmentGradeSummary)}">
@@ -664,7 +672,7 @@
                                                     </ui:repeat>
                                                 </div>
                                                 <script>
-                                                    bindCheckAllOnclick('checkCompetenceAssessments_comp#{comp.targetCompetenceId}_ind_#{status.index}');
+                                                    bindCheckAllOnclick(escapeColons('#{checkAllCompAssessmentsComp.clientId}'));
                                                 </script>
                                             </ui:fragment>
                                         </ui:repeat>

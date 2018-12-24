@@ -34,13 +34,14 @@ public class ElasticSearchConfig {
 	@Element(name = "shards-number")
 	public int shardsNumber;
 
-	@Element(name = "nodes-index")
-	public String nodesIndex;
+	@Element(name = "credentials-index")
+	public String credentialsIndex;
+
+	@Element(name = "competences-index")
+	public String competencesIndex;
+
 	@Element(name = "users-index")
 	public String usersIndex;
-	
-	@Element(name = "associationrules-index")
-	public  String associationrulesIndex;
 
 	@Element(name = "recommendationdata-index")
 	public   String recommendationdataIndex;

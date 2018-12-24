@@ -6,7 +6,6 @@ import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.annotation.Tag;
-import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.learningStage.LearningStage;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
@@ -301,13 +300,6 @@ public interface Competence1Manager {
 	Result<TargetCompetence1> enrollInCompetenceAndGetEvents(long compId, long userId, UserContextData context)
 			throws DbConnectionException;
 	
-	CompetenceData1 enrollInCompetenceAndGetCompetenceData(long compId, long userId,
-														   UserContextData context)
-			throws DbConnectionException;
-
-	Result<CompetenceData1> enrollInCompetenceGetCompetenceDataAndGetEvents(long compId, long userId, UserContextData context)
-			throws DbConnectionException;
-	
 	long countNumberOfStudentsLearningCompetence(long compId) throws DbConnectionException;
 	
 	void archiveCompetence(long compId, UserContextData context) throws DbConnectionException;
@@ -378,15 +370,6 @@ public interface Competence1Manager {
 										 UserContextData context) throws DbConnectionException;
 
 	List<Tag> getTagsForCompetence(long competenceId) throws DbConnectionException;
-	
-	/**
-	 * Update whether a competence should be visible on the profile or not.
-	 * 
-	 * @param compId
-	 * @param hiddenFromProfile
-	 * @throws DbConnectionException
-	 */
-	void updateHiddenTargetCompetenceFromProfile(long compId, boolean hiddenFromProfile) throws DbConnectionException;
 
 	Result<Void> changeOwnerAndGetEvents(long compId, long newOwnerId, UserContextData context) throws DbConnectionException;
 
@@ -438,28 +421,9 @@ public interface Competence1Manager {
 			long compId, long studentId, boolean loadAssessmentConfig, boolean loadLearningPathContent,
 			boolean loadCreator, boolean loadTags) throws DbConnectionException;
 
-	List<AssessmentTypeConfig> getCompetenceAssessmentTypesConfig(long compId, boolean loadBlindAssessmentMode) throws DbConnectionException;
+	List<AssessmentTypeConfig> getCompetenceAssessmentTypesConfig(long compId) throws DbConnectionException;
 
 	long getTargetCompetenceId(long compId, long studentId) throws DbConnectionException;
-
-	/**
-	 *
-	 * @param competenceId
-	 * @param studentId
-	 * @return
-	 * @throws DbConnectionException
-	 */
-	boolean isCompetenceAssessmentDisplayEnabled(long competenceId, long studentId);
-
-	/**
-	 * Returns the most restrictive blind assessment mode from all credentials with given competency and for given assessment type
-	 *
-	 * @param compId
-	 * @param assessmentType
-	 * @return
-	 * @throws DbConnectionException
-	 */
-	BlindAssessmentMode getTheMostRestrictiveCredentialBlindAssessmentModeForAssessmentTypeAndCompetence(long compId, AssessmentType assessmentType);
 
 	/**
 	 * Updates the {@code evidenceSummary} field of an instance of the {@link org.prosolo.common.domainmodel.credential.TargetCompetence1} class

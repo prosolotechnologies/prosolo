@@ -24,7 +24,7 @@
 			<ol class="breadcrumb">
 				<c:if test="#{cc.attrs.mode eq 'ADMIN'}">
 					<li><h:link outcome="/admin/admins">Admins</h:link></li>
-					<li class="active">#{userEditBean.user.id le 0 ? 'New Admin' : userEditBean.user.fullName}</li>
+					<li class="active">#{userEditBean.user.id le 0 ? 'New Admin' : util:shortenAndAddDots(userEditBean.user.fullName)}</li>
 				</c:if>
 				<c:if test="#{cc.attrs.mode eq 'ORGANIZATION'}">
 					<ui:fragment rendered="#{loggeduser.hasCapability('admin.advanced')}">
@@ -32,7 +32,7 @@
 					</ui:fragment>
 					<li>
 						<h:link outcome="/admin/units">
-							#{userEditBean.organizationTitle}
+							#{util:shortenAndAddDots(userEditBean.organizationTitle)}
 							<f:param name="id" value="#{userEditBean.orgId}" />
 						</h:link>
 					</li>
@@ -42,7 +42,7 @@
 							<f:param name="orgId" value="#{userEditBean.orgId}" />
 						</h:link>
 					</li>
-					<li class="active">#{userEditBean.user.id le 0 ? 'New User' : userEditBean.user.fullName}</li>
+					<li class="active">#{userEditBean.user.id le 0 ? 'New User' : util:shortenAndAddDots(userEditBean.user.fullName)}</li>
 				</c:if>
 			</ol>
 		</div>

@@ -12,12 +12,10 @@ public class AssessmentLoadConfig implements Serializable {
     private static final long serialVersionUID = -2661949076610529865L;
 
     private final boolean loadDiscussion;
-    private final boolean loadDataIfStudentDisabledAssessmentDisplay;
     private final boolean loadDataIfAssessmentNotApproved;
 
     private AssessmentLoadConfig(boolean loadDiscussion, boolean loadDataIfStudentDisabledAssessmentDisplay, boolean loadDataIfAssessmentNotApproved) {
         this.loadDiscussion = loadDiscussion;
-        this.loadDataIfStudentDisabledAssessmentDisplay = loadDataIfStudentDisabledAssessmentDisplay;
         this.loadDataIfAssessmentNotApproved = loadDataIfAssessmentNotApproved;
     }
 
@@ -27,10 +25,6 @@ public class AssessmentLoadConfig implements Serializable {
 
     public boolean isLoadDiscussion() {
         return loadDiscussion;
-    }
-
-    public boolean isLoadDataIfStudentDisabledAssessmentDisplay() {
-        return loadDataIfStudentDisabledAssessmentDisplay;
     }
 
     public boolean isLoadDataIfAssessmentNotApproved() {

@@ -7,16 +7,16 @@ import org.prosolo.common.domainmodel.credential.CredentialType;
 import org.prosolo.services.assessment.data.AssessmentTypeConfig;
 import org.prosolo.services.assessment.data.LearningResourceAssessmentSettings;
 import org.prosolo.services.assessment.data.grading.AssessmentGradeSummary;
-import org.prosolo.services.common.data.LazyInitData;
+import org.prosolo.services.common.data.LazyInitCollection;
 import org.prosolo.services.common.observable.StandardObservable;
 import org.prosolo.services.nodes.data.LearningResourceLearningStage;
 import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.ResourceCreator;
-import org.prosolo.services.user.data.UserData;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.organization.CredentialCategoryData;
 import org.prosolo.services.nodes.data.organization.LearningStageData;
 import org.prosolo.services.nodes.util.TimeUtil;
+import org.prosolo.services.user.data.UserData;
 import org.prosolo.web.util.ResourceBundleUtil;
 
 import java.io.Serializable;
@@ -73,8 +73,8 @@ public class CredentialData extends StandardObservable implements Serializable {
 	private CredentialType type;
 	//is delivery active
 	private CredentialDeliveryStatus deliveryStatus;
-	private LazyInitData<String> studentsWhoCanLearn;
-	private LazyInitData<String> groupsThatCanLearn;
+	private LazyInitCollection<String> studentsWhoCanLearn;
+	private LazyInitCollection<String> groupsThatCanLearn;
 
 	//for original
 	private CredentialDeliveriesSummaryData credentialDeliveriesSummaryData;
@@ -94,11 +94,6 @@ public class CredentialData extends StandardObservable implements Serializable {
 	private CredentialCategoryData category;
 
 	private int numberOfAssessments;
-
-	//profile visibility settings
-	private boolean credentialAssessmentsDisplayed;
-	private boolean competenceAssessmentsDisplayed;
-	private boolean evidenceDisplayed;
 	
 	public CredentialData(boolean listenChanges) {
 		//this.status = PublishedStatus.UNPUBLISH;
@@ -624,30 +619,6 @@ public class CredentialData extends StandardObservable implements Serializable {
 		this.student = student;
 	}
 
-	public boolean isCredentialAssessmentsDisplayed() {
-		return credentialAssessmentsDisplayed;
-	}
-
-	public void setCredentialAssessmentsDisplayed(boolean credentialAssessmentsDisplayed) {
-		this.credentialAssessmentsDisplayed = credentialAssessmentsDisplayed;
-	}
-
-	public boolean isCompetenceAssessmentsDisplayed() {
-		return competenceAssessmentsDisplayed;
-	}
-
-	public void setCompetenceAssessmentsDisplayed(boolean competenceAssessmentsDisplayed) {
-		this.competenceAssessmentsDisplayed = competenceAssessmentsDisplayed;
-	}
-
-	public boolean isEvidenceDisplayed() {
-		return evidenceDisplayed;
-	}
-
-	public void setEvidenceDisplayed(boolean evidenceDisplayed) {
-		this.evidenceDisplayed = evidenceDisplayed;
-	}
-
 	public CredentialDeliveriesSummaryData getCredentialDeliveriesSummaryData() {
 		return credentialDeliveriesSummaryData;
 	}
@@ -660,19 +631,19 @@ public class CredentialData extends StandardObservable implements Serializable {
 		return idData;
 	}
 
-	public LazyInitData<String> getStudentsWhoCanLearn() {
+	public LazyInitCollection<String> getStudentsWhoCanLearn() {
 		return studentsWhoCanLearn;
 	}
 
-	public void setStudentsWhoCanLearn(LazyInitData<String> studentsWhoCanLearn) {
+	public void setStudentsWhoCanLearn(LazyInitCollection<String> studentsWhoCanLearn) {
 		this.studentsWhoCanLearn = studentsWhoCanLearn;
 	}
 
-	public LazyInitData<String> getGroupsThatCanLearn() {
+	public LazyInitCollection<String> getGroupsThatCanLearn() {
 		return groupsThatCanLearn;
 	}
 
-	public void setGroupsThatCanLearn(LazyInitData<String> groupsThatCanLearn) {
+	public void setGroupsThatCanLearn(LazyInitCollection<String> groupsThatCanLearn) {
 		this.groupsThatCanLearn = groupsThatCanLearn;
 	}
 

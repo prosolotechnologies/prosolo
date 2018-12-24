@@ -6,19 +6,20 @@ import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.messaging.data.ServiceType;
-import org.prosolo.core.hibernate.HibernateUtil;
+import org.prosolo.core.db.hibernate.HibernateUtil;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.event.EventObserver;
 import org.prosolo.services.interaction.MessageInboxUpdater;
 import org.prosolo.services.interaction.MessagingManager;
 import org.prosolo.services.messaging.SessionMessageDistributer;
-import org.prosolo.web.ApplicationBean;
+import org.prosolo.services.user.ActiveUsersSessionRegistry;
 import org.prosolo.web.messaging.data.MessageThreadParticipantData;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.inject.Inject;
 import javax.servlet.http.HttpSession;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Event observer responding to events related to messaging functionality.
@@ -31,20 +32,19 @@ import java.util.List;
 public class MessagesObserver extends EventObserver {
     private static Logger logger = Logger.getLogger(MessagesObserver.class);
 
-    @Autowired
-    private ApplicationBean applicationBean;
-    @Autowired
+    @Inject
     private MessagingManager messagingManager;
-    @Autowired
+    @Inject
     private SessionMessageDistributer messageDistributer;
-    @Autowired
+    @Inject
     private MessageInboxUpdater messageInboxUpdater;
+    @Inject
+    private ActiveUsersSessionRegistry activeUsersSessionRegistry;
 
     @Override
     public EventType[] getSupportedEvents() {
         return new EventType[]{
                 EventType.SEND_MESSAGE,
-                EventType.START_MESSAGE_THREAD,
         };
     }
 
@@ -68,11 +68,12 @@ public class MessagesObserver extends EventObserver {
                     //don't send the message to the message sender
                     if (senderId != participant.getId()) {
                         if (CommonSettings.getInstance().config.rabbitMQConfig.distributed) {
-                            messageDistributer.distributeMessage(ServiceType.DIRECT_MESSAGE, participant.getId(), 0, null, null);
+							messageDistributer.distributeMessage(ServiceType.DIRECT_MESSAGE, participant.getId(), 0, null, null);
                         } else {
-                            HttpSession httpSession = applicationBean.getUserSession(participant.getId());
-
-                            messageInboxUpdater.updateOnNewMessage(httpSession);
+							Set<HttpSession> userSessions = activeUsersSessionRegistry.getAllUserSessions(participant.getId());
+							for (HttpSession httpSession : userSessions) {
+								messageInboxUpdater.updateOnNewMessage(httpSession);
+							}
                         }
                     }
                 }

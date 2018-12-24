@@ -1,23 +1,17 @@
 package org.prosolo.services.user.data.profile.factory;
 
-import org.prosolo.common.domainmodel.assessment.AssessmentType;
-import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
-import org.prosolo.common.domainmodel.credential.BlindAssessmentMode;
-import org.prosolo.common.domainmodel.credential.Credential1;
-import org.prosolo.common.domainmodel.credential.CredentialAssessmentConfig;
 import org.prosolo.common.domainmodel.credential.CredentialCategory;
 import org.prosolo.common.domainmodel.studentprofile.*;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.assessment.data.grading.AssessmentGradeSummary;
-import org.prosolo.services.common.data.LazyInitData;
-import org.prosolo.services.common.data.SelectableData;
+import org.prosolo.services.common.data.LazyInitCollection;
 import org.prosolo.services.nodes.data.organization.CredentialCategoryData;
-import org.prosolo.services.nodes.util.TimeUtil;
-import org.prosolo.services.user.data.parameterobjects.CredentialAssessmentWithGradeSummaryData;
 import org.prosolo.services.user.data.profile.*;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -37,11 +31,10 @@ public class CredentialProfileDataFactory extends ProfileDataFactory {
                 credentialProfileConfig.getTargetCredential().getCredential().getId(),
                 credentialProfileConfig.getTargetCredential().getCredential().getTitle(),
                 credentialProfileConfig.getTargetCredential().getCredential().getDescription(),
-                TimeUtil.getHoursAndMinutesInString(credentialProfileConfig.getTargetCredential().getCredential().getDuration()),
                 credentialProfileConfig.getTargetCredential().getCredential().getTags().stream().map(tag -> tag.getTitle()).collect(Collectors.toList()),
                 DateUtil.getMillisFromDate(credentialProfileConfig.getTargetCredential().getDateFinished()),
-                new LazyInitData<>(assessmentsCount),
-                new LazyInitData<>(competencesCount),
+                new LazyInitCollection<>(assessmentsCount),
+                new LazyInitCollection<>(competencesCount),
                 categoryData);
     }
 
@@ -84,18 +77,12 @@ public class CredentialProfileDataFactory extends ProfileDataFactory {
         return new CompetenceProfileData(
                 compProfileConfig.getId(),
                 compProfileConfig.getTargetCompetence().getCompetence().getTitle(),
-                new LazyInitData<>(evidenceCount),
-                new LazyInitData<>(assessmentsCount));
+                new LazyInitCollection<>(evidenceCount),
+                new LazyInitCollection<>(assessmentsCount));
     }
 
     public CompetenceEvidenceProfileData getCompetenceEvidenceProfileData(CompetenceEvidenceProfileConfig competenceEvidenceProfileConfig) {
-        return new CompetenceEvidenceProfileData(
-                competenceEvidenceProfileConfig.getCompetenceEvidence().getEvidence().getId(),
-                competenceEvidenceProfileConfig.getCompetenceEvidence().getId(),
-                competenceEvidenceProfileConfig.getCompetenceEvidence().getEvidence().getTitle(),
-                competenceEvidenceProfileConfig.getCompetenceEvidence().getEvidence().getType(),
-                competenceEvidenceProfileConfig.getCompetenceEvidence().getEvidence().getUrl(),
-                DateUtil.getMillisFromDate(competenceEvidenceProfileConfig.getCompetenceEvidence().getDateCreated()));
+        return getCompetenceEvidenceProfileData(competenceEvidenceProfileConfig.getCompetenceEvidence());
     }
 
     public List<AssessmentByTypeProfileData> getCredentialAssessmentsProfileData(List<CredentialAssessmentProfileConfig> assessmentProfileConfigs) {
@@ -107,8 +94,7 @@ public class CredentialProfileDataFactory extends ProfileDataFactory {
                         Collectors.mapping(
                                 conf -> getCredentialAssessmentProfileData(
                                         conf.getCredentialAssessment(),
-                                        new AssessmentGradeSummary(conf.getGrade(), conf.getMaxGrade()),
-                                        getBlindAssessmentMode(conf, conf.getCredentialAssessment().getType())),
+                                        new AssessmentGradeSummary(conf.getGrade(), conf.getMaxGrade())),
                                 Collectors.toList())))
                 .entrySet().stream()
                 .map(entry -> new AssessmentByTypeProfileData(entry.getKey(), entry.getValue()))
@@ -126,28 +112,13 @@ public class CredentialProfileDataFactory extends ProfileDataFactory {
                         Collectors.mapping(
                                 conf -> getCompetenceAssessmentProfileData(
                                         conf.getCompetenceAssessment(),
-                                        new AssessmentGradeSummary(conf.getGrade(), conf.getMaxGrade()),
-                                        /*
-                                        we use credential assessment config here because it overrides competency assessment config
-                                        when there is a credential competency is added to, which is the case here
-                                        where we observe this competency as a part of the credential on profile
-                                         */
-                                        getBlindAssessmentMode(conf, conf.getCompetenceAssessment().getType())),
+                                        new AssessmentGradeSummary(conf.getGrade(), conf.getMaxGrade())),
                                 Collectors.toList())))
                 .entrySet().stream()
                 .map(entry -> new AssessmentByTypeProfileData(entry.getKey(), entry.getValue()))
                 .collect(Collectors.toList());
         assessments.sort((a1, a2) -> compareAssessmentTypes(a1.getAssessmentType(), a2.getAssessmentType()));
         return assessments;
-    }
-
-    private BlindAssessmentMode getBlindAssessmentMode(AssessmentProfileConfig conf, AssessmentType assessmentType) {
-        return conf.getTargetCredential().getCredential().getAssessmentConfig()
-                .stream()
-                .filter(credAssessmentConf -> credAssessmentConf.getAssessmentType() == assessmentType)
-                .findFirst()
-                .get()
-                .getBlindAssessmentMode();
     }
 
 }

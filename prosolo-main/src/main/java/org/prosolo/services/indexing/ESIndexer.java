@@ -12,7 +12,7 @@ public interface ESIndexer extends Serializable{
 
 //	void indexPost(Event event);
 
-	void addMapping(Client client, String indexName,String indexType);
+//	void addMapping(Client client, String indexName,String indexType);
 
 //	void indexFileUploadedByTargetActivity(TargetActivity targetActivity,
 //			long userId);
