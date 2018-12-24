@@ -18,7 +18,7 @@ import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.interaction.MessagingManager;
-import org.prosolo.services.nodes.UserManager;
+import org.prosolo.services.user.UserManager;
 import org.prosolo.web.messaging.data.MessageData;
 import org.prosolo.web.messaging.data.MessageThreadData;
 import org.prosolo.web.messaging.data.MessageThreadParticipantData;

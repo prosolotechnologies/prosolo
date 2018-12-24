@@ -18,7 +18,7 @@ import org.prosolo.common.util.ElasticsearchUtil;
 import org.prosolo.services.indexing.CompetenceESService;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.UnitManager;
-import org.prosolo.services.nodes.UserGroupManager;
+import org.prosolo.services.user.UserGroupManager;
 import org.prosolo.services.nodes.observers.learningResources.CompetenceChangeTracker;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

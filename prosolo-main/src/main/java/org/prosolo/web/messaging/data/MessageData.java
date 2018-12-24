@@ -2,7 +2,7 @@ package org.prosolo.web.messaging.data;
 
 import org.prosolo.common.domainmodel.messaging.Message;
 import org.prosolo.common.util.date.DateUtil;
-import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.user.data.UserData;
 
 import java.io.Serializable;
 import java.util.Date;

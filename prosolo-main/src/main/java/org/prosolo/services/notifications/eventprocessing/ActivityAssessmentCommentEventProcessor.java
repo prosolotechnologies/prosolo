@@ -3,6 +3,7 @@ package org.prosolo.services.notifications.eventprocessing;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
+import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
 import org.prosolo.common.domainmodel.credential.BlindAssessmentMode;
 import org.prosolo.common.domainmodel.user.notifications.ResourceType;
 import org.prosolo.common.event.context.Context;
@@ -60,14 +61,7 @@ public class ActivityAssessmentCommentEventProcessor extends AssessmentCommentEv
 
 	@Override
 	protected BlindAssessmentMode getBlindAssessmentMode() {
-		/*
-		if credential assessment id is available blind assessment mode for credential is retrieved because
-		notification is generated for credential assessment page, otherwise competence blind assessment mode
-		is retrieved
-		 */
-		return credentialAssessmentId > 0
-				? credentialManager.getCredentialBlindAssessmentModeForAssessmentType(credentialId, getBasicAssessmentInfo().getType())
-                : competenceManager.getTheMostRestrictiveCredentialBlindAssessmentModeForAssessmentTypeAndCompetence(competenceId, getBasicAssessmentInfo().getType());
+		return ((CompetenceAssessment) session.load(CompetenceAssessment.class, compAssessmentId)).getBlindAssessmentMode();
 	}
 
     @Override

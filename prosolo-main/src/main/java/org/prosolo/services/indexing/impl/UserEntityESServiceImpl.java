@@ -19,6 +19,7 @@ import org.prosolo.services.interaction.FollowResourceManager;
 import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.data.credential.CredentialData;
 import org.prosolo.services.nodes.util.RoleUtil;
+import org.prosolo.services.user.UserGroupManager;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;

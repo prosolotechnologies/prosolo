@@ -25,8 +25,8 @@ import org.prosolo.services.interaction.data.factory.CommentDataFactory;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.Role;
-import org.prosolo.services.nodes.data.UserData;
-import org.prosolo.services.util.SortingOption;
+import org.prosolo.services.user.data.UserData;
+import org.prosolo.services.common.data.SortingOption;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

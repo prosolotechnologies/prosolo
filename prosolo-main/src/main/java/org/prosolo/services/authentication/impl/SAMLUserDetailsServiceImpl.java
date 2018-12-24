@@ -26,7 +26,7 @@ import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.services.authentication.UserAuthenticationService;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UnitManager;
-import org.prosolo.services.nodes.UserManager;
+import org.prosolo.services.user.UserManager;
 import org.prosolo.services.util.roles.SystemRoleNames;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;

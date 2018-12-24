@@ -1,7 +1,7 @@
 package org.prosolo.services.nodes.factory;
 
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
-import org.prosolo.services.nodes.data.UserGroupPrivilegeData;
+import org.prosolo.services.user.data.UserGroupPrivilegeData;
 import org.springframework.stereotype.Component;
 
 @Component
