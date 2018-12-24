@@ -1,9 +1,7 @@
 package org.prosolo.web.people;
 
 import org.apache.log4j.Logger;
-import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.search.util.users.UserSearchConfig;
-import org.prosolo.services.nodes.data.UserData;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 

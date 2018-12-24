@@ -16,6 +16,8 @@ import org.prosolo.services.assessment.RubricManager;
 import org.prosolo.services.indexing.*;
 import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.data.organization.OrganizationData;
+import org.prosolo.services.user.UserGroupManager;
+import org.prosolo.services.user.UserManager;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;

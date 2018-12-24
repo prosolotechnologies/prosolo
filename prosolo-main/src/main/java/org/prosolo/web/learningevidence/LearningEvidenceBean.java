@@ -4,6 +4,7 @@ import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.LearningEvidenceManager;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceData;
+import org.prosolo.services.nodes.data.evidence.LearningEvidenceLoadConfig;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
@@ -76,7 +77,7 @@ public class LearningEvidenceBean implements Serializable {
     }
 
     private void loadEvidence(long evidenceId) {
-        evidence = learningEvidenceManager.getLearningEvidence(evidenceId, true, true);
+        evidence = learningEvidenceManager.getLearningEvidence(evidenceId, LearningEvidenceLoadConfig.builder().loadCompetences(true).loadTags(true).build());
     }
 
     public boolean isCurrentUserEvidenceOwner() {

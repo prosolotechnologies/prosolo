@@ -14,7 +14,6 @@
 		<composite:attribute name="fullDisplayMode" default="true" type="java.lang.Boolean" />
 		<composite:attribute name="learningContext" default="" />
 		<composite:attribute name="competenceAssessment" type="org.prosolo.services.assessment.data.CompetenceAssessmentData" required="true" />
-		<composite:attribute name="blindAssessmentMode" required="true" type="org.prosolo.common.domainmodel.credential.BlindAssessmentMode"/>
 		<composite:attribute name="credentialId" default="0" type="java.lang.Long"/>
 		<composite:attribute name="role" default="USER" />
 		<composite:attribute name="growlToUpdate" default="" />
@@ -50,7 +49,7 @@
 									actorId="#{cc.attrs.competenceAssessment.studentId}"
 									avatarUrl="#{cc.attrs.competenceAssessment.studentAvatarUrl}"
 									actorFullName="#{cc.attrs.competenceAssessment.studentFullName}"
-									blindAssessmentMode="#{cc.attrs.blindAssessmentMode}"
+									blindAssessmentMode="#{cc.attrs.competenceAssessment.blindAssessmentMode}"
 									actorType="STUDENT"
 							/>
 							<h3>
@@ -58,7 +57,7 @@
 									<assessment:assessmentActorName
 											actorId="#{cc.attrs.competenceAssessment.studentId}"
 											actorFullName="#{cc.attrs.competenceAssessment.studentFullName}"
-											blindAssessmentMode="#{cc.attrs.blindAssessmentMode}"
+											blindAssessmentMode="#{cc.attrs.competenceAssessment.blindAssessmentMode}"
 											actorType="STUDENT"
 									/>
 								</a>
@@ -88,6 +87,8 @@
 					</ui:fragment>
 
 					<h:panelGroup layout="block" id="panelCompAssessmentOptions" styleClass="activityOptions panelCompAssessment_#{cc.attrs.competenceAssessment.competenceAssessmentId}">
+						<ui:param name="compAssessmentLearningContext" value="#{util:addSubContext(cc.attrs.learningContext, 'name:COMPETENCE|id:'.concat(cc.attrs.competenceAssessment.competenceId).concat('|context:/name:COMPETENCE_ASSESSMENT|id:').concat(cc.attrs.competenceAssessment.competenceAssessmentId).concat('/'))}" />
+
 						<h:panelGroup rendered="#{cc.attrs.competenceAssessment.approved}"
 									  styleClass="tagApproved" layout="block">
 							Approved
@@ -100,6 +101,7 @@
 									   rendered="#{cc.attrs.fullDisplayMode and not cc.attrs.competenceAssessment.approved and cc.attrs.currentUserAssessor}">
 							Approve<span></span>
 							<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
+							<f:param name="learningContext" value="#{compAssessmentLearningContext}"/>
 						</p:commandLink>
 						<p:commandLink styleClass="commentsIcon" pt:data-toggle="modal" rendered="#{cc.attrs.fullDisplayMode}"
 									   onclick="markDiscussionAsSeen('#{util:encodeId(cc.attrs.competenceAssessment.competenceAssessmentId)}', this.parentElement.parentElement, 'COMPETENCE')"
@@ -108,8 +110,6 @@
 									   oncomplete="$('#assessmentCommentsModal1').modal('show');">
 							#{cc.attrs.competenceAssessment.numberOfMessages}
 						</p:commandLink>
-
-						<ui:param name="compAssessmentLearningContext" value="#{util:addSubContext(cc.attrs.learningContext, 'name:COMPETENCE|id:'.concat(cc.attrs.competenceAssessment.competenceId).concat('|context:/name:COMPETENCE_ASSESSMENT|id:').concat(cc.attrs.competenceAssessment.competenceAssessmentId).concat('/'))}" />
 
 						<assessment:gradeLabel
 								assessment="#{cc.attrs.competenceAssessment}"
@@ -261,7 +261,7 @@
 									actorId="#{cc.attrs.competenceAssessment.studentId}"
 									avatarUrl="#{cc.attrs.competenceAssessment.studentAvatarUrl}"
 									actorFullName="#{cc.attrs.competenceAssessment.studentFullName}"
-									blindAssessmentMode="#{cc.attrs.blindAssessmentMode}"
+									blindAssessmentMode="#{cc.attrs.competenceAssessment.blindAssessmentMode}"
 									actorType="STUDENT"
 							/>
 							<h3>
@@ -269,7 +269,7 @@
 									<assessment:assessmentActorName
 											actorId="#{cc.attrs.competenceAssessment.studentId}"
 											actorFullName="#{cc.attrs.competenceAssessment.studentFullName}"
-											blindAssessmentMode="#{cc.attrs.blindAssessmentMode}"
+											blindAssessmentMode="#{cc.attrs.competenceAssessment.blindAssessmentMode}"
 											actorType="STUDENT"
 									/>
 								</a>

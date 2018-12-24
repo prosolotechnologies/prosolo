@@ -1,7 +1,6 @@
 package org.prosolo.app.bc;
 
 import org.apache.log4j.Logger;
-import org.hibernate.exception.ConstraintViolationException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
@@ -36,8 +35,9 @@ import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.credential.CredentialData;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceData;
 import org.prosolo.services.nodes.data.organization.OrganizationData;
+import org.prosolo.services.user.UserManager;
+import org.prosolo.services.user.data.UserData;
 import org.prosolo.services.util.roles.SystemRoleNames;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.io.File;

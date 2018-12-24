@@ -1,10 +1,9 @@
 package org.prosolo.common.domainmodel.credential;
 
-import org.hibernate.annotations.Type;
-import org.prosolo.common.domainmodel.assessment.AssessmentType;
-import org.prosolo.common.domainmodel.general.BaseEntity;
-
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 
 /**
  * @author stefanvuckovic
@@ -13,11 +12,9 @@ import javax.persistence.*;
  */
 @Entity
 //unique constraint added from the script
-public class CompetenceAssessmentConfig extends BaseEntity {
+public class CompetenceAssessmentConfig extends AssessmentConfig {
 
     private Competence1 competence;
-    private AssessmentType assessmentType;
-    private boolean enabled;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(nullable = false)
@@ -29,23 +26,5 @@ public class CompetenceAssessmentConfig extends BaseEntity {
         this.competence = competence;
     }
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, name = "assessment_type")
-    public AssessmentType getAssessmentType() {
-        return assessmentType;
-    }
 
-    public void setAssessmentType(AssessmentType assessmentType) {
-        this.assessmentType = assessmentType;
-    }
-
-    @Type(type = "true_false")
-    @Column(columnDefinition = "char(1) DEFAULT 'F'")
-    public boolean isEnabled() {
-        return enabled;
-    }
-
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
-    }
 }

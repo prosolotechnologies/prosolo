@@ -1,17 +1,15 @@
 package org.prosolo.services.nodes.data.organization.factory;
 
-import org.prosolo.common.domainmodel.learningStage.LearningStage;
 import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.nodes.data.organization.CredentialCategoryData;
 import org.prosolo.services.nodes.data.organization.LearningStageData;
 import org.prosolo.services.nodes.data.organization.OrganizationData;
-import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.user.data.UserData;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 /**
  * @author Bojan

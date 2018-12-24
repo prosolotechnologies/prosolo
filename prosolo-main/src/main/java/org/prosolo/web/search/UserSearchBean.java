@@ -3,7 +3,7 @@ package org.prosolo.web.search;
 import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.logging.ComponentName;
-import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.user.data.UserData;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.logging.LoggingNavigationBean;
 import org.springframework.context.annotation.Scope;

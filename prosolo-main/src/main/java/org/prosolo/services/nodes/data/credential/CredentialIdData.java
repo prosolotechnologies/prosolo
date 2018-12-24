@@ -24,6 +24,13 @@ public class CredentialIdData extends StandardObservable implements Serializable
         this.listenChanges = listenChanges;
     }
 
+    public CredentialIdData(long id, String title, int order, boolean listenChanges) {
+        this.id = id;
+        this.title = title;
+        this.order = order;
+        this.listenChanges = listenChanges;
+    }
+
     public long getId() {
         return id;
     }

@@ -20,13 +20,16 @@ import java.util.stream.Collectors;
 @Component
 public class LearningEvidenceDataFactory {
 
-    public LearningEvidenceData getLearningEvidenceData(LearningEvidence evidence, CompetenceEvidence competenceEvidence, Set<Tag> tags, List<BasicObjectInfo> competences) {
+    public LearningEvidenceData getCompetenceLearningEvidenceData(LearningEvidence evidence, CompetenceEvidence competenceEvidence, Set<Tag> tags, List<BasicObjectInfo> competences, LearningEvidenceLoadConfig loadConfig) {
         LearningEvidenceData evidenceData = new LearningEvidenceData();
         evidenceData.setId(evidence.getId());
         evidenceData.setUserId(evidence.getUser().getId());
+        if (loadConfig.isLoadUserName()) {
+            evidenceData.setUserFullName(evidence.getUser().getFullName());
+        }
         evidenceData.setTitle(evidence.getTitle());
         evidenceData.setText(evidence.getDescription());
-        if (tags != null) {
+        if (loadConfig.isLoadTags() && tags != null) {
             evidenceData.setTags(tags.stream().map(Tag::getTitle).collect(Collectors.toSet()));
             evidenceData.setTagsString(AnnotationUtil.getAnnotationsAsSortedCSV(tags));
         }
@@ -40,9 +43,14 @@ public class LearningEvidenceDataFactory {
             evidenceData.setRelationToCompetence(competenceEvidence.getDescription());
         }
 
-        if (competences != null) {
+        if (loadConfig.isLoadCompetenceTitle()) {
+            evidenceData.setCompetenceTitle(competenceEvidence.getCompetence().getCompetence().getTitle());
+        }
+
+        if (loadConfig.isLoadCompetences() && competences != null) {
             evidenceData.addCompetences(competences);
         }
+
         return evidenceData;
     }
 }
