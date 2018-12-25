@@ -5,6 +5,7 @@ package org.prosolo.web.courses.credential;
 
 import org.apache.log4j.Logger;
 import org.prosolo.search.util.credential.CredentialDeliverySortOption;
+import org.prosolo.services.common.data.SortOrder;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.credential.CredentialData;
 import org.prosolo.web.LoggedUserBean;
@@ -16,6 +17,7 @@ import javax.inject.Inject;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 @ManagedBean(name = "credentialLibraryBeanInstructor")
 @Component("credentialLibraryBeanInstructor")
@@ -39,7 +41,10 @@ public class CredentialLibraryBeanInstructor extends DeliveriesBean implements S
 	private String context = "name:library";
 
 	public void init() {
-		sortOptions = CredentialDeliverySortOption.values();
+		sortOptions = new CredentialDeliverySortOption[] {
+				CredentialDeliverySortOption.ALPHABETICALLY,
+				CredentialDeliverySortOption.DATE_STARTED
+		};
 		loadCredentials();
 	}
 
@@ -51,8 +56,15 @@ public class CredentialLibraryBeanInstructor extends DeliveriesBean implements S
 
 	public void loadCredentials() {
 		try {
+			SortOrder.Builder<CredentialDeliverySortOption> sortBuilder =
+					SortOrder.<CredentialDeliverySortOption>builder()
+							.addOrder(sortOption, sortOption.getSortOrder());
+			//add rest of the sort options as sort criteria also
+			Stream.of(sortOptions)
+					.filter(sort -> sort != sortOption)
+					.forEach(sort -> sortBuilder.addOrder(sort, sort.getSortOrder()));
 			List<CredentialData> deliveries = credManager.getCredentialDeliveriesForUserWithInstructPrivilege(
-					loggedUserBean.getUserId(), sortOption);
+					loggedUserBean.getUserId(), sortBuilder.build());
 			initializeDeliveriesCollections();
 			CredentialDeliveryUtil.populateCollectionsBasedOnDeliveryStartAndEnd(
 					deliveries, ongoingDeliveries, pendingDeliveries, pastDeliveries

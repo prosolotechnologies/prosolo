@@ -32,8 +32,10 @@ import org.prosolo.search.util.credential.CredentialSearchFilterManager;
 import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.assessment.RubricManager;
+import org.prosolo.services.assessment.data.AssessmentSortOrder;
 import org.prosolo.services.assessment.data.AssessmentTypeConfig;
 import org.prosolo.services.common.data.LazyInitCollection;
+import org.prosolo.services.common.data.SortOrder;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventFactory;
@@ -2793,23 +2795,23 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 	@Override
 	@Transactional(readOnly = true)
-	public RestrictedAccessResult<List<CredentialData>> getCredentialDeliveriesWithAccessRights(long credId, long userId, CredentialDeliverySortOption sortOption,
+	public RestrictedAccessResult<List<CredentialData>> getCredentialDeliveriesWithAccessRights(long credId, long userId, SortOrder<CredentialDeliverySortOption> sortOrder,
 																								CredentialSearchFilterManager filter ) throws DbConnectionException {
-		List<CredentialData> credentials = getDeliveries(credId, false, sortOption, filter);
+		List<CredentialData> credentials = getDeliveries(credId, false, sortOrder, filter);
 		ResourceAccessRequirements req = ResourceAccessRequirements.of(AccessMode.MANAGER)
 				.addPrivilege(UserGroupPrivilege.Edit);
 		ResourceAccessData access = getResourceAccessData(credId, userId, req);
 		return RestrictedAccessResult.of(credentials, access);
 	}
 
-	private List<CredentialData> getDeliveries(long credId, boolean onlyOngoing, CredentialDeliverySortOption sortOption, CredentialSearchFilterManager filter)
+	private List<CredentialData> getDeliveries(long credId, boolean onlyOngoing, SortOrder<CredentialDeliverySortOption> sortOrder, CredentialSearchFilterManager filter)
 			throws DbConnectionException {
 		try {
 			StringBuilder query = new StringBuilder(
-					"SELECT del " +
-							"FROM Credential1 del " +
-							"WHERE del.type = :type " +
-							"AND del.deliveryOf.id = :credId ");
+				"SELECT del " +
+				   "FROM Credential1 del " +
+				   "WHERE del.type = :type " +
+				   "AND del.deliveryOf.id = :credId ");
 
 			if (onlyOngoing) {
 				query.append("AND (del.deliveryStart IS NOT NULL AND del.deliveryStart <= :now " +
@@ -2822,18 +2824,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				query.append(" AND del.archived IS TRUE");
 			}
 
-			String dateStartedSortOption = "del.deliveryStart " + (CredentialDeliverySortOption.DATE_STARTED.getSortOrder() == SortingOption.ASC ? "ASC" : "DESC");
-			String titleSortOption = "del.title " + (CredentialDeliverySortOption.ALPHABETICALLY.getSortOrder() == SortingOption.ASC ? "ASC" : "DESC");
-			String sort = null;
-			switch (sortOption) {
-				case DATE_STARTED:
-					sort = dateStartedSortOption + ", " + titleSortOption;
-					break;
-				case ALPHABETICALLY:
-					sort = titleSortOption + ", " + dateStartedSortOption;
-					break;
-			}
-			query.append(" ORDER BY " + sort);
+			query.append(" " + getDeliveryOrderByClause(sortOrder, "del"));
 
 			Query q = persistence.currentManager()
 					.createQuery(query.toString())
@@ -3312,7 +3303,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<CredentialData> getCredentialDeliveriesForUserWithInstructPrivilege(long userId, CredentialDeliverySortOption sortOption)
+	public List<CredentialData> getCredentialDeliveriesForUserWithInstructPrivilege(long userId, SortOrder<CredentialDeliverySortOption> sortOrder)
 			throws DbConnectionException {
 		try {
 			/*
@@ -3329,18 +3320,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					"WITH instructor.user.id = :userId " +
 					"WHERE del.type = :type ";
 
-			String dateStartedSortOption = "del.deliveryStart " + (CredentialDeliverySortOption.DATE_STARTED.getSortOrder() == SortingOption.ASC ? "ASC" : "DESC");
-			String titleSortOption = "del.title " + (CredentialDeliverySortOption.ALPHABETICALLY.getSortOrder() == SortingOption.ASC ? "ASC" : "DESC");
-			String sort = null;
-			switch (sortOption) {
-				case DATE_STARTED:
-					sort = dateStartedSortOption + ", " + titleSortOption;
-					break;
-				case ALPHABETICALLY:
-					sort = titleSortOption + ", " + dateStartedSortOption;
-					break;
-			}
-			query += "ORDER BY " + sort;
+			query += getDeliveryOrderByClause(sortOrder, "del");
 
 			@SuppressWarnings("unchecked")
 			List<Credential1> result = persistence.currentManager()
@@ -3361,6 +3341,29 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			logger.error("Error", e);
 			throw new DbConnectionException("Error while retrieving credential deliveries");
 		}
+	}
+
+	private String getDeliveryOrderByClause(SortOrder<CredentialDeliverySortOption> sortOrder, String deliveryTableAlias) {
+		if (sortOrder.isSortPresent()) {
+			List<String> orderBy = new ArrayList<>();
+			for (SortOrder.SimpleSortOrder<CredentialDeliverySortOption> so : sortOrder.getSortOrders()) {
+				String order = so.getSortOption() == SortingOption.DESC ? " DESC" : "";
+				switch (so.getSortField()) {
+					case ALPHABETICALLY:
+						orderBy.add(deliveryTableAlias + ".title " + order);
+						break;
+					case DATE_STARTED:
+						orderBy.add(deliveryTableAlias + ".deliveryStart " + order);
+						break;
+					case DELIVERY_ORDER:
+						orderBy.add(deliveryTableAlias + ".deliveryOrder " + order);
+					default:
+						break;
+				}
+			}
+			return "order by " + String.join(", ", orderBy);
+		}
+		return "";
 	}
 
 	@Override
