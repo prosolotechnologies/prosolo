@@ -3357,6 +3357,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 						break;
 					case DELIVERY_ORDER:
 						orderBy.add(deliveryTableAlias + ".deliveryOrder " + order);
+						break;
 					default:
 						break;
 				}
