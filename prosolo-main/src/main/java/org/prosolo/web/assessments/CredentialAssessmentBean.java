@@ -4,6 +4,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.credential.BlindAssessmentMode;
 import org.prosolo.common.domainmodel.credential.CredentialType;
@@ -25,6 +26,7 @@ import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
+import org.prosolo.services.user.data.UserBasicData;
 import org.prosolo.services.user.data.UserData;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.assessments.util.AssessmentDisplayMode;
@@ -249,6 +251,21 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 		currentResType = LearningResourceType.COMPETENCE;
 	}
 
+	//prepare for commenting
+	public void prepareLearningResourceAssessmentForApproving() {
+		initializeGradeData();
+		currentResType = LearningResourceType.CREDENTIAL;
+	}
+
+	public void prepareLearningResourceAssessmentForApproving(CompetenceAssessmentData assessment) {
+		compAssessmentBean.prepareLearningResourceAssessmentForApproving(assessment);
+		currentResType = LearningResourceType.COMPETENCE;
+	}
+
+	public UserBasicData getStudentData() {
+		return new UserBasicData(fullAssessmentData.getAssessedStudentId(), fullAssessmentData.getStudentFullName(), fullAssessmentData.getStudentAvatarUrl());
+	}
+
 	// GRADING SIDEBAR
 
 	public long getCurrentAssessmentId() {
@@ -380,11 +397,6 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 		return 0;
 	}
 
-
-	public void prepareCredentialForApprove() {
-		initializeGradeData();
-	}
-
 	//LearningResourceAssessmentBean impl
 
 	@Override
@@ -481,7 +493,7 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 	// grading actions
 
 	@Override
-	public void updateGrade() throws DbConnectionException {
+	public void updateGrade() throws DbConnectionException, IllegalDataStateException {
 		try {
 			fullAssessmentData.setGradeData(assessmentManager.updateGradeForCredentialAssessment(
 					fullAssessmentData.getCredAssessmentId(),
@@ -490,9 +502,8 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 			fullAssessmentData.setAssessorNotified(false);
 
 			PageUtil.fireSuccessfulInfoMessage("The grade has been updated");
-		} catch (DbConnectionException e) {
-			e.printStackTrace();
-			logger.error(e);
+		} catch (DbConnectionException|IllegalDataStateException e) {
+			logger.error("Error", e);
 			PageUtil.fireErrorMessage("Error updating the grade");
 			throw e;
 		}
@@ -557,18 +568,6 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 			compAssessmentData.setApproved(true);
 			//remove notification when competence is approved
 			compAssessmentData.setAssessorNotified(false);
-		}
-	}
-
-	public void approveCompetence(long competenceAssessmentId) {
-		try {
-			assessmentManager.approveCompetence(competenceAssessmentId, loggedUserBean.getUserContext());
-			markCompetenceApproved(competenceAssessmentId);
-
-            PageUtil.fireSuccessfulInfoMessage(ResourceBundleUtil.getLabel("competence") + " approved");
-		} catch (Exception e) {
-			logger.error("Error approving the assessment", e);
-			PageUtil.fireErrorMessage("Error approving the "+ ResourceBundleUtil.getLabel("competence").toLowerCase());
 		}
 	}
 
@@ -678,6 +677,19 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 			fullAssessmentData.getGradeData().updateCurrentGrade(assessmentManager.getAutomaticCredentialAssessmentScore(
 					fullAssessmentData.getCredAssessmentId()));
 			((AutomaticGradeData) fullAssessmentData.getGradeData()).calculateAssessmentStarData();
+		}
+	}
+
+	public void approveAssessment() {
+		switch (currentResType) {
+			case COMPETENCE:
+				compAssessmentBean.approveCompetence();
+				break;
+			case CREDENTIAL:
+				approveCredential();
+				break;
+			default:
+				break;
 		}
 	}
 

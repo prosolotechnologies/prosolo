@@ -3,8 +3,12 @@ package org.prosolo.web.assessments.util;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.credential.ActivityRubricVisibility;
 import org.prosolo.common.domainmodel.credential.BlindAssessmentMode;
+import org.prosolo.common.domainmodel.credential.LearningPathType;
+import org.prosolo.services.assessment.data.AssessmentDataFull;
 import org.prosolo.services.assessment.data.AssessmentTypeConfig;
+import org.prosolo.services.assessment.data.CompetenceAssessmentData;
 import org.prosolo.services.assessment.data.grading.GradeData;
+import org.prosolo.services.assessment.data.grading.GradingMode;
 import org.prosolo.services.assessment.data.grading.RubricGradeData;
 import org.prosolo.services.nodes.data.LearningResourceType;
 
@@ -53,5 +57,27 @@ public class AssessmentUtil {
         }
         AssessmentTypeConfig aType = assessmentTypesConfig.stream().filter(t -> t.getType() == type).findFirst().get();
         return aType.getBlindAssessmentMode();
+    }
+
+
+    public static boolean isCredentialFullyGraded(AssessmentDataFull credentialAssessment) {
+        if (credentialAssessment.getGradeData().getGradingMode() != GradingMode.NONGRADED && !credentialAssessment.getGradeData().isAssessed()) {
+            return false;
+        }
+        return credentialAssessment.getCompetenceAssessmentData()
+                .stream()
+                .allMatch(compAssessment -> isCompetenceFullyGraded(compAssessment));
+    }
+
+    public static boolean isCompetenceFullyGraded(CompetenceAssessmentData competenceAssessmentData) {
+        if (competenceAssessmentData.getGradeData().getGradingMode() != GradingMode.NONGRADED && !competenceAssessmentData.getGradeData().isAssessed()) {
+            return false;
+        }
+        if (competenceAssessmentData.getLearningPathType() == LearningPathType.ACTIVITY) {
+            return competenceAssessmentData.getActivityAssessmentData()
+                    .stream()
+                    .allMatch(actAssessment -> actAssessment.getGrade().getGradingMode() == GradingMode.NONGRADED || actAssessment.getGrade().isAssessed());
+        }
+        return true;
     }
 }

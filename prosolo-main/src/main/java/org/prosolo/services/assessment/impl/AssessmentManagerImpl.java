@@ -1232,6 +1232,11 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 				result.appendEvents(approveCompetenceAndGetEvents(competenceAssessment.getId(), false, context).getEventQueue());
 			}
 
+			if (credentialAssessment.getTargetCredential().getCredential().getGradingMode() != GradingMode.NONGRADED && !credentialAssessment.isAssessed()) {
+				//if credential should be graded but it is not, it can't be approved
+				//TODO refactor - unify criteria for determining whether resource is graded for all resources (activity, competency, credential)
+				throw new IllegalDataStateException("Credential must be graded before approving");
+			}
 			credentialAssessment.setApproved(true);
 			credentialAssessment.setDateApproved(new Date());
 			credentialAssessment.setReview(reviewText);
@@ -1673,6 +1678,11 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			Result<Void> result = new Result();
 			CompetenceAssessment competenceAssessment = (CompetenceAssessment) persistence.currentManager().load(CompetenceAssessment.class, competenceAssessmentId);
 			if (!competenceAssessment.isApproved()) {
+				if (competenceAssessment.getCompetence().getGradingMode() != GradingMode.NONGRADED && competenceAssessment.getPoints() < 0) {
+					//if competency should be graded but it is not (point < 0) it can't be approved
+					//TODO refactor - unify criteria for determining whether resource is graded for all resources (activity, competency, credential)
+					throw new IllegalDataStateException("Competency must be graded before approving");
+				}
 				competenceAssessment.setApproved(true);
 				competenceAssessment.setDateApproved(new Date());
 				competenceAssessment.setAssessorNotified(false);
@@ -2171,7 +2181,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	//nt
 	public GradeData updateGradeForActivityAssessment(
 			long activityAssessmentId, GradeData grade, UserContextData context)
-			throws DbConnectionException {
+			throws DbConnectionException, IllegalDataStateException {
 		Result<GradeData> res = self.updateGradeForActivityAssessmentAndGetEvents(
 				activityAssessmentId, grade, context);
 		eventFactory.generateEvents(res.getEventQueue());
@@ -2182,7 +2192,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	@Transactional
 	public Result<GradeData> updateGradeForActivityAssessmentAndGetEvents(
 			long activityAssessmentId, GradeData grade, UserContextData context)
-			throws DbConnectionException {
+			throws DbConnectionException, IllegalDataStateException {
 		try {
 			GradeData gradeCopy = SerializationUtils.clone(grade);
 			Result<GradeData> result = new Result<>();
@@ -2192,6 +2202,9 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			if (gradeValue >= 0) {
 				ActivityAssessment ad = (ActivityAssessment) persistence.currentManager().load(
 						ActivityAssessment.class, activityAssessmentId);
+				if (ad.getAssessment().isApproved()) {
+					throw new IllegalDataStateException("Grade can't be edited after assessment is approved");
+				}
 //
 				ad.setPoints(gradeValue);
 
@@ -2217,11 +2230,13 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 				}
 
 				result.appendEvent(eventFactory.generateEventData(
-						EventType.GRADE_ADDED, context, aa, null,null, params));
+						EventType.GRADE_ADDED, context, aa, null, null, params));
 				result.appendEvents(updateCompScoreEvents);
 				result.setResult(gradeCopy);
 			}
 			return result;
+		} catch (IllegalDataStateException e) {
+			throw e;
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -2237,7 +2252,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	//nt
 	public GradeData updateGradeForCompetenceAssessment(
 			long assessmentId, GradeData grade, UserContextData context)
-			throws DbConnectionException {
+			throws DbConnectionException, IllegalDataStateException {
 		Result<GradeData> res = self.updateGradeForCompetenceAssessmentAndGetEvents(
 				assessmentId, grade, context);
 		eventFactory.generateEvents(res.getEventQueue());
@@ -2248,7 +2263,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	@Transactional
 	public Result<GradeData> updateGradeForCompetenceAssessmentAndGetEvents(
 			long assessmentId, GradeData grade, UserContextData context)
-			throws DbConnectionException {
+			throws DbConnectionException, IllegalDataStateException {
 		try {
 			GradeData gradeCopy = SerializationUtils.clone(grade);
 			Result<GradeData> result = new Result<>();
@@ -2258,6 +2273,10 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			if (gradeValue >= 0) {
 				CompetenceAssessment ca = (CompetenceAssessment) persistence.currentManager().load(
 						CompetenceAssessment.class, assessmentId);
+
+				if (ca.isApproved()) {
+					throw new IllegalDataStateException("Grade can't be edited after assessment is approved");
+				}
 //
 				ca.setPoints(gradeValue);
 				ca.setLastAssessment(new Date());
@@ -2284,10 +2303,12 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 				}
 
 				result.appendEvent(eventFactory.generateEventData(
-						EventType.GRADE_ADDED, context, compA, null,null, params));
+						EventType.GRADE_ADDED, context, compA, null, null, params));
 				result.setResult(gradeCopy);
 			}
 			return result;
+		} catch (IllegalDataStateException e) {
+			throw e;
 		} catch (Exception e) {
 			logger.error("Error", e);
 			throw new DbConnectionException("Error updating the grade");
@@ -2351,7 +2372,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	//nt
 	public GradeData updateGradeForCredentialAssessment(
 			long assessmentId, GradeData grade, UserContextData context)
-			throws DbConnectionException {
+			throws DbConnectionException, IllegalDataStateException {
 		Result<GradeData> res = self.updateGradeForCredentialAssessmentAndGetEvents(
 				assessmentId, grade, context);
 		eventFactory.generateEvents(res.getEventQueue());
@@ -2362,7 +2383,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	@Transactional
 	public Result<GradeData> updateGradeForCredentialAssessmentAndGetEvents(
 			long assessmentId, GradeData grade, UserContextData context)
-			throws DbConnectionException {
+			throws DbConnectionException, IllegalDataStateException {
 		try {
 			GradeData gradeCopy = SerializationUtils.clone(grade);
 			Result<GradeData> result = new Result<>();
@@ -2372,6 +2393,10 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			if (gradeValue >= 0) {
 				CredentialAssessment ca = (CredentialAssessment) persistence.currentManager().load(
 						CredentialAssessment.class, assessmentId);
+
+				if (ca.isApproved()) {
+					throw new IllegalDataStateException("Grade can't be edited after assessment is approved");
+				}
 //
 				ca.setPoints(gradeValue);
 				ca.setAssessed(true);
@@ -2524,10 +2549,13 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 	@Override
 	@Transactional
-	public EventQueue updateScoreForCompetenceAssessmentIfNeeded(long compAssessmentId, UserContextData context) throws DbConnectionException {
+	public EventQueue updateScoreForCompetenceAssessmentIfNeeded(long compAssessmentId, UserContextData context) throws DbConnectionException, IllegalDataStateException {
 		CompetenceAssessment ca = (CompetenceAssessment) persistence.currentManager().load(CompetenceAssessment.class, compAssessmentId);
 		//if automatic grading mode calculate comp points as a sum of activity points
 		if (ca.getCompetence().getGradingMode() == GradingMode.AUTOMATIC) {
+			if (ca.isApproved()) {
+				throw new IllegalDataStateException("Grade can't be edited after assessment is approved");
+			}
 			updateScoreForCompetenceAssessmentAsSumOfActivityPoints(compAssessmentId, persistence.currentManager());
 			//recalculate assessment score for all credential assessments with this competence assessment if needed
 			return updateAssessedFlagForAllCredentialAssessmentsWithGivenCompetenceAssessmentIfNeeded(ca.getId(), context);
@@ -2626,7 +2654,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			String query = 
 					"SELECT assessment " +
 					"FROM CredentialAssessment assessment " +	
-					"LEFT JOIN fetch assessment.assessor " +
+					"LEFT JOIN fetch assessment.assessor assessor " +
 					"WHERE assessment.student.id = :assessedStudentId " +
 						"AND assessment.targetCredential.credential.id = :credentialId " +
 					"ORDER BY CASE WHEN assessment.type = :instructorAssessment THEN 1 WHEN assessment.type = :selfAssessment THEN 2 ELSE 3 END, assessor.name, assessor.lastname";

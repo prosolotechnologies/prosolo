@@ -1,0 +1,112 @@
+<ui:component
+		xmlns:ui="http://java.sun.com/jsf/facelets"
+		xmlns:h="http://java.sun.com/jsf/html"
+		xmlns:f="http://java.sun.com/jsf/core"
+		xmlns:composite="http://java.sun.com/jsf/composite"
+		xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+		xmlns:assessment="http://java.sun.com/jsf/composite/components/assessments">
+
+	<composite:interface>
+		<composite:attribute name="approveAction" required="true"/>
+		<composite:attribute name="assessmentReviewField"/>
+		<composite:attribute name="gradeData" required="true" type="org.prosolo.services.assessment.data.grading.GradeData"/>
+		<composite:attribute name="toUpdate" default=""/>
+		<composite:attribute name="learningContext" default=""/>
+		<composite:attribute name="resource" required="true" type="org.prosolo.services.nodes.data.LearningResourceType" />
+		<composite:attribute name="resourceTitle" required="true" />
+		<composite:attribute name="blindAssessmentMode" required="true" type="org.prosolo.common.domainmodel.credential.BlindAssessmentMode"/>
+		<composite:attribute name="student" required="true" type="org.prosolo.services.user.data.UserBasicData"/>
+	</composite:interface>
+	
+	<composite:implementation>
+		<span id = "#{cc.clientId}">
+			<h:form id="formApproveAssessment">
+				<div class="modal fade" id="approveAssessment" tabindex="-1" role="dialog" aria-labelledby="apprAssessment">
+					<div class="modal-dialog" role="document">
+						<div class="modal-content">
+							<div class="modal-header alignLeft">
+								<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+								<h2 class="modal-title" id="apprAssessment">Approve Assessment</h2>
+							</div>
+							<div class="assessmentModalMeta">
+								<div class="assessmentModalMetaLine">
+									<div class="assessmentModalMetaLeft">
+										#{cc.attrs.resource eq 'CREDENTIAL' ? msg['label.credential'] : msg['label.competence']}:
+									</div>
+									<div class="assessmentModalMetaRight">
+										<h3>#{cc.attrs.resourceTitle}</h3>
+									</div>
+								</div>
+								<div class="assessmentModalMetaLine">
+									<div class="assessmentModalMetaLeft">
+										Student:
+									</div>
+									<div class="assessmentModalMetaRight">
+										<assessment:assessmentActorAvatar
+												actorId="#{cc.attrs.student.id}"
+												avatarUrl="#{cc.attrs.student.avatar}"
+												actorFullName="#{cc.attrs.student.fullName}"
+												blindAssessmentMode="#{cc.attrs.blindAssessmentMode}"
+												actorType="STUDENT"
+										/>
+										<h3>
+											<assessment:assessmentActorName
+													actorId="#{cc.attrs.student.id}"
+													actorFullName="#{cc.attrs.student.fullName}"
+													blindAssessmentMode="#{cc.attrs.blindAssessmentMode}"
+													actorType="STUDENT"
+											/>
+										</h3>
+									</div>
+								</div>
+							</div>
+							<div class="alert alert-warning" role="alert">
+								After approving a #{cc.attrs.resource eq 'CREDENTIAL' ? msg['label.credential'].toLowerCase() : msg['label.competence'].toLowerCase()}, the grade cannot be updated.
+							</div>
+							<ui:fragment rendered="#{cc.attrs.resource eq 'CREDENTIAL'}">
+								<div class="alert alert-warning" role="alert">
+									Please add the assessment summary.
+								</div>
+								<div class="modal-body alignLeft">
+									<h:inputTextarea
+											placeholder="Type a summary that will be displayed on student's profile..."
+											value="#{cc.attrs.assessmentReviewField}"
+									/>
+									<h:panelGroup id="panelCredentialResult">
+										<h:panelGroup layout="block" styleClass="resultLine" rendered="#{cc.attrs.gradeData.gradingMode eq 'NONGRADED' or cc.attrs.gradeData.pointBasedGrading}">
+											Result:
+											<strong>
+												<ui:fragment rendered="#{cc.attrs.gradeData.gradingMode eq 'NONGRADED'}">
+													-
+												</ui:fragment>
+												<ui:fragment rendered="#{cc.attrs.gradeData.gradingMode ne 'NONGRADED' and cc.attrs.gradeData.pointBasedGrading}">
+													#{cc.attrs.gradeData.isAssessed() ? cc.attrs.gradeData.currentGrade : '-'}  / #{cc.attrs.gradeData.maxGrade}
+												</ui:fragment>
+											</strong>
+										</h:panelGroup>
+										<h:panelGroup layout="block" styleClass="resultLine" rendered="#{not cc.attrs.gradeData.pointBasedGrading and cc.attrs.gradeData.gradingMode eq 'MANUAL_RUBRIC' and cc.attrs.gradeData.rubricType eq 'DESCRIPTIVE'}">
+											Result:
+											<ui:repeat value="#{cc.attrs.gradeData.rubricCriteria.criteria}" var="crit">
+												<br/>- #{crit.name}: <strong>#{crit.selectedLevel.name}</strong>
+											</ui:repeat>
+										</h:panelGroup>
+									</h:panelGroup>
+								</div>
+							</ui:fragment>
+							<div class="modal-footer alignLeft">
+								<utilcomp:singleClickLink styleClass="btn btn-green"
+														  value="Submit"
+														  update="#{cc.attrs.toUpdate}"
+														  action="#{cc.attrs.approveAction}"
+														  oncomplete="$('#approveAssessment').modal('hide')">
+									<f:param name="page" value="#{facesContext.viewRoot.viewId}"/>
+									<f:param name="learningContext" value="#{cc.attrs.learningContext}"/>
+								</utilcomp:singleClickLink>
+							</div>
+						</div>
+					</div>
+				</div>
+			</h:form>
+		</span>
+	</composite:implementation>
+</ui:component>

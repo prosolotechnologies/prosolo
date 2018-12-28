@@ -136,7 +136,7 @@ public interface AssessmentManager {
 	 */
 	GradeData updateGradeForActivityAssessment(
             long activityAssessmentId, GradeData grade, UserContextData context)
-			throws DbConnectionException;
+			throws DbConnectionException, IllegalDataStateException;
 
 	Optional<Long> getInstructorCredentialAssessmentId(long credId, long studentId) throws DbConnectionException;
 
@@ -144,7 +144,7 @@ public interface AssessmentManager {
 
 	int calculateCompetenceAssessmentScoreAsSumOfActivityPoints(long compAssessmentId) throws DbConnectionException;
 
-	EventQueue updateScoreForCompetenceAssessmentIfNeeded(long compAssessmentId, UserContextData context) throws DbConnectionException;
+	EventQueue updateScoreForCompetenceAssessmentIfNeeded(long compAssessmentId, UserContextData context) throws DbConnectionException, IllegalDataStateException;
 
 	void updateScoreForCompetenceAssessmentAsSumOfActivityPoints(long compAssessmentId, Session session) throws DbConnectionException;
 
@@ -209,7 +209,7 @@ public interface AssessmentManager {
 			throws DbConnectionException, ConstraintViolationException, DataIntegrityViolationException;
 
 	Result<GradeData> updateGradeForActivityAssessmentAndGetEvents(long activityAssessmentId, GradeData grade,
-															  UserContextData context) throws DbConnectionException;
+															  UserContextData context) throws DbConnectionException, IllegalDataStateException;
 
 	int getCompetenceAssessmentScore(long compAssessmentId) throws DbConnectionException;
 
@@ -269,11 +269,11 @@ public interface AssessmentManager {
 	 */
 	 GradeData updateGradeForCompetenceAssessment(
 			long assessmentId, GradeData grade, UserContextData context)
-			throws DbConnectionException;
+			throws DbConnectionException, IllegalDataStateException;
 
 	Result<GradeData> updateGradeForCompetenceAssessmentAndGetEvents(
 			long assessmentId, GradeData grade, UserContextData context)
-			throws DbConnectionException;
+			throws DbConnectionException, IllegalDataStateException;
 
 	/**
 	 * Updates grade and returns populated GradeData object.
@@ -287,11 +287,11 @@ public interface AssessmentManager {
 	 */
 	GradeData updateGradeForCredentialAssessment(
 			long assessmentId, GradeData grade, UserContextData context)
-			throws DbConnectionException;
+			throws DbConnectionException, IllegalDataStateException;
 
 	Result<GradeData> updateGradeForCredentialAssessmentAndGetEvents(
 			long assessmentId, GradeData grade, UserContextData context)
-			throws DbConnectionException;
+			throws DbConnectionException, IllegalDataStateException;
 
 	Optional<UserData> getInstructorCredentialAssessmentAssessor(long credId, long userId)
 			throws DbConnectionException;

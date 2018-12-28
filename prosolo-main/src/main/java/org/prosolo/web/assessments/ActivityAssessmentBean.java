@@ -2,6 +2,7 @@ package org.prosolo.web.assessments;
 
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
@@ -140,7 +141,7 @@ public class ActivityAssessmentBean extends LearningResourceAssessmentBean {
 	// grading actions
 
 	@Override
-	public void updateGrade() throws DbConnectionException {
+	public void updateGrade() throws DbConnectionException, IllegalDataStateException {
 		try {
 			activityAssessmentData.setGrade(assessmentManager.updateGradeForActivityAssessment(
 					idEncoder.decodeId(activityAssessmentData.getEncodedActivityAssessmentId()),
@@ -155,9 +156,8 @@ public class ActivityAssessmentBean extends LearningResourceAssessmentBean {
 			}
 
 			PageUtil.fireSuccessfulInfoMessage("The grade has been updated");
-		} catch (DbConnectionException e) {
-			e.printStackTrace();
-			logger.error(e);
+		} catch (DbConnectionException|IllegalDataStateException e) {
+			logger.error("Error", e);
 			PageUtil.fireErrorMessage("Error while updating grade");
 			throw e;
 		}

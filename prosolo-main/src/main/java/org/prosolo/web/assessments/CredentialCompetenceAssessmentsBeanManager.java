@@ -323,31 +323,17 @@ public class CredentialCompetenceAssessmentsBeanManager implements AssessmentCom
 
 	//prepare grading end
 
+	public void prepareLearningResourceAssessmentForApproving(CompetenceAssessmentData assessment) {
+		competenceAssessmentBean.prepareLearningResourceAssessmentForApproving(assessment);
+		currentResType = LearningResourceType.COMPETENCE;
+	}
+
 	//GET DATA DEPENDING ON WHICH ASSESSMENT IS CURRENTLY SELECTED (COMPETENCE OR ACTIVITY) END
 
 
 	/*
 	ACTIONS
 	 */
-
-	public void approveCompetence(long compAssessmentId) {
-		try {
-			assessmentManager.approveCompetence(compAssessmentId, loggedUserBean.getUserContext());
-
-			Optional<CompetenceAssessmentData> compAssessmentOptional = assessmentsSummary.getAssessments().getFoundNodes().stream().filter(ca -> ca.getCompetenceAssessmentId() == compAssessmentId).findAny();
-
-			if (compAssessmentOptional.isPresent()) {
-				CompetenceAssessmentData compAssessment = compAssessmentOptional.get();
-				compAssessment.setApproved(true);
-				compAssessment.setAssessorNotified(false);
-			}
-
-			PageUtil.fireSuccessfulInfoMessage(ResourceBundleUtil.getLabel("competence") + " approved");
-		} catch (Exception e) {
-			logger.error("Error approving the assessment", e);
-			PageUtil.fireErrorMessage("Error approving the " + ResourceBundleUtil.getLabel("competence").toLowerCase());
-		}
-	}
 
 	//prepare for commenting
 	public void prepareLearningResourceAssessmentForCommenting(ActivityAssessmentData assessment) {

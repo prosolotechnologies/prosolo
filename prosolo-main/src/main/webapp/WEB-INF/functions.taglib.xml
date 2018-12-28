@@ -119,4 +119,16 @@
 		<function-class>org.prosolo.util.StringUtils</function-class>
 		<function-signature>java.lang.String shortenAndAddDots(java.lang.String)</function-signature>
 	</function>
+
+	<function>
+		<function-name>isCredentialFullyGraded</function-name>
+		<function-class>org.prosolo.web.assessments.util.AssessmentUtil</function-class>
+		<function-signature>boolean isCredentialFullyGraded(org.prosolo.services.assessment.data.AssessmentDataFull)</function-signature>
+	</function>
+
+	<function>
+		<function-name>isCompetenceFullyGraded</function-name>
+		<function-class>org.prosolo.web.assessments.util.AssessmentUtil</function-class>
+		<function-signature>boolean isCompetenceFullyGraded(org.prosolo.services.assessment.data.CompetenceAssessmentData)</function-signature>
+	</function>
 </facelet-taglib>

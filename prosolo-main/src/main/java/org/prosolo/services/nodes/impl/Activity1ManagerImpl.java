@@ -5,6 +5,7 @@ import org.hibernate.Query;
 import org.prosolo.bigdata.common.exceptions.*;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
+import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
 import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.credential.visitor.ActivityVisitor;
 import org.prosolo.common.domainmodel.events.EventType;
@@ -16,10 +17,7 @@ import org.prosolo.common.util.ImageFormat;
 import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.assessment.RubricManager;
-import org.prosolo.services.assessment.data.ActivityAssessmentData;
-import org.prosolo.services.assessment.data.ActivityAssessmentsSummaryData;
-import org.prosolo.services.assessment.data.AssessmentBasicData;
-import org.prosolo.services.assessment.data.GradeDataFactory;
+import org.prosolo.services.assessment.data.*;
 import org.prosolo.services.assessment.data.factory.AssessmentDataFactory;
 import org.prosolo.services.assessment.data.grading.RubricAssessmentGradeSummary;
 import org.prosolo.services.data.Result;
@@ -1430,7 +1428,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 					BigInteger rubricIdBI = (BigInteger) row[15];
 					long rubricId = rubricIdBI != null ? rubricIdBI.longValue() : 0;
 					RubricType rubricType = rubricId > 0 ? RubricType.valueOf((String) row[20]) : null;
-					//TODO stef star
+					//TODO star
 					Map<Long, RubricAssessmentGradeSummary> rubricGradeSummary = assessmentManager.getActivityAssessmentsRubricGradeSummary(Arrays.asList(ad.getActivityAssessmentId()));
 					ad.setGrade(GradeDataFactory.getGradeDataForActivity(
 							GradingMode.valueOf((String) row[14]),
@@ -1449,6 +1447,11 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 						ad.setCompAssessmentId(abd.getCompetenceAssessmentId());
 						ad.setCredAssessmentId(abd.getCredentialAssessmentId());
 						ad.setAssessorId(abd.getAssessorId());
+						//we need info whether competency assessment is approved
+						CompetenceAssessment competenceAssessment = (CompetenceAssessment) persistence.currentManager().load(CompetenceAssessment.class, abd.getCompetenceAssessmentId());
+						CompetenceAssessmentData cad = new CompetenceAssessmentData();
+						cad.setApproved(competenceAssessment.isApproved());
+						ad.setCompAssessment(cad);
 					}
 				}
 			}

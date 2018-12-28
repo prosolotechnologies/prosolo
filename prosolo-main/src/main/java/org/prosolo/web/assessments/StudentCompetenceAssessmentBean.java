@@ -3,6 +3,7 @@ package org.prosolo.web.assessments;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.credential.BlindAssessmentMode;
 import org.prosolo.common.event.context.data.UserContextData;
@@ -15,6 +16,7 @@ import org.prosolo.services.assessment.data.CompetenceAssessmentData;
 import org.prosolo.services.assessment.data.grading.GradeData;
 import org.prosolo.services.assessment.data.grading.RubricCriteriaGradeData;
 import org.prosolo.services.nodes.data.LearningResourceType;
+import org.prosolo.services.user.data.UserBasicData;
 import org.prosolo.services.user.data.UserData;
 import org.prosolo.web.assessments.util.AssessmentDisplayMode;
 import org.prosolo.web.util.ResourceBundleUtil;
@@ -118,13 +120,6 @@ public class StudentCompetenceAssessmentBean extends CompetenceAssessmentBean im
 		}
 	}
 
-	/*
-	This method is added because component which uses this bean relies on a method with id passed
-	 */
-	public void approveCompetence(long competenceAssessmentId) {
-		approveCompetence();
-	}
-
 	@Override
 	public GradeData getGradeData() {
 		return getCompetenceAssessmentData() != null ? getCompetenceAssessmentData().getGradeData() : null;
@@ -168,6 +163,17 @@ public class StudentCompetenceAssessmentBean extends CompetenceAssessmentBean im
 						.getCompetenceAssessmentDiscussionMessages(assessment.getCompetenceAssessmentId()));
 				assessment.setMessagesInitialized(true);
 			}
+			setCompetenceAssessmentData(assessment);
+			currentResType = LearningResourceType.COMPETENCE;
+		} catch (Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			PageUtil.fireErrorMessage("Error while trying to initialize assessment comments");
+		}
+	}
+
+	public void prepareLearningResourceAssessmentForApproving(CompetenceAssessmentData assessment) {
+		try {
 			setCompetenceAssessmentData(assessment);
 			currentResType = LearningResourceType.COMPETENCE;
 		} catch (Exception e) {
@@ -328,6 +334,12 @@ public class StudentCompetenceAssessmentBean extends CompetenceAssessmentBean im
 		return 0;
 	}
 
+	public UserBasicData getStudentData() {
+		return getCompetenceAssessmentData() != null
+				? new UserBasicData(getCompetenceAssessmentData().getStudentId(), getCompetenceAssessmentData().getStudentFullName(), getCompetenceAssessmentData().getStudentAvatarUrl())
+				: null;
+	}
+
 	//actions based on currently selected resource type end
 
 	/*
@@ -387,7 +399,7 @@ public class StudentCompetenceAssessmentBean extends CompetenceAssessmentBean im
 	// grading actions
 
 	@Override
-	public void updateGrade() throws DbConnectionException {
+	public void updateGrade() throws DbConnectionException, IllegalDataStateException {
 		try {
 			getCompetenceAssessmentData().setGradeData(getAssessmentManager().updateGradeForCompetenceAssessment(
 					getCompetenceAssessmentData().getCompetenceAssessmentId(),
@@ -396,7 +408,7 @@ public class StudentCompetenceAssessmentBean extends CompetenceAssessmentBean im
 			getCompetenceAssessmentData().setAssessorNotified(false);
 
 			PageUtil.fireSuccessfulInfoMessage("The grade has been updated");
-		} catch (DbConnectionException e) {
+		} catch (DbConnectionException|IllegalDataStateException e) {
 			logger.error("Error", e);
 			PageUtil.fireErrorMessage("Error updating the grade");
 			throw e;

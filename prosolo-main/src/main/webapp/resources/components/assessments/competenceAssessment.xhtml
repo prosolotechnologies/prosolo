@@ -25,6 +25,8 @@
 		<composite:attribute name="currentUserAssessedStudent" required="true" type="java.lang.Boolean" />
 		<composite:attribute name="currentUserAssessor" required="true" type="java.lang.Boolean" />
 		<composite:attribute name="showLinkForIndividualAssessmentPage" default="false" type="java.lang.Boolean"/>
+		<composite:attribute name="approveModalId" default=""/>
+		<composite:attribute name="toUpdateApproveModal" default=""/>
 	</composite:interface>
 
 	<composite:implementation>
@@ -94,15 +96,22 @@
 							Approved
 						</h:panelGroup>
 
-						<p:commandLink styleClass="linkApprove"
-									   process="@this"
-									   actionListener="#{cc.attrs.bean.approveCompetence(cc.attrs.competenceAssessment.competenceAssessmentId)}"
-									   update="panelCompAssessmentOptions #{cc.attrs.growlToUpdate} @(.panelAssessorNotificationSelector)"
-									   rendered="#{cc.attrs.fullDisplayMode and not cc.attrs.competenceAssessment.approved and cc.attrs.currentUserAssessor}">
-							Approve<span></span>
-							<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
-							<f:param name="learningContext" value="#{compAssessmentLearningContext}"/>
-						</p:commandLink>
+						<ui:fragment rendered="#{cc.attrs.fullDisplayMode and not cc.attrs.competenceAssessment.approved and cc.attrs.currentUserAssessor and util:isCompetenceFullyGraded(cc.attrs.competenceAssessment)}">
+							<p:commandLink styleClass="linkApprove"
+										   process="@this"
+										   pt:data-toggle="modal"
+										   action="#{cc.attrs.bean.prepareLearningResourceAssessmentForApproving(cc.attrs.competenceAssessment)}"
+										   update="#{cc.attrs.toUpdateApproveModal}"
+										   oncomplete="$('##{cc.attrs.approveModalId}').modal('show')">
+								Approve<span></span>
+							</p:commandLink>
+						</ui:fragment>
+						<ui:fragment rendered="#{cc.attrs.fullDisplayMode and not cc.attrs.competenceAssessment.approved and cc.attrs.currentUserAssessor and not util:isCompetenceFullyGraded(cc.attrs.competenceAssessment)}">
+							<a class="disabled linkApprove" data-toggle="tooltip" title="#{msg['label.competence']} assessment can't be approved until it is graded">Approve<span></span></a>
+						</ui:fragment>
+						<script>
+							$("[data-toggle='tooltip']").tooltip();
+						</script>
 						<p:commandLink styleClass="commentsIcon" pt:data-toggle="modal" rendered="#{cc.attrs.fullDisplayMode}"
 									   onclick="markDiscussionAsSeen('#{util:encodeId(cc.attrs.competenceAssessment.competenceAssessmentId)}', this.parentElement.parentElement, 'COMPETENCE')"
 									   action="#{cc.attrs.bean.prepareLearningResourceAssessmentForCommenting(cc.attrs.competenceAssessment)}"
@@ -127,6 +136,7 @@
 								learningContext="#{compAssessmentLearningContext}"
 								fullDisplayMode="#{cc.attrs.fullDisplayMode}"
 								learningResource="COMPETENCE"
+								approved="#{cc.attrs.competenceAssessment.approved}"
 						/>
 					</h:panelGroup>
 				</div>
@@ -223,6 +233,7 @@
 											learningContext="#{util:addSubContext(compAssessmentLearningContext, 'name:ACTIVITY|id:'.concat(activityAssessment.activityId).concat('|context:/name:ACTIVITY_ASSESSMENT|id:').concat(activityAssessment.activityAssessmentId).concat('/'))}"
 											fullDisplayMode="#{cc.attrs.fullDisplayMode}"
 											learningResource="ACTIVITY"
+											approved="#{cc.attrs.competenceAssessment.approved}"
 										/>
 									</div>
 								</li>
