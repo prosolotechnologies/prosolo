@@ -19,6 +19,7 @@ public class CompetenceAssessment extends BaseEntity {
 	private static final long serialVersionUID = 4528017184503484059L;
 
 	private boolean approved;
+	private Date dateApproved;
 	private List<ActivityAssessment> activityDiscussions;
 	//private TargetCompetence1 targetCompetence;
 	private Competence1 competence;
@@ -186,6 +187,14 @@ public class CompetenceAssessment extends BaseEntity {
 
 	public void setAssessorNotified(boolean assessorNotified) {
 		this.assessorNotified = assessorNotified;
+	}
+
+	public Date getDateApproved() {
+		return dateApproved;
+	}
+
+	public void setDateApproved(Date dateApproved) {
+		this.dateApproved = dateApproved;
 	}
 
 	@Enumerated(EnumType.STRING)

@@ -3,12 +3,10 @@ package org.prosolo.services.user.data.profile.factory;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
 import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
-import org.prosolo.common.domainmodel.credential.BlindAssessmentMode;
 import org.prosolo.common.domainmodel.credential.CompetenceEvidence;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.assessment.data.grading.AssessmentGradeSummary;
 import org.prosolo.services.user.data.factory.UserBasicDataFactory;
-import org.prosolo.services.user.data.profile.AssessmentByTypeProfileOptionsData;
 import org.prosolo.services.user.data.profile.AssessmentProfileData;
 import org.prosolo.services.user.data.profile.CompetenceEvidenceProfileData;
 
@@ -28,7 +26,7 @@ public class ProfileDataFactory {
                 ca.getId(),
                 userBasicDataFactory.getBasicUserData(ca.getAssessor()),
                 ca.getBlindAssessmentMode(),
-                DateUtil.getMillisFromDate(ca.getLastAssessment()),
+                DateUtil.getMillisFromDate(ca.getDateApproved()),
                 gradeSummary);
     }
 
@@ -37,7 +35,7 @@ public class ProfileDataFactory {
                 ca.getId(),
                 userBasicDataFactory.getBasicUserData(ca.getAssessor()),
                 ca.getBlindAssessmentMode(),
-                DateUtil.getMillisFromDate(ca.getLastAssessment()),
+                DateUtil.getMillisFromDate(ca.getDateApproved()),
                 gradeSummary);
     }
 
