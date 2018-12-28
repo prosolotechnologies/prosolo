@@ -1,18 +1,15 @@
 /**
  * 
  */
-package org.prosolo.core.hibernate;
+package org.prosolo.core.db.hibernate;
 
 import org.apache.log4j.Logger;
-import org.prosolo.app.Settings;
-import org.springframework.beans.factory.config.PropertiesFactoryBean;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.ImportResource;
+import org.hibernate.cfg.ImprovedNamingStrategy;
+import org.prosolo.core.db.DataSourceConfig;
+import org.springframework.context.annotation.*;
+import org.springframework.orm.hibernate4.LocalSessionFactoryBean;
 
-import javax.sql.DataSource;
-import java.util.Properties;
+import javax.inject.Inject;
 
 
 /**
@@ -24,34 +21,23 @@ import java.util.Properties;
 @ImportResource({"classpath:core/hibernate/context.xml"})
 public class HibernateConfig {
 
+	@Inject private DataSourceConfig dataSourceConfig;
+
 	@SuppressWarnings("unused")
 	private static Logger logger = Logger.getLogger(HibernateConfig.class);
 
 	@Bean
-	public PropertiesFactoryBean hibernateProperties() {
-		PropertiesFactoryBean propertiesFactoryBean = new PropertiesFactoryBean();
-		
-		Properties properties = org.prosolo.bigdata.dal.persistence.HibernateUtil.createHibernateProperties(
-		        Settings.getInstance().config.init.formatDB);
-		
-		propertiesFactoryBean.setProperties(properties);
-		return propertiesFactoryBean;
+	@DependsOn("flywayMigrationStrategy")
+	public LocalSessionFactoryBean sessionFactory() {
+		LocalSessionFactoryBean localSessionFactoryBean = new LocalSessionFactoryBean();
+		localSessionFactoryBean.setDataSource(dataSourceConfig.dataSource());
+		localSessionFactoryBean.setHibernateProperties(
+				org.prosolo.bigdata.dal.persistence.HibernateUtil.createHibernateProperties());
+		localSessionFactoryBean.setPackagesToScan(
+				"org.prosolo.common.domainmodel");
+		localSessionFactoryBean.setNamingStrategy(new ImprovedNamingStrategy());
+		return localSessionFactoryBean;
 	}
-
-//	@Bean
-//	public LocalSessionFactoryBean sessionFactory() {
-//		LocalSessionFactoryBean localSessionFactoryBean = new LocalSessionFactoryBean();
-//
-//		localSessionFactoryBean.setDataSource(dataSource());
-//		localSessionFactoryBean.setHibernateProperties(createHibernateProperties());
-//		localSessionFactoryBean.setPackagesToScan(
-//				"org.prosolo.common.domainmodel",
-//				"org.prosolo.services.logging.domain"
-//				);
-//		localSessionFactoryBean.setNamingStrategy(new ImprovedNamingStrategy());
-//		
-//		return localSessionFactoryBean;
-//	}
 	
 //	@Bean (destroyMethod = "close")
 //	public ComboPooledDataSource dataSource() {
@@ -77,8 +63,4 @@ public class HibernateConfig {
 //		return dataSource;
 //	}
 	
-	@Bean (destroyMethod = "close")
-	public DataSource dataSource() {
-		return org.prosolo.bigdata.dal.persistence.HibernateUtil.dataSource();
-    }
 }

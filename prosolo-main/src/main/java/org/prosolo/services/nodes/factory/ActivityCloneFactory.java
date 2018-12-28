@@ -13,7 +13,7 @@ import org.prosolo.common.domainmodel.credential.ExternalToolActivity1;
 import org.prosolo.common.domainmodel.credential.ResourceLink;
 import org.prosolo.common.domainmodel.credential.TextActivity1;
 import org.prosolo.common.domainmodel.credential.UrlActivity1;
-import org.prosolo.core.hibernate.HibernateUtil;
+import org.prosolo.core.db.hibernate.HibernateUtil;
 import org.prosolo.services.nodes.DefaultManager;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

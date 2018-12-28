@@ -1,4 +1,4 @@
-package org.prosolo.core.hibernate;
+package org.prosolo.core.db.hibernate;
 
 import org.hibernate.Criteria;
 import org.hibernate.Query;

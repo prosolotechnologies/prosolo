@@ -4,18 +4,15 @@ import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.event.context.LearningContext;
-import org.prosolo.core.hibernate.HibernateUtil;
 import org.prosolo.services.context.ContextJsonParserService;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.event.EventObserver;
 import org.prosolo.services.logging.exception.LoggingException;
 import org.prosolo.web.ApplicationBean;
-import org.prosolo.web.LoggedUserBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
-import javax.servlet.http.HttpSession;
 import java.util.Map;
 
 /**

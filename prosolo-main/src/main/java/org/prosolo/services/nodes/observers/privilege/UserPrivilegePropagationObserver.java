@@ -11,7 +11,7 @@ import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.UserGroup;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.UserContextData;
-import org.prosolo.core.hibernate.HibernateUtil;
+import org.prosolo.core.db.hibernate.HibernateUtil;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.event.EventFactory;

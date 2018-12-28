@@ -43,7 +43,7 @@ public class HibernateUtil {
             // loads configuration and mappings
             Configuration configuration = new Configuration().configure();
             configuration.setNamingStrategy(ImprovedNamingStrategy.INSTANCE);
-			configuration.setProperties(createHibernateProperties(false));
+			configuration.setProperties(createHibernateProperties());
             configuration.setProperty("hibernate.current_session_context_class","thread" );
             configuration.setProperty("hibernate.connection.driver_class", config.mysqlConfig.jdbcDriver);
             configuration.setProperty("hibernate.connection.url", "jdbc:mysql://"
@@ -77,12 +77,12 @@ public class HibernateUtil {
         return sessionFactory;
     }
 
-	public static Properties createHibernateProperties(boolean formatDB) {
+	public static Properties createHibernateProperties() {
 		Properties properties = new Properties();
 		properties.setProperty("hibernate.dialect", CommonSettings.getInstance().config.hibernateConfig.dialect);
 		properties.setProperty("hibernate.show_sql", CommonSettings.getInstance().config.hibernateConfig.showSql);
 		properties.setProperty("hibernate.max_fetch_depth", CommonSettings.getInstance().config.hibernateConfig.maxFetchDepth);
-		properties.setProperty("hibernate.hbm2ddl.auto", formatDB ? "update" : CommonSettings.getInstance().config.hibernateConfig.hbm2ddlAuto);
+		properties.setProperty("hibernate.hbm2ddl.auto", CommonSettings.getInstance().config.hibernateConfig.hbm2ddlAuto);
 		properties.setProperty("hibernate.jdbc.batch_size", CommonSettings.getInstance().config.hibernateConfig.jdbcBatchSize);
 		properties.setProperty("hibernate.connection.pool_size", CommonSettings.getInstance().config.hibernateConfig.connection.poolSize);
 //		properties.setProperty("hibernate.connection.charSet", CommonSettings.getInstance().config.hibernateConfig.connection.charSet);

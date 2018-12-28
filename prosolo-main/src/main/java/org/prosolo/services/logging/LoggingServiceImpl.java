@@ -23,7 +23,7 @@ import org.prosolo.common.event.context.LearningContext;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.util.date.DateEpochUtil;
 import org.prosolo.common.util.date.DateUtil;
-import org.prosolo.core.hibernate.HibernateUtil;
+import org.prosolo.core.db.hibernate.HibernateUtil;
 import org.prosolo.services.context.ContextJsonParserService;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.indexing.LoggingESService;

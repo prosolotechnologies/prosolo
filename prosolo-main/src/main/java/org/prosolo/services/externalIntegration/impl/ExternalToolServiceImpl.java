@@ -15,7 +15,7 @@ import org.prosolo.common.domainmodel.credential.TargetActivity1;
 import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
-import org.prosolo.core.hibernate.HibernateUtil;
+import org.prosolo.core.db.hibernate.HibernateUtil;
 import org.prosolo.services.authentication.OAuthValidator;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventFactory;

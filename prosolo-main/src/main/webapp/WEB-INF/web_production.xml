@@ -117,10 +117,10 @@
 	<context-param>
 		<param-name>contextConfigLocation</param-name>
 		<param-value>
-			org.prosolo.core.spring.SpringConfig,
-			org.prosolo.core.spring.security.SpringSecurityConfig,
-			org.prosolo.core.hibernate.HibernateConfig
-		</param-value>
+            org.prosolo.core.spring.SpringConfig,
+            org.prosolo.core.spring.security.SpringSecurityConfig,
+            org.prosolo.core.db.hibernate.HibernateConfig
+        </param-value>
 	</context-param>
 	
 	<context-param>
