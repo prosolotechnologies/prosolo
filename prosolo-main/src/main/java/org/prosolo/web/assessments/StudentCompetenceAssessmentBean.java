@@ -112,11 +112,10 @@ public class StudentCompetenceAssessmentBean extends CompetenceAssessmentBean im
 			getCompetenceAssessmentData().setApproved(true);
 			getCompetenceAssessmentData().setAssessorNotified(false);
 
-			PageUtil.fireSuccessfulInfoMessage(
-					"You have successfully submitted the " + ResourceBundleUtil.getMessage("label.competence").toLowerCase());
+			PageUtil.fireSuccessfulInfoMessage(ResourceBundleUtil.getMessage("label.competence") + " assessment is submitted");
 		} catch (Exception e) {
 			logger.error("Error submitting the assessment", e);
-			PageUtil.fireErrorMessage("Error submitting the " + ResourceBundleUtil.getMessage("label.competence").toLowerCase());
+			PageUtil.fireErrorMessage("Error submitting the " + ResourceBundleUtil.getMessage("label.competence").toLowerCase() + " assessment");
 		}
 	}
 

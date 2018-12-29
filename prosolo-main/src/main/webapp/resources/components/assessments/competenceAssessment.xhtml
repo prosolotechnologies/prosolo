@@ -107,7 +107,7 @@
 							</p:commandLink>
 						</ui:fragment>
 						<ui:fragment rendered="#{cc.attrs.fullDisplayMode and not cc.attrs.competenceAssessment.approved and cc.attrs.currentUserAssessor and not util:isCompetenceFullyGraded(cc.attrs.competenceAssessment)}">
-							<a class="disabled linkApprove" data-toggle="tooltip" title="#{msg['label.competence']} assessment cannot be submitted until it is graded">Approve<span></span></a>
+							<a class="disabled linkApprove" data-toggle="tooltip" title="#{msg['label.competence']} assessment cannot be submitted until it is graded">Submit<span></span></a>
 						</ui:fragment>
 						<script>
 							$("[data-toggle='tooltip']").tooltip();

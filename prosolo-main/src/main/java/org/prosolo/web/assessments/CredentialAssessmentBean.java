@@ -553,10 +553,10 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 						.findFirst()
 						.get().setApproved(true);
 			}
-			PageUtil.fireSuccessfulInfoMessage(ResourceBundleUtil.getLabel("credential") + "assessment submitted");
+			PageUtil.fireSuccessfulInfoMessage(ResourceBundleUtil.getLabel("credential") + " assessment is submitted");
 		} catch (Exception e) {
 			logger.error("Error submitting the assessment", e);
-			PageUtil.fireErrorMessage("Error submitting the " + ResourceBundleUtil.getLabel("credential").toLowerCase());
+			PageUtil.fireErrorMessage("Error submitting the " + ResourceBundleUtil.getLabel("credential").toLowerCase() + " assessment");
 		}
 	}
 
