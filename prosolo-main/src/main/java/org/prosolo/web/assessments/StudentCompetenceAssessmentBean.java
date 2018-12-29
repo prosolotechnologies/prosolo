@@ -113,10 +113,10 @@ public class StudentCompetenceAssessmentBean extends CompetenceAssessmentBean im
 			getCompetenceAssessmentData().setAssessorNotified(false);
 
 			PageUtil.fireSuccessfulInfoMessage(
-					"You have successfully approved the " + ResourceBundleUtil.getMessage("label.competence").toLowerCase());
+					"You have successfully submitted the " + ResourceBundleUtil.getMessage("label.competence").toLowerCase());
 		} catch (Exception e) {
-			logger.error("Error approving the assessment", e);
-			PageUtil.fireErrorMessage("Error approving the " + ResourceBundleUtil.getMessage("label.competence").toLowerCase());
+			logger.error("Error submitting the assessment", e);
+			PageUtil.fireErrorMessage("Error submitting the " + ResourceBundleUtil.getMessage("label.competence").toLowerCase());
 		}
 	}
 
@@ -168,7 +168,7 @@ public class StudentCompetenceAssessmentBean extends CompetenceAssessmentBean im
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			PageUtil.fireErrorMessage("Error while trying to initialize assessment comments");
+			PageUtil.fireErrorMessage("Error trying to initialize assessment comments");
 		}
 	}
 
@@ -179,7 +179,7 @@ public class StudentCompetenceAssessmentBean extends CompetenceAssessmentBean im
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			PageUtil.fireErrorMessage("Error while trying to initialize assessment comments");
+			PageUtil.fireErrorMessage("Error trying to initialize assessment comments");
 		}
 	}
 
@@ -383,8 +383,8 @@ public class StudentCompetenceAssessmentBean extends CompetenceAssessmentBean im
 
 			addNewCommentToAssessmentData(newComment);
 		} catch (Exception e){
-			logger.error("Error approving assessment data", e);
-			PageUtil.fireErrorMessage("Error approving the assessment");
+			logger.error("Error submitting assessment data", e);
+			PageUtil.fireErrorMessage("Error submitting the assessment");
 		}
 	}
 

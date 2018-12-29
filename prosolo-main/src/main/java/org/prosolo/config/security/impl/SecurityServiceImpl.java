@@ -88,7 +88,7 @@ public class SecurityServiceImpl extends AbstractManagerImpl implements Security
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new DbConnectionException("Error while initializing roles and capabilities");
+			throw new DbConnectionException("Error initializing roles and capabilities");
 		}
 	}
 

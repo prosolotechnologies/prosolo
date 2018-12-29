@@ -81,7 +81,7 @@ public class FollowResourceManagerImpl extends AbstractManagerImpl implements Fo
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while trying to follow user");
+			throw new DbConnectionException("Error trying to follow user");
 		}
 	}
 	
@@ -134,7 +134,7 @@ public class FollowResourceManagerImpl extends AbstractManagerImpl implements Fo
 			}
 		} catch(Exception e) {
 			logger.error(e);
-			throw new DbConnectionException("Error while retrieving follwing users");
+			throw new DbConnectionException("Error retrieving follwing users");
 		}
 		return new ArrayList<>();
 	}
@@ -497,7 +497,7 @@ public class FollowResourceManagerImpl extends AbstractManagerImpl implements Fo
 			return new ArrayList<>();
 		} catch (DbConnectionException e) {
 			logger.error("Error", e);
-			throw new DbConnectionException("Error while retrieving notification data");
+			throw new DbConnectionException("Error retrieving notification data");
 		}
 	}
 	

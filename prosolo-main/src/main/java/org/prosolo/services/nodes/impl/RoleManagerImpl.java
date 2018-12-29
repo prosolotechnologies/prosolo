@@ -158,7 +158,7 @@ public class RoleManagerImpl extends AbstractManagerImpl implements RoleManager 
 			role.setSystem(systemDefined);
 			return saveEntity(role);
 		}catch(Exception e){
-			throw new DbConnectionException("Error while saving role");
+			throw new DbConnectionException("Error saving role");
 		}
 	}
 	
@@ -178,7 +178,7 @@ public class RoleManagerImpl extends AbstractManagerImpl implements RoleManager 
 					.list();
 		}catch(Exception e){
 			e.printStackTrace();
-			throw new DbConnectionException("Error while loading capabilities");
+			throw new DbConnectionException("Error loading capabilities");
 		}
 	}
 	
@@ -217,7 +217,7 @@ public class RoleManagerImpl extends AbstractManagerImpl implements RoleManager 
 			return resultMap;
 		}catch(Exception e){
 			e.printStackTrace();
-			throw new DbConnectionException("Error while loading capabilities");
+			throw new DbConnectionException("Error loading capabilities");
 		}
 	}
 	
@@ -238,7 +238,7 @@ public class RoleManagerImpl extends AbstractManagerImpl implements RoleManager 
 				
 		}catch(Exception e){
 			e.printStackTrace();
-			throw new DbConnectionException("Error while loading capabilities");
+			throw new DbConnectionException("Error loading capabilities");
 		}
 	}
 	
@@ -266,7 +266,7 @@ public class RoleManagerImpl extends AbstractManagerImpl implements RoleManager 
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while checking user roles");
+			throw new DbConnectionException("Error checking user roles");
 		}
 	}
 

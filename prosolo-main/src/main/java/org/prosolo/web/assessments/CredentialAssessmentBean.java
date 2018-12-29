@@ -134,7 +134,7 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 					}
 				}
 			} catch (Exception e) {
-				logger.error("Error while loading assessment data", e);
+				logger.error("Error loading assessment data", e);
 				PageUtil.fireErrorMessage("Error loading assessment data");
 			}
 		} else {
@@ -186,7 +186,7 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 				PageUtil.notFound("This page is no longer available");
 			}
 		} catch (Exception e) {
-			logger.error("Error while loading assessment data", e);
+			logger.error("Error loading assessment data", e);
 			PageUtil.fireErrorMessage("Error loading assessment data");
 			success = false;
 		}
@@ -433,7 +433,7 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			PageUtil.fireErrorMessage("Error while trying to initialize assessment comments");
+			PageUtil.fireErrorMessage("Error trying to initialize assessment comments");
 		}
 	}
 
@@ -477,8 +477,8 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 
 			addNewCommentToAssessmentData(newComment);
 		} catch (Exception e){
-			logger.error("Error approving assessment data", e);
-			PageUtil.fireErrorMessage("Error approving the assessment");
+			logger.error("Error submitting assessment data", e);
+			PageUtil.fireErrorMessage("Error submitting the assessment");
 		}
 	}
 
@@ -553,10 +553,10 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 						.findFirst()
 						.get().setApproved(true);
 			}
-			PageUtil.fireSuccessfulInfoMessage(ResourceBundleUtil.getLabel("credential") + " approved");
+			PageUtil.fireSuccessfulInfoMessage(ResourceBundleUtil.getLabel("credential") + "assessment submitted");
 		} catch (Exception e) {
-			logger.error("Error approving the assessment", e);
-			PageUtil.fireErrorMessage("Error approving the " + ResourceBundleUtil.getLabel("credential").toLowerCase());
+			logger.error("Error submitting the assessment", e);
+			PageUtil.fireErrorMessage("Error submitting the " + ResourceBundleUtil.getLabel("credential").toLowerCase());
 		}
 	}
 

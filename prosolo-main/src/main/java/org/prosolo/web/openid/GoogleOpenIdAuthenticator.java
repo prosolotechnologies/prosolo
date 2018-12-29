@@ -43,7 +43,7 @@ public class GoogleOpenIdAuthenticator implements OpenIdAuthenticator {
 		} catch(OpenIdException e) {
 			try {
 				logger.error(e);
-				FacesContext.getCurrentInstance().getExternalContext().redirect(CommonSettings.getInstance().config.appConfig.domain + "login?openiderr=Error while trying to login through your Google account");
+				FacesContext.getCurrentInstance().getExternalContext().redirect(CommonSettings.getInstance().config.appConfig.domain + "login?openiderr=Error trying to login through your Google account");
 			} catch (IOException e1) {	
 				logger.error(e1);
 			}

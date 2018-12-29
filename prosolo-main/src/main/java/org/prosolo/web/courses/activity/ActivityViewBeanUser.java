@@ -147,7 +147,7 @@ public class ActivityViewBeanUser implements Serializable {
 			} catch(Exception e) {
 				e.printStackTrace();
 				logger.error(e);
-				PageUtil.fireErrorMessage("Error while loading activity");
+				PageUtil.fireErrorMessage("Error loading activity");
 			}
 		} else {
 			PageUtil.notFound();
@@ -322,7 +322,7 @@ public class ActivityViewBeanUser implements Serializable {
 		} catch(Exception e) {
 			logger.error(e);
 			competenceData.getActivityToShowWithDetails().getResultData().setResult(null);
-			PageUtil.fireErrorMessage("Error while saving response");
+			PageUtil.fireErrorMessage("Error saving response");
 		}
 	}
 	

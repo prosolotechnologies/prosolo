@@ -194,7 +194,7 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while loading comments");
+			throw new DbConnectionException("Error loading comments");
 		}
 	}
 	@Override
@@ -296,7 +296,7 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while loading comments");
+			throw new DbConnectionException("Error loading comments");
 		}
 	}
 	
@@ -333,7 +333,7 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while loading comments");
+			throw new DbConnectionException("Error loading comments");
 		}
 	}
 
@@ -389,7 +389,7 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while saving comment like");
+			throw new DbConnectionException("Error  saving comment like");
 		}
 	}
 	
@@ -415,7 +415,7 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while saving comment like");
+			throw new DbConnectionException("Error saving comment like");
 		}
 	}
 	
@@ -428,7 +428,7 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 //		} catch(Exception e) {
 //			logger.error(e);
 //			e.printStackTrace();
-//			throw new DbConnectionException("Error while saving comment");
+//			throw new DbConnectionException("Error saving comment");
 //		}
 //	}
 
@@ -500,7 +500,7 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while saving activity");
+			throw new DbConnectionException("Error saving activity");
 		}
 	}
 	
@@ -517,7 +517,7 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while updating comment");
+			throw new DbConnectionException("Error updating comment");
 		}
 	}
 	
@@ -562,7 +562,7 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while loading user ids");
+			throw new DbConnectionException("Error loading user ids");
 		}
 	}
 	
@@ -600,7 +600,7 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while loading user id");
+			throw new DbConnectionException("Error loading user id");
 		}
 	}
 
@@ -652,7 +652,7 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while loading user role");
+			throw new DbConnectionException("Error loading user role");
 		}
 	}
 	
@@ -680,7 +680,7 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving number of comments");
+			throw new DbConnectionException("Error retrieving number of comments");
 		}
 	}
 	
@@ -705,7 +705,7 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while loading comments");
+			throw new DbConnectionException("Error loading comments");
 		}
 	}
 	

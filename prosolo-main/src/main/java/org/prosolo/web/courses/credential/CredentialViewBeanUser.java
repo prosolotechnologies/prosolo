@@ -104,7 +104,7 @@ public class CredentialViewBeanUser implements Serializable {
 			} catch (Exception e) {
 				logger.error(e);
 				e.printStackTrace();
-				PageUtil.fireErrorMessage("Error while retrieving credential data");
+				PageUtil.fireErrorMessage("Error retrieving credential data");
 			}
 		} else {
 			PageUtil.notFound();
@@ -140,7 +140,7 @@ public class CredentialViewBeanUser implements Serializable {
 			PageUtil.redirect("/credentials/" + id + "/" + idEncoder.encodeId(comp.getCompetenceId()) + "?justEnrolled=true");
 		} catch (DbConnectionException e) {
 			logger.error("Error", e);
-			PageUtil.fireErrorMessage("Error while enrolling in a " + ResourceBundleUtil.getMessage("label.competence").toLowerCase());
+			PageUtil.fireErrorMessage("Error enrolling in a " + ResourceBundleUtil.getMessage("label.competence").toLowerCase());
 		}
 	}
 

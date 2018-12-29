@@ -151,7 +151,7 @@ public class LTIToolProxyRegistrationBean implements Serializable {
 			return tcProfile;
 		} catch (Exception e) {
 			logger.error(e);
-			throw new Exception("Error while retrieving Tool Consumer Profile");
+			throw new Exception("Error retrieving Tool Consumer Profile");
 		} finally {
 			try {
 				response.close();
@@ -200,7 +200,7 @@ public class LTIToolProxyRegistrationBean implements Serializable {
 			return toolConsumerProfile;
 		} catch (Exception e) {
 			logger.error(e);
-			throw new Exception("Error while parsing Tool Consumer Profile");
+			throw new Exception("Error parsing Tool Consumer Profile");
 		}
 
 	}
@@ -306,7 +306,7 @@ public class LTIToolProxyRegistrationBean implements Serializable {
 
 		} catch (Exception e) {
 			logger.error("Error", e);
-			throw new Exception("Error while trying to register Tool Proxy");
+			throw new Exception("Error trying to register Tool Proxy");
 		} finally {
 			try {
 				response.close();

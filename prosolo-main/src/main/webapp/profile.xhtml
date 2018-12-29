@@ -368,7 +368,7 @@
                             </ui:repeat>
                             <ui:fragment rendered="#{not empty profileBean.credentialsToAdd}">
                                 <div class="bottom30 top20">
-                                    <small>Note: Approved assessments and evidence are not displayed by default. You can select which of them you want to display by choosing the “Edit” option for a #{msg['label.credential'].toLowerCase()}.</small>
+                                    <small>Note: Submitted assessments and evidence are not displayed by default. You can select which of them you want to display by choosing the “Edit” option for a #{msg['label.credential'].toLowerCase()}.</small>
                                 </div>
                             </ui:fragment>
                         </div>
@@ -512,12 +512,12 @@
                         </div>
                         <div class="modal-body alignLeft">
                             <ui:fragment rendered="#{not empty profileBean.credentialForEdit}">
-                                <p>Select approved #{msg['label.assessment.type.INSTRUCTOR_ASSESSMENT.short'].toLowerCase()}, #{msg['label.assessment.type.PEER_ASSESSMENT.short'].toLowerCase()} or #{msg['label.assessment.type.SELF_ASSESSMENT.short'].toLowerCase()} assessments for the #{msg['label.credential'].toLowerCase()} you want to be displayed on your profile:</p>
+                                <p>Select submitted #{msg['label.assessment.type.INSTRUCTOR_ASSESSMENT.short'].toLowerCase()}, #{msg['label.assessment.type.PEER_ASSESSMENT.short'].toLowerCase()} or #{msg['label.assessment.type.SELF_ASSESSMENT.short'].toLowerCase()} assessments for the #{msg['label.credential'].toLowerCase()} you want to be displayed on your profile:</p>
 
                                 <div class="standardInModal bottom30">
                                     <ui:fragment rendered="#{profileBean.totalNumberOfCredentialAssessmentsAvailableToAdd eq 0}">
                                     <div class="lightText">
-                                        No approved #{msg['label.credential'].toLowerCase()} assessments
+                                        No submitted #{msg['label.credential'].toLowerCase()} assessments
                                     </div>
                                     </ui:fragment>
                                     <ui:repeat value="#{profileBean.credentialForEdit.assessments}" var="assessmentType" varStatus="status">
@@ -577,7 +577,7 @@
 
                                 <h2>#{msg['label.competence.plural']}</h2>
 
-                                <p>Select evidence and approved assessments you want to be displayed on your profile for each of the #{msg['label.competence.plural'].toLowerCase()}:</p>
+                                <p>Select evidence and submitted assessments you want to be displayed on your profile for each of the #{msg['label.competence.plural'].toLowerCase()}:</p>
 
                                 <ui:repeat value="#{profileBean.credentialForEdit.competences}" var="comp" varStatus="status">
                                     <div class="standardInModal bottom30">
@@ -620,7 +620,7 @@
                                         </ui:fragment>
                                         <ui:fragment rendered="#{profileBean.getTotalNumberOfCompetenceAssessmentsAvailableToAdd(comp) eq 0}">
                                             <div class="lightText">
-                                                No approved #{msg['label.competence'].toLowerCase()} assessments
+                                                No submitted #{msg['label.competence'].toLowerCase()} assessments
                                             </div>
                                         </ui:fragment>
                                         <ui:repeat value="#{comp.assessments}" var="assessmentType" varStatus="status">

@@ -26,7 +26,7 @@ public class LTIConfigLoader {
         try {
             toolProxy = loadToolProxy();
         } catch (Exception e) {
-            throw new Exception("Error while loading Tool Proxy");
+            throw new Exception("Error loading Tool Proxy");
         }
     }
 
@@ -53,13 +53,13 @@ public class LTIConfigLoader {
             }
         } catch (Exception e) {
             logger.error(e);
-            throw new Exception("Error while creating ToolProxy");
+            throw new Exception("Error creating ToolProxy");
         } finally {
             if (br != null) {
                 try {
                     br.close();
                 } catch (IOException e) {
-                    logger.error("Error while closing buffered reader", e);
+                    logger.error("Error closing buffered reader", e);
                     return null;
                 }
             }

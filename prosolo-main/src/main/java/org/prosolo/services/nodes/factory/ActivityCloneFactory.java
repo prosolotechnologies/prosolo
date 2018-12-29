@@ -46,7 +46,7 @@ public class ActivityCloneFactory {
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while cloning competence activity");
+			throw new DbConnectionException("Error cloning competence activity");
 		}
 	}
 
@@ -82,7 +82,7 @@ public class ActivityCloneFactory {
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while cloning activity");
+			throw new DbConnectionException("Error cloning activity");
 		}
 	}
 

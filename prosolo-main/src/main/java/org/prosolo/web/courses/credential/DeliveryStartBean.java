@@ -52,7 +52,7 @@ public class DeliveryStartBean implements Serializable {
 			}
 		} catch (DbConnectionException dce) {
 			logger.error(dce);
-			String growlMessage = "Error while creating new " + ResourceBundleUtil.getMessage("label.credential").toLowerCase() + " " + ResourceBundleUtil.getMessage("label.delivery").toLowerCase() + ". Please try again.";
+			String growlMessage = "Error creating new " + ResourceBundleUtil.getMessage("label.credential").toLowerCase() + " " + ResourceBundleUtil.getMessage("label.delivery").toLowerCase() + ". Please try again.";
 			PageUtil.fireErrorMessage(growlMessage);
 		} catch (IllegalDataStateException idse) {
 			logger.error(idse);

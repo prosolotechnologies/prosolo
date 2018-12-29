@@ -188,7 +188,7 @@ public class CompetenceLibraryBeanManager implements Serializable, Paginable {
 				PageUtil.redirect("/manage/competences/" + idEncoder.encodeId(compId) + "/edit");
 			} catch(DbConnectionException e) {
 				logger.error(e);
-				PageUtil.fireErrorMessage("Error while trying to bcc competence");
+				PageUtil.fireErrorMessage("Error trying to duplicate competence");
 			}
 		}
 	}

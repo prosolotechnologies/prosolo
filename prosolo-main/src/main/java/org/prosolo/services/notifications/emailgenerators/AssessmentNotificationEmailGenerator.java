@@ -28,7 +28,7 @@ public class AssessmentNotificationEmailGenerator extends NotificationEmailGener
 			this.request = true;
 			break;
 		case Assessment_Approved:
-			this.subject = "Your assessment has been approved";
+			this.subject = "Your assessment has been submitted";
 			break;
 		case Assessment_Comment:
 			this.subject = "New comment on assessment";

@@ -76,7 +76,7 @@ public class CompetenceLibraryBean implements Serializable, Paginable {
 
 			searchCompetences(false);
 		} catch (DbConnectionException e) {
-			PageUtil.fireErrorMessage("Error while loading the page");
+			PageUtil.fireErrorMessage("Error loading the page");
 		}
 	}
 
@@ -150,7 +150,7 @@ public class CompetenceLibraryBean implements Serializable, Paginable {
 			}
 		} catch(DbConnectionException e) {
 			logger.error("Error", e);
-			PageUtil.fireErrorMessage("Error while enrolling in a " + ResourceBundleUtil.getMessage("label.competence").toLowerCase());
+			PageUtil.fireErrorMessage("Error enrolling in a " + ResourceBundleUtil.getMessage("label.competence").toLowerCase());
 		}
 	}
 

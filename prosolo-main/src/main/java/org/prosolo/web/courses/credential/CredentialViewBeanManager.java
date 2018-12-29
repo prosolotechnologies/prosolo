@@ -60,7 +60,7 @@ public class CredentialViewBeanManager implements Serializable {
 				PageUtil.notFound();
 			} catch (Exception e) {
 				logger.error("Error", e);
-				PageUtil.fireErrorMessage("Error while trying to retrieve credential data");
+				PageUtil.fireErrorMessage("Error trying to retrieve credential data");
 			}
 		} else {
 			PageUtil.notFound();

@@ -59,7 +59,7 @@ public class UnitUserAddBean implements Serializable, Paginable {
 			loadUsersFromDB();
 		} catch (Exception e) {
 			logger.error(e);
-			PageUtil.fireErrorMessage("Error while loading users");
+			PageUtil.fireErrorMessage("Error loading users");
 		}
 	}
 
@@ -111,12 +111,12 @@ public class UnitUserAddBean implements Serializable, Paginable {
 				loadUsersFromDB();
 			} catch (DbConnectionException e) {
 				logger.error("Error", e);
-				PageUtil.fireErrorMessage("Error while loading user data");
+				PageUtil.fireErrorMessage("Error loading user data");
 			}
 			return true;
 		} catch (DbConnectionException e) {
 			logger.error("Error", e);
-			PageUtil.fireErrorMessage("Error while trying to add "
+			PageUtil.fireErrorMessage("Error trying to add "
 					+ user.getFullName() + " to the " + ResourceBundleUtil.getMessage("label.unit").toLowerCase() + " '" + unitTitle + "'");
 		}
 		return false;

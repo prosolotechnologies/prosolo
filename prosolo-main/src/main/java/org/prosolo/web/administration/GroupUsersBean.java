@@ -89,7 +89,7 @@ public class GroupUsersBean implements Serializable, Paginable {
 					}
 				} catch (Exception e) {
 					logger.error("Error", e);
-					PageUtil.fireErrorMessage("Error while loading the page");
+					PageUtil.fireErrorMessage("Error loading the page");
 				}
 			} else {
 				PageUtil.notFound();
@@ -116,11 +116,11 @@ public class GroupUsersBean implements Serializable, Paginable {
 				loadUsersFromDB();
 			} catch (DbConnectionException e) {
 				logger.error("Error", e);
-				PageUtil.fireErrorMessage("Error while loading user data");
+				PageUtil.fireErrorMessage("Error loading user data");
 			}
 		} catch (DbConnectionException e) {
 			logger.error("Error", e);
-			PageUtil.fireErrorMessage("Error while removing user " + user.getFullName() + " from the group");
+			PageUtil.fireErrorMessage("Error removing user " + user.getFullName() + " from the group");
 		}
 	}
 
@@ -135,7 +135,7 @@ public class GroupUsersBean implements Serializable, Paginable {
 			loadUsersFromDB();
 		} catch (DbConnectionException e) {
 			logger.error("Error", e);
-			PageUtil.fireErrorMessage("Error while loading user data");
+			PageUtil.fireErrorMessage("Error loading user data");
 		}
 	}
 
@@ -151,7 +151,7 @@ public class GroupUsersBean implements Serializable, Paginable {
 				loadUsersFromDB();
 			} catch (DbConnectionException e) {
 				logger.error("Error", e);
-				PageUtil.fireErrorMessage("Error while loading user data");
+				PageUtil.fireErrorMessage("Error loading user data");
 			}
 		}
 	}

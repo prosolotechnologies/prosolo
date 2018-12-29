@@ -208,7 +208,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			throw new IllegalDataStateException("Assessment already created");
 		} catch (Exception e) {
 			logger.error("Error", e);
-			throw new DbConnectionException("Error while creating assessment of a credential");
+			throw new DbConnectionException("Error creating assessment of a credential");
 		}
 	}
 
@@ -363,7 +363,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			throw e;
 		} catch (Exception e) {
 			logger.error("Error", e);
-			throw new DbConnectionException("Error while saving competency assessment");
+			throw new DbConnectionException("Error saving competency assessment");
 		}
 	}
 
@@ -1101,7 +1101,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		
 		// if we don't search for pending or for approved, return empty list
 		if (query == null) {
-			logger.info("Searching for assessments that are not pending and not approved, returning empty list");
+			logger.info("Searching for assessments that are not pending and not submitted, returning empty list");
 			return Lists.newArrayList();
 		} else {
 			@SuppressWarnings("unchecked")
@@ -1235,7 +1235,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			if (credentialAssessment.getTargetCredential().getCredential().getGradingMode() != GradingMode.NONGRADED && !credentialAssessment.isAssessed()) {
 				//if credential should be graded but it is not, it can't be approved
 				//TODO refactor - unify criteria for determining whether resource is graded for all resources (activity, competency, credential)
-				throw new IllegalDataStateException("Credential must be graded before approving");
+				throw new IllegalDataStateException("Credential must be graded before submitted");
 			}
 			credentialAssessment.setApproved(true);
 			credentialAssessment.setDateApproved(new Date());
@@ -1259,7 +1259,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			throw ex;
 		} catch (Exception e) {
 			logger.error("Error", e);
-			throw new DbConnectionException("Error approving the assessment");
+			throw new DbConnectionException("Error submitting the assessment");
 		}
 	}
 
@@ -1341,7 +1341,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while creating activity assessment");
+			throw new DbConnectionException("Error creating activity assessment");
 		}
 	}
 
@@ -1443,7 +1443,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 			return result;
 		} catch (ResourceCouldNotBeLoadedException e){
-			throw new DbConnectionException("Error while loading user");
+			throw new DbConnectionException("Error loading user");
 		}
 	}
 
@@ -1539,7 +1539,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 			return result;
 		} catch (ResourceCouldNotBeLoadedException e){
-			throw new DbConnectionException("Error while loading user");
+			throw new DbConnectionException("Error loading user");
 		}
 	}
 
@@ -1636,7 +1636,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 			return result;
 		} catch (ResourceCouldNotBeLoadedException e){
-			throw new DbConnectionException("Error while loading user");
+			throw new DbConnectionException("Error loading user");
 		}
 	}
 
@@ -1681,7 +1681,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 				if (competenceAssessment.getCompetence().getGradingMode() != GradingMode.NONGRADED && competenceAssessment.getPoints() < 0) {
 					//if competency should be graded but it is not (point < 0) it can't be approved
 					//TODO refactor - unify criteria for determining whether resource is graded for all resources (activity, competency, credential)
-					throw new IllegalDataStateException("Competency must be graded before approving");
+					throw new IllegalDataStateException("Competency must be graded before submitted");
 				}
 				competenceAssessment.setApproved(true);
 				competenceAssessment.setDateApproved(new Date());
@@ -1696,7 +1696,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 				/*
 				 only if request for competence assessment approve is direct we should generate this event
-				 if competence is being approved as a part of approving credential assessment this
+				 if competence is being approved as a part of submitting credential assessment this
 				 event is not generated
 
 				 TODO event refactor - should we generate this event and filter it out in some other place
@@ -1715,7 +1715,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			return result;
 		} catch (Exception e) {
 			logger.error("Error", e);
-			throw new DbConnectionException("Error approving the competence");
+			throw new DbConnectionException("Error submitting the competence");
 		}
 	}
 
@@ -1783,7 +1783,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		Query query = getAssessmentNumberForUserQuery(studentId, searchForPending, searchForApproved, credId);
 		// if we don't search for pending or for approved, return empty list
 		if (query == null) {
-			logger.info("Searching for assessments that are not pending and not approved, returning empty list");
+			logger.info("Searching for assessments that are not pending and not submitted, returning empty list");
 			return 0;
 		} else {
 			return ((Long) query.uniqueResult()).intValue();
@@ -1857,7 +1857,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving assessment info");
+			throw new DbConnectionException("Error retrieving assessment info");
 		}
 	}
 
@@ -1894,7 +1894,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			return null;
 		} catch(Exception e) {
 			logger.error("Error", e);
-			throw new DbConnectionException("Error while retrieving assessment info");
+			throw new DbConnectionException("Error retrieving assessment info");
 		}
 	}
 
@@ -1965,7 +1965,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while updating assessor");
+			throw new DbConnectionException("Error updating assessor");
 		}
 	}
 
@@ -2006,7 +2006,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while updating assessor");
+			throw new DbConnectionException("Error updating assessor");
 		}
 	}
 
@@ -2203,7 +2203,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 				ActivityAssessment ad = (ActivityAssessment) persistence.currentManager().load(
 						ActivityAssessment.class, activityAssessmentId);
 				if (ad.getAssessment().isApproved()) {
-					throw new IllegalDataStateException("Grade can't be edited after assessment is approved");
+					throw new IllegalDataStateException("Grade can't be edited after assessment is submitted");
 				}
 //
 				ad.setPoints(gradeValue);
@@ -2275,7 +2275,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 						CompetenceAssessment.class, assessmentId);
 
 				if (ca.isApproved()) {
-					throw new IllegalDataStateException("Grade can't be edited after assessment is approved");
+					throw new IllegalDataStateException("Grade can't be edited after assessment is submitted");
 				}
 //
 				ca.setPoints(gradeValue);
@@ -2395,7 +2395,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 						CredentialAssessment.class, assessmentId);
 
 				if (ca.isApproved()) {
-					throw new IllegalDataStateException("Grade can't be edited after assessment is approved");
+					throw new IllegalDataStateException("Grade can't be edited after assessment is submitted");
 				}
 //
 				ca.setPoints(gradeValue);
@@ -2512,7 +2512,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while recalculating score");
+			throw new DbConnectionException("Error recalculating score");
 		}
 	}
 
@@ -2543,7 +2543,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving competence assessment score");
+			throw new DbConnectionException("Error retrieving competence assessment score");
 		}
 	}
 
@@ -2554,7 +2554,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		//if automatic grading mode calculate comp points as a sum of activity points
 		if (ca.getCompetence().getGradingMode() == GradingMode.AUTOMATIC) {
 			if (ca.isApproved()) {
-				throw new IllegalDataStateException("Grade can't be edited after assessment is approved");
+				throw new IllegalDataStateException("Grade can't be edited after assessment is submitted");
 			}
 			updateScoreForCompetenceAssessmentAsSumOfActivityPoints(compAssessmentId, persistence.currentManager());
 			//recalculate assessment score for all credential assessments with this competence assessment if needed
@@ -2583,7 +2583,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 //		} catch(Exception e) {
 //			logger.error(e);
 //			e.printStackTrace();
-//			throw new DbConnectionException("Error while retrieving activity discussion");
+//			throw new DbConnectionException("Error retrieving activity discussion");
 //		}
 //	}
 
@@ -2605,7 +2605,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while updating activity grade");
+			throw new DbConnectionException("Error updating activity grade");
 		}
 	}
 
@@ -2643,7 +2643,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 //		} catch(Exception e) {
 //			logger.error(e);
 //			e.printStackTrace();
-//			throw new DbConnectionException("Error while retrieving activity assessment");
+//			throw new DbConnectionException("Error retrieving activity assessment");
 //		}
 //	}
 	
@@ -2691,7 +2691,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			return assessments;
 		} catch(Exception e) {
 			logger.error("error", e);
-			throw new DbConnectionException("Error while retrieving activity assessment");
+			throw new DbConnectionException("Error retrieving activity assessment");
 		}
 	}
 	
@@ -2728,7 +2728,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving activity assessment");
+			throw new DbConnectionException("Error retrieving activity assessment");
 		}
 	}
 
@@ -2756,7 +2756,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving activity assessment");
+			throw new DbConnectionException("Error retrieving activity assessment");
 		}
 	}
 
@@ -2929,7 +2929,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving assessment data");
+			throw new DbConnectionException("Error retrieving assessment data");
 		}
 	}
 
@@ -3438,7 +3438,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving ids of credential assessors for the particular user");
+			throw new DbConnectionException("Error retrieving ids of credential assessors for the particular user");
 		}
 	}
 

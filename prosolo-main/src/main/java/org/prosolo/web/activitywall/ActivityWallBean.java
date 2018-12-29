@@ -245,7 +245,7 @@ public class ActivityWallBean implements Serializable {
 			newSocialActivity = new SocialActivityData1();
 		} catch (DbConnectionException e) {
 			logger.error(e.getMessage());
-			PageUtil.fireErrorMessage("Error while posting status");
+			PageUtil.fireErrorMessage("Error posting status");
 		}
 	}
 	
@@ -273,7 +273,7 @@ public class ActivityWallBean implements Serializable {
 			postShareText = null;
 		} catch (DbConnectionException e) {
 			logger.error(e.getMessage());
-			PageUtil.fireErrorMessage("Error while sharing post!");
+			PageUtil.fireErrorMessage("Error sharing post!");
 		}
 	}
 

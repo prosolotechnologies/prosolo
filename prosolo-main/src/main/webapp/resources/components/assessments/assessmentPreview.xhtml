@@ -99,11 +99,11 @@
 							<h:form id="assessCredentialForm" prependId="false">
 								<ui:fragment
 										rendered="#{cc.attrs.bean.fullAssessmentData.approved}">
-									<div class="tagApproved left item">Approved</div>
+									<div class="tagApproved left item">Submitted</div>
 								</ui:fragment>
 
 								<ui:fragment rendered="#{not cc.attrs.bean.fullAssessmentData.approved and cc.attrs.bean.isUserAssessorInCurrentContext() and not cc.attrs.bean.allCompetencesStarted()}">
-									<a href="javascript:void(0);" disabled="disabled" class="btn btn-green btn-sm item" data-toggle="tooltip" title="#{msg['label.credential']} assessment can't be approved until all #{msg['label.competence.plural'].toLowerCase()} are started">Approve</a>
+									<a href="javascript:void(0);" disabled="disabled" class="btn btn-green btn-sm item" data-toggle="tooltip" title="#{msg['label.credential']} assessment cannot be submitted until all #{msg['label.competence.plural'].toLowerCase()} are started">Submit</a>
 								</ui:fragment>
 
 								<ui:fragment rendered="#{not cc.attrs.bean.fullAssessmentData.approved and cc.attrs.bean.isUserAssessorInCurrentContext() and cc.attrs.bean.allCompetencesStarted()}">
@@ -111,13 +111,13 @@
 										rendered="#{util:isCredentialFullyGraded(cc.attrs.bean.fullAssessmentData)}"
 										styleClass="btn btn-green btn-sm item"
 										pt:data-toggle="modal"
-										value="Approve"
+										value="Submit"
 										action="#{cc.attrs.bean.prepareLearningResourceAssessmentForApproving()}"
 										update=":#{cc.clientId}:approveAssessment"
 										oncomplete="$('#approveAssessment').modal('show')"
 									/>
 									<ui:fragment rendered="#{not util:isCredentialFullyGraded(cc.attrs.bean.fullAssessmentData)}">
-										<span class="disabled btn btn-green btn-sm item" data-toggle="tooltip" title="#{msg['label.credential']} assessment can't be approved until #{msg['label.credential'].toLowerCase()} and all #{msg['label.competence.plural'].toLowerCase()} are graded">Approve</span>
+										<span class="disabled btn btn-green btn-sm item" data-toggle="tooltip" title="#{msg['label.credential']} assessment cannot be submitted until #{msg['label.credential'].toLowerCase()} and all #{msg['label.competence.plural'].toLowerCase()} are graded">Submit</span>
 									</ui:fragment>
 									<script>
 										$("[data-toggle='tooltip']").tooltip();
@@ -333,7 +333,7 @@
 													/>
 												</ui:fragment>
 												<span class="#{otherAssessment.approved ? 'approved' : 'pending'}">#{otherAssessment.approved
-													? 'Approved' : 'Pending'}</span>
+													? 'Submitted' : 'Pending'}</span>
 											</h:outputLink>
 										</li>
 									</ui:repeat>
@@ -386,11 +386,11 @@
 										<h2>#{cc.attrs.bean.credentialTitle}</h2>
 										<div class="activityOptions">
 											<ui:fragment rendered="#{cc.attrs.bean.fullAssessmentData.approved}">
-												<div class="tagApproved">Approved</div>
+												<div class="tagApproved">Submitted</div>
 											</ui:fragment>
 
 											<ui:fragment rendered="#{cc.attrs.bean.fullDisplayMode and not cc.attrs.bean.fullAssessmentData.approved and cc.attrs.bean.isUserAssessorInCurrentContext() and not cc.attrs.bean.allCompetencesStarted()}">
-												<a href="javascript:void(0);" disabled="disabled" class="linkApprove" data-toggle="tooltip" title="#{msg['label.credential']} assessment can't be approved until all #{msg['label.competence.plural'].toLowerCase()} are started">Approve<span></span></a>
+												<a href="javascript:void(0);" disabled="disabled" class="linkApprove" data-toggle="tooltip" title="#{msg['label.credential']} assessment cannot be submitted until all #{msg['label.competence.plural'].toLowerCase()} are started">Approve<span></span></a>
 											</ui:fragment>
 
 											<ui:fragment rendered="#{cc.attrs.bean.fullDisplayMode and not cc.attrs.bean.fullAssessmentData.approved and cc.attrs.bean.isUserAssessorInCurrentContext() and cc.attrs.bean.allCompetencesStarted()}">
@@ -401,10 +401,10 @@
 														action="#{cc.attrs.bean.prepareLearningResourceAssessmentForApproving()}"
 														update=":#{cc.clientId}:approveAssessment"
 														oncomplete="$('#approveAssessment').modal('show')">
-													Approve<span></span>
+													Submit<span></span>
 												</p:commandLink>
 												<ui:fragment rendered="#{not util:isCredentialFullyGraded(cc.attrs.bean.fullAssessmentData)}">
-													<a class="disabled linkApprove" data-toggle="tooltip" title="#{msg['label.credential']} assessment can't be approved until #{msg['label.credential'].toLowerCase()} and all #{msg['label.competence.plural'].toLowerCase()} are graded">Approve<span></span></a>
+													<a class="disabled linkApprove" data-toggle="tooltip" title="#{msg['label.credential']} assessment cannot be submitted until #{msg['label.credential'].toLowerCase()} and all #{msg['label.competence.plural'].toLowerCase()} are graded">Approve<span></span></a>
 												</ui:fragment>
 											</ui:fragment>
 											<script>

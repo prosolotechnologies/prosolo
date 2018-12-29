@@ -106,7 +106,7 @@ public class UnitUsersBean implements Serializable, Paginable {
 			}
 		} catch (Exception e) {
 			logger.error("Error", e);
-			PageUtil.fireErrorMessage("Error while loading page");
+			PageUtil.fireErrorMessage("Error loading page");
 		}
 	}
 
@@ -131,7 +131,7 @@ public class UnitUsersBean implements Serializable, Paginable {
 			loadUsersFromDB();
 		} catch (DbConnectionException e) {
 			logger.error("Error", e);
-			PageUtil.fireErrorMessage("Error while loading user data");
+			PageUtil.fireErrorMessage("Error loading user data");
 		}
 	}
 
@@ -179,7 +179,7 @@ public class UnitUsersBean implements Serializable, Paginable {
 				loadUsersFromDB();
 			} catch (DbConnectionException e) {
 				logger.error("Error", e);
-				PageUtil.fireErrorMessage("Error while loading user data");
+				PageUtil.fireErrorMessage("Error loading user data");
 			}
 		}
 	}

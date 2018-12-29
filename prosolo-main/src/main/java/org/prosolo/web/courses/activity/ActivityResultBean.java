@@ -76,7 +76,7 @@ public class ActivityResultBean implements Serializable {
 			result.setResultPostDate(postDate);
 		} catch (Exception e) {
 			logger.error(e);
-			PageUtil.fireErrorMessage("Error while uploading assignment");
+			PageUtil.fireErrorMessage("Error uploading assignment");
 		}
 	}
 	

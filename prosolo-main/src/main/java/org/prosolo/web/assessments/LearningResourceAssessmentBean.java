@@ -106,7 +106,7 @@ public abstract class LearningResourceAssessmentBean implements Serializable {
 			cleanupCommentData();
 		} catch (DbConnectionException e) {
 			logger.error(e);
-			PageUtil.fireErrorMessage("Error while saving a comment. Please try again.");
+			PageUtil.fireErrorMessage("Error saving a comment. Please try again.");
 		}
 	}
 

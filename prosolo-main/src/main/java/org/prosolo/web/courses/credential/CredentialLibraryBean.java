@@ -80,7 +80,7 @@ public class CredentialLibraryBean implements Serializable, Paginable {
 			initCategoryFilters();
 			searchCredentials(false);
 		} catch (DbConnectionException e) {
-			PageUtil.fireErrorMessage("Error while loading the page");
+			PageUtil.fireErrorMessage("Error loading the page");
 		}
 	}
 
@@ -157,7 +157,7 @@ public class CredentialLibraryBean implements Serializable, Paginable {
 			PageUtil.redirect("/credentials/" + idEncoder.encodeId(cred.getIdData().getId()) + "?justEnrolled=true");
 		} catch(Exception e) {
 			logger.error(e);
-			PageUtil.fireErrorMessage("Error while enrolling a " +
+			PageUtil.fireErrorMessage("Error enrolling a " +
 					ResourceBundleUtil.getMessage("label.credential").toLowerCase());
 		}
 	}

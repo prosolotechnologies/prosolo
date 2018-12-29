@@ -119,7 +119,7 @@
 									<a href="javascript:void(0);" class="grade #{styleUtilBean.getGradeStarClass(cc.attrs.resultData.assessment.grade.assessmentStarData)}"
 									   data-html="true"
 									   data-toggle="tooltip"
-									   title="Grade can't be edited for approved assessment.&#60;br/&#62;&#60;br/&#62;#{styleUtilBean.getAssessmentStarTooltip(cc.attrs.resultData.assessment.grade, 'ACTIVITY')}">
+									   title="Grade cannot be edited for submitted assessment.&#60;br/&#62;&#60;br/&#62;#{styleUtilBean.getAssessmentStarTooltip(cc.attrs.resultData.assessment.grade, 'ACTIVITY')}">
 										<ui:fragment rendered="#{cc.attrs.resultData.assessment.grade.pointBasedGrading}">
 											#{cc.attrs.resultData.assessment.grade.currentGrade != null and cc.attrs.resultData.assessment.grade.isAssessed() ? cc.attrs.resultData.assessment.grade.currentGrade : '-'}  /
 											#{cc.attrs.resultData.assessment.grade.maxGrade}
@@ -323,7 +323,7 @@
 									<a href="javascript:void(0);" class="grade #{styleUtilBean.getGradeStarClass(cc.attrs.resultData.assessment.grade.assessmentStarData)}"
 									   data-html="true"
 									   data-toggle="tooltip"
-									   title="Grade can't be edited for approved assessment.&#60;br/&#62;&#60;br/&#62;#{styleUtilBean.getAssessmentStarTooltip(cc.attrs.resultData.assessment.grade, 'ACTIVITY')}">
+									   title="Grade cannot be edited for submitted assessment.&#60;br/&#62;&#60;br/&#62;#{styleUtilBean.getAssessmentStarTooltip(cc.attrs.resultData.assessment.grade, 'ACTIVITY')}">
 										<ui:fragment rendered="#{cc.attrs.resultData.assessment.grade.pointBasedGrading}">
 											#{cc.attrs.resultData.assessment.grade.currentGrade != null and cc.attrs.resultData.assessment.grade.isAssessed() ? cc.attrs.resultData.assessment.grade.currentGrade : '-'}  /
 											#{cc.attrs.resultData.assessment.grade.maxGrade}

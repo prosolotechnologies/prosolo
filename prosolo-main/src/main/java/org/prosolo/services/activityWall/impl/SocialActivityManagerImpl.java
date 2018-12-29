@@ -90,7 +90,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving social activities");
+			throw new DbConnectionException("Error retrieving social activities");
 		}
 	}
 	
@@ -513,7 +513,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while saving social activity");
+			throw new DbConnectionException("Error saving social activity");
 		}
 	}
 
@@ -563,7 +563,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving social activity");
+			throw new DbConnectionException("Error retrieving social activity");
 		}
 	}
 	
@@ -581,7 +581,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving social activity");
+			throw new DbConnectionException("Error retrieving social activity");
 		}
 	}
 
@@ -600,7 +600,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving social activity");
+			throw new DbConnectionException("Error retrieving social activity");
 		}
 	}
 	
@@ -621,7 +621,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving social activity");
+			throw new DbConnectionException("Error retrieving social activity");
 		}
 	}
 	
@@ -642,7 +642,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving social activity");
+			throw new DbConnectionException("Error retrieving social activity");
 		}
 	}
 	
@@ -664,7 +664,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving social activity");
+			throw new DbConnectionException("Error retrieving social activity");
 		}
 	}
 	
@@ -686,7 +686,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving social activity");
+			throw new DbConnectionException("Error retrieving social activity");
 		}
 	}
 	
@@ -708,7 +708,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving social activity");
+			throw new DbConnectionException("Error retrieving social activity");
 		}
 	}
 	
@@ -731,7 +731,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving social activity");
+			throw new DbConnectionException("Error retrieving social activity");
 		}
 	}
 	
@@ -755,7 +755,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving social activity");
+			throw new DbConnectionException("Error retrieving social activity");
 		}
 	}
 	
@@ -847,7 +847,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while saving post");
+			throw new DbConnectionException("Error saving post");
 		}
 	}
 
@@ -879,7 +879,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while sharing post");
+			throw new DbConnectionException("Error sharing post");
 		}
 	}
 	
@@ -900,7 +900,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 		} catch(Exception e) {
 			e.printStackTrace();
 			logger.error("Error", e);
-			throw new DbConnectionException("Error while saving post");
+			throw new DbConnectionException("Error saving post");
 		}
 	}
 
@@ -916,7 +916,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while saving comment");
+			throw new DbConnectionException("Error saving comment");
 		}
 		
 	}
@@ -937,7 +937,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while updating comment");
+			throw new DbConnectionException("Error updating comment");
 		}
 	}
 	
@@ -964,7 +964,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while saving social activity like");
+			throw new DbConnectionException("Error saving social activity like");
 		}
 	}
 	
@@ -991,7 +991,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while saving social activity like");
+			throw new DbConnectionException("Error saving social activity like");
 		}
 	}
 	
@@ -1013,7 +1013,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving social actiity");
+			throw new DbConnectionException("Error retrieving social actiity");
 		}
 	}
 	

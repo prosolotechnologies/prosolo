@@ -79,7 +79,7 @@ public class ActivityAssessmentBean extends LearningResourceAssessmentBean {
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			PageUtil.fireErrorMessage("Error while trying to initialize assessment comments");
+			PageUtil.fireErrorMessage("Error trying to initialize assessment comments");
 		}
 	}
 
@@ -125,8 +125,8 @@ public class ActivityAssessmentBean extends LearningResourceAssessmentBean {
 
 			addNewCommentToAssessmentData(newComment);
 		} catch (Exception e){
-			logger.error("Error approving assessment data", e);
-			PageUtil.fireErrorMessage("Error approving the assessment");
+			logger.error("Error submitting assessment data", e);
+			PageUtil.fireErrorMessage("Error submitting the assessment");
 		}
 	}
 
@@ -158,7 +158,7 @@ public class ActivityAssessmentBean extends LearningResourceAssessmentBean {
 			PageUtil.fireSuccessfulInfoMessage("The grade has been updated");
 		} catch (DbConnectionException|IllegalDataStateException e) {
 			logger.error("Error", e);
-			PageUtil.fireErrorMessage("Error while updating grade");
+			PageUtil.fireErrorMessage("Error updating grade");
 			throw e;
 		}
 	}

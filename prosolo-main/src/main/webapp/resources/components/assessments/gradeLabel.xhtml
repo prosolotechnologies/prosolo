@@ -87,7 +87,7 @@
 						<a href="javascript:void(0);" class="grade #{styleUtilBean.getGradeStarClass(cc.attrs.gradeData.assessmentStarData)}"
 						   data-html="true"
 						   data-toggle="tooltip"
-						   title="Grade can't be edited for approved assessment.&#60;br/&#62;&#60;br/&#62;#{styleUtilBean.getAssessmentStarTooltip(cc.attrs.gradeData, cc.attrs.learningResource)}">
+						   title="Grade cannot be edited for submitted assessment.&#60;br/&#62;&#60;br/&#62;#{styleUtilBean.getAssessmentStarTooltip(cc.attrs.gradeData, cc.attrs.learningResource)}">
 							<ui:fragment rendered="#{cc.attrs.gradeData.pointBasedGrading}">
 								#{cc.attrs.gradeData.currentGrade != null and cc.attrs.gradeData.isAssessed() ? cc.attrs.gradeData.currentGrade : '-'}  /
 								#{cc.attrs.gradeData.maxGrade}

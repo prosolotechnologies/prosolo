@@ -93,7 +93,7 @@
 
 						<h:panelGroup rendered="#{cc.attrs.competenceAssessment.approved}"
 									  styleClass="tagApproved" layout="block">
-							Approved
+							Submitted
 						</h:panelGroup>
 
 						<ui:fragment rendered="#{cc.attrs.fullDisplayMode and not cc.attrs.competenceAssessment.approved and cc.attrs.currentUserAssessor and util:isCompetenceFullyGraded(cc.attrs.competenceAssessment)}">
@@ -103,11 +103,11 @@
 										   action="#{cc.attrs.bean.prepareLearningResourceAssessmentForApproving(cc.attrs.competenceAssessment)}"
 										   update="#{cc.attrs.toUpdateApproveModal}"
 										   oncomplete="$('##{cc.attrs.approveModalId}').modal('show')">
-								Approve<span></span>
+								Submit<span></span>
 							</p:commandLink>
 						</ui:fragment>
 						<ui:fragment rendered="#{cc.attrs.fullDisplayMode and not cc.attrs.competenceAssessment.approved and cc.attrs.currentUserAssessor and not util:isCompetenceFullyGraded(cc.attrs.competenceAssessment)}">
-							<a class="disabled linkApprove" data-toggle="tooltip" title="#{msg['label.competence']} assessment can't be approved until it is graded">Approve<span></span></a>
+							<a class="disabled linkApprove" data-toggle="tooltip" title="#{msg['label.competence']} assessment cannot be submitted until it is graded">Approve<span></span></a>
 						</ui:fragment>
 						<script>
 							$("[data-toggle='tooltip']").tooltip();
@@ -308,7 +308,7 @@
 					<ui:fragment rendered="#{not cc.attrs.competenceAssessment.approved and cc.attrs.currentUserAssessor}">
 						<div class="activityOptions">
 							<a href="javascript:void(0);" class="linkApprove">
-								<div class="disabledOverlay"></div>Approve<span></span>
+								<div class="disabledOverlay"></div>Submit<span></span>
 							</a>
 						</div>
 					</ui:fragment>

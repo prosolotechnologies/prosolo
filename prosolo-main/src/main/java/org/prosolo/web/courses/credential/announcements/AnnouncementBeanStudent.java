@@ -65,7 +65,7 @@ public class AnnouncementBeanStudent implements Serializable, Paginable {
 					initializeCredentialData(this.credentialData);
 				}
 			} catch (Exception e) {
-				PageUtil.fireErrorMessage("Error while loading credential data");
+				PageUtil.fireErrorMessage("Error loading credential data");
 			}
 		} else {
 			PageUtil.notFound();
@@ -132,7 +132,7 @@ public class AnnouncementBeanStudent implements Serializable, Paginable {
 
 			}
 		} catch (Exception e) {
-			logger.error("Error while fetching las announcement data",e);
+			logger.error("Error fetching las announcement data",e);
 		}
 		return false;
 	}
