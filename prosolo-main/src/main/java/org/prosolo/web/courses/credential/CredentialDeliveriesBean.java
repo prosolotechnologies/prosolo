@@ -96,10 +96,9 @@ public class CredentialDeliveriesBean extends DeliveriesBean implements Serializ
 				SortOrder.<CredentialDeliverySortOption>builder()
 						.addOrder(sortOption, sortOption.getSortOrder());
 		if (sortOption != CredentialDeliverySortOption.DELIVERY_ORDER) {
-			//add rest of the sort options as sort criteria also but we don't need to do that if selected criteria is delivery order because it is unique.
-			Stream.of(sortOptions)
-					.filter(sort -> sort != sortOption)
-					.forEach(sort -> sortBuilder.addOrder(sort, sort.getSortOrder()));
+			//add delivery order as a second criteria if not already selected as first
+			CredentialDeliverySortOption deliveryOrderSortOption = CredentialDeliverySortOption.DELIVERY_ORDER;
+			sortBuilder.addOrder(deliveryOrderSortOption, deliveryOrderSortOption.getSortOrder());
 		}
 		RestrictedAccessResult<List<CredentialData>> res = credentialManager
 				.getCredentialDeliveriesWithAccessRights(decodedId, loggedUser.getUserId(), sortBuilder.build(), filter);
