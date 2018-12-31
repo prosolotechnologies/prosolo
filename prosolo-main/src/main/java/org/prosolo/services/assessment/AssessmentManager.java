@@ -400,7 +400,7 @@ public interface AssessmentManager {
 	 * @param credAssessmentId
 	 * @return
 	 */
-	AssessmentGradeSummary getCredentialAssessmentGradeSummary(long credAssessmentId);
+	org.prosolo.services.user.data.profile.grade.GradeData getCredentialAssessmentGradeSummary(long credAssessmentId);
 
 	List<CompetenceAssessment> getCredentialCompetenceAssessments(long targetCredId, long competenceId, long userId, boolean loadOnlyApproved, SortOrder<AssessmentSortOrder> sortOrder);
 
@@ -409,5 +409,5 @@ public interface AssessmentManager {
 	 * @param compAssessmentId
 	 * @return
 	 */
-	AssessmentGradeSummary getCompetenceAssessmentGradeSummary(long compAssessmentId);
+	org.prosolo.services.user.data.profile.grade.GradeData getCompetenceAssessmentGradeSummary(long compAssessmentId);
 }

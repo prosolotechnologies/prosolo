@@ -464,8 +464,8 @@
                                         <ui:repeat value="#{assessmentType.assessments}" var="assessment">
                                             <div class="assessmentItem">
                                                 <div class="assessmentLeft">
-                                                    <div class="assessmentsStar #{styleUtilBean.getGradeStarClass(assessment.assessmentGradeSummary)}">
-                                                        <div class="star #{styleUtilBean.getEmptyStarClass(assessment.assessmentGradeSummary)}"></div>
+                                                    <div class="assessmentsStar #{styleUtilBean.getGradeStarClassForGradeData(assessment.assessmentGradeSummary)}">
+                                                        <div class="star #{styleUtilBean.getEmptyStarClassForGradeData(assessment.assessmentGradeSummary)}"></div>
                                                     </div>
                                                     <div class="user32">
                                                         <assessment:assessmentActorAvatar
@@ -538,8 +538,8 @@
                                                                         pt:data-check-id="#{checkAllCredAssessmentsComp.clientId}"/>
                                                                 <h:outputLabel for="checkCredentialAssessment"/>
                                                             </div>
-                                                            <div class="assessmentsStar #{styleUtilBean.getGradeStarClass(assessment.data.assessmentGradeSummary)}">
-                                                                <div data-html="true" data-toggle="tooltip" title="#{styleUtilBean.getGradePercentage(assessment.data.assessmentGradeSummary)}"  class="star #{styleUtilBean.getEmptyStarClass(assessment.data.assessmentGradeSummary)}"></div>
+                                                            <div class="assessmentsStar #{styleUtilBean.getGradeStarClassForGradeData(assessment.data.assessmentGradeSummary)}">
+                                                                <div data-html="true" data-toggle="tooltip" title="#{assessment.data.assessmentGradeSummary.description}"  class="star #{styleUtilBean.getEmptyStarClassForGradeData(assessment.data.assessmentGradeSummary)}"></div>
                                                             </div>
                                                             <div class="user32">
                                                                 <assessment:assessmentActorAvatar
@@ -641,8 +641,8 @@
                                                                             pt:data-check-id="#{checkAllCompAssessmentsComp.clientId}"/>
                                                                     <h:outputLabel for="checkCompetenceAssessment"/>
                                                                 </div>
-                                                                <div class="assessmentsStar #{styleUtilBean.getGradeStarClass(assessment.data.assessmentGradeSummary)}">
-                                                                    <div data-html="true" data-toggle="tooltip" title="#{styleUtilBean.getGradePercentage(assessment.data.assessmentGradeSummary)}"  class="star #{styleUtilBean.getEmptyStarClass(assessment.data.assessmentGradeSummary)}"></div>
+                                                                <div class="assessmentsStar #{styleUtilBean.getGradeStarClassForGradeData(assessment.data.assessmentGradeSummary)}">
+                                                                    <div data-html="true" data-toggle="tooltip" title="#{assessment.data.assessmentGradeSummary.description}"  class="star #{styleUtilBean.getEmptyStarClassForGradeData(assessment.data.assessmentGradeSummary)}"></div>
                                                                 </div>
                                                                 <div class="user32">
                                                                     <assessment:assessmentActorAvatar

@@ -42,6 +42,9 @@ import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.factory.ActivityAssessmentDataFactory;
 import org.prosolo.services.nodes.factory.CompetenceDataFactory;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
+import org.prosolo.services.user.data.profile.grade.NoGradeData;
+import org.prosolo.services.user.data.profile.grade.PointBasedGradeData;
+import org.prosolo.services.user.data.profile.grade.PointGradeData;
 import org.prosolo.util.Util;
 import org.prosolo.web.util.AvatarUtils;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -74,6 +77,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	@Inject private CompetenceDataFactory compDataFactory;
 	@Inject private LearningEvidenceManager learningEvidenceManager;
 	@Inject private UnitManager unitManager;
+	@Inject private org.prosolo.services.user.data.profile.factory.GradeDataFactory gradeDataFactory;
 
 	@Override
 	//not transactional - should not be called from another transaction
@@ -452,14 +456,21 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 	@Override
 	@Transactional(readOnly = true)
-	public AssessmentGradeSummary getCredentialAssessmentGradeSummary(long credAssessmentId) {
+	public org.prosolo.services.user.data.profile.grade.GradeData getCredentialAssessmentGradeSummary(long credAssessmentId) {
 		try {
 			CredentialAssessment ca = (CredentialAssessment) persistence.currentManager().load(CredentialAssessment.class, credAssessmentId);
 			Credential1 cred = ca.getTargetCredential().getCredential();
 			switch (cred.getGradingMode()) {
+				case NONGRADED:
+					return new NoGradeData();
 				case MANUAL:
 					if (cred.getRubric() != null) {
-						return getCredentialAssessmentRubricGradeSummary(credAssessmentId);
+						if (cred.getRubric().getRubricType() == RubricType.DESCRIPTIVE) {
+							return getCredentialAssessmentDescriptiveRubricGradeSummary(credAssessmentId);
+						} else if (cred.getRubric().getRubricType() == RubricType.POINT) {
+							return getCredentialAssessmentPointRubricGradeSummary(credAssessmentId);
+						}
+						return null;
 					} else {
 						return getCredentialAssessmentManualGradeSummary(credAssessmentId);
 					}
@@ -500,23 +511,42 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		}
 	}
 
-	private AssessmentGradeSummary getCredentialAssessmentAutomaticGradeSummary(long credAssessmentId) {
+	private PointBasedGradeData getCredentialAssessmentAutomaticGradeSummary(long credAssessmentId) {
 		int points = getAutomaticCredentialAssessmentScore(credAssessmentId);
-		if (points < 0) {
-			return GradeDataUtil.getPointBasedAssessmentStarData(new PointGradeValues(0, 0, points));
-		}
 		CredentialAssessment ca = (CredentialAssessment) persistence.currentManager().load(CredentialAssessment.class, credAssessmentId);
 		int maxGrade = getCredentialAutomaticMaxGrade(ca.getTargetCredential().getCredential().getId());
-		return GradeDataUtil.getPointBasedAssessmentStarData(new PointGradeValues(0, maxGrade, points));
+		return gradeDataFactory.getPointBasedGradeData(points, maxGrade);
 	}
 
-	private AssessmentGradeSummary getCredentialAssessmentManualGradeSummary(long credAssessmentId) {
+	private PointBasedGradeData getCredentialAssessmentManualGradeSummary(long credAssessmentId) {
 		CredentialAssessment ca = (CredentialAssessment) persistence.currentManager().load(CredentialAssessment.class, credAssessmentId);
 		int maxGrade = 0;
 		if (ca.isAssessed()) {
 			maxGrade = ca.getTargetCredential().getCredential().getMaxPoints();
 		}
-		return GradeDataUtil.getPointBasedAssessmentStarData(new PointGradeValues(0, maxGrade, ca.getPoints()));
+		return gradeDataFactory.getPointBasedGradeData(ca.getPoints(), maxGrade);
+	}
+
+	private org.prosolo.services.user.data.profile.grade.RubricGradeData getCredentialAssessmentDescriptiveRubricGradeSummary(long credAssessmentId) {
+		RubricAssessmentGradeSummary credentialAssessmentRubricGradeSummary = getCredentialAssessmentRubricGradeSummary(credAssessmentId);
+		return new org.prosolo.services.user.data.profile.grade.RubricGradeData(
+				credentialAssessmentRubricGradeSummary.getGrade(),
+				credentialAssessmentRubricGradeSummary.getOutOf());
+	}
+
+	private org.prosolo.services.user.data.profile.grade.RubricGradeData getCredentialAssessmentPointRubricGradeSummary(long credAssessmentId) {
+		CredentialAssessment ca = (CredentialAssessment) persistence.currentManager().load(CredentialAssessment.class, credAssessmentId);
+		int maxGrade = 0;
+		int avgLevel = 0;
+		int numberOfLevels = 0;
+		if (ca.isAssessed()) {
+			maxGrade = ca.getTargetCredential().getCredential().getMaxPoints();
+			RubricAssessmentGradeSummary credentialAssessmentRubricGradeSummary = getCredentialAssessmentRubricGradeSummary(credAssessmentId);
+			avgLevel = credentialAssessmentRubricGradeSummary.getGrade();
+			numberOfLevels = credentialAssessmentRubricGradeSummary.getOutOf();
+		}
+		return new org.prosolo.services.user.data.profile.grade.PointRubricGradeData(
+				avgLevel, numberOfLevels, ca.getPoints(), maxGrade);
 	}
 
 	/**
@@ -736,14 +766,21 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 	@Override
 	@Transactional(readOnly = true)
-	public AssessmentGradeSummary getCompetenceAssessmentGradeSummary(long compAssessmentId) {
+	public org.prosolo.services.user.data.profile.grade.GradeData getCompetenceAssessmentGradeSummary(long compAssessmentId) {
 		try {
 			CompetenceAssessment ca = (CompetenceAssessment) persistence.currentManager().load(CompetenceAssessment.class, compAssessmentId);
 			Competence1 competence = ca.getCompetence();
 			switch (competence.getGradingMode()) {
+				case NONGRADED:
+					return new NoGradeData();
 				case MANUAL:
 					if (competence.getRubric() != null) {
-						return getCompetenceAssessmentRubricGradeSummary(compAssessmentId);
+						if (competence.getRubric().getRubricType() == RubricType.DESCRIPTIVE) {
+							return getCompetenceAssessmentDescriptiveRubricGradeSummary(compAssessmentId);
+						} else if (competence.getRubric().getRubricType() == RubricType.POINT) {
+							return getCompetenceAssessmentPointRubricGradeSummary(compAssessmentId);
+						}
+						return null;
 					} else {
 						return getCompetenceAssessmentManualGradeSummary(compAssessmentId);
 					}
@@ -758,7 +795,29 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		}
 	}
 
-	private AssessmentGradeSummary getCompetenceAssessmentAutomaticGradeSummary(long compAssessmentId) {
+	private org.prosolo.services.user.data.profile.grade.RubricGradeData getCompetenceAssessmentDescriptiveRubricGradeSummary(long compAssessmentId) {
+		RubricAssessmentGradeSummary assessmentRubricGradeSummary = getCompetenceAssessmentRubricGradeSummary(compAssessmentId);
+		return new org.prosolo.services.user.data.profile.grade.RubricGradeData(
+				assessmentRubricGradeSummary.getGrade(),
+				assessmentRubricGradeSummary.getOutOf());
+	}
+
+	private org.prosolo.services.user.data.profile.grade.PointRubricGradeData getCompetenceAssessmentPointRubricGradeSummary(long compAssessmentId) {
+		CompetenceAssessment ca = (CompetenceAssessment) persistence.currentManager().load(CompetenceAssessment.class, compAssessmentId);
+		int maxGrade = 0;
+		int avgLevel = 0;
+		int numberOfLevels = 0;
+		if (ca.getPoints() >= 0) {
+			maxGrade = ca.getCompetence().getMaxPoints();
+			RubricAssessmentGradeSummary assessmentGradeSummary = getCompetenceAssessmentRubricGradeSummary(compAssessmentId);
+			avgLevel = assessmentGradeSummary.getGrade();
+			numberOfLevels = assessmentGradeSummary.getOutOf();
+		}
+		return new org.prosolo.services.user.data.profile.grade.PointRubricGradeData(
+				avgLevel, numberOfLevels, ca.getPoints(), maxGrade);
+	}
+
+	private PointBasedGradeData getCompetenceAssessmentAutomaticGradeSummary(long compAssessmentId) {
 		String q =
 				"SELECT CAST(COALESCE(SUM(CASE WHEN aa.points > 0 THEN aa.points ELSE 0 END), 0) as int), COALESCE(SUM(CASE WHEN aa.points >= 0 THEN 1 ELSE 0 END), 0) > 0 " +
 				"FROM CompetenceAssessment ca " +
@@ -775,22 +834,22 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	    */
 		boolean assessed = (boolean) res[1];
 		if (!assessed) {
-			return GradeDataUtil.getPointBasedAssessmentStarData(new PointGradeValues(0, 0, -1));
+			return gradeDataFactory.getPointBasedGradeData(-1, 0);
 		}
 
 		int points = (int) res[0];
 		CompetenceAssessment ca = (CompetenceAssessment) persistence.currentManager().load(CompetenceAssessment.class, compAssessmentId);
 		int maxGrade = getCompetenceAutomaticMaxGrade(ca.getCompetence().getId());
-		return GradeDataUtil.getPointBasedAssessmentStarData(new PointGradeValues(0, maxGrade, points));
+		return gradeDataFactory.getPointBasedGradeData(points, maxGrade);
 	}
 
-	private AssessmentGradeSummary getCompetenceAssessmentManualGradeSummary(long compAssessmentId) {
+	private PointBasedGradeData getCompetenceAssessmentManualGradeSummary(long compAssessmentId) {
 		CompetenceAssessment ca = (CompetenceAssessment) persistence.currentManager().load(CompetenceAssessment.class, compAssessmentId);
 		int maxGrade = 0;
 		if (ca.getPoints() >= 0) {
 			maxGrade = ca.getCompetence().getMaxPoints();
 		}
-		return GradeDataUtil.getPointBasedAssessmentStarData(new PointGradeValues(0, maxGrade, ca.getPoints()));
+		return gradeDataFactory.getPointBasedGradeData(ca.getPoints(), maxGrade);
 	}
 
 	private RubricAssessmentGradeSummary getCompetenceAssessmentRubricGradeSummary(long compAssessmentId) {
