@@ -343,9 +343,7 @@ public class StudentProfileManagerImpl extends AbstractManagerImpl implements St
                             true,
                             SortOrder.<AssessmentSortOrder>builder()
                                     .addOrder(AssessmentSortOrder.ASSESSMENT_TYPE, SortingOption.ASC)
-                                    .addOrder(
-                                    AssessmentSortOrder.LAST_ASSESSMENT_DATE,
-                                    SortingOption.ASC).build());
+                                    .addOrder(AssessmentSortOrder.LAST_ASSESSMENT_DATE, SortingOption.ASC).build());
             List<CredentialAssessmentWithGradeSummaryData> credentialAssessmentsWithGradeSummaryData =
                     credentialAssessments
                             .stream()
@@ -357,7 +355,7 @@ public class StudentProfileManagerImpl extends AbstractManagerImpl implements St
                 Optional<CompetenceProfileConfig> competenceProfileConfig = credProfileConfigOpt.isPresent()
                         ? credProfileConfigOpt.get().getCompetenceProfileConfigs().stream().filter(conf -> conf.getTargetCompetence().getId() == tc.getId()).findFirst()
                         : Optional.empty();
-                List<CompetenceAssessment> competenceAssessments = assessmentManager.getCredentialCompetenceAssessments(
+                List<CompetenceAssessment> competenceAssessments = assessmentManager.getIndependentAndCompetenceAssessmentsBelongingToCredential(
                         targetCredentialId,
                         tc.getCompetence().getId(),
                         tc.getUser().getId(),

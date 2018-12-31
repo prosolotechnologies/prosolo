@@ -3,7 +3,7 @@
                 xmlns:f="http://java.sun.com/jsf/core"
                 xmlns:ui="http://java.sun.com/jsf/facelets"
                 xmlns:p="http://primefaces.org/ui"
-                template="templates/masterLayout2.xhtml"
+                template="#{loggeduser.getPublicTemplateForUser()}"
                 xmlns:util="http://www.prosolo.com/util"
                 xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
                 xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
@@ -70,7 +70,7 @@
                                 <h:link outcome="settings" class="btn btn-green-stroke btn-sm">Edit Your Info</h:link>
                             </ui:fragment>
 
-                            <ui:fragment rendered="#{loginbean.isUserLoggedIn() and not profileBean.personalProfile}" >
+                            <ui:fragment rendered="#{loggeduser.hasCapability('basic.user.access') and not profileBean.personalProfile}" >
                                 <p:commandLink id="followButton"
                                                rendered="#{!peopleActionBean.isLoggedUserFollowingUser(profileBean.decodedStudentId)}"
                                                action="#{peopleActionBean.followCollegueById(profileBean.userData.fullName, profileBean.decodedStudentId)}"
@@ -245,7 +245,8 @@
                                                             <ui:fragment rendered="#{comp.evidence.count gt 0}">
                                                                 <p:commandLink
                                                                         styleClass="numberEvidences"
-                                                                        pt:data-toggle="modal"
+                                                                        pt:data-toggle="tooltip"
+                                                                        pt:title="#{comp.evidence.count} piece#{comp.evidence.count > 1 ? 's' : ''} of evidence"
                                                                         action="#{profileBean.initCompetenceEvidenceIfNotInitialized(comp)}"
                                                                         update="profileGrowl panelCompetenceEvidence"
                                                                         oncomplete="$('#evidencesList').modal('show')">
@@ -258,7 +259,8 @@
                                                             <ui:fragment rendered="#{comp.assessments.count gt 0}">
                                                                 <p:commandLink
                                                                         styleClass="numberAssessments"
-                                                                        pt:data-toggle="modal"
+                                                                        pt:data-toggle="tooltip"
+                                                                        pt:title="#{comp.assessments.count}&#160;assessment#{comp.assessments.count > 1 ? 's' : ''}"
                                                                         action="#{profileBean.initCompetenceAssessmentsIfNotInitialized(comp)}"
                                                                         update="profileGrowl panelAssessments"
                                                                         oncomplete="$('#assessmentsList').modal('show')">
@@ -269,6 +271,9 @@
                                                     </li>
                                                 </ui:repeat>
                                             </ul>
+                                            <script>
+                                                $("[data-toggle='tooltip']").tooltip();
+                                            </script>
                                         </h:panelGroup>
                                     </div>
                                     <h:panelGroup id="panelExpandCompetences">
