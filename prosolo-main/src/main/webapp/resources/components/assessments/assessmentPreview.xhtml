@@ -106,9 +106,11 @@
 									<a href="javascript:void(0);" disabled="disabled" class="btn btn-green btn-sm item" data-toggle="tooltip" title="#{msg['label.credential']} assessment cannot be submitted until all #{msg['label.competence.plural'].toLowerCase()} are started">Submit</a>
 								</ui:fragment>
 
+								<ui:param name="credentialAssessmentDisabledIndicator" value="#{util:isCredentialFullyGraded(cc.attrs.bean.fullAssessmentData)}" />
+
 								<ui:fragment rendered="#{not cc.attrs.bean.fullAssessmentData.approved and cc.attrs.bean.isUserAssessorInCurrentContext() and cc.attrs.bean.allCompetencesStarted()}">
 									<p:commandLink
-										rendered="#{util:isCredentialFullyGraded(cc.attrs.bean.fullAssessmentData)}"
+										rendered="#{credentialAssessmentDisabledIndicator == 'NONE'}"
 										styleClass="btn btn-green btn-sm item"
 										pt:data-toggle="modal"
 										value="Submit"
@@ -116,8 +118,8 @@
 										update=":#{cc.clientId}:approveAssessment"
 										oncomplete="$('#approveAssessment').modal('show')"
 									/>
-									<ui:fragment rendered="#{not util:isCredentialFullyGraded(cc.attrs.bean.fullAssessmentData)}">
-										<span class="disabled btn btn-green btn-sm item" data-toggle="tooltip" title="#{msg['label.credential']} assessment cannot be submitted until #{msg['label.credential'].toLowerCase()} and all #{msg['label.competence.plural'].toLowerCase()} are graded">Submit</span>
+									<ui:fragment rendered="#{credentialAssessmentDisabledIndicator != 'NONE'}">
+										<span class="disabled btn btn-green btn-sm item" data-toggle="tooltip" title="#{msg['label.enum.AssessmentDisabledIndicator.'.concat(credentialAssessmentDisabledIndicator)]}">Submit</span>
 									</ui:fragment>
 									<script>
 										$("[data-toggle='tooltip']").tooltip();
@@ -390,12 +392,14 @@
 											</ui:fragment>
 
 											<ui:fragment rendered="#{cc.attrs.bean.fullDisplayMode and not cc.attrs.bean.fullAssessmentData.approved and cc.attrs.bean.isUserAssessorInCurrentContext() and not cc.attrs.bean.allCompetencesStarted()}">
-												<a href="javascript:void(0);" disabled="disabled" class="linkApprove" data-toggle="tooltip" title="#{msg['label.credential']} assessment cannot be submitted until all #{msg['label.competence.plural'].toLowerCase()} are started">Approve<span></span></a>
+												<a href="javascript:void(0);" disabled="disabled" class="linkApprove" data-toggle="tooltip" title="#{msg['label.credential']} assessment cannot be submitted until all #{msg['label.competence.plural'].toLowerCase()} are started">Submit<span></span></a>
 											</ui:fragment>
+
+											<ui:param name="credentialAssessmentDisabledIndicator" value="#{util:isCredentialFullyGraded(cc.attrs.bean.fullAssessmentData)}" />
 
 											<ui:fragment rendered="#{cc.attrs.bean.fullDisplayMode and not cc.attrs.bean.fullAssessmentData.approved and cc.attrs.bean.isUserAssessorInCurrentContext() and cc.attrs.bean.allCompetencesStarted()}">
 												<p:commandLink
-														rendered="#{util:isCredentialFullyGraded(cc.attrs.bean.fullAssessmentData)}"
+														rendered="#{credentialAssessmentDisabledIndicator == 'NONE'}"
 														styleClass="linkApprove"
 														pt:data-toggle="modal"
 														action="#{cc.attrs.bean.prepareLearningResourceAssessmentForApproving()}"
@@ -403,8 +407,8 @@
 														oncomplete="$('#approveAssessment').modal('show')">
 													Submit<span></span>
 												</p:commandLink>
-												<ui:fragment rendered="#{not util:isCredentialFullyGraded(cc.attrs.bean.fullAssessmentData)}">
-													<a class="disabled linkApprove" data-toggle="tooltip" title="#{msg['label.credential']} assessment cannot be submitted until #{msg['label.credential'].toLowerCase()} and all #{msg['label.competence.plural'].toLowerCase()} are graded">Approve<span></span></a>
+												<ui:fragment rendered="#{credentialAssessmentDisabledIndicator != 'NONE'}">
+													<a class="disabled linkApprove" data-toggle="tooltip" title="#{msg['label.enum.AssessmentDisabledIndicator.'.concat(credentialAssessmentDisabledIndicator)]}">Submit<span></span></a>
 												</ui:fragment>
 											</ui:fragment>
 											<script>

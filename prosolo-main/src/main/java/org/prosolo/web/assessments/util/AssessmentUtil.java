@@ -60,24 +60,39 @@ public class AssessmentUtil {
     }
 
 
-    public static boolean isCredentialFullyGraded(AssessmentDataFull credentialAssessment) {
-        if (credentialAssessment.getGradeData().getGradingMode() != GradingMode.NONGRADED && !credentialAssessment.getGradeData().isAssessed()) {
-            return false;
+    public static AssessmentDisabledIndicator isCredentialFullyGraded(AssessmentDataFull credentialAssessment) {
+        for (CompetenceAssessmentData compAssessment : credentialAssessment.getCompetenceAssessmentData()) {
+            AssessmentDisabledIndicator compAssessmentGraded = isCompetenceFullyGraded(compAssessment);
+
+            // If NONE is returned, continue iteration
+            if (compAssessmentGraded == AssessmentDisabledIndicator.COMPETENCE_NOT_GRADED) {
+                return AssessmentDisabledIndicator.CREDENTIAL_COMPETENCES_NOT_GRADED;
+            } else if (compAssessmentGraded == AssessmentDisabledIndicator.COMPETENCE_ACTIVITY_NOT_GRADED) {
+                return AssessmentDisabledIndicator.CREDENTIAL_ACTIVITY_NOT_GRADED;
+            }
         }
-        return credentialAssessment.getCompetenceAssessmentData()
-                .stream()
-                .allMatch(compAssessment -> isCompetenceFullyGraded(compAssessment));
+
+        if (credentialAssessment.getGradeData().getGradingMode() != GradingMode.NONGRADED && !credentialAssessment.getGradeData().isAssessed()) {
+            return AssessmentDisabledIndicator.CREDENTIAL_NOT_GRADED;
+        }
+
+        return AssessmentDisabledIndicator.NONE;
     }
 
-    public static boolean isCompetenceFullyGraded(CompetenceAssessmentData competenceAssessmentData) {
-        if (competenceAssessmentData.getGradeData().getGradingMode() != GradingMode.NONGRADED && !competenceAssessmentData.getGradeData().isAssessed()) {
-            return false;
-        }
+    public static AssessmentDisabledIndicator isCompetenceFullyGraded(CompetenceAssessmentData competenceAssessmentData) {
         if (competenceAssessmentData.getLearningPathType() == LearningPathType.ACTIVITY) {
-            return competenceAssessmentData.getActivityAssessmentData()
+            boolean allActivitiesGraded = competenceAssessmentData.getActivityAssessmentData()
                     .stream()
                     .allMatch(actAssessment -> actAssessment.getGrade().getGradingMode() == GradingMode.NONGRADED || actAssessment.getGrade().isAssessed());
+
+            if (!allActivitiesGraded) {
+                return AssessmentDisabledIndicator.COMPETENCE_ACTIVITY_NOT_GRADED;
+            }
         }
-        return true;
+
+        if (competenceAssessmentData.getGradeData().getGradingMode() != GradingMode.NONGRADED && !competenceAssessmentData.getGradeData().isAssessed()) {
+            return AssessmentDisabledIndicator.COMPETENCE_NOT_GRADED;
+        }
+        return AssessmentDisabledIndicator.NONE;
     }
 }

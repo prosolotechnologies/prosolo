@@ -96,7 +96,9 @@
 							Submitted
 						</h:panelGroup>
 
-						<ui:fragment rendered="#{cc.attrs.fullDisplayMode and not cc.attrs.competenceAssessment.approved and cc.attrs.currentUserAssessor and util:isCompetenceFullyGraded(cc.attrs.competenceAssessment)}">
+						<ui:param name="competenceAssessmentDisabledIndicator" value="#{util:isCompetenceFullyGraded(cc.attrs.competenceAssessment)}" />
+
+						<ui:fragment rendered="#{cc.attrs.fullDisplayMode and not cc.attrs.competenceAssessment.approved and cc.attrs.currentUserAssessor and competenceAssessmentDisabledIndicator == 'NONE'}">
 							<p:commandLink styleClass="linkApprove"
 										   process="@this"
 										   pt:data-toggle="modal"
@@ -106,8 +108,8 @@
 								Submit<span></span>
 							</p:commandLink>
 						</ui:fragment>
-						<ui:fragment rendered="#{cc.attrs.fullDisplayMode and not cc.attrs.competenceAssessment.approved and cc.attrs.currentUserAssessor and not util:isCompetenceFullyGraded(cc.attrs.competenceAssessment)}">
-							<a class="disabled linkApprove" data-toggle="tooltip" title="#{msg['label.competence']} assessment cannot be submitted until it is graded">Submit<span></span></a>
+						<ui:fragment rendered="#{cc.attrs.fullDisplayMode and not cc.attrs.competenceAssessment.approved and cc.attrs.currentUserAssessor and competenceAssessmentDisabledIndicator != 'NONE'}">
+							<a class="disabled linkApprove" data-toggle="tooltip" title="#{msg['label.enum.AssessmentDisabledIndicator.'.concat(competenceAssessmentDisabledIndicator)]}">Submit<span></span></a>
 						</ui:fragment>
 						<script>
 							$("[data-toggle='tooltip']").tooltip();
