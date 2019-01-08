@@ -2622,7 +2622,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			String query = 
 					"SELECT assessment " +
 					"FROM CredentialAssessment assessment " +	
-					"LEFT JOIN fetch assessment.assessor " +
+					"LEFT JOIN fetch assessment.assessor assessor " +
 					"WHERE assessment.student.id = :assessedStudentId " +
 						"AND assessment.targetCredential.credential.id = :credentialId " +
 					"ORDER BY CASE WHEN assessment.type = :instructorAssessment THEN 1 WHEN assessment.type = :selfAssessment THEN 2 ELSE 3 END, assessor.name, assessor.lastname";

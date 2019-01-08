@@ -183,7 +183,7 @@ public class RewriteConfigurationProvider extends HttpConfigurationProvider {
 				.addRule(Join.path("/manage/library/credentials").to("/manage/credentialLibrary.xhtml"))
 				.addRule(Join.path("/manage/library/competencies").to("/manage/competenceLibrary.xhtml"))
 				.addRule(Join.path("/manage/library/instructor/credentials").to("/manage/credential-library-instructor.xhtml"))
-				.addRule(Join.path("/manage/evidence/{id}").to("/manage/evidence.xhtml"))
+				.addRule(Join.path("/manage/profile/{studentId}/evidence/{competenceEvidenceId}").to("/manage/student-profile-evidence.xhtml"))
 
 				//admin
 				.addRule(Join.path("/admin/notfound").to("/admin/404.xhtml"))

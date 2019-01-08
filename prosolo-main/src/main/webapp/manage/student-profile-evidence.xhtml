@@ -4,24 +4,24 @@
                 template="templates/masterLayout2.xhtml"
                 xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
                 xmlns:p="http://primefaces.org/ui"
-                xmlns:evidence="http://java.sun.com/jsf/composite/components/evidence"
->
+                xmlns:evidence="http://java.sun.com/jsf/composite/components/evidence">
 
     <utilcomp:messagesBundle var="msg"/>
 
     <ui:define name="windowTitle">
-        #{learningEvidenceBean.evidence.title} - Evidence - ProSolo
+        #{profileEvidenceBean.evidence.title} - Evidence - ProSolo
     </ui:define>
 
     <ui:define name="metadata">
         <f:metadata>
-            <f:viewParam name="id" value="#{learningEvidenceBean.evidenceId}" default="null"/>
-            <f:viewAction action="#{learningEvidenceBean.initManager()}"/>
+            <f:viewParam name="studentId" value="#{profileEvidenceBean.studentId}"/>
+            <f:viewParam name="competenceEvidenceId" value="#{profileEvidenceBean.competenceEvidenceId}" default="null"/>
+            <f:viewAction action="#{profileEvidenceBean.initManager()}"/>
         </f:metadata>
     </ui:define>
 
     <ui:define name="resourceTitle">
-        <h1>#{learningEvidenceBean.evidence.title}</h1>
+        <h1>#{profileEvidenceBean.evidence.title}</h1>
     </ui:define>
 
     <ui:define name="content">
@@ -34,8 +34,9 @@
 
         <div class="container">
             <ol class="breadcrumb">
-                <li>Pieces of Evidence</li>
-                <li class="active">#{util:shortenAndAddDots(learningEvidenceBean.evidence.title)}</li>
+                <li>#{profileEvidenceBean.evidence.userFullName}</li>
+                <li>Evidence</li>
+                <li class="active">#{util:shortenAndAddDots(profileEvidenceBean.evidence.title)}</li>
             </ol>
         </div>
 
@@ -43,17 +44,14 @@
             <div class="row">
 
                 <div class="col-md-12">
-                    <evidence:evidence
-                            evidence="#{learningEvidenceBean.evidence}"
-                            showEvidenceManagementOptions="true"
-                            showDetails="true"
-                            canEdit="#{learningEvidenceBean.access.canEdit}"
-                            deleteModalId="deleteEvidence"
-                            role="MANAGER"
-                            titleIsClickable="false"
-                    />
+                    <p>
+                        Evidence details in relation to the #{msg['label.competence'].toLowerCase()} <b>#{profileEvidenceBean.evidence.competenceTitle}</b>.
+                    </p>
                 </div>
-
+                <div class="col-md-12">
+                    <evidence:evidenceForCompetence
+                            evidence="#{profileEvidenceBean.evidence}" />
+                </div>
             </div>
         </div>
 

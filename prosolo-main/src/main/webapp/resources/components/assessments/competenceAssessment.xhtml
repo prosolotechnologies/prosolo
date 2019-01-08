@@ -242,6 +242,7 @@
 				<ui:fragment rendered="#{not empty cc.attrs.competenceAssessment.evidences}">
 					<assessment:evidenceItems
 							evidences="#{cc.attrs.competenceAssessment.evidences}"
+							studentId="#{cc.attrs.competenceAssessment.studentId}"
 							canViewEvidence="#{cc.attrs.fullDisplayMode and (cc.attrs.currentUserAssessedStudent or cc.attrs.currentUserAssessor)}"
 							showMessageWhyUserCantViewEvidence="#{cc.attrs.fullDisplayMode}"
 					/>

@@ -11,6 +11,7 @@ import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.LearningEvidenceManager;
+import org.prosolo.services.nodes.data.BasicObjectInfo;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
@@ -221,7 +222,10 @@ public class CompetenceViewBeanUser implements Serializable {
 		try {
 			LearningEvidenceData newEvidence = learningEvidenceManager.postEvidenceAndAttachItToCompetence(
 					competenceData.getTargetCompId(), submitEvidenceBean.getEvidence(), loggedUser.getUserContext());
+
+			newEvidence.getCompetences().add(new BasicObjectInfo(competenceData.getCompetenceId(), competenceData.getTitle(), newEvidence.getRelationToCompetence()));
 			competenceData.getEvidences().add(newEvidence);
+
 			if (learningEvidenceSearchBean.isInitialized()) {
 				//if evidence search bean is initialized exclude just added evidence from search and reset search
 				learningEvidenceSearchBean.excludeEvidenceFromFutureSearches(newEvidence.getId());

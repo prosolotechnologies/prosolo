@@ -63,9 +63,9 @@
 				</div>
 			</div>
 
-			<span class="#{!cc.attrs.showDetails ? 'textLimit4' : ''}">
+			<p class="#{!cc.attrs.showDetails ? 'textLimit4' : ''}">
 				<h:outputText escape="false" value="#{cc.attrs.evidence.text}"/>
-			</span>
+			</p>
 
 			<table>
 				<ui:fragment rendered="#{cc.attrs.showCompetences}">
@@ -76,18 +76,20 @@
 								<span class="lightText">no #{msg['label.competence.plural'].toLowerCase()}</span>
 							</ui:fragment>
 							<ui:repeat value="#{cc.attrs.evidence.competences}" var="c" varStatus="status">
-								<h:link rendered="#{cc.attrs.role == 'USER'}"
-									outcome="/competence"
-									value="#{c.title}">
-									<f:param name="compId" value="#{util:encodeId(c.id)}"/>
-								</h:link>
-								<h:link rendered="#{cc.attrs.role == 'MANAGER'}"
-										outcome="/manage/competence"
+								<p class="#{!cc.attrs.showDetails ? 'textLimit4' : ''}">
+									<h:link rendered="#{cc.attrs.role == 'USER'}"
+										outcome="/competence"
 										value="#{c.title}">
-									<f:param name="compId" value="#{util:encodeId(c.id)}"/>
-								</h:link>
-								- #{c.description}
-								<ui:fragment rendered="#{status.index + 1 ne cc.attrs.evidence.competences.size()}"><br/></ui:fragment>
+										<f:param name="compId" value="#{util:encodeId(c.id)}"/>
+									</h:link>
+									<h:link rendered="#{cc.attrs.role == 'MANAGER'}"
+											outcome="/manage/competence"
+											value="#{c.title}">
+										<f:param name="compId" value="#{util:encodeId(c.id)}"/>
+									</h:link>
+									- #{c.description}
+									<ui:fragment rendered="#{status.index + 1 ne cc.attrs.evidence.competences.size()}"><br/></ui:fragment>
+								</p>
 							</ui:repeat>
 						</td>
 					</tr>
