@@ -533,7 +533,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 				credentialAssessmentRubricGradeSummary.getOutOf());
 	}
 
-	private org.prosolo.services.user.data.profile.grade.RubricGradeData getCredentialAssessmentPointRubricGradeSummary(long credAssessmentId) {
+	private org.prosolo.services.user.data.profile.grade.PointRubricGradeData getCredentialAssessmentPointRubricGradeSummary(long credAssessmentId) {
 		CredentialAssessment ca = (CredentialAssessment) persistence.currentManager().load(CredentialAssessment.class, credAssessmentId);
 		int maxGrade = 0;
 		int avgLevel = 0;

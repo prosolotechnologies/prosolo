@@ -41,7 +41,7 @@ public class Grade implements Serializable {
     }
 
     public static Grade createDescriptiveRubricGrade(int avgLevelAchieved, int numberOfLevels) {
-        return new Grade(GradeType.POINT_RUBRIC, -1, -1, avgLevelAchieved, numberOfLevels);
+        return new Grade(GradeType.DESC_RUBRIC, -1, -1, avgLevelAchieved, numberOfLevels);
     }
 
     public static Grade createNoGrade() {

@@ -181,7 +181,7 @@ public class StyleUtilBean implements Serializable {
 		if (gradeData == null) {
 			return getGradeStarClass(0, 0, nongradedClass, returnGradeClass);
 		}
-		return getGradeStarClass(gradeData.getScaledGrade(), gradeData.getScaledMaxGrade(), "", true);
+		return getGradeStarClass(gradeData.getScaledGrade(), gradeData.getScaledMaxGrade(), nongradedClass, returnGradeClass);
 	}
 
 	public String getGradeStarClassForGradeData(org.prosolo.services.user.data.profile.grade.GradeData gradeData) {

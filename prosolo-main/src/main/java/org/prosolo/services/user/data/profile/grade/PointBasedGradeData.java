@@ -48,18 +48,14 @@ public class PointBasedGradeData implements PointGradeData {
         return scaledMaxPoints;
     }
 
-    public int getScaledPointsAchieved() {
-        return scaledPointsAchieved;
-    }
-
     @Override
     public String getDescription() {
-        return pointsAchieved + "/" + maxPoints + "points";
+        return pointsAchieved + "/" + maxPoints + " points";
     }
 
     @Override
     public int getScaledGrade() {
-        return getScaledGrade();
+        return scaledPointsAchieved;
     }
 
     @Override

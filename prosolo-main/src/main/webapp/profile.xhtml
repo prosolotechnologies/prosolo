@@ -470,7 +470,7 @@
                                             <div class="assessmentItem">
                                                 <div class="assessmentLeft">
                                                     <div class="assessmentsStar #{styleUtilBean.getGradeStarClassForGradeData(assessment.assessmentGradeSummary)}">
-                                                        <div class="star #{styleUtilBean.getEmptyStarClassForGradeData(assessment.assessmentGradeSummary)}"></div>
+                                                        <div data-html="true" data-toggle="tooltip" title="#{assessment.assessmentGradeSummary.description}" class="star #{styleUtilBean.getEmptyStarClassForGradeData(assessment.assessmentGradeSummary)}"></div>
                                                     </div>
                                                     <div class="user32">
                                                         <assessment:assessmentActorAvatar
@@ -503,6 +503,9 @@
                             </ui:repeat>
                         </div>
                     </div>
+                    <script>
+                        $("[data-toggle='tooltip']").tooltip();
+                    </script>
                 </h:panelGroup>
             </div>
         </div>
@@ -699,6 +702,9 @@
                                 <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
                             </div>
                         </ui:fragment>
+                        <script>
+                            $("[data-toggle='tooltip']").tooltip();
+                        </script>
                     </h:panelGroup>
                 </div>
             </div>
