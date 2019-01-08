@@ -16,6 +16,7 @@ import org.prosolo.search.util.credential.CredentialDeliverySortOption;
 import org.prosolo.search.util.credential.CredentialMembersSearchFilter;
 import org.prosolo.search.util.credential.CredentialSearchFilterManager;
 import org.prosolo.services.assessment.data.AssessmentTypeConfig;
+import org.prosolo.services.common.data.SortOrder;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventQueue;
 import org.prosolo.services.general.AbstractManager;
@@ -337,7 +338,7 @@ public interface CredentialManager extends AbstractManager {
 	CredentialInStagesDeliveriesSummaryData getOngoingDeliveriesSummaryDataFromAllStages(long firstStageCredentialId) throws DbConnectionException;
 	
 	RestrictedAccessResult<List<CredentialData>> getCredentialDeliveriesWithAccessRights(long credId, 
-			long userId, CredentialDeliverySortOption sortOption, CredentialSearchFilterManager filter) throws DbConnectionException;
+			long userId, SortOrder<CredentialDeliverySortOption> sortOrder, CredentialSearchFilterManager filter) throws DbConnectionException;
 	
 	void archiveCredential(long credId, UserContextData context) throws DbConnectionException;
 
@@ -377,7 +378,7 @@ public interface CredentialManager extends AbstractManager {
 
 	List<Tag> getHashtagsForCredential(long credentialId) throws DbConnectionException;
 
-	List<CredentialData> getCredentialDeliveriesForUserWithInstructPrivilege(long userId, CredentialDeliverySortOption sortOption)
+	List<CredentialData> getCredentialDeliveriesForUserWithInstructPrivilege(long userId, SortOrder<CredentialDeliverySortOption> sortOrder)
 			throws DbConnectionException;
 
 	long getCredentialIdForDelivery(long deliveryId) throws DbConnectionException;
