@@ -213,7 +213,7 @@ public class RolesBean implements Serializable {
 			formData = null;
 		} catch(Exception e) {
 			logger.error(e);
-			PageUtil.fireErrorMessage("Error while saving role");
+			PageUtil.fireErrorMessage("Error saving role");
 		}
 	}
 	

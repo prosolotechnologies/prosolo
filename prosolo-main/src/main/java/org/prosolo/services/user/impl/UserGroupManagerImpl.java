@@ -77,7 +77,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 		} catch(Exception e) {
 			e.printStackTrace();
 			logger.error(e);
-			throw new DbConnectionException("Error while retrieving user groups");
+			throw new DbConnectionException("Error retrieving user groups");
 		}
 	}
 	
@@ -99,7 +99,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 		} catch(Exception e) {
 			e.printStackTrace();
 			logger.error(e);
-			throw new DbConnectionException("Error while retrieving group");
+			throw new DbConnectionException("Error retrieving group");
 		}
 	}
 	
@@ -146,7 +146,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 		} catch(Exception e) {
 			e.printStackTrace();
 			logger.error(e);
-			throw new DbConnectionException("Error while retrieving user groups");
+			throw new DbConnectionException("Error retrieving user groups");
 		}
 	}
 	
@@ -172,7 +172,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 		} catch(Exception e) {
 			e.printStackTrace();
 			logger.error(e);
-			throw new DbConnectionException("Error while retrieving number of groups");
+			throw new DbConnectionException("Error retrieving number of groups");
 		}
 	}
 	
@@ -205,7 +205,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 			return res;
 		} catch(Exception e) {
 			logger.error("Error", e);
-			throw new DbConnectionException("Error while saving user group");
+			throw new DbConnectionException("Error saving user group");
 		}
 	}
 
@@ -233,7 +233,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 			return res;
 		} catch (Exception e) {
 			logger.error("Error", e);
-			throw new DbConnectionException("Error while saving user group");
+			throw new DbConnectionException("Error saving user group");
 		}
 	}
 	
@@ -249,7 +249,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 		} catch(Exception e) {
 			e.printStackTrace();
 			logger.error(e);
-			throw new DbConnectionException("Error while saving user group");
+			throw new DbConnectionException("Error saving user group");
 		}
 	}
 
@@ -271,7 +271,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 		} catch(Exception e) {
 			e.printStackTrace();
 			logger.error(e);
-			throw new DbConnectionException("Error while deleting user group");
+			throw new DbConnectionException("Error deleting user group");
 		}
 	}
 
@@ -304,7 +304,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 		} catch(Exception e) {
 			e.printStackTrace();
 			logger.error(e);
-			throw new DbConnectionException("Error while removing user from the group");
+			throw new DbConnectionException("Error removing user from the group");
 		}
 	}
 
@@ -322,7 +322,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 		} catch(Exception e) {
 			e.printStackTrace();
 			logger.error(e);
-			throw new DbConnectionException("Error while adding user to groups");
+			throw new DbConnectionException("Error adding user to groups");
 		}
 	}
 	
@@ -339,7 +339,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 		} catch(Exception e) {
 			e.printStackTrace();
 			logger.error(e);
-			throw new DbConnectionException("Error while removing user from groups");
+			throw new DbConnectionException("Error removing user from groups");
 		}
 	}
 	
@@ -368,7 +368,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 		} catch(Exception e) {
 			e.printStackTrace();
 			logger.error(e);
-			throw new DbConnectionException("Error while updating user groups");
+			throw new DbConnectionException("Error updating user groups");
 		}
 
 	}
@@ -389,7 +389,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     	} catch(Exception e) {
     		e.printStackTrace();
     		logger.error(e);
-    		throw new DbConnectionException("Error while retrieving number of users in a group");
+    		throw new DbConnectionException("Error retrieving number of users in a group");
     	}
     }
 
@@ -420,7 +420,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 		} catch(Exception e) {
 			e.printStackTrace();
 			logger.error(e);
-			throw new DbConnectionException("Error while retrieving user group data");
+			throw new DbConnectionException("Error retrieving user group data");
 		}
 	}
 	
@@ -444,7 +444,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     	} catch(Exception e) {
     		e.printStackTrace();
     		logger.error(e);
-    		throw new DbConnectionException("Error while checking if user belongs to a group");
+    		throw new DbConnectionException("Error checking if user belongs to a group");
     	}
     }
 	
@@ -467,7 +467,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     	} catch(Exception e) {
     		e.printStackTrace();
     		logger.error(e);
-    		throw new DbConnectionException("Error while retrieving credential groups");
+    		throw new DbConnectionException("Error retrieving credential groups");
     	}
     }
 	
@@ -497,7 +497,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     	} catch(Exception e) {
     		e.printStackTrace();
     		logger.error(e);
-    		throw new DbConnectionException("Error while retrieving credential groups");
+    		throw new DbConnectionException("Error retrieving credential groups");
     	}
     }
 	
@@ -527,7 +527,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     	} catch(Exception e) {
     		e.printStackTrace();
     		logger.error(e);
-    		throw new DbConnectionException("Error while retrieving competence groups");
+    		throw new DbConnectionException("Error retrieving competence groups");
     	}
     }
 	
@@ -551,7 +551,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     	} catch (Exception e) {
     		e.printStackTrace();
     		logger.error(e);
-    		throw new DbConnectionException("Error while retrieving competence groups");
+    		throw new DbConnectionException("Error retrieving competence groups");
     	}
     }
 	
@@ -575,7 +575,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     	} catch(Exception e) {
     		e.printStackTrace();
     		logger.error(e);
-    		throw new DbConnectionException("Error while retrieving credential groups");
+    		throw new DbConnectionException("Error retrieving credential groups");
     	}
     }
 	
@@ -622,7 +622,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     	} catch(Exception e) {
     		e.printStackTrace();
     		logger.error(e);
-    		throw new DbConnectionException("Error while retrieving credential groups");
+    		throw new DbConnectionException("Error retrieving credential groups");
     	}
     }
 	
@@ -670,7 +670,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     	} catch(Exception e) {
     		e.printStackTrace();
     		logger.error(e);
-    		throw new DbConnectionException("Error while retrieving credential users");
+    		throw new DbConnectionException("Error retrieving credential users");
     	}
     }
 	
@@ -718,7 +718,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     	} catch(Exception e) {
     		e.printStackTrace();
     		logger.error(e);
-    		throw new DbConnectionException("Error while saving credential users and groups");
+    		throw new DbConnectionException("Error saving credential users and groups");
     	}
     }
 	
@@ -790,7 +790,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     	} catch(Exception e) {
     		e.printStackTrace();
     		logger.error(e);
-    		throw new DbConnectionException("Error while saving credential users");
+    		throw new DbConnectionException("Error saving credential users");
     	}
     }
 
@@ -834,7 +834,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while adding privilege to a user for credential");
+			throw new DbConnectionException("Error adding privilege to a user for credential");
 		}
 	}
 
@@ -855,7 +855,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while removing privilege for credential");
+			throw new DbConnectionException("Error removing privilege for credential");
 		}
 	}
 
@@ -886,7 +886,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while adding privilege to a user for credential");
+			throw new DbConnectionException("Error adding privilege to a user for credential");
 		}
 	}
 
@@ -907,7 +907,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while removing privilege for credential");
+			throw new DbConnectionException("Error removing privilege for credential");
 		}
 	}
 
@@ -992,7 +992,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 		} catch(Exception e) {
 			e.printStackTrace();
 			logger.error(e);
-			throw new DbConnectionException("Error while adding the user to the group");
+			throw new DbConnectionException("Error adding the user to the group");
 		}
 	}
 
@@ -1055,7 +1055,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     	} catch(Exception e) {
     		e.printStackTrace();
     		logger.error(e);
-    		throw new DbConnectionException("Error while checking if user is in a default credential group");
+    		throw new DbConnectionException("Error checking if user is in a default credential group");
     	}
     }
 	
@@ -1089,7 +1089,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     	} catch(Exception e) {
     		e.printStackTrace();
     		logger.error(e);
-    		throw new DbConnectionException("Error while saving credential groups");
+    		throw new DbConnectionException("Error saving credential groups");
     	}
     }
 	
@@ -1247,7 +1247,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     	} catch(Exception e) {
     		e.printStackTrace();
     		logger.error(e);
-    		throw new DbConnectionException("Error while retrieving competence groups");
+    		throw new DbConnectionException("Error retrieving competence groups");
     	}
     }
 	
@@ -1306,7 +1306,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     	} catch(Exception e) {
     		e.printStackTrace();
     		logger.error(e);
-    		throw new DbConnectionException("Error while retrieving competence users");
+    		throw new DbConnectionException("Error retrieving competence users");
     	}
     }
 
@@ -1342,7 +1342,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 		} catch(Exception e) {
 			e.printStackTrace();
 			logger.error(e);
-			throw new DbConnectionException("Error while retrieving competency groups");
+			throw new DbConnectionException("Error retrieving competency groups");
 		}
 	}
 
@@ -1407,7 +1407,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 		} catch(Exception e) {
 			e.printStackTrace();
 			logger.error(e);
-			throw new DbConnectionException("Error while saving competency users and groups");
+			throw new DbConnectionException("Error saving competency users and groups");
 		}
 	}
 
@@ -1461,7 +1461,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 		} catch(Exception e) {
 			e.printStackTrace();
 			logger.error(e);
-			throw new DbConnectionException("Error while saving credential users");
+			throw new DbConnectionException("Error saving credential users");
 		}
 	}
 
@@ -1496,7 +1496,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 		} catch(Exception e) {
 			e.printStackTrace();
 			logger.error(e);
-			throw new DbConnectionException("Error while saving credential groups");
+			throw new DbConnectionException("Error saving credential groups");
 		}
 	}
 
@@ -1637,7 +1637,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     	} catch(Exception e) {
     		e.printStackTrace();
     		logger.error(e);
-    		throw new DbConnectionException("Error while saving user privileges");
+    		throw new DbConnectionException("Error saving user privileges");
     	}
     }
 	
@@ -1674,7 +1674,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     	} catch(Exception e) {
     		e.printStackTrace();
     		logger.error(e);
-    		throw new DbConnectionException("Error while saving user privileges");
+    		throw new DbConnectionException("Error saving user privileges");
     	}
     }
 	
@@ -1714,7 +1714,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     	} catch(Exception e) {
     		e.printStackTrace();
     		logger.error(e);
-    		throw new DbConnectionException("Error while saving user privileges");
+    		throw new DbConnectionException("Error saving user privileges");
     	}
     }
 	
@@ -1749,7 +1749,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     	} catch(Exception e) {
     		e.printStackTrace();
     		logger.error(e);
-    		throw new DbConnectionException("Error while saving user privileges");
+    		throw new DbConnectionException("Error saving user privileges");
     	}
     }
 	
@@ -1778,7 +1778,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     	} catch(Exception e) {
     		e.printStackTrace();
     		logger.error(e);
-    		throw new DbConnectionException("Error while saving user privileges");
+    		throw new DbConnectionException("Error saving user privileges");
     	}
     }
 	
@@ -1810,7 +1810,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     	} catch(Exception e) {
     		e.printStackTrace();
     		logger.error(e);
-    		throw new DbConnectionException("Error while saving user privileges");
+    		throw new DbConnectionException("Error saving user privileges");
     	}
     }
 	
@@ -1831,7 +1831,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     	} catch(Exception e) {
     		e.printStackTrace();
     		logger.error(e);
-    		throw new DbConnectionException("Error while saving user privileges");
+    		throw new DbConnectionException("Error saving user privileges");
     	}
     }
 	
@@ -1861,7 +1861,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     	} catch(Exception e) {
     		e.printStackTrace();
     		logger.error(e);
-    		throw new DbConnectionException("Error while saving user privileges");
+    		throw new DbConnectionException("Error saving user privileges");
     	}
     }
 	
@@ -1882,7 +1882,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     	} catch(Exception e) {
     		e.printStackTrace();
     		logger.error(e);
-    		throw new DbConnectionException("Error while saving user privileges");
+    		throw new DbConnectionException("Error saving user privileges");
     	}
     }
 	
@@ -1918,7 +1918,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 		} catch (Exception e) {
 			e.printStackTrace();
 			logger.error(e);
-			throw new DbConnectionException("Error while saving user privileges");
+			throw new DbConnectionException("Error saving user privileges");
 		}
 		return res;
 	}
@@ -1958,7 +1958,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     	} catch(Exception e) {
     		e.printStackTrace();
     		logger.error(e);
-    		throw new DbConnectionException("Error while retrieving user groups");
+    		throw new DbConnectionException("Error retrieving user groups");
     	}
     }
 
@@ -1984,7 +1984,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while creating user privileges");
+			throw new DbConnectionException("Error creating user privileges");
 		}
 	}
 
@@ -2001,7 +2001,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while saving user privilege");
+			throw new DbConnectionException("Error saving user privilege");
 		}
 	}
 
@@ -2018,7 +2018,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while saving user privilege");
+			throw new DbConnectionException("Error saving user privilege");
 		}
 	}
 
@@ -2035,7 +2035,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 		} catch(Exception e) {
 			e.printStackTrace();
 			logger.error(e);
-			throw new DbConnectionException("Error while retrieving user groups");
+			throw new DbConnectionException("Error retrieving user groups");
 		}
 	}
 
@@ -2104,7 +2104,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 					: null;
 		} catch (Exception e) {
 			logger.error("Error", e);
-			throw new DbConnectionException("Error while retrieving user group data");
+			throw new DbConnectionException("Error retrieving user group data");
 		}
 	}
 
@@ -2133,7 +2133,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 			return res;
 		} catch (Exception e) {
 			logger.error("Error", e);
-			throw new DbConnectionException("Error while retrieving user group ids");
+			throw new DbConnectionException("Error retrieving user group ids");
 		}
 	}
 
@@ -2163,7 +2163,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 			return (long) q.uniqueResult();
 		} catch(Exception e) {
 			logger.error("Error", e);
-			throw new DbConnectionException("Error while retrieving credential groups");
+			throw new DbConnectionException("Error retrieving credential groups");
 		}
 	}
 
@@ -2200,7 +2200,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 			return (List<String>) q.list();
 		} catch(Exception e) {
 			logger.error("Error", e);
-			throw new DbConnectionException("Error while retrieving credential groups");
+			throw new DbConnectionException("Error retrieving credential groups");
 		}
 	}
 
@@ -2233,7 +2233,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 			return (long) q.uniqueResult();
 		} catch(Exception e) {
 			logger.error("Error", e);
-			throw new DbConnectionException("Error while retrieving credential users");
+			throw new DbConnectionException("Error retrieving credential users");
 		}
 	}
 
@@ -2273,7 +2273,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 			return users.stream().map(u -> u.getFullName()).collect(Collectors.toList());
 		} catch(Exception e) {
 			logger.error("Error", e);
-			throw new DbConnectionException("Error while retrieving credential users");
+			throw new DbConnectionException("Error retrieving credential users");
 		}
 	}
 

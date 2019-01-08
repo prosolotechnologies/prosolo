@@ -14,6 +14,9 @@ public class AppConfig {
 	@Element(name = "project-mode")
 	public ProjectMode projectMode;
 
+	@Element(name = "deployment")
+	public Deployment deployment;
+
 	@Element(name = "developer-email")
 	public String developerEmail;
 	
@@ -51,4 +54,10 @@ public class AppConfig {
             return mode;
         }
     }
+
+    public enum Deployment {
+		LOCAL,
+		UNISA
+	}
+
 }

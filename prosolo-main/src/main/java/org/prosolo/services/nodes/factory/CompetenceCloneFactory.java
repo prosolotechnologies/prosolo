@@ -46,7 +46,7 @@ public class CompetenceCloneFactory {
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while cloning credential competence");
+			throw new DbConnectionException("Error cloning credential competence");
 		}
 	}
 
@@ -86,7 +86,7 @@ public class CompetenceCloneFactory {
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while cloning competence");
+			throw new DbConnectionException("Error cloning competence");
 		}
 	}
 	

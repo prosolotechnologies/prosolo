@@ -30,6 +30,8 @@ import org.prosolo.services.user.data.parameterobjects.CredentialProfileOptionsP
 import org.prosolo.services.user.data.profile.*;
 import org.prosolo.services.user.data.profile.factory.CredentialProfileDataFactory;
 import org.prosolo.services.user.data.profile.factory.CredentialProfileOptionsDataFactory;
+import org.prosolo.services.user.data.profile.factory.GradeDataFactory;
+import org.prosolo.services.user.data.profile.grade.GradeData;
 import org.prosolo.web.profile.data.UserSocialNetworksData;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -54,6 +56,7 @@ public class StudentProfileManagerImpl extends AbstractManagerImpl implements St
     @Inject private CredentialProfileOptionsDataFactory credentialProfileOptionsDataFactory;
     @Inject private Competence1Manager competenceManager;
     @Inject private AssessmentManager assessmentManager;
+    @Inject private GradeDataFactory gradeDataFactory;
 
     @Override
     public Optional<StudentProfileData> getStudentProfileData(long userId) {
@@ -340,9 +343,7 @@ public class StudentProfileManagerImpl extends AbstractManagerImpl implements St
                             true,
                             SortOrder.<AssessmentSortOrder>builder()
                                     .addOrder(AssessmentSortOrder.ASSESSMENT_TYPE, SortingOption.ASC)
-                                    .addOrder(
-                                    AssessmentSortOrder.LAST_ASSESSMENT_DATE,
-                                    SortingOption.ASC).build());
+                                    .addOrder(AssessmentSortOrder.LAST_ASSESSMENT_DATE, SortingOption.ASC).build());
             List<CredentialAssessmentWithGradeSummaryData> credentialAssessmentsWithGradeSummaryData =
                     credentialAssessments
                             .stream()
@@ -354,7 +355,7 @@ public class StudentProfileManagerImpl extends AbstractManagerImpl implements St
                 Optional<CompetenceProfileConfig> competenceProfileConfig = credProfileConfigOpt.isPresent()
                         ? credProfileConfigOpt.get().getCompetenceProfileConfigs().stream().filter(conf -> conf.getTargetCompetence().getId() == tc.getId()).findFirst()
                         : Optional.empty();
-                List<CompetenceAssessment> competenceAssessments = assessmentManager.getCredentialCompetenceAssessments(
+                List<CompetenceAssessment> competenceAssessments = assessmentManager.getIndependentAndCompetenceAssessmentsBelongingToCredential(
                         targetCredentialId,
                         tc.getCompetence().getId(),
                         tc.getUser().getId(),
@@ -428,7 +429,7 @@ public class StudentProfileManagerImpl extends AbstractManagerImpl implements St
                     CredentialAssessmentProfileConfig conf = new CredentialAssessmentProfileConfig();
                     conf.setCredentialAssessment((CredentialAssessment) persistence.currentManager().load(CredentialAssessment.class, assessment.getData()));
                     conf.setCredentialProfileConfig((CredentialProfileConfig) persistence.currentManager().load(CredentialProfileConfig.class, credProfileConfigId));
-                    AssessmentGradeSummary gradeSummary = assessmentManager.getCredentialAssessmentGradeSummary(assessment.getData());
+                    GradeData gradeSummary = assessmentManager.getCredentialAssessmentGradeSummary(assessment.getData());
                     setAssessmentConfigCommonData(conf, gradeSummary);
                     setStudentProfileCommonData(conf, targetCredentialId, userId);
                     saveEntity(conf);
@@ -496,8 +497,8 @@ public class StudentProfileManagerImpl extends AbstractManagerImpl implements St
                     CompetenceAssessmentProfileConfig conf = new CompetenceAssessmentProfileConfig();
                     conf.setCompetenceAssessment((CompetenceAssessment) persistence.currentManager().load(CompetenceAssessment.class, assessment.getData()));
                     conf.setCompetenceProfileConfig((CompetenceProfileConfig) persistence.currentManager().load(CompetenceProfileConfig.class, competenceProfileConfigId));
-                    AssessmentGradeSummary gradeSummary = assessmentManager.getCompetenceAssessmentGradeSummary(assessment.getData());
-                    setAssessmentConfigCommonData(conf, gradeSummary);
+                    GradeData gradeData = assessmentManager.getCompetenceAssessmentGradeSummary(assessment.getData());
+                    setAssessmentConfigCommonData(conf, gradeData);
                     setStudentProfileCommonData(conf, targetCredentialId, userId);
                     saveEntity(conf);
                 }
@@ -515,9 +516,8 @@ public class StudentProfileManagerImpl extends AbstractManagerImpl implements St
         conf.setStudent((User) persistence.currentManager().load(User.class, userId));
     }
 
-    private void setAssessmentConfigCommonData(AssessmentProfileConfig conf, AssessmentGradeSummary assessmentGradeSummary) {
-        conf.setGrade(assessmentGradeSummary.getGrade());
-        conf.setMaxGrade(assessmentGradeSummary.getOutOf());
+    private void setAssessmentConfigCommonData(AssessmentProfileConfig conf, GradeData gradeData) {
+        conf.setGrade(gradeDataFactory.getGradeFromGradeData(gradeData));
     }
 
     private Optional<CredentialAssessmentProfileConfig> getCredentialAssessmentProfileConfig(long credAssessmentId, long credProfileConfigId) {

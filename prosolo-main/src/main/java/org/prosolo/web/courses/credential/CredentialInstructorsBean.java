@@ -112,7 +112,7 @@ public class CredentialInstructorsBean implements Serializable, Paginable {
 					PageUtil.notFound();
 				}
 			} catch (Exception e) {
-				PageUtil.fireErrorMessage("Error while loading instructor data");
+				PageUtil.fireErrorMessage("Error loading instructor data");
 			}
 		} else {
 			PageUtil.notFound();

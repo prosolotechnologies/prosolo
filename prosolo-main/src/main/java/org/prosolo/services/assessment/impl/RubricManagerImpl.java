@@ -108,7 +108,7 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
         } catch (Exception e) {
             logger.error(e);
             e.printStackTrace();
-            throw new DbConnectionException("Error while saving rubric data");
+            throw new DbConnectionException("Error saving rubric data");
         }
     }
 
@@ -163,7 +163,7 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
             return response;
         } catch (Exception e) {
             logger.error("Error", e);
-            throw new DbConnectionException("Error while retrieving rubric data");
+            throw new DbConnectionException("Error retrieving rubric data");
         }
     }
 
@@ -196,7 +196,7 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
         } catch (Exception e) {
             logger.error(e);
             e.printStackTrace();
-            throw new DbConnectionException("Error while retrieving rubrics");
+            throw new DbConnectionException("Error retrieving rubrics");
         }
     }
 
@@ -226,7 +226,7 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
             throw e;
         } catch (ResourceCouldNotBeLoadedException e) {
             logger.error("Error: ", e);
-            throw new DbConnectionException("Error while deleting rubric");
+            throw new DbConnectionException("Error deleting rubric");
         }
     }
 
@@ -286,7 +286,7 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
         } catch (Exception e) {
             logger.error(e);
             e.printStackTrace();
-            throw new DbConnectionException("Error while saving rubric");
+            throw new DbConnectionException("Error saving rubric");
         }
     }
 

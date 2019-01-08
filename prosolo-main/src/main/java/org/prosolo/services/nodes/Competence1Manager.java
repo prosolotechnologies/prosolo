@@ -426,16 +426,6 @@ public interface Competence1Manager {
 	long getTargetCompetenceId(long compId, long studentId) throws DbConnectionException;
 
 	/**
-	 * Returns the most restrictive blind assessment mode from all credentials with given competency and for given assessment type
-	 *
-	 * @param compId
-	 * @param assessmentType
-	 * @return
-	 * @throws DbConnectionException
-	 */
-//	BlindAssessmentMode getTheMostRestrictiveCredentialBlindAssessmentModeForAssessmentTypeAndCompetence(long compId, AssessmentType assessmentType);
-
-	/**
 	 * Updates the {@code evidenceSummary} field of an instance of the {@link org.prosolo.common.domainmodel.credential.TargetCompetence1} class
 	 * with id given by {@code targetCompetenceId}.
 	 *

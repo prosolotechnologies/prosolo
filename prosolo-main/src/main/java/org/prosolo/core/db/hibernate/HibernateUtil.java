@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.prosolo.core.hibernate;
+package org.prosolo.core.db.hibernate;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Hibernate;

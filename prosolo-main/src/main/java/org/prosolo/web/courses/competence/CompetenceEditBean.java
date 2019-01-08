@@ -125,7 +125,7 @@ public class CompetenceEditBean extends CompoundLearningResourceAssessmentSettin
 			logger.error(e);
 			e.printStackTrace();
 			competenceData = new CompetenceData1(false);
-			PageUtil.fireErrorMessage("Error while loading competence data");
+			PageUtil.fireErrorMessage("Error loading competence data");
 		}
 	}
 	

@@ -63,7 +63,7 @@ public class CredentialPrivacyBean implements Serializable {
 				}
 			} catch (Exception e) {
 				logger.error(e);
-				PageUtil.fireErrorMessage("Error while loading the page");
+				PageUtil.fireErrorMessage("Error loading the page");
 			}
 		} else {
 			PageUtil.notFound();

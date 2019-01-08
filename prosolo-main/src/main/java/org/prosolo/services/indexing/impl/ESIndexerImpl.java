@@ -144,7 +144,7 @@ public class ESIndexerImpl implements ESIndexer {
 //			logger.error("MalformedURLException:" + contentLink);
 //		} catch (ConnectException ce) {
 //			logger.error("ConnectException:" + ce.getLocalizedMessage());
-//			logger.error("Error while indexing url:" + contentLink + " from " + event.getId());
+//			logger.error("Error indexing url:" + contentLink + " from " + event.getId());
 //		} catch (SocketTimeoutException ste) {
 //			logger.error("SocketTimeoutException happend during the processing HTML page:" + contentLink);
 //		} catch (IOException e) {

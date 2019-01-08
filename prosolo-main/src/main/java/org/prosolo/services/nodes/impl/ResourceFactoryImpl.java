@@ -140,7 +140,7 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
         } catch(Exception e) {
             e.printStackTrace();
             logger.error(e);
-            throw new DbConnectionException("Error while saving credential");
+            throw new DbConnectionException("Error saving credential");
         }
     }
 
@@ -160,7 +160,7 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 			
 			return link;
 		}catch(Exception e){
-			throw new DbConnectionException("Error while loading learning goals");
+			throw new DbConnectionException("Error loading learning goals");
 		}
 	}
 
@@ -203,7 +203,7 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
         } catch(Exception e) {
             logger.error(e);
             e.printStackTrace();
-            throw new DbConnectionException("Error while saving new post");
+            throw new DbConnectionException("Error saving new post");
         }
 
     }
@@ -230,7 +230,7 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
         } catch(Exception e) {
             logger.error(e);
             e.printStackTrace();
-            throw new DbConnectionException("Error while saving new post");
+            throw new DbConnectionException("Error saving new post");
         }
 
     }
@@ -247,7 +247,7 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
         } catch(Exception e) {
             logger.error(e);
             e.printStackTrace();
-            throw new DbConnectionException("Error while updating post");
+            throw new DbConnectionException("Error updating post");
         }
 
     }
@@ -270,7 +270,7 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
         } catch (Exception e) {
             e.printStackTrace();
             logger.error(e);
-            throw new DbConnectionException("Error while saving user group");
+            throw new DbConnectionException("Error saving user group");
         }
     }
 

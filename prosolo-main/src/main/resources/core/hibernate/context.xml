@@ -51,21 +51,21 @@
 	 -->
 	
 	<!-- Hibernate SessionFactory for the datasource -->
-	<bean id="sessionFactory"
-		class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
-		<property name="dataSource" ref="dataSource" />
-		<property name="hibernateProperties" ref="hibernateProperties" />
-		<property name="packagesToScan">
-			<list>
-				<value>org.prosolo.common.domainmodel</value>
-				<!-- value>org.prosolo.services.logging.domain</value-->
-				<!-- value>org.prosolo.services.tree.settings.model</value-->
-				<value>org.prosolo.services.activityWall.impl.data</value>
-			</list>
-		</property>
-		<property name="namingStrategy">
-			<bean class="org.hibernate.cfg.ImprovedNamingStrategy" />
-		</property>
-	</bean>
+	<!--<bean id="sessionFactory"-->
+		<!--class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">-->
+		<!--<property name="dataSource" ref="dataSource" />-->
+		<!--<property name="hibernateProperties" ref="hibernateProperties" />-->
+		<!--<property name="packagesToScan">-->
+			<!--<list>-->
+				<!--<value>org.prosolo.common.domainmodel</value>-->
+				<!--&lt;!&ndash; value>org.prosolo.services.logging.domain</value&ndash;&gt;-->
+				<!--&lt;!&ndash; value>org.prosolo.services.tree.settings.model</value&ndash;&gt;-->
+				<!--<value>org.prosolo.services.activityWall.impl.data</value>-->
+			<!--</list>-->
+		<!--</property>-->
+		<!--<property name="namingStrategy">-->
+			<!--<bean class="org.hibernate.cfg.ImprovedNamingStrategy" />-->
+		<!--</property>-->
+	<!--</bean>-->
 	
 </beans>

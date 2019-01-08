@@ -29,7 +29,7 @@ public class CapabilityManagerImpl extends AbstractManagerImpl implements Capabi
 		try {
 			return saveEntity(capability);
 		} catch (Exception e) {
-			throw new DbConnectionException("Error while saving capability");
+			throw new DbConnectionException("Error saving capability");
 		}
 	}
 
@@ -56,7 +56,7 @@ public class CapabilityManagerImpl extends AbstractManagerImpl implements Capabi
 //			return (Capability) persistence.currentManager().createQuery(query).setLong("capId", id).uniqueResult();
 //		} catch (Exception e) {
 //			e.printStackTrace();
-//			throw new DbConnectionException("Error while loading capability");
+//			throw new DbConnectionException("Error loading capability");
 //		}
 //	}
 
@@ -76,7 +76,7 @@ public class CapabilityManagerImpl extends AbstractManagerImpl implements Capabi
 			cap.setRoles(roles);
 			return saveEntity(cap);
 		} catch (Exception e) {
-			throw new DbConnectionException("Error while updating capabilities");
+			throw new DbConnectionException("Error updating capabilities");
 		}
 
 	}
@@ -92,7 +92,7 @@ public class CapabilityManagerImpl extends AbstractManagerImpl implements Capabi
 //			return (Capability) persistence.currentManager().createQuery(query).setParameter("name", capName)
 //					.uniqueResult();
 //		} catch (Exception e) {
-//			throw new DbConnectionException("Error while loading capability");
+//			throw new DbConnectionException("Error loading capability");
 //		}
 //	}
 
@@ -125,7 +125,7 @@ public class CapabilityManagerImpl extends AbstractManagerImpl implements Capabi
 			return resultMap;
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new DbConnectionException("Error while loading capabilities");
+			throw new DbConnectionException("Error loading capabilities");
 		}
 
 	}
@@ -152,7 +152,7 @@ public class CapabilityManagerImpl extends AbstractManagerImpl implements Capabi
 //			return map;
 //		} catch (Exception e) {
 //			e.printStackTrace();
-//			throw new DbConnectionException("Error while loading capabilities");
+//			throw new DbConnectionException("Error loading capabilities");
 //		}
 //
 //	}

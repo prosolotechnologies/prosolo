@@ -46,7 +46,7 @@ public class LearningEvidenceSearchBean implements Serializable, Paginable {
 
             searchEvidences();
         } catch (DbConnectionException e) {
-            PageUtil.fireErrorMessage("Error while loading the page");
+            PageUtil.fireErrorMessage("Error loading the page");
         }
     }
 

@@ -81,7 +81,7 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while loading credential instructor data");
+			throw new DbConnectionException("Error loading credential instructor data");
 		}
 	}
 	
@@ -108,7 +108,7 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while assigning student to an instructor");
+			throw new DbConnectionException("Error assigning student to an instructor");
 		}
 	}
 	
@@ -146,7 +146,7 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while assigning student to an instructor");
+			throw new DbConnectionException("Error assigning student to an instructor");
 		}
 	}
 	
@@ -255,7 +255,7 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while loading credential instructor data");
+			throw new DbConnectionException("Error loading credential instructor data");
 		}
 	}
 	
@@ -365,7 +365,7 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while loading credential ids");
+			throw new DbConnectionException("Error loading credential ids");
 		}
 	}
     
@@ -388,7 +388,7 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while loading credential ids");
+			throw new DbConnectionException("Error loading credential ids");
 		}
     }
     
@@ -417,7 +417,7 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 			List<TargetCredential1> targetCreds = credManager.getTargetCredentialsForInstructor(instructorId);
 			return assignStudentsAutomatically(credId, targetCreds, instructorId, context);
 		} catch(Exception e) {
-			throw new DbConnectionException("Error while reassigning students");
+			throw new DbConnectionException("Error reassigning students");
 		}
 	}
 	
@@ -467,7 +467,7 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while removing instructor from credential");
+			throw new DbConnectionException("Error removing instructor from credential");
 		}
 	}
 	
@@ -546,7 +546,7 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while updating instructor");
+			throw new DbConnectionException("Error updating instructor");
 		}
 	}
 	
@@ -598,7 +598,7 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while assigning instructor to a credential");
+			throw new DbConnectionException("Error assigning instructor to a credential");
 		}
 	}
 	
@@ -635,7 +635,7 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while updating instructor");
+			throw new DbConnectionException("Error updating instructor");
 		}
 	}
 	
@@ -661,7 +661,7 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while updating instructor");
+			throw new DbConnectionException("Error updating instructor");
 		}
 	}
 
@@ -721,7 +721,7 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while loading credential instructors");
+			throw new DbConnectionException("Error loading credential instructors");
 		}
 	}
 	
@@ -745,7 +745,7 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while loading credential instructors number");
+			throw new DbConnectionException("Error loading credential instructors number");
 		}
 	}
 	
@@ -771,7 +771,7 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving credential instructors user ids");
+			throw new DbConnectionException("Error retrieving credential instructors user ids");
 		}
 	}
 

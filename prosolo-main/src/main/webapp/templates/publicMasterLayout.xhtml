@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:util="http://www.prosolo.com/util"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+<ui:insert name="metadata" />
+
+<h:head>
+	<f:facet name="first">
+		<meta charset="utf-8"></meta>
+		<meta http-equiv="X-UA-Compatible" content="IE=edge"></meta>
+		<meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+		<link rel="icon" href="#{request.contextPath}/favicon.ico" type="image/x-icon" />
+		<title><ui:insert name="windowTitle" /></title>
+	</f:facet>
+
+	<link rel="stylesheet" type="text/css" media="all"
+		href="#{request.contextPath}/resources/css2/bootstrap.min.css" />
+	<link rel="stylesheet" type="text/css" media="all"
+		href="#{request.contextPath}/resources/css2/awesome-bootstrap-checkbox.css" />
+	<link rel="stylesheet" type="text/css" media="all"
+		href="#{request.contextPath}/resources/css2/dropdowns-enhancement.css" />
+	<link rel="stylesheet" type="text/css" media="all"
+		href="#{request.contextPath}/resources/css2/bootstrap-select.css" />
+	<link rel="stylesheet" type="text/css" media="all"
+		href="#{request.contextPath}/resources/css2/style.css?#{applicationbean.loginTime}" />
+
+	<script
+		src="#{request.contextPath}/resources/javascript2/prosolo.logging.js"></script>
+	<!-- Include all compiled plugins (below), or include individual files as needed -->
+	<script
+		src="#{request.contextPath}/resources/javascript2/bootstrap.min.js"></script>
+	<script
+		src="#{request.contextPath}/resources/javascript2/dropdowns-enhancement.js"></script>
+	<script
+		src="#{request.contextPath}/resources/javascript2/bootstrap-select.min.js"></script>
+	<script
+		src="#{request.contextPath}/resources/javascript2/custom.js?#{applicationbean.loginTime}"></script>
+		
+	<script src="https://www.youtube.com/iframe_api"/>
+	<script	src="#{request.contextPath}/resources/javascript2/youtubevideo.js"></script>
+	<script src="#{request.contextPath}/resources/javascript2/moment.min.js"></script>
+	<script src="#{request.contextPath}/resources/javascript2/prosolo-date-converter.js"></script>
+	
+</h:head>
+
+<h:body styleClass="#{bodyClass}">
+	<utilcomp:messagesBundle var="msg" />
+	<div class="bigWrapper">
+	<header>
+		<div class="container">
+			<div class="headerTop">
+				<div class="headerTopLeft">
+					<a id="logo">ProSolo</a>
+				</div>
+				<div class="headerTopRight">
+
+				</div>
+			</div>
+			<ui:insert name="resourceTitle" />
+			<ui:insert name="navLinks" />
+		</div>
+	</header>
+
+	<ui:insert name="content" />
+
+	<ui:include src="/resources/components/loggingForm.xhtml" />
+	
+    <a href="mailto:#{applicationbean.commonConfig.appConfig.supportEmail}" id="supportLink" data-toggle="tooltip" data-placement="left" title="Contact Support">Support</a>
+	</div>
+	<footer>
+		<div class="container">
+			<ul>
+				<li><h:link value="About" outcome="/about" /></li>
+				<li><h:link value="Terms of Use" outcome="/terms" /></li>
+			</ul>
+		</div>
+	</footer>
+
+</h:body>
+</html>

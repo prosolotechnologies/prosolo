@@ -23,11 +23,11 @@ import org.prosolo.services.common.data.SortOrder;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventQueue;
 import org.prosolo.services.nodes.data.ActivityData;
-import org.prosolo.services.user.data.UserData;
 import org.prosolo.services.nodes.data.assessments.AssessmentNotificationData;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
+import org.prosolo.services.user.data.UserData;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import java.text.DateFormat;
@@ -136,7 +136,7 @@ public interface AssessmentManager {
 	 */
 	GradeData updateGradeForActivityAssessment(
             long activityAssessmentId, GradeData grade, UserContextData context)
-			throws DbConnectionException;
+			throws DbConnectionException, IllegalDataStateException;
 
 	Optional<Long> getInstructorCredentialAssessmentId(long credId, long studentId) throws DbConnectionException;
 
@@ -144,7 +144,7 @@ public interface AssessmentManager {
 
 	int calculateCompetenceAssessmentScoreAsSumOfActivityPoints(long compAssessmentId) throws DbConnectionException;
 
-	EventQueue updateScoreForCompetenceAssessmentIfNeeded(long compAssessmentId, UserContextData context) throws DbConnectionException;
+	EventQueue updateScoreForCompetenceAssessmentIfNeeded(long compAssessmentId, UserContextData context) throws DbConnectionException, IllegalDataStateException;
 
 	void updateScoreForCompetenceAssessmentAsSumOfActivityPoints(long compAssessmentId, Session session) throws DbConnectionException;
 
@@ -209,7 +209,7 @@ public interface AssessmentManager {
 			throws DbConnectionException, ConstraintViolationException, DataIntegrityViolationException;
 
 	Result<GradeData> updateGradeForActivityAssessmentAndGetEvents(long activityAssessmentId, GradeData grade,
-															  UserContextData context) throws DbConnectionException;
+															  UserContextData context) throws DbConnectionException, IllegalDataStateException;
 
 	int getCompetenceAssessmentScore(long compAssessmentId) throws DbConnectionException;
 
@@ -269,11 +269,11 @@ public interface AssessmentManager {
 	 */
 	 GradeData updateGradeForCompetenceAssessment(
 			long assessmentId, GradeData grade, UserContextData context)
-			throws DbConnectionException;
+			throws DbConnectionException, IllegalDataStateException;
 
 	Result<GradeData> updateGradeForCompetenceAssessmentAndGetEvents(
 			long assessmentId, GradeData grade, UserContextData context)
-			throws DbConnectionException;
+			throws DbConnectionException, IllegalDataStateException;
 
 	/**
 	 * Updates grade and returns populated GradeData object.
@@ -287,11 +287,11 @@ public interface AssessmentManager {
 	 */
 	GradeData updateGradeForCredentialAssessment(
 			long assessmentId, GradeData grade, UserContextData context)
-			throws DbConnectionException;
+			throws DbConnectionException, IllegalDataStateException;
 
 	Result<GradeData> updateGradeForCredentialAssessmentAndGetEvents(
 			long assessmentId, GradeData grade, UserContextData context)
-			throws DbConnectionException;
+			throws DbConnectionException, IllegalDataStateException;
 
 	Optional<UserData> getInstructorCredentialAssessmentAssessor(long credId, long userId)
 			throws DbConnectionException;
@@ -400,14 +400,24 @@ public interface AssessmentManager {
 	 * @param credAssessmentId
 	 * @return
 	 */
-	AssessmentGradeSummary getCredentialAssessmentGradeSummary(long credAssessmentId);
+	org.prosolo.services.user.data.profile.grade.GradeData getCredentialAssessmentGradeSummary(long credAssessmentId);
 
-	List<CompetenceAssessment> getCredentialCompetenceAssessments(long targetCredId, long competenceId, long userId, boolean loadOnlyApproved, SortOrder<AssessmentSortOrder> sortOrder);
+	/**
+	 * Returns all competence assessments given as a part of a credential assessment, but also the ones given directly to a competency, apart from a credential assessment.
+	 *
+	 * @param targetCredId
+	 * @param competenceId
+	 * @param userId
+	 * @param loadOnlyApproved
+	 * @param sortOrder
+	 * @return
+	 */
+	List<CompetenceAssessment> getIndependentAndCompetenceAssessmentsBelongingToCredential(long targetCredId, long competenceId, long userId, boolean loadOnlyApproved, SortOrder<AssessmentSortOrder> sortOrder);
 
 	/**
 	 * Returns grade summary for competence assessment
 	 * @param compAssessmentId
 	 * @return
 	 */
-	AssessmentGradeSummary getCompetenceAssessmentGradeSummary(long compAssessmentId);
+	org.prosolo.services.user.data.profile.grade.GradeData getCompetenceAssessmentGradeSummary(long compAssessmentId);
 }

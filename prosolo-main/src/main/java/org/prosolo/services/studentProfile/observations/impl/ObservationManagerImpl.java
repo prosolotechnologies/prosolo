@@ -143,7 +143,7 @@ public class ObservationManagerImpl extends AbstractManagerImpl implements Obser
             throw dbce;
         } catch (Exception e) {
             e.printStackTrace();
-            throw new DbConnectionException("Error while saving observation");
+            throw new DbConnectionException("Error saving observation");
         }
     }
 

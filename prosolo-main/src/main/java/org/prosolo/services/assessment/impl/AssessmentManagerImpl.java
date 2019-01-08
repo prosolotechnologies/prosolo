@@ -10,8 +10,8 @@ import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.common.domainmodel.assessment.*;
-import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.credential.GradingMode;
+import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.rubric.*;
 import org.prosolo.common.domainmodel.user.User;
@@ -34,14 +34,16 @@ import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.config.competence.CompetenceLoadConfig;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.LearningResourceType;
-import org.prosolo.services.nodes.data.evidence.LearningEvidenceLoadConfig;
-import org.prosolo.services.user.data.UserData;
 import org.prosolo.services.nodes.data.assessments.AssessmentNotificationData;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
+import org.prosolo.services.nodes.data.evidence.LearningEvidenceLoadConfig;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.factory.ActivityAssessmentDataFactory;
 import org.prosolo.services.nodes.factory.CompetenceDataFactory;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
+import org.prosolo.services.user.data.UserData;
+import org.prosolo.services.user.data.profile.grade.NoGradeData;
+import org.prosolo.services.user.data.profile.grade.PointBasedGradeData;
 import org.prosolo.util.Util;
 import org.prosolo.web.util.AvatarUtils;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -74,6 +76,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	@Inject private CompetenceDataFactory compDataFactory;
 	@Inject private LearningEvidenceManager learningEvidenceManager;
 	@Inject private UnitManager unitManager;
+	@Inject private org.prosolo.services.user.data.profile.factory.GradeDataFactory gradeDataFactory;
 
 	@Override
 	//not transactional - should not be called from another transaction
@@ -208,7 +211,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			throw new IllegalDataStateException("Assessment already created");
 		} catch (Exception e) {
 			logger.error("Error", e);
-			throw new DbConnectionException("Error while creating assessment of a credential");
+			throw new DbConnectionException("Error creating assessment of a credential");
 		}
 	}
 
@@ -363,7 +366,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			throw e;
 		} catch (Exception e) {
 			logger.error("Error", e);
-			throw new DbConnectionException("Error while saving competency assessment");
+			throw new DbConnectionException("Error saving competency assessment");
 		}
 	}
 
@@ -452,14 +455,21 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 	@Override
 	@Transactional(readOnly = true)
-	public AssessmentGradeSummary getCredentialAssessmentGradeSummary(long credAssessmentId) {
+	public org.prosolo.services.user.data.profile.grade.GradeData getCredentialAssessmentGradeSummary(long credAssessmentId) {
 		try {
 			CredentialAssessment ca = (CredentialAssessment) persistence.currentManager().load(CredentialAssessment.class, credAssessmentId);
 			Credential1 cred = ca.getTargetCredential().getCredential();
 			switch (cred.getGradingMode()) {
+				case NONGRADED:
+					return new NoGradeData();
 				case MANUAL:
 					if (cred.getRubric() != null) {
-						return getCredentialAssessmentRubricGradeSummary(credAssessmentId);
+						if (cred.getRubric().getRubricType() == RubricType.DESCRIPTIVE) {
+							return getCredentialAssessmentDescriptiveRubricGradeSummary(credAssessmentId);
+						} else if (cred.getRubric().getRubricType() == RubricType.POINT) {
+							return getCredentialAssessmentPointRubricGradeSummary(credAssessmentId);
+						}
+						return null;
 					} else {
 						return getCredentialAssessmentManualGradeSummary(credAssessmentId);
 					}
@@ -500,23 +510,42 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		}
 	}
 
-	private AssessmentGradeSummary getCredentialAssessmentAutomaticGradeSummary(long credAssessmentId) {
+	private PointBasedGradeData getCredentialAssessmentAutomaticGradeSummary(long credAssessmentId) {
 		int points = getAutomaticCredentialAssessmentScore(credAssessmentId);
-		if (points < 0) {
-			return GradeDataUtil.getPointBasedAssessmentStarData(new PointGradeValues(0, 0, points));
-		}
 		CredentialAssessment ca = (CredentialAssessment) persistence.currentManager().load(CredentialAssessment.class, credAssessmentId);
 		int maxGrade = getCredentialAutomaticMaxGrade(ca.getTargetCredential().getCredential().getId());
-		return GradeDataUtil.getPointBasedAssessmentStarData(new PointGradeValues(0, maxGrade, points));
+		return gradeDataFactory.getPointBasedGradeData(points, maxGrade);
 	}
 
-	private AssessmentGradeSummary getCredentialAssessmentManualGradeSummary(long credAssessmentId) {
+	private PointBasedGradeData getCredentialAssessmentManualGradeSummary(long credAssessmentId) {
 		CredentialAssessment ca = (CredentialAssessment) persistence.currentManager().load(CredentialAssessment.class, credAssessmentId);
 		int maxGrade = 0;
 		if (ca.isAssessed()) {
 			maxGrade = ca.getTargetCredential().getCredential().getMaxPoints();
 		}
-		return GradeDataUtil.getPointBasedAssessmentStarData(new PointGradeValues(0, maxGrade, ca.getPoints()));
+		return gradeDataFactory.getPointBasedGradeData(ca.getPoints(), maxGrade);
+	}
+
+	private org.prosolo.services.user.data.profile.grade.RubricGradeData getCredentialAssessmentDescriptiveRubricGradeSummary(long credAssessmentId) {
+		RubricAssessmentGradeSummary credentialAssessmentRubricGradeSummary = getCredentialAssessmentRubricGradeSummary(credAssessmentId);
+		return new org.prosolo.services.user.data.profile.grade.RubricGradeData(
+				credentialAssessmentRubricGradeSummary.getGrade(),
+				credentialAssessmentRubricGradeSummary.getOutOf());
+	}
+
+	private org.prosolo.services.user.data.profile.grade.PointRubricGradeData getCredentialAssessmentPointRubricGradeSummary(long credAssessmentId) {
+		CredentialAssessment ca = (CredentialAssessment) persistence.currentManager().load(CredentialAssessment.class, credAssessmentId);
+		int maxGrade = 0;
+		int avgLevel = 0;
+		int numberOfLevels = 0;
+		if (ca.isAssessed()) {
+			maxGrade = ca.getTargetCredential().getCredential().getMaxPoints();
+			RubricAssessmentGradeSummary credentialAssessmentRubricGradeSummary = getCredentialAssessmentRubricGradeSummary(credAssessmentId);
+			avgLevel = credentialAssessmentRubricGradeSummary.getGrade();
+			numberOfLevels = credentialAssessmentRubricGradeSummary.getOutOf();
+		}
+		return new org.prosolo.services.user.data.profile.grade.PointRubricGradeData(
+				avgLevel, numberOfLevels, ca.getPoints(), maxGrade);
 	}
 
 	/**
@@ -736,14 +765,21 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 	@Override
 	@Transactional(readOnly = true)
-	public AssessmentGradeSummary getCompetenceAssessmentGradeSummary(long compAssessmentId) {
+	public org.prosolo.services.user.data.profile.grade.GradeData getCompetenceAssessmentGradeSummary(long compAssessmentId) {
 		try {
 			CompetenceAssessment ca = (CompetenceAssessment) persistence.currentManager().load(CompetenceAssessment.class, compAssessmentId);
 			Competence1 competence = ca.getCompetence();
 			switch (competence.getGradingMode()) {
+				case NONGRADED:
+					return new NoGradeData();
 				case MANUAL:
 					if (competence.getRubric() != null) {
-						return getCompetenceAssessmentRubricGradeSummary(compAssessmentId);
+						if (competence.getRubric().getRubricType() == RubricType.DESCRIPTIVE) {
+							return getCompetenceAssessmentDescriptiveRubricGradeSummary(compAssessmentId);
+						} else if (competence.getRubric().getRubricType() == RubricType.POINT) {
+							return getCompetenceAssessmentPointRubricGradeSummary(compAssessmentId);
+						}
+						return null;
 					} else {
 						return getCompetenceAssessmentManualGradeSummary(compAssessmentId);
 					}
@@ -758,7 +794,29 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		}
 	}
 
-	private AssessmentGradeSummary getCompetenceAssessmentAutomaticGradeSummary(long compAssessmentId) {
+	private org.prosolo.services.user.data.profile.grade.RubricGradeData getCompetenceAssessmentDescriptiveRubricGradeSummary(long compAssessmentId) {
+		RubricAssessmentGradeSummary assessmentRubricGradeSummary = getCompetenceAssessmentRubricGradeSummary(compAssessmentId);
+		return new org.prosolo.services.user.data.profile.grade.RubricGradeData(
+				assessmentRubricGradeSummary.getGrade(),
+				assessmentRubricGradeSummary.getOutOf());
+	}
+
+	private org.prosolo.services.user.data.profile.grade.PointRubricGradeData getCompetenceAssessmentPointRubricGradeSummary(long compAssessmentId) {
+		CompetenceAssessment ca = (CompetenceAssessment) persistence.currentManager().load(CompetenceAssessment.class, compAssessmentId);
+		int maxGrade = 0;
+		int avgLevel = 0;
+		int numberOfLevels = 0;
+		if (ca.getPoints() >= 0) {
+			maxGrade = ca.getCompetence().getMaxPoints();
+			RubricAssessmentGradeSummary assessmentGradeSummary = getCompetenceAssessmentRubricGradeSummary(compAssessmentId);
+			avgLevel = assessmentGradeSummary.getGrade();
+			numberOfLevels = assessmentGradeSummary.getOutOf();
+		}
+		return new org.prosolo.services.user.data.profile.grade.PointRubricGradeData(
+				avgLevel, numberOfLevels, ca.getPoints(), maxGrade);
+	}
+
+	private PointBasedGradeData getCompetenceAssessmentAutomaticGradeSummary(long compAssessmentId) {
 		String q =
 				"SELECT CAST(COALESCE(SUM(CASE WHEN aa.points > 0 THEN aa.points ELSE 0 END), 0) as int), COALESCE(SUM(CASE WHEN aa.points >= 0 THEN 1 ELSE 0 END), 0) > 0 " +
 				"FROM CompetenceAssessment ca " +
@@ -775,22 +833,22 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	    */
 		boolean assessed = (boolean) res[1];
 		if (!assessed) {
-			return GradeDataUtil.getPointBasedAssessmentStarData(new PointGradeValues(0, 0, -1));
+			return gradeDataFactory.getPointBasedGradeData(-1, 0);
 		}
 
 		int points = (int) res[0];
 		CompetenceAssessment ca = (CompetenceAssessment) persistence.currentManager().load(CompetenceAssessment.class, compAssessmentId);
 		int maxGrade = getCompetenceAutomaticMaxGrade(ca.getCompetence().getId());
-		return GradeDataUtil.getPointBasedAssessmentStarData(new PointGradeValues(0, maxGrade, points));
+		return gradeDataFactory.getPointBasedGradeData(points, maxGrade);
 	}
 
-	private AssessmentGradeSummary getCompetenceAssessmentManualGradeSummary(long compAssessmentId) {
+	private PointBasedGradeData getCompetenceAssessmentManualGradeSummary(long compAssessmentId) {
 		CompetenceAssessment ca = (CompetenceAssessment) persistence.currentManager().load(CompetenceAssessment.class, compAssessmentId);
 		int maxGrade = 0;
 		if (ca.getPoints() >= 0) {
 			maxGrade = ca.getCompetence().getMaxPoints();
 		}
-		return GradeDataUtil.getPointBasedAssessmentStarData(new PointGradeValues(0, maxGrade, ca.getPoints()));
+		return gradeDataFactory.getPointBasedGradeData(ca.getPoints(), maxGrade);
 	}
 
 	private RubricAssessmentGradeSummary getCompetenceAssessmentRubricGradeSummary(long compAssessmentId) {
@@ -1101,7 +1159,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		
 		// if we don't search for pending or for approved, return empty list
 		if (query == null) {
-			logger.info("Searching for assessments that are not pending and not approved, returning empty list");
+			logger.info("Searching for assessments that are not pending and not submitted, returning empty list");
 			return Lists.newArrayList();
 		} else {
 			@SuppressWarnings("unchecked")
@@ -1232,7 +1290,13 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 				result.appendEvents(approveCompetenceAndGetEvents(competenceAssessment.getId(), false, context).getEventQueue());
 			}
 
+			if (credentialAssessment.getTargetCredential().getCredential().getGradingMode() != GradingMode.NONGRADED && !credentialAssessment.isAssessed()) {
+				//if credential should be graded but it is not, it can't be approved
+				//TODO refactor - unify criteria for determining whether resource is graded for all resources (activity, competency, credential)
+				throw new IllegalDataStateException("Credential must be graded before submitted");
+			}
 			credentialAssessment.setApproved(true);
+			credentialAssessment.setDateApproved(new Date());
 			credentialAssessment.setReview(reviewText);
 			/*
 			if assessor has notification that he should assess student, this notification is turned off
@@ -1253,7 +1317,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			throw ex;
 		} catch (Exception e) {
 			logger.error("Error", e);
-			throw new DbConnectionException("Error approving the assessment");
+			throw new DbConnectionException("Error submitting the assessment");
 		}
 	}
 
@@ -1335,7 +1399,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while creating activity assessment");
+			throw new DbConnectionException("Error creating activity assessment");
 		}
 	}
 
@@ -1437,7 +1501,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 			return result;
 		} catch (ResourceCouldNotBeLoadedException e){
-			throw new DbConnectionException("Error while loading user");
+			throw new DbConnectionException("Error loading user");
 		}
 	}
 
@@ -1533,7 +1597,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 			return result;
 		} catch (ResourceCouldNotBeLoadedException e){
-			throw new DbConnectionException("Error while loading user");
+			throw new DbConnectionException("Error loading user");
 		}
 	}
 
@@ -1630,7 +1694,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 			return result;
 		} catch (ResourceCouldNotBeLoadedException e){
-			throw new DbConnectionException("Error while loading user");
+			throw new DbConnectionException("Error loading user");
 		}
 	}
 
@@ -1671,37 +1735,45 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		try {
 			Result<Void> result = new Result();
 			CompetenceAssessment competenceAssessment = (CompetenceAssessment) persistence.currentManager().load(CompetenceAssessment.class, competenceAssessmentId);
-			competenceAssessment.setApproved(true);
-			competenceAssessment.setAssessorNotified(false);
-			//if instructor assessment, mark approved competence as completed if not already
-			if (competenceAssessment.getType() == AssessmentType.INSTRUCTOR_ASSESSMENT) {
-				TargetCompetence1 tc = compManager.getTargetCompetence(competenceAssessment.getCompetence().getId(), competenceAssessment.getStudent().getId());
-				if (tc.getProgress() < 100) {
-					result.appendEvents(compManager.completeCompetenceAndGetEvents(tc.getId(), context).getEventQueue());
+			if (!competenceAssessment.isApproved()) {
+				if (competenceAssessment.getCompetence().getGradingMode() != GradingMode.NONGRADED && competenceAssessment.getPoints() < 0) {
+					//if competency should be graded but it is not (point < 0) it can't be approved
+					//TODO refactor - unify criteria for determining whether resource is graded for all resources (activity, competency, credential)
+					throw new IllegalDataStateException("Competency must be graded before submitted");
 				}
-			}
+				competenceAssessment.setApproved(true);
+				competenceAssessment.setDateApproved(new Date());
+				competenceAssessment.setAssessorNotified(false);
+				//if instructor assessment, mark approved competence as completed if not already
+				if (competenceAssessment.getType() == AssessmentType.INSTRUCTOR_ASSESSMENT) {
+					TargetCompetence1 tc = compManager.getTargetCompetence(competenceAssessment.getCompetence().getId(), competenceAssessment.getStudent().getId());
+					if (tc.getProgress() < 100) {
+						result.appendEvents(compManager.completeCompetenceAndGetEvents(tc.getId(), context).getEventQueue());
+					}
+				}
 
-			/*
-			 only if request for competence assessment approve is direct we should generate this event
-			 if competence is being approved as a part of approving credential assessment this
-			 event is not generated
+				/*
+				 only if request for competence assessment approve is direct we should generate this event
+				 if competence is being approved as a part of submitting credential assessment this
+				 event is not generated
 
-			 TODO event refactor - should we generate this event and filter it out in some other place
-			 or not generate it like we are doing now
-			  */
-			if (directRequestForCompetenceAssessmentApprove) {
-				CompetenceAssessment compAssessmentObj = new CompetenceAssessment();
-				compAssessmentObj.setId(competenceAssessmentId);
-				User student = new User();
-				student.setId(competenceAssessment.getStudent().getId());
+				 TODO event refactor - should we generate this event and filter it out in some other place
+				 or not generate it like we are doing now
+				  */
+				if (directRequestForCompetenceAssessmentApprove) {
+					CompetenceAssessment compAssessmentObj = new CompetenceAssessment();
+					compAssessmentObj.setId(competenceAssessmentId);
+					User student = new User();
+					student.setId(competenceAssessment.getStudent().getId());
 
-				result.appendEvent(eventFactory.generateEventData(EventType.AssessmentApproved, context,
-						compAssessmentObj, student, null, null));
+					result.appendEvent(eventFactory.generateEventData(EventType.AssessmentApproved, context,
+							compAssessmentObj, student, null, null));
+				}
 			}
 			return result;
 		} catch (Exception e) {
 			logger.error("Error", e);
-			throw new DbConnectionException("Error approving the competence");
+			throw new DbConnectionException("Error submitting the competence");
 		}
 	}
 
@@ -1769,7 +1841,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		Query query = getAssessmentNumberForUserQuery(studentId, searchForPending, searchForApproved, credId);
 		// if we don't search for pending or for approved, return empty list
 		if (query == null) {
-			logger.info("Searching for assessments that are not pending and not approved, returning empty list");
+			logger.info("Searching for assessments that are not pending and not submitted, returning empty list");
 			return 0;
 		} else {
 			return ((Long) query.uniqueResult()).intValue();
@@ -1843,7 +1915,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving assessment info");
+			throw new DbConnectionException("Error retrieving assessment info");
 		}
 	}
 
@@ -1880,7 +1952,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			return null;
 		} catch(Exception e) {
 			logger.error("Error", e);
-			throw new DbConnectionException("Error while retrieving assessment info");
+			throw new DbConnectionException("Error retrieving assessment info");
 		}
 	}
 
@@ -1951,7 +2023,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while updating assessor");
+			throw new DbConnectionException("Error updating assessor");
 		}
 	}
 
@@ -1992,7 +2064,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while updating assessor");
+			throw new DbConnectionException("Error updating assessor");
 		}
 	}
 
@@ -2167,7 +2239,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	//nt
 	public GradeData updateGradeForActivityAssessment(
 			long activityAssessmentId, GradeData grade, UserContextData context)
-			throws DbConnectionException {
+			throws DbConnectionException, IllegalDataStateException {
 		Result<GradeData> res = self.updateGradeForActivityAssessmentAndGetEvents(
 				activityAssessmentId, grade, context);
 		eventFactory.generateEvents(res.getEventQueue());
@@ -2178,7 +2250,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	@Transactional
 	public Result<GradeData> updateGradeForActivityAssessmentAndGetEvents(
 			long activityAssessmentId, GradeData grade, UserContextData context)
-			throws DbConnectionException {
+			throws DbConnectionException, IllegalDataStateException {
 		try {
 			GradeData gradeCopy = SerializationUtils.clone(grade);
 			Result<GradeData> result = new Result<>();
@@ -2188,6 +2260,9 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			if (gradeValue >= 0) {
 				ActivityAssessment ad = (ActivityAssessment) persistence.currentManager().load(
 						ActivityAssessment.class, activityAssessmentId);
+				if (ad.getAssessment().isApproved()) {
+					throw new IllegalDataStateException("Grade can't be edited after assessment is submitted");
+				}
 //
 				ad.setPoints(gradeValue);
 
@@ -2213,11 +2288,13 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 				}
 
 				result.appendEvent(eventFactory.generateEventData(
-						EventType.GRADE_ADDED, context, aa, null,null, params));
+						EventType.GRADE_ADDED, context, aa, null, null, params));
 				result.appendEvents(updateCompScoreEvents);
 				result.setResult(gradeCopy);
 			}
 			return result;
+		} catch (IllegalDataStateException e) {
+			throw e;
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -2233,7 +2310,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	//nt
 	public GradeData updateGradeForCompetenceAssessment(
 			long assessmentId, GradeData grade, UserContextData context)
-			throws DbConnectionException {
+			throws DbConnectionException, IllegalDataStateException {
 		Result<GradeData> res = self.updateGradeForCompetenceAssessmentAndGetEvents(
 				assessmentId, grade, context);
 		eventFactory.generateEvents(res.getEventQueue());
@@ -2244,7 +2321,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	@Transactional
 	public Result<GradeData> updateGradeForCompetenceAssessmentAndGetEvents(
 			long assessmentId, GradeData grade, UserContextData context)
-			throws DbConnectionException {
+			throws DbConnectionException, IllegalDataStateException {
 		try {
 			GradeData gradeCopy = SerializationUtils.clone(grade);
 			Result<GradeData> result = new Result<>();
@@ -2254,6 +2331,10 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			if (gradeValue >= 0) {
 				CompetenceAssessment ca = (CompetenceAssessment) persistence.currentManager().load(
 						CompetenceAssessment.class, assessmentId);
+
+				if (ca.isApproved()) {
+					throw new IllegalDataStateException("Grade can't be edited after assessment is submitted");
+				}
 //
 				ca.setPoints(gradeValue);
 				ca.setLastAssessment(new Date());
@@ -2280,10 +2361,12 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 				}
 
 				result.appendEvent(eventFactory.generateEventData(
-						EventType.GRADE_ADDED, context, compA, null,null, params));
+						EventType.GRADE_ADDED, context, compA, null, null, params));
 				result.setResult(gradeCopy);
 			}
 			return result;
+		} catch (IllegalDataStateException e) {
+			throw e;
 		} catch (Exception e) {
 			logger.error("Error", e);
 			throw new DbConnectionException("Error updating the grade");
@@ -2347,7 +2430,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	//nt
 	public GradeData updateGradeForCredentialAssessment(
 			long assessmentId, GradeData grade, UserContextData context)
-			throws DbConnectionException {
+			throws DbConnectionException, IllegalDataStateException {
 		Result<GradeData> res = self.updateGradeForCredentialAssessmentAndGetEvents(
 				assessmentId, grade, context);
 		eventFactory.generateEvents(res.getEventQueue());
@@ -2358,7 +2441,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	@Transactional
 	public Result<GradeData> updateGradeForCredentialAssessmentAndGetEvents(
 			long assessmentId, GradeData grade, UserContextData context)
-			throws DbConnectionException {
+			throws DbConnectionException, IllegalDataStateException {
 		try {
 			GradeData gradeCopy = SerializationUtils.clone(grade);
 			Result<GradeData> result = new Result<>();
@@ -2368,6 +2451,10 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			if (gradeValue >= 0) {
 				CredentialAssessment ca = (CredentialAssessment) persistence.currentManager().load(
 						CredentialAssessment.class, assessmentId);
+
+				if (ca.isApproved()) {
+					throw new IllegalDataStateException("Grade can't be edited after assessment is submitted");
+				}
 //
 				ca.setPoints(gradeValue);
 				ca.setAssessed(true);
@@ -2483,7 +2570,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while recalculating score");
+			throw new DbConnectionException("Error recalculating score");
 		}
 	}
 
@@ -2514,16 +2601,19 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving competence assessment score");
+			throw new DbConnectionException("Error retrieving competence assessment score");
 		}
 	}
 
 	@Override
 	@Transactional
-	public EventQueue updateScoreForCompetenceAssessmentIfNeeded(long compAssessmentId, UserContextData context) throws DbConnectionException {
+	public EventQueue updateScoreForCompetenceAssessmentIfNeeded(long compAssessmentId, UserContextData context) throws DbConnectionException, IllegalDataStateException {
 		CompetenceAssessment ca = (CompetenceAssessment) persistence.currentManager().load(CompetenceAssessment.class, compAssessmentId);
 		//if automatic grading mode calculate comp points as a sum of activity points
 		if (ca.getCompetence().getGradingMode() == GradingMode.AUTOMATIC) {
+			if (ca.isApproved()) {
+				throw new IllegalDataStateException("Grade can't be edited after assessment is submitted");
+			}
 			updateScoreForCompetenceAssessmentAsSumOfActivityPoints(compAssessmentId, persistence.currentManager());
 			//recalculate assessment score for all credential assessments with this competence assessment if needed
 			return updateAssessedFlagForAllCredentialAssessmentsWithGivenCompetenceAssessmentIfNeeded(ca.getId(), context);
@@ -2551,7 +2641,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 //		} catch(Exception e) {
 //			logger.error(e);
 //			e.printStackTrace();
-//			throw new DbConnectionException("Error while retrieving activity discussion");
+//			throw new DbConnectionException("Error retrieving activity discussion");
 //		}
 //	}
 
@@ -2573,7 +2663,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while updating activity grade");
+			throw new DbConnectionException("Error updating activity grade");
 		}
 	}
 
@@ -2611,7 +2701,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 //		} catch(Exception e) {
 //			logger.error(e);
 //			e.printStackTrace();
-//			throw new DbConnectionException("Error while retrieving activity assessment");
+//			throw new DbConnectionException("Error retrieving activity assessment");
 //		}
 //	}
 	
@@ -2622,7 +2712,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			String query = 
 					"SELECT assessment " +
 					"FROM CredentialAssessment assessment " +	
-					"LEFT JOIN fetch assessment.assessor " +
+					"LEFT JOIN fetch assessment.assessor assessor " +
 					"WHERE assessment.student.id = :assessedStudentId " +
 						"AND assessment.targetCredential.credential.id = :credentialId " +
 					"ORDER BY CASE WHEN assessment.type = :instructorAssessment THEN 1 WHEN assessment.type = :selfAssessment THEN 2 ELSE 3 END, assessor.name, assessor.lastname";
@@ -2659,7 +2749,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			return assessments;
 		} catch(Exception e) {
 			logger.error("error", e);
-			throw new DbConnectionException("Error while retrieving activity assessment");
+			throw new DbConnectionException("Error retrieving activity assessment");
 		}
 	}
 	
@@ -2696,7 +2786,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving activity assessment");
+			throw new DbConnectionException("Error retrieving activity assessment");
 		}
 	}
 
@@ -2724,7 +2814,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving activity assessment");
+			throw new DbConnectionException("Error retrieving activity assessment");
 		}
 	}
 
@@ -2897,7 +2987,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving assessment data");
+			throw new DbConnectionException("Error retrieving assessment data");
 		}
 	}
 
@@ -3406,7 +3496,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving ids of credential assessors for the particular user");
+			throw new DbConnectionException("Error retrieving ids of credential assessors for the particular user");
 		}
 	}
 
@@ -4044,18 +4134,23 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<CompetenceAssessment> getCredentialCompetenceAssessments(long targetCredId, long competenceId, long userId, boolean loadOnlyApproved, SortOrder<AssessmentSortOrder> sortOrder) {
+	public List<CompetenceAssessment> getIndependentAndCompetenceAssessmentsBelongingToCredential(long targetCredId, long competenceId, long userId, boolean loadOnlyApproved, SortOrder<AssessmentSortOrder> sortOrder) {
 		try {
 			String query =
-					"SELECT ca FROM CredentialCompetenceAssessment cca " +
-					"INNER JOIN cca.competenceAssessment ca " +
-					"INNER JOIN cca.credentialAssessment credA " +
-					"WHERE credA.targetCredential.id = :tcId " +
-					"AND ca.competence.id = :compId " +
-					"AND ca.student.id = :userId ";
+					"SELECT ca FROM CompetenceAssessment ca " +
+					"WHERE ca.competence.id = :compId " +
+					"AND ca.student.id = :userId " +
+					"AND (exists " +
+							"(SELECT cca.id FROM CredentialCompetenceAssessment cca " +
+							"INNER JOIN cca.credentialAssessment credA WITH credA.targetCredential.id = :tcId " +
+							"WHERE cca.competenceAssessment.id = ca.id) " +
+						  "OR not exists " +
+							"(SELECT cca.id FROM CredentialCompetenceAssessment cca " +
+							"WHERE cca.competenceAssessment.id = ca.id)) ";
 			if (loadOnlyApproved) {
 				query += "AND ca.approved is TRUE ";
 			}
+
 			query += getOrderByClause(sortOrder, "ca");
 
 			return (List<CompetenceAssessment>) persistence.currentManager()

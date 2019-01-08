@@ -95,7 +95,7 @@ public class ProfileSettingsBean implements Serializable {
 			PageUtil.fireSuccessfulInfoMessage("Changes have been saved");
 		} catch (Exception e) {
 			logger.error(e);
-			PageUtil.fireErrorMessage("Error while saving account data");
+			PageUtil.fireErrorMessage("Error saving account data");
 		}
 	}
 

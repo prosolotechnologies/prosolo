@@ -98,7 +98,7 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
             throw e;
         } catch (Exception e) {
             logger.error("Error", e);
-            throw new DbConnectionException("Error while saving organization");
+            throw new DbConnectionException("Error saving organization");
         }
     }
 
@@ -239,7 +239,7 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
         } catch (Exception e) {
             logger.error(e);
             e.printStackTrace();
-            throw new DbConnectionException("Error while retriving organization");
+            throw new DbConnectionException("Error retriving organization");
         }
     }
 
@@ -471,7 +471,7 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
             return response;
         } catch (Exception e) {
             logger.error("Error", e);
-            throw new DbConnectionException("Error while retrieving organization data");
+            throw new DbConnectionException("Error retrieving organization data");
         }
     }
 
@@ -494,7 +494,7 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
             organization.setDeleted(true);
             saveEntity(organization);
         } catch (ResourceCouldNotBeLoadedException e) {
-            throw new DbConnectionException("Error while deleting organization");
+            throw new DbConnectionException("Error deleting organization");
         }
     }
 
@@ -533,7 +533,7 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
             return q.list();
         } catch (Exception e) {
             logger.error("Error", e);
-            throw new DbConnectionException("Error while retrieving users");
+            throw new DbConnectionException("Error retrieving users");
         }
     }
 
@@ -551,7 +551,7 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
                     .uniqueResult();
         } catch (Exception e) {
             logger.error("Error", e);
-            throw new DbConnectionException("Error while retrieving organization title");
+            throw new DbConnectionException("Error retrieving organization title");
         }
     }
 

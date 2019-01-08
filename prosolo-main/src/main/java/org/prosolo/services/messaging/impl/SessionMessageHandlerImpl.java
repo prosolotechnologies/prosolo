@@ -2,17 +2,14 @@ package org.prosolo.services.messaging.impl;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
-import org.prosolo.common.domainmodel.messaging.Message;
-import org.prosolo.common.domainmodel.messaging.MessageThread;
 import org.prosolo.common.messaging.data.SessionMessage;
 import org.prosolo.common.messaging.rabbitmq.WorkerException;
-import org.prosolo.core.hibernate.HibernateUtil;
+import org.prosolo.core.db.hibernate.HibernateUtil;
 import org.prosolo.services.interaction.MessageInboxUpdater;
 import org.prosolo.services.messaging.MessageHandler;
 import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.services.notifications.NotificationCacheUpdater;
 import org.prosolo.services.user.ActiveUsersSessionRegistry;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;

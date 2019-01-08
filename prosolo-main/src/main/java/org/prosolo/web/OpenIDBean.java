@@ -112,7 +112,7 @@ public class OpenIDBean implements Serializable {
 				authenticateUser(user);
 			}
 		} else {
-			PageUtil.redirect("/login?error=Error while trying to login through your " + provider + " account");
+			PageUtil.redirect("/login?error=Error trying to login through your " + provider + " account");
 		}
 
 	}

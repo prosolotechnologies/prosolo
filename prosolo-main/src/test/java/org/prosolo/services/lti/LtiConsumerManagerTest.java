@@ -32,7 +32,7 @@ public class LtiConsumerManagerTest {
 		cons.setSecretLtiTwo(secret);
 		long toolSetId = 294912;
 		LtiConsumer consumer = consumerManager.registerLTIConsumer(cons, toolSetId);
-		assertNotNull("Error while registering consumer", consumer);
+		assertNotNull("Error registering consumer", consumer);
 	}*/
 	
 	
@@ -50,7 +50,7 @@ public class LtiConsumerManagerTest {
 		cons.setSecretLtiTwo(secret);
 		long toolSetId = 196608;
 		LtiConsumer consumer = consumerManager.registerLTIConsumer(cons, toolSetId);
-		assertEquals("Error while registering consumer", 3, consumer.getCapabilitieList().size());
+		assertEquals("Error registering consumer", 3, consumer.getCapabilitieList().size());
 	}*/
 	
 }

@@ -104,16 +104,32 @@
 						</p:commandLink>
 
 						<ui:fragment rendered="#{cc.attrs.bean.isCurrentUserAssessor(cc.attrs.resultData)}">
-							<p:commandLink rendered="#{cc.attrs.resultData.assessment.grade.gradingMode ne 'NONGRADED'}"
-									styleClass="grade #{cc.attrs.gradeLink} #{styleUtilBean.getGradeStarClass(cc.attrs.resultData.assessment.grade.getAssessmentStarData())}"
-									action="#{activityAssessmentBean.prepareLearningResourceAssessmentForGrading(cc.attrs.resultData.assessment)}"
-									update="#{cc.attrs.toUpdateAssessmentGradeModal} #{cc.attrs.growlToUpdate}"
-									oncomplete="#{cc.attrs.assessmentGradeLinkOnComplete}">
-								<ui:fragment rendered="#{cc.attrs.resultData.assessment.grade.pointBasedGrading}">
-									#{cc.attrs.resultData.assessment.grade.currentGrade != null and cc.attrs.resultData.assessment.grade.isAssessed() ? cc.attrs.resultData.assessment.grade.currentGrade : '-'}  /
-									#{cc.attrs.resultData.assessment.grade.maxGrade}
+							<ui:fragment rendered="#{cc.attrs.resultData.assessment.grade.gradingMode ne 'NONGRADED'}">
+								<p:commandLink rendered="#{not cc.attrs.resultData.assessment.compAssessment.approved}"
+										styleClass="grade #{cc.attrs.gradeLink} #{styleUtilBean.getGradeStarClass(cc.attrs.resultData.assessment.grade.getAssessmentStarData())}"
+										action="#{activityAssessmentBean.prepareLearningResourceAssessmentForGrading(cc.attrs.resultData.assessment)}"
+										update="#{cc.attrs.toUpdateAssessmentGradeModal} #{cc.attrs.growlToUpdate}"
+										oncomplete="#{cc.attrs.assessmentGradeLinkOnComplete}">
+									<ui:fragment rendered="#{cc.attrs.resultData.assessment.grade.pointBasedGrading}">
+										#{cc.attrs.resultData.assessment.grade.currentGrade != null and cc.attrs.resultData.assessment.grade.isAssessed() ? cc.attrs.resultData.assessment.grade.currentGrade : '-'}  /
+										#{cc.attrs.resultData.assessment.grade.maxGrade}
+									</ui:fragment>
+								</p:commandLink>
+								<ui:fragment rendered="#{cc.attrs.resultData.assessment.compAssessment.approved}">
+									<a href="javascript:void(0);" class="grade #{styleUtilBean.getGradeStarClass(cc.attrs.resultData.assessment.grade.assessmentStarData)}"
+									   data-html="true"
+									   data-toggle="tooltip"
+									   title="Grade cannot be edited for submitted assessment.&#60;br/&#62;&#60;br/&#62;#{styleUtilBean.getAssessmentStarTooltip(cc.attrs.resultData.assessment.grade, 'ACTIVITY')}">
+										<ui:fragment rendered="#{cc.attrs.resultData.assessment.grade.pointBasedGrading}">
+											#{cc.attrs.resultData.assessment.grade.currentGrade != null and cc.attrs.resultData.assessment.grade.isAssessed() ? cc.attrs.resultData.assessment.grade.currentGrade : '-'}  /
+											#{cc.attrs.resultData.assessment.grade.maxGrade}
+										</ui:fragment>
+										<ui:fragment rendered="#{!cc.attrs.resultData.assessment.grade.pointBasedGrading}">
+											Rubric
+										</ui:fragment>
+									</a>
 								</ui:fragment>
-							</p:commandLink>
+							</ui:fragment>
 							<ui:fragment rendered="#{cc.attrs.resultData.assessment.grade.gradingMode eq 'NONGRADED'}">
 								<a href="javascript:void(0);" class="grade"
 								   data-toggle="tooltip"
@@ -292,16 +308,32 @@
 						</p:commandLink>
 
 						<ui:fragment rendered="#{cc.attrs.bean.isCurrentUserAssessor(cc.attrs.resultData)}">
-							<p:commandLink rendered="#{cc.attrs.resultData.assessment.grade.gradingMode ne 'NONGRADED'}"
-									styleClass="grade #{cc.attrs.gradeLink} #{styleUtilBean.getGradeStarClass(cc.attrs.resultData.assessment.grade.getAssessmentStarData())}"
-									action="#{activityAssessmentBean.prepareLearningResourceAssessmentForGrading(cc.attrs.resultData.assessment)}"
-									update="#{cc.attrs.toUpdateAssessmentGradeModal} #{cc.attrs.growlToUpdate}"
-									oncomplete="#{cc.attrs.assessmentGradeLinkOnComplete}">
-								<ui:fragment rendered="#{cc.attrs.resultData.assessment.grade.pointBasedGrading}">
-									#{cc.attrs.resultData.assessment.grade.currentGrade != null and cc.attrs.resultData.assessment.grade.isAssessed() ? cc.attrs.resultData.assessment.grade.currentGrade : '-'}  /
-									#{cc.attrs.resultData.assessment.grade.maxGrade}
+							<ui:fragment rendered="#{cc.attrs.resultData.assessment.grade.gradingMode ne 'NONGRADED'}">
+								<p:commandLink rendered="#{not cc.attrs.resultData.assessment.compAssessment.approved}"
+											   styleClass="grade #{cc.attrs.gradeLink} #{styleUtilBean.getGradeStarClass(cc.attrs.resultData.assessment.grade.getAssessmentStarData())}"
+											   action="#{activityAssessmentBean.prepareLearningResourceAssessmentForGrading(cc.attrs.resultData.assessment)}"
+											   update="#{cc.attrs.toUpdateAssessmentGradeModal} #{cc.attrs.growlToUpdate}"
+											   oncomplete="#{cc.attrs.assessmentGradeLinkOnComplete}">
+									<ui:fragment rendered="#{cc.attrs.resultData.assessment.grade.pointBasedGrading}">
+										#{cc.attrs.resultData.assessment.grade.currentGrade != null and cc.attrs.resultData.assessment.grade.isAssessed() ? cc.attrs.resultData.assessment.grade.currentGrade : '-'}  /
+										#{cc.attrs.resultData.assessment.grade.maxGrade}
+									</ui:fragment>
+								</p:commandLink>
+								<ui:fragment rendered="#{cc.attrs.resultData.assessment.compAssessment.approved}">
+									<a href="javascript:void(0);" class="grade #{styleUtilBean.getGradeStarClass(cc.attrs.resultData.assessment.grade.assessmentStarData)}"
+									   data-html="true"
+									   data-toggle="tooltip"
+									   title="Grade cannot be edited for submitted assessment.&#60;br/&#62;&#60;br/&#62;#{styleUtilBean.getAssessmentStarTooltip(cc.attrs.resultData.assessment.grade, 'ACTIVITY')}">
+										<ui:fragment rendered="#{cc.attrs.resultData.assessment.grade.pointBasedGrading}">
+											#{cc.attrs.resultData.assessment.grade.currentGrade != null and cc.attrs.resultData.assessment.grade.isAssessed() ? cc.attrs.resultData.assessment.grade.currentGrade : '-'}  /
+											#{cc.attrs.resultData.assessment.grade.maxGrade}
+										</ui:fragment>
+										<ui:fragment rendered="#{!cc.attrs.resultData.assessment.grade.pointBasedGrading}">
+											Rubric
+										</ui:fragment>
+									</a>
 								</ui:fragment>
-							</p:commandLink>
+							</ui:fragment>
 							<ui:fragment rendered="#{cc.attrs.resultData.assessment.grade.gradingMode eq 'NONGRADED'}">
 								<a href="javascript:void(0);" class="grade"
 								   data-toggle="tooltip"
