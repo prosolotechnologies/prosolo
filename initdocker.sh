@@ -49,12 +49,24 @@ function is_container_running {
     fi
 }
 
-function start_database {
+function start_all_services {
     pushd docker
     if $DEBUG; then
         docker-compose up || onErrorQuit " cannot start container orchestration"
     else
         docker-compose up -d || onErrorQuit " cannot start container orchestration"
+    fi
+
+    popd
+    echo "started databases"
+}
+
+function start_front_end_services {
+    pushd docker
+    if $DEBUG; then
+        docker-compose up mysql elasticsearch || onErrorQuit " cannot start container orchestration"
+    else
+        docker-compose up -d mysql elasticsearch || onErrorQuit " cannot start container orchestration"
     fi
 
     popd
@@ -89,6 +101,10 @@ function handle_parameter {
             -h|--help)
                 displayHelp
                 exit 0
+                ;;
+            -full)
+                FULL=true
+                shift
                 ;;
             -es6)
                 ES_VERSION_MANIFEST=docker.elastic.co/elasticsearch/elasticsearch:6.2.4
@@ -125,6 +141,7 @@ function handle_parameter {
     done
 
     [[ -z $DEBUG ]] && DEBUG=false
+    [[ -z $FULL ]] && FULL=false
     [[ -z $RESET ]] && RESET=false
     [[ -z $STOP ]] && STOP=false
     [[ -z $ALWAYSYES ]] && ALWAYSYES=false
@@ -179,6 +196,7 @@ function displayHelp() {
                          the branch name from current repository (same as not passing either of -b and -d)
         -d | --dev     : uses 'dev' as branch name to label container volumes
         -es6           : initializes docker container with elasticsearch v6.2.4 instead of deafult v2.3.0
+        -full          : initializes all docker containers. Default: mysql and elasticsearch containers
         reset          : resets database content and repeats bootstrap process
         stop           : stops the currently running databases
         debug          : prevents running containers in the background which is set as default and makes it possible to investigate container initialization problems
@@ -221,7 +239,11 @@ check_cassandra
 
 [[ -z $START_CONTAINERS ]] && START_CONTAINERS=false
 if [[ $START_CONTAINERS || ! is_bootstrapped ]]; then
-    start_database
+    if $FULL; then
+    start_all_services
+    else
+    start_front_end_services
+    fi
 fi
 
 
