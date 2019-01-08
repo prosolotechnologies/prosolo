@@ -3,7 +3,7 @@ package org.prosolo.services.user.data.parameterobjects;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
-import org.prosolo.services.assessment.data.grading.AssessmentGradeSummary;
+import org.prosolo.services.user.data.profile.grade.GradeData;
 
 /**
  * @author stefanvuckovic
@@ -15,6 +15,6 @@ import org.prosolo.services.assessment.data.grading.AssessmentGradeSummary;
 public class CompetenceAssessmentWithGradeSummaryData {
 
     private final CompetenceAssessment competenceAssessment;
-    private final AssessmentGradeSummary gradeSummary;
+    private final GradeData gradeSummary;
 
 }

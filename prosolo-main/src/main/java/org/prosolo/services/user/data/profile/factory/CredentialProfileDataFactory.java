@@ -9,6 +9,7 @@ import org.prosolo.services.nodes.data.organization.CredentialCategoryData;
 import org.prosolo.services.user.data.profile.*;
 import org.springframework.stereotype.Component;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -21,6 +22,8 @@ import java.util.stream.Collectors;
  */
 @Component
 public class CredentialProfileDataFactory extends ProfileDataFactory {
+
+    @Inject private GradeDataFactory gradeDataFactory;
 
     public CredentialProfileData getCredentialProfileData(CredentialProfileConfig credentialProfileConfig, long assessmentsCount, long competencesCount) {
         CredentialCategory category = credentialProfileConfig.getTargetCredential().getCredential().getCategory();
@@ -93,8 +96,8 @@ public class CredentialProfileDataFactory extends ProfileDataFactory {
                         LinkedHashMap::new,
                         Collectors.mapping(
                                 conf -> getCredentialAssessmentProfileData(
-                                        conf.getCredentialAssessment(),
-                                        new AssessmentGradeSummary(conf.getGrade(), conf.getMaxGrade())),
+                                            conf.getCredentialAssessment(),
+                                            gradeDataFactory.getGradeDataFromGrade(conf.getGrade())),
                                 Collectors.toList())))
                 .entrySet().stream()
                 .map(entry -> new AssessmentByTypeProfileData(entry.getKey(), entry.getValue()))
@@ -111,8 +114,8 @@ public class CredentialProfileDataFactory extends ProfileDataFactory {
                         LinkedHashMap::new,
                         Collectors.mapping(
                                 conf -> getCompetenceAssessmentProfileData(
-                                        conf.getCompetenceAssessment(),
-                                        new AssessmentGradeSummary(conf.getGrade(), conf.getMaxGrade())),
+                                            conf.getCompetenceAssessment(),
+                                            gradeDataFactory.getGradeDataFromGrade(conf.getGrade())),
                                 Collectors.toList())))
                 .entrySet().stream()
                 .map(entry -> new AssessmentByTypeProfileData(entry.getKey(), entry.getValue()))

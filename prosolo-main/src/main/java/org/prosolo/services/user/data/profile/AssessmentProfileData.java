@@ -3,8 +3,8 @@ package org.prosolo.services.user.data.profile;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.prosolo.common.domainmodel.credential.BlindAssessmentMode;
-import org.prosolo.services.assessment.data.grading.AssessmentGradeSummary;
 import org.prosolo.services.user.data.UserBasicData;
+import org.prosolo.services.user.data.profile.grade.GradeData;
 
 import java.io.Serializable;
 
@@ -23,6 +23,6 @@ public class AssessmentProfileData implements Serializable {
     private final UserBasicData userBasicData;
     private final BlindAssessmentMode blindAssessmentMode;
     private final long dateApproved;
-    private final AssessmentGradeSummary assessmentGradeSummary;
+    private final GradeData assessmentGradeSummary;
 
 }

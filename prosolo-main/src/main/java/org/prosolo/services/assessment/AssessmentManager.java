@@ -400,7 +400,7 @@ public interface AssessmentManager {
 	 * @param credAssessmentId
 	 * @return
 	 */
-	AssessmentGradeSummary getCredentialAssessmentGradeSummary(long credAssessmentId);
+	org.prosolo.services.user.data.profile.grade.GradeData getCredentialAssessmentGradeSummary(long credAssessmentId);
 
 	/**
 	 * Returns all competence assessments given as a part of a credential assessment, but also the ones given directly to a competency, apart from a credential assessment.
@@ -419,5 +419,5 @@ public interface AssessmentManager {
 	 * @param compAssessmentId
 	 * @return
 	 */
-	AssessmentGradeSummary getCompetenceAssessmentGradeSummary(long compAssessmentId);
+	org.prosolo.services.user.data.profile.grade.GradeData getCompetenceAssessmentGradeSummary(long compAssessmentId);
 }
