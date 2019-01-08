@@ -190,7 +190,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while saving competence");
+			throw new DbConnectionException("Error saving competence");
 		}
 	}
 
@@ -314,7 +314,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while loading competence data");
+			throw new DbConnectionException("Error loading competence data");
 		}
 	}
 
@@ -375,7 +375,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while enrolling a competence");
+			throw new DbConnectionException("Error enrolling a competence");
 		}
 	}
 
@@ -402,7 +402,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while loading competence data");
+			throw new DbConnectionException("Error loading competence data");
 		}
 	}
 	
@@ -438,7 +438,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while loading competence data");
+			throw new DbConnectionException("Error loading competence data");
 		}
 	}
 
@@ -549,7 +549,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while updating competence");
+			throw new DbConnectionException("Error updating competence");
 		}
 	}
 
@@ -719,7 +719,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while loading competence data");
+			throw new DbConnectionException("Error loading competence data");
 		}
 	}
 
@@ -778,7 +778,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while loading credential competences data");
+			throw new DbConnectionException("Error loading credential competences data");
 		}
 	}
 	
@@ -804,7 +804,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while loading competence tags");
+			throw new DbConnectionException("Error loading competence tags");
 		}
 	}
 
@@ -855,7 +855,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while adding activity to competence");
+			throw new DbConnectionException("Error adding activity to competence");
 		}
 
 	}
@@ -920,7 +920,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while updating competence duration");
+			throw new DbConnectionException("Error updating competence duration");
 		}
 	}
 
@@ -946,7 +946,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving competence title");
+			throw new DbConnectionException("Error retrieving competence title");
 		}
 	}
 
@@ -976,7 +976,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving learning info");
+			throw new DbConnectionException("Error retrieving learning info");
 		}
 	}
 
@@ -1012,7 +1012,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while loading competence data");
+			throw new DbConnectionException("Error loading competence data");
 		}
 	}
 
@@ -1090,7 +1090,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while loading competence data");
+			throw new DbConnectionException("Error loading competence data");
 		}
 	}
 
@@ -1120,7 +1120,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		} catch (DbConnectionException e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving competences");
+			throw new DbConnectionException("Error retrieving competences");
 		}
 	}
 
@@ -1201,7 +1201,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	// } catch (Exception e) {
 	// logger.error(e);
 	// e.printStackTrace();
-	// throw new DbConnectionException("Error while loading competence data");
+	// throw new DbConnectionException("Error loading competence data");
 	// }
 	// }
 
@@ -1252,7 +1252,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		} catch(Exception e) {
 			e.printStackTrace();
 			logger.error(e);
-			throw new DbConnectionException("Error while trying to retrieve user privileges for competency");
+			throw new DbConnectionException("Error trying to retrieve user privileges for competency");
 		}
 	}
 	
@@ -1268,7 +1268,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		} catch(Exception e) {
 			e.printStackTrace();
 			logger.error(e);
-			throw new DbConnectionException("Error while trying to retrieve user privileges for competency");
+			throw new DbConnectionException("Error trying to retrieve user privileges for competency");
 		}
 	}
 	
@@ -1321,7 +1321,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		} catch(Exception e) {
 			e.printStackTrace();
 			logger.error(e);
-			throw new DbConnectionException("Error while trying to retrieve competences ids");
+			throw new DbConnectionException("Error trying to retrieve competences ids");
 		}
 	}
 
@@ -1338,7 +1338,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		} catch (DbConnectionException e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving competence visibility");
+			throw new DbConnectionException("Error retrieving competence visibility");
 		}
 	}
 
@@ -1387,7 +1387,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		} catch (DbConnectionException e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while updating credential visibility");
+			throw new DbConnectionException("Error updating credential visibility");
 		}
 	}
 
@@ -1447,7 +1447,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while loading competence data");
+			throw new DbConnectionException("Error loading competence data");
 		}
 	}
 	
@@ -1487,7 +1487,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while loading competence data");
+			throw new DbConnectionException("Error loading competence data");
 		}
 	}
 
@@ -1521,7 +1521,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while bookmarking competence");
+			throw new DbConnectionException("Error bookmarking competence");
 		}
 	}
 
@@ -1567,7 +1567,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while deleting competence bookmark");
+			throw new DbConnectionException("Error deleting competence bookmark");
 		}
 	}
 	
@@ -1599,7 +1599,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while loading competence bookmarks");
+			throw new DbConnectionException("Error loading competence bookmarks");
 		}
 	}
 	
@@ -1631,7 +1631,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while loading user competences");
+			throw new DbConnectionException("Error loading user competences");
 		}
 	}
 	
@@ -1652,7 +1652,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while counting number of users learning competence");
+			throw new DbConnectionException("Error counting number of users learning competence");
 		}
 	}
 
@@ -1681,7 +1681,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while archiving competence");
+			throw new DbConnectionException("Error archiving competence");
 		}
 	}
 	
@@ -1758,7 +1758,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while counting number of competences");
+			throw new DbConnectionException("Error counting number of competences");
 		}
 	}
 	
@@ -1840,7 +1840,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving competences");
+			throw new DbConnectionException("Error retrieving competences");
 		}
 	}
 	
@@ -2022,7 +2022,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving competence title");
+			throw new DbConnectionException("Error retrieving competence title");
 		}
 	}
 	
@@ -2045,7 +2045,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving user competences");
+			throw new DbConnectionException("Error retrieving user competences");
 		}
 	}
 
@@ -2073,7 +2073,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while restoring competence");
+			throw new DbConnectionException("Error restoring competence");
 		}
 	}
 	
@@ -2107,7 +2107,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while loading competence data");
+			throw new DbConnectionException("Error loading competence data");
 		}
 	}
 	
@@ -2180,7 +2180,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while updating competency progress");
+			throw new DbConnectionException("Error updating competency progress");
 		}
 	}
 
@@ -2274,7 +2274,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			throw e;
 		} catch (Exception e) {
 			logger.error("Error", e);
-			throw new DbConnectionException("Error while publishing competency");
+			throw new DbConnectionException("Error publishing competency");
 		}
 	}
 
@@ -2295,7 +2295,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving competency creator");
+			throw new DbConnectionException("Error retrieving competency creator");
 		}
 	}
 
@@ -2324,7 +2324,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while loading user competencies");
+			throw new DbConnectionException("Error loading user competencies");
 		}
 	}
 
@@ -2373,7 +2373,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while updating creator of competences");
+			throw new DbConnectionException("Error updating creator of competences");
 		}
 	}
 
@@ -2425,7 +2425,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			return Result.of(EventQueue.of(getOwnerChangeEvent(compId, oldOwnerId, newOwnerId, context)));
 		} catch (Exception e) {
 			logger.error("Error", e);
-			throw new DbConnectionException("Error while changing the competency owner");
+			throw new DbConnectionException("Error changing the competency owner");
 		}
 	}
 

@@ -157,6 +157,8 @@
 										toUpdatePrivateConversationModal=":#{cc.clientId}:commentModal:formPrivateConversation:panelModalPrivateConversation"
 										currentUserAssessor="#{competenceAssessmentBean.isUserAssessorInCurrentContext()}"
 										currentUserAssessedStudent="#{competenceAssessmentBean.isUserAssessedStudentInCurrentContext()}"
+										approveModalId="approveAssessment"
+										toUpdateApproveModal=":#{cc.clientId}:approveModalContainer"
 								/>
 							</h:form>
 						</div>
@@ -298,6 +300,21 @@
 						toUpdate=":#{cc.clientId}:growlMain @(.assessmentActivityList.comp_#{competenceAssessmentBean.currentCompetenceAssessmentId}) @(.panelCompAssessment_#{competenceAssessmentBean.currentCompetenceAssessmentId}) @(.panelAssessorNotificationSelector)"
 						learningContext="#{competenceAssessmentBean.currentResType == null ? '' : (competenceAssessmentBean.currentResType == 'COMPETENCE' ? compAssessmentLearningContext : activityAssessmentLearningContext)}"
 						gradePanelSidebarId="gradeSidebar"
+				/>
+			</h:panelGroup>
+
+			<h:panelGroup id="approveModalContainer">
+				<ui:param name="compAssessmentLearningContext" value="#{util:addSubContext(cc.attrs.learningContext, 'name:competence|id:'.concat(competenceAssessmentBean.competenceAssessmentData.competenceId).concat('|context:/name:COMPETENCE_ASSESSMENT|id:').concat(competenceAssessmentBean.competenceAssessmentData.competenceAssessmentId).concat('/'))}" />
+				<assessment:approveAssessment
+						id="approveAssessment"
+						blindAssessmentMode="#{competenceAssessmentBean.competenceAssessmentData.blindAssessmentMode}"
+						approveAction="#{competenceAssessmentBean.approveCompetence()}"
+						gradeData="#{competenceAssessmentBean.competenceAssessmentData.gradeData}"
+						resourceTitle="#{competenceAssessmentBean.competenceAssessmentData.title}"
+						student="#{competenceAssessmentBean.studentData}"
+						resource="COMPETENCE"
+						toUpdate=":#{cc.clientId}:growlMain @(.panelAssessorNotificationSelector) @(.assessmentActivityList.comp_#{competenceAssessmentBean.competenceAssessmentData.competenceAssessmentId}) @(.panelCompAssessment_#{competenceAssessmentBean.competenceAssessmentData.competenceAssessmentId})"
+						learningContext="#{compAssessmentLearningContext}"
 				/>
 			</h:panelGroup>
 		</c:if>

@@ -43,7 +43,7 @@ public class ObservationConfigLoaderServiceImpl extends AbstractManagerImpl
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new DbConnectionException("Error while initializing observation config");
+			throw new DbConnectionException("Error initializing observation config");
 		}
 	}
 

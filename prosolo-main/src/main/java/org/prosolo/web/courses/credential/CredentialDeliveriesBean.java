@@ -71,7 +71,7 @@ public class CredentialDeliveriesBean extends DeliveriesBean implements Serializ
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			PageUtil.fireErrorMessage("Error while trying to load credential deliveries");
+			PageUtil.fireErrorMessage("Error trying to load credential deliveries");
 		}
 	}
 	

@@ -52,7 +52,7 @@ public class SendMessageBean implements Serializable {
 		}
 		else {
 			PageUtil.fireErrorMessage("Can not send message to yourself!");
-			logger.error("Error while sending message from profile page, studentId was the same as logged student id : "+loggedUserBean.getUserId());
+			logger.error("Error sending message from profile page, studentId was the same as logged student id : "+loggedUserBean.getUserId());
 		}
 	}
 

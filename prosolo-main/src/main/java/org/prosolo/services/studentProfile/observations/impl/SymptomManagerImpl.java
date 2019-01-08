@@ -43,7 +43,7 @@ public class SymptomManagerImpl extends AbstractManagerImpl implements SymptomMa
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while saving symptom");
+			throw new DbConnectionException("Error saving symptom");
 		}
 	}
 	
@@ -55,7 +55,7 @@ public class SymptomManagerImpl extends AbstractManagerImpl implements SymptomMa
 			s.setId(id);
 			persistence.currentManager().delete(s);
 		}catch(Exception e){
-			throw new DbConnectionException("Error while deleting symptom");
+			throw new DbConnectionException("Error deleting symptom");
 		}
 	}
 	
@@ -99,7 +99,7 @@ public class SymptomManagerImpl extends AbstractManagerImpl implements SymptomMa
 	
 			return new ArrayList<Long>();
 		}catch(Exception e){
-			throw new DbConnectionException("Error while validating symptom name");
+			throw new DbConnectionException("Error validating symptom name");
 		}
 	}
 	

@@ -127,7 +127,7 @@ public class StudentProfileBean implements Serializable {
 			}
 		} catch (Exception e) {
 			logger.error(e);
-			PageUtil.fireErrorMessage("Error while loading social network data");
+			PageUtil.fireErrorMessage("Error loading social network data");
 		}
 	}
 
@@ -222,7 +222,7 @@ public class StudentProfileBean implements Serializable {
 			}
 
 		} catch (Exception e) {
-			throw new DbConnectionException("Error while loading activities");
+			throw new DbConnectionException("Error loading activities");
 		}
 	}
 

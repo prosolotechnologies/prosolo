@@ -140,7 +140,7 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 			return result;
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new DbConnectionException("Error while sending the message");
+			throw new DbConnectionException("Error sending the message");
 		}
 	}
 
@@ -282,7 +282,7 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while marking thread as read");
+			throw new DbConnectionException("Error marking thread as read");
 		}
 	}
 

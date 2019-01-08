@@ -776,7 +776,7 @@ public class FeedsManagerImpl extends AbstractManagerImpl implements FeedsManage
 		} catch(Exception e) {
 			e.printStackTrace();
 			logger.error(e);
-			throw new DbConnectionException("Error while loading credential feeds");
+			throw new DbConnectionException("Error loading credential feeds");
 		}
 	}
 	
@@ -812,7 +812,7 @@ public class FeedsManagerImpl extends AbstractManagerImpl implements FeedsManage
 		} catch(Exception e) {
 			e.printStackTrace();
 			logger.error(e);
-			throw new DbConnectionException("Error while loading credential feeds");
+			throw new DbConnectionException("Error loading credential feeds");
 		}
 	}
 	
@@ -826,7 +826,7 @@ public class FeedsManagerImpl extends AbstractManagerImpl implements FeedsManage
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while saving feed");
+			throw new DbConnectionException("Error saving feed");
 		}
 	}
 
