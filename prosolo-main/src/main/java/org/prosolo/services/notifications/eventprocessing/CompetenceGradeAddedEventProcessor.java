@@ -2,15 +2,9 @@ package org.prosolo.services.notifications.eventprocessing;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
-import org.prosolo.common.domainmodel.assessment.ActivityAssessment;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
-import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
 import org.prosolo.common.domainmodel.credential.BlindAssessmentMode;
-import org.prosolo.common.domainmodel.credential.Competence1;
-import org.prosolo.common.domainmodel.credential.GradingMode;
-import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.domainmodel.user.notifications.NotificationType;
 import org.prosolo.common.domainmodel.user.notifications.ResourceType;
 import org.prosolo.common.event.context.Context;
 import org.prosolo.common.event.context.ContextName;
@@ -20,15 +14,10 @@ import org.prosolo.services.event.Event;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
-import org.prosolo.services.nodes.data.LearningResourceType;
 import org.prosolo.services.notifications.NotificationManager;
-import org.prosolo.services.notifications.eventprocessing.data.NotificationReceiverData;
 import org.prosolo.services.notifications.eventprocessing.util.AssessmentLinkUtil;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.util.page.PageSection;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class CompetenceGradeAddedEventProcessor extends GradeAddedEventProcessor {
 
@@ -36,8 +25,6 @@ public class CompetenceGradeAddedEventProcessor extends GradeAddedEventProcessor
 
 	private ContextJsonParserService contextJsonParserService;
 	private AssessmentManager assessmentManager;
-	private CredentialManager credentialManager;
-	private Competence1Manager competenceManager;
 
 	private CompetenceAssessment assessment;
 	private long credentialId;
@@ -50,8 +37,6 @@ public class CompetenceGradeAddedEventProcessor extends GradeAddedEventProcessor
 		super(event, session, notificationManager, notificationsSettingsManager, idEncoder);
 		this.contextJsonParserService = contextJsonParserService;
 		this.assessmentManager = assessmentManager;
-		this.credentialManager = credentialManager;
-		this.competenceManager = competenceManager;
 		context = contextJsonParserService.parseContext(event.getContext());
 		credentialId = Context.getIdFromSubContextWithName(context, ContextName.CREDENTIAL);
 		assessment = (CompetenceAssessment) session.load(CompetenceAssessment.class, event.getObject().getId());
@@ -69,9 +54,7 @@ public class CompetenceGradeAddedEventProcessor extends GradeAddedEventProcessor
 
 	@Override
 	protected BlindAssessmentMode getBlindAssessmentMode() {
-		return credentialId > 0
-			? credentialManager.getCredentialBlindAssessmentModeForAssessmentType(credentialId, assessment.getType())
-			: competenceManager.getTheMostRestrictiveCredentialBlindAssessmentModeForAssessmentTypeAndCompetence(assessment.getCompetence().getId(), assessment.getType());
+		return assessment.getBlindAssessmentMode();
 	}
 
 	@Override

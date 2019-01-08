@@ -32,3 +32,13 @@ function onStatusChange() {
 function getStatus() {
 	return $('#' + containerId + '\\:formMain\\:compSideBar\\:selectStatus').val();
 }
+
+function bindBlindAssessmentOnChange(checkboxId) {
+	$('#' + checkboxId).on('change', function() {
+		var panel = $('#blindAssessmentPanel');
+		panel.toggle();
+		if (!panel.is(":visible")) {
+			$("#blindAssessmentPanel select.selectBlindAssessmentModeSelector").val($("#blindAssessmentPanel select.selectBlindAssessmentModeSelector option:first").val()).change();
+		}
+	});
+}

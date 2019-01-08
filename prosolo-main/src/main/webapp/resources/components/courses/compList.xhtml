@@ -37,7 +37,7 @@
 							</ui:fragment>
 							
 							<ui:fragment rendered="#{!cc.attrs.isEdit}">
-								<h:link
+								<h:link rendered="#{not cc.attrs.readOnly}"
 									value="#{comp.title}"
 									outcome="competence">
 									<f:param name="orgId" value="#{param.orgId}" disable="#{cc.attrs.role ne 'ADMIN'}"/>
@@ -45,6 +45,9 @@
 									<f:param name="compId" value="#{util:encodeId(comp.competenceId)}"/>
 									<f:param name="credId" value="#{cc.attrs.credentialId}" disable="#{empty cc.attrs.credentialId}"/>
 								</h:link>
+								<ui:fragment rendered="#{cc.attrs.readOnly}">
+									#{comp.title}
+								</ui:fragment>
 							</ui:fragment>
 						</h2>
 
@@ -225,7 +228,7 @@
 									styleClass="collapseButton collapsed"
 									process="@this"
 									action="#{cc.attrs.bean.loadCompetenceActivitiesIfNotLoaded(comp)}"
-									update=":#{cc.clientId}:compList:actList :#{cc.clientId}:compList:panelExpandActivityList"
+									update=":#{cc.clientId}:compList:actList :#{cc.clientId}:compList:panelExpandActivityList #{cc.attrs.growlToUpdate}"
 									oncomplete="$('#comp#{comp.competenceId}').collapse();">
 									<span class="textShow">Show Activities</span>
 									<span class="arrowDown">down</span>
@@ -238,7 +241,7 @@
 				</article>
 
 				<h:panelGroup
-					rendered="#{cc.attrs.bean.credentialData.hasMoreCompetences(status.index) or cc.attrs.isEdit}"
+					rendered="#{cc.attrs.bean.credentialData.hasMoreCompetences(status.index)}"
 					layout="block"
 					styleClass="mandatoryArrow"
 					style="#{cc.attrs.bean.credentialData.mandatoryFlow ? '' : 'display:none;'}">

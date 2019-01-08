@@ -11,7 +11,7 @@
 >
 
 	<composite:interface>
-		<composite:attribute name="bean" required="true" />
+		<composite:attribute name="bean" required="true" type="org.prosolo.web.assessments.CredentialAssessmentBean"/>
 		<composite:attribute name="learningContext" default="" />
 		<composite:attribute name="service" default="" />
 		<composite:attribute name="role" default="USER" />
@@ -166,8 +166,7 @@
 						<h:link value="#{msg['label.credential.plural']}" outcome="/manage/library" />
 					</li>
 					<li>
-						<h:link
-								value="#{cc.attrs.bean.credentialIdData.fullTitle}"
+						<h:link value="#{util:shortenAndAddDots(cc.attrs.bean.credentialIdData.fullTitle)}"
 								outcome="/manage/credential">
 							<f:param name="id" value="#{util:encodeId(cc.attrs.bean.decodedId)}"></f:param>
 						</h:link>
@@ -181,7 +180,7 @@
 					<li class="active">
 						<assessment:assessmentActorName
 								actorId="#{cc.attrs.bean.fullAssessmentData.assessedStudentId}"
-								actorFullName="#{cc.attrs.bean.fullAssessmentData.studentFullName}"
+								actorFullName="#{util:shortenAndAddDots(cc.attrs.bean.fullAssessmentData.studentFullName)}"
 								blindAssessmentMode="#{cc.attrs.bean.fullAssessmentData.blindAssessmentMode}"
 								actorType="STUDENT"
 						/>
@@ -194,7 +193,7 @@
 							<h:link value="#{msg['label.credential.plural']}" outcome="credentialLibrary"/>
 						</li>
 						<li>
-							<h:link value="#{cc.attrs.bean.credentialTitle}" outcome="credential">
+							<h:link value="#{util:shortenAndAddDots(cc.attrs.bean.credentialTitle)}" outcome="credential">
 								<f:param name="id" value="#{util:encodeId(cc.attrs.bean.decodedId)}"/>
 							</h:link>
 						</li>
@@ -211,7 +210,7 @@
 							<li class="active">
 								<assessment:assessmentActorName
 										actorId="#{cc.attrs.bean.fullAssessmentData.assessorId}"
-										actorFullName="#{cc.attrs.bean.fullAssessmentData.assessorFullName}"
+										actorFullName="#{util:shortenAndAddDots(cc.attrs.bean.fullAssessmentData.assessorFullName)}"
 										blindAssessmentMode="#{cc.attrs.bean.fullAssessmentData.blindAssessmentMode}"
 										actorType="ASSESSOR"
 								/>
@@ -221,12 +220,12 @@
 					<ui:fragment rendered="#{not cc.attrs.bean.fullDisplayMode}">
 						<ui:fragment rendered="#{cc.attrs.bean.fullAssessmentData.blindAssessmentMode eq 'OFF'}">
 							<li>
-								<h:link value="#{cc.attrs.bean.fullAssessmentData.studentFullName}" outcome="profile">
+								<h:link value="#{util:shortenAndAddDots(cc.attrs.bean.fullAssessmentData.studentFullName)}" outcome="profile">
 									<f:param name="id" value="#{util:encodeId(cc.attrs.bean.fullAssessmentData.assessedStudentId)}"/>
 								</h:link>
 							</li>
 							<li>
-								<h:link value="#{cc.attrs.bean.credentialTitle}" outcome="public-credential">
+								<h:link value="#{util:shortenAndAddDots(cc.attrs.bean.credentialTitle)}" outcome="public-credential">
 									<f:param name="credId" value="#{cc.attrs.bean.id}"/>
 									<f:param name="studentId" value="#{param.studentId}"/>
 								</h:link>
@@ -244,7 +243,7 @@
 							<li class="active">
 								<assessment:assessmentActorName
 										actorId="#{cc.attrs.bean.fullAssessmentData.assessorId}"
-										actorFullName="#{cc.attrs.bean.fullAssessmentData.assessorFullName}"
+										actorFullName="#{util:shortenAndAddDots(cc.attrs.bean.fullAssessmentData.assessorFullName)}"
 										blindAssessmentMode="#{cc.attrs.bean.fullAssessmentData.blindAssessmentMode}"
 										actorType="ASSESSOR"
 								/>
@@ -300,38 +299,35 @@
 							<h:panelGroup layout="block" id="otherAssessments" styleClass="dropdown fromDrop">
 								<a data-toggle="dropdown" aria-haspopup="true"
 								   aria-expanded="true">
-									<ui:fragment rendered="#{cc.attrs.bean.fullAssessmentData.assessorFullName != null}">
-										<assessment:assessmentActorName
-												actorId="#{cc.attrs.bean.fullAssessmentData.assessorId}"
-												actorFullName="#{cc.attrs.bean.fullAssessmentData.assessorFullName}"
-												blindAssessmentMode="#{cc.attrs.bean.fullAssessmentData.blindAssessmentMode}"
-												actorType="ASSESSOR"
-										/>
-									</ui:fragment>
-									<ui:fragment rendered="#{empty cc.attrs.bean.fullAssessmentData.assessorFullName}">
-										Default assessment
-									</ui:fragment>
 									<span class="arrowDown">arrowDown</span>
+									#{msg['label.assessment.type.'.concat(cc.attrs.bean.fullAssessmentData.type.name())]}<ui:fragment rendered="#{cc.attrs.bean.fullAssessmentData.type ne 'SELF_ASSESSMENT' and cc.attrs.bean.fullAssessmentData.assessorId gt 0}">: </ui:fragment>
+									<ui:fragment rendered="#{cc.attrs.bean.fullAssessmentData.type ne 'SELF_ASSESSMENT' and cc.attrs.bean.fullAssessmentData.assessorId gt 0}">
+										<assessment:assessmentActorName
+													actorId="#{cc.attrs.bean.fullAssessmentData.assessorId}"
+													actorFullName="#{cc.attrs.bean.fullAssessmentData.assessorFullName}"
+													blindAssessmentMode="#{cc.attrs.bean.fullAssessmentData.blindAssessmentMode}"
+													actorType="ASSESSOR"/>
+									</ui:fragment>
 								</a>
 								<ul class="dropdown-menu" aria-labelledby="dropdownMenu">
 									<ui:repeat value="#{cc.attrs.bean.otherAssessments}"
 											   var="otherAssessment">
-										<li><h:outputLink
+										<li>
+											<h:outputLink
 												value="#{applicationbean.domain}manage/credentials/#{otherAssessment.encodedCredentialId}/assessments/#{otherAssessment.encodedAssessmentId}">
-											<ui:fragment rendered="#{otherAssessment.assessorId gt 0}">
-												<assessment:assessmentActorName
-														actorId="#{otherAssessment.assessorId}"
-														actorFullName="#{otherAssessment.assessorFullName}"
-														blindAssessmentMode="#{otherAssessment.blindAssessmentMode}"
-														actorType="ASSESSOR"
-												/>
-											</ui:fragment>
-											<ui:fragment rendered="#{otherAssessment.assessorId eq 0}">
-												Default assessment
-											</ui:fragment>
-											<span class="#{otherAssessment.approved ? 'approved' : 'pending'}">#{otherAssessment.approved
-												? 'Approved' : 'Pending'}</span>
-										</h:outputLink></li>
+												#{msg['label.assessment.type.'.concat(otherAssessment.type.name())]}<ui:fragment rendered="#{otherAssessment.type ne 'SELF_ASSESSMENT' and otherAssessment.assessorId gt 0}">: </ui:fragment>
+												<ui:fragment rendered="#{otherAssessment.type ne 'SELF_ASSESSMENT' and otherAssessment.assessorId gt 0}">
+													<assessment:assessmentActorName
+															actorId="#{otherAssessment.assessorId}"
+															actorFullName="#{otherAssessment.assessorFullName}"
+															blindAssessmentMode="#{otherAssessment.blindAssessmentMode}"
+															actorType="ASSESSOR"
+													/>
+												</ui:fragment>
+												<span class="#{otherAssessment.approved ? 'approved' : 'pending'}">#{otherAssessment.approved
+													? 'Approved' : 'Pending'}</span>
+											</h:outputLink>
+										</li>
 									</ui:repeat>
 								</ul>
 							</h:panelGroup>
@@ -442,7 +438,6 @@
 								<ui:repeat varStatus="compAssIndex" var="competenceAssessment" value="#{cc.attrs.bean.fullAssessmentData.competenceAssessmentData}">
 									<assessment:competenceAssessment
 											competenceAssessment="#{competenceAssessment}"
-											blindAssessmentMode="#{cc.attrs.bean.fullAssessmentData.blindAssessmentMode}"
 											bean="#{cc.attrs.bean}"
 											fullDisplayMode="#{cc.attrs.bean.fullDisplayMode}"
 											credentialId="#{cc.attrs.bean.fullAssessmentData.credentialId}"
@@ -551,7 +546,7 @@
 					bean="#{cc.attrs.bean.currentAssessmentBean}"
 					studentId="#{cc.attrs.bean.fullAssessmentData.assessedStudentId}"
 					assessorId="#{cc.attrs.bean.fullAssessmentData.assessorId}"
-					blindAssessmentMode="#{cc.attrs.bean.fullAssessmentData.blindAssessmentMode}"
+					blindAssessmentMode="#{cc.attrs.bean.currentBlindAssessmentMode}"
 					learningContext="#{cc.attrs.bean.currentResType eq 'ACTIVITY'
 						? util:addSubContext(learningContext, 'name:competence|id:'.concat(activityAssessmentBean.activityAssessmentData.competenceId).concat('|context:/name:COMPETENCE_ASSESSMENT|id:').concat(activityAssessmentBean.activityAssessmentData.compAssessment.competenceAssessmentId).concat('|context:/name:activity|id:').concat(activityAssessmentBean.activityAssessmentData.activityId).concat('|context:/name:ACTIVITY_ASSESSMENT|id:').concat(activityAssessmentBean.activityAssessmentData.activityAssessmentId).concat('/').concat('/').concat('/'))
 						: cc.attrs.bean.currentResType eq 'COMPETENCE'

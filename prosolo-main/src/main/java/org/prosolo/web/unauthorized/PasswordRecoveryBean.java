@@ -5,7 +5,7 @@ import org.prosolo.services.authentication.PasswordResetManager;
 import org.prosolo.services.authentication.exceptions.ResetKeyDoesNotExistException;
 import org.prosolo.services.authentication.exceptions.ResetKeyExpiredException;
 import org.prosolo.services.authentication.exceptions.ResetKeyInvalidatedException;
-import org.prosolo.services.nodes.UserManager;
+import org.prosolo.services.user.UserManager;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;

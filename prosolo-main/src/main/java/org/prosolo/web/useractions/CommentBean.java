@@ -9,7 +9,7 @@ import org.prosolo.services.activityWall.SocialActivityManager;
 import org.prosolo.services.interaction.CommentManager;
 import org.prosolo.services.interaction.data.*;
 import org.prosolo.services.interaction.data.factory.CommentDataFactory;
-import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.user.data.UserData;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.useractions.util.ICommentBean;
 import org.prosolo.web.util.HTMLUtil;
@@ -167,11 +167,11 @@ public class CommentBean implements Serializable, ICommentBean {
 
 			UserData creator = new UserData(
 					loggedUser.getUserId(),
-					loggedUser.getSessionData().getName(),
-					loggedUser.getSessionData().getLastName(),
-					loggedUser.getSessionData().getAvatar(),
-					loggedUser.getSessionData().getPosition(),
-					loggedUser.getSessionData().getEmail(),
+					loggedUser.getName(),
+					loggedUser.getLastName(),
+					loggedUser.getAvatar(),
+					loggedUser.getPosition(),
+					loggedUser.getEmail(),
 					true);
 
 			newComment.setCreator(creator);

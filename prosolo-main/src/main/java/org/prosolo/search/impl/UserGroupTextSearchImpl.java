@@ -17,9 +17,9 @@ import org.prosolo.common.util.ElasticsearchUtil;
 import org.prosolo.search.UserGroupTextSearch;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.indexing.ESIndexer;
-import org.prosolo.services.nodes.UserGroupManager;
 import org.prosolo.services.nodes.data.ResourceVisibilityMember;
-import org.prosolo.services.nodes.data.UserGroupData;
+import org.prosolo.services.user.UserGroupManager;
+import org.prosolo.services.user.data.UserGroupData;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;

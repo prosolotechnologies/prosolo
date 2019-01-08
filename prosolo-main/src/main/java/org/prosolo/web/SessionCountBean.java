@@ -7,9 +7,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.faces.bean.ManagedBean;
+import javax.inject.Inject;
 
 import org.prosolo.services.interaction.AnalyticalServiceCollector;
 import org.prosolo.services.logging.AccessResolver;
+import org.prosolo.services.user.ActiveUsersSessionRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -23,22 +25,13 @@ public class SessionCountBean implements Serializable {
 
 	@Autowired
 	private AnalyticalServiceCollector collector;
+	@Inject private ActiveUsersSessionRegistry activeUsersSessionRegistry;
 
 	@Autowired
 	private AccessResolver resolver;
 
-	private Set<String> authenticatedSessions = Collections.synchronizedSet(new HashSet<String>());
-
-	public long sessionsCount() {
-		return authenticatedSessions.size();
-	}
-
-	public void addSession(String id) {
-		authenticatedSessions.add(id);
-	}
-
-	public void removeSession(String id) {
-		authenticatedSessions.remove(id);
+	private long sessionsCount() {
+		return activeUsersSessionRegistry.getNumberOfActiveSessions();
 	}
 
 	public void storeCount() {

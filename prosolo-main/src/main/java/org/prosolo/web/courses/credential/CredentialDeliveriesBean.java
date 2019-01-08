@@ -6,6 +6,9 @@ import org.prosolo.common.domainmodel.credential.CredentialType;
 import org.prosolo.search.CredentialTextSearch;
 import org.prosolo.search.util.credential.CredentialDeliverySortOption;
 import org.prosolo.search.util.credential.CredentialSearchFilterManager;
+import org.prosolo.services.assessment.data.AssessmentSortOrder;
+import org.prosolo.services.common.data.SortOrder;
+import org.prosolo.services.common.data.SortingOption;
 import org.prosolo.services.logging.LoggingService;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.credential.CredentialData;
@@ -23,6 +26,7 @@ import javax.inject.Inject;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 @ManagedBean(name = "credentialDeliveriesBean")
 @Component("credentialDeliveriesBean")
@@ -51,7 +55,7 @@ public class CredentialDeliveriesBean extends DeliveriesBean implements Serializ
 	private CredentialSearchFilterManager[] searchFilters;
 	private CredentialData selectedDelivery;
 
-	private CredentialDeliverySortOption sortOption = CredentialDeliverySortOption.DATE_STARTED;
+	private CredentialDeliverySortOption sortOption = CredentialDeliverySortOption.DELIVERY_ORDER;
 	private CredentialDeliverySortOption[] sortOptions;
 	
 	private ResourceAccessData access;
@@ -88,8 +92,16 @@ public class CredentialDeliveriesBean extends DeliveriesBean implements Serializ
 	}
 
 	private void loadCredentialDeliveries(CredentialSearchFilterManager filter) {
+		SortOrder.Builder<CredentialDeliverySortOption> sortBuilder =
+				SortOrder.<CredentialDeliverySortOption>builder()
+						.addOrder(sortOption, sortOption.getSortOrder());
+		if (sortOption != CredentialDeliverySortOption.DELIVERY_ORDER) {
+			//add delivery order as a second criteria if not already selected as first
+			CredentialDeliverySortOption deliveryOrderSortOption = CredentialDeliverySortOption.DELIVERY_ORDER;
+			sortBuilder.addOrder(deliveryOrderSortOption, deliveryOrderSortOption.getSortOrder());
+		}
 		RestrictedAccessResult<List<CredentialData>> res = credentialManager
-				.getCredentialDeliveriesWithAccessRights(decodedId, loggedUser.getUserId(), sortOption, filter);
+				.getCredentialDeliveriesWithAccessRights(decodedId, loggedUser.getUserId(), sortBuilder.build(), filter);
 		unpackResult(res);
 
 		if(!access.isCanAccess()) {

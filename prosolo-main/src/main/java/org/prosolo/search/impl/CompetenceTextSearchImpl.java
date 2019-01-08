@@ -28,7 +28,7 @@ import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.factory.CompetenceDataFactory;
-import org.prosolo.web.search.data.SortingOption;
+import org.prosolo.search.data.SortingOption;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;

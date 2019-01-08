@@ -7,8 +7,8 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
+import org.apache.log4j.Logger;
 import org.apache.velocity.app.VelocityEngine;
-import org.opensaml.saml2.metadata.provider.HTTPMetadataProvider;
 import org.opensaml.saml2.metadata.provider.MetadataProvider;
 import org.opensaml.saml2.metadata.provider.MetadataProviderException;
 import org.opensaml.saml2.metadata.provider.ResourceBackedMetadataProvider;
@@ -16,6 +16,15 @@ import org.opensaml.util.resource.ClasspathResource;
 import org.opensaml.util.resource.ResourceException;
 import org.opensaml.xml.parse.ParserPool;
 import org.opensaml.xml.parse.StaticBasicParserPool;
+import org.prosolo.core.spring.security.authentication.loginas.LoginAsAuthenticationFailureHandler;
+import org.prosolo.core.spring.security.authentication.loginas.ProsoloSwitchUserFilter;
+import org.prosolo.core.spring.security.authentication.lti.LTIAuthenticationFilter;
+import org.prosolo.core.spring.security.authentication.lti.LTIAuthenticationProvider;
+import org.prosolo.core.spring.security.authentication.lti.LTIAuthenticationSuccessHandler;
+import org.prosolo.core.spring.security.successhandlers.DefaultProsoloAuthenticationSuccessHandler;
+import org.prosolo.services.authentication.SessionAttributeManagementStrategy;
+import org.prosolo.services.authentication.annotations.AuthenticationChangeType;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.MethodInvokingFactoryBean;
 import org.springframework.context.annotation.Bean;
@@ -30,6 +39,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.configurers.LogoutConfigurer;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -54,6 +64,7 @@ import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
@@ -63,6 +74,9 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import javax.inject.Inject;
+import javax.servlet.Filter;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.*;
 
 /**
@@ -73,22 +87,28 @@ import java.util.*;
 @EnableWebSecurity
 public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 
+	private static Logger logger = Logger.getLogger(SpringSecurityConfig.class);
+
 	@Inject
 	private UserDetailsService userDetailsService;
     @Inject
-    private CustomAuthenticationSuccessHandler authenticationSuccessHandler;
+    private DefaultProsoloAuthenticationSuccessHandler authenticationSuccessHandler;
     @Inject
     private SAMLUserDetailsService samlUserDetailsService;
+	@Inject private LTIAuthenticationProvider ltiAuthenticationProvider;
+	@Inject private LTIAuthenticationSuccessHandler ltiAuthenticationSuccessHandler;
+	@Inject private ObjectProvider<SessionAttributeManagementStrategy> sessionAttributeManagementStrategyProvider;
 
 	private static final String LOGIN_PAGE = "/login";
+	public static final String REMEMBER_ME_KEY = "prosoloremembermekey";
 
 	@Override
     protected void configure(HttpSecurity http) throws Exception {
-		
-		String rememberMeKey = "prosoloremembermekey";
 		http
         //.addFilterBefore(metadataGeneratorFilter(), ChannelProcessingFilter.class)
         .addFilterAfter(samlFilter(), BasicAuthenticationFilter.class)
+		.addFilterAfter(ltiAuthenticationFilter(), BasicAuthenticationFilter.class)
+		.addFilterAfter(switchUserFilter(), FilterSecurityInterceptor.class)
 		.authorizeRequests()
 				.antMatchers("/api/lti/**").permitAll()
 				//.antMatchers("/prosolo/api/lti/**").permitAll()
@@ -96,7 +116,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers("/elb_ping").permitAll()
 				.antMatchers("/terms").permitAll()
 				.antMatchers("/profile").hasAuthority("BASIC.USER.ACCESS")
-				.antMatchers("/profile/**").permitAll()
+				.antMatchers("/profile/*").permitAll()
 				.antMatchers("/maintenance").permitAll()
 				.antMatchers("/digest").permitAll()
 				.antMatchers("/login").permitAll()
@@ -113,6 +133,9 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers("/recovery/**").permitAll()
 				.antMatchers("/saml/**").permitAll()
 				.antMatchers("/api/health").permitAll()
+				.antMatchers("/loginAs/login").hasAuthority("LOGIN.AS")
+				//this capability is added by switch user filter when user logs in as another user
+				.antMatchers("/loginAs/logout").hasAuthority("ROLE_PREVIOUS_ADMINISTRATOR")
 				//.antMatchers("/notfound").permitAll()
 
 				.antMatchers("/").hasAnyAuthority("BASIC.USER.ACCESS", "BASIC.INSTRUCTOR.ACCESS", "BASIC.MANAGER.ACCESS", "BASIC.ADMIN.ACCESS")
@@ -127,36 +150,28 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers("/settings/email").hasAuthority("BASIC.USER.ACCESS")
 				.antMatchers("/settings/password").hasAuthority("BASIC.USER.ACCESS")
 				.antMatchers("/settings/twitterOAuth").hasAuthority("BASIC.USER.ACCESS")
+				.antMatchers("/credentials/*/preview").permitAll()
 				.antMatchers("/credentials/*/students").hasAuthority("BASIC.USER.ACCESS")
 				.antMatchers("/credentials/*/students/*").hasAuthority("BASIC.USER.ACCESS")
 				.antMatchers("/credentials/*/keywords").hasAuthority("BASIC.USER.ACCESS")
-				.antMatchers("/profile/*/*").permitAll()
+				.antMatchers("/profile/*/evidence/*").permitAll()
 				.antMatchers("/competences/*/edit").hasAuthority("BASIC.USER.ACCESS")
 				.antMatchers("/credentials/*/*").hasAuthority("BASIC.USER.ACCESS")
 				.antMatchers("/credentials/*/assessments").hasAuthority("BASIC.USER.ACCESS")
 				.antMatchers("/credentials/*/assessments/self").hasAuthority("BASIC.USER.ACCESS")
-				.antMatchers("/profile/*/credentials/*/assessments/self").permitAll()
 				.antMatchers("/credentials/*/assessments/instructor").hasAuthority("BASIC.USER.ACCESS")
-				.antMatchers("/profile/*/credentials/*/assessments/instructor").permitAll()
 				.antMatchers("/credentials/*/assessments/peer").hasAuthority("BASIC.USER.ACCESS")
-				.antMatchers("/profile/*/credentials/*/assessments/peer").permitAll()
 				.antMatchers("/credentials/*/assessments/peer/*").hasAuthority("BASIC.USER.ACCESS")
-				.antMatchers("/profile/*/credentials/*/assessments/peer/*").permitAll()
 				.antMatchers("/credentials/*/announcements").hasAuthority("BASIC.USER.ACCESS")
 				.antMatchers("/credentials/*/*/*").hasAuthority("BASIC.USER.ACCESS")
 				.antMatchers("/credentials/*/*/*/results").hasAuthority("BASIC.USER.ACCESS")
 				.antMatchers("/competences/new").hasAuthority("BASIC.USER.ACCESS")
 				.antMatchers("/competences/**").hasAuthority("BASIC.USER.ACCESS")
 				.antMatchers("/competences/*/assessments/self").hasAuthority("BASIC.USER.ACCESS")
-				.antMatchers("/profile/*/competences/*/assessments/self").permitAll()
 				.antMatchers("/competences/*/assessments/instructor").hasAuthority("BASIC.USER.ACCESS")
-				.antMatchers("/profile/*/competences/*/assessments/instructor").permitAll()
 				.antMatchers("/competences/*/assessments/instructor/*").hasAuthority("BASIC.USER.ACCESS")
-				.antMatchers("/profile/*/competences/*/assessments/instructor/*").permitAll()
 				.antMatchers("/competences/*/assessments/peer").hasAuthority("BASIC.USER.ACCESS")
-                .antMatchers("/profile/*/competences/*/assessments/peer").permitAll()
 				.antMatchers("/competences/*/assessments/peer/*").hasAuthority("BASIC.USER.ACCESS")
-				.antMatchers("/profile/*/competences/*/assessments/peer/*").permitAll()
 				//.antMatchers("/activities/new").hasAuthority("BASIC.USER.ACCESS")
 				//.antMatchers("/activities/**").hasAuthority("BASIC.USER.ACCESS")
 				.antMatchers("/library").hasAuthority("BASIC.USER.ACCESS")
@@ -180,8 +195,6 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers("/manage/js/**").hasAnyAuthority("BASIC.INSTRUCTOR.ACCESS", "BASIC.MANAGER.ACCESS")
 				.antMatchers("/manage/images/**").hasAnyAuthority("BASIC.INSTRUCTOR.ACCESS", "BASIC.MANAGER.ACCESS")
 				.antMatchers("/manage/notifications").hasAnyAuthority("BASIC.INSTRUCTOR.ACCESS", "BASIC.MANAGER.ACCESS")
-				.antMatchers("/manage/messages/*").hasAnyAuthority("BASIC.INSTRUCTOR.ACCESS", "BASIC.MANAGER.ACCESS")
-				.antMatchers("/manage/messages").hasAnyAuthority("BASIC.INSTRUCTOR.ACCESS", "BASIC.MANAGER.ACCESS")
 				.antMatchers("/manage/settings/password").hasAnyAuthority("BASIC.INSTRUCTOR.ACCESS", "BASIC.MANAGER.ACCESS")
 				.antMatchers("/manage/settings/email").hasAnyAuthority("BASIC.INSTRUCTOR.ACCESS", "BASIC.MANAGER.ACCESS")
 				.antMatchers("/manage/settings/twitterOAuth").hasAnyAuthority("BASIC.INSTRUCTOR.ACCESS", "BASIC.MANAGER.ACCESS")
@@ -272,7 +285,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers("/admin/settings/password").hasAuthority("BASIC.ADMIN.ACCESS")
 				.antMatchers("/admin/settings/twitterOAuth").hasAuthority("BASIC.ADMIN.ACCESS")
 				.antMatchers("/admin/settings").hasAuthority("BASIC.ADMIN.ACCESS")
-				.antMatchers("/admin/messages").hasAuthority("BASIC.ADMIN.ACCESS")
+//				.antMatchers("/admin/messages").hasAuthority("BASIC.ADMIN.ACCESS")
 				.antMatchers("/admin/settings_old").hasAuthority("BASIC.ADMIN.ACCESS")
 				.antMatchers("/admin/other").hasAuthority("ADMIN.ADVANCED")
 				.antMatchers("/admin/admins").hasAuthority("ADMIN.ADVANCED")
@@ -313,20 +326,36 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 				.failureUrl("/login?err=1")
 				.and().exceptionHandling().authenticationEntryPoint(customAuthEntryPoint())
 				.and().csrf().disable()
-				.rememberMe()
-				.rememberMeServices(rememberMeService(rememberMeKey)).key(rememberMeKey)
-				.authenticationSuccessHandler(authenticationSuccessHandler)
-				//.key("key").userDetailsService(userDetailsService).authenticationSuccessHandler(authenticationSuccessHandler)
-				.and()
 				.logout().invalidateHttpSession(true).logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
-				.deleteCookies("JSESSIONID")
 				.and()
 				.exceptionHandling().accessDeniedHandler(accessDeniedHandler())
 				.and().headers()
 				.frameOptions().disable();
-		
+
+		setCookieDeletionOnLogoutPolicy(http);
+		addRememberMeSupport(http);
     }
-	
+
+	private void addRememberMeSupport(HttpSecurity http) throws Exception {
+		TokenBasedRememberMeServices rememberMeServices = rememberMeService(REMEMBER_ME_KEY);
+		http
+			.rememberMe()
+			.rememberMeServices(rememberMeServices).key(REMEMBER_ME_KEY)
+			.authenticationSuccessHandler(authenticationSuccessHandler);
+			//.key("key").userDetailsService(userDetailsService).authenticationSuccessHandler(authenticationSuccessHandler)
+		//when remember me login is configured, it should be added as a logout handler because it adds cookie for logging user in
+		ltiAuthenticationFilter().addLogoutHandler(rememberMeServices);
+	}
+
+	private void setCookieDeletionOnLogoutPolicy(HttpSecurity http) {
+		String cookieToRemove = "JSESSIONID";
+		LogoutConfigurer logoutConfigurer = http.getConfigurer(LogoutConfigurer.class);
+		if (logoutConfigurer != null) {
+			//if logout is configured, use built in method for deleting cookies
+			logoutConfigurer.deleteCookies(cookieToRemove);
+		}
+	}
+
 	@Override
 	public void configure(WebSecurity web) throws Exception {
 		/*this means security filters will not be applied
@@ -394,7 +423,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 	}
 
 	@Bean
-	public TokenBasedRememberMeServices rememberMeService(String key){
+	public TokenBasedRememberMeServices rememberMeService(String key) {
 		TokenBasedRememberMeServices service = new TokenBasedRememberMeServices(key, userDetailsService);
 		
 		service.setCookieName("ProSolo");
@@ -824,5 +853,32 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 		return new BCryptPasswordEncoder();
 	}
 
+
+	/*
+	LTI authentication filter
+	 */
+	@Bean
+	public LTIAuthenticationFilter ltiAuthenticationFilter() {
+		LTIAuthenticationFilter ltiAuthenticationFilter = new LTIAuthenticationFilter(ltiAuthenticationProvider, ltiAuthenticationSuccessHandler, sessionAttributeManagementStrategyProvider.getObject(AuthenticationChangeType.USER_SESSION_END));
+		String errorMsg = null;
+		try {
+			errorMsg = URLEncoder.encode("Error launching the external activity", "utf-8");
+		} catch (UnsupportedEncodingException e) {
+			logger.error("Error", e);
+		}
+		ltiAuthenticationFilter.setDefaultAuthenticationFailureUrl(LOGIN_PAGE + (errorMsg != null ? "?error=" + errorMsg : ""));
+		return ltiAuthenticationFilter;
+	}
+
+	@Bean
+	public Filter switchUserFilter() {
+		ProsoloSwitchUserFilter filter = new ProsoloSwitchUserFilter(sessionAttributeManagementStrategyProvider.getObject(AuthenticationChangeType.USER_AUTHENTICATION_CHANGE));
+		filter.setSwitchUserUrl("/loginAs/login");
+		filter.setExitUserUrl("/loginAs/logout");
+		filter.setUserDetailsService(userDetailsService);
+		filter.setSuccessHandler(authenticationSuccessHandler);
+		filter.setFailureHandler(new LoginAsAuthenticationFailureHandler());
+		return filter;
+	}
 
 }

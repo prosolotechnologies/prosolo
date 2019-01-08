@@ -2,7 +2,7 @@ package org.prosolo.services.nodes.factory;
 
 import org.prosolo.common.domainmodel.credential.CredentialInstructor;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.user.data.UserData;
 import org.prosolo.services.nodes.data.instructor.InstructorData;
 import org.springframework.stereotype.Component;
 

@@ -32,8 +32,10 @@ import org.prosolo.search.util.credential.CredentialSearchFilterManager;
 import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.assessment.RubricManager;
+import org.prosolo.services.assessment.data.AssessmentSortOrder;
 import org.prosolo.services.assessment.data.AssessmentTypeConfig;
-import org.prosolo.services.common.data.LazyInitData;
+import org.prosolo.services.common.data.LazyInitCollection;
+import org.prosolo.services.common.data.SortOrder;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventFactory;
@@ -51,7 +53,11 @@ import org.prosolo.services.nodes.data.instructor.StudentInstructorPair;
 import org.prosolo.services.nodes.data.resourceAccess.*;
 import org.prosolo.services.nodes.factory.*;
 import org.prosolo.services.nodes.observers.learningResources.CredentialChangeTracker;
-import org.prosolo.services.util.SortingOption;
+import org.prosolo.services.user.UserGroupManager;
+import org.prosolo.services.user.data.StudentData;
+import org.prosolo.services.user.data.UserData;
+import org.prosolo.services.user.data.UserLearningProgress;
+import org.prosolo.services.common.data.SortingOption;
 import org.prosolo.services.util.roles.SystemRoleNames;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -1658,26 +1664,94 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@SuppressWarnings({"unchecked"})
 	@Override
 	@Transactional(readOnly = true)
-	public List<TargetCredentialData> getAllCredentials(long userid, boolean onlyPubliclyVisible) throws DbConnectionException {
-		return getTargetCredentials(userid, onlyPubliclyVisible, false, false, UserLearningProgress.ANY);
+	public List<TargetCredentialData> getAllCredentials(long userid) throws DbConnectionException {
+		return getTargetCredentialsData(userid, false, false, UserLearningProgress.ANY);
 	}
 
-	@SuppressWarnings("unchecked")
-	private List<CategorizedCredentialsData> getCategorizedTargetCredentials(long userId, boolean onlyPubliclyVisible,
-                                                                             UserLearningProgress progress)
+	private List<TargetCredentialData> getTargetCredentialsData(long userId, boolean sortByCategory, boolean loadNumberOfAssessments, UserLearningProgress progress)
 			throws DbConnectionException {
-		List<TargetCredentialData> targetCredentials = getTargetCredentials(userId, onlyPubliclyVisible, true, true, progress);
-		return credentialFactory.groupCredentialsByCategory(targetCredentials);
+		try {
+			List<TargetCredentialData> resultList = new ArrayList<>();
+			List<TargetCredential1> result = getTargetCredentials(userId, sortByCategory, loadNumberOfAssessments, progress);
+
+			for (TargetCredential1 targetCredential1 : result) {
+				int numberOfAssessments = 0;
+				if (loadNumberOfAssessments) {
+					numberOfAssessments = assessmentManager.getNumberOfApprovedAssessmentsForUserCredential(targetCredential1.getId());
+				}
+				TargetCredentialData targetCredentialData = new TargetCredentialData(targetCredential1, sortByCategory ? targetCredential1.getCredential().getCategory() : null, numberOfAssessments);
+				resultList.add(targetCredentialData);
+			}
+
+			return resultList;
+		} catch (DbConnectionException e) {
+			logger.error("error", e);
+			throw e;
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error loading target credentials");
+		}
 	}
 
-	private List<TargetCredentialData> getTargetCredentials(long userId, boolean onlyPubliclyVisible,
-														    boolean sortByCategory, boolean loadNumberOfAssessments, UserLearningProgress progress)
+	@Override
+	@Transactional(readOnly = true)
+	public List<CredentialIdData> getCompletedCredentialsBasicDataForCredentialsNotAddedToProfile(long userId) {
+		try {
+			List<TargetCredential1> credentials = getTargetCredentialsNotAddedToProfile(userId, UserLearningProgress.COMPLETED);
+			List<CredentialIdData> result = new ArrayList<>();
+			for (TargetCredential1 tc : credentials) {
+				result.add(new CredentialIdData(tc.getId(), tc.getCredential().getTitle(), tc.getCredential().getDeliveryOrder(), false));
+			}
+			return result;
+		} catch (DbConnectionException e) {
+			logger.error("error", e);
+			throw e;
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error loading user credentials");
+		}
+	}
+
+	private List<TargetCredential1> getTargetCredentialsNotAddedToProfile(long userId, UserLearningProgress progress)
 			throws DbConnectionException {
 		try {
 			String query =
 					"SELECT targetCredential1 " +
-							"FROM TargetCredential1 targetCredential1 " +
-							"INNER JOIN fetch targetCredential1.credential cred ";
+					"FROM TargetCredential1 targetCredential1 " +
+					"INNER JOIN fetch targetCredential1.credential cred " +
+					"WHERE targetCredential1.user.id = :userid ";
+
+			switch (progress) {
+				case COMPLETED:
+					query += "AND targetCredential1.progress = 100 ";
+					break;
+				case IN_PROGRESS:
+					query += "AND targetCredential1.progress < 100 ";
+					break;
+				default:
+					break;
+			}
+
+			query += "AND not exists (SELECT conf.id FROM CredentialProfileConfig conf WHERE conf.targetCredential.id = targetCredential1)";
+			query += "ORDER BY cred.title";
+
+			return (List<TargetCredential1>) persistence.currentManager()
+					.createQuery(query)
+					.setLong("userid", userId)
+					.list();
+		} catch (DbConnectionException e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error loading target credentials");
+		}
+	}
+
+	private List<TargetCredential1> getTargetCredentials(long userId, boolean sortByCategory, boolean loadNumberOfAssessments, UserLearningProgress progress)
+			throws DbConnectionException {
+		try {
+			String query =
+					"SELECT targetCredential1 " +
+					"FROM TargetCredential1 targetCredential1 " +
+					"INNER JOIN fetch targetCredential1.credential cred ";
 
 			if (sortByCategory) {
 				query += "LEFT JOIN fetch cred.category cat ";
@@ -1696,67 +1770,15 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					break;
 			}
 
-			if (onlyPubliclyVisible) {
-				query += " AND targetCredential1.hiddenFromProfile = false ";
-			}
-
 			query += "ORDER BY " + (sortByCategory ? "cat.title, " : "") + " cred.title";
 
-			List<TargetCredentialData> resultList = new ArrayList<>();
-
-			List<TargetCredential1> result = persistence.currentManager()
+			return (List<TargetCredential1>) persistence.currentManager()
 					.createQuery(query)
 					.setLong("userid", userId)
 					.list();
-
-			for(TargetCredential1 targetCredential1 : result) {
-				int numberOfAssessments = 0;
-				if (loadNumberOfAssessments) {
-					numberOfAssessments = assessmentManager.getNumberOfApprovedAssessmentsForUserCredential(targetCredential1.getId());
-				}
-				TargetCredentialData targetCredentialData = new TargetCredentialData(targetCredential1, sortByCategory ? targetCredential1.getCredential().getCategory() : null, numberOfAssessments);
-				resultList.add(targetCredentialData);
-			}
-
-			return resultList;
 		} catch (DbConnectionException e) {
 			logger.error("Error", e);
 			throw new DbConnectionException("Error loading target credentials");
-		}
-	}
-
-	@Override
-	@SuppressWarnings("unchecked")
-	@Transactional(readOnly = true)
-	public List<CategorizedCredentialsData> getAllCompletedCredentials(long userId, boolean onlyPubliclyVisible) throws DbConnectionException {
-		return getCategorizedTargetCredentials(userId, onlyPubliclyVisible, UserLearningProgress.COMPLETED);
-	}
-
-	@SuppressWarnings({"unchecked"})
-	@Override
-	@Transactional(readOnly = true)
-	public List<CategorizedCredentialsData> getAllInProgressCredentials(long userid, boolean onlyPubliclyVisible) throws DbConnectionException {
-		return getCategorizedTargetCredentials(userid, onlyPubliclyVisible, UserLearningProgress.IN_PROGRESS);
-	}
-
-	@Override
-	@Transactional(readOnly = false)
-	public void updateHiddenTargetCredentialFromProfile(long credId, boolean hiddenFromProfile)
-			throws DbConnectionException {
-		try {
-			String query =
-					"UPDATE TargetCredential1 targetCredential " +
-							"SET targetCredential.hiddenFromProfile = :hiddenFromProfile " +
-							"WHERE targetCredential.id = :credId ";
-
-			persistence.currentManager()
-					.createQuery(query)
-					.setLong("credId", credId)
-					.setBoolean("hiddenFromProfile", hiddenFromProfile)
-					.executeUpdate();
-		} catch (Exception e) {
-			logger.error(e);
-			throw new DbConnectionException("Error while updating hiddenFromProfile field of a credential " + credId);
 		}
 	}
 
@@ -2773,23 +2795,23 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 	@Override
 	@Transactional(readOnly = true)
-	public RestrictedAccessResult<List<CredentialData>> getCredentialDeliveriesWithAccessRights(long credId, long userId, CredentialDeliverySortOption sortOption,
+	public RestrictedAccessResult<List<CredentialData>> getCredentialDeliveriesWithAccessRights(long credId, long userId, SortOrder<CredentialDeliverySortOption> sortOrder,
 																								CredentialSearchFilterManager filter ) throws DbConnectionException {
-		List<CredentialData> credentials = getDeliveries(credId, false, sortOption, filter);
+		List<CredentialData> credentials = getDeliveries(credId, false, sortOrder, filter);
 		ResourceAccessRequirements req = ResourceAccessRequirements.of(AccessMode.MANAGER)
 				.addPrivilege(UserGroupPrivilege.Edit);
 		ResourceAccessData access = getResourceAccessData(credId, userId, req);
 		return RestrictedAccessResult.of(credentials, access);
 	}
 
-	private List<CredentialData> getDeliveries(long credId, boolean onlyOngoing, CredentialDeliverySortOption sortOption, CredentialSearchFilterManager filter)
+	private List<CredentialData> getDeliveries(long credId, boolean onlyOngoing, SortOrder<CredentialDeliverySortOption> sortOrder, CredentialSearchFilterManager filter)
 			throws DbConnectionException {
 		try {
 			StringBuilder query = new StringBuilder(
-					"SELECT del " +
-							"FROM Credential1 del " +
-							"WHERE del.type = :type " +
-							"AND del.deliveryOf.id = :credId ");
+				"SELECT del " +
+				   "FROM Credential1 del " +
+				   "WHERE del.type = :type " +
+				   "AND del.deliveryOf.id = :credId ");
 
 			if (onlyOngoing) {
 				query.append("AND (del.deliveryStart IS NOT NULL AND del.deliveryStart <= :now " +
@@ -2802,18 +2824,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				query.append(" AND del.archived IS TRUE");
 			}
 
-			String dateStartedSortOption = "del.deliveryStart " + (CredentialDeliverySortOption.DATE_STARTED.getSortOrder() == SortingOption.ASC ? "ASC" : "DESC");
-			String titleSortOption = "del.title " + (CredentialDeliverySortOption.ALPHABETICALLY.getSortOrder() == SortingOption.ASC ? "ASC" : "DESC");
-			String sort = null;
-			switch (sortOption) {
-				case DATE_STARTED:
-					sort = dateStartedSortOption + ", " + titleSortOption;
-					break;
-				case ALPHABETICALLY:
-					sort = titleSortOption + ", " + dateStartedSortOption;
-					break;
-			}
-			query.append(" ORDER BY " + sort);
+			query.append(" " + getDeliveryOrderByClause(sortOrder, "del"));
 
 			Query q = persistence.currentManager()
 					.createQuery(query.toString())
@@ -2851,8 +2862,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			studentsWhoCanLearnCount = userGroupManager.countCredentialVisibilityUsers(d.getId(), UserGroupPrivilege.Learn);
 			groupsThatCanLearnCount = userGroupManager.countCredentialUserGroups(d.getId(), UserGroupPrivilege.Learn);
 		}
-		deliveryData.setStudentsWhoCanLearn(new LazyInitData<>(studentsWhoCanLearnCount));
-		deliveryData.setGroupsThatCanLearn(new LazyInitData<>(groupsThatCanLearnCount));
+		deliveryData.setStudentsWhoCanLearn(new LazyInitCollection<>(studentsWhoCanLearnCount));
+		deliveryData.setGroupsThatCanLearn(new LazyInitCollection<>(groupsThatCanLearnCount));
 	}
 
 	@Override
@@ -3292,7 +3303,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<CredentialData> getCredentialDeliveriesForUserWithInstructPrivilege(long userId, CredentialDeliverySortOption sortOption)
+	public List<CredentialData> getCredentialDeliveriesForUserWithInstructPrivilege(long userId, SortOrder<CredentialDeliverySortOption> sortOrder)
 			throws DbConnectionException {
 		try {
 			/*
@@ -3309,18 +3320,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					"WITH instructor.user.id = :userId " +
 					"WHERE del.type = :type ";
 
-			String dateStartedSortOption = "del.deliveryStart " + (CredentialDeliverySortOption.DATE_STARTED.getSortOrder() == SortingOption.ASC ? "ASC" : "DESC");
-			String titleSortOption = "del.title " + (CredentialDeliverySortOption.ALPHABETICALLY.getSortOrder() == SortingOption.ASC ? "ASC" : "DESC");
-			String sort = null;
-			switch (sortOption) {
-				case DATE_STARTED:
-					sort = dateStartedSortOption + ", " + titleSortOption;
-					break;
-				case ALPHABETICALLY:
-					sort = titleSortOption + ", " + dateStartedSortOption;
-					break;
-			}
-			query += "ORDER BY " + sort;
+			query += getDeliveryOrderByClause(sortOrder, "del");
 
 			@SuppressWarnings("unchecked")
 			List<Credential1> result = persistence.currentManager()
@@ -3341,6 +3341,30 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			logger.error("Error", e);
 			throw new DbConnectionException("Error while retrieving credential deliveries");
 		}
+	}
+
+	private String getDeliveryOrderByClause(SortOrder<CredentialDeliverySortOption> sortOrder, String deliveryTableAlias) {
+		if (sortOrder.isSortPresent()) {
+			List<String> orderBy = new ArrayList<>();
+			for (SortOrder.SimpleSortOrder<CredentialDeliverySortOption> so : sortOrder.getSortOrders()) {
+				String order = so.getSortOption() == SortingOption.DESC ? " DESC" : "";
+				switch (so.getSortField()) {
+					case ALPHABETICALLY:
+						orderBy.add(deliveryTableAlias + ".title " + order);
+						break;
+					case DATE_STARTED:
+						orderBy.add(deliveryTableAlias + ".deliveryStart " + order);
+						break;
+					case DELIVERY_ORDER:
+						orderBy.add(deliveryTableAlias + ".deliveryOrder " + order);
+						break;
+					default:
+						break;
+				}
+			}
+			return "order by " + String.join(", ", orderBy);
+		}
+		return "";
 	}
 
 	@Override
@@ -3963,25 +3987,25 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 
-	@Override
-	@Transactional(readOnly = true)
-	public BlindAssessmentMode getCredentialBlindAssessmentModeForAssessmentType(long credId, AssessmentType assessmentType) {
-		try {
-			String q =
-					"SELECT conf.blindAssessmentMode FROM CredentialAssessmentConfig conf " +
-					"WHERE conf.credential.id = :credId " +
-					"AND conf.assessmentType = :assessmentType";
-
-			return (BlindAssessmentMode) persistence.currentManager()
-					.createQuery(q)
-					.setLong("credId", credId)
-					.setString("assessmentType", assessmentType.name())
-					.uniqueResult();
-		} catch (Exception e) {
-			logger.error("Error", e);
-			throw new DbConnectionException("Error loading the blind assessment mode for credential");
-		}
-	}
+//	@Override
+//	@Transactional(readOnly = true)
+//	public BlindAssessmentMode getCredentialBlindAssessmentModeForAssessmentType(long credId, AssessmentType assessmentType) {
+//		try {
+//			String q =
+//					"SELECT conf.blindAssessmentMode FROM CredentialAssessmentConfig conf " +
+//					"WHERE conf.credential.id = :credId " +
+//					"AND conf.assessmentType = :assessmentType";
+//
+//			return (BlindAssessmentMode) persistence.currentManager()
+//					.createQuery(q)
+//					.setLong("credId", credId)
+//					.setString("assessmentType", assessmentType.name())
+//					.uniqueResult();
+//		} catch (Exception e) {
+//			logger.error("Error", e);
+//			throw new DbConnectionException("Error loading the blind assessment mode for credential");
+//		}
+//	}
 
 	@Override
 	@Transactional(readOnly = true)
@@ -4019,22 +4043,6 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 	@Override
 	@Transactional
-	public CredentialData getTargetCredentialDataWithEvidencesAndAssessmentCount(long credentialId, long studentId) {
-		try {
-			TargetCredential1 tc = getTargetCredentialForStudentAndCredential(credentialId, studentId, persistence.currentManager());
-			return getTargetCredentialData(credentialId, studentId,
-					CredentialLoadConfig.builder().setLoadCompetences(true).setLoadCreator(true).setLoadStudent(true).setLoadTags(true).setLoadAssessmentCount(tc.isCredentialAssessmentsDisplayed())
-							.setCompetenceLoadConfig(CompetenceLoadConfig.builder().setLoadEvidence(tc.isEvidenceDisplayed()).setLoadAssessmentCount(tc.isCompetenceAssessmentsDisplayed()).create()).create());
-		} catch (DbConnectionException e) {
-			throw e;
-		} catch (Exception e) {
-			logger.error("Error", e);
-			throw new DbConnectionException("Error in method getTargetCredentialDataWithEvidencesAndAssessmentCount");
-		}
-	}
-
-	@Override
-	@Transactional
 	public TargetCredential1 getTargetCredentialForStudentAndCredential(long credentialId, long studentId, Session session) {
 		try {
 			String q =
@@ -4048,61 +4056,6 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		} catch (Exception e) {
 			logger.error("Error", e);
 			throw new DbConnectionException("Error loading target credential");
-		}
-	}
-
-	@Override
-	@Transactional
-	public void updateCredentialAssessmentsVisibility(long targetCredentialId, boolean displayAssessments) {
-		try {
-			TargetCredential1 tc = (TargetCredential1) persistence.currentManager().load(TargetCredential1.class, targetCredentialId);
-			tc.setCredentialAssessmentsDisplayed(displayAssessments);
-		} catch (Exception e) {
-			logger.error("Error", e);
-			throw new DbConnectionException("Error updating credentialAssessmentsDisplayed field of a target credential " + targetCredentialId);
-		}
-	}
-
-	@Override
-	@Transactional
-	public void updateCompetenceAssessmentsVisibility(long targetCredentialId, boolean displayAssessments) {
-		try {
-			TargetCredential1 tc = (TargetCredential1) persistence.currentManager().load(TargetCredential1.class, targetCredentialId);
-			tc.setCompetenceAssessmentsDisplayed(displayAssessments);
-		} catch (Exception e) {
-			logger.error("Error", e);
-			throw new DbConnectionException("Error updating competenceAssessmentsDisplayed field of a target credential " + targetCredentialId);
-		}
-	}
-
-	@Override
-	@Transactional
-	public void updateEvidenceVisibility(long targetCredentialId, boolean displayEvidence) {
-		try {
-			TargetCredential1 tc = (TargetCredential1) persistence.currentManager().load(TargetCredential1.class, targetCredentialId);
-			tc.setEvidenceDisplayed(displayEvidence);
-		} catch (Exception e) {
-			logger.error("Error", e);
-			throw new DbConnectionException("Error updating evidenceDisplayed field of a target credential " + targetCredentialId);
-		}
-	}
-
-	@Override
-	@Transactional (readOnly = true)
-	public boolean isCredentialAssessmentDisplayEnabled(long credId, long studentId) {
-		try {
-			String q =
-					"SELECT tc.credentialAssessmentsDisplayed FROM TargetCredential1 tc " +
-					"WHERE tc.credential.id = :credId AND tc.user.id = :studentId";
-
-			Boolean res = (Boolean) persistence.currentManager().createQuery(q)
-					.setLong("credId", credId)
-					.setLong("studentId", studentId)
-					.uniqueResult();
-			return res != null && res.booleanValue();
-		} catch (Exception e) {
-			logger.error("Error", e);
-			throw new DbConnectionException("Error checking if credential assessment display is enabled");
 		}
 	}
 

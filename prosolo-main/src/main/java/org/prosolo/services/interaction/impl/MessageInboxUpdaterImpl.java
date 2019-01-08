@@ -1,14 +1,13 @@
 package org.prosolo.services.interaction.impl;
 
-import java.io.Serializable;
-
-import javax.servlet.http.HttpSession;
-
 import org.prosolo.common.domainmodel.messaging.Message;
 import org.prosolo.common.domainmodel.messaging.MessageThread;
 import org.prosolo.services.interaction.MessageInboxUpdater;
 import org.prosolo.web.notification.TopInboxBean;
 import org.springframework.stereotype.Service;
+
+import javax.servlet.http.HttpSession;
+import java.io.Serializable;
 
 /**
  * @author Nikola Milikic
@@ -21,24 +20,12 @@ public class MessageInboxUpdaterImpl implements MessageInboxUpdater, Serializabl
 	private static final long serialVersionUID = 344209605228225877L;
 
 	@Override
-	public void updateOnNewMessage(Message message, MessageThread messagesThread, HttpSession httpSession) {
+	public void updateOnNewMessage(HttpSession httpSession) {
 		if (httpSession != null) {
 			TopInboxBean topInboxBean = (TopInboxBean) httpSession.getAttribute("topInboxBean");
 			
 			if (topInboxBean != null) {
-				topInboxBean.addUnreadThread(messagesThread.getId());
-			}
-		}
-	}
-
-
-	@Override
-	public void addNewMessageThread(MessageThread messagesThread, HttpSession httpSession) {
-		if (httpSession != null) {
-			TopInboxBean topInboxBean = (TopInboxBean) httpSession.getAttribute("topInboxBean");
-			
-			if (topInboxBean != null) {
-				topInboxBean.addUnreadThread(messagesThread.getId());
+				topInboxBean.markMessageUnread();
 			}
 		}
 	}

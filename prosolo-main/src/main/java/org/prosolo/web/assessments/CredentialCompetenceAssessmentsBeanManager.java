@@ -5,6 +5,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
+import org.prosolo.common.domainmodel.credential.BlindAssessmentMode;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.assessment.AssessmentManager;
@@ -43,7 +44,7 @@ import java.util.stream.Collectors;
 @ManagedBean(name = "credentialCompetenceAssessmentsBeanManager")
 @Component("credentialCompetenceAssessmentsBeanManager")
 @Scope("view")
-public class CredentialCompetenceAssessmentsBeanManager implements Serializable, Paginable {
+public class CredentialCompetenceAssessmentsBeanManager implements AssessmentCommentsAware, Serializable, Paginable {
 
 	private static final long serialVersionUID = 3547469761666767275L;
 
@@ -187,6 +188,7 @@ public class CredentialCompetenceAssessmentsBeanManager implements Serializable,
 		return 0;
 	}
 
+	@Override
 	public List<AssessmentDiscussionMessageData> getCurrentAssessmentMessages() {
 		if (currentResType == null) {
 			return null;
@@ -196,6 +198,20 @@ public class CredentialCompetenceAssessmentsBeanManager implements Serializable,
 				return activityAssessmentBean.getActivityAssessmentData().getActivityDiscussionMessageData();
 			case COMPETENCE:
 				return competenceAssessmentBean.getCompetenceAssessmentData().getMessages();
+		}
+		return null;
+	}
+
+	@Override
+	public BlindAssessmentMode getCurrentBlindAssessmentMode() {
+		if (currentResType == null) {
+			return null;
+		}
+		switch (currentResType) {
+			case ACTIVITY:
+				return activityAssessmentBean.getActivityAssessmentData().getCompAssessment().getBlindAssessmentMode();
+			case COMPETENCE:
+				return competenceAssessmentBean.getCompetenceAssessmentData().getBlindAssessmentMode();
 		}
 		return null;
 	}
@@ -226,6 +242,7 @@ public class CredentialCompetenceAssessmentsBeanManager implements Serializable,
 		return 0;
 	}
 
+	@Override
 	public LearningResourceAssessmentBean getCurrentAssessmentBean() {
 		if (currentResType == null) {
 			return null;
@@ -415,9 +432,11 @@ public class CredentialCompetenceAssessmentsBeanManager implements Serializable,
 		List<CompetenceAssessmentData> competenceAssessmentData = assessmentsSummary.getAssessments().getFoundNodes();
 		if (CollectionUtils.isNotEmpty(competenceAssessmentData)) {
 			for (CompetenceAssessmentData comp : competenceAssessmentData) {
-				for (ActivityAssessmentData act : comp.getActivityAssessmentData()) {
-					if (encodedActivityDiscussionId.equals(act.getEncodedActivityAssessmentId())) {
-						return Optional.of(act);
+				if (comp.getActivityAssessmentData() != null) {
+					for (ActivityAssessmentData act : comp.getActivityAssessmentData()) {
+						if (encodedActivityDiscussionId.equals(act.getEncodedActivityAssessmentId())) {
+							return Optional.of(act);
+						}
 					}
 				}
 			}

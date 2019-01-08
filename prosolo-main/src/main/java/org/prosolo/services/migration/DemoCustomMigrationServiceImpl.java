@@ -21,8 +21,10 @@ import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.data.credential.CredentialData;
 import org.prosolo.services.nodes.data.organization.OrganizationData;
 import org.prosolo.services.nodes.data.ResourceVisibilityMember;
-import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.user.data.UserData;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
+import org.prosolo.services.user.UserGroupManager;
+import org.prosolo.services.user.UserManager;
 import org.prosolo.services.util.roles.SystemRoleNames;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -111,7 +113,7 @@ public class DemoCustomMigrationServiceImpl extends AbstractManagerImpl implemen
 
             // Create Teaching Innovation Unit unit
             Unit unitTeachingInnovation = unitManager.createNewUnitAndGetEvents("Teaching Innovation Unit ", orgUniSa.getId(),
-                    0, UserContextData.of(userGrahamHardy.getId(), orgUniSa.getId(), null, null)).getResult();
+                    0, UserContextData.of(userGrahamHardy.getId(), orgUniSa.getId(), null, null, null)).getResult();
 
 
             // loading all users from the db
@@ -257,7 +259,7 @@ public class DemoCustomMigrationServiceImpl extends AbstractManagerImpl implemen
     private Result<Credential1> createOriginalCredentialFromDelivery(long deliveryId, long orgId) throws Exception {
         CredentialData lastDeliveryData = credManager.getCredentialData(deliveryId, true, false, false, true, 0, AccessMode.MANAGER);
         //save original credential based on the last delivery
-        Result<Credential1> res = credManager.saveNewCredentialAndGetEvents(lastDeliveryData, UserContextData.of(lastDeliveryData.getCreator().getId(), orgId, null, null));
+        Result<Credential1> res = credManager.saveNewCredentialAndGetEvents(lastDeliveryData, UserContextData.of(lastDeliveryData.getCreator().getId(), orgId, null, null, null));
         //propagate edit privileges from last delivery to original credential
         res.appendEvents(copyEditPrivilegesFromDeliveryToOriginal(orgId, deliveryId, res.getResult().getId()));
         persistence.currentManager().flush();

@@ -1,6 +1,6 @@
 package org.prosolo.services.interaction.data;
 
-import org.prosolo.services.util.SortingOption;
+import org.prosolo.services.common.data.SortingOption;
 
 public enum CommentSortOption {
 

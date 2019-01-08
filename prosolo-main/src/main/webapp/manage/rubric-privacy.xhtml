@@ -37,7 +37,7 @@
         <div class="container">
             <ol class="breadcrumb">
                 <li><h:link value="#{msg['label.rubric.plural']}" outcome="/manage/rubricLibrary"></h:link></li>
-                <li class="active">#{rubricPrivacyBean.rubricName}</li>
+                <li class="active">#{util:shortenAndAddDots(rubricPrivacyBean.rubricName)}</li>
             </ol>
         </div>
 

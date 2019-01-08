@@ -2,6 +2,7 @@ package org.prosolo.web.util.style;
 
 import org.prosolo.common.domainmodel.content.ImageSize;
 import org.prosolo.common.domainmodel.user.notifications.NotificationType;
+import org.prosolo.common.domainmodel.user.socialNetworks.SocialNetworkName;
 import org.prosolo.common.util.Pair;
 import org.prosolo.services.assessment.data.grading.AssessmentGradeSummary;
 import org.prosolo.services.assessment.data.grading.GradeData;
@@ -132,7 +133,7 @@ public class StyleUtilBean implements Serializable {
 			case "odt":
 			case "rtf":
 			case "pdf":
-				return "evidenceText";
+				return "evidenceDoc";
 			case "jpg":
 			case "jpeg":
 			case "png":
@@ -160,7 +161,7 @@ public class StyleUtilBean implements Serializable {
 			case "7z":
 				return "evidenceArchive";
 			default:
-				return "evidenceDoc";
+				return "evidenceLink";
 		}
 	}
 
@@ -204,6 +205,33 @@ public class StyleUtilBean implements Serializable {
 		}
 
 		return "";
+	}
+
+	public String getGradePercentage(AssessmentGradeSummary assessmentGradeSummary) {
+		if (assessmentGradeSummary == null) {
+			return "";
+		}
+		return Math.round((assessmentGradeSummary.getGrade() * 100.0) / assessmentGradeSummary.getOutOf()) + "%";
+	}
+
+	public String getSocialNetworkClass(SocialNetworkName socialNetwork) {
+		if (socialNetwork == null) {
+			return "";
+		}
+		switch (socialNetwork) {
+			case BLOG:
+				return "website";
+			case FACEBOOK:
+				return "facebook";
+			case GPLUS:
+				return "gplus";
+			case LINKEDIN:
+				return "linkedIn";
+			case TWITTER:
+				return "twitter";
+			default:
+				return "";
+		}
 	}
 
 }

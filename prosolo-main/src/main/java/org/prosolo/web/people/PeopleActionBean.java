@@ -136,7 +136,7 @@ public class PeopleActionBean implements Serializable {
 	}
 
 	public boolean isLoggedUserFollowingUser(long userId) {
-		if (loggedUser != null && loggedUser.isLoggedIn()) {
+		if (loggedUser != null && loggedUser.isLoggedIn() && loggedUser.getUserId() != userId) {
 			return followResourceManager.isUserFollowingUser(loggedUser.getUserId(), userId);
 		}
 		return false;

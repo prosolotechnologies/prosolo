@@ -29,6 +29,13 @@ public interface SocialNetworksManager extends AbstractManager {
 
 	SocialNetworkAccountData getSocialNetworkAccountData(long userId, SocialNetworkName socialNetworkName);
 
-	UserSocialNetworksData getUserSocialNetworkData(long userId) throws ResourceCouldNotBeLoadedException;
+	/**
+	 * Returns user social network data for given user id
+	 *
+	 * @param userId
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	UserSocialNetworksData getUserSocialNetworkData(long userId);
 
 }

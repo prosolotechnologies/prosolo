@@ -1,471 +1,494 @@
 package org.prosolo.web.messaging;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.prosolo.app.Settings;
-import org.prosolo.common.domainmodel.messaging.Message;
-import org.prosolo.common.domainmodel.messaging.MessageThread;
-import org.prosolo.common.domainmodel.messaging.ThreadParticipant;
 import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.common.event.context.data.UserContextData;
-import org.prosolo.common.web.activitywall.data.UserData;
+import org.prosolo.common.util.Pair;
+import org.prosolo.search.UserTextSearch;
+import org.prosolo.search.impl.PaginatedResult;
+import org.prosolo.search.util.users.UserScopeFilter;
+import org.prosolo.search.util.users.UserSearchConfig;
 import org.prosolo.services.interaction.MessagingManager;
+import org.prosolo.services.nodes.RoleManager;
+import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
+import org.prosolo.services.user.data.UserData;
+import org.prosolo.services.util.roles.SystemRoleNames;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.messaging.data.MessageData;
-import org.prosolo.web.messaging.data.MessagesThreadData;
+import org.prosolo.web.messaging.data.MessageThreadData;
 import org.prosolo.web.notification.TopInboxBean;
-import org.prosolo.web.search.SearchPeopleBean;
-import org.prosolo.web.useractions.data.NewPostData;
 import org.prosolo.web.util.page.PageUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
 import javax.faces.bean.ManagedBean;
-import javax.faces.context.FacesContext;
 import javax.inject.Inject;
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.*;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
  * @author "Nikola Milikic"
- *
  */
 @ManagedBean(name = "messagesBean")
 @Component("messagesBean")
 @Scope("view")
 public class MessagesBean implements Serializable {
-	
-	private static final long serialVersionUID = -7914658400194958136L;
 
-	private static Logger logger = Logger.getLogger(MessagesBean.class);
-	
-	@Inject private MessagingManager messagingManager;
-	@Inject private LoggedUserBean loggedUser;
-	@Inject private UrlIdEncoder idEncoder;
-	@Inject private ThreadPoolTaskExecutor taskExecutor;
-	@Inject private TopInboxBean topInboxBean;
-	@Autowired private SearchPeopleBean searchPeopleBean;
-	
-	protected List<UserData> receivers;
-	
-	private NewPostData messageData = new NewPostData();
-	
-	private MessagesThreadData threadData;
-	private List<MessageData> messages;
-	private String threadId;
-	private int limit = 5;
-	private boolean loadMore;
-	private long decodedThreadId;
-	//variables used for controlling component displays
-	private boolean archiveView;
-	private boolean newMessageView;
-	
-	private String messageText = "";
-	
-	private List<MessagesThreadData> messagesThreads;
-	private int messagesLimit = Settings.getInstance().config.application.notifications.topNotificationsToShow;
-	private List<Long> newMessageThreadParticipantIds = new ArrayList<>();
-	
-	private enum MessageProcessingResult {
-		OK, FORBIDDEN, ERROR, NO_MESSAGES
-	}
-	
-	public void init() {
-		messageText = "";
-		newMessageView = false;
-		newMessageThreadParticipantIds.clear();
-		decodedThreadId = idEncoder.decodeId(threadId);
-		initMessageThreadData();
-		MessageProcessingResult result = tryToInitMessages();
+    private static final long serialVersionUID = -7914658400194958136L;
 
-		if (result.equals(MessageProcessingResult.FORBIDDEN)) {
-			try {
-				PageUtil.sendToAccessDeniedPage();
-			} catch (IOException e) {
-				logger.error(e);
-			}
-		}
-	}
+    private static Logger logger = Logger.getLogger(MessagesBean.class);
 
-	private void initMessageThreadData() {
-			if (CollectionUtils.isEmpty(messagesThreads)) {
-				logger.debug("Initializing messages");
-				
-				List<MessageThread> mThreads = messagingManager.getLatestUserMessagesThreads(
-						loggedUser.getUserId(), 
-						0,messagesLimit,archiveView);
-				
-				if (mThreads != null) {
-					this.messagesThreads = messagingManager.convertMessagesThreadsToMessagesThreadData(mThreads, loggedUser.getUserId());
-				}
-			}
-	}
+    @Inject
+    private MessagingManager messagingManager;
+    @Inject
+    private LoggedUserBean loggedUser;
+    @Inject
+    private UrlIdEncoder idEncoder;
+    @Inject
+    private TopInboxBean topInboxBean;
+    @Inject
+    private RoleManager roleManager;
+    @Inject
+    private UserTextSearch userTextSearch;
+    @Inject
+    private UnitManager unitManager;
 
-	/**
-	 * DEPENDS ON initMessageThreadData, must be called after that
-	 */
-	private MessageProcessingResult tryToInitMessages() {
-		MessageThread thread = null;
-		String page = PageUtil.getPostParameter("page");
-		String context = PageUtil.getPostParameter("context");
-		page = (page != null) ? page : "messages";
-		context = (context != null) ? context : "name:messages";
-		UserContextData userContext = loggedUser.getUserContext(new PageContextData(page, context, null));
+    private List<MessageThreadData> messageThreads;
+    private MessageThreadData selectedThread;
+    private boolean selectedThreadUnread;
+    private static final int LIMIT_THREADS = 5;
+    private int pageThread = 0;
+    private boolean loadMoreThreads;
 
-		if (decodedThreadId == 0) {
-			thread = messagingManager.getLatestMessageThread(loggedUser.getUserId(), archiveView, userContext);
+    private List<MessageData> messages;
+    private String threadId;
+    private static final int LIMIT_MESSAGES = 7;
+    private int pageMessages = 0;
+    private boolean loadMoreMessages;
 
-			if (thread != null) {
-				return initializeThreadData(thread);
-			}
-			else return MessageProcessingResult.NO_MESSAGES;
-		}
+    private UserData messageRecipient;
+    //variables used for controlling component displays
+    private boolean archiveView;
+    private boolean newMessageView;
 
-		if (loggedUser != null && loggedUser.isLoggedIn()) {
-			if (decodedThreadId > 0) {
-				try {
-					thread = messagingManager.getAndMarkMessageThreadAsRead(decodedThreadId, userContext);
+    private String messageText = "";
 
-					if (thread == null || !userShouldSeeThread(thread)) {
-						logger.warn("User "+loggedUser.getUserId()+" tried to access thread with id: " + threadId +" that either does not exist, is deleted for him, or is not hisown");
-						return MessageProcessingResult.FORBIDDEN;
-					}
-					else {
-						return initializeThreadData(thread);
-					}
-				} catch (Exception e) {
-					logger.error(e);
-					return MessageProcessingResult.ERROR;
-				}
-			}
-		} else {
-			logger.info("Not logged-in user tried to open messages page with thread id: " + threadId);
-			return MessageProcessingResult.FORBIDDEN;
-		}
-		return MessageProcessingResult.OK;
-	}
+    // search related fields
+    private long loggedUserRoleId;
+    private List<Long> loggedUserUnits;
+    private String query;
+    private List<UserData> users;
+    private int userSize;
+    private int userSearchLimit = 5;
+
+    public void init() {
+        long decodedThreadId = idEncoder.decodeId(threadId);
+        loggedUserRoleId = roleManager.getRoleIdByName(SystemRoleNames.USER);
+        loggedUserUnits = unitManager.getUserUnitIdsInRole(loggedUser.getUserId(), loggedUserRoleId);
+
+        initThread(decodedThreadId);
+
+        // set hasUnreadMessages flag in TopInboxBean to false
+        topInboxBean.markMessageRead();
+    }
+
+    private void initThread(long messageThreadId) {
+        this.messageThreads = null;
+        this.selectedThread = null;
+        this.pageThread = 0;
+        this.newMessageView = false;
+        this.messages = null;
+        this.pageMessages = 0;
+        this.messageRecipient = null;
+
+        // load message threads
+        loadMessageThreads();
+
+        if (!messageThreads.isEmpty()) {
+            // if URL contained a thread id, try loading it from the db.
+            if (messageThreadId > 0) {
+                try {
+                    this.selectedThread = messagingManager.markThreadAsRead(messageThreadId, loggedUser.getUserId(), getLoggedUserContextData());
+
+                    // if the selected message thread is among the loaded threads in the sidebar, then "selectedThread" should reference that object
+                    Optional<MessageThreadData> optionalSelectedMThread = messageThreads.stream().filter(mt -> mt.getId() == messageThreadId).findAny();
+
+                    if (optionalSelectedMThread.isPresent()) {
+                        this.selectedThread = optionalSelectedMThread.get();
+                    }
+                } catch (Exception e) {
+                    logger.debug("Could not find the message thread with id " + messageThreadId + ". The first message thread will be shown.");
+                }
+            }
+
+            // if no thread id was passed in the URL, or thread id could not be loaded, open the first thread
+            if (selectedThread == null) {
+                this.selectedThread = messageThreads.get(0);
+            }
+
+            // if thread was unread, mark it as read now
+            if (!selectedThread.isReaded()) {
+                markThreadRead();
+                selectedThreadUnread = true;
+            } else {
+                selectedThreadUnread = false;
+            }
+
+            this.messageRecipient = selectedThread.getReceiver();
+
+            // load messages for the selected thread
+            loadMessages();
+        }
+    }
+
+    private void loadMessageThreads() {
+        List<MessageThreadData> loadedThreads = messagingManager.getMessageThreads(
+                loggedUser.getUserId(),
+                pageThread, LIMIT_THREADS, archiveView);
+
+        if (loadedThreads.size() > LIMIT_THREADS) {
+            loadMoreThreads = true;
+            this.messageThreads = loadedThreads.subList(0, LIMIT_THREADS);
+        } else {
+            loadMoreThreads = false;
+            this.messageThreads = loadedThreads;
+        }
+    }
+
+    private UserContextData getLoggedUserContextData() {
+        String page = PageUtil.getPostParameter("page");
+        String context = PageUtil.getPostParameter("context");
+        page = (page != null) ? page : "messages";
+        context = (context != null) ? context : "name:messages";
+        return loggedUser.getUserContext(new PageContextData(page, context, null));
+    }
+
+    public void changeThread(MessageThreadData threadData) {
+        // look into already loaded message threads
+        Optional<MessageThreadData> optionalThread = messageThreads.stream().filter(mt -> mt.getId() == threadData.getId()).findAny();
+
+        if (optionalThread.isPresent()) {
+            this.selectedThread = optionalThread.get();
+        } else {
+            this.selectedThread = messagingManager.getMessageThread(threadData.getId(), loggedUser.getUserId());
+        }
+
+        this.messageRecipient = selectedThread.getReceiver();
+
+        if (!selectedThread.isReaded()) {
+            markThreadRead();
+        }
+
+        newMessageView = false;
+        selectedThreadUnread = false;
+        pageMessages = 0;
+
+        loadMessages();
+    }
+
+    private void loadMessages() {
+        List<MessageData> unreadMessages = messagingManager.getAllUnreadMessages(selectedThread.getId(), loggedUser.getUserId());
+
+        List<MessageData> readMessages;
+
+        //if number of unread messages >= LIMIT_MESSAGES, fetch only the latest two read messages in order to show unread messages in a context.
+        if (unreadMessages.size() >= LIMIT_MESSAGES) {
+            readMessages = messagingManager.getReadMessages(selectedThread.getId(), loggedUser.getUserId(), 0, 2);
+        } else {
+            //shift standard pagination for the number of unread messages (first result must be "higher" for that number, last result must be "lower")
+            int numberOfMessagesToLoad = LIMIT_MESSAGES - unreadMessages.size();
+            readMessages = messagingManager.getReadMessages(selectedThread.getId(), loggedUser.getUserId(), 0, numberOfMessagesToLoad);
+        }
+
+        // since getReadMessages loads an additional message, we will use this information to set the loadMoreMessages flag
+        if (unreadMessages.size() >= LIMIT_MESSAGES) {
+            if (readMessages.size() > 2) {
+                loadMoreMessages = true;
+                readMessages.remove(readMessages.size() - 1);
+            } else {
+                loadMoreMessages = false;
+            }
+        } else {
+            if (unreadMessages.size() + readMessages.size() > LIMIT_MESSAGES) {
+                loadMoreMessages = true;
+                readMessages.remove(readMessages.size() - 1);
+            } else {
+                loadMoreMessages = false;
+            }
+        }
+
+        this.messages = new LinkedList<>();
+        this.messages.addAll(unreadMessages);
+        this.messages.addAll(readMessages);
+
+        // As we got the messages sorted by date DESC, now show them ASC
+        Collections.sort(messages, Comparator.comparing(MessageData::getCreated));
+    }
+
+    private void openThreadWithParticipant(UserData messageRecipient) {
+        // first search in already loaded threads
+        Optional<MessageThreadData> optionalMessageThreadData = messageThreads.stream().filter(t -> t.getParticipants().stream().anyMatch(p -> p.getId() == messageRecipient.getId())).findAny();
+
+        if (optionalMessageThreadData.isPresent()) {
+            changeThread(optionalMessageThreadData.get());
+        } else {
+            // if not found, load from the database
+            Optional<MessageThreadData> threadData = messagingManager.getMessageThreadDataForUsers(loggedUser.getUserId(), messageRecipient.getId());
+
+            if (threadData.isPresent()) {
+                this.selectedThread = threadData.get();
+            }
+
+            // if not found, then do nothing
+        }
+    }
+
+    private void markThreadRead() {
+        if (this.selectedThread != null && !selectedThread.isReaded()) {
+            // update the data objects
+            this.messageThreads.stream().filter(mt -> mt.getId() == this.selectedThread.getId()).forEach(mt -> mt.setReaded(true));
+            this.selectedThread.setReaded(true);
+
+            //save read info to database
+            messagingManager.markThreadAsRead(selectedThread.getId(), loggedUser.getUserId(), getLoggedUserContextData());
+        }
+    }
+
+    public void loadMoreThreads() {
+        pageThread++;
+
+        List<MessageThreadData> loadedThreads = messagingManager.getMessageThreads(
+                loggedUser.getUserId(),
+                pageThread, LIMIT_THREADS, archiveView);
+
+        if (loadedThreads.size() > LIMIT_THREADS) {
+            this.messageThreads.addAll(loadedThreads.subList(0, LIMIT_THREADS));
+        } else {
+            this.messageThreads.addAll(loadedThreads);
+            loadMoreThreads = false;
+        }
+    }
+
+    public void loadMoreMessages() {
+        pageMessages++;
+
+        List<MessageData> newMessages = messagingManager.getReadMessages(selectedThread.getId(), loggedUser.getUserId(), pageMessages, LIMIT_MESSAGES);
+
+        // getReadMessages returns always one more message than requested
+        if (newMessages.size() <= LIMIT_MESSAGES) {
+            loadMoreMessages = false;
+        } else {
+            newMessages.remove(newMessages.size() - 1);
+        }
+
+        // As we sorted them by date DESC, now show them ASC (so last message will be last one created)
+        Collections.sort(newMessages, Comparator.comparing(MessageData::getCreated));
+
+        this.messages.addAll(0, newMessages);
+    }
+
+    public void sendMessage() {
+        try {
+            UserContextData userContext = getLoggedUserContextData();
+
+            Pair<MessageData, MessageThreadData> result = messagingManager.sendMessageAndReturnMessageAndThread(
+                    0, loggedUser.getUserId(), messageRecipient.getId(), this.messageText, userContext);
+
+            // if the message is sent from the Archive section, then reinitialize everything as the thread has now
+            // been revoked
+            if (archiveView) {
+                setArchiveView(false);
+            } else {
+                MessageThreadData thread = result.getSecond();
+
+                // if this thread is already in the sidebar, remove it
+                this.messageThreads.removeIf(t -> t.getId() == thread.getId());
+
+                // add the thread as the first one
+                this.messageThreads.add(0, thread);
+                this.selectedThread = thread;
+                this.messages = this.selectedThread.getMessages();
+                this.archiveView = false;
+                this.newMessageView = false;
+            }
+
+            logger.debug("User " + loggedUser.getUserId() + " sent a message to thread " + selectedThread.getId() + " with content: '" + this.messageText + "'");
+            PageUtil.fireSuccessfulInfoMessage("messagesFormGrowl", "Your message is sent");
+
+            this.messageText = null;
+
+            // if selected thread is marked as unread, mark it as read
+            this.selectedThreadUnread = false;
+        } catch (Exception e) {
+            logger.error("Exception while sending message", e);
+            PageUtil.fireErrorMessage("There was an error sending the message");
+        }
+    }
+
+    public void setNewMessageView(boolean newMessageView) {
+        this.newMessageView = newMessageView;
+
+        if (newMessageView) {
+            resetSearch();
+        }
+        this.messageText = null;
+        this.selectedThread = null;
+        this.messageRecipient = null;
+        this.loadMoreMessages = false;
+        this.pageMessages = 0;
+    }
+
+    public void setArchiveView(boolean archiveView) {
+        this.archiveView = archiveView;
+        pageThread = 0;
+        initThread(-1);
+    }
+
+    public void archiveSelectedThread() {
+        messagingManager.updateArchiveStatus(selectedThread.getId(), loggedUser.getUserId(), true);
+        initThread(-1);
+
+        PageUtil.fireSuccessfulInfoMessage("Conversation is archived");
+    }
+
+    public void revokeFromArchiveSelectedThread() {
+        messagingManager.updateArchiveStatus(selectedThread.getId(), loggedUser.getUserId(), false);
+        this.archiveView = false;
+        initThread(selectedThread.getId());
+
+        PageUtil.fireSuccessfulInfoMessage("Conversation is revoked from the Archive");
+    }
+
+    public void deleteCurrentThread() {
+        messagingManager.markThreadDeleted(selectedThread.getId(), loggedUser.getUserId());
+        initThread(-1);
+    }
+
+    /*
+     * Search related methods
+     */
+    public void search() {
+        if (query.isEmpty()) {
+            this.userSize = 0;
+            this.users = null;
+            return;
+        }
+
+        List<Long> excludeUsers = new ArrayList<>();
+        excludeUsers.add(loggedUser.getUserId());
+
+        UserSearchConfig searchConfig = UserSearchConfig.of(
+                UserSearchConfig.UserScope.ORGANIZATION, UserScopeFilter.USERS_UNITS, loggedUserRoleId, loggedUserUnits);
+
+        PaginatedResult<UserData> usersResponse = userTextSearch.searchUsersWithFollowInfo(
+                loggedUser.getOrganizationId(), query, -1, userSearchLimit, loggedUser.getUserId(), searchConfig);
+
+        if (usersResponse != null) {
+            this.userSize = (int) usersResponse.getHitsNumber();
+            this.users = usersResponse.getFoundNodes();
+        } else {
+            this.userSize = 0;
+        }
+    }
+
+    public void resetSearch() {
+        users = new ArrayList<>();
+        query = "";
+        userSize = 0;
+    }
 
 
-	private MessageProcessingResult initializeThreadData(MessageThread thread) {
-		this.threadData = new MessagesThreadData(thread, loggedUser.getUserId());
-		this.receivers = threadData.getParticipants();
-		
-		if (!threadData.containsParticipant(loggedUser.getUserId())) {
-			logger.info("User "+loggedUser.getUserId()+" doesn't have permisisons to view messages thread with id " + threadId);
-			return MessageProcessingResult.FORBIDDEN;
-		} else {
-			this.messages = new LinkedList<MessageData>();
-			loadMessages();
-		}
-		return MessageProcessingResult.OK;
-	}
-	
-	public void changeThread(MessagesThreadData threadData) {
-		MessageThread thread = null;
-		try {
-			String page = PageUtil.getPostParameter("page");
-			String context = PageUtil.getPostParameter("context");
-			page = (page != null) ? page : "messages";
-			context = (context != null) ? context : "name:messages";
-			UserContextData userContext = loggedUser.getUserContext(new PageContextData(page, context, null));
-			//if we were on "newView", set it to false so we do not see user dropdown (no need for full init())
-			newMessageView = false;
-			thread = messagingManager.getAndMarkMessageThreadAsRead(decodedThreadId, userContext);
-			initializeThreadData(thread);
-		} catch (Exception e) {
-			logger.error(e);
-			PageUtil.fireErrorMessage("There was an error with loading this cnversation");
-		}
-	}
+    /*
+     * GETTERS / SETTERS
+     */
 
-	private void loadMessages() {
-		ThreadParticipant userParticipent = messagingManager.findParticipation(threadData.getId(),loggedUser.getUserId());
-		if(!userParticipent.isDeleted()) {
-			List<Message> unreadMessages = messagingManager.getUnreadMessages(threadData.getId(), userParticipent.getLastReadMessage(), userParticipent.getShowMessagesFrom());
-			List<Message> readMessages = new ArrayList<>();
-			//if number of unread messages >= limit, pull 2 already read ones and join them with new ones
-			if (unreadMessages.size() >= limit) {
-				readMessages = messagingManager.getMessagesBeforeMessage(threadData.getId(),userParticipent.getLastReadMessage(),2, userParticipent.getShowMessagesFrom());
-			}
-			else {
-				//shift standard pagination for the number of unread messages (first result must be "higher" for that number, last result must be "lower")
-				int startOffset = messages.size();
-				int endOffset = limit - unreadMessages.size();
-				readMessages = messagingManager.getMessagesForThread(threadData.getId(), startOffset, endOffset,userParticipent.getShowMessagesFrom());
-			}
-			processMessageData(unreadMessages,readMessages);
-			if(!archiveView) {
-				markThreadRead();
-			}
-		}
-		else {
-			logger.warn("User "+loggedUser.getUserId()+" tried to access thread with id: " + threadId +" that is deleted for him");
-		}
-		
-	}
+    public String getThreadId() {
+        return threadId;
+    }
 
-	private void markThreadRead() {
-		//save read info to database
-		messagingManager.markThreadAsRead(threadData.getId(), loggedUser.getUserId());
-		//only mark t read in session if DB operation was a success
-		topInboxBean.markThreadRead(threadData.getId());
-		//mark current thread read
-		for(MessagesThreadData messageThreadData : messagesThreads) {
-			if(messageThreadData.getId() == threadData.getId()) {
-				messageThreadData.setReaded(true);
-			}
-		}
-		threadData.setReaded(true);
-	}
+    public void setThreadId(String threadId) {
+        this.threadId = threadId;
+    }
 
-	private void processMessageData(List<Message> unreadMessages, List<Message> readMessages) {
-		
-		//getMessagesForThread always returns one more message than what we asked, so it serves to set the flag
-		if((readMessages.size() + unreadMessages.size()) > limit) {
-			loadMore = true;
-		}
-		else {
-			loadMore = false;
-		}
-		
-		//as getMessagesForThread fetches one more than what we asked for (for setting the flag), but just one when there is one
-		removeOverlappingmessages(unreadMessages, readMessages);
-		
-		for (Message message : unreadMessages) {
-			this.messages.add(new MessageData(message, loggedUser.getUserId(), false));
-		}
-		for (Message message : readMessages) {
-			this.messages.add(new MessageData(message, loggedUser.getUserId(), true));
-		}
-		//As we sorted them by date DESC, now show them ASC (so last message will be last one created)
-		Collections.sort(messages,(a,b) -> a.getCreated().compareTo(b.getCreated()));
-	}
+    public MessageThreadData getSelectedThread() {
+        return selectedThread;
+    }
 
+    public List<MessageThreadData> getMessageThreads() {
+        return messageThreads;
+    }
 
-	public void sendMessage(){
-		try {
-			//TODO what is the context?
-			Message message = null;
-			String page = PageUtil.getPostParameter("page");
-			String context = PageUtil.getPostParameter("context");
-			page = (page != null) ? page : "messages";
-			context = (context != null) ? context : "name:messages";
-			UserContextData userContext = loggedUser.getUserContext(new PageContextData(page, context, null));
+    public boolean isLoadMoreThreads() {
+        return loadMoreThreads;
+    }
 
-			if(CollectionUtils.isNotEmpty(newMessageThreadParticipantIds)) {
-				//new recipients have been set, send message to them (and create or re-use existing thread)
-				message = messagingManager.sendMessageParticipantsSet(loggedUser.getUserId(), newMessageThreadParticipantIds.get(0),
-						messageText, userContext); //single recipient, for now
-				initializeThreadData(message.getMessageThread());
-			}
-			else {
-				//no recipients set, assume current thread is used
-				messagingManager.sendMessages(loggedUser.getUserId(),
-						threadData.getParticipants(), messageText, threadData.getId(), "", userContext);
-			}
-			//at this point, threadData is initialized (either through init method, or now, by sending very first message)
-			logger.debug("User "+loggedUser.getUserId()+" sent a message to thread " + threadData.getId()+ " with content: '"+this.messageText+"'");
-			PageUtil.fireSuccessfulInfoMessage("messagesFormGrowl", "Your message is sent");
-			//set archived to false, as sending message unarchives thread
-			archiveView = false;
-			//reset message data, so we can re-fetch messages and messages threads
-			messagesThreads = null;
-			init();
-		} catch (Exception e) {
-			logger.error("Exception while sending message", e);
-		}
-	}
-	
-	public void setupNewMessageThreadRecievers() {
-		Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
-		String ids = params.get("newThreadRecipients");
-		if(StringUtils.isBlank(ids)){
-			logger.error("User "+loggedUser.getUserId()+" tried to send message with empty recipient list");
-			PageUtil.fireErrorMessage("messagesFormGrowl", "Unable to send message");
-		}
-		else {
-			newMessageThreadParticipantIds = getRecieverIdsFromParameters(ids);
+    public List<MessageData> getMessages() {
+        return messages;
+    }
 
-		}
-	}
+    public List<MessageData> getReadMessages() {
+        return messages != null ? messages.stream().filter(msg -> msg.isReaded()).collect(Collectors.toList()) : null;
+    }
 
-	private List<Long> getRecieverIdsFromParameters(String ids) {
-		return Arrays.stream(ids.split(",")).map(Long::valueOf).collect(Collectors.toList());
-	}
+    public List<MessageData> getUnreadMessages() {
+        return messages != null ? messages.stream().filter(msg -> !msg.isReaded()).collect(Collectors.toList()) : null;
+    }
 
-	public void loadMore() {
-		loadMessages();
-	}
-	
-	
-	public void addMessage(Message message) {
-		messages.add(new MessageData(message, loggedUser.getUserId()));
-	}
-	
-	/*
-	 * GETTERS / SETTERS
-	 */
-	
-	public String getThreadId() {
-		return threadId;
-	}
+    public boolean isLoadMoreMessages() {
+        return loadMoreMessages;
+    }
 
-	public void setThreadId(String threadId) {
-		this.threadId = threadId;
-	}
+    public String getMessageText() {
+        return messageText;
+    }
 
-	public NewPostData getMessageData() {
-		return messageData;
-	}
-	
-	public List<MessageData> getMessages() {
-		return messages;
-	}
+    public void setMessageText(String messageText) {
+        this.messageText = messageText;
+    }
 
-	public boolean isLoadMore() {
-		return loadMore;
-	}
+    public boolean isArchiveView() {
+        return archiveView;
+    }
 
-	public MessagesThreadData getThreadData() {
-		return threadData;
-	}
-	
-	public List<MessageData> getReadMessages() {
-		return getMessagesCoditionaly((msg) -> msg.isReaded());
-	}
-	
-	public List<MessageData> getUnreadMessages() {
-		return getMessagesCoditionaly((msg) -> !msg.isReaded());
-	}
-	
-	public List<MessageData> getMessagesCoditionaly(Predicate<MessageData> predicate) {
-		return messages.stream().filter(predicate).collect(Collectors.toList());
-	}
-	
-	/*
-	 * GETTERS / SETTERS from TopInboxBean
-	 */
-	
-	public String getMessageText() {
-		return messageText;
-	}
+    public boolean isNewMessageView() {
+        return newMessageView;
+    }
 
-	public void setMessageText(String messageText) {
-		this.messageText = messageText;
-	}
-	
-	
-	
-//	public void logInboxServiceUse(){
-//		loggingNavigationBean.logServiceUse(
-//				ComponentName.INBOX,
-//				"action",  "openInbox",
-//				"numberOfUnreadThreads", String.valueOf(this.unreadThreadsNo));
-//	}
+    public UserData getMessageRecipient() {
+        return messageRecipient;
+    }
 
-	public List<Long> getNewMessageThreadParticipantIds() {
-		return newMessageThreadParticipantIds;
-	}
+    public void setMessageRecipient(UserData messageRecipient) {
+        this.messageRecipient = messageRecipient;
+        this.newMessageView = false;
 
-	public void setNewMessageThreadParticipantIds(List<Long> newMessageThreadParticipantIds) {
-		this.newMessageThreadParticipantIds = newMessageThreadParticipantIds;
-	}
+        resetSearch();
 
-	public TopInboxBean getTopInboxBean() {
-		return topInboxBean;
-	}
+        this.selectedThread = null;
+        this.messages = null;
 
-	public void setTopInboxBean(TopInboxBean topInboxBean) {
-		this.topInboxBean = topInboxBean;
-	}
+        openThreadWithParticipant(messageRecipient);
+    }
 
-	public List<MessagesThreadData> getMessagesThreads() {
-		return messagesThreads;
-	}
+    public String getQuery() {
+        return query;
+    }
 
-	public boolean isArchiveView() {
-		return archiveView;
-	}
-	
-	public boolean isNewMessageView() {
-		return newMessageView;
-	}
+    public void setQuery(String query) {
+        this.query = query;
+    }
 
-	public void setNewMessageView(boolean newMessageView) {
-		this.newMessageView = newMessageView;
-		
-		if (newMessageView) {
-			searchPeopleBean.resetSearch();
-		}
-	}
+    public List<UserData> getUsers() {
+        return users;
+    }
 
-	public void setArchiveView(boolean archiveView) {
-		this.archiveView = archiveView;
-		messagesThreads = null;
-		init();
-	}
-	
-	public void increaseLimit() {
-		this.limit += 5;
-		init();
-	}
-	
-	public void resetLimit() {
-		this.limit = 5;
-		init();
-	}
-	
-	public void archiveCurrentThread() {
-		messagesThreads = null;
-		messagingManager.archiveThread(threadData.getId(), loggedUser.getUserId());
-		init();
-	}
-	
-	public void deleteCurrentThread() {
-		messagesThreads = null;
-		messagingManager.markThreadDeleted(threadData.getId(), loggedUser.getUserId());
-		init();
-	}
-	
-	private boolean userShouldSeeThread(MessageThread thread) {
-		ThreadParticipant userParticipent = thread.getParticipant(loggedUser.getUserId());
-		return userParticipent != null && !(userParticipent.isDeleted());
-	}
-	
-	private void removeOverlappingmessages(List<Message> unreadMessages, List<Message> readMessages) {
-		for(Message unreadMessage : unreadMessages) {
-			Message overlappingMessage = findById(unreadMessage.getId(), readMessages);
-			if(overlappingMessage != null) {
-				removeById(unreadMessage.getId(), readMessages);
-			}
-		}
-	}
+    public int getUserSize() {
+        return userSize;
+    }
 
-	private void removeById(long id, List<Message> messages) {
-		Iterator<Message> iterator = messages.iterator();
-		while(iterator.hasNext()) {
-			Message message = iterator.next();
-			if(message.getId()==id) {
-				iterator.remove();
-				break;
-			}
-		}
-		
-	}
-
-	private Message findById(long id, List<Message> messages) {
-		for(Message message : messages) {
-			if(message.getId()==id){
-				return message;
-			}
-		}
-		return null;
-	}	
+    public boolean isSelectedThreadUnread() {
+        return selectedThreadUnread;
+    }
 }

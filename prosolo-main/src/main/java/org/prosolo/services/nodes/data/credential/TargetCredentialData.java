@@ -9,7 +9,7 @@ import java.io.Serializable;
 
 /**
  * 
- * @author "Musa Paljos"
+ * @author Nikola Milikic
  *
  */
 public class TargetCredentialData implements Serializable {
@@ -19,12 +19,10 @@ public class TargetCredentialData implements Serializable {
 	private Long id;
 	private String description;
 	private String title;
-	private boolean hiddenFromProfile;
 	private long duration = 0l;
 	private String durationString;
 	private long credentialId;
 	private int progress;
-	private boolean assessmentDisplayEnabled;
 	//category
 	private CredentialCategoryData category;
 	private CredentialData credential;
@@ -45,7 +43,6 @@ public class TargetCredentialData implements Serializable {
 		this.progress = targetCredential1.getProgress();
 		this.nextCompetenceToLearnId = targetCredential1.getNextCompetenceToLearnId();
 		this.numberOfAssessments = numberOfAssessments;
-		this.assessmentDisplayEnabled = targetCredential1.isCredentialAssessmentsDisplayed();
 		if (category != null) {
 			this.category = new CredentialCategoryData(category.getId(), category.getTitle(), false);
 		}
@@ -82,14 +79,6 @@ public class TargetCredentialData implements Serializable {
 
 	public void setTitle(String title) {
 		this.title = title;
-	}
-
-	public boolean isHiddenFromProfile() {
-		return hiddenFromProfile;
-	}
-
-	public void setHiddenFromProfile(boolean hiddenFromProfile) {
-		this.hiddenFromProfile = hiddenFromProfile;
 	}
 
 	public long getDuration() {
@@ -140,7 +129,4 @@ public class TargetCredentialData implements Serializable {
 		return numberOfAssessments;
 	}
 
-	public boolean isAssessmentDisplayEnabled() {
-		return assessmentDisplayEnabled;
-	}
 }

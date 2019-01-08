@@ -67,7 +67,7 @@ public class CredentialAssessmentApprovedEventProcessor extends AssessmentNotifi
 
 	@Override
 	protected BlindAssessmentMode getBlindAssessmentMode() {
-		return credentialManager.getCredentialBlindAssessmentModeForAssessmentType(getObjectId(), credentialAssessment.getType());
+		return credentialAssessment.getBlindAssessmentMode();
 	}
 
 	@Override

@@ -40,7 +40,7 @@ import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.config.competence.CompetenceLoadConfig;
 import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.ResourceVisibilityMember;
-import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.user.data.UserData;
 import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview1;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.credential.CredentialData;
@@ -51,6 +51,8 @@ import org.prosolo.services.nodes.data.rubrics.RubricCriterionData;
 import org.prosolo.services.nodes.data.rubrics.RubricData;
 import org.prosolo.services.nodes.data.rubrics.RubricLevelData;
 import org.prosolo.services.nodes.impl.util.EditMode;
+import org.prosolo.services.user.UserGroupManager;
+import org.prosolo.services.user.UserManager;
 import org.prosolo.services.util.roles.SystemRoleNames;
 import org.springframework.stereotype.Service;
 
@@ -647,7 +649,7 @@ public class BusinessCase5_UniSA {
 	}
 
 	private void enrollToDelivery(EventQueue events, Organization org, Credential1 delivery, User user) {
-		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CredentialManager.class).enrollInCredentialAndGetEvents(delivery.getId(), user.getId(), 0, UserContextData.of(user.getId(), org.getId(), null, null)));
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CredentialManager.class).enrollInCredentialAndGetEvents(delivery.getId(), user.getId(), 0, UserContextData.of(user.getId(), org.getId(), null, null, null)));
 	}
 
 	private void givePrivilegeToUsersOnDelivery(EventQueue events, Credential1 delivery, UserGroupPrivilege userGroupPrivilege, User actor, Organization org, List<User> students) {
@@ -661,7 +663,7 @@ public class BusinessCase5_UniSA {
 
 		events.appendEvents(ServiceLocator.getInstance().getService(CredentialManager.class).updateCredentialVisibilityAndGetEvents(
 				delivery.getId(), new LinkedList<>(), studentsToAdd,false, false,
-				UserContextData.of(actor.getId(), org.getId(), null, null)));
+				UserContextData.of(actor.getId(), org.getId(), null, null, null)));
 	}
 
 	private void givePrivilegeToGroupOnDelivery(EventQueue events, Credential1 delivery, UserGroupPrivilege userGroupPrivilege, User actor, Organization org, List<Long> groupIds) {
@@ -675,7 +677,7 @@ public class BusinessCase5_UniSA {
 
 		events.appendEvents(ServiceLocator.getInstance().getService(CredentialManager.class).updateCredentialVisibilityAndGetEvents(
 				delivery.getId(), groupsToAdd, new LinkedList<>(), false, false,
-				UserContextData.of(actor.getId(), org.getId(), null, null)));
+				UserContextData.of(actor.getId(), org.getId(), null, null, null)));
 	}
 
 	private long getDaysFromNow(int days) {
@@ -708,7 +710,7 @@ public class BusinessCase5_UniSA {
 	}
 
 	private UserContextData createUserContext(User user) {
-		return UserContextData.of(user.getId(), user.getOrganization().getId(), null, null);
+		return UserContextData.of(user.getId(), user.getOrganization().getId(), null, null, null);
 	}
 
 	private <T> T extractResultAndAddEvents(EventQueue events, Result<T> result) {
