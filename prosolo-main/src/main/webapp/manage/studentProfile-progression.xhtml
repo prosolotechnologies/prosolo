@@ -141,10 +141,11 @@
 						<ui:fragment rendered="#{not empty studentProfileBean.selectedCredential.selectedCompetence.evidences}">
 							<ui:repeat value="#{studentProfileBean.selectedCredential.selectedCompetence.evidences}" var="ev">
 								<h3 class="#{ev.type eq 'TEXT' ? 'evidenceText' : styleUtilBean.getEvidenceFileTypeIcon(ev.url)}">
-									<h:link outcome="evidence" target="_blank">
+									<h:link outcome="student-profile-evidence" target="_blank">
 										<span class="icon iconType"></span>
 										#{ev.title}
-										<f:param name="id" value="#{util:encodeId(ev.id)}"/>
+										<f:param name="studentId" value="#{param['id']}"/>
+										<f:param name="competenceEvidenceId" value="#{util:encodeId(ev.competenceEvidenceId)}"/>
 									</h:link>
 								</h3>
 							</ui:repeat>

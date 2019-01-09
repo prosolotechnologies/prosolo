@@ -73,7 +73,7 @@ public class LearningEvidenceManagerImpl extends AbstractManagerImpl implements 
             }
 
             CompetenceEvidence ce = attachEvidenceToCompetence(targetCompId, ev, evidence.getRelationToCompetence());
-            res.setResult(learningEvidenceDataFactory.getCompetenceLearningEvidenceData(ev, ce, ev.getTags(), getCompetencesWithAddedEvidence(evidence.getId()), LearningEvidenceLoadConfig.builder().loadTags(true).build()));
+            res.setResult(learningEvidenceDataFactory.getCompetenceLearningEvidenceData(ev, ce, ev.getTags(), getCompetencesWithAddedEvidence(ev.getId()), LearningEvidenceLoadConfig.builder().loadTags(true).build()));
 
             return res;
         } catch (DbConnectionException|ConstraintViolationException|DataIntegrityViolationException e) {
