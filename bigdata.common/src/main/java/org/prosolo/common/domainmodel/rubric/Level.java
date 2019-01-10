@@ -1,7 +1,6 @@
 package org.prosolo.common.domainmodel.rubric;
 
 import org.prosolo.common.domainmodel.general.BaseEntity;
-import org.prosolo.common.domainmodel.rubric.visitor.CriterionVisitor;
 import org.prosolo.common.domainmodel.rubric.visitor.LevelVisitor;
 
 import javax.persistence.*;
@@ -14,7 +13,7 @@ import java.util.Set;
  */
 
 @Entity
-@Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"title","rubric"})})
+//unique constraint added from the script
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 public class Level extends BaseEntity{
 

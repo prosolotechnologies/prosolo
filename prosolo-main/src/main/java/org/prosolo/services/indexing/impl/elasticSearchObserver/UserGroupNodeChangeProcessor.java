@@ -15,7 +15,7 @@ import org.prosolo.services.indexing.CompetenceESService;
 import org.prosolo.services.indexing.CredentialESService;
 import org.prosolo.services.indexing.UserEntityESService;
 import org.prosolo.services.indexing.UserGroupESService;
-import org.prosolo.services.nodes.UserGroupManager;
+import org.prosolo.services.user.UserGroupManager;
 
 import java.util.List;
 

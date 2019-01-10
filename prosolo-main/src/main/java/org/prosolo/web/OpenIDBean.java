@@ -5,7 +5,7 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.oauth.OpenIDAccount;
 import org.prosolo.common.domainmodel.user.oauth.OpenIDProvider;
 import org.prosolo.services.authentication.RegistrationManager;
-import org.prosolo.services.nodes.UserManager;
+import org.prosolo.services.user.UserManager;
 import org.prosolo.web.openid.OpenIdAuthenticatorFactory;
 import org.prosolo.web.openid.data.OpenIdUserInfo;
 import org.prosolo.web.openid.provider.OpenIdProvider;

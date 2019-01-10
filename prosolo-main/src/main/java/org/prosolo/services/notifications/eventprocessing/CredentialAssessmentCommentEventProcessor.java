@@ -68,7 +68,7 @@ public class CredentialAssessmentCommentEventProcessor extends AssessmentComment
 
 	@Override
 	protected BlindAssessmentMode getBlindAssessmentMode() {
-		return credentialManager.getCredentialBlindAssessmentModeForAssessmentType(credentialAssessment.getTargetCredential().getCredential().getId(), getBasicAssessmentInfo().getType());
+		return credentialAssessment.getBlindAssessmentMode();
 	}
 
 	@Override

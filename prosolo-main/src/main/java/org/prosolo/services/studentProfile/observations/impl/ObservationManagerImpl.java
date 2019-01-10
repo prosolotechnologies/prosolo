@@ -1,14 +1,5 @@
 package org.prosolo.services.studentProfile.observations.impl;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.inject.Inject;
-
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
@@ -20,13 +11,15 @@ import org.prosolo.common.domainmodel.observations.Symptom;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.services.data.Result;
-import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.interaction.MessagingManager;
 import org.prosolo.services.studentProfile.observations.ObservationManager;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.inject.Inject;
+import java.util.*;
 
 @Service("org.prosolo.services.studentProfile.observations.ObservationManager")
 public class ObservationManagerImpl extends AbstractManagerImpl implements ObservationManager {
@@ -123,15 +116,15 @@ public class ObservationManagerImpl extends AbstractManagerImpl implements Obser
             observation = saveEntity(observation);
             persistence.currentManager().evict(observation);
 
-            Map<String, Object> result = new HashMap<>();
-            result.put("observationId", observation.getId());
+            Map<String, Object> params = new HashMap<>();
+            params.put("observationId", observation.getId());
 
             if (insert && message != null && !message.isEmpty() && context.getActorId() != studentId) {
-                Message msg = msgManager.sendMessage(context.getActorId(), studentId, message);
-                result.put("message", msg);
+                msgManager.sendMessage(0, context.getActorId(), studentId, message, context);
+                params.put("message", message);
             }
 
-            Object msg = result.get("message");
+            Object msg = params.get("message");
             Result<Void> res = new Result<>();
 
             if(msg != null) {

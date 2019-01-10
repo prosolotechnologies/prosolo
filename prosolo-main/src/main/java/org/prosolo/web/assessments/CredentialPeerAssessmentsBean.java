@@ -69,7 +69,7 @@ public abstract class CredentialPeerAssessmentsBean implements Paginable, Serial
 	private void getAssessmentsFromDB() {
 		PaginatedResult<AssessmentData> res = assessmentManager.getPaginatedCredentialPeerAssessmentsForStudent(
 				decodedId, getStudentId(), new SimpleDateFormat("MMMM dd, yyyy"),
-				getAssessmentDisplayMode() == AssessmentDisplayMode.PUBLIC, (paginationData.getPage() - 1) * paginationData.getLimit(), paginationData.getLimit());
+				false, (paginationData.getPage() - 1) * paginationData.getLimit(), paginationData.getLimit());
 		paginationData.update((int) res.getHitsNumber());
 		assessments = res.getFoundNodes();
 	}
@@ -82,7 +82,7 @@ public abstract class CredentialPeerAssessmentsBean implements Paginable, Serial
 		return AssessmentUtil.isSelfAssessmentEnabled(assessmentTypesConfig);
 	}
 
-	public BlindAssessmentMode getPeerAssessmentBlindAssessmentMode() {
+	protected BlindAssessmentMode getPeerAssessmentBlindAssessmentMode() {
 		return AssessmentUtil.getBlindAssessmentMode(assessmentTypesConfig, AssessmentType.PEER_ASSESSMENT);
 	}
 

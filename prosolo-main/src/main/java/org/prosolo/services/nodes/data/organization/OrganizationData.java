@@ -1,9 +1,7 @@
 package org.prosolo.services.nodes.data.organization;
 
-import org.prosolo.common.domainmodel.learningStage.LearningStage;
 import org.prosolo.common.domainmodel.organization.Organization;
-import org.prosolo.services.nodes.data.UserData;
-import twitter4j.User;
+import org.prosolo.services.user.data.UserData;
 
 import java.io.Serializable;
 import java.util.ArrayList;

@@ -69,8 +69,7 @@ public class NotificationsSettingsManagerImpl extends AbstractManagerImpl implem
 
 			return notificationSettingsData;
 		} catch (Exception e) {
-			logger.error(e);
-			e.printStackTrace();
+			logger.error("error", e);
 			throw new DbConnectionException("Error while retrieving notification settings");
 		}
 	}

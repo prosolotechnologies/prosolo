@@ -157,7 +157,7 @@
         <listener-class>org.apache.myfaces.webapp.StartupServletContextListener</listener-class>
     </listener>
     <listener>
-        <listener-class>org.prosolo.web.SessionCountListener</listener-class>
+        <listener-class>org.springframework.security.web.session.HttpSessionEventPublisher</listener-class>
     </listener>
     <error-page>
         <exception-type>javax.faces.application.ViewExpiredException</exception-type>
@@ -206,5 +206,4 @@
         <dispatcher>INCLUDE</dispatcher>
         <dispatcher>ERROR</dispatcher>
     </filter-mapping>
-
 </web-app>

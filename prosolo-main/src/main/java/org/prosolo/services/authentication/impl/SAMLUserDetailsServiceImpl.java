@@ -26,7 +26,7 @@ import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.services.authentication.UserAuthenticationService;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UnitManager;
-import org.prosolo.services.nodes.UserManager;
+import org.prosolo.services.user.UserManager;
 import org.prosolo.services.util.roles.SystemRoleNames;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -72,15 +72,15 @@ public class SAMLUserDetailsServiceImpl implements SAMLUserDetailsService {
 
 				}
 			}
-			//String email = credential.getNameID().getValue();
+			String email = credential.getNameID().getValue();
 			//String email = credential.getAttributeAsString("email");
 			//String eduPersonPrincipalName=credential.getAttributeAsString("eduPersonPrincipalName");
-			String email=credential.getAttributeAsString("urn:oid:0.9.2342.19200300.100.1.3");//should be email attribute
-			if(email==null || email.length()<5){
-				//dirty hack as temporary solution since UTA is not providing emails for test accounts as email attribute, but as eduPersonPrincipalName
-				email = credential.getAttributeAsString("urn:oid:1.3.6.1.4.1.5923.1.1.1.6");//eduPersonPrincipalName
-				logger.info("Email is returned as eduPersonPrincipalName:" + email);
-			}
+//			String email=credential.getAttributeAsString("urn:oid:0.9.2342.19200300.100.1.3");//should be email attribute
+//			if(email==null || email.length()<5){
+//				//dirty hack as temporary solution since UTA is not providing emails for test accounts as email attribute, but as eduPersonPrincipalName
+//				email = credential.getAttributeAsString("urn:oid:1.3.6.1.4.1.5923.1.1.1.6");//eduPersonPrincipalName
+//				logger.info("Email is returned as eduPersonPrincipalName:" + email);
+//			}
 
 			String firstname = credential.getAttributeAsString("urn:oid:2.5.4.42");
 			String lastname = credential.getAttributeAsString("urn:oid:2.5.4.4");
@@ -112,8 +112,12 @@ public class SAMLUserDetailsServiceImpl implements SAMLUserDetailsService {
 
 				logger.info("NEW USER THROUGH SAML WITH EMAIL " + email + " is logged in");
 			}
+			//this check is added because for SAML authentication spring does not do these checks
+			if (user.isDeleted()) {
+				throw new LockedException("User account is locked");
+			}
 			return authService.authenticateUser(user);
-		} catch (LockedException e) {
+		} catch (LockedException|UsernameNotFoundException e) {
 			throw e;
 		} catch(Exception e) {
 			logger.error("Error", e);

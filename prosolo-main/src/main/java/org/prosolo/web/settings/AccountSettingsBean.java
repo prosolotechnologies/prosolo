@@ -3,8 +3,8 @@ package org.prosolo.web.settings;
 import org.apache.log4j.Logger;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.authentication.AuthenticationService;
-import org.prosolo.services.nodes.UserManager;
-import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.user.UserManager;
+import org.prosolo.services.user.data.UserData;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,15 +43,15 @@ public class AccountSettingsBean implements Serializable {
 		accountData = new UserData();
 
 		// emails
-		String email = loggedUser.getSessionData().getEmail();
+		String email = loggedUser.getEmail();
 		accountData.setEmail(email);
 	}
 	/*
 	 * ACTIONS
 	 */
 	public void savePassChange() {
-		if(loggedUser.getPassword() != null && !loggedUser.getPassword().isEmpty()) {
-			if (authenticationService.checkPassword(accountData.getPassword(), loggedUser.getSessionData().getPassword())) {
+		if (loggedUser.getPassword() != null && !loggedUser.getPassword().isEmpty()) {
+			if (authenticationService.checkPassword(accountData.getPassword(), loggedUser.getPassword())) {
 				savePasswordIfConditionsAreMet();
 			} else {
 				PageUtil.fireErrorMessage(":settingsPasswordForm:settingsPasswordGrowl", "Old password is not correct.");
@@ -69,9 +69,8 @@ public class AccountSettingsBean implements Serializable {
 		}
 
 		try {
-			String newPassEncrypted = userManager.changePassword(loggedUser.getUserId(), accountData.getNewPassword());
-			loggedUser.getSessionData().setPassword(newPassEncrypted);
-			
+			userManager.changePassword(loggedUser.getUserId(), accountData.getNewPassword());
+
 			PageUtil.fireSuccessfulInfoMessage(":settingsPasswordForm:settingsPasswordGrowl", "The password has been updated!");
 		} catch (ResourceCouldNotBeLoadedException e) {
 			logger.error(e);

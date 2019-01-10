@@ -1,504 +1,737 @@
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
-				xmlns:h="http://java.sun.com/jsf/html"
-				xmlns:f="http://java.sun.com/jsf/core"
-				xmlns:ui="http://java.sun.com/jsf/facelets"
-				xmlns:p="http://primefaces.org/ui"
-				template="templates/masterLayout2.xhtml"
-				xmlns:a="http://xmlns.jcp.org/jsf/passthrough"
-				xmlns:util="http://www.prosolo.com/util"
-				xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
-				xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
-	
-	<ui:define name="windowTitle">
-		#{profileBean.personalProfile ? '' : profileBean.userData.fullName.concat(' - ')}Profile - ProSolo
-	</ui:define>
-	
-	<ui:define name="metadata">
-		<f:metadata>
-			<f:viewParam name="id" value="#{profileBean.studentId}" />
-			<f:viewParam name="tab" value="#{profileBean.tab}"/>
-			<f:viewAction action="#{profileBean.init}" />
-		</f:metadata>
-	</ui:define>
-	
-	<ui:define name="resourceTitle">
-		<utilcomp:messagesBundle var="msg" />
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="templates/masterLayout2.xhtml"
+                xmlns:util="http://www.prosolo.com/util"
+                xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+                xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+                xmlns:assessment="http://java.sun.com/jsf/composite/components/assessments">
 
-    	<div class="profileHeader">
-   			<ui:fragment rendered="#{not empty profileBean.userData.avatarUrl}" >
-   				<img src="#{profileBean.userData.avatarUrl}" class="img-circle" width="120" height="120"
-					 alt="#{profileBean.userData.fullName}" />
-   			</ui:fragment>
-   			
-   			<ui:fragment rendered="#{empty profileBean.userData.avatarUrl}" >
-   				<span class="letterAvatar letterAvatar120 img-circle">#{util:initials(profileBean.userData.fullName)}</span>
-   			</ui:fragment>
-   			
-               <div class="profileHeaderInfo">
-                   <h1>#{profileBean.userData.fullName}</h1>
-                   <div>#{profileBean.userData.position}</div>
-                   <div>#{profileBean.userData.locationName}</div>
-                   <ul class="socialLinks">
-                   	<ui:repeat value="#{profileBean.userSocialNetworksData.socialNetworkAccountsData.entrySet().toArray()}"
-                   			var="socialNetworkData" varStatus="iterator">
-                   		<ui:fragment rendered="#{not empty socialNetworkData.value.link}" >
-	                        <li class="#{profileBean.getAlternativeName(socialNetworkData.value.socialNetworkName)}">
-	                        	<a href="#{socialNetworkData.value.link}" target="_blank">#{socialNetworkData.value.socialNetworkName}</a>
-	                        </li>
-                        </ui:fragment>
-                       </ui:repeat>
-                   </ul>
-               </div>
-			<div class="clear"></div>
-           </div>
+    <ui:define name="windowTitle">
+        #{profileBean.personalProfile ? '' : profileBean.userData.fullName.concat(' - ')}Profile - ProSolo
     </ui:define>
 
-	<ui:define name="content">
+    <ui:define name="metadata">
+        <f:metadata>
+            <f:viewParam name="id" value="#{profileBean.studentId}" />
+            <f:viewAction action="#{profileBean.init}" />
+        </f:metadata>
+    </ui:define>
+
+    <ui:define name="resourceTitle">
+        <div class="profileHeader">
+            <ui:fragment rendered="#{not empty profileBean.userData.avatarUrl}" >
+                <img src="#{profileBean.userData.avatarUrl}" class="img-circle" width="120" height="120"
+                     alt="#{profileBean.userData.fullName}" />
+            </ui:fragment>
+
+            <ui:fragment rendered="#{empty profileBean.userData.avatarUrl}" >
+                <span class="letterAvatar letterAvatar120 img-circle">#{util:initials(profileBean.userData.fullName)}</span>
+            </ui:fragment>
+
+            <div class="profileHeaderInfo">
+                <h1>#{profileBean.userData.fullName}</h1>
+                <div>#{profileBean.userData.position}</div>
+                <div>#{profileBean.userData.locationName}</div>
+                <ul class="socialLinks">
+                    <ui:repeat value="#{profileBean.userSocialNetworksData.socialNetworkAccountsData.entrySet().toArray()}"
+                               var="socialNetworkData" varStatus="iterator">
+                        <ui:fragment rendered="#{not empty socialNetworkData.value.link}" >
+                            <li class="#{styleUtilBean.getSocialNetworkClass(socialNetworkData.value.socialNetworkName)}">
+                                <a href="#{socialNetworkData.value.link}" target="_blank">#{socialNetworkData.value.socialNetworkName}</a>
+                            </li>
+                        </ui:fragment>
+                    </ui:repeat>
+                </ul>
+            </div>
+            <div class="clear"></div>
+        </div>
+    </ui:define>
+
+    <ui:define name="content">
+        <p:growl id="profileGrowl" showDetail="true" />
+
+        <div class="whiteBar">
+            <div class="container">
+                <div class="whiteBarContent">
+                    <div class="whiteBarLeft">
+                        <h:form id="whiteBarProfileForm">
+                            <ui:fragment rendered="#{profileBean.personalProfile}" >
+                                <p:commandLink
+                                        styleClass="btn btn-green btn-sm item"
+                                        pt:data-toggle="modal"
+                                        value="Add #{msg['label.credential']}"
+                                        action="#{profileBean.prepareAddingCredentials()}"
+                                        update="profileGrowl :formAddCredentials:panelAddCredentials"
+                                        oncomplete="$('#addStandard').modal('show');">
+                                </p:commandLink>
+                                <h:link outcome="settings" class="btn btn-green-stroke btn-sm">Edit Your Info</h:link>
+                            </ui:fragment>
+
+                            <ui:fragment rendered="#{loginbean.isUserLoggedIn() and not profileBean.personalProfile}" >
+                                <p:commandLink id="followButton"
+                                               rendered="#{!peopleActionBean.isLoggedUserFollowingUser(profileBean.decodedStudentId)}"
+                                               action="#{peopleActionBean.followCollegueById(profileBean.userData.fullName, profileBean.decodedStudentId)}"
+                                               update="@form profileGrowl"
+                                               process="@this"
+                                               styleClass="btn btn-green btn-sm">
+                                    <f:param name="page" value="/profile.xhtml" />
+                                    <f:param name="learningContext" value="name:profile|id:#{profileBean.decodedStudentId}" />
+                                    Follow
+                                </p:commandLink>
+                                <p:commandLink id="unfollowButton"
+                                               rendered="#{peopleActionBean.isLoggedUserFollowingUser(profileBean.decodedStudentId)}"
+                                               action="#{peopleActionBean.unfollowCollegueById(profileBean.userData.fullName, profileBean.decodedStudentId)}"
+                                               update="whiteBarProfileForm"
+                                               process="@form"
+                                               styleClass="btn btn-green-stroke btn-sm">
+                                    <f:param name="page" value="/profile.xhtml" />
+                                    <f:param name="learningContext" value="name:profile|id:#{profileBean.decodedStudentId}" />
+                                    Following
+                                </p:commandLink>
+
+                                <a href="#" class="btn btn-green btn-sm btnMessage" data-toggle="modal" data-target="#message"><span></span>Message</a>
+
+                                <div class="modal fade" id="message" tabindex="-1" role="dialog" aria-labelledby="sendMessage">
+                                    <div class="modal-dialog" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header alignLeft">
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                                                <h2 class="modal-title" id="sendMessage">Send a Message</h2>
+                                            </div>
+
+                                            <div class="messageModalMeta">
+                                                <div class="messageModalMetaLine">
+                                                    <div class="messageModalMetaLeft">
+                                                        To:
+                                                    </div>
+                                                    <div class="messageModalMetaRight">
+                                                        <img src="#{profileBean.userData.avatarUrl}" class="img-circle" width="32" height="32" alt="#{profileBean.userData.fullName}" />
+                                                        <h3>#{profileBean.userData.fullName}</h3>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="modal-body alignLeft">
+                                                <p:inputTextarea placeholder="Type a message..." value="#{profileBean.message}" id="messageContentTextarea" >
+                                                </p:inputTextarea>
+                                                <script>try{expandTextarea("messageContentTextarea")}catch(e){}</script>
+                                            </div>
+
+                                            <div class="modal-footer alignLeft">
+                                                <p:commandLink action="#{profileBean.sendMessage()}"
+                                                               styleClass="btn btn-green"
+                                                               process="messageContentTextarea"
+                                                               update="profileGrowl"
+                                                               oncomplete="$('#message').modal('hide');">
+                                                    Send
+                                                </p:commandLink>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </ui:fragment>
+                        </h:form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                <h:panelGroup layout="block" id="panelCredentials" styleClass="col-md-8">
+                    <ui:fragment rendered="#{empty profileBean.credentialProfileData}">
+                        <div class="noContentMessage">
+                            <p> No #{msg['label.credential.plural'].toLowerCase()}. </p>
+                        </div>
+                    </ui:fragment>
+                    <ui:repeat value="#{profileBean.credentialProfileData}" var="credProfileData">
+                        <h:panelGroup layout="block" rendered="#{not empty credProfileData.category}" styleClass="categorySeparator">
+                            #{credProfileData.category.title}
+                        </h:panelGroup>
+                        <ui:repeat value="#{credProfileData.credentials}" var="cred">
+                            <article class="whiteBox summaryCard summaryCompetence">
+                                <div class="innerWrapper">
+                                    <h2>
+                                        <h:link	outcome="/public-credential">
+                                            #{cred.title}
+                                            <f:param name="id" value="#{util:encodeId(cred.credentialId)}"/>
+                                        </h:link>
+                                    </h2>
+                                    <ui:fragment rendered="#{profileBean.personalProfile}" >
+                                        <div class="dropdown optMoreMenu">
+                                            <a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">options menu</a>
+                                            <ul class="dropdown-menu bullet pull-center" aria-labelledby="dropdownMenu1">
+                                                <li>
+                                                    <p:commandLink
+                                                            value="Edit"
+                                                            pt:data-toggle="modal"
+                                                            action="#{profileBean.prepareEditCredential(cred)}"
+                                                            update="profileGrowl :formEditCredential:panelEditCredential"
+                                                            oncomplete="$('#editStandard').modal('show')">
+                                                    </p:commandLink>
+                                                </li>
+                                                <li>
+                                                    <p:commandLink
+                                                        value="Remove"
+                                                        pt:data-toggle="modal"
+                                                        action="#{profileBean.prepareRemovingCredentialFromProfile(cred)}"
+                                                        oncomplete="$('#removeStandard').modal('show')"
+                                                    />
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </ui:fragment>
+                                    <div class="clear"></div>
+                                    <p class="cardDescription">
+                                        #{util:cleanHTMLTags(cred.description)}
+                                    </p>
+                                    <table class="tableProfile">
+                                        <tr>
+                                            <td class="col01">Keywords:</td>
+                                            <td>
+                                                <ul class="tags">
+                                                    <ui:repeat value="#{cred.keywords}" var="keyword">
+                                                        <li><a>#{keyword}</a></li>
+                                                    </ui:repeat>
+                                                </ul>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                    <div class="metaBox">
+                                        <div class="metaLeft">
+                                            <table class="tableProfile">
+                                                <tr>
+                                                    <td class="col01">Completed:</td>
+                                                    <td>
+                                                        <utilcomp:convertTimeOutput
+                                                                millis="#{cred.dateCompleted}"
+                                                                format="MMM DD, YYYY"
+                                                        />
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                        <div class="metaRight">
+                                            <ui:fragment rendered="#{cred.assessments.count le 0}">
+                                                <a class="numberAssessments disabled" data-toggle="tooltip" title="No assessments">assessments</a>
+                                            </ui:fragment>
+                                            <ui:fragment rendered="#{cred.assessments.count gt 0}">
+                                                <p:commandLink
+                                                        styleClass="numberAssessments"
+                                                        pt:data-toggle="modal"
+                                                        action="#{profileBean.initCredentialAssessmentsIfNotInitialized(cred)}"
+                                                        update="profileGrowl panelAssessments"
+                                                        oncomplete="$('#assessmentsList').modal('show')">
+                                                    assessments
+                                                </p:commandLink>
+                                            </ui:fragment>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="collapseStandard">
+                                    <div id="comp#{cred.credentialProfileConfigId}" class="collapse">
+                                        <h:panelGroup id="panelCompList">
+                                            <ul>
+                                                <ui:repeat value="#{cred.competences.data}" var="comp">
+                                                    <li>
+                                                        <a>#{comp.title}</a>
+                                                        <div class="activityOptions">
+                                                            <ui:fragment rendered="#{comp.evidence.count le 0}">
+                                                                <a class="numberEvidences disabled" data-toggle="tooltip" title="No evidence">evidences</a>
+                                                            </ui:fragment>
+                                                            <ui:fragment rendered="#{comp.evidence.count gt 0}">
+                                                                <p:commandLink
+                                                                        styleClass="numberEvidences"
+                                                                        pt:data-toggle="modal"
+                                                                        action="#{profileBean.initCompetenceEvidenceIfNotInitialized(comp)}"
+                                                                        update="profileGrowl panelCompetenceEvidence"
+                                                                        oncomplete="$('#evidencesList').modal('show')">
+                                                                    evidences
+                                                                </p:commandLink>
+                                                            </ui:fragment>
+                                                            <ui:fragment rendered="#{comp.assessments.count le 0}">
+                                                                <a class="numberAssessments disabled" data-toggle="tooltip" title="No assessments">assessments</a>
+                                                            </ui:fragment>
+                                                            <ui:fragment rendered="#{comp.assessments.count gt 0}">
+                                                                <p:commandLink
+                                                                        styleClass="numberAssessments"
+                                                                        pt:data-toggle="modal"
+                                                                        action="#{profileBean.initCompetenceAssessmentsIfNotInitialized(comp)}"
+                                                                        update="profileGrowl panelAssessments"
+                                                                        oncomplete="$('#assessmentsList').modal('show')">
+                                                                    assessments
+                                                                </p:commandLink>
+                                                            </ui:fragment>
+                                                        </div>
+                                                    </li>
+                                                </ui:repeat>
+                                            </ul>
+                                        </h:panelGroup>
+                                    </div>
+                                    <h:panelGroup id="panelExpandCompetences">
+                                        <ui:fragment rendered="#{cred.competences.initialized}">
+                                            <a href="#comp#{cred.credentialProfileConfigId}" data-toggle="collapse" class="collapseButton collapsed">
+                                                <span class="textShow">Show #{msg['label.competence.plural']}</span>
+                                                <span class="arrowDown">down</span>
+                                                <span class="textHide">Hide #{msg['label.competence.plural']}</span>
+                                                <span class="arrowUp">up</span>
+                                            </a>
+                                        </ui:fragment>
+                                        <p:commandLink
+                                                rendered="#{not cred.competences.initialized}"
+                                                styleClass="collapseButton collapsed"
+                                                process="@this"
+                                                action="#{profileBean.initCompetencesIfNotInitialized(cred)}"
+                                                update="profileGrowl panelCompList panelExpandCompetences"
+                                                oncomplete="$('#comp#{cred.credentialProfileConfigId}').collapse();">
+                                            <span class="textShow">Show #{msg['label.competence.plural']}</span>
+                                            <span class="arrowDown">down</span>
+                                            <span class="textHide">Hide #{msg['label.competence.plural']}</span>
+                                            <span class="arrowUp">up</span>
+                                        </p:commandLink>
+                                    </h:panelGroup>
+                                </div>
+                            </article>
+                        </ui:repeat>
+                    </ui:repeat>
+                </h:panelGroup>
+                <div class="col-md-4">
+                    <div class="sidebarBlock">
+                        <h:panelGroup layout="block" id="panelStats" styleClass="whiteBox paddingNone sidebarProfileStats">
+                            <table>
+                                <tr class="row01">
+                                    <td class="col01">
+                                        <div class="line01">
+                                            #{profileBean.getFormattedStatsNumber(profileBean.profileSummaryData.numberOfCompletedCredentials)}
+                                        </div>
+                                        <div class="line02">
+                                            Completed<br/>#{msg['label.credential.plural']}
+                                        </div>
+                                    </td>
+                                    <td class="col02">
+                                        <div class="line01">
+                                            #{profileBean.getFormattedStatsNumber(profileBean.profileSummaryData.numberOfCompletedCompetencies)}
+                                        </div>
+                                        <div class="line02">
+                                            Completed<br/>#{msg['label.competence.plural']}
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr class="row02">
+                                    <td class="col01">
+                                        <div class="line01">
+                                            #{profileBean.getFormattedStatsNumber(profileBean.profileSummaryData.numberOfAssessments)}
+                                        </div>
+                                        <div class="line02">
+                                            Assessments
+                                        </div>
+                                    </td>
+                                    <td class="col02">
+                                        <div class="line01">
+                                            #{profileBean.getFormattedStatsNumber(profileBean.profileSummaryData.numberOfPiecesOfEvidence)}
+                                        </div>
+                                        <div class="line02">
+                                            Pieces of Evidence
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </h:panelGroup>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h:form id="formAddCredentials">
+            <div class="modal fade" id="addStandard" tabindex="-1" role="dialog" aria-labelledby="addStandardModal">
+                <div class="modal-dialog" role="document">
+                    <h:panelGroup layout="block" id="panelAddCredentials" styleClass="modal-content">
+                        <div class="modal-header alignLeft">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+                            <h2 class="modal-title" id="addStandardModal">Add #{msg['label.credential']}</h2>
+                        </div>
+                        <div class="modal-body alignLeft">
+                            <ui:fragment rendered="#{not empty profileBean.credentialsToAdd}">
+                                <p>Select #{msg['label.credential.plural'].toLowerCase()} that you want to display on your profile page:</p>
+                            </ui:fragment>
+                            <ui:fragment rendered="#{empty profileBean.credentialsToAdd}">
+                                    <p>No #{msg['label.credential.plural'].toLowerCase()} available to add.</p>
+                            </ui:fragment>
+                            <ui:repeat value="#{profileBean.credentialsToAdd}" var="cred">
+                                <div class="checkbox checkLine">
+                                    <h:selectBooleanCheckbox id="checkStandard1" value="#{cred.selected}"/>
+                                    <h:outputLabel for="checkStandard1" value="#{cred.data.title}"/>
+                                </div>
+                            </ui:repeat>
+                            <ui:fragment rendered="#{not empty profileBean.credentialsToAdd}">
+                                <div class="bottom30 top20">
+                                    <small>Note: Approved assessments and evidence are not displayed by default. You can select which of them you want to display by choosing the “Edit” option for a #{msg['label.credential'].toLowerCase()}.</small>
+                                </div>
+                            </ui:fragment>
+                        </div>
+                        <div class="modal-footer alignLeft">
+                            <utilcomp:singleClickLink
+                                    rendered="#{not empty profileBean.credentialsToAdd}"
+                                    styleClass="btn btn-green"
+                                    value="Add"
+                                    action="#{profileBean.addCredentials()}"
+                                    update="profileGrowl panelCredentials panelStats"
+                                    oncomplete="$('#addStandard').modal('hide');"
+                            />
+                            <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+                        </div>
+                    </h:panelGroup>
+                </div>
+            </div>
+        </h:form>
+
+        <div class="modal fade" id="evidencesList" tabindex="-1" role="dialog" aria-labelledby="evidencesListModal">
+            <div class="modal-dialog" role="document">
+                <h:panelGroup layout="block" id="panelCompetenceEvidence" styleClass="modal-content">
+                    <div class="modal-header alignLeft">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+                        <h2 class="modal-title" id="evidencesListModal">Evidence</h2>
+                    </div>
+                    <div class="assessmentModalMeta">
+                        <div class="assessmentModalMetaLine">
+                            <div class="assessmentModalMetaLeft">
+                                #{msg['label.competence']}:
+                            </div>
+                            <div class="assessmentModalMetaRight">
+                                <h3>#{profileBean.selectedResourceTitle}</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-body alignLeft">
+                        <div class="evidencesListInModal">
+                            <ui:repeat value="#{profileBean.selectedCompetenceEvidences}" var="ev">
+                                <div class="evidence">
+                                    <div class="evidenceLeft #{ev.type eq 'TEXT' ? 'evidenceText' : styleUtilBean.getEvidenceFileTypeIcon(ev.url)}">
+                                        <div class="icon iconType"></div>
+                                        <h3>
+                                            <h:link outcome="/student-profile-evidence" target="_blank" value="#{ev.title}">
+                                                <f:param name="studentId" value="#{util:encodeId(profileBean.ownerOfAProfileUserId)}"/>
+                                                <f:param name="competenceEvidenceId" value="#{util:encodeId(ev.competenceEvidenceId)}"/>
+                                            </h:link>
+                                        </h3>
+                                    </div>
+                                    <div class="evidenceRight">
+                                        <utilcomp:convertTimeOutput
+                                                millis="#{ev.dateCreated}"
+                                                format="MMM DD, YYYY"/>
+                                    </div>
+                                </div>
+                            </ui:repeat>
+                        </div>
+                    </div>
+                </h:panelGroup>
+            </div>
+        </div>
+
+        <div class="modal fade" id="assessmentsList" tabindex="-1" role="dialog" aria-labelledby="assessmentsListModal">
+            <div class="modal-dialog" role="document">
+                <h:panelGroup layout="block" id="panelAssessments" styleClass="modal-content">
+                    <div class="modal-header alignLeft">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+                        <h2 class="modal-title" id="assessmentsListModal">Assessments</h2>
+                    </div>
+                    <div class="assessmentModalMeta">
+                        <div class="assessmentModalMetaLine">
+                            <div class="assessmentModalMetaLeft">
+                                #{profileBean.selectedResourceType eq 'CREDENTIAL' ? msg['label.credential'] : msg['label.competence']}:
+                            </div>
+                            <div class="assessmentModalMetaRight">
+                                <h3>#{profileBean.selectedResourceTitle}</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-body alignLeft">
+                        <div class="top30"></div>
+                        <ul class="nav nav-tabs innerSubmenu" role="tablist">
+                            <ui:repeat value="#{profileBean.selectedResourceAssessmentsByType}" var="assessmentType" varStatus="status">
+                                <li role="presentation" class="#{profileBean.isAssessmentTabInitiallyActive(assessmentType.assessmentType) ? 'active' : ''}">
+                                    <a href="#assessmentsContent#{status.index}" aria-controls="assessmentsContent#{status.index}" role="tab" data-toggle="tab">#{msg['label.assessment.type.'.concat(assessmentType.assessmentType).concat('.plural')]}</a>
+                                </li>
+                            </ui:repeat>
+                        </ul>
+                        <div class="tab-content">
+                            <ui:repeat value="#{profileBean.selectedResourceAssessmentsByType}" var="assessmentType" varStatus="status">
+                                <div role="tabpanel" class="tab-pane fade #{profileBean.isAssessmentTabInitiallyActive(assessmentType.assessmentType) ? 'active in' : ''}" id="assessmentsContent#{status.index}">
+                                    <div class="assessmentsListInModal">
+                                        <ui:repeat value="#{assessmentType.assessments}" var="assessment">
+                                            <div class="assessmentItem">
+                                                <div class="assessmentLeft">
+                                                    <div class="assessmentsStar #{styleUtilBean.getGradeStarClass(assessment.assessmentGradeSummary)}">
+                                                        <div class="star #{styleUtilBean.getEmptyStarClass(assessment.assessmentGradeSummary)}"></div>
+                                                    </div>
+                                                    <div class="user32">
+                                                        <assessment:assessmentActorAvatar
+                                                                actorId="#{assessment.userBasicData.id}"
+                                                                avatarUrl="#{assessment.userBasicData.avatar}"
+                                                                actorFullName="#{assessment.userBasicData.fullName}"
+                                                                blindAssessmentMode="#{assessment.blindAssessmentMode}"
+                                                                actorType="ASSESSOR"
+                                                        />
+                                                        <h3>
+                                                            <assessment:assessmentActorName
+                                                                    actorId="#{assessment.userBasicData.id}"
+                                                                    actorFullName="#{assessment.userBasicData.fullName}"
+                                                                    blindAssessmentMode="#{assessment.blindAssessmentMode}"
+                                                                    actorType="ASSESSOR"
+                                                            />
+                                                        </h3>
+                                                    </div>
+                                                </div>
+                                                <div class="assessmentRight">
+                                                    <utilcomp:convertTimeOutput
+                                                            millis="#{assessment.dateApproved}"
+                                                            format="MMM DD, YYYY"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </ui:repeat>
+                                    </div>
+                                </div>
+                            </ui:repeat>
+                        </div>
+                    </div>
+                </h:panelGroup>
+            </div>
+        </div>
+
+        <h:form id="formEditCredential">
+            <div class="modal fade" id="editStandard" tabindex="-1" role="dialog" aria-labelledby="editStandardModal">
+                <div class="modal-dialog modal-lg">
+                    <h:panelGroup id="panelEditCredential" layout="block" styleClass="modal-content">
+                        <div class="modal-header alignLeft">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+                            <h2 class="modal-title">#{not empty profileBean.credentialForEdit ? profileBean.credentialForEdit.title : 'Error occurred'}</h2>
+                        </div>
+                        <div class="modal-body alignLeft">
+                            <ui:fragment rendered="#{not empty profileBean.credentialForEdit}">
+                                <p>Select approved #{msg['label.assessment.type.INSTRUCTOR_ASSESSMENT.short'].toLowerCase()}, #{msg['label.assessment.type.PEER_ASSESSMENT.short'].toLowerCase()} or #{msg['label.assessment.type.SELF_ASSESSMENT.short'].toLowerCase()} assessments for the #{msg['label.credential'].toLowerCase()} you want to be displayed on your profile:</p>
+
+                                <div class="standardInModal bottom30">
+                                    <ui:fragment rendered="#{profileBean.totalNumberOfCredentialAssessmentsAvailableToAdd eq 0}">
+                                    <div class="lightText">
+                                        No approved #{msg['label.credential'].toLowerCase()} assessments
+                                    </div>
+                                    </ui:fragment>
+                                    <ui:repeat value="#{profileBean.credentialForEdit.assessments}" var="assessmentType" varStatus="status">
+                                        <ui:fragment rendered="#{not empty assessmentType.assessments}">
+                                            <div class="checkbox checkLine">
+                                                <h:selectBooleanCheckbox id="checkCredentialAssessments" binding="#{checkAllCredAssessmentsComp}" checked="#{util:areAllItemsSelected(assessmentType.assessments)}"/>
+                                                <h:outputLabel for="checkCredentialAssessments" value="#{msg['label.assessment.type.'.concat(assessmentType.assessmentType.name()).concat('.plural')]}:"/>
+                                            </div>
+                                            <div class="assessmentsListInModal">
+                                                <ui:repeat value="#{assessmentType.assessments}" var="assessment" varStatus="statusAssessment">
+                                                    <div class="assessmentItem">
+                                                        <div class="assessmentLeft">
+                                                            <div class="subIndicator"></div>
+                                                            <div class="checkbox">
+                                                                <h:selectBooleanCheckbox
+                                                                        id="checkCredentialAssessment"
+                                                                        value="#{assessment.selected}"
+                                                                        pt:data-check-id="#{checkAllCredAssessmentsComp.clientId}"/>
+                                                                <h:outputLabel for="checkCredentialAssessment"/>
+                                                            </div>
+                                                            <div class="assessmentsStar #{styleUtilBean.getGradeStarClass(assessment.data.assessmentGradeSummary)}">
+                                                                <div data-html="true" data-toggle="tooltip" title="#{styleUtilBean.getGradePercentage(assessment.data.assessmentGradeSummary)}"  class="star #{styleUtilBean.getEmptyStarClass(assessment.data.assessmentGradeSummary)}"></div>
+                                                            </div>
+                                                            <div class="user32">
+                                                                <assessment:assessmentActorAvatar
+                                                                        actorId="#{assessment.data.userBasicData.id}"
+                                                                        avatarUrl="#{assessment.data.userBasicData.avatar}"
+                                                                        actorFullName="#{assessment.data.userBasicData.fullName}"
+                                                                        blindAssessmentMode="#{assessment.data.blindAssessmentMode}"
+                                                                        actorType="ASSESSOR"
+                                                                />
+                                                                <h3>
+                                                                    <assessment:assessmentActorName
+                                                                            actorId="#{assessment.data.userBasicData.id}"
+                                                                            actorFullName="#{assessment.data.userBasicData.fullName}"
+                                                                            blindAssessmentMode="#{assessment.data.blindAssessmentMode}"
+                                                                            actorType="ASSESSOR"
+                                                                    />
+                                                                </h3>
+                                                            </div>
+                                                        </div>
+                                                        <div class="assessmentRight">
+                                                            <utilcomp:convertTimeOutput
+                                                                    millis="#{assessment.data.dateApproved}"
+                                                                    format="MMM DD, YYYY"
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                </ui:repeat>
+                                            </div>
+                                            <script>
+                                                bindCheckAllOnclick(escapeColons('#{checkAllCredAssessmentsComp.clientId}'));
+                                            </script>
+                                        </ui:fragment>
+                                    </ui:repeat>
+                                </div>
+
+                                <h2>#{msg['label.competence.plural']}</h2>
+
+                                <p>Select evidence and approved assessments you want to be displayed on your profile for each of the #{msg['label.competence.plural'].toLowerCase()}:</p>
+
+                                <ui:repeat value="#{profileBean.credentialForEdit.competences}" var="comp" varStatus="status">
+                                    <div class="standardInModal bottom30">
+                                        <h3>#{comp.title}</h3>
+                                        <ui:fragment rendered="#{empty comp.evidence}">
+                                            <div class="lightText">No evidence</div>
+                                        </ui:fragment>
+                                        <ui:fragment rendered="#{not empty comp.evidence}">
+                                            <div class="checkbox checkLine">
+                                                <h:selectBooleanCheckbox id="checkPiecesOfEvidence" binding="#{checkAllCompEvidenceComp}" checked="#{util:areAllItemsSelected(comp.evidence)}"/>
+                                                <h:outputLabel for="checkPiecesOfEvidence" value="Evidence:"/>
+                                            </div>
+                                            <div class="evidencesListInModal">
+                                                <ui:repeat value="#{comp.evidence}" var="evidence" varStatus="statusEvidence">
+                                                    <div class="evidence">
+                                                        <div class="evidenceLeft #{evidence.data.type eq 'TEXT' ? 'evidenceText' : styleUtilBean.getEvidenceFileTypeIcon(evidence.data.url)}">
+                                                            <div class="subIndicator"></div>
+                                                            <div class="checkbox">
+                                                                <h:selectBooleanCheckbox
+                                                                        id="checkEvidence"
+                                                                        value="#{evidence.selected}"
+                                                                        pt:data-check-id="#{checkAllCompEvidenceComp.clientId}"
+                                                                />
+                                                                <h:outputLabel for="checkEvidence"/>
+                                                            </div>
+                                                            <div class="icon iconType"></div>
+                                                            <h3>#{evidence.data.title}</h3>
+                                                        </div>
+                                                        <div class="evidenceRight">
+                                                            <utilcomp:convertTimeOutput
+                                                                    millis="#{evidence.data.dateCreated}"
+                                                                    format="MMM DD, YYYY"/>
+                                                        </div>
+                                                    </div>
+                                                    <script>
+                                                        bindCheckAllOnclick(escapeColons('#{checkAllCompEvidenceComp.clientId}'));
+                                                    </script>
+                                                </ui:repeat>
+                                            </div>
+                                        </ui:fragment>
+                                        <ui:fragment rendered="#{profileBean.getTotalNumberOfCompetenceAssessmentsAvailableToAdd(comp) eq 0}">
+                                            <div class="lightText">
+                                                No approved #{msg['label.competence'].toLowerCase()} assessments
+                                            </div>
+                                        </ui:fragment>
+                                        <ui:repeat value="#{comp.assessments}" var="assessmentType" varStatus="status">
+                                            <ui:fragment rendered="#{not empty assessmentType.assessments}">
+                                                <div class="checkbox checkLine">
+                                                    <h:selectBooleanCheckbox id="checkCompetenceAssessments" binding="#{checkAllCompAssessmentsComp}" checked="#{util:areAllItemsSelected(assessmentType.assessments)}"/>
+                                                    <h:outputLabel for="checkCompetenceAssessments" value="#{msg['label.assessment.type.'.concat(assessmentType.assessmentType.name()).concat('.plural')]}:"/>
+                                                </div>
+                                                <div class="assessmentsListInModal">
+                                                    <ui:repeat value="#{assessmentType.assessments}" var="assessment" varStatus="statusAssessment">
+                                                        <div class="assessmentItem">
+                                                            <div class="assessmentLeft">
+                                                                <div class="subIndicator"></div>
+                                                                <div class="checkbox">
+                                                                    <h:selectBooleanCheckbox
+                                                                            id="checkCompetenceAssessment"
+                                                                            value="#{assessment.selected}"
+                                                                            pt:data-check-id="#{checkAllCompAssessmentsComp.clientId}"/>
+                                                                    <h:outputLabel for="checkCompetenceAssessment"/>
+                                                                </div>
+                                                                <div class="assessmentsStar #{styleUtilBean.getGradeStarClass(assessment.data.assessmentGradeSummary)}">
+                                                                    <div data-html="true" data-toggle="tooltip" title="#{styleUtilBean.getGradePercentage(assessment.data.assessmentGradeSummary)}"  class="star #{styleUtilBean.getEmptyStarClass(assessment.data.assessmentGradeSummary)}"></div>
+                                                                </div>
+                                                                <div class="user32">
+                                                                    <assessment:assessmentActorAvatar
+                                                                            actorId="#{assessment.data.userBasicData.id}"
+                                                                            avatarUrl="#{assessment.data.userBasicData.avatar}"
+                                                                            actorFullName="#{assessment.data.userBasicData.fullName}"
+                                                                            blindAssessmentMode="#{assessment.data.blindAssessmentMode}"
+                                                                            actorType="ASSESSOR"
+                                                                    />
+                                                                    <h3>
+                                                                        <assessment:assessmentActorName
+                                                                                actorId="#{assessment.data.userBasicData.id}"
+                                                                                actorFullName="#{assessment.data.userBasicData.fullName}"
+                                                                                blindAssessmentMode="#{assessment.data.blindAssessmentMode}"
+                                                                                actorType="ASSESSOR"
+                                                                        />
+                                                                    </h3>
+                                                                </div>
+                                                            </div>
+                                                            <div class="assessmentRight">
+                                                                <utilcomp:convertTimeOutput
+                                                                        millis="#{assessment.data.dateApproved}"
+                                                                        format="MMM DD, YYYY"
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                    </ui:repeat>
+                                                </div>
+                                                <script>
+                                                    bindCheckAllOnclick(escapeColons('#{checkAllCompAssessmentsComp.clientId}'));
+                                                </script>
+                                            </ui:fragment>
+                                        </ui:repeat>
+                                    </div>
+                                </ui:repeat>
+                            </ui:fragment>
+                        </div>
+                        <ui:fragment rendered="#{not empty profileBean.credentialForEdit}">
+                            <div class="modal-footer alignLeft">
+                                <utilcomp:singleClickLink
+                                        id="linkUpdateCred"
+                                        styleClass="btn btn-green"
+                                        value="Done"
+                                        action="#{profileBean.updateCredentialProfileOptions()}"
+                                        update="profileGrowl panelCredentials panelStats"
+                                        oncomplete="$('#editStandard').modal('hide');"
+                                />
+                                <p:defaultCommand target="linkUpdateCred"/>
+                                <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+                            </div>
+                        </ui:fragment>
+                    </h:panelGroup>
+                </div>
+            </div>
+        </h:form>
+
+        <div class="modal fade" id="removeStandard" tabindex="-1" role="dialog" aria-labelledby="removeStandardModal">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+                        <h2 class="modal-title" id="removeStandardModal">Remove #{msg['label.credential']}?</h2>
+                    </div>
+                    <div class="modal-body">
+                        <p>Are you sure you want to remove this #{msg['label.credential'].toLowerCase()} from your profile page?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <utilcomp:singleClickLink
+                                styleClass="btn btn-red"
+                                value="Remove"
+                                action="#{profileBean.removeCredentialFromProfile()}"
+                                update="profileGrowl panelCredentials panelStats"
+                                oncomplete="$('#removeStandard').modal('hide');"
+                        />
+                        <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
 		<script>
-			function expandTextarea(id) {
-			    var $element = $('#'+id).get(0);  
-			    $element.addEventListener('keyup', function() {
-			        this.style.overflow = 'hidden';
-			        this.style.height = 0;
-			        this.style.height = this.scrollHeight + 'px';
-			    }, false);
-			}
-			function hideMessageDialog(dialogId) {
-				$('#'+dialogId).modal('hide');
-				$("body").removeAttr("class").removeAttr("style")
-				$("div.modal-backdrop.fade.in").remove()
-			}
-			
-			function makeTabActive(id) {
-				$("#"+id).addClass( "in active" )
-				$( "div[role='tabPanel']" ).not( "[id='"+id+"']" ).removeClass("in active")
-                setQueryParam('tab', id);
-			}
-			
+			$(function () {
+                $('#message').on('shown.bs.modal', function() {
+                    $('#'+escapeColons('whiteBarProfileForm:messageContentTextarea')).focus();
+                }).on('hidden.bs.modal', function() {
+                    $('#'+escapeColons('whiteBarProfileForm:messageContentTextarea')).val('');
+                });
+            })
 		</script>
-		
-		<div class="whiteBar">
-	        <div class="container">
-	            <div class="whiteBarContent" id="whiteBarContent">
-	                <div class="whiteBarLeft">
-	                	<h:form id="whiteBarProfileForm">
-	                		
-			                <ui:fragment rendered="#{profileBean.personalProfile}" >
-			                	<h:link outcome="settings" class="btn btn-green-stroke btn-sm">Edit Profile</h:link>
-			                </ui:fragment>
-			                
-			                <ui:fragment rendered="#{not profileBean.personalProfile}" >
-		                		<p:growl id="profileGrowl" showDetail="true" />
-				                <p:commandLink id="followButton"
-											   rendered="#{!peopleActionBean.isLoggedUserFollowingUser(profileBean.decodedStudentId)}"
-											   action="#{peopleActionBean.followCollegueById(profileBean.userData.fullName, profileBean.decodedStudentId)}"
-											   update="@form"
-											   process="@this"
-											   styleClass="btn btn-green btn-sm">
-									<f:param name="page" value="/profile.xhtml" />
-									<f:param name="learningContext" value="name:profile|id:#{profileBean.decodedStudentId}" />
-									Follow
-								</p:commandLink>
-								<p:commandLink id="unfollowButton"
-											   rendered="#{peopleActionBean.isLoggedUserFollowingUser(profileBean.decodedStudentId)}"
-											   action="#{peopleActionBean.unfollowCollegueById(profileBean.userData.fullName, profileBean.decodedStudentId)}"
-											   update="whiteBarProfileForm"
-											   process="@form"
-											   styleClass="btn btn-green-stroke btn-sm">
-									<f:param name="page" value="/profile.xhtml" />
-									<f:param name="learningContext" value="name:profile|id:#{profileBean.decodedStudentId}" />
-									Following
-								</p:commandLink>
-								
-			                    <a href="#" class="btn btn-green btn-sm btnMessage" data-toggle="modal" data-target="#message"><span></span>Message</a>
-			                    
-			                    <div class="modal fade" id="message" tabindex="-1" role="dialog" aria-labelledby="sendMessage">
-			                        <div class="modal-dialog" role="document">
-			                            <div class="modal-content">
-			                                <div class="modal-header alignLeft">
-			                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
-			                                    <h2 class="modal-title" id="sendMessage">Send a Message</h2>
-			                                </div>
-			                                
-			                                <div class="messageModalMeta">
-			                                    <div class="messageModalMetaLine">
-			                                        <div class="messageModalMetaLeft">
-			                                            To:
-			                                        </div>
-			                                        <div class="messageModalMetaRight">
-			                                            <img src="#{profileBean.userData.avatarUrl}" class="img-circle" width="32" height="32" alt="#{profileBean.userData.fullName}" />
-			                                            <h3>#{profileBean.userData.fullName}</h3>
-			                                        </div>
-			                                    </div>
-			                                </div>
-			                                
-			                                <div class="modal-body alignLeft">
-			                                     <p:inputTextarea placeholder="Type a message..." value="#{profileBean.message}" id="messageContentTextarea" >
-                                    			 </p:inputTextarea>
-                                    			  <script>try{expandTextarea("messageContentTextarea")}catch(e){}</script>
-			                                </div>
-			                                
-			                                <div class="modal-footer alignLeft">
-			                                    <p:commandLink action="#{profileBean.sendMessage()}"
-                                            			styleClass="btn btn-green"
-                                            			process="@form"
-                                            			update="profileGrowl"
-                                            			oncomplete="hideMessageDialog('message')">
-			                                    	Send
-			                                    </p:commandLink>
-			                                </div>
-			                            </div>
-			                        </div>
-			                    </div>
-			                </ui:fragment>
-		                </h:form>
-	                </div>
-	            </div>
-	        </div>
-	    </div>
-	
-	    <div class="container">
-	    	
-	        <div class="row">
 
-	            <div class="col-md-12">
-	                <div class="whiteBox">
-	                	<h:form id="tabsForm" prependId="false">
-		                    <ul class="nav nav-tabs pageSubmenu" role="tablist">
-		                        <li role="presentation" class="#{param.tab ne 'competences' and param.tab ne 'inprogress' ? 'active' : ''}">
-			                        <p:commandLink oncomplete="makeTabActive('credentials')" update=":#{p:component('tabPanel')}" actionListener="#{profileBean.changeTab('credentials')}" a:aria-controls="info" a:role="tab" a:data-toggle="tab" >#{msg['label.credential.plural']}</p:commandLink>
-		                        </li>
-		                        <li role="presentation" class="#{param.tab eq 'competences' ? 'active' : ''}">
-		                        	<p:commandLink oncomplete="makeTabActive('competences')" update=":#{p:component('tabPanel')}" actionListener="#{profileBean.changeTab('competences')}" a:aria-controls="info" a:role="tab" a:data-toggle="tab" >#{msg['label.competence.plural']}</p:commandLink>
-		                        </li>
-		                        <ui:remove>
-		                        	<li role="presentation">
-										<a href="#externalcompetences" aria-controls="competences" role="tab" data-toggle="tab">External Competences</a>
-									</li>
-		                        </ui:remove>
-		                        <li role="presentation" class="#{param.tab eq 'inprogress' ? 'active' : ''}">
-		                        	<p:commandLink oncomplete="makeTabActive('inprogress')" update=":#{p:component('tabPanel')}" actionListener="#{profileBean.changeTab('inprogress')}" a:aria-controls="info" a:role="tab" a:data-toggle="tab" >In Progress</p:commandLink>
-		                        </li>
-		                    </ul>
-		                </h:form>
-	                </div>
-	            </div>
-	            
-	            <h:panelGroup id="tabPanel" styleClass="tab-content" layout="block">
-	            <!-- CREDENTIALS -->
-	              <h:panelGroup id="credentials" a:role="tabPanel" styleClass="tab-pane fade #{param.tab ne 'competences' and param.tab ne 'inprogress' ? 'active in' : ''}" layout="block">
-	                	<ui:fragment rendered="#{empty profileBean.targetCredential1List}">
-		                	<div class="col-md-12">
-		                        <div class="noContentMessage">
-		                            <p>
-		                                No completed #{msg['label.credential.plural'].toLowerCase()}.<br/>
-		                                <h:link
-		                                	rendered="#{profileBean.personalProfile}"
-		                                	outcome="/credentialLibrary">
-		                                	Browse #{msg['label.credential.plural'].toLowerCase()}
-	                                	</h:link>
-		                            </p>
-		                        </div>
-		                    </div>
-	                    </ui:fragment>
-
-					  <h:form id="completedCredentialsForm">
-						  <p:growl id="growlCompletedCredentials" showDetail="true" globalOnly="true"/>
-						  <ui:repeat value="#{profileBean.targetCredential1List}"
-										var="targetCredential">
-								<h:panelGroup layout="block" rendered="#{not empty targetCredential.category}" styleClass="col-md-12">
-									<div class="categorySeparator">
-										#{targetCredential.category.title}
-									</div>
-								</h:panelGroup>
-								<ui:repeat value="#{targetCredential.credentials}" var="cred" varStatus="iterator">
-									<div class="col-md-6">
-										<article class="whiteBox summaryCard">
-											<h2>
-												<h:link	outcome="/public-credential">
-													#{cred.title}
-													<f:param name="credId" value="#{util:encodeId(cred.credentialId)}"/>
-													<f:param name="studentId" value="#{util:encodeId(profileBean.userData.id)}"/>
-												</h:link>
-											</h2>
-											<div class="clear"></div>
-
-											<p class="cardDescription">#{util:cleanHTMLTags(cred.description)}</p>
-
-											<div class="metaBox">
-												<div class="metaLeft">
-													<h:panelGroup rendered="#{profileBean.personalProfile}" styleClass="tagCompleted" layout="block">
-														Completed
-													</h:panelGroup>
-												</div>
-
-												<div class="metaRight">
-													<ui:fragment rendered="#{cred.assessmentDisplayEnabled}">
-														<ui:fragment rendered="#{cred.numberOfAssessments eq 0}">
-															<a href="javascript:void(0);" class="numberAssessments" data-toggle="tooltip" title="No Assessments">assessments</a>
-														</ui:fragment>
-														<ui:fragment rendered="#{cred.numberOfAssessments gt 0}">
-															<h:link outcome="/credential-instructor-assessment-profile" styleClass="numberAssessments" pt:data-toggle="tooltip" title="#{cred.numberOfAssessments} Assessment#{cred.numberOfAssessments eq 1 ? '' : 's'}">
-																assessments
-																<f:param name="credId" value="#{util:encodeId(cred.credentialId)}"/>
-																<f:param name="studentId" value="#{util:encodeId(profileBean.userData.id)}"/>
-															</h:link>
-														</ui:fragment>
-													</ui:fragment>
-
-													<ui:fragment rendered="#{cred.durationString ne null}">
-														<div class="duration">#{cred.durationString}</div>
-													</ui:fragment>
-
-													<ui:fragment rendered="#{not cred.assessmentDisplayEnabled and empty cred.durationString}">
-														&#160;
-													</ui:fragment>
-												</div>
-											</div>
-
-											<h:panelGroup layout="block" rendered="#{profileBean.personalProfile}" styleClass="metaBox">
-												<div class="metaLeft">
-													<div class="checkbox checkLine">
-														<h:selectBooleanCheckbox id="completedCredentialAchievements"
-																				 value="#{cred.hiddenFromProfile}">
-															<f:ajax event="click" execute="@this"
-																	listener="#{profileBean.updateTargetCredentialProfileVisibility(cred)}"
-																	render="completedCredentialsForm"
-															/>
-														</h:selectBooleanCheckbox>
-
-														<h:outputLabel for="completedCredentialAchievements">Hide from Public Profile</h:outputLabel>
-													</div>
-												</div>
-											</h:panelGroup>
-										</article>
-									</div>
-
-									<ui:fragment rendered="#{iterator.index % 2 == 1}">
-										<div class="clear"></div>
-									</ui:fragment>
-								</ui:repeat>
-							</ui:repeat>
-					  </h:form>
-		            </h:panelGroup>
-	                
-	                <!-- COMPETENCES -->
-	                <h:panelGroup id="competences" a:role="tabPanel" styleClass="tab-pane fade #{param.tab eq 'competences' ? 'active in' : ''}" layout="block">
-	                	<ui:fragment rendered="#{empty profileBean.targetCompetence1List}">
-		                	<div class="col-md-12">
-		                        <div class="noContentMessage">
-		                            <p>
-		                                No completed #{msg['label.competence.plural'].toLowerCase()}.<br/>
-		                                <h:link rendered="#{profileBean.personalProfile}"
-		                                	outcome="/credentialLibrary">
-		                                	Browse #{msg['label.competence.plural'].toLowerCase()}
-	                                	</h:link>
-		                            </p>
-		                        </div>
-		                    </div>
-	                    </ui:fragment>
-
-						<h:form id="competencesForm">
-							<p:growl id="growlCompetences" showDetail="true" globalOnly="true"/>
-							<ui:repeat value="#{profileBean.targetCompetence1List}"
-								var="targetCompetence" varStatus="iterator">
-								<div class="col-md-6">
-									<article class="whiteBox summaryCard">
-										<h2>#{targetCompetence.title}</h2>
-										<div class="clear"></div>
-
-										<p class="cardDescription">#{util:cleanHTMLTags(targetCompetence.description)}</p>
-
-										<div class="metaBox">
-											<div class="metaLeft">
-												<h:panelGroup rendered="#{profileBean.personalProfile}" styleClass="tagCompleted" layout="block">
-													Completed
-												</h:panelGroup>
-											</div>
-
-											<div class="metaRight">
-												<ui:fragment rendered="#{targetCompetence.assessmentDisplayEnabled}">
-													<ui:fragment rendered="#{targetCompetence.numberOfAssessments eq 0}">
-														<a class="numberAssessments" data-toggle="tooltip" title="No Assessments">assessments</a>
-													</ui:fragment>
-													<ui:fragment rendered="#{targetCompetence.numberOfAssessments gt 0}">
-														<h:link outcome="/competence-instructor-assessments-profile" styleClass="numberAssessments" pt:data-toggle="tooltip" title="#{targetCompetence.numberOfAssessments} Assessment#{targetCompetence.numberOfAssessments eq 1 ? '' : 's'}">
-															assessments
-															<f:param name="compId" value="#{util:encodeId(targetCompetence.competenceId)}"/>
-															<f:param name="studentId" value="#{util:encodeId(profileBean.userData.id)}"/>
-														</h:link>
-													</ui:fragment>
-												</ui:fragment>
-												<ui:fragment rendered="#{targetCompetence.durationString ne null}">
-													<div class="duration">#{targetCompetence.durationString}</div>
-												</ui:fragment>
-												<ui:fragment rendered="#{not targetCompetence.assessmentDisplayEnabled and empty targetCompetence.duration}">
-													&#160;
-												</ui:fragment>
-											</div>
-										</div>
-
-										<h:panelGroup layout="block" rendered="#{profileBean.personalProfile}" styleClass="metaBox">
-											<div class="metaLeft">
-												<div class="checkbox checkLine">
-													<h:selectBooleanCheckbox id="competenceAchievements"
-																			 value="#{targetCompetence.hiddenFromProfile}">
-														<f:ajax event="click" execute="@this"
-																listener="#{profileBean.updateTargetCompetenceProfileVisibility(targetCompetence)}"
-																render="competencesForm"
-														/>
-													</h:selectBooleanCheckbox>
-
-													<h:outputLabel for="competenceAchievements">Hide from Public Profile</h:outputLabel>
-												</div>
-											</div>
-										</h:panelGroup>
-									</article>
-								</div>
-
-								<ui:fragment rendered="#{iterator.index % 2 == 1}">
-									<div class="clear"></div>
-								</ui:fragment>
-							</ui:repeat>
-						</h:form>
-	               </h:panelGroup>
-	                
-	                
-	                <ui:remove>
-	                 	<!-- EXTERNAL COMPETENCES -->
-		                <div role="tabpanel" class="tab-pane fade" id="externalcompetences">
-		                    <div class="col-md-6">
-		                        <article class="whiteBox summaryCard">
-		                            <h2>Introduction to Learning Analytics</h2>
-		                            <div class="clear"></div>
-		                            <p class="cardDescription">Cras pellentesque id sapien eu malesuada. Aliquam vestibulum nulla commodo purus faucibus, vel feugiat nulla ultrices. Quisque a nisl sed lacus laoreet dapibus. Class aptent taciti sociosqu…</p>
-		                            <div class="metaBox">
-		                                <div class="metaLeft">
-		                                    <a href="#" class="linkViewEvidence">View Evidence</a>
-		                                </div>
-		                                <div class="metaRight">
-		                                    <div class="dateCompleted">Jan 25, 2015</div>
-		                                </div>
-		                            </div>
-		                        </article>
-		                    </div>
-		                </div>
-	                </ui:remove>
-	                
-	                <!-- IN PROGRESS CREDENTIALS -->
-	                <h:panelGroup id="inprogress" a:role="tabPanel" styleClass="tab-pane fade #{param.tab eq 'inprogress' ? 'active in' : ''}" layout="block">
-	                	<ui:fragment rendered="#{empty profileBean.targetCredential1ListInProgress}">
-		                	<div class="col-md-12">
-		                        <div class="noContentMessage">
-		                            <p>
-		                                No #{msg['label.credential.plural'].toLowerCase()} in progress.<br/>
-		                                <h:link rendered="#{profileBean.personalProfile}"
-		                                	outcome="/credentialLibrary">
-		                                	Browse #{msg['label.credential.plural'].toLowerCase()}
-	                                	</h:link>
-		                            </p>
-		                        </div>
-		                    </div>
-	                    </ui:fragment>
-
-						<h:form id="inProgressCredentialsForm">
-							<p:growl id="growlInProgressCredentials" showDetail="true" globalOnly="true"/>
-							<ui:repeat value="#{profileBean.targetCredential1ListInProgress}"
-										var="inProgressCredential">
-								<h:panelGroup layout="block" rendered="#{not empty inProgressCredential.category}" styleClass="col-md-12">
-									<div class="categorySeparator">
-										#{inProgressCredential.category.title}
-									</div>
-								</h:panelGroup>
-								<ui:repeat value="#{inProgressCredential.credentials}" var="cred" varStatus="iterator">
-									<div class="col-md-6">
-										<article class="whiteBox summaryCard">
-											<h2>
-												<h:link	outcome="/public-credential">
-													#{cred.title}
-													<f:param name="credId" value="#{util:encodeId(cred.credentialId)}"/>
-													<f:param name="studentId" value="#{util:encodeId(profileBean.userData.id)}"/>
-												</h:link>
-											</h2>
-											<div class="clear"></div>
-
-											<p class="cardDescription">#{util:cleanHTMLTags(cred.description)}</p>
-
-											<div class="metaBox">
-												<div class="metaLeft">
-													<ui:remove>
-													<h:link
-														value="Resume"
-														styleClass="btn btn-green btn-sm"
-														outcome="/competence">
-														<f:param name="credId" value="#{util:encodeId(cred.credentialId)}"/>
-														<f:param name="compId" value="#{util:encodeId(cred.nextCompetenceToLearnId)}"/>
-													</h:link>
-													</ui:remove>
-
-													<div class="progressBar">
-														<span>#{cred.progress}%</span>
-														<div class="progress">
-															<div class="progress-bar" role="progressbar" aria-valuenow="#{cred.progress}"
-																	aria-valuemin="0" aria-valuemax="100" style="width: #{cred.progress}%;">
-															</div>
-														</div>
-													</div>
-												</div>
-
-												<div class="metaRight">
-													<ui:fragment rendered="#{cred.assessmentDisplayEnabled}">
-														<ui:fragment rendered="#{cred.numberOfAssessments eq 0}">
-															<a href="javascript:void(0);" class="numberAssessments" data-toggle="tooltip" title="No Assessments">assessments</a>
-														</ui:fragment>
-														<ui:fragment rendered="#{cred.numberOfAssessments gt 0}">
-															<h:link outcome="/credential-instructor-assessment-profile" styleClass="numberAssessments" pt:data-toggle="tooltip" title="#{cred.numberOfAssessments} Assessment#{cred.numberOfAssessments eq 1 ? '' : 's'}">
-																assessments
-																<f:param name="credId" value="#{util:encodeId(cred.credentialId)}"/>
-																<f:param name="studentId" value="#{util:encodeId(profileBean.userData.id)}"/>
-															</h:link>
-														</ui:fragment>
-													</ui:fragment>
-													<ui:fragment rendered="#{cred.durationString ne null}">
-														<div class="duration">#{cred.durationString}</div>
-													</ui:fragment>
-													<ui:fragment rendered="#{not cred.assessmentDisplayEnabled and empty cred.durationString}">
-														&#160;
-													</ui:fragment>
-												</div>
-											</div>
-
-											<h:panelGroup layout="block" rendered="#{profileBean.personalProfile}" styleClass="metaBox">
-												<div class="metaLeft">
-													<div class="checkbox checkLine">
-														<h:selectBooleanCheckbox id="inProgressCredentialAchievements"
-																				 value="#{cred.hiddenFromProfile}">
-															<f:ajax event="click" execute="@this"
-																	listener="#{profileBean.updateTargetCredentialProfileVisibility(cred)}"
-																	render="inProgressCredentialsForm"
-															/>
-														</h:selectBooleanCheckbox>
-
-														<h:outputLabel for="inProgressCredentialAchievements">Hide from Public Profile</h:outputLabel>
-													</div>
-												</div>
-											</h:panelGroup>
-										</article>
-									</div>
-
-									<ui:fragment rendered="#{iterator.index % 2 == 1}">
-										<div class="clear"></div>
-									</ui:fragment>
-								</ui:repeat>
-							</ui:repeat>
-						</h:form>
-	                </h:panelGroup>
-	            </h:panelGroup>
-	        </div>
-	    </div>
-	    
-	    <!-- Include all compiled plugins (below), or include individual files as needed -->
-	    <script src="#{request.contextPath}/resources/javascript2/bootstrap-tagsinput.min.js"></script>
-	    <script src="#{request.contextPath}/resources/javascript2/bootstrap-tagsinput-angular.min.js"></script>
-	</ui:define>
+    </ui:define>
 </ui:composition>

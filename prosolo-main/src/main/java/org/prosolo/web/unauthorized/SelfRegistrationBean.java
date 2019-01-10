@@ -7,14 +7,12 @@ import org.prosolo.common.domainmodel.app.RegistrationType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.authentication.RegistrationManager;
 import org.prosolo.services.email.EmailSenderManager;
-import org.prosolo.services.nodes.UserManager;
+import org.prosolo.services.user.UserManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import javax.faces.bean.ManagedBean;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 
 /**
  * @author Zoran Jeremic 2013-10-24

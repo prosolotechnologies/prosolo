@@ -8,7 +8,7 @@ import org.prosolo.search.UserTextSearch;
 import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.assessment.data.AssessmentRequestData;
 import org.prosolo.services.nodes.data.LearningResourceType;
-import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.user.data.UserData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageUtil;
@@ -21,6 +21,14 @@ import java.util.List;
 import java.util.Set;
 
 /**
+ * Holds data and logic for creating assessment request or notifying assessor to give
+ * assessment when assessment has already been requested.
+ *
+ * {@link BlindAssessmentMode} passed to this bean should be blind assessment mode
+ * configured for credential/competence if new assessment request is initiated and
+ * mode configured for credential/competence assessment if assessor in existing assessment
+ * is being notified.
+ *
  * @author Bojan Trifkovic
  * @date 2017-10-10
  * @since 1.0.0

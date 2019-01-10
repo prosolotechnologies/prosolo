@@ -3,7 +3,7 @@ package org.prosolo.web.search;
 import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.logging.ComponentName;
-import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.user.data.UserData;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.logging.LoggingNavigationBean;
 import org.springframework.context.annotation.Scope;
@@ -34,24 +34,17 @@ public class UserSearchBean implements Serializable {
 	private int userSize;
 	
 	public UserSearchBean() {
-		users = new ArrayList<UserData>();
+		users = new ArrayList<>();
 	}
 
-	public void searchUsers() {
-		List<Long> excludeUsers = new ArrayList<Long>();
+	public void search() {
+		List<Long> excludeUsers = new ArrayList<>();
 		excludeUsers.add(loggedUser.getUserId());
 		
-		searchUsers(query, excludeUsers);
+		search(query, excludeUsers);
 	}
 	
-	public void searchUsers(String searchQuery) {
-		List<Long> excludeUsers = new ArrayList<Long>();
-		excludeUsers.add(loggedUser.getUserId());
-		
-		searchUsers(searchQuery, excludeUsers);
-	}
-	
-	public void searchUsers(String searchQuery, List<Long> excludeUsers) {
+	public void search(String searchQuery, List<Long> excludeUsers) {
 		this.users.clear();
 		this.userSize = 0;
 
@@ -64,19 +57,17 @@ public class UserSearchBean implements Serializable {
 					ComponentName.SEARCH_PEOPLE, 
 					searchQuery);
 		}
-		
-		searchQuery = null;
 	}
  
-	public void fetchUsers(String query, List<Long> excludeUsers) {
-		PaginatedResult<UserData> usersResponse = userTextSearch.getUsersWithRoles(
-				query, 0, 0, false, 0, null, false, excludeUsers, 0);
-		
+	private void fetchUsers(String query, List<Long> excludeUsers) {
+		PaginatedResult<UserData> usersResponse = userTextSearch.searchUsers(loggedUser.getOrganizationId(), query,
+		0, 0, false, excludeUsers);
+
 		if (usersResponse != null) {
 			this.userSize = (int) usersResponse.getHitsNumber();
 			this.users = usersResponse.getFoundNodes();
 		} else {
-			this.userSize=0;
+			this.userSize = 0;
 		}
 		
 	}
@@ -95,20 +86,16 @@ public class UserSearchBean implements Serializable {
 		return query;
 	}
 
-	public List<UserData> getUsers() {
-		return users;
-	}
-
 	public void setQuery(String query) {
 		this.query = query;
 	}
 
+	public List<UserData> getUsers() {
+		return users;
+	}
+
 	public int getUserSize() {
 		return userSize;
-	}
-	
-	public void setUserSize(int userSize) {
-		this.userSize = userSize;
 	}
 	
 	public String getContext() {

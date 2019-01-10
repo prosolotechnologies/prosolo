@@ -35,15 +35,16 @@ import org.prosolo.search.util.roles.RoleFilter;
 import org.prosolo.search.util.users.UserScopeFilter;
 import org.prosolo.search.util.users.UserSearchConfig;
 import org.prosolo.services.assessment.AssessmentManager;
+import org.prosolo.services.common.data.SortingOption;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.interaction.FollowResourceManager;
 import org.prosolo.services.nodes.CredentialInstructorManager;
 import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.services.nodes.RoleManager;
-import org.prosolo.services.nodes.UserManager;
-import org.prosolo.services.nodes.data.StudentData;
-import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.nodes.data.instructor.InstructorData;
+import org.prosolo.services.user.UserManager;
+import org.prosolo.services.user.data.StudentData;
+import org.prosolo.services.user.data.UserData;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -51,9 +52,6 @@ import java.io.IOException;
 import java.util.*;
 
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
-
-//import org.elasticsearch.index.query.BoolQueryBuilder;
-//import org.elasticsearch.index.query.NestedFilterBuilder;
 
 
 /**
@@ -76,11 +74,11 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 	@Inject private UserManager userManager;
 
 	@Override
-	public TextSearchResponse searchUsers (
+	public PaginatedResult<UserData> searchUsers(
 			long orgId, String searchString, int page, int limit, boolean loadOneMore,
 			Collection<Long> excludeUserIds) {
 		
-		TextSearchResponse response = new TextSearchResponse();
+		PaginatedResult<UserData> response = new PaginatedResult<>();
 		
 		try {
 			int start = setStart(page, limit);
@@ -131,7 +129,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 						User user = defaultManager.loadResource(User.class, id);
 						
 						if (user != null) {
-							response.addFoundNode(user);
+							response.addFoundNode(new UserData(user));
 						}
 					} catch (ResourceCouldNotBeLoadedException e) {
 						logger.error("User was not found: " + id);
@@ -517,7 +515,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 	private void addCredentialSortOption(CredentialMembersSortOption sortOption, long credId, SearchSourceBuilder searchSourceBuilder) {
 		//add sorting
 		SortOrder sortOrder = sortOption.getSortOrder() ==
-				org.prosolo.services.util.SortingOption.ASC ?
+				SortingOption.ASC ?
 				SortOrder.ASC : SortOrder.DESC;
 		for (String field : sortOption.getSortFields()) {
 			if (sortOption.isNestedSort()) {
@@ -583,7 +581,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 				//add sorting
 				for (String field : sortOption.getSortFields()) {
 					SortOrder sortOrder = sortOption.getSortOrder() == 
-							org.prosolo.services.util.SortingOption.ASC ? 
+							SortingOption.ASC ?
 							SortOrder.ASC : SortOrder.DESC;
 					searchSourceBuilder.sort(field, sortOrder);
 				}
@@ -1495,7 +1493,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 				
 				//add sorting
 				SortOrder sortOrder = sortOption.getSortOrder() == 
-						org.prosolo.services.util.SortingOption.ASC ? 
+						SortingOption.ASC ?
 						SortOrder.ASC : SortOrder.DESC;
 				for (String field : sortOption.getSortFields()) {
 					if (sortOption.isNestedSort()) {

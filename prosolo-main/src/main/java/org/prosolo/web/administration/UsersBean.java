@@ -1,5 +1,6 @@
 package org.prosolo.web.administration;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.organization.Role;
@@ -9,8 +10,8 @@ import org.prosolo.search.util.roles.RoleFilter;
 import org.prosolo.services.authentication.AuthenticationService;
 import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.RoleManager;
-import org.prosolo.services.nodes.UserManager;
-import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.user.UserManager;
+import org.prosolo.services.user.data.UserData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.services.util.roles.SystemRoleNames;
 import org.prosolo.web.LoggedUserBean;
@@ -64,6 +65,7 @@ public class UsersBean implements Serializable,Paginable{
 	private String orgId;
 	private long decodedOrgId;
 	private String orgTitle;
+	private String error;
 
 	private String roleId;
 	private List<UserData> users;
@@ -83,6 +85,13 @@ public class UsersBean implements Serializable,Paginable{
 		roles = roleManager.getRolesByNames(rolesArray);
 		filter = getDefaultRoleFilter();
 		loadUsers();
+		fireErrorMsg();
+	}
+
+	private void fireErrorMsg() {
+		if (StringUtils.isNotBlank(error)) {
+			PageUtil.fireErrorMessage(error);
+		}
 	}
 
 	private RoleFilter getDefaultRoleFilter() {
@@ -93,7 +102,6 @@ public class UsersBean implements Serializable,Paginable{
 	public void initOrgUsers() {
 		logger.info("initializing organization users");
 		decodedOrgId = idEncoder.decodeId(orgId);
-
 		if (pageAccessRightsResolver.getAccessRightsForOrganizationPage(decodedOrgId).isCanAccess()) {
 			if (decodedOrgId > 0) {
 				orgTitle = orgManager.getOrganizationTitle(decodedOrgId);
@@ -103,6 +111,7 @@ public class UsersBean implements Serializable,Paginable{
 					long filterId = getFilterId();
 					filter = new RoleFilter(filterId, "All", 0);
 					loadUsers();
+					fireErrorMsg();
 				}
 			} else {
 				PageUtil.notFound();
@@ -265,5 +274,13 @@ public class UsersBean implements Serializable,Paginable{
 
 	public void setOrgTitle(String orgTitle) {
 		this.orgTitle = orgTitle;
+	}
+
+	public String getError() {
+		return error;
+	}
+
+	public void setError(String error) {
+		this.error = error;
 	}
 }

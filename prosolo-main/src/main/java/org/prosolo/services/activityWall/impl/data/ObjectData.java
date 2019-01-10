@@ -3,7 +3,7 @@ package org.prosolo.services.activityWall.impl.data;
 import java.io.Serializable;
 
 import org.prosolo.common.domainmodel.user.notifications.ResourceType;
-import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.user.data.UserData;
 
 public class ObjectData implements Serializable {
 

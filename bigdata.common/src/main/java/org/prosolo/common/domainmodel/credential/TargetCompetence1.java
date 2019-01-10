@@ -89,6 +89,7 @@ public class TargetCompetence1 extends BaseEntity {
 	}
 
 	@OneToMany(mappedBy = "competence")
+	@OrderBy("dateCreated ASC")
 	public Set<CompetenceEvidence> getEvidences() {
 		return evidences;
 	}

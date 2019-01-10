@@ -95,7 +95,7 @@
 					</ui:fragment>
 					<li>
 						<h:link outcome="/admin/units">
-							#{usersBean.orgTitle}
+							#{util:shortenAndAddDots(usersBean.orgTitle)}
 							<f:param name="id" value="#{usersBean.orgId}" />
 						</h:link>
 					</li>
@@ -169,14 +169,16 @@
 													Edit
 												</h:link>
 											</c:if>
-											<p:commandLink
-													rendered="#{loggeduser.userId != user.id}"
-													pt:data-toggle="modal"
-													action="#{loggeduser.prepareLoginAsUser(user)}"
-													update=":#{cc.clientId}:loginAs:formLoginAs:panelLoginAs"
-													oncomplete="$('#loginAs').modal('show');">
-												Login as...
-											</p:commandLink>
+											<c:if test="#{loggeduser.hasCapability('login.as')}">
+												<p:commandLink
+														rendered="#{loggeduser.userId != user.id}"
+														pt:data-toggle="modal"
+														action="#{loggeduser.prepareLoginAsUser(user)}"
+														update=":#{cc.clientId}:loginAs:panelLoginAs"
+														oncomplete="$('#loginAs').modal('show');">
+													Login as...
+												</p:commandLink>
+											</c:if>
 										</div>
 									</div>
 								</li>
@@ -194,7 +196,9 @@
 			/>
 		</div>
 
-		<user:loginAs id="loginAs" />
+		<c:if test="#{loggeduser.hasCapability('login.as')}">
+			<user:loginAs id="loginAs" />
+		</c:if>
 
 		<c:if test="#{cc.attrs.mode eq 'ORGANIZATION'}">
 			<user:importUsers id="importUsers"

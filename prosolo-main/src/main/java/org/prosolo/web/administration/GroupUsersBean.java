@@ -1,13 +1,14 @@
 package org.prosolo.web.administration;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.nodes.RoleManager;
-import org.prosolo.services.nodes.UserGroupManager;
+import org.prosolo.services.user.UserGroupManager;
 import org.prosolo.services.nodes.data.TitleData;
-import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.user.data.UserData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.services.util.roles.SystemRoleNames;
 import org.prosolo.web.LoggedUserBean;
@@ -51,6 +52,7 @@ public class GroupUsersBean implements Serializable, Paginable {
 	private String groupId;
 	private long decodedGroupId;
 	private int page;
+	private String error;
 	
 	// used for user search
 	private String searchTerm = "";
@@ -81,6 +83,7 @@ public class GroupUsersBean implements Serializable, Paginable {
 						}
 						roleId = roleManager.getRoleIdByName(SystemRoleNames.USER);
 						loadUsersFromDB();
+						fireErrorMsg();
 					} else {
 						PageUtil.notFound();
 					}
@@ -93,6 +96,12 @@ public class GroupUsersBean implements Serializable, Paginable {
 			}
 		} else {
 			PageUtil.accessDenied();
+		}
+	}
+
+	private void fireErrorMsg() {
+		if (StringUtils.isNotBlank(error)) {
+			PageUtil.fireErrorMessage(error);
 		}
 	}
 
@@ -263,5 +272,13 @@ public class GroupUsersBean implements Serializable, Paginable {
 
 	public long getDecodedGroupId() {
 		return decodedGroupId;
+	}
+
+	public String getError() {
+		return error;
+	}
+
+	public void setError(String error) {
+		this.error = error;
 	}
 }
