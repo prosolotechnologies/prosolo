@@ -16,7 +16,7 @@
         <f:metadata>
             <f:viewParam name="studentId" value="#{profileEvidenceBean.studentId}"/>
             <f:viewParam name="competenceEvidenceId" value="#{profileEvidenceBean.competenceEvidenceId}" default="null"/>
-            <f:viewAction action="#{profileEvidenceBean.init()}" />
+            <f:viewAction action="#{profileEvidenceBean.initStudent()}" />
         </f:metadata>
     </ui:define>
 
@@ -33,13 +33,13 @@
         <div class="container">
             <ol class="breadcrumb">
                 <li>
-                    <h:link
-                            outcome="/profile"
+                    <h:link outcome="/profile"
                             value="#{profileEvidenceBean.evidence.userFullName}">
                         <f:param name="id" value="#{param.studentId}"/>
                     </h:link>
                 </li>
-                <li class="active">#{profileEvidenceBean.evidence.title}</li>
+                <li>Evidence</li>
+                <li class="active">#{util:shortenAndAddDots(profileEvidenceBean.evidence.title)}</li>
             </ol>
         </div>
 
@@ -51,48 +51,8 @@
                     </p>
                 </div>
                 <div class="col-md-12">
-                    <div class="whiteBox evidenceBox">
-                        <div class="evidenceTop">
-                            <div class="evidenceTopLeft #{profileEvidenceBean.evidence.type eq 'TEXT' ? 'evidenceText' : styleUtilBean.getEvidenceFileTypeIcon(profileEvidenceBean.evidence.url)}">
-                                <div class="icon iconType"></div>
-                                <h3>#{profileEvidenceBean.evidence.title}</h3>
-                            </div>
-                            <div class="evidenceTopRight">
-                                <ui:fragment rendered="#{profileEvidenceBean.evidence.type ne 'TEXT'}">
-                                    <a href="#{profileEvidenceBean.evidence.url}" target="_blank" class="btn btn-green btn-sm">#{profileEvidenceBean.evidence.type eq 'LINK' ? 'Open' : 'Download'}</a>
-                                </ui:fragment>
-                            </div>
-                        </div>
-                        <p><h:outputText escape="false" value="#{profileEvidenceBean.evidence.text}"/></p>
-                        <table>
-                            <tr>
-                                <td class="col01">Keywords:</td>
-                                <td>
-                                    <ul class="tags">
-                                        <ui:fragment rendered="#{empty profileEvidenceBean.evidence.tags}">
-                                            <span class="lightText">no keywords</span>
-                                        </ui:fragment>
-                                        <ui:repeat value="#{profileEvidenceBean.evidence.tags}" var="kw">
-                                            <li>#{kw}</li>
-                                        </ui:repeat>
-                                    </ul>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="col01">Created:</td>
-                                <td>
-                                    <utilcomp:convertTimeOutput
-                                            millis="#{profileEvidenceBean.evidence.dateCreated}"
-                                            format="MMM DD, YYYY"
-                                    />
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="col01">Relation:</td>
-                                <td>#{profileEvidenceBean.evidence.relationToCompetence}</td>
-                            </tr>
-                        </table>
-                    </div>
+                    <evidence:evidenceForCompetence
+                            evidence="#{profileEvidenceBean.evidence}" />
                 </div>
             </div>
         </div>

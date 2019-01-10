@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 @Component
 public class LearningEvidenceDataFactory {
 
-    public LearningEvidenceData getCompetenceLearningEvidenceData(LearningEvidence evidence, CompetenceEvidence compEvidence, Set<Tag> tags, LearningEvidenceLoadConfig loadConfig) {
+    public LearningEvidenceData getCompetenceLearningEvidenceData(LearningEvidence evidence, CompetenceEvidence competenceEvidence, Set<Tag> tags, List<BasicObjectInfo> competences, LearningEvidenceLoadConfig loadConfig) {
         LearningEvidenceData evidenceData = new LearningEvidenceData();
         evidenceData.setId(evidence.getId());
         evidenceData.setUserId(evidence.getUser().getId());
@@ -37,24 +37,20 @@ public class LearningEvidenceDataFactory {
         evidenceData.setUrl(evidence.getUrl());
         evidenceData.setDateCreated(DateUtil.getMillisFromDate(evidence.getDateCreated()));
 
-        if (compEvidence != null) {
-            evidenceData.setCompetenceEvidenceId(compEvidence.getId());
-            evidenceData.setDateAttached(DateUtil.getMillisFromDate(compEvidence.getDateCreated()));
-            evidenceData.setRelationToCompetence(compEvidence.getDescription());
+        if (competenceEvidence != null) {
+            evidenceData.setCompetenceEvidenceId(competenceEvidence.getId());
+            evidenceData.setDateAttached(DateUtil.getMillisFromDate(competenceEvidence.getDateCreated()));
+            evidenceData.setRelationToCompetence(competenceEvidence.getDescription());
         }
 
         if (loadConfig.isLoadCompetenceTitle()) {
-            evidenceData.setCompetenceTitle(compEvidence.getCompetence().getCompetence().getTitle());
+            evidenceData.setCompetenceTitle(competenceEvidence.getCompetence().getCompetence().getTitle());
+        }
+
+        if (loadConfig.isLoadCompetences() && competences != null) {
+            evidenceData.addCompetences(competences);
         }
 
         return evidenceData;
-    }
-
-    public LearningEvidenceData getLearningEvidenceData(LearningEvidence evidence, Set<Tag> tags, List<BasicObjectInfo> competences, LearningEvidenceLoadConfig loadConfig) {
-        LearningEvidenceData ev = getCompetenceLearningEvidenceData(evidence, null, tags, loadConfig);
-        if (loadConfig.isLoadCompetences() && competences != null) {
-            ev.addCompetences(competences);
-        }
-        return ev;
     }
 }

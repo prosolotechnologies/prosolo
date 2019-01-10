@@ -73,7 +73,8 @@ public class LearningEvidenceManagerImpl extends AbstractManagerImpl implements 
             }
 
             CompetenceEvidence ce = attachEvidenceToCompetence(targetCompId, ev, evidence.getRelationToCompetence());
-            res.setResult(learningEvidenceDataFactory.getCompetenceLearningEvidenceData(ev, ce, ev.getTags(), LearningEvidenceLoadConfig.builder().loadTags(true).build()));
+            res.setResult(learningEvidenceDataFactory.getCompetenceLearningEvidenceData(ev, ce, ev.getTags(), getCompetencesWithAddedEvidence(ev.getId()), LearningEvidenceLoadConfig.builder().loadTags(true).loadCompetences(true).build()));
+
             return res;
         } catch (DbConnectionException|ConstraintViolationException|DataIntegrityViolationException e) {
             throw e;
@@ -172,7 +173,7 @@ public class LearningEvidenceManagerImpl extends AbstractManagerImpl implements 
             List<LearningEvidenceData> evidenceData = new ArrayList<>();
             for (CompetenceEvidence ce : evidence) {
                 evidenceData.add(learningEvidenceDataFactory.getCompetenceLearningEvidenceData(
-                        ce.getEvidence(), ce, loadConfig.isLoadTags() ? ce.getEvidence().getTags() : null, loadConfig));
+                        ce.getEvidence(), ce, loadConfig.isLoadTags() ? ce.getEvidence().getTags() : null, getCompetencesWithAddedEvidence(ce.getEvidence().getId()), loadConfig));
             }
             return evidenceData;
         } catch (Exception e) {
@@ -223,7 +224,7 @@ public class LearningEvidenceManagerImpl extends AbstractManagerImpl implements 
     public LearningEvidenceData getLearningEvidence(long evidenceId) throws DbConnectionException {
         try {
             LearningEvidence le = (LearningEvidence) persistence.currentManager().load(LearningEvidence.class, evidenceId);
-            return learningEvidenceDataFactory.getLearningEvidenceData(le, null, null, LearningEvidenceLoadConfig.builder().build());
+            return learningEvidenceDataFactory.getCompetenceLearningEvidenceData(le, null, null, null, LearningEvidenceLoadConfig.builder().build());
         } catch (Exception e) {
             logger.error("Error", e);
             throw new DbConnectionException("Error loading the evidence");
@@ -263,7 +264,7 @@ public class LearningEvidenceManagerImpl extends AbstractManagerImpl implements 
                 .list();
 
         return evidences.stream()
-                .map(ev -> learningEvidenceDataFactory.getLearningEvidenceData(ev, ev.getTags(), getCompetencesWithAddedEvidence(ev.getId()), LearningEvidenceLoadConfig.builder().loadCompetences(true).loadTags(true).build()))
+                .map(ev -> learningEvidenceDataFactory.getCompetenceLearningEvidenceData(ev, null, ev.getTags(), getCompetencesWithAddedEvidence(ev.getId()), LearningEvidenceLoadConfig.builder().loadCompetences(true).loadTags(true).build()))
                 .collect(Collectors.toList());
     }
 
@@ -357,7 +358,7 @@ public class LearningEvidenceManagerImpl extends AbstractManagerImpl implements 
 
             Set<Tag> tags = loadConfig.isLoadTags() ? evidence.getTags() : null;
             List<BasicObjectInfo> competences = loadConfig.isLoadCompetences() ? getCompetencesWithAddedEvidence(evidence.getId()) : Collections.emptyList();
-            return learningEvidenceDataFactory.getLearningEvidenceData(evidence, tags, competences, loadConfig);
+            return learningEvidenceDataFactory.getCompetenceLearningEvidenceData(evidence, null, tags, competences, loadConfig);
         } catch (Exception e) {
             logger.error("Error", e);
             throw new DbConnectionException("Error loading the learning evidence");
@@ -523,6 +524,7 @@ public class LearningEvidenceManagerImpl extends AbstractManagerImpl implements 
                     ce.getEvidence(),
                     ce,
                     loadConfig.isLoadTags() ? ce.getEvidence().getTags() : null,
+                    null,
                     loadConfig);
         } catch (Exception e) {
             logger.error("error", e);
