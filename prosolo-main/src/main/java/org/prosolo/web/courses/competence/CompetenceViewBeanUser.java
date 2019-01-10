@@ -222,10 +222,7 @@ public class CompetenceViewBeanUser implements Serializable {
 		try {
 			LearningEvidenceData newEvidence = learningEvidenceManager.postEvidenceAndAttachItToCompetence(
 					competenceData.getTargetCompId(), submitEvidenceBean.getEvidence(), loggedUser.getUserContext());
-
-			newEvidence.getCompetences().add(new BasicObjectInfo(competenceData.getCompetenceId(), competenceData.getTitle(), newEvidence.getRelationToCompetence()));
 			competenceData.getEvidences().add(newEvidence);
-
 			if (learningEvidenceSearchBean.isInitialized()) {
 				//if evidence search bean is initialized exclude just added evidence from search and reset search
 				learningEvidenceSearchBean.excludeEvidenceFromFutureSearches(newEvidence.getId());
