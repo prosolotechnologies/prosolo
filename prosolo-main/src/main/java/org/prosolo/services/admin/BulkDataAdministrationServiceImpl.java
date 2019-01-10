@@ -11,7 +11,7 @@ import org.prosolo.common.domainmodel.rubric.Rubric;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroup;
 import org.prosolo.common.util.ElasticsearchUtil;
-import org.prosolo.core.hibernate.HibernateUtil;
+import org.prosolo.core.db.hibernate.HibernateUtil;
 import org.prosolo.services.assessment.RubricManager;
 import org.prosolo.services.indexing.*;
 import org.prosolo.services.nodes.*;

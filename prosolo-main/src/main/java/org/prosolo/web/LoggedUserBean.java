@@ -13,6 +13,7 @@ import org.prosolo.services.authentication.annotations.SessionAttributeScope;
 import org.prosolo.services.logging.LoggingService;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.services.user.data.UserData;
+import org.prosolo.web.util.page.PageSection;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.security.core.Authentication;
@@ -89,7 +90,32 @@ public class LoggedUserBean implements Serializable {
 	public boolean hasCapability(String capability) {
 		return authenticatedUserService.doesUserHaveCapability(capability);
 	}
-	
+
+	public boolean doesUserHaveCapabilityForSection(PageSection section) {
+		switch (section) {
+			case STUDENT:
+				return hasCapability("basic.user.access");
+			case MANAGE:
+				return hasCapability("basic.manager.access")
+						|| hasCapability("basic.instructor.access");
+			case ADMIN:
+				return hasCapability("basic.admin.access");
+		}
+		return false;
+	}
+
+	public String getPublicTemplateForUser() {
+		if (isLoggedIn()) {
+			if (doesUserHaveCapabilityForSection(PageSection.STUDENT)) {
+				return "/templates/masterLayout2.xhtml";
+			} else {
+				return "/templates/basicMasterLayout.xhtml";
+			}
+		} else {
+			return "/templates/publicMasterLayout.xhtml";
+		}
+	}
+
 	public void userLogout() {
 		try {
 			final String ipAddress = this.getIpAddress();

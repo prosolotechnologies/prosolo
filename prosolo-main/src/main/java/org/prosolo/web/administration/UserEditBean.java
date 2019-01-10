@@ -102,7 +102,7 @@ public class UserEditBean implements Serializable {
 			}
 		} catch (Exception e) {
 			logger.error(e);
-			PageUtil.fireErrorMessage("Error while loading page");
+			PageUtil.fireErrorMessage("Error loading page");
 		}
 	}
 
@@ -164,7 +164,7 @@ public class UserEditBean implements Serializable {
 			prepareRoles();
 		} catch (Exception e) {
 			logger.error(e);
-			PageUtil.fireErrorMessage("Error while loading page");
+			PageUtil.fireErrorMessage("Error loading page");
 		}
 	}
 

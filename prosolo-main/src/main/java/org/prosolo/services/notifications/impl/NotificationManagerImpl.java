@@ -132,7 +132,7 @@ public class NotificationManagerImpl extends AbstractManagerImpl implements Noti
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while saving notification");
+			throw new DbConnectionException("Error saving notification");
 		}
 	}
 
@@ -207,7 +207,7 @@ public class NotificationManagerImpl extends AbstractManagerImpl implements Noti
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving notifications");
+			throw new DbConnectionException("Error retrieving notifications");
 		}
 	}
 	
@@ -267,7 +267,7 @@ public class NotificationManagerImpl extends AbstractManagerImpl implements Noti
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving notification data");
+			throw new DbConnectionException("Error retrieving notification data");
 		}
 	}
 
@@ -336,7 +336,7 @@ public class NotificationManagerImpl extends AbstractManagerImpl implements Noti
 		  	return (Integer) q.uniqueResult();
 		} catch(Exception e) {
 			logger.error(e);
-			throw new DbConnectionException("Error while retrieving notification data");
+			throw new DbConnectionException("Error retrieving notification data");
 		}
 	}
 

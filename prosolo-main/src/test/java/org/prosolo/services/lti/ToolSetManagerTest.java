@@ -44,7 +44,7 @@ public class ToolSetManagerTest {
 		u.setId(2);
 	    tool.setCreatedBy(u);
 	    LtiToolSet ts = tsManager.saveToolSet(tool);
-	    assertNotNull("Error while saving tool set", ts);
+	    assertNotNull("Error saving tool set", ts);
 	}
 	
 	@Test(expected = DataIntegrityViolationException.class)

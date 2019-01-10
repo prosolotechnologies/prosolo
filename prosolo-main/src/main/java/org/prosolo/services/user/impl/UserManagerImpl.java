@@ -136,7 +136,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 			return (User) q.uniqueResult();
 		} catch (Exception e) {
 			logger.error("error", e);
-			throw new DbConnectionException("Error while retrieving user data");
+			throw new DbConnectionException("Error retrieving user data");
 		}
 	}
 
@@ -215,7 +215,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 			return new ArrayList<>();
 		} catch (Exception e) {
 			logger.error("Error", e);
-			throw new DbConnectionException("Error while retrieving users");
+			throw new DbConnectionException("Error retrieving users");
 		}
 	}
 
@@ -431,7 +431,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 			authenticatedUserService.refreshUserSessionData();
 		} catch(Exception e) {
 			logger.error("error", e);
-			throw new DbConnectionException("Error while updating user password");
+			throw new DbConnectionException("Error updating user password");
 		}
 		return newPassEncrypted;
 	}
@@ -459,7 +459,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 				.executeUpdate();
 		} catch(Exception e) {
 			logger.error(e);
-			throw new DbConnectionException("Error while updating user password");
+			throw new DbConnectionException("Error updating user password");
 		}
 		return newPassEncrypted;
 	}
@@ -561,7 +561,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 		} catch(Exception e) {
 			e.printStackTrace();
 			logger.error(e);
-			throw new DbConnectionException("Error while updating user data");
+			throw new DbConnectionException("Error updating user data");
 		}
 	}
 
@@ -628,7 +628,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving user");
+			throw new DbConnectionException("Error retrieving user");
 		}
 	}
 
@@ -649,7 +649,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving user email");
+			throw new DbConnectionException("Error retrieving user email");
 		}
 	}
 
@@ -669,7 +669,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving user password");
+			throw new DbConnectionException("Error retrieving user password");
 		}
 	}
 
@@ -702,7 +702,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 				return result;
 			} catch (ResourceCouldNotBeLoadedException e) {
 				logger.error("Error", e);
-				throw new DbConnectionException("Error while deleting competences, credentials and activities of user");
+				throw new DbConnectionException("Error deleting competences, credentials and activities of user");
 			}
 	}
 
@@ -719,7 +719,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 			saveEntity(user);
 		} catch (ResourceCouldNotBeLoadedException e) {
 			logger.error("Error", e);
-			throw new DbConnectionException("Error while setting organization for user");
+			throw new DbConnectionException("Error setting organization for user");
 		}
 	}
 
@@ -775,7 +775,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 			return response;
 		} catch (Exception e) {
 			logger.error("Error", e);
-			throw new DbConnectionException("Error while loading users");
+			throw new DbConnectionException("Error loading users");
 		}
 	}
 
@@ -913,7 +913,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 			return user != null ? new UserData(user) : null;
 		} catch(Exception e) {
 			logger.error("Error", e);
-			throw new DbConnectionException("Error while retrieving user data");
+			throw new DbConnectionException("Error retrieving user data");
 		}
 	}
 
@@ -931,7 +931,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 			return res;
 		} catch (Exception e) {
 			logger.error("Error", e);
-			throw new DbConnectionException("Error while retrieving unit users");
+			throw new DbConnectionException("Error retrieving unit users");
 		}
 	}
 
@@ -1114,7 +1114,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 			res.appendEvent(eventFactory.generateEventData(EventType.Registered, context, user, null, null, null));
 		} catch (Exception e) {
 			logger.error("Error", e);
-			throw new DbConnectionException("Error while saving new user account");
+			throw new DbConnectionException("Error saving new user account");
 		}
 		return res;
 	}
@@ -1256,7 +1256,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 			return orgId != null ? orgId : 0;
 		} catch (Exception e) {
 			logger.error("Error", e);
-			throw new DbConnectionException("Error while retrieving user organization");
+			throw new DbConnectionException("Error retrieving user organization");
 		}
 	}
 

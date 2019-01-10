@@ -43,7 +43,7 @@ public class Annotation1ManagerImpl extends AbstractManagerImpl implements Annot
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while checking if user liked resource");
+			throw new DbConnectionException("Error checking if user liked resource");
 		}
 	}
 	
@@ -82,7 +82,7 @@ public class Annotation1ManagerImpl extends AbstractManagerImpl implements Annot
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while deleting annotation");
+			throw new DbConnectionException("Error deleting annotation");
 		}
 	}
 	

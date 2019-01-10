@@ -77,7 +77,7 @@ public class ActivityWallActionsManagerImpl extends AbstractManagerImpl implemen
 		} catch(Exception e) {
 			e.printStackTrace();
 			logger.error(e);
-			throw new DbConnectionException("Error while deleting social activity");
+			throw new DbConnectionException("Error deleting social activity");
 		}
 	}
 
@@ -93,7 +93,7 @@ public class ActivityWallActionsManagerImpl extends AbstractManagerImpl implemen
 		} catch(Exception e) {
 			e.printStackTrace();
 			logger.error(e);
-			throw new DbConnectionException("Error while enabling comments");
+			throw new DbConnectionException("Error enabling comments");
 		}
 	}
 
@@ -109,7 +109,7 @@ public class ActivityWallActionsManagerImpl extends AbstractManagerImpl implemen
 		} catch(Exception e) {
 			e.printStackTrace();
 			logger.error(e);
-			throw new DbConnectionException("Error while disabling comments");
+			throw new DbConnectionException("Error disabling comments");
 		}
 	}
 	

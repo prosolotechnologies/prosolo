@@ -7,7 +7,6 @@ import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.annotation.Tag;
-import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.assessment.AssessorAssignmentMethod;
 import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.event.context.data.UserContextData;
@@ -431,15 +430,6 @@ public interface CredentialManager extends AbstractManager {
 	EventQueue disableLearningStagesForOrganizationCredentials(long orgId, UserContextData context) throws DbConnectionException;
 
 	List<AssessmentTypeConfig> getCredentialAssessmentTypesConfig(long credId) throws DbConnectionException;
-
-	/**
-	 *
-	 * @param credId
-	 * @param assessmentType
-	 * @return
-	 * @throws DbConnectionException
-	 */
-//	BlindAssessmentMode getCredentialBlindAssessmentModeForAssessmentType(long credId, AssessmentType assessmentType);
 
 	long getTargetCredentialId(long credId, long studentId) throws DbConnectionException;
 

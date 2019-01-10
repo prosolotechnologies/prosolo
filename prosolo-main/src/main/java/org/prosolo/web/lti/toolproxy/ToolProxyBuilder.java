@@ -43,7 +43,7 @@ public class ToolProxyBuilder {
 			return tp;
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new Exception("Error while building the ToolProxy");
+			throw new Exception("Error building the ToolProxy");
 		}
 	}
 

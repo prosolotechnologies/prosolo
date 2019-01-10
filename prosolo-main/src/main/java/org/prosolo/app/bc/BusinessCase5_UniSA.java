@@ -21,7 +21,7 @@ import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.common.util.string.StringUtil;
-import org.prosolo.core.hibernate.HibernateUtil;
+import org.prosolo.core.db.hibernate.HibernateUtil;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.activityWall.SocialActivityManager;
 import org.prosolo.services.activityWall.impl.data.SocialActivityData1;

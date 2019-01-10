@@ -1,4 +1,4 @@
-package org.prosolo.core.hibernate.userTypes;
+package org.prosolo.core.db.hibernate.userTypes;
 
 import java.io.Serializable;
 import java.net.URI;

@@ -3,8 +3,12 @@ package org.prosolo.web.assessments.util;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.credential.ActivityRubricVisibility;
 import org.prosolo.common.domainmodel.credential.BlindAssessmentMode;
+import org.prosolo.common.domainmodel.credential.LearningPathType;
+import org.prosolo.services.assessment.data.AssessmentDataFull;
 import org.prosolo.services.assessment.data.AssessmentTypeConfig;
+import org.prosolo.services.assessment.data.CompetenceAssessmentData;
 import org.prosolo.services.assessment.data.grading.GradeData;
+import org.prosolo.services.assessment.data.grading.GradingMode;
 import org.prosolo.services.assessment.data.grading.RubricGradeData;
 import org.prosolo.services.nodes.data.LearningResourceType;
 
@@ -53,5 +57,42 @@ public class AssessmentUtil {
         }
         AssessmentTypeConfig aType = assessmentTypesConfig.stream().filter(t -> t.getType() == type).findFirst().get();
         return aType.getBlindAssessmentMode();
+    }
+
+
+    public static AssessmentDisabledIndicator isCredentialFullyGraded(AssessmentDataFull credentialAssessment) {
+        for (CompetenceAssessmentData compAssessment : credentialAssessment.getCompetenceAssessmentData()) {
+            AssessmentDisabledIndicator compAssessmentGraded = isCompetenceFullyGraded(compAssessment);
+
+            // If NONE is returned, continue iteration
+            if (compAssessmentGraded == AssessmentDisabledIndicator.COMPETENCE_NOT_GRADED) {
+                return AssessmentDisabledIndicator.CREDENTIAL_COMPETENCES_NOT_GRADED;
+            } else if (compAssessmentGraded == AssessmentDisabledIndicator.COMPETENCE_ACTIVITY_NOT_GRADED) {
+                return AssessmentDisabledIndicator.CREDENTIAL_ACTIVITY_NOT_GRADED;
+            }
+        }
+
+        if (credentialAssessment.getGradeData().getGradingMode() != GradingMode.NONGRADED && !credentialAssessment.getGradeData().isAssessed()) {
+            return AssessmentDisabledIndicator.CREDENTIAL_NOT_GRADED;
+        }
+
+        return AssessmentDisabledIndicator.NONE;
+    }
+
+    public static AssessmentDisabledIndicator isCompetenceFullyGraded(CompetenceAssessmentData competenceAssessmentData) {
+        if (competenceAssessmentData.getLearningPathType() == LearningPathType.ACTIVITY) {
+            boolean allActivitiesGraded = competenceAssessmentData.getActivityAssessmentData()
+                    .stream()
+                    .allMatch(actAssessment -> actAssessment.getGrade().getGradingMode() == GradingMode.NONGRADED || actAssessment.getGrade().isAssessed());
+
+            if (!allActivitiesGraded) {
+                return AssessmentDisabledIndicator.COMPETENCE_ACTIVITY_NOT_GRADED;
+            }
+        }
+
+        if (competenceAssessmentData.getGradeData().getGradingMode() != GradingMode.NONGRADED && !competenceAssessmentData.getGradeData().isAssessed()) {
+            return AssessmentDisabledIndicator.COMPETENCE_NOT_GRADED;
+        }
+        return AssessmentDisabledIndicator.NONE;
     }
 }

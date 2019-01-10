@@ -70,7 +70,7 @@ public class UnitsBean implements Serializable {
             }
         } catch (Exception e) {
             logger.error(e);
-            PageUtil.fireErrorMessage("Error while loading page");
+            PageUtil.fireErrorMessage("Error loading page");
         }
     }
 
@@ -112,7 +112,7 @@ public class UnitsBean implements Serializable {
             context.validationFailed();
         } catch (Exception e) {
             logger.error(e);
-            PageUtil.fireErrorMessage("Error while trying to save " + ResourceBundleUtil.getMessage("label.unit").toLowerCase() + " data");
+            PageUtil.fireErrorMessage("Error trying to save " + ResourceBundleUtil.getMessage("label.unit").toLowerCase() + " data");
         }
     }
 
@@ -133,7 +133,7 @@ public class UnitsBean implements Serializable {
                 PageUtil.fireErrorMessage(ise.getMessage());
             } catch (Exception ex) {
                 logger.error(ex);
-                PageUtil.fireErrorMessage("Error while trying to delete " + ResourceBundleUtil.getMessage("label.unit").toLowerCase());
+                PageUtil.fireErrorMessage("Error trying to delete " + ResourceBundleUtil.getMessage("label.unit").toLowerCase());
             }
         }
     }

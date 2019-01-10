@@ -46,7 +46,7 @@ public class LtiToolManagerTest {
 		t.setCustomCss("#div {color:black}");
 		t.setId(425984);
 		t = toolManager.updateLtiTool(t);
-		assertEquals("Error while updating tool", "Competence 1", t.getName());
+		assertEquals("Error updating tool", "Competence 1", t.getName());
 	}
 
 	@Test
@@ -75,7 +75,7 @@ public class LtiToolManagerTest {
 //			System.out.println("TOOL "+t.getId());
 //		}
 //		System.out.println("BROJ REZULTATA "+ tools.size());
-//		assertEquals("Error while searching tools", 4, tools.size());
+//		assertEquals("Error searching tools", 4, tools.size());
 //	}
 //	
 //	@Test
@@ -89,7 +89,7 @@ public class LtiToolManagerTest {
 //			System.out.println("TOOL "+t.getId());
 //		}
 //		System.out.println("BROJ REZULTATA "+ tools.size());
-//		assertEquals("Error while searching tools", 0, tools.size());
+//		assertEquals("Error searching tools", 0, tools.size());
 //	}
 
 	/*@Test
@@ -97,7 +97,7 @@ public class LtiToolManagerTest {
 		LtiTool tool = toolManager.getLtiToolForLaunch(425984);
 		System.out.println("TOOL FOUND "+tool.getId());
 		System.out.println("Consumer key "+tool.getToolSet().getConsumer().getKeyLtiOne());
-		assertNotNull("Error while searching tool", tool);
+		assertNotNull("Error searching tool", tool);
 	}*/
 	
 	

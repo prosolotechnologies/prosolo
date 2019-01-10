@@ -10,7 +10,7 @@ import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.rubric.Rubric;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroup;
-import org.prosolo.core.hibernate.HibernateUtil;
+import org.prosolo.core.db.hibernate.HibernateUtil;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.event.EventObserver;
 import org.prosolo.services.indexing.impl.elasticSearchObserver.NodeChangeProcessor;

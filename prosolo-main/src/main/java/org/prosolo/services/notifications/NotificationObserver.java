@@ -9,7 +9,7 @@ import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.interfacesettings.UserSettings;
 import org.prosolo.common.domainmodel.user.notifications.Notification1;
 import org.prosolo.common.messaging.data.ServiceType;
-import org.prosolo.core.hibernate.HibernateUtil;
+import org.prosolo.core.db.hibernate.HibernateUtil;
 import org.prosolo.services.event.CentralEventDispatcher;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.event.EventObserver;

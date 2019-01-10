@@ -104,7 +104,7 @@ public class ActivityResultsBeanUser implements Serializable {
 				PageUtil.notFound();
 			} catch(Exception e) {
 				logger.error(e);
-				PageUtil.fireErrorMessage("Error while loading activity results");
+				PageUtil.fireErrorMessage("Error loading activity results");
 			}
 		} else {
 			PageUtil.notFound();
@@ -150,7 +150,7 @@ public class ActivityResultsBeanUser implements Serializable {
 			}
 		} catch (DbConnectionException e) {
 			logger.error(e);
-			PageUtil.fireErrorMessage("Error while loading activity response");
+			PageUtil.fireErrorMessage("Error loading activity response");
 		}
 	}
 	
@@ -233,7 +233,7 @@ public class ActivityResultsBeanUser implements Serializable {
 			loadNextToLearnInfo();
 		} catch (DbConnectionException e) {
 			logger.error("Error", e);
-			PageUtil.fireErrorMessage("Error while marking activity as completed");
+			PageUtil.fireErrorMessage("Error marking activity as completed");
 		}
 	}
 	

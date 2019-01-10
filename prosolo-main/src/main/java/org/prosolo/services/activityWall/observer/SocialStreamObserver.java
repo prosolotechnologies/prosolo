@@ -12,7 +12,7 @@ import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.organization.Unit;
-import org.prosolo.core.hibernate.HibernateUtil;
+import org.prosolo.core.db.hibernate.HibernateUtil;
 import org.prosolo.services.activityWall.observer.factory.SocialActivityFactory;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.event.EventObserver;

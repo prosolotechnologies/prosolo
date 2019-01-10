@@ -234,7 +234,7 @@ public class CredentialEditBean extends CompoundLearningResourceAssessmentSettin
 			}
 		} catch (Exception e) {
 			logger.error(e);
-			PageUtil.fireErrorMessage("Error while loading activities");
+			PageUtil.fireErrorMessage("Error loading activities");
 		}
 	}
 

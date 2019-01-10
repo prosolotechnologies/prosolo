@@ -243,7 +243,7 @@ public class CredentialUserPrivilegeBean implements Serializable {
 				loadData();
 			} catch (Exception e) {
 				logger.error(e);
-				PageUtil.fireErrorMessage("Error while reloading data. Try to refresh the page.");
+				PageUtil.fireErrorMessage("Error reloading data. Try to refresh the page.");
 			}
 		}
 	}

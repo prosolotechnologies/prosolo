@@ -2,6 +2,7 @@ package org.prosolo.web.assessments;
 
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.services.assessment.data.AssessmentDiscussionMessageData;
 import org.prosolo.services.assessment.data.grading.*;
@@ -34,7 +35,7 @@ public abstract class LearningResourceAssessmentBean implements Serializable {
 	public abstract RubricCriteriaGradeData getRubricForLearningResource();
 	public abstract void editComment(String newContent, String activityMessageEncodedId);
 	protected abstract void addComment();
-	public abstract void updateGrade() throws DbConnectionException;
+	public abstract void updateGrade() throws DbConnectionException, IllegalDataStateException;
 	public abstract AssessmentType getType();
 
 	protected void initializeGradeData() {
@@ -105,7 +106,7 @@ public abstract class LearningResourceAssessmentBean implements Serializable {
 			cleanupCommentData();
 		} catch (DbConnectionException e) {
 			logger.error(e);
-			PageUtil.fireErrorMessage("Error while saving a comment. Please try again.");
+			PageUtil.fireErrorMessage("Error saving a comment. Please try again.");
 		}
 	}
 

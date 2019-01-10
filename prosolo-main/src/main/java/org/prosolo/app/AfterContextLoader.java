@@ -1,18 +1,12 @@
 package org.prosolo.app;
 
-import com.mysql.jdbc.Driver;
 import org.apache.log4j.Logger;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.client.transport.NoNodeAvailableException;
-import org.flywaydb.core.Flyway;
-import org.flywaydb.core.api.FlywayException;
 import org.prosolo.app.bc.BusinessCase0_Blank;
 import org.prosolo.app.bc.BusinessCase4_EDX;
 import org.prosolo.app.bc.BusinessCase5_UniSA;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
-import org.prosolo.bigdata.dal.persistence.HibernateUtil;
 import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.elasticsearch.ElasticSearchConnector;
 import org.prosolo.common.messaging.rabbitmq.QueueNames;
@@ -20,7 +14,6 @@ import org.prosolo.common.messaging.rabbitmq.ReliableConsumer;
 import org.prosolo.common.messaging.rabbitmq.impl.ReliableConsumerImpl;
 import org.prosolo.config.observation.ObservationConfigLoaderService;
 import org.prosolo.config.security.SecurityService;
-import org.prosolo.core.persistance.PersistenceManager;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.admin.ResourceSettingsManager;
 import org.prosolo.services.importing.DataGenerator;
@@ -32,10 +25,7 @@ import org.prosolo.services.util.roles.SystemRoleNames;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
-import javax.sql.DataSource;
-import java.sql.SQLException;
 import java.util.Arrays;
-import java.util.Optional;
 
 public class AfterContextLoader implements ServletContextListener {
 
@@ -51,37 +41,6 @@ public class AfterContextLoader implements ServletContextListener {
 		// read settings from config.xml
 		final Settings settings = Settings.getInstance();
 			logger.debug("Initialized settings");
-
-		if (settings.config.init.formatDB) {
-			try {
-				Flyway flyway = new Flyway();
-				DataSource dataSource;
-				/*
-				get DataSource already configured for Hibernate if available
-				and if not, create DataSource by using the same method that is being
-				user for Hibernate
-				 */
-				Optional<DataSource> ds =  Optional.empty();
-						//ServiceLocator.getInstance().getService(PersistenceManager.class).getDataSource();
-				dataSource = ds.isPresent() ? ds.get() : HibernateUtil.dataSource();
-				flyway.setDataSource(dataSource);
-				flyway.setLocations("classpath:dbscripts/init");
-				/*
-				all migrations up to baseline version will be ignored and all
-				migrations after this version will be executed
-				 */
-				flyway.setBaselineVersionAsString("0.0");
-				flyway.setBaselineDescription("DB Init state");
-				/*
-				baseline should be used when introducing Flyway to existing database
-				 */
-				flyway.setBaselineOnMigrate(true);
-				flyway.migrate();
-			} catch (FlywayException fe) {
-				logger.error("Error", fe);
-				throw new RuntimeException("Erorr during application init");
-			}
-		}
 
 		if (settings.config.init.formatDB || settings.config.init.importCapabilities){
 			try{

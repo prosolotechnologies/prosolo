@@ -41,7 +41,7 @@ public class ToolSetManagerImpl extends AbstractManagerImpl implements ToolSetMa
 			ts.setRegistrationUrl(regUrl);
 			return saveEntity(ts);
 		}catch(Exception e){
-			throw new DbConnectionException("Error while saving the tool");
+			throw new DbConnectionException("Error saving the tool");
 		}
 	}
 
