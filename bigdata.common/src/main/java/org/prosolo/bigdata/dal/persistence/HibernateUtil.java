@@ -151,10 +151,10 @@ public class HibernateUtil {
 		int port = mySQLConfig.port;
 		String database = mySQLConfig.database;
 		String url="jdbc:mysql://"+ host + ":" + port + "/" + database
-				+ "?connectionCollation=" + config.hibernateConfig.connection.connectionCollation;
+				+ "?useSSL=false&connectionCollation=" + config.hibernateConfig.connection.connectionCollation;
 
 		ComboPooledDataSource dataSource = new ComboPooledDataSource();
-		dataSource.setDriverClass("com.mysql.jdbc.Driver");
+		dataSource.setDriverClass("com.mysql.cj.jdbc.Driver");
 
 		dataSource.setJdbcUrl(url);
 		 dataSource.setUser(username);

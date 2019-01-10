@@ -184,7 +184,7 @@ public class CronSchedulerImpl implements CronScheduler {
 		System.setProperty("org.quartz.threadPool.threadCount","5");
 
 // JobStore: JDBC jobStoreTX
-		System.setProperty("org.quartz.dataSource.quartzDataSource.driver","com.mysql.jdbc.Driver");
+		System.setProperty("org.quartz.dataSource.quartzDataSource.driver","com.mysql.cj.jdbc.Driver");
 		System.setProperty("org.quartz.dataSource.quartzDataSource.URL", url);
 		System.setProperty("org.quartz.dataSource.quartzDataSource.user",mySQLConfig.user);
 		System.setProperty("org.quartz.dataSource.quartzDataSource.password",mySQLConfig.password);
