@@ -18,7 +18,7 @@
 		<master-node>false</master-node>
 		<host>127.0.0.1</host>
 		<port>5672</port>
-		<virtualHost>/prosolo</virtualHost>
+		<virtualHost>prosolo</virtualHost>
 		<username>prosolo</username>
 		<password>me</password>
 		<exchange>prosolo_exchange</exchange>

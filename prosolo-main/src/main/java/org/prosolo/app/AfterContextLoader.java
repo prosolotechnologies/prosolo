@@ -106,9 +106,6 @@ public class AfterContextLoader implements ServletContextListener {
 			ServiceLocator.getInstance().getService(DataGenerator.class).populateDBWithTestData();
 		}
 		
-		if (settings.config.init.indexTrainingSet) {
-			ServiceLocator.getInstance().getService(ESAdministration.class).indexTrainingSet();
-		}
 
 		//init ES client if not initialized
 		initESClient();

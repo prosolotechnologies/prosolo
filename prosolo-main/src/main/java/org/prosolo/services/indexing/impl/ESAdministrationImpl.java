@@ -116,30 +116,7 @@ public class ESAdministrationImpl implements ESAdministration {
 		}
 	}
 
-//	@Override
-//	public boolean deleteIndexByName(String name) {
-//		try {
-//			Client client = ElasticSearchFactory.getClient();
-//			client.admin().indices().delete(new DeleteIndexRequest(name)).actionGet();
-//			return true;
-//		} catch (IndexNotFoundException e) {
-//			logger.debug("Index does not exist so it can't be deleted");
-//			return false;
-//		}
-//	}
 
-//
-//  @Override
-//	public boolean deleteIndexesByName(String[] indexNames) {
-//		try {
-//			Client client = ElasticSearchFactory.getClient();
-//			client.admin().indices().delete(new DeleteIndexRequest(indexNames)).actionGet();
-//			return true;
-//		} catch (IndexNotFoundException e) {
-//			logger.debug("Index does not exist so it can't be deleted");
-//			return false;
-//		}
-//	}
 
 	@Override
 	public boolean createOrganizationIndexes(long organizationId) {
@@ -168,88 +145,6 @@ public class ESAdministrationImpl implements ESAdministration {
 			return false;
 		}
 	}
-	
-	/**
-	 * @deprecated since 0.7
-	 */
-	@Override
-	@Deprecated
-	public void indexTrainingSet(){
-//		new Thread(new Runnable() {
-//			@Override
-//			public void run() {
-//				InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream("org/prosolo/services/indexing/webpages_trainingset.txt");
-//		
-//				try {
-//					TikaExtractor tika = new TikaExtractorImpl();
-//					MoreDocumentsLikeThis mdlt = new MoreDocumentsLikeThisImpl();
-//					String indexName = ESIndexNames.INDEX_DOCUMENTS;
-//					String indexType = ESIndexTypes.DOCUMENT;
-//					String mapping = copyToStringFromClasspath("/org/prosolo/services/indexing/document-mapping.json");
-//					Client client = ElasticSearchFactory.getClient();
-//					client.admin().indices().putMapping(putMappingRequest(indexName).type(indexType).source(mapping)).actionGet();
-//					BufferedReader br;
-//					
-//					Reader r = new InputStreamReader(is, "UTF-8");
-//					br = new BufferedReader(r);
-//					
-//					String line;
-//					
-//					while ((line = br.readLine()) != null) {
-//						if (line.length() > 20) {
-//							indexWebPageFromLink(line, client, indexName, indexType, tika, mdlt);
-//						}
-//					}
-//					br.close();
-//				} catch (FileNotFoundException e) {
-//					logger.error(e);
-//				} catch (IOException e) {
-//					logger.error(e);
-//				} catch (IndexingServiceNotAvailable e) {
-//					logger.error(e);
-//				}
-//			}
-//		}).start();
-	}
-	
-//	 private void indexWebPageFromLink(String link, Client client, String indexName, String indexType, TikaExtractor tika, MoreDocumentsLikeThis mdlt) throws IOException, IndexingServiceNotAvailable{
-//		logger.debug("INDEXING:" + link);
-//		try {
-//			URL url = new URL(link);
-//			InputStream input = url.openStream();
-//			ExtractedTikaDocument doc = tika.parseInputStream(input);
-//			String content = doc.getContent();
-//			List<String> duplicates = mdlt.findDocumentDuplicates(content);
-//				//byte[] html = org.elasticsearch.common.io.Streams.copyToByteArray(input);
-//			DocumentType docType = null;
-//				//if (richContent.getContentType().equals(ContentType.LINK)) {
-//			docType = DocumentType.WEBPAGE;
-//				//} 
-//			VisibilityType visibility = VisibilityType.PUBLIC;
-//			XContentBuilder builder = jsonBuilder().startObject();
-//			builder.field("file", content.getBytes());
-//			builder.field("title", doc.getTitle());
-//			builder.field("visibility", visibility.name().toLowerCase());
-//			// builder.field("description",richContent.getDescription());
-//			builder.field("contentType", docType.name().toLowerCase());
-//			builder.field("dateCreated", new Date());
-//			builder.field("url", link);
-//			String uniqueness = null;
-//			if (duplicates.size() == 0) {
-//				uniqueness = UUID.randomUUID().toString();
-//			} else {
-//				uniqueness = duplicates.get(0);
-//			}
-//			builder.field("uniqueness", uniqueness);
-//			builder.endObject();
-//			IndexResponse iResponse = client.index(indexRequest(indexName).type(indexType).source(builder)).actionGet();
-//			client.admin().indices().refresh(refreshRequest()).actionGet();
-//			
-//			input.close();
-//		} catch (ElasticsearchException e) {
-//			logger.error(e);
-//		} catch (IOException e) {
-//			logger.error(e);
-//		}
-//	 }
+
+
 }

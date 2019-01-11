@@ -50,7 +50,7 @@ public class CredentialTextSearchImpl extends AbstractManagerImpl implements Cre
 
 	private static Logger logger = Logger.getLogger(CredentialTextSearchImpl.class);
 	
-	@Inject private ESIndexer esIndexer;
+	//@Inject private ESIndexer esIndexer;
 	@Inject private CredentialManager credentialManager;
 	
 	

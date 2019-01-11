@@ -36,8 +36,8 @@ public class RubricTextSearchImpl extends AbstractManagerImpl implements RubricT
 
     @Inject
     private RubricManager rubricManager;
-    @Inject
-    private ESIndexer esIndexer;
+    //@Inject
+    //private ESIndexer esIndexer;
 
     private int setStart(int page, int limit) {
         int start = 0;

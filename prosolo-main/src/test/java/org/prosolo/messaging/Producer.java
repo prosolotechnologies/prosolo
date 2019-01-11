@@ -3,6 +3,7 @@ package org.prosolo.messaging;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeoutException;
 
 import com.rabbitmq.client.AMQP.BasicProperties;
 import com.rabbitmq.client.Channel;
@@ -30,7 +31,11 @@ public class Producer {
 		factory.setVirtualHost("/prosolo");
 		factory.setUsername("prosolo");
 		factory.setPassword("prosolo@2014");
-		connection = factory.newConnection();
+		try {
+			connection = factory.newConnection();
+		} catch (TimeoutException e) {
+			e.printStackTrace();
+		}
 		channel = connection.createChannel();
 		
 		channel.exchangeDeclare(EXCHANGE, "direct", true);

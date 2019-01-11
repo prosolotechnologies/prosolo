@@ -14,7 +14,7 @@
    <logging-config>config/log4j.properties</logging-config>
    <db-config>
       <dialect>org.hibernate.dialect.MySQLInnoDBDialect</dialect>
-      <driver>com.mysql.jdbc.Driver</driver>
+      <driver>com.mysql.cj.jdbc.Driver</driver>
       <url>jdbc:mysql://192.168.1.67:3306/prosolo</url>
       <user>prosolo</user>
       <password>prosolo2014</password>

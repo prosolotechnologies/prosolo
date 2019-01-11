@@ -53,7 +53,7 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 
 	private static Logger logger = Logger.getLogger(CompetenceTextSearchImpl.class);
 	
-	@Inject private ESIndexer esIndexer;
+	//@Inject private ESIndexer esIndexer;
 	@Inject private Competence1Manager compManager;
 	@Inject private CompetenceDataFactory compFactory;
 	@Inject private OrganizationManager orgManager;

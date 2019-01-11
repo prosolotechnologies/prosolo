@@ -47,7 +47,7 @@ public class LearningEvidenceTextSearchImpl extends AbstractManagerImpl implemen
 
     private static Logger logger = Logger.getLogger(LearningEvidenceTextSearchImpl.class);
 
-    @Inject private ESIndexer esIndexer;
+    //@Inject private ESIndexer esIndexer;
     @Inject private LearningEvidenceManager learningEvidenceManager;
 
     private int setStart(int page, int limit){
