@@ -11,7 +11,6 @@ import org.prosolo.services.authentication.AuthenticatedUserService;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.impl.Competence1ManagerImpl;
 import org.prosolo.web.ApplicationPagesBean;
-import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.services.RequestParameterResolver;
 import org.springframework.stereotype.Component;
 
@@ -41,6 +40,7 @@ public class PageLoadEventFilter implements Filter {
 			"/openid.xhtml",
 			"/favicon.ico",
 			"/robots.txt",
+			"/404.xhtml",
 			"/version.txt");
 	
 	@Override
@@ -91,7 +91,7 @@ public class PageLoadEventFilter implements Filter {
 			} else {
 				ipAddress = request.getRemoteAddr();
 			}
-			logger.info("IP address: " + ipAddress);
+			logger.debug("IP address: " + ipAddress);
 
 			Map<String, String> params = new HashMap<>();
 			params.put("uri", uri);
