@@ -13,7 +13,7 @@
   </modules>
   <properties>
   	<hibernate.version>4.3.11.Final</hibernate.version>
-  	<slf4j.version>1.8.0-beta2</slf4j.version>
+  	<slf4j.version>1.7.25</slf4j.version>
 
   </properties>
   <dependencies>	

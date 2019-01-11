@@ -622,7 +622,7 @@
 					<configuration>
 						<lifecycleMappingMetadata>
 							<argLine>-Xms512m -Xmx4092m</argLine>
-							<pluginExecutions>
+							<!--pluginExecutions>
 								<pluginExecution>
 									<pluginExecutionFilter>
 										<groupId>org.codehaus.mojo</groupId>
@@ -636,7 +636,7 @@
 										<execute />
 									</action>
 								</pluginExecution>
-							</pluginExecutions>
+							</pluginExecutions-->
 						</lifecycleMappingMetadata>
 					</configuration>
 				</plugin>
@@ -676,7 +676,7 @@
 				</configuration>
 			</plugin>
 
-			<plugin>
+			<!--plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>keytool-maven-plugin</artifactId>
 				<version>1.5</version>
@@ -704,7 +704,7 @@
 					<alias>pros</alias>
 					<keyalg>RSA</keyalg>
 				</configuration>
-			</plugin>
+			</plugin-->
 
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
