@@ -19,7 +19,7 @@ public class DBConnectionTest {
 		Connection connection = null;
 		try {
 			// This is the JDBC driver class for Oracle database
-			Class.forName("com.mysql.jdbc.Driver");
+			Class.forName("com.mysql.cj.jdbc.Driver");
 
 			// We use an Oracle express database for this example
 			String url = "jdbc:mysql://54.235.77.216:3306/prosolo";

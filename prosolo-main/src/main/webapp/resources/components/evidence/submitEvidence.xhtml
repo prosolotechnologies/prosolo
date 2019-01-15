@@ -172,7 +172,7 @@
 										 label="Relation to #{msg['label.competence'].toLowerCase()} field"
 										 value="#{submitEvidenceBean.evidence.relationToCompetence}"
 										 required="true"
-										 requiredMessage="Required field"
+										 requiredMessage="Relation to #{msg['label.competence'].toLowerCase()} is required"
 										 placeholder="How does this evidence show that you have met the requirements of the #{msg['label.competence'].toLowerCase()}?"
 										 h:autocomplete="off">
 									<f:validateLength maximum="2000"/>
@@ -254,7 +254,7 @@
 										 label="Relation to #{msg['label.competence'].toLowerCase()} field"
 										 value="#{submitEvidenceBean.evidence.relationToCompetence}"
 										 required="true"
-										 requiredMessage="Required field"
+										 requiredMessage="Relation to #{msg['label.competence'].toLowerCase()} is required"
 										 placeholder="How does this evidence show that you have met the requirements of the #{msg['label.competence'].toLowerCase()}?"
 										 autocomplete="off">
 									<f:validateLength maximum="2000"/>
@@ -289,7 +289,7 @@
 									 value="#{submitEvidenceBean.evidence.title}"
 									 placeholder="Evidence title"
 									 required="true"
-									 requiredMessage="Required field"
+									 requiredMessage="Evidence title is required"
 									 autocomplete="off">
 								<f:validateLength maximum="500"/>
 						</h:inputText>
@@ -323,7 +323,7 @@
 										 value="#{submitEvidenceBean.evidence.relationToCompetence}"
 										 placeholder="How does this evidence show that you have met the requirements of the #{msg['label.competence'].toLowerCase()}?"
 										 required="true"
-										 requiredMessage="Required field"
+										 requiredMessage="Relation to #{msg['label.competence'].toLowerCase()} is required"
 										 autocomplete="off">
 									<f:validateLength maximum="2000"/>
 							</h:inputText>
@@ -374,7 +374,7 @@
 						<h:panelGroup id="panelEvidenceSearchResults">
 							<ul class="list">
 								<ui:fragment rendered="#{empty learningEvidenceSearchBean.evidences}">
-									<li class="noPeople">No pieces of evidence.</li>
+									<li class="noPeople">No evidence.</li>
 								</ui:fragment>
 								<ui:repeat value="#{learningEvidenceSearchBean.evidences}" var="ev">
 									<li>
@@ -429,7 +429,7 @@
 													 label="Relation to #{msg['label.competence'].toLowerCase()} field"
 													 value="#{submitEvidenceBean.evidence.relationToCompetence}"
 													 required="true"
-													 requiredMessage="Required field"
+													 requiredMessage="Relation to #{msg['label.competence'].toLowerCase()} is required"
 													 placeholder="How does this evidence show that you have met the requirements of the #{msg['label.competence'].toLowerCase()}?"
 													 autocomplete="off">
 											<f:validateLength maximum="2000"/>

@@ -1073,7 +1073,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 						compData.setActivities(activities);
 					} else {
 						//load user evidences
-						List<LearningEvidenceData> compEvidences = learningEvidenceManager.getUserEvidencesForACompetence(compData.getTargetCompId(), LearningEvidenceLoadConfig.builder().loadTags(true).build());
+						List<LearningEvidenceData> compEvidences = learningEvidenceManager.getUserEvidencesForACompetence(compData.getTargetCompId(), LearningEvidenceLoadConfig.builder().loadTags(true).loadCompetences(true).build());
 						compData.setEvidences(compEvidences);
 					}
 					if (loadAssessmentConfig) {

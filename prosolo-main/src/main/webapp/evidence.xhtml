@@ -16,7 +16,7 @@
     <ui:define name="metadata">
         <f:metadata>
             <f:viewParam name="id" value="#{learningEvidenceBean.evidenceId}" default="null"/>
-            <f:viewAction action="#{learningEvidenceBean.initStudent()}" />
+            <f:viewAction action="#{learningEvidenceBean.init()}" />
         </f:metadata>
     </ui:define>
 
@@ -44,7 +44,7 @@
         <h:panelGroup layout="block" rendered="#{learningEvidenceBean.currentUserEvidenceOwner}" styleClass="container">
             <ol class="breadcrumb">
                 <li>
-                    <h:link outcome="/evidences">
+                    <h:link outcome="/evidence-repository">
                         Evidence
                     </h:link>
                 </li>
