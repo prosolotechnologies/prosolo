@@ -10,6 +10,8 @@ import org.prosolo.common.domainmodel.activitywall.PostSocialActivity1;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.events.EventType;
+import org.prosolo.common.domainmodel.lti.LtiTool;
+import org.prosolo.common.domainmodel.lti.ResourceType;
 import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.organization.Unit;
@@ -35,6 +37,7 @@ import org.prosolo.services.htmlparser.LinkParser;
 import org.prosolo.services.htmlparser.LinkParserFactory;
 import org.prosolo.services.indexing.impl.NodeChangeObserver;
 import org.prosolo.services.interaction.FollowResourceManager;
+import org.prosolo.services.lti.ToolSetManager;
 import org.prosolo.services.media.util.LinkParserException;
 import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.config.competence.CompetenceLoadConfig;
@@ -572,6 +575,23 @@ public class BusinessCase5_UniSA {
 		createSocialActivity(events, userLoriAbner, "Market analysis and future prospects of Online Education market.", "https://www.marketwatch.com/press-release/online-education-market-2018-top-key-players-k12-inc-pearson-white-hat-managemen-georg-von-holtzbrinck-gmbh-co-2018-08-22");
 		createSocialActivity(events, userHelenCampbell, "", "https://www.teachermagazine.com.au/articles/numeracy-is-everyones-business");
 
+
+		//////////////////////////////////
+		// Create LTI Global tool
+		//////////////////////////////////
+		LtiTool tool = new LtiTool();
+		tool.setToolType(ResourceType.Global);
+		tool.setName("External Tool 1");
+		tool.setCreatedBy(userNickPowell);
+		tool.setCredentialId(0);
+		tool.setCompetenceId(-1);
+		tool.setActivityId(-1);
+		tool.setEnabled(true);
+		tool.setOrganization(org);
+		tool.setUnit(unitSchoolOfEducation);
+		tool.setUserGroup(userGroupScienceEducationStudents);
+
+		ServiceLocator.getInstance().getService(ToolSetManager.class).saveToolSet(tool, "daa15cb1-ea0c-4409-ad74-ef01990457a2", "78d21840-ae37-4034-8aa8-e605c06f7ef7");
 
 		// fire all events
 		ServiceLocator.getInstance().getService(EventFactory.class).generateEvents(events, new Class[]{NodeChangeObserver.class});

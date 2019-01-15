@@ -8,5 +8,6 @@ public interface ToolSetManager {
 
 	public LtiToolSet saveToolSet(LtiTool tool) throws DbConnectionException;
 	public boolean checkIfToolSetExists(long toolSetId) throws RuntimeException;
+	LtiToolSet saveToolSet(LtiTool tool, String keyLtiOne, String secretLtiOne) throws DbConnectionException;
 
 }
