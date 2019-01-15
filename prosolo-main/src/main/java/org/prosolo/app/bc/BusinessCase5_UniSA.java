@@ -8,6 +8,7 @@ import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
 import org.prosolo.common.domainmodel.activitywall.PostSocialActivity1;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
+import org.prosolo.common.domainmodel.content.ContentType1;
 import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.organization.Organization;
@@ -40,8 +41,8 @@ import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.config.competence.CompetenceLoadConfig;
 import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.ResourceVisibilityMember;
-import org.prosolo.services.user.data.UserData;
 import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview1;
+import org.prosolo.services.nodes.data.activity.attachmentPreview.MediaType1;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.credential.CredentialData;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceData;
@@ -53,6 +54,7 @@ import org.prosolo.services.nodes.data.rubrics.RubricLevelData;
 import org.prosolo.services.nodes.impl.util.EditMode;
 import org.prosolo.services.user.UserGroupManager;
 import org.prosolo.services.user.UserManager;
+import org.prosolo.services.user.data.UserData;
 import org.prosolo.services.util.roles.SystemRoleNames;
 import org.springframework.stereotype.Service;
 
@@ -570,6 +572,21 @@ public class BusinessCase5_UniSA {
 		// Create Status wall posts
 		//////////////////////////////////
 		createSocialActivity(events, userLoriAbner, "Market analysis and future prospects of Online Education market.", "https://www.marketwatch.com/press-release/online-education-market-2018-top-key-players-k12-inc-pearson-white-hat-managemen-georg-von-holtzbrinck-gmbh-co-2018-08-22");
+
+		// post with no attachment nor link
+		createSocialActivity(events, userHelenCampbell, "Make sure students understand that just because someone else says something, it’s not necessarily a fact. It’s most likely just his/her opinion. To simply agree with someone else’s opinion is to consider it a fact and thus make it real. For example, believing others who say “You can’t play soccer very well” can either convince you to agree with them and continue being poor at soccer OR motivate you to believe “I’m better now than before and I’ll improve with even more practice!” One’s attitude of others’ opinions can either 1) encourage and help us grow and improve or 2) discourage and inhibit us from growing.", null);
+
+		// post with attachment
+		createSocialActivityWithAttachment(events, userHelenCampbell, "The K to 12 Philippine Basic Education Curriculum Framework", "The K to 12 Curriculum", "http://industry.gov.ph/wp-content/uploads/2015/05/6th-TID-Usec.-Ocampos-Presentation-on-K-to-12.pdf");
+		// post with SlideShare presentation
+		createSocialActivity(events, userHelenCampbell, "", "https://www.slideshare.net/fordemm/stem-presentation-cloonan-13-final");
+		// post with YouTube video
+		createSocialActivity(events, userHelenCampbell, "", "https://www.youtube.com/watch?v=5GWhwUN9iaY");
+		// post with no thumbnail
+		createSocialActivity(events, userHelenCampbell, "", "https://www.edu.gov.mb.ca/k12/learnres/index.html");
+		// post with small thumbnail
+		createSocialActivity(events, userHelenCampbell, "Open educational resources are tools and supports that are available at no cost. They’re designed to support learning for K–12 students and adult learners.", "https://www.openschool.bc.ca/k12/");
+		// post with large thumbnail
 		createSocialActivity(events, userHelenCampbell, "", "https://www.teachermagazine.com.au/articles/numeracy-is-everyones-business");
 
 
@@ -588,15 +605,39 @@ public class BusinessCase5_UniSA {
 		SocialActivityData1 newSocialActivity = new SocialActivityData1();
 		newSocialActivity.setText(text);
 
-		try {
-			LinkParser parser = LinkParserFactory.buildParser(StringUtil.cleanHtml(url));
-			AttachmentPreview1 attachmentPreview1 = parser.parse();
-			newSocialActivity.setAttachmentPreview(attachmentPreview1);
-		} catch (LinkParserException e) {
-			e.printStackTrace();
-			logger.error("Error", e);
+		if (url != null) {
+			try {
+				LinkParser parser = LinkParserFactory.buildParser(StringUtil.cleanHtml(url));
+				AttachmentPreview1 attachmentPreview1 = parser.parse();
+				newSocialActivity.setAttachmentPreview(attachmentPreview1);
+			} catch (LinkParserException e) {
+				logger.error("Error", e);
+			}
 		}
 
+		postStatus(events, user, newSocialActivity);
+	}
+
+
+	private void createSocialActivityWithAttachment(EventQueue events, User user, String text, String attachmentTitle, String attachmentUrl) {
+		SocialActivityData1 newSocialActivity = new SocialActivityData1();
+		newSocialActivity.setText(text);
+
+		if (attachmentUrl != null) {
+			AttachmentPreview1 uploadedFilePreview = new AttachmentPreview1();
+			uploadedFilePreview.setInitialized(true);
+			uploadedFilePreview.setMediaType(MediaType1.File_Other);
+			uploadedFilePreview.setContentType(ContentType1.FILE);
+			uploadedFilePreview.setLink(attachmentUrl);
+			uploadedFilePreview.setTitle(attachmentTitle);
+
+			newSocialActivity.setAttachmentPreview(uploadedFilePreview);
+		}
+
+		postStatus(events, user, newSocialActivity);
+	}
+
+	private void postStatus(EventQueue events, User user, SocialActivityData1 newSocialActivity) {
 		PostSocialActivity1 postSocialActivity1 = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(SocialActivityManager.class).createNewPostAndGetEvents(
 				newSocialActivity, createUserContext(user)));
 
