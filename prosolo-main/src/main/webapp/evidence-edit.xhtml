@@ -11,7 +11,12 @@
     <utilcomp:messagesBundle var="msg" />
 
     <ui:define name="windowTitle">
-        Edit - #{learningEvidenceEditBean.evidence.title} - Evidence - ProSolo
+        <ui:fragment rendered="#{learningEvidenceEditBean.createUseCase}">
+            Add - Evidence - ProSolo
+        </ui:fragment>
+        <ui:fragment rendered="#{!learningEvidenceEditBean.createUseCase}">
+            Edit - #{learningEvidenceEditBean.evidence.title} - Evidence - ProSolo
+        </ui:fragment>
     </ui:define>
 
     <ui:define name="metadata">
