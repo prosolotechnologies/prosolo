@@ -5,11 +5,11 @@ import org.simpleframework.xml.Element;
 public class InitConfig {
 
 	@Element(name = "bc", required = false)
-	public int bc = 1;
+	public String bc = "1";
 	
 	@Element(name = "localization", required = false)
 	public String localization;
-	
+
 	@Element(name = "formatDB", required = false)
 	public boolean formatDB = true;
 	

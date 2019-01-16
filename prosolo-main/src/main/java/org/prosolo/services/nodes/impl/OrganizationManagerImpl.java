@@ -111,7 +111,9 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
      * @throws DataIntegrityViolationException
      * @throws DbConnectionException
      */
-    private EventQueue updateOrganizationLearningStages(long orgId, OrganizationData organization, UserContextData context) {
+    @Override
+    @Transactional
+    public EventQueue updateOrganizationLearningStages(long orgId, OrganizationData organization, UserContextData context) {
         //if learning stages are not enabled, we don't update learning stages for organization
         EventQueue queue = EventQueue.newEventQueue();
         if (Settings.getInstance().config.application.pluginConfig.learningInStagesPlugin.enabled) {
