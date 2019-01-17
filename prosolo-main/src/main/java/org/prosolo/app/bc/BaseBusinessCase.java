@@ -62,7 +62,7 @@ import java.util.*;
 /**
  * @author stefanvuckovic
  * @date 2019-01-15
- * @since 1.2.0
+ * @since 1.3.0
  */
 public abstract class BaseBusinessCase {
 
@@ -100,11 +100,6 @@ public abstract class BaseBusinessCase {
     protected User userKarenWhite;
     protected User userAnnaHallowell;
     protected User userErikaAmes;
-
-    public static final String PDF_TEST_FILE = "https://s3.amazonaws.com/prosolo.nikola/files/a7db937ae4b4958ceb15fb82137c43fb/New%20Mathematics%20teaching%20program.pdf";
-    public static final String PPT_TEST_FILE = "https://s3.amazonaws.com/prosolo.nikola/files/dedd108c4ea49314e6a9d9c0d8cfca5e/Lesson%20notes%20from%20English%20language%20course.pptx";
-    public static final String MOV_TEST_FILE = "https://s3.amazonaws.com/prosolo.nikola/files/6ce971e7edb9bb95a35abd501a2409c7/Meeting%20recording,%2015%20June,%202018.mov";
-    public static final String MP3_TEST_FILE = "https://s3.amazonaws.com/prosolo.nikola/files/05766a8aa68df0b97f6f5934c040adb1/Student%20conference%20recording.mp3";
 
     public void initRepository() {
         try {
@@ -398,6 +393,18 @@ public abstract class BaseBusinessCase {
 
     protected void enrollToDelivery(EventQueue events, Organization org, Credential1 delivery, User user) {
         extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CredentialManager.class).enrollInCredentialAndGetEvents(delivery.getId(), user.getId(), 0, UserContextData.of(user.getId(), org.getId(), null, null, null)));
+    }
+
+    protected LearningEvidence createEvidence(EventQueue events, LearningEvidenceType type, String title, String description, String url, String tagsCsv, User user) {
+        LearningEvidenceData evidence1Data = new LearningEvidenceData();
+        evidence1Data.setType(type);
+        evidence1Data.setTitle(title);
+        evidence1Data.setText(description);
+        evidence1Data.setUrl(url);
+        evidence1Data.setTagsString(tagsCsv);
+
+        return extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(LearningEvidenceManager.class).postEvidenceAndGetEvents(
+                evidence1Data, createUserContext(user)));
     }
 
     protected LearningEvidenceData addNewEvidenceAndAttachToCompetence(EventQueue events, LearningEvidenceType type, String title, String description, String url, String tagsCsv, String relationToCompetence, long targetCompId, User user) {

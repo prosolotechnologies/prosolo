@@ -54,8 +54,9 @@ import java.time.ZoneOffset;
 import java.util.*;
 
 /**
- * @author Zoran Jeremic Oct 11, 2014
- *
+ * @author Zoran Jeremic
+ * @date 2014-10-11
+ * @since 0.5
  */
 @Service
 public class BusinessCase4_EDX {

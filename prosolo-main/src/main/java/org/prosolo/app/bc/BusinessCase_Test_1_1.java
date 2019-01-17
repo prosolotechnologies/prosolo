@@ -10,7 +10,7 @@ import org.prosolo.services.lti.ToolSetManager;
 /**
  * @author stefanvuckovic
  * @date 2019-01-16
- * @since 1.2.0
+ * @since 1.3.0
  */
 public class BusinessCase_Test_1_1 extends BaseBusinessCase5 {
 

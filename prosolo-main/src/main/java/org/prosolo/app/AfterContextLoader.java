@@ -1,10 +1,7 @@
 package org.prosolo.app;
 
 import org.apache.log4j.Logger;
-import org.prosolo.app.bc.BusinessCase0_Blank;
-import org.prosolo.app.bc.BusinessCase4_EDX;
-import org.prosolo.app.bc.BusinessCase5_Demo;
-import org.prosolo.app.bc.BusinessCase_Test_1_1;
+import org.prosolo.app.bc.*;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
@@ -196,6 +193,9 @@ public class AfterContextLoader implements ServletContextListener {
 				break;
 			case "test/1.1":
 				new BusinessCase_Test_1_1().initRepository();
+				break;
+			case "test/2.6":
+				new BusinessCase_Test_2_6().initRepository();
 				break;
 			default:
 				break;

@@ -37,7 +37,7 @@ import java.util.List;
 /**
  * @author stefanvuckovic
  * @date 2019-01-16
- * @since 1.2.0
+ * @since 1.3.0
  */
 public abstract class BaseBusinessCase5 extends BaseBusinessCase {
 
@@ -81,6 +81,12 @@ public abstract class BaseBusinessCase5 extends BaseBusinessCase {
     protected CredentialInstructor credential6Delivery1InstructorPhilArmstrong;
     protected Credential1 credential7Delivery1;
     protected CredentialInstructor credential7Delivery1InstructorPhilArmstrong;
+
+    public static final String PDF_TEST_FILE = "https://devfiles.prosolo.ca/files/9367681195e4cfc492320693c754fa5f/Learnign%20Plan.pdf";
+    public static final String PDF1_TEST_FILE = "https://devfiles.prosolo.ca/files/e05c20125f4c36ba7043b6d89f925715/New%20Mathematics%20teaching%20program.pdf";
+    public static final String PPT_TEST_FILE = "https://devfiles.prosolo.ca/files/88b14f65b00d2921c4355ab427a202c9/Lesson%20notes%20from%20English%20language%20course.pptx";
+    public static final String MOV_TEST_FILE = "https://devfiles.prosolo.ca/files/93b2ae57400b80de816555ce667fb9de/Meeting%20recording,%2015%20June,%202018.mov";
+    public static final String MP3_TEST_FILE = "https://devfiles.prosolo.ca/files/f64720fff7409bf3b5f59e8f3e51a0c6/Student%20conference%20recording.mp3";
 
     @Override
     protected void createAdditionalData(EventQueue events) throws Exception {
