@@ -3,7 +3,8 @@ package org.prosolo.app;
 import org.apache.log4j.Logger;
 import org.prosolo.app.bc.BusinessCase0_Blank;
 import org.prosolo.app.bc.BusinessCase4_EDX;
-import org.prosolo.app.bc.BusinessCase5_UniSA;
+import org.prosolo.app.bc.BusinessCase5_Demo;
+import org.prosolo.app.bc.BusinessCase_Test_1_1;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
@@ -74,7 +75,7 @@ public class AfterContextLoader implements ServletContextListener {
 			initStaticData();
 			logger.debug("Static data initialised!");
 		
-			if (settings.config.init.bc != 0) {
+			if (settings.config.init.bc != null) {
 				logger.debug("Starting repository initialization");
 				initRepository(settings.config.init.bc);
 				logger.debug("Repository initialised!");
@@ -182,20 +183,22 @@ public class AfterContextLoader implements ServletContextListener {
 
 	}
 	
-	void initRepository(int bc) {
+	void initRepository(String bc) {
 		switch (bc) {
-		
-		case 0:
-			ServiceLocator.getInstance().getService(BusinessCase0_Blank.class).initRepository();
-			break;
-		case 4:
-			ServiceLocator.getInstance().getService(BusinessCase4_EDX.class).initRepository();
-			break;
-		case 5:
-			ServiceLocator.getInstance().getService(BusinessCase5_UniSA.class).initRepository();
-			break;
-		default:
-			break;
+			case "0":
+				ServiceLocator.getInstance().getService(BusinessCase0_Blank.class).initRepository();
+				break;
+			case "4":
+				ServiceLocator.getInstance().getService(BusinessCase4_EDX.class).initRepository();
+				break;
+			case "5":
+				new BusinessCase5_Demo().initRepository();
+				break;
+			case "test/1.1":
+				new BusinessCase_Test_1_1().initRepository();
+				break;
+			default:
+				break;
 		}
 	}
 
