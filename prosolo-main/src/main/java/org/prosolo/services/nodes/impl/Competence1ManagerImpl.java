@@ -527,17 +527,15 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 				}
 			}
 
-			Competence1 updatedComp = resourceFactory.updateCompetence(data, context.getActorId());
-
-			fireCompEditEvent(data, updatedComp, context);
-			
+			Result<Competence1> updatedComp = resourceFactory.updateCompetence(data, context);
+			eventFactory.generateEvents(updatedComp.getEventQueue());
 			/* 
 			 * flushing to force lock timeout exception so it can be caught here.
 			 * It is rethrown as StaleDataException.
 			 */
 			persistence.currentManager().flush();
 		    
-			return updatedComp;
+			return updatedComp.getResult();
 		} catch(StaleDataException|IllegalDataStateException e) {
 			logger.error(e);
 			//cee.printStackTrace();
@@ -553,7 +551,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		}
 	}
 
-	private void fireCompEditEvent(CompetenceData1 data, Competence1 updatedComp,
+	private EventData fireCompEditEvent(CompetenceData1 data, Competence1 updatedComp,
 								   UserContextData context) {
 		Map<String, String> params = new HashMap<>();
 		CompetenceChangeTracker changeTracker = new CompetenceChangeTracker(data.isPublished(),
@@ -563,12 +561,12 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		String jsonChangeTracker = gson.toJson(changeTracker);
 		params.put("changes", jsonChangeTracker);
 
-		eventFactory.generateEvent(EventType.Edit, context, updatedComp,null, null, params);
+		return eventFactory.generateEventData(EventType.Edit, context, updatedComp,null, null, params);
 	}
 
 	@Override
 	@Transactional(readOnly = false, rollbackFor = Exception.class)
-	public Competence1 updateCompetenceData(CompetenceData1 data, long userId) throws StaleDataException,
+	public Result<Competence1> updateCompetenceData(CompetenceData1 data, UserContextData context) throws StaleDataException,
 		IllegalDataStateException {
 		Competence1 compToUpdate = (Competence1) persistence.currentManager()
 				.load(Competence1.class, data.getCompetenceId(), LockOptions.UPGRADE);
@@ -671,8 +669,12 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 
 			setAssessmentRelatedData(compToUpdate, data, data.getAssessmentSettings().isRubricChanged());
     	}
-	    
-	    return compToUpdate;
+
+
+	    Result<Competence1> result = new Result<>();
+    	result.appendEvent(fireCompEditEvent(data, compToUpdate, context));
+    	result.setResult(compToUpdate);
+	    return result;
 	}
 
 	private void updateCredDuration(long compId, long newDuration, long oldDuration) {

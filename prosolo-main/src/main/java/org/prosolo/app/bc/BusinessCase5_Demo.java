@@ -1,73 +1,19 @@
 package org.prosolo.app.bc;
 
-import org.apache.commons.lang3.time.DateUtils;
 import org.apache.log4j.Logger;
-import org.hibernate.Session;
-import org.prosolo.bigdata.common.exceptions.DbConnectionException;
-import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
-import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
-import org.prosolo.common.domainmodel.activitywall.PostSocialActivity1;
-import org.prosolo.common.domainmodel.assessment.AssessmentType;
-import org.prosolo.common.domainmodel.credential.*;
-import org.prosolo.common.domainmodel.events.EventType;
-import org.prosolo.common.domainmodel.lti.LtiTool;
-import org.prosolo.common.domainmodel.lti.ResourceType;
-import org.prosolo.common.domainmodel.organization.Organization;
-import org.prosolo.common.domainmodel.organization.Role;
-import org.prosolo.common.domainmodel.organization.Unit;
-import org.prosolo.common.domainmodel.rubric.Rubric;
-import org.prosolo.common.domainmodel.rubric.RubricType;
-import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.domainmodel.user.UserGroup;
-import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
-import org.prosolo.common.event.context.data.UserContextData;
-import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
-import org.prosolo.common.util.date.DateUtil;
-import org.prosolo.common.util.string.StringUtil;
-import org.prosolo.core.db.hibernate.HibernateUtil;
+import org.prosolo.common.domainmodel.credential.LearningEvidenceType;
+import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.core.spring.ServiceLocator;
-import org.prosolo.services.activityWall.SocialActivityManager;
-import org.prosolo.services.activityWall.impl.data.SocialActivityData1;
-import org.prosolo.services.admin.BulkDataAdministrationService;
-import org.prosolo.services.assessment.RubricManager;
-import org.prosolo.services.assessment.data.AssessmentTypeConfig;
-import org.prosolo.services.data.Result;
-import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.event.EventQueue;
-import org.prosolo.services.htmlparser.LinkParser;
-import org.prosolo.services.htmlparser.LinkParserFactory;
-import org.prosolo.services.indexing.impl.NodeChangeObserver;
 import org.prosolo.services.interaction.FollowResourceManager;
-import org.prosolo.services.lti.ToolSetManager;
-import org.prosolo.services.media.util.LinkParserException;
-import org.prosolo.services.nodes.*;
+import org.prosolo.services.nodes.Competence1Manager;
+import org.prosolo.services.nodes.CredentialInstructorManager;
 import org.prosolo.services.nodes.config.competence.CompetenceLoadConfig;
-import org.prosolo.services.nodes.data.ObjectStatus;
-import org.prosolo.services.nodes.data.ResourceVisibilityMember;
-import org.prosolo.services.user.data.UserData;
-import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview1;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
-import org.prosolo.services.nodes.data.credential.CredentialData;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceData;
-import org.prosolo.services.nodes.data.organization.LearningStageData;
-import org.prosolo.services.nodes.data.organization.OrganizationData;
-import org.prosolo.services.nodes.data.rubrics.RubricCriterionData;
-import org.prosolo.services.nodes.data.rubrics.RubricData;
-import org.prosolo.services.nodes.data.rubrics.RubricLevelData;
-import org.prosolo.services.nodes.impl.util.EditMode;
-import org.prosolo.services.user.UserGroupManager;
-import org.prosolo.services.user.UserManager;
-import org.prosolo.services.util.roles.SystemRoleNames;
-import org.springframework.stereotype.Service;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.net.URL;
-import java.time.Clock;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author Nikola Milikic
@@ -200,8 +146,6 @@ public class BusinessCase5_Demo extends BaseBusinessCase5 {
 		//////////////////////////////////
 		createSocialActivity(events, userLoriAbner, "Market analysis and future prospects of Online Education market.", "https://www.marketwatch.com/press-release/online-education-market-2018-top-key-players-k12-inc-pearson-white-hat-managemen-georg-von-holtzbrinck-gmbh-co-2018-08-22");
 		createSocialActivity(events, userHelenCampbell, "", "https://www.teachermagazine.com.au/articles/numeracy-is-everyones-business");
-
-
 	}
 
 	@Override

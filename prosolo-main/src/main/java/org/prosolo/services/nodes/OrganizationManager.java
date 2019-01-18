@@ -50,6 +50,8 @@ public interface OrganizationManager extends AbstractManager {
 
     EventQueue updateOrganizationLearningStages(long orgId, OrganizationData organization, UserContextData context);
 
+    void updateOrganizationCredentialCategories(long orgId, OrganizationData organization);
+
     OrganizationData getOrganizationDataWithoutAdmins(long organizationId);
 
     String getOrganizationTitle(long organizationId) throws DbConnectionException;
