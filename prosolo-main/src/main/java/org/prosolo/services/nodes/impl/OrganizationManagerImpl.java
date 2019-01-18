@@ -176,7 +176,9 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
      * @throws DataIntegrityViolationException
      * @throws DbConnectionException
      */
-    private void updateOrganizationCredentialCategories(long orgId, OrganizationData organization) {
+    @Override
+    @Transactional
+    public void updateOrganizationCredentialCategories(long orgId, OrganizationData organization) {
         try {
             Organization org = (Organization) persistence.currentManager().load(Organization.class, orgId);
 
