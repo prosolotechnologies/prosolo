@@ -1,15 +1,19 @@
 package org.prosolo.app.bc;
 
 import org.apache.log4j.Logger;
-import org.prosolo.common.domainmodel.credential.*;
+import org.prosolo.common.domainmodel.credential.LearningEvidence;
+import org.prosolo.common.domainmodel.credential.LearningEvidenceType;
+import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.event.EventQueue;
 import org.prosolo.services.interaction.FollowResourceManager;
-import org.prosolo.services.nodes.*;
+import org.prosolo.services.nodes.Competence1Manager;
+import org.prosolo.services.nodes.CredentialInstructorManager;
 import org.prosolo.services.nodes.config.competence.CompetenceLoadConfig;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author Nikola Milikic

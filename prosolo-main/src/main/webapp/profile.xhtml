@@ -221,7 +221,8 @@
                                             <ui:fragment rendered="#{cred.assessments.count gt 0}">
                                                 <p:commandLink
                                                         styleClass="numberAssessments"
-                                                        pt:data-toggle="modal"
+                                                        pt:data-toggle="tooltip"
+                                                        pt:title="#{cred.assessments.count}&#160;assessment#{cred.assessments.count > 1 ? 's' : ''}"
                                                         action="#{profileBean.initCredentialAssessmentsIfNotInitialized(cred)}"
                                                         update="profileGrowl panelAssessments"
                                                         oncomplete="$('#assessmentsList').modal('show')">

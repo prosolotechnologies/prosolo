@@ -643,15 +643,6 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			Credential1 cred = res.getResult();
 
 			eventFactory.generateEvents(res.getEventQueue());
-
-			fireEditEvent(data, cred, context);
-			//we should generate update hashtags only for deliveries
-			if (data.getType() == CredentialType.Delivery && data.isHashtagsStringChanged()) {
-				Map<String, String> params = new HashMap<>();
-				params.put("newhashtags", data.getHashtagsString());
-				params.put("oldhashtags", data.getOldHashtags());
-				eventFactory.generateEvent(EventType.UPDATE_HASHTAGS, context, cred, null, null, params);
-			}
 			/* 
 			 * flushing to force lock timeout exception so it can be caught here.
 			 * It is rethrown as StaleDataException.
@@ -687,7 +678,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		return res != null ? res : 0;
 	}
 
-	private void fireEditEvent(CredentialData data, Credential1 cred,
+	private EventData fireEditEvent(CredentialData data, Credential1 cred,
 							   UserContextData context) {
 	    CredentialChangeTracker changeTracker = new CredentialChangeTracker(
 	    		data.isTitleChanged(), data.isDescriptionChanged(), false,
@@ -698,7 +689,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 		Map<String, String> params = new HashMap<>();
 		params.put("changes", jsonChangeTracker);
-	    eventFactory.generateEvent(EventType.Edit, context, cred, null,null, params);
+	    return eventFactory.generateEventData(EventType.Edit, context, cred, null,null, params);
 	}
 
 	@Override
@@ -866,6 +857,15 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			}
     	} else {
     		updateDeliveryTimes(credToUpdate, data, deliveryStart, deliveryEnd);
+		}
+
+		res.appendEvent(fireEditEvent(data, credToUpdate, context));
+		//we should generate update hashtags only for deliveries
+		if (data.getType() == CredentialType.Delivery && data.isHashtagsStringChanged()) {
+			Map<String, String> params = new HashMap<>();
+			params.put("newhashtags", data.getHashtagsString());
+			params.put("oldhashtags", data.getOldHashtags());
+			res.appendEvent(eventFactory.generateEventData(EventType.UPDATE_HASHTAGS, context, credToUpdate, null, null, params));
 		}
 
 		res.setResult(credToUpdate);

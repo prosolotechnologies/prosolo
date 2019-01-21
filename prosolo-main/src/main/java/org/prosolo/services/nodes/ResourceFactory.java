@@ -41,7 +41,7 @@ public interface ResourceFactory extends AbstractManager {
 
 	Result<Credential1> updateCredential(CredentialData data, UserContextData context) throws StaleDataException, IllegalDataStateException;
 
-	Competence1 updateCompetence(CompetenceData1 data, long userId) throws StaleDataException, 
+	Result<Competence1> updateCompetence(CompetenceData1 data, UserContextData context) throws StaleDataException,
 			IllegalDataStateException;
 
 	Activity1 updateActivity(org.prosolo.services.nodes.data.ActivityData data) 
