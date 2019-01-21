@@ -1,6 +1,7 @@
-package org.prosolo.app.bc;
+package org.prosolo.app.bc.test;
 
 import org.apache.log4j.Logger;
+import org.prosolo.app.bc.BaseBusinessCase5;
 import org.prosolo.common.domainmodel.credential.LearningEvidence;
 import org.prosolo.common.domainmodel.credential.LearningEvidenceType;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;

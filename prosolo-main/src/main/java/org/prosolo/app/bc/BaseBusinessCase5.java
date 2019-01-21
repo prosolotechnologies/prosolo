@@ -1,7 +1,10 @@
 package org.prosolo.app.bc;
 
+import org.apache.commons.lang3.time.DateUtils;
 import org.hibernate.Session;
 import org.prosolo.bigdata.common.exceptions.OperationForbiddenException;
+import org.prosolo.common.domainmodel.activitywall.PostSocialActivity1;
+import org.prosolo.common.domainmodel.content.ContentType1;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialInstructor;
 import org.prosolo.common.domainmodel.organization.Unit;
@@ -13,9 +16,12 @@ import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.core.db.hibernate.HibernateUtil;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.activityWall.SocialActivityManager;
+import org.prosolo.services.activityWall.impl.data.SocialActivityData1;
 import org.prosolo.services.event.EventQueue;
 import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.data.ObjectStatus;
+import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview1;
+import org.prosolo.services.nodes.data.activity.attachmentPreview.MediaType1;
 import org.prosolo.services.nodes.data.organization.LearningStageData;
 import org.prosolo.services.nodes.data.rubrics.RubricCriterionData;
 import org.prosolo.services.nodes.data.rubrics.RubricData;
@@ -432,6 +438,43 @@ public abstract class BaseBusinessCase5 extends BaseBusinessCase {
         extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(UserGroupManager.class).addUserToTheGroupAndGetEvents(userGroupScienceEducationStudents.getId(), userSheriLaureano.getId(), createUserContext(userNickPowell)));
         extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(UserGroupManager.class).addUserToTheGroupAndGetEvents(userGroupScienceEducationStudents.getId(), userAngelicaFallon.getId(), createUserContext(userNickPowell)));
         extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(UserGroupManager.class).addUserToTheGroupAndGetEvents(userGroupScienceEducationStudents.getId(), userIdaFritz.getId(), createUserContext(userNickPowell)));
+    }
+
+    protected void createSocialActivityWithAttachment(EventQueue events, User user, String text, String attachmentTitle, String attachmentUrl) {
+        SocialActivityData1 newSocialActivity = new SocialActivityData1();
+        newSocialActivity.setText(text);
+
+        if (attachmentUrl != null) {
+            AttachmentPreview1 uploadedFilePreview = new AttachmentPreview1();
+            uploadedFilePreview.setInitialized(true);
+            uploadedFilePreview.setMediaType(MediaType1.File_Other);
+            uploadedFilePreview.setContentType(ContentType1.FILE);
+            uploadedFilePreview.setLink(attachmentUrl);
+            uploadedFilePreview.setTitle(attachmentTitle);
+
+            newSocialActivity.setAttachmentPreview(uploadedFilePreview);
+        }
+
+        postStatus(events, user, newSocialActivity);
+    }
+
+    private void postStatus(EventQueue events, User user, SocialActivityData1 newSocialActivity) {
+        PostSocialActivity1 postSocialActivity1 = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(SocialActivityManager.class).createNewPostAndGetEvents(
+                newSocialActivity, createUserContext(user)));
+
+        // HACK: manually add 5 minutes to the lastEvent of the postSocialActivity1 so it would be listed on the Status Wall after UnitWelcomePostSocialActivity
+        Session session2 = (Session) ServiceLocator.getInstance().getService(DefaultManager.class).getPersistence().openSession();
+        try {
+            postSocialActivity1 = (PostSocialActivity1) session2.merge(postSocialActivity1);
+            postSocialActivity1.setLastAction(DateUtils.addMinutes(postSocialActivity1.getLastAction(), 5));
+            postSocialActivity1.setDateCreated(DateUtils.addMinutes(postSocialActivity1.getDateCreated(), 5));
+            session2.flush();
+        } catch (Exception e) {
+            e.printStackTrace();
+            getLogger().error("Error", e);
+        } finally {
+            HibernateUtil.close(session2);
+        }
     }
 
 }
