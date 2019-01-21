@@ -46,6 +46,7 @@ import org.prosolo.services.nodes.data.activity.attachmentPreview.MediaType1;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.credential.CredentialData;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceData;
+import org.prosolo.services.nodes.data.instructor.InstructorData;
 import org.prosolo.services.nodes.data.organization.LearningStageData;
 import org.prosolo.services.nodes.data.organization.OrganizationData;
 import org.prosolo.services.nodes.data.rubrics.RubricCriterionData;
@@ -105,7 +106,7 @@ public class BusinessCase5_UniSA {
 		//create organization
 		OrganizationData orgData = new OrganizationData();
 		orgData.setTitle("Desert Winds University");
-		orgData.setAdmins(Arrays.asList(new UserData(userNickPowell)));
+		orgData.setAdmins(List.of(new UserData(userNickPowell)));
 
 
 		Organization org = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(OrganizationManager.class)
@@ -207,7 +208,7 @@ public class BusinessCase5_UniSA {
 		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRoleAndGetEvents(userErikaAmes.getId(), unitSchoolOfEducation.getId(), roleInstructor.getId(), createUserContext(userErikaAmes)));
 
 		// list of all instructors from the School od Education
-		List<User> schoolOfEducationInstructors = Arrays.asList(userKarenWhite, userPhilArmstrong, userAnnaHallowell, userErikaAmes);
+		List<User> schoolOfEducationInstructors = List.of(userKarenWhite, userPhilArmstrong, userAnnaHallowell, userErikaAmes);
 
 		// add students to the unit School of Education
 		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRoleAndGetEvents(userHelenCampbell.getId(), unitSchoolOfEducation.getId(), roleUser.getId(), createUserContext(userHelenCampbell)));
@@ -227,7 +228,7 @@ public class BusinessCase5_UniSA {
 		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRoleAndGetEvents(userIdaFritz.getId(), unitSchoolOfEducation.getId(), roleUser.getId(), createUserContext(userHelenCampbell)));
 
 		// list of all students from the School od Education
-		List<User> schoolOfEducationStudents = Arrays.asList(userHelenCampbell, userRichardAnderson, userStevenTurner, userJosephGarcia, userTimothyRivera, userKevinHall, userKennethCarter, userHelenCampbell, userAnthonyMoore,
+		List<User> schoolOfEducationStudents = List.of(userHelenCampbell, userRichardAnderson, userStevenTurner, userJosephGarcia, userTimothyRivera, userKevinHall, userKennethCarter, userHelenCampbell, userAnthonyMoore,
 				userTaniaCortese, userSonyaElston, userLoriAbner, userSamanthaDell, userSheriLaureano, userAngelicaFallon, userIdaFritz);
 
 		// adding students to the unit School of Nursing and Midwifery
@@ -238,7 +239,7 @@ public class BusinessCase5_UniSA {
 		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(UnitManager.class).addUserToUnitWithRoleAndGetEvents(userAkikoKido.getId(), unitOfNursingAndMidwifery.getId(), roleUser.getId(), createUserContext(userAkikoKido)));
 
 		// list of all students from the School of Nursing and Midwifery
-		List<User> schoolOfNursingStudents = Arrays.asList(userPaulEdwards, userKevinMitchell, userGeorgeYoung, userRachelWiggins);
+		List<User> schoolOfNursingStudents = List.of(userPaulEdwards, userKevinMitchell, userGeorgeYoung, userRachelWiggins);
 
 		////////////////////////////////
 		// Add follow relations
@@ -426,22 +427,43 @@ public class BusinessCase5_UniSA {
 				new String[]{ "7.4 Engage with professional teaching networks and broader communities",
 						"Understand the role of external professionals and community representatives in broadening teachers’ professional knowledge and practice." });
 
-		////////////////////////////////
-		// Create deliveries
-		////////////////////////////////
-		try {
-			long date90DaysFromNow = getDaysFromNow(90);
-			Credential1 standard1Delivery = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CredentialManager.class).createCredentialDeliveryAndGetEvents(standard1.getId(), DateUtil.getDateFromMillis(new Date().getTime()), DateUtil.getDateFromMillis(date90DaysFromNow), createUserContext(userNickPowell)));
+		////////////////////////////////////////
+		// Create deliveries for all standards
+		////////////////////////////////////////
+		List<Credential1> allStandards = List.of(standard1, standard2, standard3, standard4, standard5, standard6, standard7);
+		List<Credential1> allDeliveries = new LinkedList<>();
 
-			// give learn privilege to all students from
-			givePrivilegeToGroupOnDelivery(events, standard1Delivery, UserGroupPrivilege.Learn, userNickPowell, org, Arrays.asList(userGroupScienceEducationStudents.getId(), userGroupArtsEducationStudents.getId()));
+		for (Credential1 standard : allStandards)
+			try {
+				long date90DaysFromNow = getDaysFromNow(90);
+				Credential1 standardDelivery = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CredentialManager.class).createCredentialDeliveryAndGetEvents(standard.getId(), DateUtil.getDateFromMillis(new Date().getTime()), DateUtil.getDateFromMillis(date90DaysFromNow), createUserContext(userNickPowell)));
+
+				allDeliveries.add(standardDelivery);
+
+				// all student from the School of Education can learn all deliveries
+				givePrivilegeToUsersOnDelivery(events, standardDelivery, UserGroupPrivilege.Learn, userNickPowell, org, schoolOfEducationStudents);
+
+				// Phil Armstrong is instructor on all deliveries
+				extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CredentialInstructorManager.class).addInstructorToCredentialAndGetEvents(standardDelivery.getId(), userPhilArmstrong.getId(), 0, createUserContext(userNickPowell)));
+			} catch (IllegalDataStateException e) {
+				e.printStackTrace();
+				logger.error("Error", e);
+			}
+
+		/////////////////////////////////////////////////////////////////////
+		// Assign instructors and students to the 1st standard delivery
+		/////////////////////////////////////////////////////////////////////
+		try {
+			Credential1 standard1Delivery = allDeliveries.get(0);
+
+			// Phil Armstrong is already added to the delivery, so just load it
+			InstructorData instructorPhilArmstrong = ServiceLocator.getInstance().getService(CredentialInstructorManager.class).getCredentialInstructor(userPhilArmstrong.getId(), standard1Delivery.getId(), false, false);
 
 			CredentialInstructor instructorKarenWhite = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CredentialInstructorManager.class).addInstructorToCredentialAndGetEvents(standard1Delivery.getId(), userKarenWhite.getId(), 0, createUserContext(userNickPowell)));
-			CredentialInstructor instructorPhilArmstrong = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CredentialInstructorManager.class).addInstructorToCredentialAndGetEvents(standard1Delivery.getId(), userPhilArmstrong.getId(), 0, createUserContext(userNickPowell)));
 			CredentialInstructor instructorAnnaHallowell = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CredentialInstructorManager.class).addInstructorToCredentialAndGetEvents(standard1Delivery.getId(), userAnnaHallowell.getId(), 0, createUserContext(userNickPowell)));
 			CredentialInstructor instructorErikaAmes = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CredentialInstructorManager.class).addInstructorToCredentialAndGetEvents(standard1Delivery.getId(), userErikaAmes.getId(), 0, createUserContext(userNickPowell)));
 
-			// enroll some students to the delivery
+			// enroll students to the delivery
 			enrollToDelivery(events, org, standard1Delivery, userHelenCampbell);
 			enrollToDelivery(events, org, standard1Delivery, userRichardAnderson);
 			enrollToDelivery(events, org, standard1Delivery, userStevenTurner);
@@ -449,13 +471,10 @@ public class BusinessCase5_UniSA {
 			enrollToDelivery(events, org, standard1Delivery, userTimothyRivera);
 			enrollToDelivery(events, org, standard1Delivery, userKevinHall);
 
-			// explicitly set Phil Armstrong as an instructor of Helen Campbell
+			// set Phil Armstrong as an instructor to Helen Campbell and Richard Anderson
 			extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CredentialInstructorManager.class).updateStudentsAssignedToInstructor(
-					instructorPhilArmstrong.getId(), standard1Delivery.getId(), Arrays.asList(userHelenCampbell.getId()), null, createUserContext(userNickPowell)));
+					instructorPhilArmstrong.getInstructorId(), standard1Delivery.getId(), List.of(userHelenCampbell.getId(), userRichardAnderson.getId()), null, createUserContext(userNickPowell)));
 
-			// explicitly set Phil Armstrong as an instructor of Richard Anderson
-			extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CredentialInstructorManager.class).updateStudentsAssignedToInstructor(
-					instructorPhilArmstrong.getId(), standard1Delivery.getId(), Arrays.asList(userRichardAnderson.getId()), null, createUserContext(userNickPowell)));
 
 			//////////////////////////
 			// Start all competencies
@@ -550,20 +569,43 @@ public class BusinessCase5_UniSA {
 			logger.error("Error", e);
 		}
 
-		// create deliveries for all other standards
-		List<Credential1> otherStandards = Arrays.asList(standard2, standard3, standard4, standard5, standard6, standard7);
-
-		for (Credential1 standard : otherStandards)
+		/////////////////////////////////////////////////////////////////////
+		// Assign instructors and students to the 2st standard delivery
+		/////////////////////////////////////////////////////////////////////
 		try {
-			long date90DaysFromNow = getDaysFromNow(90);
-			Credential1 standardDelivery = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CredentialManager.class).createCredentialDeliveryAndGetEvents(standard.getId(), DateUtil.getDateFromMillis(new Date().getTime()), DateUtil.getDateFromMillis(date90DaysFromNow), createUserContext(userNickPowell)));
+			Credential1 standard2Delivery = allDeliveries.get(1);
 
-			// all student from the School of Education can learn all deliveries
-			givePrivilegeToUsersOnDelivery(events, standardDelivery, UserGroupPrivilege.Learn, userNickPowell, org, schoolOfEducationStudents);
+			// Phil Armstrong is already added to the delivery, so just load it
+			InstructorData instructorPhilArmstrong = ServiceLocator.getInstance().getService(CredentialInstructorManager.class).getCredentialInstructor(userPhilArmstrong.getId(), standard2Delivery.getId(), false, false);
 
-			// Phil Armstrong is instructor at all deliveries
-			extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CredentialInstructorManager.class).addInstructorToCredentialAndGetEvents(standardDelivery.getId(), userPhilArmstrong.getId(), 0, createUserContext(userNickPowell)));
-		} catch (IllegalDataStateException e) {
+			// enroll students to the delivery
+			enrollToDelivery(events, org, standard2Delivery, userHelenCampbell);
+			enrollToDelivery(events, org, standard2Delivery, userStevenTurner);
+
+			// set Phil Armstrong as an instructor to Helen Campbell and Steven Turner
+			extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CredentialInstructorManager.class).updateStudentsAssignedToInstructor(
+					instructorPhilArmstrong.getInstructorId(), standard2Delivery.getId(), List.of(userHelenCampbell.getId(), userStevenTurner.getId()), null, createUserContext(userNickPowell)));
+		} catch (Exception e) {
+			e.printStackTrace();
+			logger.error("Error", e);
+		}
+
+		/////////////////////////////////////////////////////////////////////
+		// Assign instructors and students to the 3rd standard delivery
+		/////////////////////////////////////////////////////////////////////
+		try {
+			Credential1 standard3Delivery = allDeliveries.get(2);
+
+			// Phil Armstrong is already added to the delivery, so just load it
+			InstructorData instructorPhilArmstrong = ServiceLocator.getInstance().getService(CredentialInstructorManager.class).getCredentialInstructor(userPhilArmstrong.getId(), standard3Delivery.getId(), false, false);
+
+			// enroll students to the delivery
+			enrollToDelivery(events, org, standard3Delivery, userHelenCampbell);
+
+			// set Phil Armstrong as an instructor to Helen Campbell
+			extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CredentialInstructorManager.class).updateStudentsAssignedToInstructor(
+					instructorPhilArmstrong.getInstructorId(), standard3Delivery.getId(), List.of(userHelenCampbell.getId()), null, createUserContext(userNickPowell)));
+		} catch (Exception e) {
 			e.printStackTrace();
 			logger.error("Error", e);
 		}
@@ -788,7 +830,7 @@ public class BusinessCase5_UniSA {
 		AssessmentTypeConfig instructorAssessment = new AssessmentTypeConfig(-1, AssessmentType.INSTRUCTOR_ASSESSMENT, true, true);
 		AssessmentTypeConfig peerAssessment = new AssessmentTypeConfig(-1, AssessmentType.PEER_ASSESSMENT, true, false);
 		AssessmentTypeConfig selfAssessment = new AssessmentTypeConfig(-1, AssessmentType.SELF_ASSESSMENT, true, false);
-		credentialData.setAssessmentTypes(Arrays.asList(instructorAssessment, peerAssessment, selfAssessment));
+		credentialData.setAssessmentTypes(List.of(instructorAssessment, peerAssessment, selfAssessment));
 
 		return extractResultAndAddEvents(events, ServiceLocator
 				.getInstance()
@@ -809,7 +851,7 @@ public class BusinessCase5_UniSA {
 		AssessmentTypeConfig instructorAssessment = new AssessmentTypeConfig(-1, AssessmentType.INSTRUCTOR_ASSESSMENT, true, true);
 		AssessmentTypeConfig peerAssessment = new AssessmentTypeConfig(-1, AssessmentType.PEER_ASSESSMENT, true, false);
 		AssessmentTypeConfig selfAssessment = new AssessmentTypeConfig(-1, AssessmentType.SELF_ASSESSMENT, true, false);
-		compData.setAssessmentTypes(Arrays.asList(instructorAssessment, peerAssessment, selfAssessment));
+		compData.setAssessmentTypes(List.of(instructorAssessment, peerAssessment, selfAssessment));
 
 		try {
 			return extractResultAndAddEvents(events, ServiceLocator
