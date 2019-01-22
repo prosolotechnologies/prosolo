@@ -307,8 +307,11 @@ public abstract class BaseBusinessCase {
         credentialData.setTagsString(tags);
         credentialData.getAssessmentSettings().setGradingMode(GradingMode.MANUAL);
         credentialData.getAssessmentSettings().setRubricId(rubricId);
-        credentialData.setLearningStageEnabled(true);
-        credentialData.setLearningStage(learningStage);
+
+        if (learningStage != null) {
+            credentialData.setLearningStageEnabled(true);
+            credentialData.setLearningStage(learningStage);
+        }
         credentialData.setAssessorAssignment(CredentialData.AssessorAssignmentMethodData.AUTOMATIC);
 
         AssessmentTypeConfig instructorAssessment = new AssessmentTypeConfig(-1, AssessmentType.INSTRUCTOR_ASSESSMENT, true, true);
@@ -322,15 +325,16 @@ public abstract class BaseBusinessCase {
                 .saveNewCredentialAndGetEvents(credentialData, createUserContext(user)));
     }
 
-    protected Competence1 createCompetence(EventQueue events, User user, String title, String description, long credentialId, long rubricId) {
+    protected Competence1 createCompetence(EventQueue events, User user, String title, String description, String tagsCSV, long rubricId, LearningPathType learningPathType, long credentialId) {
         CompetenceData1 compData = new CompetenceData1(false);
         compData.setTitle(title);
         compData.setDescription(description);
+        compData.setTagsString(tagsCSV);
         compData.setPublished(false);
         compData.setType(LearningResourceType.UNIVERSITY_CREATED);
         compData.getAssessmentSettings().setGradingMode(GradingMode.MANUAL);
         compData.getAssessmentSettings().setRubricId(rubricId);
-        compData.setLearningPathType(LearningPathType.EVIDENCE);
+        compData.setLearningPathType(learningPathType);
 
         AssessmentTypeConfig instructorAssessment = new AssessmentTypeConfig(-1, AssessmentType.INSTRUCTOR_ASSESSMENT, true, true);
         AssessmentTypeConfig peerAssessment = new AssessmentTypeConfig(-1, AssessmentType.PEER_ASSESSMENT, true, false);
@@ -349,7 +353,7 @@ public abstract class BaseBusinessCase {
         }
     }
 
-    private Activity1 createActivity(EventQueue events, User user, String title, String description, String url, ActivityType type,
+    protected Activity1 createActivity(EventQueue events, User user, String title, String description, String url, ActivityType type,
                                      long compId, int durationHours, int durationMinutes, org.prosolo.services.nodes.data.ActivityResultType resultType, String... nameLink)
             throws DbConnectionException, IllegalDataStateException {
         ActivityData actData = new ActivityData(false);
