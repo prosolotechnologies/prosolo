@@ -468,6 +468,11 @@ public abstract class BaseBusinessCase {
                 UserContextData.of(actor.getId(), org.getId(), null, null, null)));
     }
 
+    protected void bookmarkCredential(EventQueue events, long credId, User user) {
+        extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CredentialManager.class)
+                .bookmarkCredentialAndGetEvents(credId, createUserContext(user)));
+    }
+
     protected long getDaysFromNow(int days) {
         return LocalDateTime.now(Clock.systemUTC()).plusDays(days).atZone(ZoneOffset.ofTotalSeconds(0)).toInstant().toEpochMilli();
     }
