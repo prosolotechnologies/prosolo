@@ -21,13 +21,7 @@ public class CompetenceDAOImpl extends GenericDAOImpl implements CompetenceDAO {
 			.getLogger(CompetenceDAOImpl.class);
 	
 	public CompetenceDAOImpl() {
-	/*	try{
-		setSession(HibernateUtil.getSessionFactory().openSession());
-	}catch(HibernateException ex){
-		logger.error(ex);
-	}finally{
-		session.close();
-	}*/
+		logger.info("CompetenceDAOImpl constructor init");
 	}
 	
 	@Override
@@ -104,7 +98,6 @@ public class CompetenceDAOImpl extends GenericDAOImpl implements CompetenceDAO {
 			}
 		} catch (IllegalDataStateException e) {
 			logger.error(e);
-			//cee.printStackTrace();
 			throw e;
 		} catch (Exception e) {
 			logger.error(e);

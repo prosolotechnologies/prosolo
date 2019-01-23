@@ -651,7 +651,11 @@
 			</plugin>
 			<plugin>
 				<inherited>true</inherited>
-				<groupId>org.apache.maven.plugins</groupId>
+                <configuration>
+                    <source>11</source>
+                    <target>11</target>
+                </configuration>
+                <groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 			</plugin>
 			<plugin>

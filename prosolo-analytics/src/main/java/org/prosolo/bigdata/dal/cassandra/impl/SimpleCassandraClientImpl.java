@@ -93,28 +93,26 @@ public class SimpleCassandraClientImpl implements SimpleCassandraClient {
 
 	@Override
 	public void connect(String node, int dbPort, String keyspace, int replicationFactor) {
-		System.out.println("CONNECTING CASSANDRA:"+node+" keyspace:"+keyspace);
+		logger.info("CONNECTING CASSANDRA:"+node+" keyspace:"+keyspace);
 		if (this.session != null) {
 			return;
 		}
 		if (this.cluster != null) {
 			return;
 		}
-		/*cluster = Cluster.builder().addContactPoint(node).build();*/
 		this.cluster = Cluster.builder()
 				.withPoolingOptions( getPoolingOptions())
 				.withRetryPolicy(DowngradingConsistencyRetryPolicy.INSTANCE)
 				.withReconnectionPolicy(new ConstantReconnectionPolicy(100L))
 				.withPort(dbPort)
 				.addContactPoints(node)
-				//.withAddressTranslator(new EC2MultiRegionAddressTranslator())
 				.build();
 		Metadata metadata = cluster.getMetadata();
-		System.out.printf("Connected to cluster: %s\n",
+		logger.info("Connected to cluster: %s\n"+
 				metadata.getClusterName());
 		for ( Host host : metadata.getAllHosts() ) {
-			System.out.printf("Datacenter: %s; Host: %s; Rack: %s\n",
-					host.getDatacenter(), host.getAddress(), host.getRack());
+			logger.info("Datacenter: "+
+					"host:"+ host.getDatacenter() + " address:"+ host.getAddress() + "rack:"+host.getRack());
 		}
 		if (keyspace != null) {
 			try {
@@ -162,9 +160,7 @@ public class SimpleCassandraClientImpl implements SimpleCassandraClient {
 			updateCurrentTimestamp(tablename,timestamp);
 			return timestamp;
 		}
-
 	}
-
 
 	private Map<TableNames, Long> getAllCurrentTimestamps(){
 		PreparedStatement prepared = getStatement(getSession(), Statements.FIND_CURRENT_TIMESTAMPS);
