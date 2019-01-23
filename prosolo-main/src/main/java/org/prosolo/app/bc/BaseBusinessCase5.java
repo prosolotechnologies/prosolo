@@ -7,6 +7,7 @@ import org.prosolo.common.domainmodel.activitywall.PostSocialActivity1;
 import org.prosolo.common.domainmodel.content.ContentType1;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialInstructor;
+import org.prosolo.common.domainmodel.credential.LearningPathType;
 import org.prosolo.common.domainmodel.organization.Unit;
 import org.prosolo.common.domainmodel.rubric.RubricType;
 import org.prosolo.common.domainmodel.user.User;
@@ -309,8 +310,10 @@ public abstract class BaseBusinessCase5 extends BaseBusinessCase {
                         creator,
                         compDatum[0],
                         compDatum[1],
+                        null,
                         standard.getId(),
-                        rubricId);
+                        rubricId,
+                        LearningPathType.EVIDENCE);
             }
         } catch (Exception ex) {
             getLogger().error(ex);
