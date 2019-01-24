@@ -43,7 +43,6 @@ object TwitterHashtagsStreamsManager extends TwitterStreamsManager {
     result
   }
 
-
   /**
     * At the applicaiton startup reads all hashtags from database and initialize required number of spark twitter streams to listen for it on Twitter
     */
@@ -67,9 +66,9 @@ object TwitterHashtagsStreamsManager extends TwitterStreamsManager {
       }
     }
     )
-
-
+    logger.info("INITIALIZE TWITTER STREAMING STARTING...")
     startStreamsForInitialSetOfData
+    logger.info("INITIALIZE TWITTER STREAMING FINISHED")
   }
 
   /**

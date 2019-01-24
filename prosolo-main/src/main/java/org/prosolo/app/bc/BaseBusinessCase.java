@@ -307,8 +307,11 @@ public abstract class BaseBusinessCase {
         credentialData.setTagsString(tags);
         credentialData.getAssessmentSettings().setGradingMode(GradingMode.MANUAL);
         credentialData.getAssessmentSettings().setRubricId(rubricId);
-        credentialData.setLearningStageEnabled(true);
-        credentialData.setLearningStage(learningStage);
+
+        if (learningStage != null) {
+            credentialData.setLearningStageEnabled(true);
+            credentialData.setLearningStage(learningStage);
+        }
         credentialData.setAssessorAssignment(CredentialData.AssessorAssignmentMethodData.AUTOMATIC);
 
         AssessmentTypeConfig instructorAssessment = new AssessmentTypeConfig(-1, AssessmentType.INSTRUCTOR_ASSESSMENT, true, true);

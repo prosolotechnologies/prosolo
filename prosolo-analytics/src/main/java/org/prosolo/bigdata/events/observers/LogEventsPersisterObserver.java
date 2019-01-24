@@ -24,78 +24,74 @@ import java.util.Set;
 
 /**
  * @author Zoran Jeremic Apr 6, 2015
- *
  */
 
 public class LogEventsPersisterObserver implements EventObserver {
-	//private LogEventDBManager dbManager = new LogEventDBManagerImpl();
-	//private UserObservationsDBManager userObservationsDBManager=new UserObservationsDBManagerImpl();
-	//private AnalyticalEventDBManager analyticalDBManager=new AnalyticalEventDBManagerImpl();
-	private static Logger logger = Logger.getLogger(LogEventsPersisterObserver.class
-			.getName());
-	SNAEventsChecker$ eventsChecker=SNAEventsChecker$.MODULE$;
-	@Override
-	public Topic[] getSupportedTopics() {
-		// TODO Auto-generated method stub
-		return new Topic[] { Topic.LOGS };
-	}
+    private static Logger logger = Logger.getLogger(LogEventsPersisterObserver.class.getName());
 
-	@Override
-	public EventType[] getSupportedTypes() {
-		return null;
-	}
+    SNAEventsChecker$ eventsChecker = SNAEventsChecker$.MODULE$;
 
-	@Override
-	public void handleEvent(DefaultEvent event) {
-		if (event instanceof LogEvent) {
-			LogEvent logEvent = (LogEvent) event;
-			LogEventDBManagerImpl.getInstance().insertLogEvent(logEvent);
-			Gson g=new Gson();
-			logger.debug("HANDLING LOG EVENT:"+g.toJson(logEvent));
-			if(logEvent.getTargetUserId()>0){
-					Set<Long> courses=new HashSet<Long>();
+    @Override
+    public Topic[] getSupportedTopics() {
+        // TODO Auto-generated method stub
+        return new Topic[]{Topic.LOGS};
+    }
 
-				if(logEvent.getCourseId()==0){
-					LearningContext context = logEvent.getLearningContext();
-					Context credContext = context.getSubContextWithName(ContextName.CREDENTIAL);
-					if(credContext!=null && credContext.getId()>0){
-						courses.add(credContext.getId());
-					}else{
-						Set<Long> actorCourses=UserObservationsDBManagerImpl.getInstance().findAllUserCourses(logEvent.getActorId());
-						courses.addAll(actorCourses);
-						Set<Long> targetUserCourses=UserObservationsDBManagerImpl.getInstance().findAllUserCourses(logEvent.getTargetUserId());
-						courses.addAll(targetUserCourses);
-					}
+    @Override
+    public EventType[] getSupportedTypes() {
+        return null;
+    }
 
-				}else{
-					courses.add(logEvent.getCourseId());
-				}
-				if(logEvent.getActorId()!=logEvent.getTargetUserId()){
-					long actorId=logEvent.getActorId();
-					long targetUserId=logEvent.getTargetUserId();
-					for(Long courseId:courses){
-								Map<String,Object> data=new HashMap<String,Object>();
-						data.put("course", courseId);
-						data.put("source", actorId);
-						data.put("target", targetUserId);
-						AnalyticalEventDBManagerImpl.getInstance().updateGenericCounter(DataName.SOCIALINTERACTIONCOUNT,data);
-					logger.debug("OBSERVED LOG EVENT:"+event.getEventType()
-							+" actor:"+logEvent.getActorId()
-							+" with Target UserID:"+logEvent.getTargetUserId()
-							+" course:"+logEvent.getCourseId()
-					+	 " inserted course:"+courseId);
-						if(eventsChecker.isEventObserved(logEvent)){
-														ObservationType observationType=eventsChecker.getObservationType(logEvent);
+    @Override
+    public void handleEvent(DefaultEvent event) {
+        if (event instanceof LogEvent) {
+            LogEvent logEvent = (LogEvent) event;
+            LogEventDBManagerImpl.getInstance().insertLogEvent(logEvent);
+            Gson g = new Gson();
+            logger.debug("HANDLING LOG EVENT:" + g.toJson(logEvent));
+            if (logEvent.getTargetUserId() > 0) {
+                Set<Long> courses = new HashSet<Long>();
 
-						//	long date = DateEpochUtil.getDaysSinceEpoch(logEvent.getTimestamp());
-							SocialInteractionStatisticsDBManagerImpl.getInstance().updateToFromInteraction(courseId, actorId, targetUserId,observationType);
-						}
-					}
+                if (logEvent.getCourseId() == 0) {
+                    LearningContext context = logEvent.getLearningContext();
+                    Context credContext = context.getSubContextWithName(ContextName.CREDENTIAL);
+                    if (credContext != null && credContext.getId() > 0) {
+                        courses.add(credContext.getId());
+                    } else {
+                        Set<Long> actorCourses = UserObservationsDBManagerImpl.getInstance().findAllUserCourses(logEvent.getActorId());
+                        courses.addAll(actorCourses);
+                        Set<Long> targetUserCourses = UserObservationsDBManagerImpl.getInstance().findAllUserCourses(logEvent.getTargetUserId());
+                        courses.addAll(targetUserCourses);
+                    }
 
-				}
-			}
-		}
+                } else {
+                    courses.add(logEvent.getCourseId());
+                }
+                if (logEvent.getActorId() != logEvent.getTargetUserId()) {
+                    long actorId = logEvent.getActorId();
+                    long targetUserId = logEvent.getTargetUserId();
+                    for (Long courseId : courses) {
+                        Map<String, Object> data = new HashMap<String, Object>();
+                        data.put("course", courseId);
+                        data.put("source", actorId);
+                        data.put("target", targetUserId);
+                        AnalyticalEventDBManagerImpl.getInstance().updateGenericCounter(DataName.SOCIALINTERACTIONCOUNT, data);
+                        logger.debug("OBSERVED LOG EVENT:" + event.getEventType()
+                                + " actor:" + logEvent.getActorId()
+                                + " with Target UserID:" + logEvent.getTargetUserId()
+                                + " course:" + logEvent.getCourseId()
+                                + " inserted course:" + courseId);
+                        if (eventsChecker.isEventObserved(logEvent)) {
+                            ObservationType observationType = eventsChecker.getObservationType(logEvent);
 
-	}
+                            SocialInteractionStatisticsDBManagerImpl.getInstance().updateToFromInteraction(courseId, actorId, targetUserId, observationType);
+                        }
+                    }
+
+                }
+            }
+        }
+
+    }
 
 }

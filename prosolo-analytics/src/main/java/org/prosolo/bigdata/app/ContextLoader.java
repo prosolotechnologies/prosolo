@@ -18,79 +18,58 @@ import org.prosolo.common.config.CommonSettings;
 
 /**
  * @author Zoran Jeremic Apr 2, 2015
- *
  */
 
 public class ContextLoader implements ServletContextListener {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 4207091108088101465L;
-	private static Logger logger = Logger.getLogger(ContextLoader.class
-			.getName());
+    /**
+     *
+     */
+    private static final long serialVersionUID = 4207091108088101465L;
+    private static Logger logger = Logger.getLogger(ContextLoader.class
+            .getName());
 
-	@Override
-	public void contextInitialized(ServletContextEvent sce) {
-		System.out.println("CONTEXT INITIALIZATION");
+    @Override
+    public void contextInitialized(ServletContextEvent sce) {
+        logger.info("CONTEXT INITIALIZATION");
 
-		if (Settings.getInstance().config.initConfig.formatDB) {
-			String dbName = Settings.getInstance().config.dbConfig.dbServerConfig.dbName
-					+ CommonSettings.getInstance().config.getNamespaceSufix();
-			//CassandraAdminImpl admin=new CassandraAdminImpl();
-			//admin.dropSchema();
+        if (Settings.getInstance().config.initConfig.formatDB) {
+            String dbName = Settings.getInstance().config.dbConfig.dbServerConfig.dbName
+                    + CommonSettings.getInstance().config.getNamespaceSufix();
 
-			 //dbManager.dropSchemaIfExists(dbName);
-			CassandraDDLManagerImpl dbManager = CassandraDDLManagerImpl.getInstance();
-			 dbManager.dropSchemaIfExists(dbName);
-			System.out.println("CASSANDRA DB FORMATED:" + dbName);
-			  dbManager.checkIfTablesExistsAndCreate(dbName);
-			System.out.println("CASSANDRA SCHEMA CREATED:" + dbName);
+            CassandraDDLManagerImpl dbManager = CassandraDDLManagerImpl.getInstance();
+            dbManager.dropSchemaIfExists(dbName);
+            logger.info("CASSANDRA DB FORMATED:" + dbName);
+            dbManager.checkIfTablesExistsAndCreate(dbName);
+            logger.info("CASSANDRA SCHEMA CREATED:" + dbName);
 
-		}
-		 ESAdministration esAdmin = new ESAdministrationImpl();
-		try {
-			esAdmin.createIndexes();
-		} catch (IndexingServiceNotAvailable indexingServiceNotAvailable) {
-			indexingServiceNotAvailable.printStackTrace();
-		}
-		/*if (Settings.getInstance().config.initConfig.formatES) {
+        }
+        logger.info(" Cassandra validation finished");
+        ESAdministration esAdmin = new ESAdministrationImpl();
+        try {
+            esAdmin.createIndexes();
+        } catch (IndexingServiceNotAvailable indexingServiceNotAvailable) {
+            indexingServiceNotAvailable.printStackTrace();
+        }
+        if (Settings.getInstance().config.schedulerConfig.streamingJobs.twitterStreaming) {
+            logger.info("INITIALIZED TWITTER STREAMING");
 
-			try {
-				esAdmin.deleteIndexes();
-				esAdmin.createIndexes();
- 				System.out.println("ELASTICSEARCH FORMATED");
-			} catch (IndexingServiceNotAvailable e) {
-				e.printStackTrace();
-			}
+            TwitterHashtagsStreamsManager$ twitterManager = TwitterHashtagsStreamsManager$.MODULE$;
+            twitterManager.initialize();
+        }
+        // After context is initialized. Should not be changed.
+        // Initialization of Streaming manager that is responsible for
+        // collecting information from Prosolo through the Rabbitmq
+        if (Settings.getInstance().config.schedulerConfig.streamingJobs.rabbitMQStreaming) {
+            logger.info("INITIALIZED RABBITMQ STREAMING");
+            StreamingManagerImpl streamingManager = new StreamingManagerImpl();
+            streamingManager.initializeStreaming();
+        }
+        logger.info("CONTEXT INITIALIZATION FINISHED");
+    }
 
-		}*/
+    @Override
+    public void contextDestroyed(ServletContextEvent sce) {
+        // TODO Auto-generated method stub
 
-
-		// TwitterHashtagsStreamsManagerImpl manager=new
-		// TwitterHashtagsStreamsManagerImpl();
-		// manager.initialize();
-		if(Settings.getInstance().config.schedulerConfig.streamingJobs.twitterStreaming){
-			System.out.println("INITIALIZED TWITTER STREAMING");
-		
-			TwitterHashtagsStreamsManager$ twitterManager = TwitterHashtagsStreamsManager$.MODULE$;
-			twitterManager.initialize();
-			//TwitterUsersStreamsManager$  twitterUsersManager=TwitterUsersStreamsManager$.MODULE$;
-			//twitterUsersManager.initialize();
-		}
-		// After context is initialized. Should not be changed.
-		// Initialization of Streaming manager that is responsible for
-		// collecting information from Prosolo through the Rabbitmq
-		if(Settings.getInstance().config.schedulerConfig.streamingJobs.rabbitMQStreaming){
-			System.out.println("INITIALIZED RABBITMQ STREAMING");
-			StreamingManagerImpl streamingManager = new StreamingManagerImpl();
-			streamingManager.initializeStreaming();
-		}
-		System.out.println("CONTEXT INITIALIZATION FINISHED");
-	}
-
-	@Override
-	public void contextDestroyed(ServletContextEvent sce) {
-		// TODO Auto-generated method stub
-
-	}
+    }
 }
