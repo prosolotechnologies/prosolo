@@ -35,7 +35,6 @@ public class BusinessCase_Test_2_3 extends BaseBusinessCase5 {
 
     @Override
     protected void createAdditionalDataBC5(EventQueue events) throws Exception {
-        CredentialManager credManager = ServiceLocator.getInstance().getService(CredentialManager.class);
         Competence1Manager compManager = ServiceLocator.getInstance().getService(Competence1Manager.class);
         ///////////////////////////
         // create credential category and set it for credentials
