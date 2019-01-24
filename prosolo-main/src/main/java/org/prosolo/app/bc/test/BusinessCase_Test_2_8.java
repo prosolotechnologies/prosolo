@@ -2,14 +2,17 @@ package org.prosolo.app.bc.test;
 
 import org.apache.log4j.Logger;
 import org.prosolo.app.bc.BaseBusinessCase5;
-import org.prosolo.common.domainmodel.credential.LearningEvidenceType;
-import org.prosolo.common.domainmodel.credential.TargetCompetence1;
+import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.event.EventQueue;
+import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.config.competence.CompetenceLoadConfig;
+import org.prosolo.services.nodes.data.ActivityData;
+import org.prosolo.services.nodes.data.ActivityResultType;
+import org.prosolo.services.nodes.data.ActivityType;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceData;
 import org.prosolo.services.nodes.data.organization.CredentialCategoryData;
@@ -87,6 +90,77 @@ public class BusinessCase_Test_2_8 extends BaseBusinessCase5 {
         ///////////////////////////
         bookmarkCredential(events, credential3Delivery1.getId(), userGeorgeYoung);
         bookmarkCredential(events, credential4Delivery1.getId(), userGeorgeYoung);
+        ///////////////////////////
+        // create activity based competency, give privilege, enroll, complete
+        ///////////////////////////
+
+        Competence1 comp1 = createCompetence(events,
+                    userNickPowell,
+                    "Social Network Analysis",
+                    "Define social network analysis and its main analysis methods.",
+                    "centrality measures, data collection, modularity analysis, network centrality, network structure, social network analysis",
+                    0,
+                    0,
+                    LearningPathType.ACTIVITY);
+
+        Activity1 act1 = createActivity(
+                events,
+                userNickPowell,
+                "Introduction to Social Network Analysis",
+                "Introduction into social network analysis for week 3 of DALMOOC by Dragan Gasevic.",
+                "https://www.youtube.com/watch?v=2uibqSdHSag",
+                ActivityType.VIDEO,
+                comp1.getId(),
+                0,
+                5,
+                org.prosolo.services.nodes.data.ActivityResultType.TEXT,
+                "Slides",
+                "https://www.slideshare.net/dgasevic/introduction-into-social-network-analysis/");
+
+        Activity1 act2 = createActivity(
+                events,
+                userNickPowell,
+                "Example dataset",
+                null,
+                "<p>Download the example dataset used in the videos and familiarize with the data.</p>",
+                ActivityType.TEXT,
+                comp1.getId(),
+                0,
+                3,
+                org.prosolo.services.nodes.data.ActivityResultType.TEXT,
+                "Example datasets used in the videos",
+                "https://s3.amazonaws.com/prosoloedx2/files/3f86bdfd0e8357f7c60c36b38c8fc2c0/Example%20datasets%20used%20in%20the%20videos.pdf");
+
+        Activity1 act3 = createActivity(
+                events,
+                userNickPowell,
+                "Network Modularity and Community Identification",
+                "Dragan Gasevic discusses network modularity and community identification in social network analysis for week 3 of DALMOOC. The presentation describes the notion of network modularity as a method used",
+                "https://www.slideshare.net/dgasevic/network-modularity-and-community-identification",
+                ActivityType.SLIDESHARE,
+                comp1.getId(),
+                0,
+                6,
+                org.prosolo.services.nodes.data.ActivityResultType.TEXT,
+                "Slides",
+                "http://www.slideshare.net/dgasevic/network-modularity-and-community-identification/1");
+        extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class)
+                        .publishCompetenceIfNotPublished(comp1.getId(), createUserContext(userNickPowell)));
+        TargetCompetence1 independentComp1Target = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(comp1.getId(), userGeorgeYoung.getId(), createUserContext(userGeorgeYoung)));
+        List<ActivityData> independentComp1TargetActivities = ServiceLocator.getInstance().getService(Activity1Manager.class).getTargetActivitiesData(independentComp1Target.getId());
+        completeActivity(events, independentComp1Target.getId(), independentComp1TargetActivities.get(0).getActivityId(), userGeorgeYoung);
+
+        Competence1 comp2 = createCompetence(events,
+                    userNickPowell,
+                    "Basic of Prediction Modeling",
+                    "Conduct prediction modeling effectively and appropriately",
+                    "academic performance, creative potential, social network analysis",
+                    0,
+                    0,
+                    LearningPathType.EVIDENCE);
+        givePrivilegeToUsersForCompetency(events, comp2.getId(), UserGroupPrivilege.Learn, userNickPowell, List.of(userGeorgeYoung));
+        extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class)
+                .publishCompetenceIfNotPublished(comp2.getId(), createUserContext(userNickPowell)));
     }
 
     @Override

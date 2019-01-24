@@ -2236,7 +2236,24 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 
 		return events;
 	}
-	
+
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public Result<Void> publishCompetenceIfNotPublished(long competenceId, UserContextData context)
+			throws DbConnectionException, IllegalDataStateException {
+		try {
+			return publishCompetenceIfNotPublished(
+					(Competence1) persistence.currentManager().load(Competence1.class, competenceId),
+					context);
+		} catch (DbConnectionException|IllegalDataStateException e) {
+			logger.error("Error", e);
+			throw e;
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error publishing competency");
+		}
+	}
+
 	@Override
 	@Transactional(rollbackFor = Exception.class)
 	public Result<Void> publishCompetenceIfNotPublished(Competence1 comp, UserContextData context)

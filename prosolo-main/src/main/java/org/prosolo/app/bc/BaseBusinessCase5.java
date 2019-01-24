@@ -311,10 +311,9 @@ public abstract class BaseBusinessCase5 extends BaseBusinessCase {
                         compDatum[0],
                         compDatum[1],
                         null,
+                        standard.getId(),
                         rubricId,
-                        LearningPathType.EVIDENCE,
-                        standard.getId()
-                );
+                        LearningPathType.EVIDENCE);
             }
         } catch (Exception ex) {
             getLogger().error(ex);

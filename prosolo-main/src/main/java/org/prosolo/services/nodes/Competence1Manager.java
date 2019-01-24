@@ -348,7 +348,10 @@ public interface Competence1Manager {
 	
 	EventQueue updateCompetenceProgress(long targetCompId, UserContextData context)
 			throws DbConnectionException;
-	
+
+	Result<Void> publishCompetenceIfNotPublished(long competenceId, UserContextData context)
+			throws DbConnectionException, IllegalDataStateException;
+
 	Result<Void> publishCompetenceIfNotPublished(Competence1 comp, UserContextData context)
 			throws DbConnectionException, IllegalDataStateException;
 

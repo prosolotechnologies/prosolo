@@ -325,11 +325,11 @@ public abstract class BaseBusinessCase {
                 .saveNewCredentialAndGetEvents(credentialData, createUserContext(user)));
     }
 
-    protected Competence1 createCompetence(EventQueue events, User user, String title, String description, String tagsCSV, long rubricId, LearningPathType learningPathType, long credentialId) {
+    protected Competence1 createCompetence(EventQueue events, User user, String title, String description, String tagsCsv, long credentialId, long rubricId, LearningPathType learningPathType) {
         CompetenceData1 compData = new CompetenceData1(false);
         compData.setTitle(title);
         compData.setDescription(description);
-        compData.setTagsString(tagsCSV);
+        compData.setTagsString(tagsCsv);
         compData.setPublished(false);
         compData.setType(LearningResourceType.UNIVERSITY_CREATED);
         compData.getAssessmentSettings().setGradingMode(GradingMode.MANUAL);
@@ -470,6 +470,20 @@ public abstract class BaseBusinessCase {
         events.appendEvents(ServiceLocator.getInstance().getService(CredentialManager.class).updateCredentialVisibilityAndGetEvents(
                 delivery.getId(), groupsToAdd, new LinkedList<>(), false, false,
                 UserContextData.of(actor.getId(), org.getId(), null, null, null)));
+    }
+
+    protected void givePrivilegeToUsersForCompetency(EventQueue events, long competenceId, UserGroupPrivilege userGroupPrivilege, User actor, List<User> students) {
+        List<ResourceVisibilityMember> studentsToAdd = new LinkedList<>();
+
+        for (User student : students) {
+            ResourceVisibilityMember resourceVisibilityMember = new ResourceVisibilityMember(0, student, userGroupPrivilege, false, true);
+            resourceVisibilityMember.setStatus(ObjectStatus.CREATED);
+            studentsToAdd.add(resourceVisibilityMember);
+        }
+
+        events.appendEvents(ServiceLocator.getInstance().getService(Competence1Manager.class).updateCompetenceVisibilityAndGetEvents(
+                competenceId, new LinkedList<>(), studentsToAdd,false, false,
+                createUserContext(actor)));
     }
 
     protected void bookmarkCredential(EventQueue events, long credId, User user) {
@@ -634,6 +648,15 @@ public abstract class BaseBusinessCase {
     protected void approveCompetenceAssessment(EventQueue events, long competenceAssessmentId, User actor) {
         extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(AssessmentManager.class)
                 .approveCompetenceAndGetEvents(competenceAssessmentId, true, createUserContext(actor)));
+    }
+
+    protected void completeActivity(EventQueue events, long targetCompetenceId, long targetActivityId, User actor) {
+        extractResultAndAddEvents(
+                events,
+                ServiceLocator.getInstance().getService(Activity1Manager.class).completeActivityAndGetEvents(
+                        targetActivityId,
+                        targetCompetenceId,
+                        createUserContext(actor)));
     }
 
     protected abstract String getBusinessCaseInitLog();

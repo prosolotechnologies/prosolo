@@ -8,7 +8,6 @@ import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.event.EventQueue;
 import org.prosolo.services.nodes.Competence1Manager;
-import org.prosolo.services.nodes.CredentialInstructorManager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.config.competence.CompetenceLoadConfig;
 import org.prosolo.services.nodes.data.ActivityResultType;
@@ -47,9 +46,9 @@ public class BusinessCase_Test_2_9 extends BaseBusinessCase5 {
                 "Social Network Analysis",
                 "Define social network analysis and its main analysis methods.",
                 "centrality measures, data collection, modularity analysis, network centrality, network structure, social network analysis",
+                credentialWithActivities1.getId(),
                 rubricData.getId(),
-                LearningPathType.ACTIVITY,
-                credentialWithActivities1.getId());
+                LearningPathType.ACTIVITY);
 
         createActivity(events,
                 userNickPowell,
@@ -148,9 +147,9 @@ public class BusinessCase_Test_2_9 extends BaseBusinessCase5 {
                 "Reflecting on approaches to the use of SNA for the study of learning",
                 "Describe and critically reflect on possible approaches to the use of social network analysis for the study of learning",
                 "academic performance, creative potential, learning analytics, learning design, MOOCs, sense of community, sensemaking, social network analysis",
+                credentialWithActivities2.getId(),
                 rubricData.getId(),
-                LearningPathType.ACTIVITY,
-                credentialWithActivities2.getId());
+                LearningPathType.ACTIVITY);
 
         createActivity(events,
                 userNickPowell,
@@ -243,9 +242,9 @@ public class BusinessCase_Test_2_9 extends BaseBusinessCase5 {
                 "Tools for Learning Analytics",
                 "Identify proprietary and open source tools commonly used in learning analytics",
                 "academic performance, creative potential, social network analysis",
+                credentialWithActivities3.getId(),
                 rubricData.getId(),
-                LearningPathType.ACTIVITY,
-                credentialWithActivities3.getId());
+                LearningPathType.ACTIVITY);
 
         Activity1 act1comp1cred3 = createActivity(events,
                 userNickPowell,
