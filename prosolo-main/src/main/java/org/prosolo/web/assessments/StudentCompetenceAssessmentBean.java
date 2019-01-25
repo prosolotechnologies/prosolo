@@ -446,6 +446,7 @@ public class StudentCompetenceAssessmentBean extends CompetenceAssessmentBean im
 			boolean success = askForAssessmentBean.submitAssessmentRequestAndReturnStatus();
 			if (success) {
 				getCompetenceAssessmentData().setAssessorNotified(true);
+				getCompetenceAssessmentData().setLastAskedForAssessment(new Date().getTime());
 			}
 		} catch (Exception e) {
 			logger.error("Error", e);

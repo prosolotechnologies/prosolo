@@ -735,6 +735,7 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 			boolean success = askForAssessmentBean.submitAssessmentRequestAndReturnStatus();
 			if (success) {
 				fullAssessmentData.setAssessorNotified(true);
+				fullAssessmentData.setLastAskedForAssessment(new Date().getTime());
 			}
 		} catch (Exception e) {
 			logger.error("Error", e);

@@ -36,7 +36,20 @@
 				<h:panelGroup id="panelAssessorNotificationComp" styleClass="panelAssessorNotificationSelector">
 					<h:panelGroup layout="block" styleClass="innerWrapper" rendered="#{cc.attrs.fullDisplayMode and cc.attrs.competenceAssessment.assessorNotified}">
 						<div class="alert alert-warning alert-dismissible fade in bottom0" role="alert">
-							#{cc.attrs.currentUserAssessedStudent ? 'You have asked for assessment of this '.concat(msg['label.competence'].toLowerCase()).concat('.') : 'Student asked for assessment of this '.concat(msg['label.competence'].toLowerCase()).concat('.')}
+							<ui:fragment rendered="#{cc.attrs.currentUserAssessedStudent}">
+								You have asked for assessment of this #{msg['label.competence'].toLowerCase()} on
+								<utilcomp:convertTimeOutput
+										millis="#{cc.attrs.competenceAssessment.lastAskedForAssessment}"
+										format="MMM DD, YYYY [at] hh:mm a"
+								/>
+							</ui:fragment>
+							<ui:fragment rendered="#{not cc.attrs.currentUserAssessedStudent}">
+								Student asked for assessment of this #{msg['label.competence'].toLowerCase()} on
+								<utilcomp:convertTimeOutput
+										millis="#{cc.attrs.competenceAssessment.lastAskedForAssessment}"
+										format="MMM DD, YYYY [at] hh:mm a"
+								/>
+							</ui:fragment>
 						</div>
 					</h:panelGroup>
 				</h:panelGroup>

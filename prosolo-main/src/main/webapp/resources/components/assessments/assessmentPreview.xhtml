@@ -367,7 +367,11 @@
 							<h:panelGroup id="panelAssessorNotification" styleClass="panelAssessorNotificationSelector">
 								<h:panelGroup layout="block" styleClass="innerWrapper" rendered="#{cc.attrs.bean.fullAssessmentData.assessorNotified}">
 									<div class="alert alert-warning alert-dismissible fade in bottom0" role="alert">
-										Student asked for assessment of this #{msg['label.credential'].toLowerCase()}.
+										Student asked for assessment of this #{msg['label.credential'].toLowerCase()} on
+										<utilcomp:convertTimeOutput
+												millis="#{cc.attrs.bean.fullAssessmentData.lastAskedForAssessment}"
+												format="MMM DD, YYYY [at] hh:mm a"
+										/>
 									</div>
 								</h:panelGroup>
 							</h:panelGroup>
@@ -380,7 +384,11 @@
 									<h:panelGroup id="panelAssessorNotification" styleClass="panelAssessorNotificationSelector">
 										<h:panelGroup layout="block" styleClass="innerWrapper" rendered="#{cc.attrs.bean.fullDisplayMode and cc.attrs.bean.fullAssessmentData.assessorNotified}">
 											<div class="alert alert-warning alert-dismissible fade in bottom0" role="alert">
-												You have asked for assessment of this #{msg['label.credential'].toLowerCase()}.
+												You have asked for assessment of this #{msg['label.credential'].toLowerCase()} on
+												<utilcomp:convertTimeOutput
+														millis="#{cc.attrs.bean.fullAssessmentData.lastAskedForAssessment}"
+														format="MMM DD, YYYY [at] hh:mm a"
+												/>
 											</div>
 										</h:panelGroup>
 									</h:panelGroup>

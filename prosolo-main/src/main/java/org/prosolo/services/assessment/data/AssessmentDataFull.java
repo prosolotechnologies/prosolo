@@ -8,6 +8,7 @@ import org.prosolo.common.domainmodel.credential.BlindAssessmentMode;
 import org.prosolo.common.domainmodel.credential.GradingMode;
 import org.prosolo.common.domainmodel.rubric.RubricType;
 import org.prosolo.common.util.ImageFormat;
+import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.assessment.data.grading.GradeData;
 import org.prosolo.services.assessment.data.grading.RubricAssessmentGradeSummary;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
@@ -16,10 +17,7 @@ import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.util.AvatarUtils;
 
 import java.text.DateFormat;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class AssessmentDataFull {
 
@@ -49,6 +47,7 @@ public class AssessmentDataFull {
 	private boolean messagesInitialized;
 	private String review;
 	private boolean assessorNotified;
+	private long lastAskedForAssessment;
 
 	private BlindAssessmentMode blindAssessmentMode;
 
@@ -64,6 +63,7 @@ public class AssessmentDataFull {
 		data.setStudentAvatarUrl(AvatarUtils.getAvatarUrlInFormat(assessment.getStudent(), ImageFormat.size120x120));
 		data.setReview(assessment.getReview());
 		data.setAssessorNotified(assessment.isAssessorNotified());
+		data.setLastAskedForAssessment(DateUtil.getMillisFromDate(assessment.getLastAskedForAssessment()));
 		if (assessment.getAssessor() != null) {
 			data.setAssessorFullName(assessment.getAssessor().getName()+" "+assessment.getAssessor().getLastname());
 			data.setAssessorAvatarUrl(AvatarUtils.getAvatarUrlInFormat(assessment.getAssessor(), ImageFormat.size120x120));
@@ -373,6 +373,14 @@ public class AssessmentDataFull {
 
 	public void setAssessorNotified(boolean assessorNotified) {
 		this.assessorNotified = assessorNotified;
+	}
+
+	public long getLastAskedForAssessment() {
+		return lastAskedForAssessment;
+	}
+
+	public void setLastAskedForAssessment(long lastAskedForAssessment) {
+		this.lastAskedForAssessment = lastAskedForAssessment;
 	}
 
 	public BlindAssessmentMode getBlindAssessmentMode() {
