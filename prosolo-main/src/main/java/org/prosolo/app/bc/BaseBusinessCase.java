@@ -208,13 +208,15 @@ public abstract class BaseBusinessCase {
         SocialActivityData1 newSocialActivity = new SocialActivityData1();
         newSocialActivity.setText(text);
 
-        try {
-            LinkParser parser = LinkParserFactory.buildParser(StringUtil.cleanHtml(url));
-            AttachmentPreview1 attachmentPreview1 = parser.parse();
-            newSocialActivity.setAttachmentPreview(attachmentPreview1);
-        } catch (LinkParserException e) {
-            e.printStackTrace();
-            getLogger().error("Error", e);
+        if (url != null) {
+            try {
+                LinkParser parser = LinkParserFactory.buildParser(StringUtil.cleanHtml(url));
+                AttachmentPreview1 attachmentPreview1 = parser.parse();
+                newSocialActivity.setAttachmentPreview(attachmentPreview1);
+            } catch (LinkParserException e) {
+                e.printStackTrace();
+                getLogger().error("Error", e);
+            }
         }
 
         PostSocialActivity1 postSocialActivity1 = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(SocialActivityManager.class).createNewPostAndGetEvents(

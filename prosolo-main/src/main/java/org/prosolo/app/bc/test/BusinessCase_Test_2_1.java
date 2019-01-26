@@ -47,10 +47,6 @@ public class BusinessCase_Test_2_1 extends BaseBusinessCase5 {
             // Phil Armstrong is already added to the delivery, so just load it
             InstructorData instructorPhilArmstrong = ServiceLocator.getInstance().getService(CredentialInstructorManager.class).getCredentialInstructor(userPhilArmstrong.getId(), credential1Delivery1.getId(), false, false);
 
-            CredentialInstructor instructorKarenWhite = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CredentialInstructorManager.class).addInstructorToCredentialAndGetEvents(credential1Delivery1.getId(), userKarenWhite.getId(), 0, createUserContext(userNickPowell)));
-            CredentialInstructor instructorAnnaHallowell = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CredentialInstructorManager.class).addInstructorToCredentialAndGetEvents(credential1Delivery1.getId(), userAnnaHallowell.getId(), 0, createUserContext(userNickPowell)));
-            CredentialInstructor instructorErikaAmes = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CredentialInstructorManager.class).addInstructorToCredentialAndGetEvents(credential1Delivery1.getId(), userErikaAmes.getId(), 0, createUserContext(userNickPowell)));
-
             // enroll students to the delivery
             enrollToDelivery(events, organization, credential1Delivery1, userHelenCampbell);
             enrollToDelivery(events, organization, credential1Delivery1, userRichardAnderson);
