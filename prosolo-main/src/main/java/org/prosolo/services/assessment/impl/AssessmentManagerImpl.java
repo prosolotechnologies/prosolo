@@ -85,7 +85,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		TargetCredential1 targetCredential = (TargetCredential1) persistence.currentManager()
 				.load(TargetCredential1.class, assessmentRequestData.getTargetResourceId());
 		Result<Long> res = self.getOrCreateAssessmentAndGetEvents(targetCredential, assessmentRequestData.getStudentId(),
-				assessmentRequestData.getAssessorId(), AssessmentType.PEER_ASSESSMENT, context);
+				assessmentRequestData.getAssessorId(), AssessmentType.PEER_ASSESSMENT, AssessmentStatus.REQUESTED, context);
 		eventFactory.generateEvents(res.getEventQueue());
 		return res.getResult();
 	}
@@ -95,20 +95,20 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	public Result<Long> createInstructorAssessmentAndGetEvents(TargetCredential1 targetCredential, long assessorId,
 										   UserContextData context) throws DbConnectionException, IllegalDataStateException {
 		return getOrCreateAssessmentAndGetEvents(targetCredential, targetCredential.getUser().getId(), assessorId,
-				AssessmentType.INSTRUCTOR_ASSESSMENT, context);
+				AssessmentType.INSTRUCTOR_ASSESSMENT, AssessmentStatus.PENDING, context);
 	}
 
 	@Override
 	@Transactional
 	public Result<Long> createSelfAssessmentAndGetEvents(TargetCredential1 targetCredential, UserContextData context) throws DbConnectionException, IllegalDataStateException {
 		return getOrCreateAssessmentAndGetEvents(targetCredential, targetCredential.getUser().getId(), targetCredential.getUser().getId(),
-				AssessmentType.SELF_ASSESSMENT, context);
+				AssessmentType.SELF_ASSESSMENT, AssessmentStatus.PENDING, context);
 	}
 
 	@Override
 	@Transactional
 	public Result<Long> getOrCreateAssessmentAndGetEvents(TargetCredential1 targetCredential, long studentId, long assessorId,
-														  AssessmentType type, UserContextData context) throws DbConnectionException, IllegalDataStateException {
+														  AssessmentType type, AssessmentStatus status, UserContextData context) throws DbConnectionException, IllegalDataStateException {
 		Result<Long> result = new Result<>();
 		try {
 			/*
@@ -139,6 +139,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			if (assessor != null) {
 				assessment.setAssessor(assessor);
 			}
+			assessment.setStatus(status);
 			assessment.setBlindAssessmentMode(blindAssessmentMode);
 			//assessment.setTitle(credentialTitle);
 			assessment.setTargetCredential(targetCredential);
@@ -169,8 +170,12 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 					targetCredential.getCredential().getId(), studentId, CompetenceLoadConfig.builder().setLoadActivities(true).create());
 			boolean atLeastOneCompGraded = false;
 			for (CompetenceData1 comp : comps) {
+				/*
+				when competency assessment is created as part of the credential assessment status
+				is always pending because competency assessment is not requested directly
+				 */
 				Result<CompetenceAssessment> res = getOrCreateCompetenceAssessmentAndGetEvents(
-						comp, studentId, assessorId, type, blindAssessmentMode,false, context);
+						comp, studentId, assessorId, type, AssessmentStatus.PENDING, blindAssessmentMode,false, context);
 				CredentialCompetenceAssessment cca = new CredentialCompetenceAssessment();
 				cca.setCredentialAssessment(assessment);
 				cca.setCompetenceAssessment(res.getResult());
@@ -262,7 +267,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	public Result<CompetenceAssessment> createSelfCompetenceAssessmentAndGetEvents(long competenceId, long studentId, UserContextData context) throws DbConnectionException, IllegalDataStateException {
 		CompetenceData1 competenceData = compManager.getTargetCompetenceData(0, competenceId, studentId, true, true);
 		AssessmentType type = AssessmentType.SELF_ASSESSMENT;
-		return getOrCreateCompetenceAssessmentAndGetEvents(competenceData, studentId, studentId, type, competenceData.getAssessmentTypeConfig(type).getBlindAssessmentMode(), false, context);
+		return getOrCreateCompetenceAssessmentAndGetEvents(competenceData, studentId, studentId, type, AssessmentStatus.PENDING, competenceData.getAssessmentTypeConfig(type).getBlindAssessmentMode(), false, context);
 	}
 
 	@Override
@@ -270,13 +275,13 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	public Result<CompetenceAssessment> requestCompetenceAssessmentAndGetEvents(long competenceId, long studentId, long assessorId, UserContextData context) throws DbConnectionException, IllegalDataStateException {
 		CompetenceData1 competenceData = compManager.getTargetCompetenceData(0, competenceId, studentId, true, true);
 		AssessmentType type = AssessmentType.PEER_ASSESSMENT;
-		return getOrCreateCompetenceAssessmentAndGetEvents(competenceData, studentId, assessorId, type, competenceData.getAssessmentTypeConfig(type).getBlindAssessmentMode(), true, context);
+		return getOrCreateCompetenceAssessmentAndGetEvents(competenceData, studentId, assessorId, type, AssessmentStatus.REQUESTED, competenceData.getAssessmentTypeConfig(type).getBlindAssessmentMode(), true, context);
 	}
 
 	@Override
 	@Transactional (readOnly = true)
 	public Result<CompetenceAssessment> getOrCreateCompetenceAssessmentAndGetEvents(CompetenceData1 comp, long studentId,
-															long assessorId, AssessmentType type, BlindAssessmentMode blindAssessmentMode, boolean isExplicitRequest, UserContextData context)
+															long assessorId, AssessmentType type, AssessmentStatus status, BlindAssessmentMode blindAssessmentMode, boolean isExplicitRequest, UserContextData context)
 			throws IllegalDataStateException, DbConnectionException {
 		try {
 			Result<CompetenceAssessment> res = new Result<>();
@@ -306,6 +311,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			if (assessorId > 0) {
 				compAssessment.setAssessor((User) persistence.currentManager().load(User.class, assessorId));
 			}
+			compAssessment.setStatus(status);
 			compAssessment.setBlindAssessmentMode(blindAssessmentMode);
 			compAssessment.setType(type);
 			saveEntity(compAssessment);
