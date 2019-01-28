@@ -32,7 +32,7 @@
         "properties":{
           "title":{
             "store": false,
-            "type":"keyword"
+            "type":"text"
           }
         }
       }
