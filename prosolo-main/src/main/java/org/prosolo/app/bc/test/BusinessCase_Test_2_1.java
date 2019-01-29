@@ -44,9 +44,6 @@ public class BusinessCase_Test_2_1 extends BaseBusinessCase5 {
         // Assign instructors and students to the 1st standard delivery
         /////////////////////////////////////////////////////////////////////
         try {
-            // Phil Armstrong is already added to the delivery, so just load it
-            InstructorData instructorPhilArmstrong = ServiceLocator.getInstance().getService(CredentialInstructorManager.class).getCredentialInstructor(userPhilArmstrong.getId(), credential1Delivery1.getId(), false, false);
-
             // enroll students to the delivery
             enrollToDelivery(events, organization, credential1Delivery1, userHelenCampbell);
             enrollToDelivery(events, organization, credential1Delivery1, userRichardAnderson);
@@ -56,9 +53,7 @@ public class BusinessCase_Test_2_1 extends BaseBusinessCase5 {
             enrollToDelivery(events, organization, credential1Delivery1, userKevinHall);
 
             // set Phil Armstrong as an instructor to Helen Campbell and Richard Anderson
-            extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CredentialInstructorManager.class).updateStudentsAssignedToInstructor(
-                    instructorPhilArmstrong.getInstructorId(), credential1Delivery1.getId(), List.of(userHelenCampbell.getId(), userRichardAnderson.getId()), null, createUserContext(userNickPowell)));
-
+            assignInstructorToStudent(events, credential1Delivery1InstructorPhilArmstrong, List.of(userHelenCampbell, userRichardAnderson), credential1Delivery1);
 
             //////////////////////////
             // Start all competencies
@@ -157,16 +152,12 @@ public class BusinessCase_Test_2_1 extends BaseBusinessCase5 {
         // Assign instructors and students to the 2st standard delivery
         /////////////////////////////////////////////////////////////////////
         try {
-            // Phil Armstrong is already added to the delivery, so just load it
-            InstructorData instructorPhilArmstrong = ServiceLocator.getInstance().getService(CredentialInstructorManager.class).getCredentialInstructor(userPhilArmstrong.getId(), credential2Delivery1.getId(), false, false);
-
             // enroll students to the delivery
             enrollToDelivery(events, organization, credential2Delivery1, userHelenCampbell);
             enrollToDelivery(events, organization, credential2Delivery1, userStevenTurner);
 
             // set Phil Armstrong as an instructor to Helen Campbell and Steven Turner
-            extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CredentialInstructorManager.class).updateStudentsAssignedToInstructor(
-                    instructorPhilArmstrong.getInstructorId(), credential2Delivery1.getId(), List.of(userHelenCampbell.getId(), userStevenTurner.getId()), null, createUserContext(userNickPowell)));
+            assignInstructorToStudent(events, credential2Delivery1InstructorPhilArmstrong, List.of(userHelenCampbell, userStevenTurner), credential2Delivery1);
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("Error", e);
@@ -176,15 +167,11 @@ public class BusinessCase_Test_2_1 extends BaseBusinessCase5 {
         // Assign instructors and students to the 3rd standard delivery
         /////////////////////////////////////////////////////////////////////
         try {
-            // Phil Armstrong is already added to the delivery, so just load it
-            InstructorData instructorPhilArmstrong = ServiceLocator.getInstance().getService(CredentialInstructorManager.class).getCredentialInstructor(userPhilArmstrong.getId(), credential3Delivery1.getId(), false, false);
-
             // enroll students to the delivery
             enrollToDelivery(events, organization, credential3Delivery1, userHelenCampbell);
 
             // set Phil Armstrong as an instructor to Helen Campbell
-            extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CredentialInstructorManager.class).updateStudentsAssignedToInstructor(
-                    instructorPhilArmstrong.getInstructorId(), credential3Delivery1.getId(), List.of(userHelenCampbell.getId()), null, createUserContext(userNickPowell)));
+            assignInstructorToStudent(events, credential3Delivery1InstructorPhilArmstrong, userHelenCampbell, credential3Delivery1);
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("Error", e);

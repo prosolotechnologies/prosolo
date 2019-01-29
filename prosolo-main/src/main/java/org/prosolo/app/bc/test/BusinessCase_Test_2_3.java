@@ -57,8 +57,7 @@ public class BusinessCase_Test_2_3 extends BaseBusinessCase5 {
         ////////////////////////////
         // assign students to instructor
         ////////////////////////////
-        extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CredentialInstructorManager.class).updateStudentsAssignedToInstructor(
-                credential1Delivery1InstructorPhilArmstrong.getId(), credential1Delivery1.getId(), Arrays.asList(userKevinHall.getId()), null, createUserContext(userNickPowell)));
+        assignInstructorToStudent(events, credential1Delivery1InstructorPhilArmstrong, userKevinHall, credential1Delivery1);
         ////////////////////////////
         // enroll in competencies
         ////////////////////////////
