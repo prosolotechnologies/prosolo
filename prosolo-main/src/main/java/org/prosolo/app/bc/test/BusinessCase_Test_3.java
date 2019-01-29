@@ -186,18 +186,6 @@ public abstract class BusinessCase_Test_3 extends BaseBusinessCase5 {
         CredentialInstructor credential2Delivery2InstructorAnnaHallowell = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CredentialInstructorManager.class).addInstructorToCredentialAndGetEvents(credential2Delivery2.getId(), userAnnaHallowell.getId(), 0, createUserContext(userNickPowell)));
 
 
-        ////////////////////////////////
-        // Enroll users to deliveries
-        ////////////////////////////////
-        enrollToDelivery(events, organization, credential1Delivery1, userHelenCampbell);
-        enrollToDelivery(events, organization, credential1Delivery1, userGeorgeYoung);
-        enrollToDelivery(events, organization, credentialWithActivities1Delivery1, userHelenCampbell);
-        enrollToDelivery(events, organization, credentialWithActivities1Delivery1, userGeorgeYoung);
-        // add karen white as instructor
-        assignInstructorToStudent(events, credential1Delivery1InstructorAnnaHallowell, userHelenCampbell, credential1Delivery1);
-        assignInstructorToStudent(events, credential1Delivery1InstructorAnnaHallowell, userGeorgeYoung, credential1Delivery1);
-
-
         createAdditionalDataTest3(events);
     }
 
