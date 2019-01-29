@@ -23,6 +23,12 @@ public class BusinessCase_Test_3_2 extends BusinessCase_Test_3 {
 
     @Override
     protected void createAdditionalDataTest3(EventQueue events) {
+        ////////////////////////////////
+        // Enroll users to deliveries
+        ////////////////////////////////
+        enrollToDelivery(events, organization, credential1Delivery1, userHelenCampbell);
+        enrollToDelivery(events, organization, credential1Delivery1, userGeorgeYoung);
+        
         ///////////////////////////////////////////
         // enroll in competencies from credentialWithActivities1Delivery1
         ///////////////////////////////////////////
