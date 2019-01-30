@@ -408,8 +408,8 @@ public abstract class BaseBusinessCase {
         return act;
     }
 
-    protected void enrollToDelivery(EventQueue events, Organization org, Credential1 delivery, User user) {
-        extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CredentialManager.class).enrollInCredentialAndGetEvents(delivery.getId(), user.getId(), 0, UserContextData.of(user.getId(), org.getId(), null, null, null)));
+    protected void enrollToDelivery(EventQueue events, Credential1 delivery, User user) {
+        extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CredentialManager.class).enrollInCredentialAndGetEvents(delivery.getId(), user.getId(), 0, UserContextData.of(user.getId(), organization.getId(), null, null, null)));
     }
 
     protected LearningEvidence createEvidence(EventQueue events, LearningEvidenceType type, String title, String description, String url, String tagsCsv, User user) {
