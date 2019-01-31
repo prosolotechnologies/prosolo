@@ -1,13 +1,13 @@
 package org.prosolo.search.util.competences;
 
 public enum CompetenceStudentsSearchFilterValue {
-	ALL("All"), 
+	ALL("All students"),
 	COMPLETED("Completed"),
-	UNCOMPLETED("In Progress");
+	UNCOMPLETED("In progress");
 
 	private String label;
 	
-	private CompetenceStudentsSearchFilterValue(String label) {
+	CompetenceStudentsSearchFilterValue(String label) {
 		this.label = label;
 	}
 
