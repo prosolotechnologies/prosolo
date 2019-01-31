@@ -1,0 +1,48 @@
+<ui:component xmlns="http://www.w3.org/1999/xhtml"
+              xmlns:h="http://java.sun.com/jsf/html"
+              xmlns:f="http://java.sun.com/jsf/core"
+              xmlns:ui="http://java.sun.com/jsf/facelets"
+              xmlns:p="http://primefaces.org/ui"
+              template="templates/masterLayout2.xhtml"
+              xmlns:composite="http://java.sun.com/jsf/composite"
+>
+
+    <composite:interface>
+        <composite:attribute name="toUpdate" default=""/>
+        <composite:attribute name="learningContext" default=""/>
+        <composite:attribute name="withdrawAction" required="true"/>
+    </composite:interface>
+
+
+    <composite:implementation>
+        <h:form id="formInstructorWithdraw">
+            <div class="modal fade" id="instructorWithdrawModal" tabindex="-1" role="dialog" aria-labelledby="instructorWithdrawModal">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+                            <h2 class="modal-title" id="declineAssessmentModal">Withdraw being #{msg['label.instructor'].toLowerCase()}</h2>
+                        </div>
+                        <div class="modal-body">
+                            <p>Are you sure you want to withdraw from being #{msg['label.instructor'].toLowerCase()} to this student?</p>
+                        </div>
+                        <div class="modal-footer">
+                            <p:commandLink
+                                    styleClass="btn btn-red"
+                                    process="@this"
+                                    action="#{cc.attrs.withdrawAction}"
+                                    update="#{cc.attrs.toUpdate}"
+                                    oncomplete="$('#instructorWithdrawModal').modal('hide')">
+                                Withdraw
+                                <f:param name="page" value="#{facesContext.viewRoot.viewId}"/>
+                                <f:param name="learningContext" value="#{cc.attrs.learningContext}"/>
+                            </p:commandLink>
+                            <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </h:form>
+    </composite:implementation>
+
+</ui:component>

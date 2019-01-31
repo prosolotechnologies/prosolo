@@ -11,6 +11,7 @@ import org.prosolo.search.impl.TextSearchFilteredResponse;
 import org.prosolo.search.util.credential.CredentialMembersSearchFilter;
 import org.prosolo.search.util.credential.CredentialMembersSortOption;
 import org.prosolo.search.util.credential.CredentialStudentsInstructorFilter;
+import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.nodes.CredentialInstructorManager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.user.data.StudentData;
@@ -59,6 +60,8 @@ public class CredentialMembersBean implements Serializable, Paginable {
 	private AssignStudentToInstructorDialogBean assignStudentToInstructorDialogBean;
 	@Inject
 	private CredentialInstructorManager credentialInstructorManager;
+	@Inject
+	private AssessmentManager assessmentManager;
 
 	private List<StudentData> members;
 
@@ -208,8 +211,7 @@ public class CredentialMembersBean implements Serializable, Paginable {
 	}
 
 	/**
-	 * This method is called after student has chosen an instructor from the modal (it this option is enabled for
-	 * the delivery)
+	 * This method is called after manager has assigned student to instructor
 	 */
 	public void updateAfterInstructorIsAssigned() {
 		InstructorData instructor = assignStudentToInstructorDialogBean.getInstructor();
@@ -220,6 +222,13 @@ public class CredentialMembersBean implements Serializable, Paginable {
 
 		if (updatedStudent.isPresent()) {
 			updatedStudent.get().setInstructor(instructor);
+			try {
+				//reload new assessment id after new instructor is assigned
+				Optional<Long> assessmentId = assessmentManager.getActiveInstructorCredentialAssessmentId(decodedId, updatedStudent.get().getUser().getId());
+				updatedStudent.get().setAssessmentId(assessmentId.isPresent() ? assessmentId.get() : 0);
+			} catch (Exception e) {
+				PageUtil.fireErrorMessage("Error occurred. Please try reloading the page");
+			}
 		}
 	}
 

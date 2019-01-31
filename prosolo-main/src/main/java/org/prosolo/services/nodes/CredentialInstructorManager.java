@@ -1,6 +1,7 @@
 package org.prosolo.services.nodes;
 
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.common.domainmodel.credential.CredentialInstructor;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.event.context.data.UserContextData;
@@ -18,46 +19,41 @@ public interface CredentialInstructorManager {
 			boolean returnNumberOfCurrentlyAssignedStudents, boolean trackChanges) 
 					throws DbConnectionException;
 
-	Result<Void> assignStudentToInstructorAndGetEvents(long instructorId, long targetCredId, long formerInstructorId, 
-			UserContextData context) throws DbConnectionException;
+//	Result<Void> assignStudentToInstructorAndGetEvents(long instructorId, long targetCredId, long formerInstructorId,
+//			UserContextData context) throws DbConnectionException;
 	
 	/**
 	 * 
 	 * @param studentId
 	 * @param instructorId
 	 * @param credId
-	 * @param formerInstructorUserId
 	 * @param context
 	 * @throws DbConnectionException
 	 */
-	void assignStudentToInstructor(long studentId, long instructorId, long credId, long formerInstructorUserId,
+	void assignStudentToInstructor(long studentId, long instructorId, long credId,
 			UserContextData context) throws DbConnectionException;
 
-	Result<Void> assignStudentToInstructorAndGetEvents(long studentId, long instructorId, long credId, 
-			long formerInstructorUserId, UserContextData context) throws DbConnectionException;
+	Result<Void> assignStudentToInstructorAndGetEvents(long studentId, long instructorId, long credId, UserContextData context) throws DbConnectionException;
 	
-	void assignStudentToInstructor(long instructorId, long targetCredId, long formerInstructorUserId,
-			UserContextData context) throws DbConnectionException;
-	
+//	void assignStudentToInstructor(long instructorId, long targetCredId, long formerInstructorUserId,
+//			UserContextData context) throws DbConnectionException;
+//
+
 	/**
-	 * Assigns students with target credential ids to instructors that currently have lowest 
+	 * Assigns students with target credential ids to instructors that currently have lowest
 	 * number of students assigned.
-	 * 
+	 *
 	 * @param credId
 	 * @param targetCreds
-	 * @param formerInstructorId
-	 * @param updateAssessor
+	 * @param instructorIdToExclude
 	 * @param context
 	 * @return
 	 * @throws DbConnectionException
+	 * @throws IllegalDataStateException
 	 */
-	Result<StudentAssignData> assignStudentsToInstructorAutomatically(long credId, List<TargetCredential1> targetCreds,
-    		long formerInstructorId, boolean updateAssessor, UserContextData context)
-    				throws DbConnectionException;
-	
 	Result<StudentAssignData> assignStudentsToInstructorAutomatically(long credId, 
-			List<TargetCredential1> targetCreds, long formerInstructorId, UserContextData context)
-					throws DbConnectionException;
+			List<TargetCredential1> targetCreds, long instructorIdToExclude, UserContextData context)
+			throws DbConnectionException, IllegalDataStateException;
 	
 	List<InstructorData> getCredentialInstructorsWithLowestNumberOfStudents(long credentialId, long instructorToExcludeId) 
 			throws DbConnectionException;
@@ -132,4 +128,29 @@ public interface CredentialInstructorManager {
 	List<Long> getCredentialInstructorsUserIds(long credentialId) throws DbConnectionException;
 
 	List<UserBasicData> getCredentialInstructorsBasicUserData(long credentialId, boolean returnInstructorsWithoutAssignedStudents);
+
+	/**
+	 * Withdraws instructor from student and if automatic instructor assign is enabled assigns new
+	 * instructor automatically. Previous instructor assessment is declined and new one is created if new instructor
+	 * is assigned.
+	 *
+	 * @param targetCredentialId
+	 * @param context
+	 * @return
+	 * @throws IllegalDataStateException
+	 * @throws DbConnectionException
+	 */
+	Result<Void> withdrawFromBeingInstructorAndGetEvents(long targetCredentialId, UserContextData context) throws IllegalDataStateException;
+
+	/**
+	 *  Withdraws instructor from student and if automatic instructor assign is enabled assigns new
+	 * 	instructor automatically. Previous instructor assessment is declined and new one is created if new instructor
+	 * 	is assigned.
+	 *
+	 * @param targetCredentialId
+	 * @param context
+	 * @throws IllegalDataStateException
+	 * @throws DbConnectionException
+	 */
+	void withdrawFromBeingInstructor(long targetCredentialId, UserContextData context) throws IllegalDataStateException;
 }

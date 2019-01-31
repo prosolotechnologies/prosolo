@@ -24,10 +24,7 @@ import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
 import java.io.IOException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Zoran Jeremic 2013-06-29
@@ -213,12 +210,12 @@ public class UserEntityESServiceImpl extends AbstractESIndexerImpl implements Us
 			if (date != null) {
 				builder.field("dateEnrolled", ElasticsearchUtil.getDateStringRepresentation(date));
 			}
-			CredentialAssessment instructorAssessment = assessmentManager.getInstructorCredentialAssessment(cd.getIdData().getId(), userId);
+			Optional<CredentialAssessment> instructorAssessment = assessmentManager.getActiveInstructorCredentialAssessment(cd.getIdData().getId(), userId);
 			boolean assessorNotified = false;
 			boolean assessed = false;
-			if (instructorAssessment != null) {
-				assessorNotified = instructorAssessment.isAssessorNotified();
-				assessed = instructorAssessment.isAssessed();
+			if (instructorAssessment.isPresent()) {
+				assessorNotified = instructorAssessment.get().isAssessorNotified();
+				assessed = instructorAssessment.get().isAssessed();
 			}
 			builder.field("assessorNotified", assessorNotified);
 			builder.field("assessed", assessed);

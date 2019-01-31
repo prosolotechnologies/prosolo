@@ -115,11 +115,6 @@ public interface AssessmentManager {
 	List<AssessmentDiscussionMessageData> getCredentialAssessmentDiscussionMessages(
 			long assessmentId) throws DbConnectionException;
 
-	void updateInstructorAssessmentAssessor(long targetCredId, long assessorId) throws DbConnectionException;
-
-	void updateInstructorAssessmentsAssessor(List<Long> targetCredIds, long assessorId)
-			throws DbConnectionException;
-
 	/**
 	 * Updates grade and returns populated GradeData object.
 	 *
@@ -135,7 +130,26 @@ public interface AssessmentManager {
             long activityAssessmentId, GradeData grade, UserContextData context)
 			throws DbConnectionException, IllegalDataStateException;
 
-	Optional<Long> getInstructorCredentialAssessmentId(long credId, long studentId) throws DbConnectionException;
+	/**
+	 * Returns id of the newest valid ('REQUESTED', 'PENDING' or 'SUBMITTED') instructor credential assessment from
+	 * currently assigned instructor
+	 *
+	 * @param credId
+	 * @param studentId
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	Optional<Long> getActiveInstructorCredentialAssessmentId(long credId, long studentId);
+
+    /**
+     * Returns active instructor credential assessment from currently assigned instructor if exists
+     *
+     * @param credId
+     * @param studentId
+     * @return
+     * @throws DbConnectionException
+     */
+    Optional<CredentialAssessment> getActiveInstructorCredentialAssessment(long credId, long studentId);
 
 	Optional<Long> getSelfCredentialAssessmentId(long credId, long studentId) throws DbConnectionException;
 
@@ -184,20 +198,26 @@ public interface AssessmentManager {
 	List<Long> getCredentialDiscussionParticipantIds(long assessmentId);
 
 	/**
-	 * Returns existing assessment id from given assessor if it exists and assessment type is not instructor assessment,
-	 * otherwise creates new credential assessment and returns its id
+	 * Returns existing assessment id from given assessor if it exists,
+	 * otherwise creates new credential assessment and returns its id.
+     * If {@code activateExistingAssessment} is true and assessment exists from before,
+     * it is activated by changing status of credential and its competencies assessments as follows:
+     *   - if 'REQUEST_DECLINED' or 'REQUEST_EXPIRED' -> 'REQUESTED'
+     *   - if 'ASSESSMENT_QUIT' -> 'PENDING'
 	 *
 	 * @param targetCredential
 	 * @param studentId
 	 * @param assessorId
 	 * @param type
+     * @param status
+     * @param activateExistingAssessment - if assessment already exists should it be activated in case it is not active
 	 * @param context
 	 * @return
 	 * @throws DbConnectionException
 	 * @throws IllegalDataStateException
 	 */
 	Result<Long> getOrCreateAssessmentAndGetEvents(TargetCredential1 targetCredential, long studentId, long assessorId,
-												   AssessmentType type, AssessmentStatus status, UserContextData context)
+												   AssessmentType type, AssessmentStatus status, boolean activateExistingAssessment, UserContextData context)
 			throws DbConnectionException, IllegalDataStateException;
 
 	Result<ActivityAssessment> createActivityAssessmentAndGetEvents(ActivityData act, long competenceAssessmentId,
@@ -290,22 +310,22 @@ public interface AssessmentManager {
 			long assessmentId, GradeData grade, UserContextData context)
 			throws DbConnectionException, IllegalDataStateException;
 
-	Optional<UserData> getInstructorCredentialAssessmentAssessor(long credId, long userId)
+	Optional<UserData> getActiveInstructorCredentialAssessmentAssessor(long credId, long userId)
 			throws DbConnectionException;
 
 	Result<Void> notifyAssessorToAssessCredentialAndGetEvents(AssessmentNotificationData assessmentNotification, UserContextData context)
-			throws DbConnectionException;
+			throws DbConnectionException, IllegalDataStateException;
 
 	void notifyAssessorToAssessCredential(AssessmentNotificationData assessmentNotification, UserContextData context)
-			throws DbConnectionException;
+			throws DbConnectionException, IllegalDataStateException;
 
 	void notifyAssessorToAssessCompetence(AssessmentNotificationData assessmentNotification, UserContextData context)
-			throws DbConnectionException;
+			throws DbConnectionException, IllegalDataStateException;
 
 	Result<Void> notifyAssessorToAssessCompetenceAndGetEvents(AssessmentNotificationData assessmentNotification, UserContextData context)
-			throws DbConnectionException;
+			throws DbConnectionException, IllegalDataStateException;
 
-	Optional<UserData> getInstructorCompetenceAssessmentAssessor(long credId, long compId, long userId)
+	Optional<UserData> getActiveInstructorCompetenceAssessmentAssessor(long credId, long compId, long userId)
 			throws DbConnectionException;
 
 	/**
@@ -380,8 +400,6 @@ public interface AssessmentManager {
      */
     int getNumberOfApprovedAssessmentsForUserCompetence(long competenceId, long studentId);
 
-	CredentialAssessment getInstructorCredentialAssessment(long credId, long userId) throws DbConnectionException;
-
 	/**
 	 * Returns all credential assessments for given target credential sorted by specified criteria
 	 *
@@ -417,4 +435,15 @@ public interface AssessmentManager {
 	 * @return
 	 */
 	org.prosolo.services.user.data.profile.grade.GradeData getCompetenceAssessmentGradeSummary(long compAssessmentId);
+
+	/**
+	 * Declines active credential assessment. Active means it is in 'REQUESTED' or 'PENDING' status in which
+	 * case status is updated to 'REQUEST_DECLINED' and 'ASSESSMENT_QUIT' respectively.
+	 *
+	 * @param credentialId
+	 * @param studentId
+	 * @param assessorId
+	 * @param assessmentType
+	 */
+	void declineCredentialAssessmentIfActive(long credentialId, long studentId, long assessorId, AssessmentType assessmentType);
 }

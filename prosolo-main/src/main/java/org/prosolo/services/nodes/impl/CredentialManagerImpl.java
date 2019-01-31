@@ -32,10 +32,10 @@ import org.prosolo.search.util.credential.CredentialSearchFilterManager;
 import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.assessment.RubricManager;
-import org.prosolo.services.assessment.data.AssessmentSortOrder;
 import org.prosolo.services.assessment.data.AssessmentTypeConfig;
 import org.prosolo.services.common.data.LazyInitCollection;
 import org.prosolo.services.common.data.SortOrder;
+import org.prosolo.services.common.data.SortingOption;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventFactory;
@@ -49,7 +49,6 @@ import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.credential.*;
 import org.prosolo.services.nodes.data.instructor.StudentAssignData;
-import org.prosolo.services.nodes.data.instructor.StudentInstructorPair;
 import org.prosolo.services.nodes.data.resourceAccess.*;
 import org.prosolo.services.nodes.factory.*;
 import org.prosolo.services.nodes.observers.learningResources.CredentialChangeTracker;
@@ -57,7 +56,6 @@ import org.prosolo.services.user.UserGroupManager;
 import org.prosolo.services.user.data.StudentData;
 import org.prosolo.services.user.data.UserData;
 import org.prosolo.services.user.data.UserLearningProgress;
-import org.prosolo.services.common.data.SortingOption;
 import org.prosolo.services.util.roles.SystemRoleNames;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -989,27 +987,15 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			result.appendEvent(eventFactory.generateEventData(
 					EventType.ENROLL_COURSE, context, cred, student, null, null));
 
-			long instructorId = 0;
-
 			if (cred.getAssessorAssignmentMethod() != null &&
 					cred.getAssessorAssignmentMethod().equals(AssessorAssignmentMethod.AUTOMATIC)) {
-				List<TargetCredential1> targetCredIds = new ArrayList<>();
-				targetCredIds.add(targetCred);
 				Result<StudentAssignData> res = credInstructorManager.assignStudentsToInstructorAutomatically(
-						credentialId, targetCredIds, 0, false, context);
+						credentialId, List.of(targetCred), 0, context);
 				result.appendEvents(res.getEventQueue());
-				List<StudentInstructorPair> assigned = res.getResult().getAssigned();
-				if (assigned.size() == 1) {
-					StudentInstructorPair pair = assigned.get(0);
-					//we need user id, not instructor id
-					instructorId = pair.getInstructor().getUser().getId();
-				}
 			}
 
-			//create default assessment for user
-			result.appendEvents(assessmentManager.createInstructorAssessmentAndGetEvents(targetCred, instructorId, context).getEventQueue());
 			//create self assessment if enabled
-			 if (cred.getAssessmentConfig()
+			if (cred.getAssessmentConfig()
 					.stream()
 					.filter(config -> config.getAssessmentType() == AssessmentType.SELF_ASSESSMENT)
 					.findFirst().get()
@@ -1025,8 +1011,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 			return result;
 		} catch (Exception e) {
-			logger.error(e);
-			e.printStackTrace();
+			logger.error("Error", e);
 			throw new DbConnectionException("Error enrolling in a credential");
 		}
 	}

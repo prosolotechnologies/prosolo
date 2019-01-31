@@ -32,12 +32,12 @@ public abstract class CredentialUniqueAssessmentBean implements Serializable {
 		decodedId = idEncoder.decodeId(id);
 
 		if (decodedId > 0) {
-			Optional<Long> optAssessmentId = assessmentManager.getInstructorCredentialAssessmentId(decodedId, getUserId());
+			Optional<Long> optAssessmentId = assessmentManager.getActiveInstructorCredentialAssessmentId(decodedId, getUserId());
+			long credentialAssessmentId = 0;
 			if (optAssessmentId.isPresent()) {
-				credentialAssessmentBean.initInstructorAssessment(id, idEncoder.encodeId(optAssessmentId.get()), getAssessmentDisplayMode());
-			} else {
-				PageUtil.notFound();
+				credentialAssessmentId = optAssessmentId.get();
 			}
+			credentialAssessmentBean.initInstructorAssessment(id, idEncoder.encodeId(credentialAssessmentId), getAssessmentDisplayMode());
 		} else {
 			PageUtil.notFound();
 		}
