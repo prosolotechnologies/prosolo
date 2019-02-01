@@ -46,7 +46,9 @@
 				<div class="whiteBarContent">
 					<div class="whiteBarLeft"></div>
 					<div class="whiteBarRight">
-						<div class="duration item">#{competenceViewBeanAdmin.competenceData.durationString}</div>
+						<ui:fragment rendered="#{competenceViewBeanAdmin.competenceData.durationString ne null}">
+							<div class="duration item">#{competenceViewBeanAdmin.competenceData.durationString}</div>
+						</ui:fragment>
 					</div>
 				</div>
 			</div>

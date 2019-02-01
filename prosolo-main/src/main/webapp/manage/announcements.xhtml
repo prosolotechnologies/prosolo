@@ -62,7 +62,9 @@
 						 <h:panelGroup rendered="#{announcementBeanManager.credentialData.mandatoryFlow}" styleClass="mandatoryTag item">
 						 	Mandatory flow
 						 </h:panelGroup>
-						 <div class="duration item">#{announcementBeanManager.credentialData.durationString}</div>
+						 <ui:fragment rendered="#{announcementBeanManager.credentialData.durationString ne null}">
+						 	<div class="duration item">#{announcementBeanManager.credentialData.durationString}</div>
+						 </ui:fragment>
 					 </div>
 				</div>
 			</div>
