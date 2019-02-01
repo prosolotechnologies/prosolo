@@ -87,14 +87,6 @@ public class CredentialMembersBean implements Serializable, Paginable {
 
 	public void init() {
 		sortOptions = CredentialMembersSortOption.values();
-		CredentialMembersSearchFilter.SearchFilter[] values = CredentialMembersSearchFilter.SearchFilter.values();
-		int size = values.length;
-		searchFilters = new CredentialMembersSearchFilter[size];
-		for(int i = 0; i < size; i++) {
-			CredentialMembersSearchFilter filter = new CredentialMembersSearchFilter(values[i], 0);
-			searchFilters[i] = filter;
-		}
-		searchFilter = new CredentialMembersSearchFilter(CredentialMembersSearchFilter.SearchFilter.All, 0);
 		//searchFilters = InstructorAssignFilterValue.values();
 		decodedId = idEncoder.decodeId(id);
 		if (decodedId > 0) {
@@ -119,7 +111,7 @@ public class CredentialMembersBean implements Serializable, Paginable {
 						} else {
 							initInstructorFilters();
 						}
-						searchCredentialMembers();
+						loadStudentsFromDb();
 						studentEnrollBean.init(decodedId, context);
 					}
 				} else {
@@ -155,6 +147,18 @@ public class CredentialMembersBean implements Serializable, Paginable {
 		}
 
 		instructorFilter = instructorFilters[0];
+	}
+
+	public void loadStudentsFromDb() {
+		members = credManager.getCredentialStudentsData(decodedId, this.paginationData.getLimit());
+		searchFilters = credManager.getFiltersWithNumberOfStudentsBelongingToEachCategory(decodedId);
+		for (CredentialMembersSearchFilter f : searchFilters) {
+			if (f.getFilter() == CredentialMembersSearchFilter.SearchFilter.All) {
+				searchFilter = f;
+				this.paginationData.update((int) f.getNumberOfResults());
+				break;
+			}
+		}
 	}
 
 	public void searchCredentialMembers() {

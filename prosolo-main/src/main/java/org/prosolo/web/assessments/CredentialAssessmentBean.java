@@ -752,6 +752,7 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 	public void withdrawInstructor() {
 		try {
 			credentialInstructorManager.withdrawFromBeingInstructor(fullAssessmentData.getTargetCredentialId(), loggedUserBean.getUserContext());
+			PageUtil.fireSuccessfulInfoMessageAcrossPages("You have withdrawn from being " + ResourceBundleUtil.getLabel("instructor").toLowerCase() + " to " + fullAssessmentData.getStudentFullName());
 			PageUtil.redirect("/manage/credentials/" + id + "/students");
 		} catch (Exception e) {
 			logger.error("error", e);

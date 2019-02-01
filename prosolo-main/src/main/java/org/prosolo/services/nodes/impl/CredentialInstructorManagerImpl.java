@@ -2,12 +2,14 @@ package org.prosolo.services.nodes.impl;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
+import org.hibernate.exception.ConstraintViolationException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.assessment.AssessorAssignmentMethod;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialInstructor;
+import org.prosolo.common.domainmodel.credential.InstructorWithdrawal;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.user.User;
@@ -247,6 +249,7 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 						UserData user = new UserData();
 						user.setId((long) row[3]);
 						instructor.setUser(user);
+						instructor.setWithdrawList(getStudentIdsOnInstructorsWithdrawnList(user.getId(), credentialId));
 						instructors.add(instructor);
 					}
 				}
@@ -258,6 +261,17 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 			e.printStackTrace();
 			throw new DbConnectionException("Error loading credential instructor data");
 		}
+	}
+
+	private List<Long> getStudentIdsOnInstructorsWithdrawnList(long instructorUserId, long credentialId) {
+		String q =
+				"SELECT iw.targetCredential.user.id FROM InstructorWithdrawal iw " +
+				"WHERE iw.targetCredential.credential.id = :credId " +
+				"AND iw.instructor.id = :instructorUserId";
+		return (List<Long>) persistence.currentManager().createQuery(q)
+				.setLong("credId", credentialId)
+				.setLong("instructorUserId", instructorUserId)
+				.list();
 	}
 	
 	@Override
@@ -288,12 +302,12 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 	                		.getNumberOfAssignedStudents() + 1);
 	                if (instructorToAssign.isFull()) {
 	                	instructors.remove(instructorToAssign);
-	                	if (instructors.isEmpty()) {
-		                	break;
-		                }
 	                }
 	                
 	                iterator.remove();
+                    if (instructors.isEmpty()) {
+                        break;
+                    }
                 }
             }
             if (!targetCredsCopy.isEmpty()) {
@@ -312,11 +326,14 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 	 * @param instructors
 	 * @return
 	 */
-    private InstructorData getInstructorWithLowestNumberOfStudents(List<InstructorData> instructors, long userToExclude) {
+    private InstructorData getInstructorWithLowestNumberOfStudents(List<InstructorData> instructors, long studentUserId) {
         InstructorData instructorWithLowestNumberOfStudents = null;
         int minNumberOfAssignedStudents = Integer.MAX_VALUE;
-        for(InstructorData id : instructors) {
-        	if(id.getUser().getId() != userToExclude && (id.getMaxNumberOfStudents() == 0 || 
+        for (InstructorData id : instructors) {
+            boolean isStudentOnWithdrawnList = id.getWithdrawList()
+                    .stream()
+                    .anyMatch(studentId -> studentId == studentUserId);
+        	if (!isStudentOnWithdrawnList && id.getUser().getId() != studentUserId && (id.getMaxNumberOfStudents() == 0 ||
         			id.getNumberOfAssignedStudents() < id.getMaxNumberOfStudents()) 
         			&& id.getNumberOfAssignedStudents() < minNumberOfAssignedStudents) {
         		instructorWithLowestNumberOfStudents = id;
@@ -731,6 +748,7 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
                 throw new IllegalDataStateException("This user is not currently assigned as instructor so he can't withdraw");
             }
             Result<Void> result = new Result<>();
+            saveInstructorWithdrawal(tc, context.getActorId());
             if (tc.getCredential().getAssessorAssignmentMethod() != null &&
                     tc.getCredential().getAssessorAssignmentMethod().equals(AssessorAssignmentMethod.AUTOMATIC)) {
                 Result<StudentAssignData> res = assignStudentsToInstructorAutomatically(
@@ -748,5 +766,17 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 		    throw new DbConnectionException("Error withdrawing frm being instructor");
         }
     }
+
+    private void saveInstructorWithdrawal(TargetCredential1 targetCredential, long instructorUserId) {
+    	try {
+    		InstructorWithdrawal withdrawal = new InstructorWithdrawal();
+			withdrawal.setTargetCredential(targetCredential);
+			withdrawal.setInstructor((User) persistence.currentManager().load(User.class, instructorUserId));
+			saveEntity(withdrawal);
+		} catch (ConstraintViolationException e) {
+			//it means that instructor is already on withdrawn list so he can't be added again but that is fine
+			logger.info("User with id: " + instructorUserId + " not added to withdrawn list because he is already on this list");
+		}
+	}
 	
 }

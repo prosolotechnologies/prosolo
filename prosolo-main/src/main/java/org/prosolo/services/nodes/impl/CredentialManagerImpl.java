@@ -11,6 +11,7 @@ import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.annotation.Tag;
+import org.prosolo.common.domainmodel.assessment.AssessmentStatus;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.assessment.AssessorAssignmentMethod;
 import org.prosolo.common.domainmodel.credential.*;
@@ -2190,20 +2191,24 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			throws DbConnectionException {
 		try {
 			String query =
-					"SELECT cred, case when a IS NOT NULL then a.assessorNotified else false end, case when a IS NOT NULL then a.id else 0 end " +
+					"SELECT cred, CAST((case when a IS NOT NULL then a.assessorNotified else 0 end) AS int), case when a IS NOT NULL then a.id else 0 end " +
 					"FROM TargetCredential1 cred " +
-					"INNER JOIN fetch cred.user " +
+					"INNER JOIN fetch cred.user student " +
 					"LEFT JOIN fetch cred.instructor inst " +
-					"LEFT JOIN fetch inst.user " +
+					"LEFT JOIN fetch inst.user instUser " +
 					"LEFT JOIN cred.assessments a " +
 						"WITH a.type = :instructorAssessment " +
+						"AND (a.status = :requestedStatus OR a.status = :pendingStatus OR a.status = :submittedStatus) " +
 					"WHERE cred.credential.id = :credId " +
-					"ORDER BY cred.dateStarted DESC";
+					"ORDER BY student.nameDESC";
 
 			List<Object[]> res = persistence.currentManager()
 					.createQuery(query)
 					.setLong("credId", credId)
 					.setString("instructorAssessment", AssessmentType.INSTRUCTOR_ASSESSMENT.name())
+					.setString("requestedStatus", AssessmentStatus.REQUESTED.name())
+					.setString("pendingStatus", AssessmentStatus.PENDING.name())
+					.setString("submittedStatus", AssessmentStatus.SUBMITTED.name())
 					.setMaxResults(limit)
 					.list();
 
@@ -2220,7 +2225,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					}
 					sd.setProgress(tc.getProgress());
 					sd.setAssessmentId((long) row[2]);
-					sd.setSentAssessmentNotification((boolean) row[1]);
+					sd.setSentAssessmentNotification(((int) row[1]) == 1);
 					data.add(sd);
 				}
 				return data;
