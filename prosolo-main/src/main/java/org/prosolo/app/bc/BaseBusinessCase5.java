@@ -4,7 +4,9 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.hibernate.Session;
 import org.prosolo.bigdata.common.exceptions.OperationForbiddenException;
 import org.prosolo.common.domainmodel.activitywall.PostSocialActivity1;
+import org.prosolo.common.domainmodel.comment.Comment1;
 import org.prosolo.common.domainmodel.content.ContentType1;
+import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.CredentialInstructor;
 import org.prosolo.common.domainmodel.credential.LearningPathType;
@@ -13,12 +15,16 @@ import org.prosolo.common.domainmodel.rubric.RubricType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroup;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
+import org.prosolo.common.event.context.data.PageContextData;
+import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.core.db.hibernate.HibernateUtil;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.activityWall.SocialActivityManager;
 import org.prosolo.services.activityWall.impl.data.SocialActivityData1;
 import org.prosolo.services.event.EventQueue;
+import org.prosolo.services.interaction.CommentManager;
+import org.prosolo.services.interaction.data.CommentData;
 import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview1;
@@ -28,6 +34,7 @@ import org.prosolo.services.nodes.data.rubrics.RubricCriterionData;
 import org.prosolo.services.nodes.data.rubrics.RubricData;
 import org.prosolo.services.nodes.data.rubrics.RubricLevelData;
 import org.prosolo.services.user.UserGroupManager;
+import org.prosolo.services.user.data.UserData;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -478,6 +485,26 @@ public abstract class BaseBusinessCase5 extends BaseBusinessCase {
         } finally {
             HibernateUtil.close(session2);
         }
+    }
+
+    protected CommentData createNewComment(EventQueue events, User user, String text, long commentedResourceId, CommentedResourceType commentedResourceType, CommentData parent) {
+        CommentData newComment = new CommentData();
+        newComment.setCommentedResourceId(commentedResourceId);
+        newComment.setDateCreated(new Date());
+        newComment.setComment(text);
+        newComment.setCreator(new UserData(user));
+        newComment.setParent(parent);
+
+        Comment1 comment = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).saveNewCommentAndGetEvents(newComment,
+                commentedResourceType, UserContextData.of(user.getId(), user.getOrganization().getId(), null, null, null)));
+
+        newComment.setCommentId(comment.getId());
+
+        return newComment;
+    }
+
+    protected void likeComment(EventQueue events, CommentData commentData, User user) {
+        extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(commentData.getCommentId(), UserContextData.of(user.getId(), user.getOrganization().getId(), null, null, new PageContextData("/activity.xhtml", null, null))));
     }
 
 }

@@ -7,6 +7,7 @@ import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.event.EventQueue;
+import org.prosolo.services.interaction.data.CommentData;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.config.competence.CompetenceLoadConfig;
@@ -362,11 +363,51 @@ public class BusinessCase_Test_2_9 extends BaseBusinessCase5 {
         // enroll users to Delivery 1
         ////////////////////////////////
         enrollToDelivery(events, organization, credentialWithActivities1Delivery1, userHelenCampbell);
+        enrollToDelivery(events, organization, credentialWithActivities1Delivery1, userGeorgeYoung);
 
         ///////////////////////////////////////////
         // enroll in competencies from Delivery 1
         ///////////////////////////////////////////
-        List<CompetenceData1> credentialWithActivities1Delivery1Competencies = ServiceLocator.getInstance().getService(Competence1Manager.class).getCompetencesForCredential(credentialWithActivities1Delivery1.getId(), userHelenCampbell.getId(), new CompetenceLoadConfig.CompetenceLoadConfigBuilder().create());
+        List<CompetenceData1> competenciesUserHelenCampbell = ServiceLocator.getInstance().getService(Competence1Manager.class).getCompetencesForCredential(credentialWithActivities1Delivery1.getId(), userHelenCampbell.getId(), new CompetenceLoadConfig.CompetenceLoadConfigBuilder().create());
+        TargetCompetence1 comp1UserHelenCampbell = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(competenciesUserHelenCampbell.get(0).getCompetenceId(), userHelenCampbell.getId(), createUserContext(userHelenCampbell)));
+
+        List<CompetenceData1> competenciesUserGeorgeYoung = ServiceLocator.getInstance().getService(Competence1Manager.class).getCompetencesForCredential(credentialWithActivities1Delivery1.getId(), userGeorgeYoung.getId(), new CompetenceLoadConfig.CompetenceLoadConfigBuilder().create());
+        TargetCompetence1 comp1UserGeorgeYoung = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(competenciesUserGeorgeYoung.get(0).getCompetenceId(), userGeorgeYoung.getId(), createUserContext(userGeorgeYoung)));
+
+
+
+        ///////////////////////////////////////////
+        // Add comments to competencies
+        ///////////////////////////////////////////
+        CommentData comment1 = createNewComment(events,
+                userHelenCampbell,
+                "Social network analysis (SNA) is the process of investigating social structures through the use of networks and graph theory.",
+                comp1UserHelenCampbell.getCompetence().getId(),
+                CommentedResourceType.Competence,
+                null);
+
+        likeComment(events, comment1, userGeorgeYoung);
+
+        CommentData comment1Reply1 = createNewComment(events,
+                userGeorgeYoung,
+                "It characterizes networked structures in terms of nodes and the ties, edges, or links that connect them.",
+                comp1UserHelenCampbell.getCompetence().getId(),
+                CommentedResourceType.Competence,
+                comment1);
+
+        likeComment(events, comment1Reply1, userHelenCampbell);
+
+        CommentData comment2 = createNewComment(events, userGeorgeYoung,
+                "Social network analysis has emerged as a key technique in modern sociology.",
+                comp1UserHelenCampbell.getCompetence().getId(),
+                CommentedResourceType.Competence,
+                null);
+
+        CommentData comment3 = createNewComment(events, userHelenCampbell,
+                "It has also gained a significant following in anthropology, biology, demography, communication studies, economics, geography, history, information science, organizational studies, political science, social psychology, development studies, sociolinguistics, and computer science and is now commonly available as a consumer tool.",
+                comp1UserHelenCampbell.getCompetence().getId(),
+                CommentedResourceType.Competence,
+                null);
     }
 
     @Override
