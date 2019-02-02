@@ -54,11 +54,9 @@ public class BusinessCase5_Demo extends BaseBusinessCase5 {
 		// assign students to instructor
 		///////////////////////////
 		// explicitly set Phil Armstrong as an instructor of Helen Campbell
-		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CredentialInstructorManager.class).updateStudentsAssignedToInstructor(
-				credential1Delivery1InstructorPhilArmstrong.getId(), credential1Delivery1.getId(), Arrays.asList(userHelenCampbell.getId()), null, createUserContext(userNickPowell)));
+		assignInstructorToStudent(events, credential1Delivery1InstructorPhilArmstrong, userHelenCampbell, credential1Delivery1);
 		// explicitly set Phil Armstrong as an instructor of Richard Anderson
-		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CredentialInstructorManager.class).updateStudentsAssignedToInstructor(
-				credential1Delivery1InstructorPhilArmstrong.getId(), credential1Delivery1.getId(), Arrays.asList(userRichardAnderson.getId()), null, createUserContext(userNickPowell)));
+		assignInstructorToStudent(events, credential1Delivery1InstructorPhilArmstrong, userRichardAnderson, credential1Delivery1);
 
 		////////////////////////////
 		// enroll in competencies

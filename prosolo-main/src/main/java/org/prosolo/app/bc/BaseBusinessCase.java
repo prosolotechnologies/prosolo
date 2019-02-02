@@ -18,6 +18,7 @@ import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.rubric.Rubric;
 import org.prosolo.common.domainmodel.rubric.RubricType;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.UserGroup;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.util.string.StringUtil;
@@ -240,7 +241,7 @@ public abstract class BaseBusinessCase {
     private Organization createOrganization(EventQueue events) {
         OrganizationData orgData = new OrganizationData();
         orgData.setTitle("Desert Winds University");
-        orgData.setAdmins(Arrays.asList(new UserData(userNickPowell)));
+        orgData.setAdmins(List.of(new UserData(userNickPowell)));
 
         return extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(OrganizationManager.class)
                 .createNewOrganizationAndGetEvents(orgData, UserContextData.empty()));
@@ -319,7 +320,7 @@ public abstract class BaseBusinessCase {
         AssessmentTypeConfig instructorAssessment = new AssessmentTypeConfig(-1, AssessmentType.INSTRUCTOR_ASSESSMENT, true, true);
         AssessmentTypeConfig peerAssessment = new AssessmentTypeConfig(-1, AssessmentType.PEER_ASSESSMENT, false, false);
         AssessmentTypeConfig selfAssessment = new AssessmentTypeConfig(-1, AssessmentType.SELF_ASSESSMENT, true, false);
-        credentialData.setAssessmentTypes(Arrays.asList(instructorAssessment, peerAssessment, selfAssessment));
+        credentialData.setAssessmentTypes(List.of(instructorAssessment, peerAssessment, selfAssessment));
 
         return extractResultAndAddEvents(events, ServiceLocator
                 .getInstance()
@@ -341,7 +342,7 @@ public abstract class BaseBusinessCase {
         AssessmentTypeConfig instructorAssessment = new AssessmentTypeConfig(-1, AssessmentType.INSTRUCTOR_ASSESSMENT, true, true);
         AssessmentTypeConfig peerAssessment = new AssessmentTypeConfig(-1, AssessmentType.PEER_ASSESSMENT, true, false);
         AssessmentTypeConfig selfAssessment = new AssessmentTypeConfig(-1, AssessmentType.SELF_ASSESSMENT, true, false);
-        compData.setAssessmentTypes(Arrays.asList(instructorAssessment, peerAssessment, selfAssessment));
+        compData.setAssessmentTypes(List.of(instructorAssessment, peerAssessment, selfAssessment));
 
         try {
             return extractResultAndAddEvents(events, ServiceLocator
@@ -460,11 +461,11 @@ public abstract class BaseBusinessCase {
                 UserContextData.of(actor.getId(), org.getId(), null, null, null)));
     }
 
-    protected void givePrivilegeToGroupOnDelivery(EventQueue events, Credential1 delivery, UserGroupPrivilege userGroupPrivilege, User actor, Organization org, List<Long> groupIds) {
+    protected void givePrivilegeToGroupOnDelivery(EventQueue events, Credential1 delivery, UserGroupPrivilege userGroupPrivilege, User actor, Organization org, List<UserGroup> groups) {
         List<ResourceVisibilityMember> groupsToAdd = new LinkedList<>();
 
-        for (Long groupId : groupIds) {
-            ResourceVisibilityMember resourceVisibilityMember = new ResourceVisibilityMember(0, groupId, null, 0, userGroupPrivilege, false, true);
+        for (UserGroup group : groups) {
+            ResourceVisibilityMember resourceVisibilityMember = new ResourceVisibilityMember(0, group.getId(), null, 0, userGroupPrivilege, false, true);
             resourceVisibilityMember.setStatus(ObjectStatus.CREATED);
             groupsToAdd.add(resourceVisibilityMember);
         }
@@ -495,6 +496,10 @@ public abstract class BaseBusinessCase {
 
     protected long getDaysFromNow(int days) {
         return LocalDateTime.now(Clock.systemUTC()).plusDays(days).atZone(ZoneOffset.ofTotalSeconds(0)).toInstant().toEpochMilli();
+    }
+
+    protected long getDaysBeforeNow(int days) {
+        return LocalDateTime.now(Clock.systemUTC()).minusDays(days).atZone(ZoneOffset.ofTotalSeconds(0)).toInstant().toEpochMilli();
     }
 
     protected void createLearningStages(EventQueue events, String... stages) {

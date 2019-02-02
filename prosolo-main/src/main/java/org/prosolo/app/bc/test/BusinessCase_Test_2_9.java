@@ -266,9 +266,9 @@ public class BusinessCase_Test_2_9 extends BaseBusinessCase5 {
         Credential1 credentialWithActivities1Delivery3 = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CredentialManager.class).createCredentialDeliveryAndGetEvents(credentialWithActivities3.getId(), DateUtil.getDateFromMillis(new Date().getTime()), DateUtil.getDateFromMillis(getDaysFromNow(90)), createUserContext(userNickPowell)));
 
         // give learn privilege to all students from both user groups
-        givePrivilegeToGroupOnDelivery(events, credentialWithActivities1Delivery1, UserGroupPrivilege.Learn, userNickPowell, organization, Arrays.asList(userGroupScienceEducationStudents.getId(), userGroupArtsEducationStudents.getId()));
-        givePrivilegeToGroupOnDelivery(events, credentialWithActivities1Delivery2, UserGroupPrivilege.Learn, userNickPowell, organization, Arrays.asList(userGroupScienceEducationStudents.getId(), userGroupArtsEducationStudents.getId()));
-        givePrivilegeToGroupOnDelivery(events, credentialWithActivities1Delivery3, UserGroupPrivilege.Learn, userNickPowell, organization, Arrays.asList(userGroupScienceEducationStudents.getId(), userGroupArtsEducationStudents.getId()));
+        givePrivilegeToGroupOnDelivery(events, credentialWithActivities1Delivery1, UserGroupPrivilege.Learn, userNickPowell, organization, List.of(userGroupScienceEducationStudents, userGroupArtsEducationStudents));
+        givePrivilegeToGroupOnDelivery(events, credentialWithActivities1Delivery2, UserGroupPrivilege.Learn, userNickPowell, organization, List.of(userGroupScienceEducationStudents, userGroupArtsEducationStudents));
+        givePrivilegeToGroupOnDelivery(events, credentialWithActivities1Delivery3, UserGroupPrivilege.Learn, userNickPowell, organization, List.of(userGroupScienceEducationStudents, userGroupArtsEducationStudents));
 
         ////////////////////////////////
         // enroll users to Delivery 1
