@@ -126,7 +126,8 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 
 			Map<String, String> parameters = new HashMap<>();
 
-			parameters.put("context", contextData.getContext().getLearningContext());
+			if (contextData != null && contextData.getContext() != null)
+				parameters.put("context", contextData.getContext().getLearningContext());
 			parameters.put("users", thread.getParticipants().stream().map(u ->
 					String.valueOf(u.getId())).collect(Collectors.joining(",")));
 			parameters.put("user", String.valueOf(thread.getParticipants().iterator().next().getId()));

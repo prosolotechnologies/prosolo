@@ -43,12 +43,12 @@ public class BusinessCase5_Demo extends BaseBusinessCase5 {
 		///////////////////////////
 		// enroll users to delivery
 		///////////////////////////
-		enrollToDelivery(events, organization, credential1Delivery1, userHelenCampbell);
-		enrollToDelivery(events, organization, credential1Delivery1, userRichardAnderson);
-		enrollToDelivery(events, organization, credential1Delivery1, userStevenTurner);
-		enrollToDelivery(events, organization, credential1Delivery1, userJosephGarcia);
-		enrollToDelivery(events, organization, credential1Delivery1, userTimothyRivera);
-		enrollToDelivery(events, organization, credential1Delivery1, userKevinHall);
+		enrollToDelivery(events, credential1Delivery1, userHelenCampbell);
+		enrollToDelivery(events, credential1Delivery1, userRichardAnderson);
+		enrollToDelivery(events, credential1Delivery1, userStevenTurner);
+		enrollToDelivery(events, credential1Delivery1, userJosephGarcia);
+		enrollToDelivery(events, credential1Delivery1, userTimothyRivera);
+		enrollToDelivery(events, credential1Delivery1, userKevinHall);
 
 		///////////////////////////
 		// assign students to instructor
