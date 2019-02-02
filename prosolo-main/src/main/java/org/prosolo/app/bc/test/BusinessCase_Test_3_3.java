@@ -12,8 +12,10 @@ import org.prosolo.services.assessment.data.AssessmentRequestData;
 import org.prosolo.services.assessment.data.CompetenceAssessmentData;
 import org.prosolo.services.event.EventQueue;
 import org.prosolo.services.interaction.data.CommentData;
+import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.config.competence.CompetenceLoadConfig;
+import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.assessments.AssessmentNotificationData;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceData;
@@ -42,15 +44,21 @@ public class BusinessCase_Test_3_3 extends BusinessCase_Test_3 {
         enrollToDelivery(events, credential1Delivery1, userKevinHall);
         enrollToDelivery(events, credential1Delivery1, userRachelWiggins);
 
+        enrollToDelivery(events, credential2Delivery1, userHelenCampbell);
+
         enrollToDelivery(events, credentialWithActivities1, userHelenCampbell);
 
         ////////////////////////////////////
-        // Add Anna Hallowell as instructor
+        // Add instructors to students
         ////////////////////////////////////
         assignInstructorToStudent(events, credential1Delivery1InstructorAnnaHallowell, userHelenCampbell, credential1Delivery1);
         assignInstructorToStudent(events, credential1Delivery1InstructorAnnaHallowell, userGeorgeYoung, credential1Delivery1);
         assignInstructorToStudent(events, credential1Delivery1InstructorAnnaHallowell, userRichardAnderson, credential1Delivery1);
         assignInstructorToStudent(events, credential1Delivery1InstructorAnnaHallowell, userKevinHall, credential1Delivery1);
+
+        assignInstructorToStudent(events, credentialWithActivities1Delivery1InstructorAnnaHallowell, userHelenCampbell, credentialWithActivities1Delivery1);
+
+        assignInstructorToStudent(events, credential1Delivery1InstructorPhilArmstrong, userHelenCampbell, credential2Delivery1);
 
 
         ////////////////////////////////////
@@ -67,6 +75,11 @@ public class BusinessCase_Test_3_3 extends BusinessCase_Test_3 {
         TargetCompetence1 credential1Delivery1Comp6TargetHelen = extractResultAndAddEvents(events, compManager.enrollInCompetenceAndGetEvents(credential1Delivery1CompetencesHelen.get(5).getCompetenceId(), userHelenCampbell.getId(), createUserContext(userHelenCampbell)));
 
 
+        // Helen Campbell starts activity-based competencies
+        List<CompetenceData1> credentialWithActivities1Delivery1CompetenciesHelen = ServiceLocator.getInstance().getService(Competence1Manager.class).getCompetencesForCredential(credentialWithActivities1Delivery1.getId(), userHelenCampbell.getId(), new CompetenceLoadConfig.CompetenceLoadConfigBuilder().create());
+        TargetCompetence1 credentialWithActivities1Delivery1Competency1Helen = extractResultAndAddEvents(events, compManager.enrollInCompetenceAndGetEvents(credentialWithActivities1Delivery1CompetenciesHelen.get(0).getCompetenceId(), userHelenCampbell.getId(), createUserContext(userHelenCampbell)));
+
+
         // enroll George Young
         List<CompetenceData1> credential1Delivery1CompetencesGeorge = compManager.getCompetencesForCredential(credential1Delivery1.getId(), userGeorgeYoung.getId(), new CompetenceLoadConfig.CompetenceLoadConfigBuilder().create());
         enrollToCompetencies(events, credential1Delivery1CompetencesGeorge, userGeorgeYoung);
@@ -75,6 +88,9 @@ public class BusinessCase_Test_3_3 extends BusinessCase_Test_3 {
         List<CompetenceData1> credential1Delivery1CompetencesRichard = compManager.getCompetencesForCredential(credential1Delivery1.getId(), userRichardAnderson.getId(), new CompetenceLoadConfig.CompetenceLoadConfigBuilder().create());
         TargetCompetence1 credential1Delivery1Comp1TargetRichard = extractResultAndAddEvents(events, compManager.enrollInCompetenceAndGetEvents(credential1Delivery1CompetencesRichard.get(0).getCompetenceId(), userRichardAnderson.getId(), createUserContext(userRichardAnderson)));
         TargetCompetence1 credential1Delivery1Comp2TargetRichard = extractResultAndAddEvents(events, compManager.enrollInCompetenceAndGetEvents(credential1Delivery1CompetencesRichard.get(1).getCompetenceId(), userRichardAnderson.getId(), createUserContext(userRichardAnderson)));
+
+
+
 
         ///////////////////////////////////
         // add evidence to competencies
@@ -122,6 +138,18 @@ public class BusinessCase_Test_3_3 extends BusinessCase_Test_3 {
                 "Contains structure of the new version of a teaching program.",
                 credential1Delivery1Comp1TargetRichard.getId(),
                 userRichardAnderson);
+
+
+        //////////////////////////////////////
+        // Complete activities
+        //////////////////////////////////////
+        // Helen Campbell completes first activity
+        List<ActivityData> credentialWithActivities1Delivery1ActivitiesHelen = ServiceLocator.getInstance().getService(Activity1Manager.class).getTargetActivitiesData(credentialWithActivities1Delivery1Competency1Helen.getId());
+
+        extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Activity1Manager.class).completeActivityAndGetEvents(
+                credentialWithActivities1Delivery1ActivitiesHelen.get(0).getTargetActivityId(),
+                credentialWithActivities1Delivery1Competency1Helen.getId(),
+                createUserContext(userRichardAnderson)));
 
         //////////////////////////////////////
         // Complete competencies
