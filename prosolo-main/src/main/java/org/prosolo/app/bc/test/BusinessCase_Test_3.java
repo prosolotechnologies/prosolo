@@ -34,6 +34,10 @@ public abstract class BusinessCase_Test_3 extends BaseBusinessCase5 {
     protected Credential1 credential3Delivery2;
     protected Credential1 credential4Delivery2;
 
+    // instructors
+    protected CredentialInstructor credentialWithActivities1Delivery1InstructorAnnaHallowell;
+    protected CredentialInstructor credential2Delivery1InstructorAnnaHallowell;
+
     @Override
     protected void createAdditionalDataBC5(EventQueue events) throws Exception {
         ////////////////////////////////////////////////////////////
@@ -146,7 +150,8 @@ public abstract class BusinessCase_Test_3 extends BaseBusinessCase5 {
         /////////////////////////
         // add Anna Hallowell as an instructor
         // Anna Hallowell is already added to the credential1Delivery1
-        CredentialInstructor credential2Delivery1InstructorAnnaHallowell = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CredentialInstructorManager.class).addInstructorToCredentialAndGetEvents(credential2Delivery1.getId(), userAnnaHallowell.getId(), 0, createUserContext(userNickPowell)));
+        credential2Delivery1InstructorAnnaHallowell = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CredentialInstructorManager.class).addInstructorToCredentialAndGetEvents(credential2Delivery1.getId(), userAnnaHallowell.getId(), 0, createUserContext(userNickPowell)));
+        // Phil Armstrong is already added to the credential2Delivery1
 
 
 
@@ -175,8 +180,8 @@ public abstract class BusinessCase_Test_3 extends BaseBusinessCase5 {
         // give learn privilege to all students from the School of Education
         givePrivilegeToGroupOnDelivery(events, credentialWithActivities1Delivery1, UserGroupPrivilege.Learn, userNickPowell, organization, List.of(userGroupScienceEducationStudents));
         givePrivilegeToUsersOnDelivery(events, credentialWithActivities1Delivery1, UserGroupPrivilege.Learn, userNickPowell, organization, List.of(userAkikoKido));
-        // add Anna Hallowell as an instructor
-        CredentialInstructor credentialWithActivities1Delivery1InstructorAnnaHallowell = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CredentialInstructorManager.class).addInstructorToCredentialAndGetEvents(credentialWithActivities1Delivery1.getId(), userAnnaHallowell.getId(), 0, createUserContext(userNickPowell)));
+        // add instructors
+        credentialWithActivities1Delivery1InstructorAnnaHallowell = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CredentialInstructorManager.class).addInstructorToCredentialAndGetEvents(credentialWithActivities1Delivery1.getId(), userAnnaHallowell.getId(), 0, createUserContext(userNickPowell)));
 
         // credential2
         credential2Delivery2 = createDelivery(events, credential2, getDaysBeforeNow(20), getDaysBeforeNow(5), userNickPowell);

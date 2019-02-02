@@ -45,12 +45,12 @@ public class BusinessCase_Test_2_1 extends BaseBusinessCase5 {
         /////////////////////////////////////////////////////////////////////
         try {
             // enroll students to the delivery
-            enrollToDelivery(events, organization, credential1Delivery1, userHelenCampbell);
-            enrollToDelivery(events, organization, credential1Delivery1, userRichardAnderson);
-            enrollToDelivery(events, organization, credential1Delivery1, userStevenTurner);
-            enrollToDelivery(events, organization, credential1Delivery1, userJosephGarcia);
-            enrollToDelivery(events, organization, credential1Delivery1, userTimothyRivera);
-            enrollToDelivery(events, organization, credential1Delivery1, userKevinHall);
+            enrollToDelivery(events, credential1Delivery1, userHelenCampbell);
+            enrollToDelivery(events, credential1Delivery1, userRichardAnderson);
+            enrollToDelivery(events, credential1Delivery1, userStevenTurner);
+            enrollToDelivery(events, credential1Delivery1, userJosephGarcia);
+            enrollToDelivery(events, credential1Delivery1, userTimothyRivera);
+            enrollToDelivery(events, credential1Delivery1, userKevinHall);
 
             // set Phil Armstrong as an instructor to Helen Campbell and Richard Anderson
             assignInstructorToStudent(events, credential1Delivery1InstructorPhilArmstrong, List.of(userHelenCampbell, userRichardAnderson), credential1Delivery1);
@@ -153,8 +153,8 @@ public class BusinessCase_Test_2_1 extends BaseBusinessCase5 {
         /////////////////////////////////////////////////////////////////////
         try {
             // enroll students to the delivery
-            enrollToDelivery(events, organization, credential2Delivery1, userHelenCampbell);
-            enrollToDelivery(events, organization, credential2Delivery1, userStevenTurner);
+            enrollToDelivery(events, credential2Delivery1, userHelenCampbell);
+            enrollToDelivery(events, credential2Delivery1, userStevenTurner);
 
             // set Phil Armstrong as an instructor to Helen Campbell and Steven Turner
             assignInstructorToStudent(events, credential2Delivery1InstructorPhilArmstrong, List.of(userHelenCampbell, userStevenTurner), credential2Delivery1);
@@ -168,7 +168,7 @@ public class BusinessCase_Test_2_1 extends BaseBusinessCase5 {
         /////////////////////////////////////////////////////////////////////
         try {
             // enroll students to the delivery
-            enrollToDelivery(events, organization, credential3Delivery1, userHelenCampbell);
+            enrollToDelivery(events, credential3Delivery1, userHelenCampbell);
 
             // set Phil Armstrong as an instructor to Helen Campbell
             assignInstructorToStudent(events, credential3Delivery1InstructorPhilArmstrong, userHelenCampbell, credential3Delivery1);
@@ -201,7 +201,7 @@ public class BusinessCase_Test_2_1 extends BaseBusinessCase5 {
 
     @Override
     protected String getBusinessCaseInitLog() {
-        return "Initializing business case - test 2.6";
+        return "Initializing business case - test 2.1";
     }
 
     @Override

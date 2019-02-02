@@ -273,7 +273,7 @@ public class BusinessCase_Test_2_9 extends BaseBusinessCase5 {
         ////////////////////////////////
         // enroll users to Delivery 1
         ////////////////////////////////
-        enrollToDelivery(events, organization, credential1Delivery1, userHelenCampbell);
+        enrollToDelivery(events, credential1Delivery1, userHelenCampbell);
 
         ///////////////////////////////////////////
         // enroll in competencies from Delivery 1
@@ -364,6 +364,7 @@ public class BusinessCase_Test_2_9 extends BaseBusinessCase5 {
         ////////////////////////////////
         enrollToDelivery(events, organization, credentialWithActivities1Delivery1, userHelenCampbell);
         enrollToDelivery(events, organization, credentialWithActivities1Delivery1, userGeorgeYoung);
+        enrollToDelivery(events, credentialWithActivities1Delivery1, userHelenCampbell);
 
         ///////////////////////////////////////////
         // enroll in competencies from Delivery 1
@@ -412,7 +413,7 @@ public class BusinessCase_Test_2_9 extends BaseBusinessCase5 {
 
     @Override
     protected String getBusinessCaseInitLog() {
-        return "Initializing business case - test 2.6";
+        return "Initializing business case - test 2.9";
     }
 
     @Override

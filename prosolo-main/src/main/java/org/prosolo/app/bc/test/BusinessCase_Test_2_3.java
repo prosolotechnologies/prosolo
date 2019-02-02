@@ -47,13 +47,13 @@ public class BusinessCase_Test_2_3 extends BaseBusinessCase5 {
         ///////////////////////////
         // enroll users to deliveries
         ///////////////////////////
-        enrollToDelivery(events, organization, credential1Delivery1, userRichardAnderson);
-        enrollToDelivery(events, organization, credential1Delivery1, userHelenCampbell);
-        enrollToDelivery(events, organization, credential1Delivery1, userStevenTurner);
-        enrollToDelivery(events, organization, credential1Delivery1, userKevinHall);
-        enrollToDelivery(events, organization, credential2Delivery1, userKevinHall);
-        enrollToDelivery(events, organization, credential3Delivery1, userKevinHall);
-        enrollToDelivery(events, organization, credential4Delivery1, userKevinHall);
+        enrollToDelivery(events, credential1Delivery1, userRichardAnderson);
+        enrollToDelivery(events, credential1Delivery1, userHelenCampbell);
+        enrollToDelivery(events, credential1Delivery1, userStevenTurner);
+        enrollToDelivery(events, credential1Delivery1, userKevinHall);
+        enrollToDelivery(events, credential2Delivery1, userKevinHall);
+        enrollToDelivery(events, credential3Delivery1, userKevinHall);
+        enrollToDelivery(events, credential4Delivery1, userKevinHall);
         ////////////////////////////
         // assign students to instructor
         ////////////////////////////
