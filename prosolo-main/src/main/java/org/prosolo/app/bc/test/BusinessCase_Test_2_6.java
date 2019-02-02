@@ -27,7 +27,7 @@ public class BusinessCase_Test_2_6 extends BaseBusinessCase5 {
         ///////////////////////////
         // enroll users to delivery
         ///////////////////////////
-        enrollToDelivery(events, organization, credential1Delivery1, userHelenCampbell);
+        enrollToDelivery(events, credential1Delivery1, userHelenCampbell);
 
         ////////////////////////////
         // enroll in competencies

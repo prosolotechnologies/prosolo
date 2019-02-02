@@ -26,8 +26,8 @@ public class BusinessCase_Test_3_2 extends BusinessCase_Test_3 {
         ////////////////////////////////
         // Enroll users to deliveries
         ////////////////////////////////
-        enrollToDelivery(events, organization, credential1Delivery1, userHelenCampbell);
-        enrollToDelivery(events, organization, credential1Delivery1, userGeorgeYoung);
+        enrollToDelivery(events, credential1Delivery1, userHelenCampbell);
+        enrollToDelivery(events, credential1Delivery1, userGeorgeYoung);
         
         ///////////////////////////////////////////
         // enroll in competencies from credentialWithActivities1Delivery1
