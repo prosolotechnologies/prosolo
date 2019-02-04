@@ -5,10 +5,7 @@ import org.hibernate.exception.ConstraintViolationException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
-import org.prosolo.common.domainmodel.assessment.ActivityAssessment;
-import org.prosolo.common.domainmodel.assessment.AssessmentType;
-import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
-import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
+import org.prosolo.common.domainmodel.assessment.*;
 import org.prosolo.common.domainmodel.credential.BlindAssessmentMode;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.event.context.data.UserContextData;
@@ -200,7 +197,7 @@ public interface AssessmentManager {
 	 * @throws IllegalDataStateException
 	 */
 	Result<Long> getOrCreateAssessmentAndGetEvents(TargetCredential1 targetCredential, long studentId, long assessorId,
-												   AssessmentType type, UserContextData context)
+												   AssessmentType type, AssessmentStatus status, UserContextData context)
 			throws DbConnectionException, IllegalDataStateException;
 
 	Result<ActivityAssessment> createActivityAssessmentAndGetEvents(ActivityData act, long competenceAssessmentId,
@@ -253,7 +250,7 @@ public interface AssessmentManager {
 	 * @throws DbConnectionException
 	 */
 	 Result<CompetenceAssessment> getOrCreateCompetenceAssessmentAndGetEvents(CompetenceData1 comp, long studentId,
-																			  long assessorId, AssessmentType type, BlindAssessmentMode blindAssessmentMode, boolean isExplicitRequest, UserContextData context)
+																			  long assessorId, AssessmentType type, AssessmentStatus status, BlindAssessmentMode blindAssessmentMode, boolean isExplicitRequest, UserContextData context)
 			throws IllegalDataStateException, DbConnectionException;
 
 	/**
