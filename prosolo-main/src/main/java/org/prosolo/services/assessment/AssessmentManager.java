@@ -24,6 +24,7 @@ import org.prosolo.services.nodes.data.assessments.AssessmentNotificationData;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
+import org.prosolo.services.user.data.StudentAssessmentInfo;
 import org.prosolo.services.user.data.UserData;
 import org.springframework.dao.DataIntegrityViolationException;
 
@@ -140,6 +141,17 @@ public interface AssessmentManager {
 	 * @throws DbConnectionException
 	 */
 	Optional<Long> getActiveInstructorCredentialAssessmentId(long credId, long studentId);
+
+	/**
+	 * Returns id of the newest valid ('REQUESTED', 'PENDING' or 'SUBMITTED') instructor credential assessment from
+	 * currently assigned instructor
+	 *
+	 * @param credId
+	 * @param studentId
+	 * @param session
+	 * @return
+	 */
+	Optional<CredentialAssessment> getActiveInstructorCredentialAssessment(long credId, long studentId, Session session);
 
     /**
      * Returns active instructor credential assessment from currently assigned instructor if exists
@@ -446,4 +458,6 @@ public interface AssessmentManager {
 	 * @param assessmentType
 	 */
 	void declineCredentialAssessmentIfActive(long credentialId, long studentId, long assessorId, AssessmentType assessmentType);
+
+	StudentAssessmentInfo getStudentAssessmentInfoForActiveInstructorCredentialAssessment(long credId, long studentId);
 }

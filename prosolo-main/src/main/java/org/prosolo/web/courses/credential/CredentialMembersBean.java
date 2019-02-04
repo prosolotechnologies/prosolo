@@ -14,16 +14,18 @@ import org.prosolo.search.util.credential.CredentialStudentsInstructorFilter;
 import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.nodes.CredentialInstructorManager;
 import org.prosolo.services.nodes.CredentialManager;
-import org.prosolo.services.user.data.StudentData;
-import org.prosolo.services.user.data.UserBasicData;
-import org.prosolo.services.user.data.UserData;
 import org.prosolo.services.nodes.data.credential.CredentialIdData;
 import org.prosolo.services.nodes.data.instructor.InstructorData;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
+import org.prosolo.services.user.data.StudentAssessmentInfo;
+import org.prosolo.services.user.data.StudentData;
+import org.prosolo.services.user.data.UserBasicData;
+import org.prosolo.services.user.data.UserData;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.assessments.InstructorWithdrawAware;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.prosolo.web.util.pagination.Paginable;
@@ -40,7 +42,7 @@ import java.util.Optional;
 @ManagedBean(name = "credentialMembersBean")
 @Component("credentialMembersBean")
 @Scope("view")
-public class CredentialMembersBean implements Serializable, Paginable {
+public class CredentialMembersBean implements Serializable, Paginable, InstructorWithdrawAware {
 
 	private static final long serialVersionUID = -4836624880668757356L;
 
@@ -84,6 +86,8 @@ public class CredentialMembersBean implements Serializable, Paginable {
 	private CredentialMembersSortOption[] sortOptions;
 	
 	private ResourceAccessData access;
+
+	private StudentData selectedStudent;
 
 	public void init() {
 		sortOptions = CredentialMembersSortOption.values();
@@ -150,8 +154,8 @@ public class CredentialMembersBean implements Serializable, Paginable {
 	}
 
 	public void loadStudentsFromDb() {
-		members = credManager.getCredentialStudentsData(decodedId, this.paginationData.getLimit());
-		searchFilters = credManager.getFiltersWithNumberOfStudentsBelongingToEachCategory(decodedId);
+		members = credManager.getCredentialStudentsData(decodedId, instructorFilter, this.paginationData.getLimit());
+		searchFilters = credManager.getFiltersWithNumberOfStudentsBelongingToEachCategory(decodedId, instructorFilter);
 		for (CredentialMembersSearchFilter f : searchFilters) {
 			if (f.getFilter() == CredentialMembersSearchFilter.SearchFilter.All) {
 				searchFilter = f;
@@ -202,16 +206,7 @@ public class CredentialMembersBean implements Serializable, Paginable {
 		this.paginationData.setPage(1);
 		searchTerm = "";
 		sortOption = CredentialMembersSortOption.DATE;
-		members = credManager.getCredentialStudentsData(decodedId, this.paginationData.getLimit());
-		searchFilters = credManager.getFiltersWithNumberOfStudentsBelongingToEachCategory(decodedId);
-		//TODO update instructor filters if needed when this functionality is reintroduced
-		for (CredentialMembersSearchFilter f : searchFilters) {
-			if (f.getFilter() == CredentialMembersSearchFilter.SearchFilter.All) {
-				searchFilter = f;
-				this.paginationData.update((int) f.getNumberOfResults());
-				break;
-			}
-		}
+		loadStudentsFromDb();
 	}
 
 	/**
@@ -228,11 +223,35 @@ public class CredentialMembersBean implements Serializable, Paginable {
 			updatedStudent.get().setInstructor(instructor);
 			try {
 				//reload new assessment id after new instructor is assigned
-				Optional<Long> assessmentId = assessmentManager.getActiveInstructorCredentialAssessmentId(decodedId, updatedStudent.get().getUser().getId());
-				updatedStudent.get().setAssessmentId(assessmentId.isPresent() ? assessmentId.get() : 0);
+				StudentAssessmentInfo studentAssessmentInfo = assessmentManager.getStudentAssessmentInfoForActiveInstructorCredentialAssessment(decodedId, updatedStudent.get().getUser().getId());
+				updatedStudent.get().setStudentAssessmentInfo(studentAssessmentInfo);
 			} catch (Exception e) {
 				PageUtil.fireErrorMessage("Error occurred. Please try reloading the page");
 			}
+		}
+	}
+
+	public void selectStudentForInstructorWithdrawal(StudentData student) {
+		this.selectedStudent = student;
+	}
+
+	@Override
+	public void withdrawInstructor() {
+		try {
+			credentialInstructorManager.withdrawFromBeingInstructor(decodedId, selectedStudent.getUser().getId(), loggedUserBean.getUserContext());
+			PageUtil.fireSuccessfulInfoMessage("You have withdrawn from being " + ResourceBundleUtil.getLabel("instructor").toLowerCase() + " to " + selectedStudent.getUser().getFullName());
+			try {
+				this.paginationData.setPage(1);
+				searchTerm = "";
+				sortOption = CredentialMembersSortOption.STUDENT_NAME;
+				loadStudentsFromDb();
+			} catch (Exception e) {
+				logger.error("Error", e);
+				PageUtil.fireErrorMessage("Error refreshing the data. Please try reloading the page");
+			}
+		} catch (Exception e) {
+			logger.error("error", e);
+			PageUtil.fireErrorMessage("Error withdrawing from being " + ResourceBundleUtil.getLabel("instructor"));
 		}
 	}
 

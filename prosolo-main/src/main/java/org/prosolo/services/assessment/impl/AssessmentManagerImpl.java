@@ -41,6 +41,7 @@ import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.factory.ActivityAssessmentDataFactory;
 import org.prosolo.services.nodes.factory.CompetenceDataFactory;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
+import org.prosolo.services.user.data.StudentAssessmentInfo;
 import org.prosolo.services.user.data.UserData;
 import org.prosolo.services.user.data.profile.grade.NoGradeData;
 import org.prosolo.services.user.data.profile.grade.PointBasedGradeData;
@@ -4158,18 +4159,24 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	@Override
 	@Transactional(readOnly = true)
 	public Optional<CredentialAssessment> getActiveInstructorCredentialAssessment(long credId, long studentId) {
+		return getActiveInstructorCredentialAssessment(credId, studentId, persistence.currentManager());
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public Optional<CredentialAssessment> getActiveInstructorCredentialAssessment(long credId, long studentId, Session session) {
 		try {
 			String q =
 					"SELECT ca FROM CredentialAssessment ca " +
-					"INNER JOIN ca.targetCredential tc " +
-					"INNER JOIN tc.instructor instructor " +
-					"WHERE tc.credential.id = :credId " +
-					"AND instructor.user.id = ca.assessor.id " +
-					"AND ca.student.id = :studentId " +
-					"AND ca.type = :type " +
-					"AND (ca.status = :requestedStatus OR ca.status = :pendingStatus OR ca.status = :submittedStatus)";
+							"INNER JOIN ca.targetCredential tc " +
+							"INNER JOIN tc.instructor instructor " +
+							"WHERE tc.credential.id = :credId " +
+							"AND instructor.user.id = ca.assessor.id " +
+							"AND ca.student.id = :studentId " +
+							"AND ca.type = :type " +
+							"AND (ca.status = :requestedStatus OR ca.status = :pendingStatus OR ca.status = :submittedStatus)";
 
-			return Optional.ofNullable((CredentialAssessment) persistence.currentManager()
+			return Optional.ofNullable((CredentialAssessment) session
 					.createQuery(q)
 					.setLong("credId", credId)
 					.setLong("studentId", studentId)
@@ -4238,6 +4245,20 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 				.setString("assessmentQuitStatus", AssessmentStatus.ASSESSMENT_QUIT.name())
 				.setLong("credAssessmentId", credAssessmentId)
 				.executeUpdate();
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public StudentAssessmentInfo getStudentAssessmentInfoForActiveInstructorCredentialAssessment(long credId, long studentId) {
+		try {
+			Optional<CredentialAssessment> activeAssessment = getActiveInstructorCredentialAssessment(credId, studentId);
+			return activeAssessment.isPresent()
+					? new StudentAssessmentInfo(activeAssessment.get().getId(), activeAssessment.get().isAssessorNotified())
+					: new StudentAssessmentInfo(0, false);
+		} catch (Exception e) {
+			logger.error("error", e);
+			throw new DbConnectionException("Error in method getStudentAssessmentInfoForActiveInstructorCredentialAssessment");
+		}
 	}
 
 }

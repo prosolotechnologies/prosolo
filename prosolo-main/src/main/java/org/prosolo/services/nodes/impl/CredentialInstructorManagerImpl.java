@@ -22,15 +22,16 @@ import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.CredentialInstructorManager;
 import org.prosolo.services.nodes.CredentialManager;
-import org.prosolo.services.user.UserGroupManager;
 import org.prosolo.services.nodes.config.credential.CredentialLoadConfig;
-import org.prosolo.services.user.data.UserBasicData;
-import org.prosolo.services.user.data.UserData;
 import org.prosolo.services.nodes.data.credential.CredentialData;
 import org.prosolo.services.nodes.data.instructor.InstructorData;
 import org.prosolo.services.nodes.data.instructor.StudentAssignData;
 import org.prosolo.services.nodes.data.instructor.StudentInstructorPair;
 import org.prosolo.services.nodes.factory.CredentialInstructorDataFactory;
+import org.prosolo.services.user.UserGroupManager;
+import org.prosolo.services.user.data.UserBasicData;
+import org.prosolo.services.user.data.UserData;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -735,11 +736,31 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 		}
 	}
 
+	@Override
+	public void withdrawFromBeingInstructor(long credentialId, long studentUserId, UserContextData context) throws IllegalDataStateException {
+		Result<Void> res = credInstructorManager.withdrawFromBeingInstructorAndGetEvents(credentialId, studentUserId, context);
+		eventFactory.generateEvents(res.getEventQueue());
+	}
+
+	@Override
+	@Transactional
+	public Result<Void> withdrawFromBeingInstructorAndGetEvents(long credentialId, long studentUserId, UserContextData context) throws IllegalDataStateException {
+		long targetCredentialId = credManager.getTargetCredentialId(credentialId, studentUserId);
+		if (targetCredentialId > 0) {
+			return withdrawFromBeingInstructorAndGetEvents(targetCredentialId, context);
+		} else {
+			throw new IllegalDataStateException("Student is not enrolled in a credential");
+		}
+	}
+
+	@Override
 	public void withdrawFromBeingInstructor(long targetCredentialId, UserContextData context) throws IllegalDataStateException {
     	Result<Void> res = credInstructorManager.withdrawFromBeingInstructorAndGetEvents(targetCredentialId, context);
     	eventFactory.generateEvents(res.getEventQueue());
 	}
 
+	@Override
+	@Transactional
 	public Result<Void> withdrawFromBeingInstructorAndGetEvents(long targetCredentialId, UserContextData context) throws IllegalDataStateException {
 		try {
             TargetCredential1 tc = (TargetCredential1) persistence.currentManager().load(TargetCredential1.class, targetCredentialId);
@@ -773,7 +794,7 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 			withdrawal.setTargetCredential(targetCredential);
 			withdrawal.setInstructor((User) persistence.currentManager().load(User.class, instructorUserId));
 			saveEntity(withdrawal);
-		} catch (ConstraintViolationException e) {
+		} catch (ConstraintViolationException | DataIntegrityViolationException e) {
 			//it means that instructor is already on withdrawn list so he can't be added again but that is fine
 			logger.info("User with id: " + instructorUserId + " not added to withdrawn list because he is already on this list");
 		}

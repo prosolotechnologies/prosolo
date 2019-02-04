@@ -132,7 +132,7 @@ public interface CredentialInstructorManager {
 	/**
 	 * Withdraws instructor from student and if automatic instructor assign is enabled assigns new
 	 * instructor automatically. Previous instructor assessment is declined and new one is created if new instructor
-	 * is assigned.
+	 * is assigned. Returns events that should be fired.
 	 *
 	 * @param targetCredentialId
 	 * @param context
@@ -145,7 +145,7 @@ public interface CredentialInstructorManager {
 	/**
 	 *  Withdraws instructor from student and if automatic instructor assign is enabled assigns new
 	 * 	instructor automatically. Previous instructor assessment is declined and new one is created if new instructor
-	 * 	is assigned.
+	 * 	is assigned. Also, it fires generated events.
 	 *
 	 * @param targetCredentialId
 	 * @param context
@@ -153,4 +153,29 @@ public interface CredentialInstructorManager {
 	 * @throws DbConnectionException
 	 */
 	void withdrawFromBeingInstructor(long targetCredentialId, UserContextData context) throws IllegalDataStateException;
+
+	/**
+	 *  Withdraws instructor from student and if automatic instructor assign is enabled assigns new
+	 * 	instructor automatically. Previous instructor assessment is declined and new one is created if new instructor
+	 * 	is assigned. Also, it fires generated events.
+	 *
+	 * @param credentialId
+	 * @param studentUserId
+	 * @param context
+	 * @throws IllegalDataStateException
+	 */
+	void withdrawFromBeingInstructor(long credentialId, long studentUserId, UserContextData context) throws IllegalDataStateException;
+
+	/**
+	 * Withdraws instructor from student and if automatic instructor assign is enabled assigns new
+	 * instructor automatically. Previous instructor assessment is declined and new one is created if new instructor
+	 * is assigned. Returns events that should be fired.
+	 *
+	 * @param credentialId
+	 * @param studentUserId
+	 * @param context
+	 * @return
+	 * @throws IllegalDataStateException
+	 */
+	Result<Void> withdrawFromBeingInstructorAndGetEvents(long credentialId, long studentUserId, UserContextData context) throws IllegalDataStateException;
 }
