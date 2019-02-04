@@ -32,10 +32,10 @@ import org.prosolo.search.util.credential.CredentialSearchFilterManager;
 import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.assessment.RubricManager;
-import org.prosolo.services.assessment.data.AssessmentSortOrder;
 import org.prosolo.services.assessment.data.AssessmentTypeConfig;
 import org.prosolo.services.common.data.LazyInitCollection;
 import org.prosolo.services.common.data.SortOrder;
+import org.prosolo.services.common.data.SortingOption;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventFactory;
@@ -57,7 +57,6 @@ import org.prosolo.services.user.UserGroupManager;
 import org.prosolo.services.user.data.StudentData;
 import org.prosolo.services.user.data.UserData;
 import org.prosolo.services.user.data.UserLearningProgress;
-import org.prosolo.services.common.data.SortingOption;
 import org.prosolo.services.util.roles.SystemRoleNames;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -67,6 +66,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service("org.prosolo.services.nodes.CredentialManager")
 public class CredentialManagerImpl extends AbstractManagerImpl implements CredentialManager {
@@ -1664,15 +1664,15 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@SuppressWarnings({"unchecked"})
 	@Override
 	@Transactional(readOnly = true)
-	public List<TargetCredentialData> getAllCredentials(long userid) throws DbConnectionException {
-		return getTargetCredentialsData(userid, false, false, UserLearningProgress.ANY);
+	public List<TargetCredentialData> getAllCredentials(long studentId) throws DbConnectionException {
+		return getTargetCredentialsData(studentId, false, false, UserLearningProgress.ANY);
 	}
 
-	private List<TargetCredentialData> getTargetCredentialsData(long userId, boolean sortByCategory, boolean loadNumberOfAssessments, UserLearningProgress progress)
+	private List<TargetCredentialData> getTargetCredentialsData(long studentId, boolean sortByCategory, boolean loadNumberOfAssessments, UserLearningProgress progress)
 			throws DbConnectionException {
 		try {
 			List<TargetCredentialData> resultList = new ArrayList<>();
-			List<TargetCredential1> result = getTargetCredentials(userId, sortByCategory, loadNumberOfAssessments, progress);
+			List<TargetCredential1> result = getTargetCredentials(studentId, sortByCategory, loadNumberOfAssessments, progress);
 
 			for (TargetCredential1 targetCredential1 : result) {
 				int numberOfAssessments = 0;
@@ -1690,6 +1690,44 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		} catch (Exception e) {
 			logger.error("Error", e);
 			throw new DbConnectionException("Error loading target credentials");
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<CredentialProgressData> getCredentialsWithAccessTo(long studentId, long userId, AccessMode accessMode) throws DbConnectionException {
+		try {
+			List<TargetCredential1> result;
+
+			switch (accessMode) {
+				case MANAGER:
+					result = getTargetCredentials(studentId, false, false, UserLearningProgress.ANY);
+					break;
+				case INSTRUCTOR:
+					String query =
+							"SELECT targetCredential1 " +
+							"FROM CredentialAssessment ca " +
+							"LEFT JOIN ca.targetCredential targetCredential1 " +
+							"INNER JOIN FETCH targetCredential1.credential cred " +
+							"WHERE ca.student.id = :studentId " +
+								"AND ca.assessor.id = :userId " +
+								"AND ca.type = 'INSTRUCTOR_ASSESSMENT' " +
+							"ORDER BY cred.title";
+
+					result = (List<TargetCredential1>) persistence.currentManager()
+							.createQuery(query)
+							.setLong("studentId", studentId)
+							.setLong("userId", userId)
+							.list();
+					break;
+				default:
+					return null;
+			}
+
+			return result.stream().map(tc -> new CredentialProgressData(tc)).collect(Collectors.toList());
+		} catch (DbConnectionException e) {
+			logger.error("error", e);
+			throw e;
 		}
 	}
 

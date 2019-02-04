@@ -224,7 +224,20 @@ public interface CredentialManager extends AbstractManager {
 	 * @throws DbConnectionException
 	 */
 	List<TargetCredentialData> getAllCredentials(long userId) throws DbConnectionException;
-	
+
+	/**
+	 * Retrieves all credentials of a student that the user (requesting those data) has an access to. Manager can access
+	 * to all credentials, where an Instructor can access only credentials where they are (were) an assigned instructor
+	 * the the student.
+	 *
+	 * @param studentId	id of the student
+	 * @param userId	id the of the user requesting the credentials
+	 * @param accessMode	access mode of the user requesting the credentials
+	 * @return	list of credential progress data instances
+	 * @throws DbConnectionException
+	 */
+	List<CredentialProgressData> getCredentialsWithAccessTo(long studentId, long userId, AccessMode accessMode) throws DbConnectionException;
+
 	TargetCredential1 getTargetCredential(long credentialId, long userId, CredentialLoadConfig credentialLoadConfig) throws DbConnectionException;
 	
 	List<CredentialData> getTargetCredentialsProgressAndInstructorInfoForUser(long userId) throws DbConnectionException;
