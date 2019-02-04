@@ -7,6 +7,7 @@ import org.prosolo.common.domainmodel.credential.LearningPathType;
 import org.prosolo.common.domainmodel.rubric.RubricType;
 import org.prosolo.common.util.ImageFormat;
 import org.prosolo.common.util.Pair;
+import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.assessment.data.grading.RubricAssessmentGradeSummary;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
@@ -17,10 +18,7 @@ import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.util.AvatarUtils;
 
 import java.text.DateFormat;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class CompetenceAssessmentData {
 	
@@ -46,6 +44,7 @@ public class CompetenceAssessmentData {
 	private boolean allRead = true; 	// whether user has read all the messages in the thread
 	private boolean participantInDiscussion;
 	private boolean assessorNotified;
+	private long lastAskedForAssessment;
 	private long studentId;
 	private String studentFullName;
 	private String studentAvatarUrl;
@@ -114,6 +113,7 @@ public class CompetenceAssessmentData {
 		data.setCompetenceAssessmentEncodedId(encoder.encodeId(compAssessment.getId()));
 		data.setApproved(compAssessment.isApproved());
 		data.setAssessorNotified(compAssessment.isAssessorNotified());
+		data.setLastAskedForAssessment(DateUtil.getMillisFromDate(compAssessment.getLastAskedForAssessment()));
 		data.setDuration(cd.getDuration());
 		data.calculateDurationString();
 		if (!cd.isEnrolled()) {
@@ -321,6 +321,14 @@ public class CompetenceAssessmentData {
 
 	public void setAssessorNotified(boolean assessorNotified) {
 		this.assessorNotified = assessorNotified;
+	}
+
+	public long getLastAskedForAssessment() {
+		return lastAskedForAssessment;
+	}
+
+	public void setLastAskedForAssessment(long lastAskedForAssessment) {
+		this.lastAskedForAssessment = lastAskedForAssessment;
 	}
 
 	public long getStudentId() {
