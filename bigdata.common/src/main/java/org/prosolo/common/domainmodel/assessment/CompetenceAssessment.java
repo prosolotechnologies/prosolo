@@ -2,35 +2,21 @@ package org.prosolo.common.domainmodel.assessment;
 
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
-import org.prosolo.common.domainmodel.credential.BlindAssessmentMode;
 import org.prosolo.common.domainmodel.credential.Competence1;
-import org.prosolo.common.domainmodel.general.BaseEntity;
-import org.prosolo.common.domainmodel.user.User;
 
 import javax.persistence.*;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 @Entity
-public class CompetenceAssessment extends BaseEntity {
+public class CompetenceAssessment extends Assessment {
 
 	private static final long serialVersionUID = 4528017184503484059L;
 
-	private boolean approved;
-	private Date dateApproved;
 	private List<ActivityAssessment> activityDiscussions;
 	//private TargetCompetence1 targetCompetence;
 	private Competence1 competence;
-	private User student;
-	private User assessor;
-	private AssessmentType type;
-	private int points;
-	private Date lastAskedForAssessment;
-	private boolean assessorNotified;
-	private Date lastAssessment;
-	private BlindAssessmentMode blindAssessmentMode = BlindAssessmentMode.OFF;
 
 	private Set<CredentialCompetenceAssessment> credentialAssessments;
 	private Set<CompetenceAssessmentDiscussionParticipant> participants;
@@ -50,34 +36,6 @@ public class CompetenceAssessment extends BaseEntity {
 
 	public void setCompetence(Competence1 competence) {
 		this.competence = competence;
-	}
-
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(nullable = false)
-	public User getStudent() {
-		return student;
-	}
-
-	public void setStudent(User student) {
-		this.student = student;
-	}
-
-	@ManyToOne(fetch = FetchType.LAZY)
-	public User getAssessor() {
-		return assessor;
-	}
-
-	public void setAssessor(User assessor) {
-		this.assessor = assessor;
-	}
-
-	@Column(name="approved")
-	public boolean isApproved() {
-		return approved;
-	}
-
-	public void setApproved(boolean approved) {
-		this.approved = approved;
 	}
 
 	@OneToMany(mappedBy = "assessment")
@@ -108,24 +66,6 @@ public class CompetenceAssessment extends BaseEntity {
 			}
 		}
 		return null;
-	}
-
-	@Enumerated(EnumType.STRING)
-	@Column(nullable = false)
-	public AssessmentType getType() {
-		return type;
-	}
-
-	public void setType(AssessmentType type) {
-		this.type = type;
-	}
-
-	public int getPoints() {
-		return points;
-	}
-
-	public void setPoints(int points) {
-		this.points = points;
 	}
 
 	@OneToMany(mappedBy = "competenceAssessment")
@@ -165,45 +105,4 @@ public class CompetenceAssessment extends BaseEntity {
 		return null;
 	}
 
-	public Date getLastAskedForAssessment() {
-		return lastAskedForAssessment;
-	}
-
-	public void setLastAskedForAssessment(Date lastAskedForAssessment) {
-		this.lastAskedForAssessment = lastAskedForAssessment;
-	}
-
-	public Date getLastAssessment() {
-		return lastAssessment;
-	}
-
-	public void setLastAssessment(Date lastAssessment) {
-		this.lastAssessment = lastAssessment;
-	}
-
-	public boolean isAssessorNotified() {
-		return assessorNotified;
-	}
-
-	public void setAssessorNotified(boolean assessorNotified) {
-		this.assessorNotified = assessorNotified;
-	}
-
-	public Date getDateApproved() {
-		return dateApproved;
-	}
-
-	public void setDateApproved(Date dateApproved) {
-		this.dateApproved = dateApproved;
-	}
-
-	@Enumerated(EnumType.STRING)
-	@Column(nullable = false)
-	public BlindAssessmentMode getBlindAssessmentMode() {
-		return blindAssessmentMode;
-	}
-
-	public void setBlindAssessmentMode(BlindAssessmentMode blindAssessmentMode) {
-		this.blindAssessmentMode = blindAssessmentMode;
-	}
 }
