@@ -118,8 +118,8 @@ public class ObservationManagerImpl extends AbstractManagerImpl implements Obser
 
             Result<Void> res = new Result<>();
 
-            if (insert && messageText != null && StringUtils.isBlank(messageText) && context.getActorId() != studentId) {
-                msgManager.sendMessage(0, context.getActorId(), studentId, messageText, context);
+            if (insert && !StringUtils.isBlank(messageText) && context.getActorId() != studentId) {
+                res.appendEvents(msgManager.sendMessageAndGetEvents(0, context.getActorId(), studentId, messageText, context).getEventQueue());
             }
 
             return res;
