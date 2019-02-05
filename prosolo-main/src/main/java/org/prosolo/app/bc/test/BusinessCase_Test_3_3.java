@@ -1,22 +1,16 @@
 package org.prosolo.app.bc.test;
 
 import org.apache.log4j.Logger;
-import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
-import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.common.domainmodel.credential.LearningEvidenceType;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.common.domainmodel.observations.Suggestion;
 import org.prosolo.common.domainmodel.observations.Symptom;
-import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.assessment.data.AssessmentDataFull;
-import org.prosolo.services.assessment.data.AssessmentRequestData;
 import org.prosolo.services.assessment.data.CompetenceAssessmentData;
-import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventQueue;
-import org.prosolo.services.interaction.data.CommentData;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.config.competence.CompetenceLoadConfig;
@@ -229,11 +223,8 @@ public class BusinessCase_Test_3_3 extends BusinessCase_Test_3 {
         ////////////////////////////////////////////////
         // Define observation symptoms and suggestions
         ////////////////////////////////////////////////
-        Symptom symptom1 = ServiceLocator.getInstance().getService(SymptomManager.class).saveSymptom(0, "Lacks social interaction");
-        Symptom symptom2 = ServiceLocator.getInstance().getService(SymptomManager.class).saveSymptom(0, "No assessments");
-
-        Suggestion suggestion1 = ServiceLocator.getInstance().getService(SuggestionManager.class).saveSuggestion(0, "Work with others");
-        Suggestion suggestion2 = ServiceLocator.getInstance().getService(SuggestionManager.class).saveSuggestion(0, "Use assessment feature");
+        List<Symptom> symptoms = ServiceLocator.getInstance().getService(SymptomManager.class).getAllSymptoms();
+        List<Suggestion> suggestions = ServiceLocator.getInstance().getService(SuggestionManager.class).getAllSuggestions();
 
         /////////////////////////////////
         // Create observations
@@ -243,8 +234,8 @@ public class BusinessCase_Test_3_3 extends BusinessCase_Test_3 {
                 new Date(getDaysBeforeNow(5)),
                 "You should try engaging more in discussion with other students.",
                 "Lacks social interaction.",
-                List.of(symptom1.getId()),
-                List.of(suggestion1.getId()),
+                List.of(symptoms.get(0).getId()),
+                List.of(suggestions.get(0).getId()),
                 createUserContext(userAnnaHallowell),
                 userHelenCampbell.getId()));
 
@@ -253,8 +244,8 @@ public class BusinessCase_Test_3_3 extends BusinessCase_Test_3 {
                 new Date(getDaysBeforeNow(10)),
                 "Start asking for peer assessments.",
                 "She does not have any peer assessment yet.",
-                List.of(symptom2.getId()),
-                List.of(suggestion2.getId()),
+                List.of(symptoms.get(1).getId()),
+                List.of(suggestions.get(1).getId()),
                 createUserContext(userAnnaHallowell),
                 userHelenCampbell.getId()));
     }
