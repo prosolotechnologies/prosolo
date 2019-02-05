@@ -73,6 +73,9 @@
 		<!-- Folder from which the resource will be available online, e.g. http://example.com/files/. Must end with slash (/) -->
 		<url-prefix-folder>files/</url-prefix-folder>
 
+		<!-- File upload size in MB -->
+		<max-file-upload-size>300</max-file-upload-size>
+
 		<images>
 			<!-- Path inside web context relative to the location of the file type icons -->
 			<file-type-icons-path>/resources/images/teambox-free-file-icons/</file-type-icons-path>
