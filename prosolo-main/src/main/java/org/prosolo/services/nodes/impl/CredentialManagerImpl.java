@@ -1706,12 +1706,11 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				case INSTRUCTOR:
 					String query =
 							"SELECT targetCredential1 " +
-							"FROM CredentialAssessment ca " +
-							"LEFT JOIN ca.targetCredential targetCredential1 " +
-							"INNER JOIN FETCH targetCredential1.credential cred " +
-							"WHERE ca.student.id = :studentId " +
-								"AND ca.assessor.id = :userId " +
-								"AND ca.type = 'INSTRUCTOR_ASSESSMENT' " +
+							"FROM TargetCredential1 targetCredential1 " +
+							"LEFT JOIN FETCH targetCredential1.credential cred " +
+							"LEFT JOIN targetCredential1.instructor instructor " +
+							"WHERE targetCredential1.user.id = :studentId " +
+								"AND instructor.user.id = :userId " +
 							"ORDER BY cred.title";
 
 					result = (List<TargetCredential1>) persistence.currentManager()
