@@ -1,3 +1,3 @@
-CREATE TABLE `testTable` (
+CREATE TABLE IF NOT EXISTS `testTable` (
   `id` bigint(20)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
