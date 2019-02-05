@@ -116,12 +116,14 @@ public class LearningEvidenceTextSearchImpl extends AbstractManagerImpl implemen
                     Long id = ((Integer) fields.get("id")).longValue();
                     String name = fields.get("name").toString();
                     LearningEvidenceType type = LearningEvidenceType.valueOf(fields.get("type").toString());
+                    String url = fields.get("url").toString();
                     Date dateCreated = ElasticsearchUtil.parseDate((String) fields.get("dateCreated"));
 
                     LearningEvidenceData ev = new LearningEvidenceData();
                     ev.setId(id);
                     ev.setTitle(name);
                     ev.setType(type);
+                    ev.setUrl(url);
                     ev.setDateCreated(DateUtil.getMillisFromDate(dateCreated));
                     List<Map<String, Object>> evidenceTags = (List<Map<String, Object>>) fields.get("tags");
                     if (evidenceTags != null) {
