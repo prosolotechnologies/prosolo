@@ -4986,7 +4986,6 @@ header {
   display: flex;
   flex-direction: column;
   height: 160px;
-  margin-bottom: 30px;
   border: 1px dashed #D5D8DA;
   -webkit-border-radius: 5px;
   -moz-border-radius: 5px;
@@ -6528,7 +6527,7 @@ header {
 .yourPhotoBox h2 {
   float: left; }
 
-.yourPhotoBox .redText {
+.yourPhotoBox .remove {
   float: right; }
 
 .yourPhotoBox .yourPhotoContent {
