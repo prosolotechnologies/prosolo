@@ -179,7 +179,7 @@ public abstract class BusinessCase_Test_3 extends BaseBusinessCase5 {
         credentialWithActivities1Delivery1 = createDelivery(events, credentialWithActivities1, getDaysBeforeNow(30), getDaysBeforeNow(1), userNickPowell);
         // give learn privilege to all students from the School of Education
         givePrivilegeToGroupOnDelivery(events, credentialWithActivities1Delivery1, UserGroupPrivilege.Learn, userNickPowell, organization, List.of(userGroupScienceEducationStudents));
-        givePrivilegeToUsersOnDelivery(events, credentialWithActivities1Delivery1, UserGroupPrivilege.Learn, userNickPowell, organization, List.of(userAkikoKido));
+        givePrivilegeToUsersOnDelivery(events, credentialWithActivities1Delivery1, UserGroupPrivilege.Learn, userNickPowell, organization, List.of(userHelenCampbell));
         // add instructors
         credentialWithActivities1Delivery1InstructorAnnaHallowell = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CredentialInstructorManager.class).addInstructorToCredentialAndGetEvents(credentialWithActivities1Delivery1.getId(), userAnnaHallowell.getId(), 0, createUserContext(userNickPowell)));
 

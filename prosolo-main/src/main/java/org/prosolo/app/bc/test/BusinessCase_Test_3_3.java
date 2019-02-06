@@ -49,7 +49,7 @@ public class BusinessCase_Test_3_3 extends BusinessCase_Test_3 {
 
         enrollToDelivery(events, credential2Delivery1, userHelenCampbell);
 
-        enrollToDelivery(events, credentialWithActivities1, userHelenCampbell);
+        enrollToDelivery(events, credentialWithActivities1Delivery1, userHelenCampbell);
 
         ////////////////////////////////////
         // Add instructors to students
