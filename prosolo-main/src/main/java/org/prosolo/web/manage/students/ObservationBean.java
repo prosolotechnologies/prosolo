@@ -88,8 +88,6 @@ public class ObservationBean implements Serializable {
 					editObservation.getSelectedSymptoms(), editObservation.getSelectedSuggestions(), loggedUserBean.getUserContext(),
 					studentId);
 
-
-
 			logger.info("User with id "+ loggedUserBean.getUserId() + " created observation for student with id "+studentId);
 
 			editObservation = null;
