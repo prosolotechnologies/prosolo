@@ -119,10 +119,10 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 
 			if (loadOnlyCommentsFromUsersLearningSameDeliveries) {
 				if (!deliveries.isEmpty()) {
-					query.append("AND (user.id = :userId OR EXISTS " +
+					query.append("AND (user.id = :userId OR comment.managerComment IS TRUE OR EXISTS " +
 							"(from TargetCredential1 cred WHERE cred.user.id = user.id AND cred.credential.id IN (:credentials))) ");
 				} else {
-					query.append("AND user.id = :userId ");
+					query.append("AND user.id = :userId OR comment.managerComment IS TRUE ");
 				}
 			}
 			
@@ -225,10 +225,10 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 
 			if (loadOnlyCommentsFromUsersLearningSameDeliveries) {
 				if (!deliveries.isEmpty()) {
-					query.append("AND (user.id = :userId OR EXISTS " +
+					query.append("AND (user.id = :userId OR comment.managerComment IS TRUE OR EXISTS " +
 					"(from TargetCredential1 cred WHERE cred.user.id = user.id AND cred.credential.id IN (:credentials))) ");
 				} else {
-					query.append("AND user.id = :userId ");
+					query.append("AND user.id = :userId OR comment.managerComment IS TRUE ");
 				}
 			}
 			
