@@ -30,7 +30,7 @@
       },
       "url":{
         "store": false,
-        "type":"text"
+        "type":"keyword"
       },
       "tags": {
         "properties":{
