@@ -96,7 +96,6 @@ public class LearningEvidenceEditBean implements Serializable {
             }
 
             PageUtil.fireSuccessfulInfoMessageAcrossPages(growlMessage);
-            PageUtil.keepFiredMessagesAcrossPages();
             PageUtil.redirect(pageToRedirect);
         } catch (Exception e) {
             logger.error("Error", e);
