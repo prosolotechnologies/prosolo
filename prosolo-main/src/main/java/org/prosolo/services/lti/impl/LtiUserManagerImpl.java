@@ -81,22 +81,19 @@ public class LtiUserManagerImpl extends AbstractManagerImpl implements LtiUserMa
 	}
 
 	private User getUser(long consumerId, String userId) {
-		try {
-			String queryString =
-					"SELECT user " +
-							"FROM LtiUser ltiuser " +
-							"INNER JOIN  ltiuser.user user " +
-							"INNER JOIN ltiuser.consumer c " +
-							"WHERE ltiuser.userId = :userId " +
-							"AND c.id = :id";
+		String queryString =
+				"SELECT user " +
+						"FROM LtiUser ltiuser " +
+						"INNER JOIN  ltiuser.user user " +
+						"INNER JOIN ltiuser.consumer c " +
+						"WHERE ltiuser.userId = :userId " +
+						"AND c.id = :id";
 
-			return (User) persistence.currentManager().createQuery(queryString)
-					.setLong("id", consumerId)
-					.setString("userId", userId);
-		} catch (Exception e) {
-			return null;
-		}
+		return (User) persistence.currentManager().createQuery(queryString)
+				.setLong("id", consumerId)
+				.setString("userId", userId)
+				.setMaxResults(1)
+				.uniqueResult();
 	}
-
 
 }
