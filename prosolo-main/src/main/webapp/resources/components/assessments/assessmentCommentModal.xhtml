@@ -237,7 +237,7 @@
 
                                     <utilcomp:singleClickLink styleClass="btn btn-sm btn-green hidden"
                                                               value="Submit"
-                                                              process="textareaAddNewComment"
+                                                              process=":#{cc.clientId}:formPrivateConversation:textareaAddNewComment"
                                                               action="#{cc.attrs.bean.addCommentToAssessmentDiscussion()}"
                                                               update=":#{cc.clientId}:formPrivateConversation:panelModalPrivateConversation #{cc.attrs.toUpdate}">
                                         <f:param name="page" value="#{facesContext.viewRoot.viewId}"/>
