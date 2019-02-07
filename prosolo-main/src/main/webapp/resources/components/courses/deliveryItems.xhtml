@@ -46,10 +46,15 @@
 									/>
 								</div>
 	                            <div class="end"><span>End:</span>
-									<utilcomp:convertTimeOutput
-											millis="#{delivery.deliveryEndTime}"
-											format="MMM DD, YYYY [at] hh:mm a"
-									/>
+									<ui:fragment rendered="#{delivery.deliveryEndTime gt 0}">
+										<utilcomp:convertTimeOutput
+												millis="#{delivery.deliveryEndTime}"
+												format="MMM DD, YYYY [at] hh:mm a"
+										/>
+									</ui:fragment>
+									<ui:fragment rendered="#{delivery.deliveryEndTime le 0}">
+										<span>-</span>
+									</ui:fragment>
 								</div>
 	                        </div>
 							<div class="deliveryPeople">
