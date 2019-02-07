@@ -264,14 +264,14 @@
 											<script>
 												$(escapeColons('#messages:messageContentTextarea')).focus();
 
-												let validationMsg = $(escapeColons('##{cc.clientId}:messageContentTextarea'));
+												let validationMsg = $(escapeColons('##{cc.clientId}:messageContentTextareaValidation'));
 												if (validationMsg.first().html() != "") {
 													displaySubmitButton($(escapeColons('##{cc.clientId}:messageContentTextarea'))[0]);
 												}
 											</script>
 		                                </div>
 										<small class="redText bottom30 displayBlock">
-											<h:message for="messageContentTextarea"></h:message>
+											<h:message id="messageContentTextareaValidation" for="messageContentTextarea"></h:message>
 										</small>
 		                            </div>
 		                        </div>
