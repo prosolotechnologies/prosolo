@@ -13,10 +13,7 @@ import org.prosolo.services.activityWall.impl.data.SocialActivityData1;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.interaction.data.CommentData;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
+import java.util.*;
 
 public interface SocialActivityManager {
 
@@ -51,7 +48,7 @@ public interface SocialActivityManager {
     PostReshareSocialActivity sharePost(String text, long originalPostId,
                                         UserContextData context) throws DbConnectionException;
 
-    SocialActivityData1 getSocialActivityById(long socialActivityId, long userId, Locale locale)
+    Optional<SocialActivityData1> getSocialActivityById(long socialActivityId, long userId, Locale locale)
             throws DbConnectionException;
 
     Set<Long> getUsersInMyNetwork(long userId);
