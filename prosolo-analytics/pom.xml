@@ -11,20 +11,14 @@
 	<packaging>war</packaging>
 	<version>1.3.0</version>
 	<properties>
-		<!--jersey.version>2.8</jersey.version-->
 		<resteasy.version>3.0.9.Final</resteasy.version>
 		<jetty.version>9.4.14.v20181114</jetty.version>
-		<!--jersey.version>1.19.1</jersey.version-->
 		<jersey2.version>2.27</jersey2.version>
 		<jaxrs.version>2.1.1</jaxrs.version>
-		<!--jetty.version>8.1.16.v20140903</jetty.version-->
-		<spark.version>2.2.0</spark.version>
 		<scala.version>2.11.12</scala.version>
 		<quartz.version>2.2.1</quartz.version>
 		<twitter4j.version>4.0.7</twitter4j.version>
 		<mahout.version>0.9</mahout.version>
-	    <spark-cassandra-connector.version>2.0.0-M3</spark-cassandra-connector.version>
-		<cassandra-java-driver.version>3.0.0</cassandra-java-driver.version>
 	</properties>
 	<repositories>
 		<repository>
@@ -146,27 +140,6 @@
 			<version>${jersey2.version}</version>
 		</dependency>
 
-		<!-- Spark dependencies -->
-		<dependency>
-			<groupId>org.apache.spark</groupId>
-			<artifactId>spark-core_2.11</artifactId>
-			<version>${spark.version}</version>
-			<exclusions>
-				<exclusion>
-					<artifactId>jersey-server</artifactId>
-					<groupId>com.sun.jersey</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>jersey-core</artifactId>
-					<groupId>com.sun.jersey</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>xbean-asm5-shaded</artifactId>
-					<groupId>org.apache.xbean</groupId>
-				</exclusion>
-
-			</exclusions>
-		</dependency>
 	   <!-- Twitter4j dependencies -->
 		<dependency>
 			<groupId>org.twitter4j</groupId>
@@ -198,12 +171,6 @@
 			<version>1.1.1.6</version>
 		</dependency>
 
-		<!--Scala dependencies -->
-		<dependency>
-			<groupId>org.scala-lang</groupId>
-			<artifactId>scala-library</artifactId>
-			<version>${scala.version}</version>
-		</dependency>
 		<dependency>
 			<groupId>org.scala-lang</groupId>
 			<artifactId>scala-compiler</artifactId>
@@ -328,21 +295,6 @@
   			<scope>test</scope>
 		</dependency>
 
-	    <!-- added spark cassandra connector -->
-	    <dependency>
-			<groupId>com.datastax.spark</groupId>
-			<artifactId>spark-cassandra-connector_2.11</artifactId>
-			<version>${spark-cassandra-connector.version}</version>
-			<exclusions>
-			</exclusions>
-		</dependency>
-
-		<dependency>
-			<groupId>org.elasticsearch</groupId>
-			<artifactId>elasticsearch-spark-20_2.11</artifactId>
-			<version>5.3.0</version>
-		</dependency>
-
 		<!-- Used for hashing database ids in urls -->
 		<dependency>
 			<groupId>org.hashids</groupId>
@@ -396,6 +348,11 @@
 					<groupId>net.alchim31.maven</groupId>
 					<artifactId>scala-maven-plugin</artifactId>
 					<version>[3.2.2,)</version>
+					<configuration>
+						<args>
+							<arg>-nobootcp</arg>
+						</args>
+					</configuration>
 				</plugin>
 					<!--This plugin's configuration is used to store Eclipse m2e settings
 					only. It has no influence on the Maven build itself. -->
