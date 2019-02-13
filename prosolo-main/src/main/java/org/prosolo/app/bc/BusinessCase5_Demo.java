@@ -4,13 +4,16 @@ import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.credential.LearningEvidence;
 import org.prosolo.common.domainmodel.credential.LearningEvidenceType;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
+import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.event.EventQueue;
 import org.prosolo.services.interaction.FollowResourceManager;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialInstructorManager;
+import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.config.competence.CompetenceLoadConfig;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
+import org.prosolo.services.nodes.data.organization.CredentialCategoryData;
 
 import java.util.Arrays;
 import java.util.List;
@@ -26,6 +29,23 @@ public class BusinessCase5_Demo extends BaseBusinessCase5 {
 
 	@Override
 	protected void createAdditionalDataBC5(EventQueue events) throws Exception {
+		////////////////////////////////
+		// Add credential categories
+		////////////////////////////////
+		createCredentialCategories(events, "Professional Knowledge");
+		createCredentialCategories(events, "Professional Practice");
+		createCredentialCategories(events, "Professional Engagement");
+		CredentialCategoryData category1 = ServiceLocator.getInstance().getService(OrganizationManager.class).getOrganizationCredentialCategoriesData(organization.getId()).get(1);
+		CredentialCategoryData category2 = ServiceLocator.getInstance().getService(OrganizationManager.class).getOrganizationCredentialCategoriesData(organization.getId()).get(2);
+		CredentialCategoryData category3 = ServiceLocator.getInstance().getService(OrganizationManager.class).getOrganizationCredentialCategoriesData(organization.getId()).get(0);
+		assignCategoryToCredential(events, credential1.getId(), category1, userNickPowell);
+		assignCategoryToCredential(events, credential2.getId(), category1, userNickPowell);
+		assignCategoryToCredential(events, credential3.getId(), category2, userNickPowell);
+		assignCategoryToCredential(events, credential4.getId(), category2, userNickPowell);
+		assignCategoryToCredential(events, credential5.getId(), category2, userNickPowell);
+		assignCategoryToCredential(events, credential6.getId(), category3, userNickPowell);
+		assignCategoryToCredential(events, credential7.getId(), category3, userNickPowell);
+
 		////////////////////////////////
 		// Add follow relations
 		////////////////////////////////

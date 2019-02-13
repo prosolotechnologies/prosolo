@@ -132,7 +132,7 @@ public abstract class BaseBusinessCase5 extends BaseBusinessCase {
         //delivery 1
         credential1Delivery1 = createDelivery(events, credential1, new Date().getTime(), getDaysFromNow(90), userNickPowell);
 
-        // give learn privilege to all students from
+        // give learn privilege to all students from both student groups
         givePrivilegeToGroupOnDelivery(events, credential1Delivery1, UserGroupPrivilege.Learn, userNickPowell, organization, List.of(userGroupScienceEducationStudents, userGroupArtsEducationStudents));
 
         credential1Delivery1InstructorKarenWhite = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CredentialInstructorManager.class).addInstructorToCredentialAndGetEvents(credential1Delivery1.getId(), userKarenWhite.getId(), 0, createUserContext(userNickPowell)));
@@ -142,37 +142,37 @@ public abstract class BaseBusinessCase5 extends BaseBusinessCase {
 
         //delivery 2
         credential2Delivery1 = createDelivery(events, credential2, getDaysBeforeNow(1), getDaysFromNow(90), userNickPowell);
-        // give learn privilege to all students from
+        // give learn privilege to all students from the student group School of Education
         givePrivilegeToUsersOnDelivery(events, credential2Delivery1, UserGroupPrivilege.Learn, userNickPowell, organization, schoolOfEducationStudents);
         credential2Delivery1InstructorPhilArmstrong = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CredentialInstructorManager.class).addInstructorToCredentialAndGetEvents(credential2Delivery1.getId(), userPhilArmstrong.getId(), 0, createUserContext(userNickPowell)));
 
         //delivery 3
         credential3Delivery1 = createDelivery(events, credential3, new Date().getTime(), getDaysFromNow(90), userNickPowell);
-        // give learn privilege to all students from
+        // give learn privilege to all students from the student group School of Education
         givePrivilegeToUsersOnDelivery(events, credential3Delivery1, UserGroupPrivilege.Learn, userNickPowell, organization, schoolOfEducationStudents);
         credential3Delivery1InstructorPhilArmstrong = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CredentialInstructorManager.class).addInstructorToCredentialAndGetEvents(credential3Delivery1.getId(), userPhilArmstrong.getId(), 0, createUserContext(userNickPowell)));
 
         //delivery 4
         credential4Delivery1 = createDelivery(events, credential4, new Date().getTime(), getDaysFromNow(90), userNickPowell);
-        // give learn privilege to all students from
+        // give learn privilege to all students from the student group School of Education
         givePrivilegeToUsersOnDelivery(events, credential4Delivery1, UserGroupPrivilege.Learn, userNickPowell, organization, schoolOfEducationStudents);
         credential4Delivery1InstructorPhilArmstrong = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CredentialInstructorManager.class).addInstructorToCredentialAndGetEvents(credential4Delivery1.getId(), userPhilArmstrong.getId(), 0, createUserContext(userNickPowell)));
 
         //delivery 5
         credential5Delivery1 = createDelivery(events, credential5, new Date().getTime(), getDaysFromNow(90), userNickPowell);
-        // give learn privilege to all students from
+        // give learn privilege to all students from the student group School of Education
         givePrivilegeToUsersOnDelivery(events, credential5Delivery1, UserGroupPrivilege.Learn, userNickPowell, organization, schoolOfEducationStudents);
         credential5Delivery1InstructorPhilArmstrong = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CredentialInstructorManager.class).addInstructorToCredentialAndGetEvents(credential5Delivery1.getId(), userPhilArmstrong.getId(), 0, createUserContext(userNickPowell)));
 
         //delivery 6
         credential6Delivery1 = createDelivery(events, credential6, new Date().getTime(), getDaysFromNow(90), userNickPowell);
-        // give learn privilege to all students from
+        // give learn privilege to all students from the student group School of Education
         givePrivilegeToUsersOnDelivery(events, credential6Delivery1, UserGroupPrivilege.Learn, userNickPowell, organization, schoolOfEducationStudents);
         credential6Delivery1InstructorPhilArmstrong = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CredentialInstructorManager.class).addInstructorToCredentialAndGetEvents(credential6Delivery1.getId(), userPhilArmstrong.getId(), 0, createUserContext(userNickPowell)));
 
         //delivery 7
         credential7Delivery1 = createDelivery(events, credential7, new Date().getTime(), getDaysFromNow(90), userNickPowell);
-        // give learn privilege to all students from
+        // give learn privilege to all students from the student group School of Education
         givePrivilegeToUsersOnDelivery(events, credential7Delivery1, UserGroupPrivilege.Learn, userNickPowell, organization, schoolOfEducationStudents);
         credential7Delivery1InstructorPhilArmstrong = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CredentialInstructorManager.class).addInstructorToCredentialAndGetEvents(credential7Delivery1.getId(), userPhilArmstrong.getId(), 0, createUserContext(userNickPowell)));
     }
