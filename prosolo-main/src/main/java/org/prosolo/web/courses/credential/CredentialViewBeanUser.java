@@ -104,7 +104,7 @@ public class CredentialViewBeanUser implements Serializable {
 			} catch (Exception e) {
 				logger.error(e);
 				e.printStackTrace();
-				PageUtil.fireErrorMessage("Error while retrieving credential data");
+				PageUtil.fireErrorMessage("Error retrieving credential data");
 			}
 		} else {
 			PageUtil.notFound();
@@ -112,6 +112,12 @@ public class CredentialViewBeanUser implements Serializable {
 	}
 
 	public void initAskForAssessment(AssessmentType aType) {
+		/*
+		passing credential level blind assessment mode is fine in this context because if
+		peer assessment request is initiated here it will always be new assessment request.
+		For tutor assessment it does not matter where are we getting blind assessment mode from
+		because blind assessment mode is of importance only for peer assessments.
+		 */
 		askForAssessmentBean.init(decodedId, credentialData.getTargetCredId(), aType, credentialData.getAssessmentTypeConfig(aType).getBlindAssessmentMode());
 	}
 
@@ -134,7 +140,7 @@ public class CredentialViewBeanUser implements Serializable {
 			PageUtil.redirect("/credentials/" + id + "/" + idEncoder.encodeId(comp.getCompetenceId()) + "?justEnrolled=true");
 		} catch (DbConnectionException e) {
 			logger.error("Error", e);
-			PageUtil.fireErrorMessage("Error while enrolling in a " + ResourceBundleUtil.getMessage("label.competence").toLowerCase());
+			PageUtil.fireErrorMessage("Error enrolling in a " + ResourceBundleUtil.getMessage("label.competence").toLowerCase());
 		}
 	}
 

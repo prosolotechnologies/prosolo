@@ -10,8 +10,8 @@ import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.authentication.PasswordResetManager;
 import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.RoleManager;
-import org.prosolo.services.nodes.UserManager;
-import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.user.UserManager;
+import org.prosolo.services.user.data.UserData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.services.util.roles.SystemRoleNames;
 import org.prosolo.web.LoggedUserBean;
@@ -102,7 +102,7 @@ public class UserEditBean implements Serializable {
 			}
 		} catch (Exception e) {
 			logger.error(e);
-			PageUtil.fireErrorMessage("Error while loading page");
+			PageUtil.fireErrorMessage("Error loading page");
 		}
 	}
 
@@ -164,7 +164,7 @@ public class UserEditBean implements Serializable {
 			prepareRoles();
 		} catch (Exception e) {
 			logger.error(e);
-			PageUtil.fireErrorMessage("Error while loading page");
+			PageUtil.fireErrorMessage("Error loading page");
 		}
 	}
 

@@ -11,8 +11,8 @@ import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.lti.LtiUserManager;
 import org.prosolo.services.nodes.RoleManager;
-import org.prosolo.services.nodes.UserManager;
-import org.prosolo.services.nodes.data.UserCreationData;
+import org.prosolo.services.user.UserManager;
+import org.prosolo.services.user.data.UserCreationData;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -81,22 +81,19 @@ public class LtiUserManagerImpl extends AbstractManagerImpl implements LtiUserMa
 	}
 
 	private User getUser(long consumerId, String userId) {
-		try {
-			String queryString =
-					"SELECT user " +
-							"FROM LtiUser ltiuser " +
-							"INNER JOIN  ltiuser.user user " +
-							"INNER JOIN ltiuser.consumer c " +
-							"WHERE ltiuser.userId = :userId " +
-							"AND c.id = :id";
+		String queryString =
+				"SELECT user " +
+						"FROM LtiUser ltiuser " +
+						"INNER JOIN  ltiuser.user user " +
+						"INNER JOIN ltiuser.consumer c " +
+						"WHERE ltiuser.userId = :userId " +
+						"AND c.id = :id";
 
-			return (User) persistence.currentManager().createQuery(queryString)
-					.setLong("id", consumerId)
-					.setString("userId", userId);
-		} catch (Exception e) {
-			return null;
-		}
+		return (User) persistence.currentManager().createQuery(queryString)
+				.setLong("id", consumerId)
+				.setString("userId", userId)
+				.setMaxResults(1)
+				.uniqueResult();
 	}
-
 
 }

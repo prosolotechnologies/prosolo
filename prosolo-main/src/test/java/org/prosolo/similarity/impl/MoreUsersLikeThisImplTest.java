@@ -38,8 +38,7 @@ public class MoreUsersLikeThisImplTest {
 	@Test
 	public void testGetCollaboratorsBasedOnLocation() {
 		GeoDistanceSortBuilder sortBuilder = SortBuilders
-				.geoDistanceSort("user.location.pin")
-				.point(43.723611, 20.6875)
+				.geoDistanceSort("user.location.pin", 43.723611, 20.6875)
 				.unit(DistanceUnit.KILOMETERS)
 				.order(SortOrder.ASC);
 

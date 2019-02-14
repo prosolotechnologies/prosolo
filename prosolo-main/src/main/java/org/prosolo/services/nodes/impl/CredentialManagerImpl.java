@@ -33,7 +33,9 @@ import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.assessment.RubricManager;
 import org.prosolo.services.assessment.data.AssessmentTypeConfig;
-import org.prosolo.services.common.data.LazyInitData;
+import org.prosolo.services.common.data.LazyInitCollection;
+import org.prosolo.services.common.data.SortOrder;
+import org.prosolo.services.common.data.SortingOption;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventFactory;
@@ -51,7 +53,10 @@ import org.prosolo.services.nodes.data.instructor.StudentInstructorPair;
 import org.prosolo.services.nodes.data.resourceAccess.*;
 import org.prosolo.services.nodes.factory.*;
 import org.prosolo.services.nodes.observers.learningResources.CredentialChangeTracker;
-import org.prosolo.services.util.SortingOption;
+import org.prosolo.services.user.UserGroupManager;
+import org.prosolo.services.user.data.StudentData;
+import org.prosolo.services.user.data.UserData;
+import org.prosolo.services.user.data.UserLearningProgress;
 import org.prosolo.services.util.roles.SystemRoleNames;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -61,6 +66,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service("org.prosolo.services.nodes.CredentialManager")
 public class CredentialManagerImpl extends AbstractManagerImpl implements CredentialManager {
@@ -198,7 +204,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while saving credential");
+			throw new DbConnectionException("Error saving credential");
 		}
 	}
 
@@ -282,7 +288,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while deleting credential delivery");
+			throw new DbConnectionException("Error deleting credential delivery");
 		}
 	}
 
@@ -335,7 +341,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while loading credential data");
+			throw new DbConnectionException("Error loading credential data");
 		}
 	}
 
@@ -393,7 +399,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while loading credential data");
+			throw new DbConnectionException("Error loading credential data");
 		}
 	}
 
@@ -415,7 +421,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while loading credential data");
+			throw new DbConnectionException("Error loading credential data");
 		}
 	}
 
@@ -456,7 +462,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while loading credential data");
+			throw new DbConnectionException("Error loading credential data");
 		}
 	}
 
@@ -585,7 +591,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while loading credential data");
+			throw new DbConnectionException("Error loading credential data");
 		}
 	}
 
@@ -624,7 +630,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while loading credential data");
+			throw new DbConnectionException("Error loading credential data");
 		}
 	}
 
@@ -637,15 +643,6 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			Credential1 cred = res.getResult();
 
 			eventFactory.generateEvents(res.getEventQueue());
-
-			fireEditEvent(data, cred, context);
-			//we should generate update hashtags only for deliveries
-			if (data.getType() == CredentialType.Delivery && data.isHashtagsStringChanged()) {
-				Map<String, String> params = new HashMap<>();
-				params.put("newhashtags", data.getHashtagsString());
-				params.put("oldhashtags", data.getOldHashtags());
-				eventFactory.generateEvent(EventType.UPDATE_HASHTAGS, context, cred, null, null, params);
-			}
 			/* 
 			 * flushing to force lock timeout exception so it can be caught here.
 			 * It is rethrown as StaleDataException.
@@ -665,7 +662,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while updating credential");
+			throw new DbConnectionException("Error updating credential");
 		}
 	}
 
@@ -681,7 +678,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		return res != null ? res : 0;
 	}
 
-	private void fireEditEvent(CredentialData data, Credential1 cred,
+	private EventData fireEditEvent(CredentialData data, Credential1 cred,
 							   UserContextData context) {
 	    CredentialChangeTracker changeTracker = new CredentialChangeTracker(
 	    		data.isTitleChanged(), data.isDescriptionChanged(), false,
@@ -692,7 +689,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 		Map<String, String> params = new HashMap<>();
 		params.put("changes", jsonChangeTracker);
-	    eventFactory.generateEvent(EventType.Edit, context, cred, null,null, params);
+	    return eventFactory.generateEventData(EventType.Edit, context, cred, null,null, params);
 	}
 
 	@Override
@@ -862,6 +859,15 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
     		updateDeliveryTimes(credToUpdate, data, deliveryStart, deliveryEnd);
 		}
 
+		res.appendEvent(fireEditEvent(data, credToUpdate, context));
+		//we should generate update hashtags only for deliveries
+		if (data.getType() == CredentialType.Delivery && data.isHashtagsStringChanged()) {
+			Map<String, String> params = new HashMap<>();
+			params.put("newhashtags", data.getHashtagsString());
+			params.put("oldhashtags", data.getOldHashtags());
+			res.appendEvent(eventFactory.generateEventData(EventType.UPDATE_HASHTAGS, context, credToUpdate, null, null, params));
+		}
+
 		res.setResult(credToUpdate);
 		return res;
 	}
@@ -1021,7 +1027,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while enrolling in a credential");
+			throw new DbConnectionException("Error enrolling in a credential");
 		}
 	}
 
@@ -1039,7 +1045,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 				eventFactory.generateEvents(events);
 			} catch (Exception e) {
-				throw new DbConnectionException("Error while enrolling students in a credential");
+				throw new DbConnectionException("Error enrolling students in a credential");
 			}
 		}
 	}
@@ -1136,7 +1142,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while adding competence to credential");
+			throw new DbConnectionException("Error adding competence to credential");
 		}
 
 	}
@@ -1189,7 +1195,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			return resultList;
 		} catch (Exception e) {
 			logger.error("Error", e);
-			throw new DbConnectionException("Error while loading credential data");
+			throw new DbConnectionException("Error loading credential data");
 		}
 	}
 
@@ -1223,7 +1229,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while loading credential tags");
+			throw new DbConnectionException("Error loading credential tags");
 		}
 	}
 
@@ -1256,7 +1262,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while loading credential hashtags");
+			throw new DbConnectionException("Error loading credential hashtags");
 		}
 	}
 
@@ -1293,7 +1299,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while loading user credentials");
+			throw new DbConnectionException("Error loading user credentials");
 		}
 	}
 
@@ -1326,7 +1332,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while loading credential bookmarks");
+			throw new DbConnectionException("Error loading credential bookmarks");
 		}
 	}
 
@@ -1360,7 +1366,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while bookmarking credential");
+			throw new DbConnectionException("Error bookmarking credential");
 		}
 	}
 
@@ -1404,7 +1410,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while deleting credential bookmark");
+			throw new DbConnectionException("Error deleting credential bookmark");
 		}
 	}
 
@@ -1429,7 +1435,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while updating credential duration");
+			throw new DbConnectionException("Error updating credential duration");
 		}
 	}
 
@@ -1454,7 +1460,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving credential ids");
+			throw new DbConnectionException("Error retrieving credential ids");
 		}
 	}
 
@@ -1531,7 +1537,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while updating credential progress");
+			throw new DbConnectionException("Error updating credential progress");
 		}
 	}
 
@@ -1616,7 +1622,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			return (String) q.uniqueResult();
 		} catch (Exception e) {
 			logger.error("Error", e);
-			throw new DbConnectionException("Error while retrieving credential title");
+			throw new DbConnectionException("Error retrieving credential title");
 		}
 	}
 
@@ -1643,7 +1649,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			return idData;
 		} catch (Exception e) {
 			logger.error("Error", e);
-			throw new DbConnectionException("Error while retrieving credential id data");
+			throw new DbConnectionException("Error retrieving credential id data");
 		}
 	}
 
@@ -1658,26 +1664,131 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@SuppressWarnings({"unchecked"})
 	@Override
 	@Transactional(readOnly = true)
-	public List<TargetCredentialData> getAllCredentials(long userid, boolean onlyPubliclyVisible) throws DbConnectionException {
-		return getTargetCredentials(userid, onlyPubliclyVisible, false, false, UserLearningProgress.ANY);
+	public List<TargetCredentialData> getAllCredentials(long studentId) throws DbConnectionException {
+		return getTargetCredentialsData(studentId, false, false, UserLearningProgress.ANY);
 	}
 
-	@SuppressWarnings("unchecked")
-	private List<CategorizedCredentialsData> getCategorizedTargetCredentials(long userId, boolean onlyPubliclyVisible,
-                                                                             UserLearningProgress progress)
+	private List<TargetCredentialData> getTargetCredentialsData(long studentId, boolean sortByCategory, boolean loadNumberOfAssessments, UserLearningProgress progress)
 			throws DbConnectionException {
-		List<TargetCredentialData> targetCredentials = getTargetCredentials(userId, onlyPubliclyVisible, true, true, progress);
-		return credentialFactory.groupCredentialsByCategory(targetCredentials);
+		try {
+			List<TargetCredentialData> resultList = new ArrayList<>();
+			List<TargetCredential1> result = getTargetCredentials(studentId, sortByCategory, loadNumberOfAssessments, progress);
+
+			for (TargetCredential1 targetCredential1 : result) {
+				int numberOfAssessments = 0;
+				if (loadNumberOfAssessments) {
+					numberOfAssessments = assessmentManager.getNumberOfApprovedAssessmentsForUserCredential(targetCredential1.getId());
+				}
+				TargetCredentialData targetCredentialData = new TargetCredentialData(targetCredential1, sortByCategory ? targetCredential1.getCredential().getCategory() : null, numberOfAssessments);
+				resultList.add(targetCredentialData);
+			}
+
+			return resultList;
+		} catch (DbConnectionException e) {
+			logger.error("error", e);
+			throw e;
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error loading target credentials");
+		}
 	}
 
-	private List<TargetCredentialData> getTargetCredentials(long userId, boolean onlyPubliclyVisible,
-														    boolean sortByCategory, boolean loadNumberOfAssessments, UserLearningProgress progress)
+	@Override
+	@Transactional(readOnly = true)
+	public List<CredentialProgressData> getCredentialsWithAccessTo(long studentId, long userId, AccessMode accessMode) throws DbConnectionException {
+		try {
+			List<TargetCredential1> result;
+
+			switch (accessMode) {
+				case MANAGER:
+					result = getTargetCredentials(studentId, false, false, UserLearningProgress.ANY);
+					break;
+				case INSTRUCTOR:
+					String query =
+							"SELECT targetCredential1 " +
+							"FROM TargetCredential1 targetCredential1 " +
+							"LEFT JOIN FETCH targetCredential1.credential cred " +
+							"LEFT JOIN targetCredential1.instructor instructor " +
+							"WHERE targetCredential1.user.id = :studentId " +
+								"AND instructor.user.id = :userId " +
+							"ORDER BY cred.title";
+
+					result = (List<TargetCredential1>) persistence.currentManager()
+							.createQuery(query)
+							.setLong("studentId", studentId)
+							.setLong("userId", userId)
+							.list();
+					break;
+				default:
+					return null;
+			}
+
+			return result.stream().map(tc -> new CredentialProgressData(tc)).collect(Collectors.toList());
+		} catch (DbConnectionException e) {
+			logger.error("error", e);
+			throw e;
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<CredentialIdData> getCompletedCredentialsBasicDataForCredentialsNotAddedToProfile(long userId) {
+		try {
+			List<TargetCredential1> credentials = getTargetCredentialsNotAddedToProfile(userId, UserLearningProgress.COMPLETED);
+			List<CredentialIdData> result = new ArrayList<>();
+			for (TargetCredential1 tc : credentials) {
+				result.add(new CredentialIdData(tc.getId(), tc.getCredential().getTitle(), tc.getCredential().getDeliveryOrder(), false));
+			}
+			return result;
+		} catch (DbConnectionException e) {
+			logger.error("error", e);
+			throw e;
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error loading user credentials");
+		}
+	}
+
+	private List<TargetCredential1> getTargetCredentialsNotAddedToProfile(long userId, UserLearningProgress progress)
 			throws DbConnectionException {
 		try {
 			String query =
 					"SELECT targetCredential1 " +
-							"FROM TargetCredential1 targetCredential1 " +
-							"INNER JOIN fetch targetCredential1.credential cred ";
+					"FROM TargetCredential1 targetCredential1 " +
+					"INNER JOIN fetch targetCredential1.credential cred " +
+					"WHERE targetCredential1.user.id = :userid ";
+
+			switch (progress) {
+				case COMPLETED:
+					query += "AND targetCredential1.progress = 100 ";
+					break;
+				case IN_PROGRESS:
+					query += "AND targetCredential1.progress < 100 ";
+					break;
+				default:
+					break;
+			}
+
+			query += "AND not exists (SELECT conf.id FROM CredentialProfileConfig conf WHERE conf.targetCredential.id = targetCredential1)";
+			query += "ORDER BY cred.title";
+
+			return (List<TargetCredential1>) persistence.currentManager()
+					.createQuery(query)
+					.setLong("userid", userId)
+					.list();
+		} catch (DbConnectionException e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error loading target credentials");
+		}
+	}
+
+	private List<TargetCredential1> getTargetCredentials(long userId, boolean sortByCategory, boolean loadNumberOfAssessments, UserLearningProgress progress)
+			throws DbConnectionException {
+		try {
+			String query =
+					"SELECT targetCredential1 " +
+					"FROM TargetCredential1 targetCredential1 " +
+					"INNER JOIN fetch targetCredential1.credential cred ";
 
 			if (sortByCategory) {
 				query += "LEFT JOIN fetch cred.category cat ";
@@ -1696,67 +1807,15 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					break;
 			}
 
-			if (onlyPubliclyVisible) {
-				query += " AND targetCredential1.hiddenFromProfile = false ";
-			}
-
 			query += "ORDER BY " + (sortByCategory ? "cat.title, " : "") + " cred.title";
 
-			List<TargetCredentialData> resultList = new ArrayList<>();
-
-			List<TargetCredential1> result = persistence.currentManager()
+			return (List<TargetCredential1>) persistence.currentManager()
 					.createQuery(query)
 					.setLong("userid", userId)
 					.list();
-
-			for(TargetCredential1 targetCredential1 : result) {
-				int numberOfAssessments = 0;
-				if (loadNumberOfAssessments) {
-					numberOfAssessments = assessmentManager.getNumberOfApprovedAssessmentsForUserCredential(targetCredential1.getId());
-				}
-				TargetCredentialData targetCredentialData = new TargetCredentialData(targetCredential1, sortByCategory ? targetCredential1.getCredential().getCategory() : null, numberOfAssessments);
-				resultList.add(targetCredentialData);
-			}
-
-			return resultList;
 		} catch (DbConnectionException e) {
 			logger.error("Error", e);
 			throw new DbConnectionException("Error loading target credentials");
-		}
-	}
-
-	@Override
-	@SuppressWarnings("unchecked")
-	@Transactional(readOnly = true)
-	public List<CategorizedCredentialsData> getAllCompletedCredentials(long userId, boolean onlyPubliclyVisible) throws DbConnectionException {
-		return getCategorizedTargetCredentials(userId, onlyPubliclyVisible, UserLearningProgress.COMPLETED);
-	}
-
-	@SuppressWarnings({"unchecked"})
-	@Override
-	@Transactional(readOnly = true)
-	public List<CategorizedCredentialsData> getAllInProgressCredentials(long userid, boolean onlyPubliclyVisible) throws DbConnectionException {
-		return getCategorizedTargetCredentials(userid, onlyPubliclyVisible, UserLearningProgress.IN_PROGRESS);
-	}
-
-	@Override
-	@Transactional(readOnly = false)
-	public void updateHiddenTargetCredentialFromProfile(long credId, boolean hiddenFromProfile)
-			throws DbConnectionException {
-		try {
-			String query =
-					"UPDATE TargetCredential1 targetCredential " +
-							"SET targetCredential.hiddenFromProfile = :hiddenFromProfile " +
-							"WHERE targetCredential.id = :credId ";
-
-			persistence.currentManager()
-					.createQuery(query)
-					.setLong("credId", credId)
-					.setBoolean("hiddenFromProfile", hiddenFromProfile)
-					.executeUpdate();
-		} catch (Exception e) {
-			logger.error(e);
-			throw new DbConnectionException("Error while updating hiddenFromProfile field of a credential " + credId);
 		}
 	}
 
@@ -1802,7 +1861,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving user credentials");
+			throw new DbConnectionException("Error retrieving user credentials");
 		}
 	}
 
@@ -1827,7 +1886,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while loading target credentials");
+			throw new DbConnectionException("Error loading target credentials");
 		}
 	}
 
@@ -1850,7 +1909,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while loading user id");
+			throw new DbConnectionException("Error loading user id");
 		}
 	}
 
@@ -1874,7 +1933,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while loading user id");
+			throw new DbConnectionException("Error loading user id");
 		}
 	}
 
@@ -1899,7 +1958,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while loading user id");
+			throw new DbConnectionException("Error loading user id");
 		}
 	}
 
@@ -1927,7 +1986,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while loading user ids");
+			throw new DbConnectionException("Error loading user ids");
 		}
 	}
 
@@ -1955,7 +2014,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while loading user credentials");
+			throw new DbConnectionException("Error loading user credentials");
 		}
 	}
 
@@ -1969,7 +2028,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while removing blog from the credential");
+			throw new DbConnectionException("Error removing blog from the credential");
 		}
 	}
 
@@ -1998,7 +2057,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while adding new credential feed source");
+			throw new DbConnectionException("Error adding new credential feed source");
 		}
 	}
 
@@ -2050,7 +2109,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving learning info");
+			throw new DbConnectionException("Error retrieving learning info");
 		}
 	}
 
@@ -2102,7 +2161,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		} catch (DbConnectionException e) {
 			e.printStackTrace();
 			logger.error(e);
-			throw new DbConnectionException("Error while retrieving credential data");
+			throw new DbConnectionException("Error retrieving credential data");
 		}
 	}
 
@@ -2126,7 +2185,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					.executeUpdate();
 		} catch (Exception e) {
 			logger.error("Error", e);
-			throw new DbConnectionException("Error while updating last action for user credential");
+			throw new DbConnectionException("Error updating last action for user credential");
 		}
 	}
 
@@ -2150,7 +2209,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving next competency to learn");
+			throw new DbConnectionException("Error retrieving next competency to learn");
 		}
 	}
 
@@ -2172,7 +2231,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving number of users learning credential");
+			throw new DbConnectionException("Error retrieving number of users learning credential");
 		}
 	}
 
@@ -2222,7 +2281,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			return null;
 		} catch (Exception e) {
 			logger.error("Error", e);
-			throw new DbConnectionException("Error while retrieving credential members");
+			throw new DbConnectionException("Error retrieving credential members");
 		}
 	}
 
@@ -2247,7 +2306,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			return null;
 		} catch (Exception e) {
 			logger.error("Error", e);
-			throw new DbConnectionException("Error while retrieving target credential for student " + studentId +
+			throw new DbConnectionException("Error retrieving target credential for student " + studentId +
 					" and credential " + credId);
 		}
 	}
@@ -2291,7 +2350,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving filters");
+			throw new DbConnectionException("Error retrieving filters");
 		}
 	}
 
@@ -2335,7 +2394,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving random peer");
+			throw new DbConnectionException("Error retrieving random peer");
 		}
 	}
 
@@ -2496,7 +2555,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving activities");
+			throw new DbConnectionException("Error retrieving activities");
 		}
 	}
 
@@ -2547,7 +2606,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		} catch (Exception e) {
 			e.printStackTrace();
 			logger.error(e);
-			throw new DbConnectionException("Error while trying to retrieve user privileges for credential");
+			throw new DbConnectionException("Error trying to retrieve user privileges for credential");
 		}
 	}
 
@@ -2563,7 +2622,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		} catch (Exception e) {
 			e.printStackTrace();
 			logger.error(e);
-			throw new DbConnectionException("Error while trying to retrieve user privileges for credential");
+			throw new DbConnectionException("Error trying to retrieve user privileges for credential");
 		}
 	}
 
@@ -2598,7 +2657,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		} catch (DbConnectionException e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving credentials");
+			throw new DbConnectionException("Error retrieving credentials");
 		}
 	}
 
@@ -2642,7 +2701,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		} catch (DbConnectionException e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while updating credential visibility");
+			throw new DbConnectionException("Error updating credential visibility");
 		}
 	}
 
@@ -2664,7 +2723,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		} catch (DbConnectionException e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving credential visibility");
+			throw new DbConnectionException("Error retrieving credential visibility");
 		}
 	}
 
@@ -2698,7 +2757,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving credential unassigned member ids");
+			throw new DbConnectionException("Error retrieving credential unassigned member ids");
 		}
 	}
 
@@ -2767,29 +2826,29 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			return summary;
 		} catch (Exception e) {
 			logger.error("Error", e);
-			throw new DbConnectionException("Error while retrieving credential deliveries number");
+			throw new DbConnectionException("Error retrieving credential deliveries number");
 		}
 	}
 
 	@Override
 	@Transactional(readOnly = true)
-	public RestrictedAccessResult<List<CredentialData>> getCredentialDeliveriesWithAccessRights(long credId, long userId, CredentialDeliverySortOption sortOption,
+	public RestrictedAccessResult<List<CredentialData>> getCredentialDeliveriesWithAccessRights(long credId, long userId, SortOrder<CredentialDeliverySortOption> sortOrder,
 																								CredentialSearchFilterManager filter ) throws DbConnectionException {
-		List<CredentialData> credentials = getDeliveries(credId, false, sortOption, filter);
+		List<CredentialData> credentials = getDeliveries(credId, false, sortOrder, filter);
 		ResourceAccessRequirements req = ResourceAccessRequirements.of(AccessMode.MANAGER)
 				.addPrivilege(UserGroupPrivilege.Edit);
 		ResourceAccessData access = getResourceAccessData(credId, userId, req);
 		return RestrictedAccessResult.of(credentials, access);
 	}
 
-	private List<CredentialData> getDeliveries(long credId, boolean onlyOngoing, CredentialDeliverySortOption sortOption, CredentialSearchFilterManager filter)
+	private List<CredentialData> getDeliveries(long credId, boolean onlyOngoing, SortOrder<CredentialDeliverySortOption> sortOrder, CredentialSearchFilterManager filter)
 			throws DbConnectionException {
 		try {
 			StringBuilder query = new StringBuilder(
-					"SELECT del " +
-							"FROM Credential1 del " +
-							"WHERE del.type = :type " +
-							"AND del.deliveryOf.id = :credId ");
+				"SELECT del " +
+				   "FROM Credential1 del " +
+				   "WHERE del.type = :type " +
+				   "AND del.deliveryOf.id = :credId ");
 
 			if (onlyOngoing) {
 				query.append("AND (del.deliveryStart IS NOT NULL AND del.deliveryStart <= :now " +
@@ -2802,18 +2861,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				query.append(" AND del.archived IS TRUE");
 			}
 
-			String dateStartedSortOption = "del.deliveryStart " + (CredentialDeliverySortOption.DATE_STARTED.getSortOrder() == SortingOption.ASC ? "ASC" : "DESC");
-			String titleSortOption = "del.title " + (CredentialDeliverySortOption.ALPHABETICALLY.getSortOrder() == SortingOption.ASC ? "ASC" : "DESC");
-			String sort = null;
-			switch (sortOption) {
-				case DATE_STARTED:
-					sort = dateStartedSortOption + ", " + titleSortOption;
-					break;
-				case ALPHABETICALLY:
-					sort = titleSortOption + ", " + dateStartedSortOption;
-					break;
-			}
-			query.append(" ORDER BY " + sort);
+			query.append(" " + getDeliveryOrderByClause(sortOrder, "del"));
 
 			Query q = persistence.currentManager()
 					.createQuery(query.toString())
@@ -2837,7 +2885,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving credential deliveries");
+			throw new DbConnectionException("Error retrieving credential deliveries");
 		}
 	}
 
@@ -2851,8 +2899,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			studentsWhoCanLearnCount = userGroupManager.countCredentialVisibilityUsers(d.getId(), UserGroupPrivilege.Learn);
 			groupsThatCanLearnCount = userGroupManager.countCredentialUserGroups(d.getId(), UserGroupPrivilege.Learn);
 		}
-		deliveryData.setStudentsWhoCanLearn(new LazyInitData<>(studentsWhoCanLearnCount));
-		deliveryData.setGroupsThatCanLearn(new LazyInitData<>(groupsThatCanLearnCount));
+		deliveryData.setStudentsWhoCanLearn(new LazyInitCollection<>(studentsWhoCanLearnCount));
+		deliveryData.setGroupsThatCanLearn(new LazyInitCollection<>(groupsThatCanLearnCount));
 	}
 
 	@Override
@@ -2879,7 +2927,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while archiving credential");
+			throw new DbConnectionException("Error archiving credential");
 		}
 	}
 
@@ -2907,7 +2955,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while restoring credential");
+			throw new DbConnectionException("Error restoring credential");
 		}
 	}
 
@@ -2977,7 +3025,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving credentials");
+			throw new DbConnectionException("Error retrieving credentials");
 		}
 	}
 
@@ -3053,7 +3101,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		} catch (Exception e) {
 			e.printStackTrace();
 			logger.error(e);
-			throw new DbConnectionException("Error while trying to retrieve credential ids");
+			throw new DbConnectionException("Error trying to retrieve credential ids");
 		}
 	}
 
@@ -3075,7 +3123,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving competency ids");
+			throw new DbConnectionException("Error retrieving competency ids");
 		}
 	}
 
@@ -3161,7 +3209,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while creating credential delivery");
+			throw new DbConnectionException("Error creating credential delivery");
 		}
 	}
 
@@ -3193,7 +3241,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving credential delivery ids");
+			throw new DbConnectionException("Error retrieving credential delivery ids");
 		}
 	}
 
@@ -3255,7 +3303,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while updating credential creator");
+			throw new DbConnectionException("Error updating credential creator");
 		}
 	}
 
@@ -3286,13 +3334,13 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving credential creator");
+			throw new DbConnectionException("Error retrieving credential creator");
 		}
 	}
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<CredentialData> getCredentialDeliveriesForUserWithInstructPrivilege(long userId, CredentialDeliverySortOption sortOption)
+	public List<CredentialData> getCredentialDeliveriesForUserWithInstructPrivilege(long userId, SortOrder<CredentialDeliverySortOption> sortOrder)
 			throws DbConnectionException {
 		try {
 			/*
@@ -3309,18 +3357,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					"WITH instructor.user.id = :userId " +
 					"WHERE del.type = :type ";
 
-			String dateStartedSortOption = "del.deliveryStart " + (CredentialDeliverySortOption.DATE_STARTED.getSortOrder() == SortingOption.ASC ? "ASC" : "DESC");
-			String titleSortOption = "del.title " + (CredentialDeliverySortOption.ALPHABETICALLY.getSortOrder() == SortingOption.ASC ? "ASC" : "DESC");
-			String sort = null;
-			switch (sortOption) {
-				case DATE_STARTED:
-					sort = dateStartedSortOption + ", " + titleSortOption;
-					break;
-				case ALPHABETICALLY:
-					sort = titleSortOption + ", " + dateStartedSortOption;
-					break;
-			}
-			query += "ORDER BY " + sort;
+			query += getDeliveryOrderByClause(sortOrder, "del");
 
 			@SuppressWarnings("unchecked")
 			List<Credential1> result = persistence.currentManager()
@@ -3339,8 +3376,32 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			return deliveries;
 		} catch (Exception e) {
 			logger.error("Error", e);
-			throw new DbConnectionException("Error while retrieving credential deliveries");
+			throw new DbConnectionException("Error retrieving credential deliveries");
 		}
+	}
+
+	private String getDeliveryOrderByClause(SortOrder<CredentialDeliverySortOption> sortOrder, String deliveryTableAlias) {
+		if (sortOrder.isSortPresent()) {
+			List<String> orderBy = new ArrayList<>();
+			for (SortOrder.SimpleSortOrder<CredentialDeliverySortOption> so : sortOrder.getSortOrders()) {
+				String order = so.getSortOption() == SortingOption.DESC ? " DESC" : "";
+				switch (so.getSortField()) {
+					case ALPHABETICALLY:
+						orderBy.add(deliveryTableAlias + ".title " + order);
+						break;
+					case DATE_STARTED:
+						orderBy.add(deliveryTableAlias + ".deliveryStart " + order);
+						break;
+					case DELIVERY_ORDER:
+						orderBy.add(deliveryTableAlias + ".deliveryOrder " + order);
+						break;
+					default:
+						break;
+				}
+			}
+			return "order by " + String.join(", ", orderBy);
+		}
+		return "";
 	}
 
 	@Override
@@ -3359,7 +3420,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving credential id");
+			throw new DbConnectionException("Error retrieving credential id");
 		}
 	}
 
@@ -3383,7 +3444,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			return res;
 		} catch (Exception e) {
 			logger.error("Error", e);
-			throw new DbConnectionException("Error while retrieving credential delivery ids");
+			throw new DbConnectionException("Error retrieving credential delivery ids");
 		}
 	}
 
@@ -3413,7 +3474,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			return Result.empty();
 		} catch (Exception e) {
 			logger.error("Error", e);
-			throw new DbConnectionException("Error while changing the credential owner");
+			throw new DbConnectionException("Error changing the credential owner");
 		}
 	}
 
@@ -3483,7 +3544,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			return result;
 		} catch (DbConnectionException e) {
 			logger.error("Error", e);
-			throw new DbConnectionException("Error while retrieving deliveries");
+			throw new DbConnectionException("Error retrieving deliveries");
 		}
 	}
 
@@ -3510,7 +3571,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			return result;
 		} catch (DbConnectionException e) {
 			logger.error("Error", e);
-			throw new DbConnectionException("Error while retrieving deliveries");
+			throw new DbConnectionException("Error retrieving deliveries");
 		}
 	}
 
@@ -3618,7 +3679,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving credentials");
+			throw new DbConnectionException("Error retrieving credentials");
 		}
 	}
 
@@ -3963,25 +4024,25 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 
-	@Override
-	@Transactional(readOnly = true)
-	public BlindAssessmentMode getCredentialBlindAssessmentModeForAssessmentType(long credId, AssessmentType assessmentType) {
-		try {
-			String q =
-					"SELECT conf.blindAssessmentMode FROM CredentialAssessmentConfig conf " +
-					"WHERE conf.credential.id = :credId " +
-					"AND conf.assessmentType = :assessmentType";
-
-			return (BlindAssessmentMode) persistence.currentManager()
-					.createQuery(q)
-					.setLong("credId", credId)
-					.setString("assessmentType", assessmentType.name())
-					.uniqueResult();
-		} catch (Exception e) {
-			logger.error("Error", e);
-			throw new DbConnectionException("Error loading the blind assessment mode for credential");
-		}
-	}
+//	@Override
+//	@Transactional(readOnly = true)
+//	public BlindAssessmentMode getCredentialBlindAssessmentModeForAssessmentType(long credId, AssessmentType assessmentType) {
+//		try {
+//			String q =
+//					"SELECT conf.blindAssessmentMode FROM CredentialAssessmentConfig conf " +
+//					"WHERE conf.credential.id = :credId " +
+//					"AND conf.assessmentType = :assessmentType";
+//
+//			return (BlindAssessmentMode) persistence.currentManager()
+//					.createQuery(q)
+//					.setLong("credId", credId)
+//					.setString("assessmentType", assessmentType.name())
+//					.uniqueResult();
+//		} catch (Exception e) {
+//			logger.error("Error", e);
+//			throw new DbConnectionException("Error loading the blind assessment mode for credential");
+//		}
+//	}
 
 	@Override
 	@Transactional(readOnly = true)
@@ -4019,22 +4080,6 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 	@Override
 	@Transactional
-	public CredentialData getTargetCredentialDataWithEvidencesAndAssessmentCount(long credentialId, long studentId) {
-		try {
-			TargetCredential1 tc = getTargetCredentialForStudentAndCredential(credentialId, studentId, persistence.currentManager());
-			return getTargetCredentialData(credentialId, studentId,
-					CredentialLoadConfig.builder().setLoadCompetences(true).setLoadCreator(true).setLoadStudent(true).setLoadTags(true).setLoadAssessmentCount(tc.isCredentialAssessmentsDisplayed())
-							.setCompetenceLoadConfig(CompetenceLoadConfig.builder().setLoadEvidence(tc.isEvidenceDisplayed()).setLoadAssessmentCount(tc.isCompetenceAssessmentsDisplayed()).create()).create());
-		} catch (DbConnectionException e) {
-			throw e;
-		} catch (Exception e) {
-			logger.error("Error", e);
-			throw new DbConnectionException("Error in method getTargetCredentialDataWithEvidencesAndAssessmentCount");
-		}
-	}
-
-	@Override
-	@Transactional
 	public TargetCredential1 getTargetCredentialForStudentAndCredential(long credentialId, long studentId, Session session) {
 		try {
 			String q =
@@ -4048,61 +4093,6 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		} catch (Exception e) {
 			logger.error("Error", e);
 			throw new DbConnectionException("Error loading target credential");
-		}
-	}
-
-	@Override
-	@Transactional
-	public void updateCredentialAssessmentsVisibility(long targetCredentialId, boolean displayAssessments) {
-		try {
-			TargetCredential1 tc = (TargetCredential1) persistence.currentManager().load(TargetCredential1.class, targetCredentialId);
-			tc.setCredentialAssessmentsDisplayed(displayAssessments);
-		} catch (Exception e) {
-			logger.error("Error", e);
-			throw new DbConnectionException("Error updating credentialAssessmentsDisplayed field of a target credential " + targetCredentialId);
-		}
-	}
-
-	@Override
-	@Transactional
-	public void updateCompetenceAssessmentsVisibility(long targetCredentialId, boolean displayAssessments) {
-		try {
-			TargetCredential1 tc = (TargetCredential1) persistence.currentManager().load(TargetCredential1.class, targetCredentialId);
-			tc.setCompetenceAssessmentsDisplayed(displayAssessments);
-		} catch (Exception e) {
-			logger.error("Error", e);
-			throw new DbConnectionException("Error updating competenceAssessmentsDisplayed field of a target credential " + targetCredentialId);
-		}
-	}
-
-	@Override
-	@Transactional
-	public void updateEvidenceVisibility(long targetCredentialId, boolean displayEvidence) {
-		try {
-			TargetCredential1 tc = (TargetCredential1) persistence.currentManager().load(TargetCredential1.class, targetCredentialId);
-			tc.setEvidenceDisplayed(displayEvidence);
-		} catch (Exception e) {
-			logger.error("Error", e);
-			throw new DbConnectionException("Error updating evidenceDisplayed field of a target credential " + targetCredentialId);
-		}
-	}
-
-	@Override
-	@Transactional (readOnly = true)
-	public boolean isCredentialAssessmentDisplayEnabled(long credId, long studentId) {
-		try {
-			String q =
-					"SELECT tc.credentialAssessmentsDisplayed FROM TargetCredential1 tc " +
-					"WHERE tc.credential.id = :credId AND tc.user.id = :studentId";
-
-			Boolean res = (Boolean) persistence.currentManager().createQuery(q)
-					.setLong("credId", credId)
-					.setLong("studentId", studentId)
-					.uniqueResult();
-			return res != null && res.booleanValue();
-		} catch (Exception e) {
-			logger.error("Error", e);
-			throw new DbConnectionException("Error checking if credential assessment display is enabled");
 		}
 	}
 

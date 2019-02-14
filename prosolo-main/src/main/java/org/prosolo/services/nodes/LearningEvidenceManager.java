@@ -10,6 +10,7 @@ import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.nodes.data.BasicObjectInfo;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceData;
+import org.prosolo.services.nodes.data.evidence.LearningEvidenceLoadConfig;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -33,7 +34,7 @@ public interface LearningEvidenceManager {
 
     LearningEvidenceData postEvidenceAndAttachItToCompetence(long targetCompId, LearningEvidenceData evidence, UserContextData context) throws DbConnectionException, ConstraintViolationException, DataIntegrityViolationException;
 
-    List<LearningEvidenceData> getUserEvidencesForACompetence(long targetCompId, boolean loadTags) throws DbConnectionException;
+    List<LearningEvidenceData> getUserEvidencesForACompetence(long targetCompId, LearningEvidenceLoadConfig loadConfig) throws DbConnectionException;
 
     void removeEvidenceFromCompetence(long compEvidenceId) throws DbConnectionException;
 
@@ -47,7 +48,7 @@ public interface LearningEvidenceManager {
 
     List<String> getKeywordsFromAllUserEvidences(long userId) throws DbConnectionException;
 
-    LearningEvidenceData getLearningEvidence(long evidenceId, boolean loadTags, boolean loadCompetencesWithEvidence) throws DbConnectionException;
+    LearningEvidenceData getLearningEvidence(long evidenceId, LearningEvidenceLoadConfig loadConfig) throws DbConnectionException;
 
     Result<Void> deleteLearningEvidenceAndGetEvents(long evidenceId, UserContextData context) throws DbConnectionException;
 
@@ -58,4 +59,27 @@ public interface LearningEvidenceManager {
     void updateEvidence(LearningEvidenceData evidence, UserContextData context) throws DbConnectionException, ConstraintViolationException, DataIntegrityViolationException;
 
     ResourceAccessData getResourceAccessRightsForEvidence(long evidenceId, long userId, ResourceAccessRequirements accessRequirements) throws DbConnectionException;
+
+    /**
+     * Returns true if competence evidence is published on profile as part of this
+     * one competence.
+     * If evidence is published on profile as a part of some other competence or if not published
+     * at all, false is returned.
+     *
+     * @param compEvidenceId
+     * @return
+     * @throws DbConnectionException
+     */
+    boolean isCompetenceEvidencePublishedOnProfile(long compEvidenceId);
+
+    /**
+     * Returns evidence data for specified competence evidence id and null if competence
+     * evidence with specified id does not exist.
+     *
+     * @param compEvidenceId
+     * @param loadConfig
+     * @return
+     */
+    LearningEvidenceData getCompetenceEvidenceData(long compEvidenceId, LearningEvidenceLoadConfig loadConfig);
+
 }

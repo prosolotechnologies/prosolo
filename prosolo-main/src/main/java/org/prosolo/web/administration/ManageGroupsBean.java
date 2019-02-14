@@ -6,8 +6,8 @@ import org.prosolo.search.UserGroupTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.UnitManager;
-import org.prosolo.services.nodes.UserGroupManager;
-import org.prosolo.services.nodes.data.UserGroupData;
+import org.prosolo.services.user.UserGroupManager;
+import org.prosolo.services.user.data.UserGroupData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.PageAccessRightsResolver;
@@ -116,7 +116,7 @@ public class ManageGroupsBean implements Serializable, Paginable {
 			groupForEdit = null;
 		} catch (Exception ex) {
 			logger.error(ex);
-			PageUtil.fireErrorMessage("Error while trying to save the group");
+			PageUtil.fireErrorMessage("Error trying to save the group");
 		}
 	}
 	
@@ -130,7 +130,7 @@ public class ManageGroupsBean implements Serializable, Paginable {
 			groupForEdit = null;
 		} catch (Exception ex) {
 			logger.error(ex);
-			PageUtil.fireErrorMessage("Error while trying to save join by URL settings");
+			PageUtil.fireErrorMessage("Error trying to save join by URL settings");
 		}
 	}
 	
@@ -145,7 +145,7 @@ public class ManageGroupsBean implements Serializable, Paginable {
 			loadGroupsFromDB();
 			String groupName = groupForEdit.getName();
 			groupForEdit = null;
-			PageUtil.fireWarnMessage("Error","Error while trying to delete group " + groupName);
+			PageUtil.fireWarnMessage("Error","Error trying to delete group " + groupName);
 		}
 	}
 

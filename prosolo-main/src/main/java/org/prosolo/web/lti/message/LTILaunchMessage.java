@@ -1,6 +1,6 @@
 package org.prosolo.web.lti.message;
 
-import org.prosolo.web.lti.LTIConstants;
+import org.prosolo.core.spring.security.authentication.lti.util.LTIConstants;
 import org.prosolo.web.lti.validator.EmptyValidator;
 import org.prosolo.web.lti.validator.EqualValuesValidator;
 import org.prosolo.web.lti.validator.NullValidator;

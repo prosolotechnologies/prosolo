@@ -14,7 +14,6 @@
 		<composite:attribute name="fullDisplayMode" default="true" type="java.lang.Boolean" />
 		<composite:attribute name="learningContext" default="" />
 		<composite:attribute name="competenceAssessment" type="org.prosolo.services.assessment.data.CompetenceAssessmentData" required="true" />
-		<composite:attribute name="blindAssessmentMode" required="true" type="org.prosolo.common.domainmodel.credential.BlindAssessmentMode"/>
 		<composite:attribute name="credentialId" default="0" type="java.lang.Long"/>
 		<composite:attribute name="role" default="USER" />
 		<composite:attribute name="growlToUpdate" default="" />
@@ -26,6 +25,8 @@
 		<composite:attribute name="currentUserAssessedStudent" required="true" type="java.lang.Boolean" />
 		<composite:attribute name="currentUserAssessor" required="true" type="java.lang.Boolean" />
 		<composite:attribute name="showLinkForIndividualAssessmentPage" default="false" type="java.lang.Boolean"/>
+		<composite:attribute name="approveModalId" default=""/>
+		<composite:attribute name="toUpdateApproveModal" default=""/>
 	</composite:interface>
 
 	<composite:implementation>
@@ -50,7 +51,7 @@
 									actorId="#{cc.attrs.competenceAssessment.studentId}"
 									avatarUrl="#{cc.attrs.competenceAssessment.studentAvatarUrl}"
 									actorFullName="#{cc.attrs.competenceAssessment.studentFullName}"
-									blindAssessmentMode="#{cc.attrs.blindAssessmentMode}"
+									blindAssessmentMode="#{cc.attrs.competenceAssessment.blindAssessmentMode}"
 									actorType="STUDENT"
 							/>
 							<h3>
@@ -58,7 +59,7 @@
 									<assessment:assessmentActorName
 											actorId="#{cc.attrs.competenceAssessment.studentId}"
 											actorFullName="#{cc.attrs.competenceAssessment.studentFullName}"
-											blindAssessmentMode="#{cc.attrs.blindAssessmentMode}"
+											blindAssessmentMode="#{cc.attrs.competenceAssessment.blindAssessmentMode}"
 											actorType="STUDENT"
 									/>
 								</a>
@@ -88,19 +89,31 @@
 					</ui:fragment>
 
 					<h:panelGroup layout="block" id="panelCompAssessmentOptions" styleClass="activityOptions panelCompAssessment_#{cc.attrs.competenceAssessment.competenceAssessmentId}">
+						<ui:param name="compAssessmentLearningContext" value="#{util:addSubContext(cc.attrs.learningContext, 'name:COMPETENCE|id:'.concat(cc.attrs.competenceAssessment.competenceId).concat('|context:/name:COMPETENCE_ASSESSMENT|id:').concat(cc.attrs.competenceAssessment.competenceAssessmentId).concat('/'))}" />
+
 						<h:panelGroup rendered="#{cc.attrs.competenceAssessment.approved}"
 									  styleClass="tagApproved" layout="block">
-							Approved
+							Submitted
 						</h:panelGroup>
 
-						<p:commandLink styleClass="linkApprove"
-									   process="@this"
-									   actionListener="#{cc.attrs.bean.approveCompetence(cc.attrs.competenceAssessment.competenceAssessmentId)}"
-									   update="panelCompAssessmentOptions #{cc.attrs.growlToUpdate} @(.panelAssessorNotificationSelector)"
-									   rendered="#{cc.attrs.fullDisplayMode and not cc.attrs.competenceAssessment.approved and cc.attrs.currentUserAssessor}">
-							Approve<span></span>
-							<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
-						</p:commandLink>
+						<ui:param name="competenceAssessmentDisabledIndicator" value="#{util:isCompetenceFullyGraded(cc.attrs.competenceAssessment)}" />
+
+						<ui:fragment rendered="#{cc.attrs.fullDisplayMode and not cc.attrs.competenceAssessment.approved and cc.attrs.currentUserAssessor and competenceAssessmentDisabledIndicator == 'NONE'}">
+							<p:commandLink styleClass="linkApprove"
+										   process="@this"
+										   pt:data-toggle="modal"
+										   action="#{cc.attrs.bean.prepareLearningResourceAssessmentForApproving(cc.attrs.competenceAssessment)}"
+										   update="#{cc.attrs.toUpdateApproveModal}"
+										   oncomplete="$('##{cc.attrs.approveModalId}').modal('show')">
+								Submit<span></span>
+							</p:commandLink>
+						</ui:fragment>
+						<ui:fragment rendered="#{cc.attrs.fullDisplayMode and not cc.attrs.competenceAssessment.approved and cc.attrs.currentUserAssessor and competenceAssessmentDisabledIndicator != 'NONE'}">
+							<a class="disabled linkApprove" data-toggle="tooltip" title="#{msg['label.enum.AssessmentDisabledIndicator.'.concat(competenceAssessmentDisabledIndicator)]}">Submit<span></span></a>
+						</ui:fragment>
+						<script>
+							$("[data-toggle='tooltip']").tooltip();
+						</script>
 						<p:commandLink styleClass="commentsIcon" pt:data-toggle="modal" rendered="#{cc.attrs.fullDisplayMode}"
 									   onclick="markDiscussionAsSeen('#{util:encodeId(cc.attrs.competenceAssessment.competenceAssessmentId)}', this.parentElement.parentElement, 'COMPETENCE')"
 									   action="#{cc.attrs.bean.prepareLearningResourceAssessmentForCommenting(cc.attrs.competenceAssessment)}"
@@ -108,8 +121,6 @@
 									   oncomplete="$('#assessmentCommentsModal1').modal('show');">
 							#{cc.attrs.competenceAssessment.numberOfMessages}
 						</p:commandLink>
-
-						<ui:param name="compAssessmentLearningContext" value="#{util:addSubContext(cc.attrs.learningContext, 'name:COMPETENCE|id:'.concat(cc.attrs.competenceAssessment.competenceId).concat('|context:/name:COMPETENCE_ASSESSMENT|id:').concat(cc.attrs.competenceAssessment.competenceAssessmentId).concat('/'))}" />
 
 						<assessment:gradeLabel
 								assessment="#{cc.attrs.competenceAssessment}"
@@ -127,6 +138,7 @@
 								learningContext="#{compAssessmentLearningContext}"
 								fullDisplayMode="#{cc.attrs.fullDisplayMode}"
 								learningResource="COMPETENCE"
+								approved="#{cc.attrs.competenceAssessment.approved}"
 						/>
 					</h:panelGroup>
 				</div>
@@ -223,6 +235,7 @@
 											learningContext="#{util:addSubContext(compAssessmentLearningContext, 'name:ACTIVITY|id:'.concat(activityAssessment.activityId).concat('|context:/name:ACTIVITY_ASSESSMENT|id:').concat(activityAssessment.activityAssessmentId).concat('/'))}"
 											fullDisplayMode="#{cc.attrs.fullDisplayMode}"
 											learningResource="ACTIVITY"
+											approved="#{cc.attrs.competenceAssessment.approved}"
 										/>
 									</div>
 								</li>
@@ -242,6 +255,7 @@
 				<ui:fragment rendered="#{not empty cc.attrs.competenceAssessment.evidences}">
 					<assessment:evidenceItems
 							evidences="#{cc.attrs.competenceAssessment.evidences}"
+							studentId="#{cc.attrs.competenceAssessment.studentId}"
 							canViewEvidence="#{cc.attrs.fullDisplayMode and (cc.attrs.currentUserAssessedStudent or cc.attrs.currentUserAssessor)}"
 							showMessageWhyUserCantViewEvidence="#{cc.attrs.fullDisplayMode}"
 					/>
@@ -261,7 +275,7 @@
 									actorId="#{cc.attrs.competenceAssessment.studentId}"
 									avatarUrl="#{cc.attrs.competenceAssessment.studentAvatarUrl}"
 									actorFullName="#{cc.attrs.competenceAssessment.studentFullName}"
-									blindAssessmentMode="#{cc.attrs.blindAssessmentMode}"
+									blindAssessmentMode="#{cc.attrs.competenceAssessment.blindAssessmentMode}"
 									actorType="STUDENT"
 							/>
 							<h3>
@@ -269,7 +283,7 @@
 									<assessment:assessmentActorName
 											actorId="#{cc.attrs.competenceAssessment.studentId}"
 											actorFullName="#{cc.attrs.competenceAssessment.studentFullName}"
-											blindAssessmentMode="#{cc.attrs.blindAssessmentMode}"
+											blindAssessmentMode="#{cc.attrs.competenceAssessment.blindAssessmentMode}"
 											actorType="STUDENT"
 									/>
 								</a>
@@ -297,7 +311,7 @@
 					<ui:fragment rendered="#{not cc.attrs.competenceAssessment.approved and cc.attrs.currentUserAssessor}">
 						<div class="activityOptions">
 							<a href="javascript:void(0);" class="linkApprove">
-								<div class="disabledOverlay"></div>Approve<span></span>
+								<div class="disabledOverlay"></div>Submit<span></span>
 							</a>
 						</div>
 					</ui:fragment>

@@ -1,28 +1,29 @@
 package org.prosolo.search.impl;
 
 import org.apache.log4j.Logger;
-import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.apache.lucene.search.join.ScoreMode;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.search.SearchType;
-import org.elasticsearch.client.Client;
 import org.elasticsearch.index.query.*;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 import org.prosolo.bigdata.common.enums.ESIndexTypes;
 import org.prosolo.common.ESIndexNames;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.elasticsearch.ElasticSearchConnector;
 import org.prosolo.common.util.ElasticsearchUtil;
 import org.prosolo.search.UserGroupTextSearch;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.indexing.ESIndexer;
-import org.prosolo.services.indexing.ElasticSearchFactory;
-import org.prosolo.services.nodes.UserGroupManager;
 import org.prosolo.services.nodes.data.ResourceVisibilityMember;
-import org.prosolo.services.nodes.data.UserGroupData;
+import org.prosolo.services.user.UserGroupManager;
+import org.prosolo.services.user.data.UserGroupData;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -47,7 +48,7 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 	
 	private static final int maxResults = 1000;
 	
-	@Inject private ESIndexer esIndexer;
+	//@Inject private ESIndexer esIndexer;
 	@Inject private UserGroupManager userGroupManager;
 	
 	private int setStart(int page, int limit){
@@ -72,9 +73,9 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 				response.setHitsNumber(sResponse.getHits().getTotalHits());
 
 				for (SearchHit hit : sResponse.getHits()) {
-					logger.info("ID: " + hit.getSource().get("id"));
-					long id = Long.parseLong(hit.getSource().get("id").toString());
-					String name = (String) hit.getSource().get("name");
+					logger.info("ID: " + hit.getSourceAsMap().get("id"));
+					long id = Long.parseLong(hit.getSourceAsMap().get("id").toString());
+					String name = (String) hit.getSourceAsMap().get("name");
 					UserGroupData group = userGroupManager.getUserCountAndCanBeDeletedGroupData(id);
 					group.setId(id);
 					group.setName(name);
@@ -107,9 +108,9 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 				response.setHitsNumber(sResponse.getHits().getTotalHits());
 			
 				for (SearchHit hit : sResponse.getHits()) {
-					logger.info("ID: " + hit.getSource().get("id"));
-					long id = Long.parseLong(hit.getSource().get("id").toString());
-					String name = (String) hit.getSource().get("name");
+					logger.info("ID: " + hit.getSourceAsMap().get("id"));
+					long id = Long.parseLong(hit.getSourceAsMap().get("id").toString());
+					String name = (String) hit.getSourceAsMap().get("name");
 					boolean isUserInAGroup = userGroupManager.isUserInGroup(id, userId);
 					long userCount = userGroupManager.getNumberOfUsersInAGroup(id);
 					UserGroupData group = new UserGroupData(id, name, userCount, isUserInAGroup);
@@ -123,7 +124,7 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 		return response;
 	}
 	
-	private SearchResponse getUserGroupsSearchResponse(long orgId, List<Long> unitIds, String searchString, int page, int limit) {
+	private SearchResponse getUserGroupsSearchResponse(long orgId, List<Long> unitIds, String searchString, int page, int limit) throws IOException {
 		int start = 0;
 		int size = maxResults;
 		if(limit > 0) {
@@ -131,13 +132,9 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 			size = limit;
 		}
 		
-		Client client = ElasticSearchFactory.getClient();
-		String fullIndexName = ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USER_GROUP, orgId);
-		esIndexer.addMapping(client, fullIndexName, ESIndexTypes.USER_GROUP);
-
 		QueryBuilder qb = QueryBuilders
-				.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchString.toLowerCase()) + "*").useDisMax(true)
-				.defaultOperator(QueryStringQueryBuilder.Operator.AND)
+				.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchString.toLowerCase()) + "*")
+				.defaultOperator(Operator.AND)
 				.field("name");
 		
 		BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
@@ -150,15 +147,14 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 			}
 			bQueryBuilder.filter(unitFilter);
 		}
-		
-		SearchRequestBuilder srb = client.prepareSearch(fullIndexName)
-				.setTypes(ESIndexTypes.USER_GROUP)
-				.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
-				.setQuery(bQueryBuilder)
-				.setFrom(start).setSize(size)
-				.addSort("name.sort", SortOrder.ASC);
-		//System.out.println(srb.toString());
-		return srb.execute().actionGet();
+
+		SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+		searchSourceBuilder
+				.query(bQueryBuilder)
+				.from(start)
+				.size(size)
+				.sort(new FieldSortBuilder("name.sort").order(SortOrder.ASC));
+		return ElasticSearchConnector.getClient().search(searchSourceBuilder, ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USER_GROUP, orgId), ESIndexTypes.USER_GROUP);
 	}
 	
 	@Override
@@ -183,8 +179,8 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 			}
 			for(int i = 0; i < groupNumber; i++) {
 				SearchHit hit = groupHits[i];
-				long id = Long.parseLong(hit.getSource().get("id").toString());
-				String name = (String) hit.getSource().get("name");
+				long id = Long.parseLong(hit.getSourceAsMap().get("id").toString());
+				String name = (String) hit.getSourceAsMap().get("name");
 				long userCount = userGroupManager.getNumberOfUsersInAGroup(id);
 				response.addFoundNode(new ResourceVisibilityMember(0, id, name, userCount, null, false, false));
 			}
@@ -239,17 +235,13 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 			if (unitIds == null || unitIds.isEmpty()) {
 				return new SearchHit[0];
 			}
-			Client client = ElasticSearchFactory.getClient();
-
-			String indexName = ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USERS, orgId);
-			esIndexer.addMapping(client, indexName, ESIndexTypes.ORGANIZATION_USER);
 			
 			//search users
 			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
 			if(searchTerm != null && !searchTerm.isEmpty()) {
 				QueryBuilder qb = QueryBuilders
-						.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchTerm.toLowerCase()) + "*").useDisMax(true)
-						.defaultOperator(QueryStringQueryBuilder.Operator.AND)
+						.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchTerm.toLowerCase()) + "*")
+						.defaultOperator(Operator.AND)
 						.field("name").field("lastname");
 				
 				bQueryBuilder.must(qb);
@@ -265,7 +257,7 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 			}
 			unitRoleFilter.filter(unitFilter);
 
-			NestedQueryBuilder nestedFilter = QueryBuilders.nestedQuery("roles", unitRoleFilter);
+			NestedQueryBuilder nestedFilter = QueryBuilders.nestedQuery("roles", unitRoleFilter, ScoreMode.None);
 			bQueryBuilder.filter(nestedFilter);
 			
 			if (usersToExclude != null) {
@@ -273,26 +265,24 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 					bQueryBuilder.mustNot(termQuery("id", exUserId));
 				}
 			}
-			
+
 			String[] includes = {"id", "name", "lastname", "avatar", "position"};
-			SearchRequestBuilder searchRequestBuilder = client.prepareSearch(indexName)
-					.setTypes(ESIndexTypes.ORGANIZATION_USER)
-					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
-					.setQuery(bQueryBuilder)
-					.setFetchSource(includes, null);
-			
-			searchRequestBuilder.setSize(limit);	
-			
-			//add sorting
-			searchRequestBuilder.addSort("lastname", SortOrder.ASC);
-			searchRequestBuilder.addSort("name", SortOrder.ASC);
+			SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+			searchSourceBuilder
+					.query(bQueryBuilder)
+					.size(limit)
+					.fetchSource(includes, null)
+					.sort(new FieldSortBuilder("lastname.sort").order(SortOrder.ASC))
+					.sort(new FieldSortBuilder("name.sort").order(SortOrder.ASC));
+
 			//System.out.println(searchRequestBuilder.toString());
-			SearchResponse userResponse = searchRequestBuilder.execute().actionGet();
+			SearchResponse userResponse = ElasticSearchConnector.getClient().search(searchSourceBuilder, ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USERS, orgId), ESIndexTypes.ORGANIZATION_USER);
+
 			SearchHit[] userHits = null;
-			if(userResponse != null) {
+			if (userResponse != null) {
 				SearchHits hits = userResponse.getHits();
 				if(hits != null) {
-					userHits = hits.hits();
+					userHits = hits.getHits();
 				}
 			}
 			if(userHits == null) {
@@ -300,8 +290,7 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 			}
 			return userHits;
 		} catch (Exception e1) {
-			e1.printStackTrace();
-			logger.error(e1);
+			logger.error("Error", e1);
 		}
 		return new SearchHit[0];
 	}
@@ -313,14 +302,9 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 				return new SearchHit[0];
 			}
 
-			String indexName = ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USER_GROUP, orgId);
-
-			Client client = ElasticSearchFactory.getClient();
-			esIndexer.addMapping(client, indexName, ESIndexTypes.USER_GROUP);
-
 			QueryBuilder qb = QueryBuilders
-					.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchTerm.toLowerCase()) + "*").useDisMax(true)
-					.defaultOperator(QueryStringQueryBuilder.Operator.AND)
+					.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchTerm.toLowerCase()) + "*")
+					.defaultOperator(Operator.AND)
 					.field("name")
 					/*
 					rewrite is used for multi term queries like query string query with wildcard. By default
@@ -331,7 +315,7 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 					'scoring_boolean' rewrite which would compute scores for all terms matched by the wildcard which can lead to
 					exceptions
 					 */
-					.rewrite("top_terms_50");
+					.rewrite("top_terms_50");;
 			
 			BoolQueryBuilder bqBuilder = QueryBuilders.boolQuery();
 			bqBuilder.must(qb);
@@ -347,24 +331,23 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 					bqBuilder.mustNot(termQuery("id", g));
 				}
 			}
-			
-			SearchRequestBuilder srb = client.prepareSearch(indexName)
-					.setTypes(ESIndexTypes.USER_GROUP)
-					.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
-					.setQuery(bqBuilder)
-					.setSize(limit)
-					.addSort("_score", SortOrder.DESC)
-					.addSort("name.sort", SortOrder.ASC);
-	
-			SearchResponse groupResponse = srb.execute().actionGet();
+
+			SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+			searchSourceBuilder
+					.query(bqBuilder)
+					.size(limit)
+					.sort("_score", SortOrder.DESC)
+					.sort(new FieldSortBuilder("name.sort").order(SortOrder.ASC));
+			SearchResponse groupResponse = ElasticSearchConnector.getClient().search(searchSourceBuilder, ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USER_GROUP, orgId), ESIndexTypes.USER_GROUP);
+
 			SearchHit[] groupHits = null;
-			if(groupResponse != null) {
+			if (groupResponse != null) {
 				SearchHits hits = groupResponse.getHits();
 				if(hits != null) {
-					groupHits = hits.hits();
+					groupHits = hits.getHits();
 				}
 			}
-			if(groupHits == null) {
+			if (groupHits == null) {
 				groupHits = new SearchHit[0];
 			}
 			
@@ -377,7 +360,7 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 	}
 	
 	private ResourceVisibilityMember extractVisibilityUserResult(SearchHit hit) {
-		Map<String, Object> fields = hit.getSource();
+		Map<String, Object> fields = hit.getSourceAsMap();
 		User user = new User();
 		user.setId(Long.parseLong(fields.get("id") + ""));
 		user.setName((String) fields.get("name"));

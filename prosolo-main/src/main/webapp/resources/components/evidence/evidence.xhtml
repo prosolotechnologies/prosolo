@@ -36,8 +36,8 @@
 						<h:outputText rendered="#{not cc.attrs.titleIsClickable}" value="#{cc.attrs.evidence.title}" />
 					</h3>
 				</div>
-				<c:if test="#{cc.attrs.showEvidenceManagementOptions}">
-					<div class="evidenceTopRight">
+				<div class="evidenceTopRight">
+					<c:if test="#{cc.attrs.showEvidenceManagementOptions}">
 						<h:panelGroup layout="block" rendered="#{cc.attrs.canEdit}" styleClass="dropdown optMoreMenu">
 							<a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">options menu</a>
 							<ul class="dropdown-menu bullet pull-center" aria-labelledby="dropdownMenu2">
@@ -54,17 +54,19 @@
                         <h:link rendered="#{cc.attrs.canEdit}" outcome="/evidence-edit" styleClass="btn btn-green-stroke btn-sm">
 							Edit
 							<f:param name="id" value="#{util:encodeId(cc.attrs.evidence.id)}" />
-							<f:param name="source" value="#{facesContext.viewRoot.viewId}" />
+							<f:param name="source" value="#{util:getForwardedUri('')}" />
 						</h:link>
 						<ui:fragment rendered="#{cc.attrs.evidence.type ne 'TEXT'}">
 							<a href="#{cc.attrs.evidence.url}" target="_blank" class="btn btn-green btn-sm">#{cc.attrs.evidence.type eq 'LINK' ? 'Open' : 'Download'}</a>
 						</ui:fragment>
-					</div>
-				</c:if>
+					</c:if>
+				</div>
 			</div>
-			<c:if test="#{cc.attrs.showDetails}">
-				<p><h:outputText escape="false" value="#{cc.attrs.evidence.text}"/></p>
-			</c:if>
+
+			<p class="#{!cc.attrs.showDetails ? 'textLimit4' : ''}">
+				<h:outputText escape="false" value="#{cc.attrs.evidence.text}"/>
+			</p>
+
 			<table>
 				<ui:fragment rendered="#{cc.attrs.showCompetences}">
 					<tr>
@@ -74,18 +76,20 @@
 								<span class="lightText">no #{msg['label.competence.plural'].toLowerCase()}</span>
 							</ui:fragment>
 							<ui:repeat value="#{cc.attrs.evidence.competences}" var="c" varStatus="status">
-								<h:link rendered="#{cc.attrs.role == 'USER'}"
-									outcome="/competence"
-									value="#{c.title}">
-									<f:param name="compId" value="#{util:encodeId(c.id)}"/>
-								</h:link>
-								<h:link rendered="#{cc.attrs.role == 'MANAGER'}"
-										outcome="/manage/competence"
+								<p class="#{!cc.attrs.showDetails ? 'textLimit4' : ''}">
+									<h:link rendered="#{cc.attrs.role == 'USER'}"
+										outcome="/competence"
 										value="#{c.title}">
-									<f:param name="compId" value="#{util:encodeId(c.id)}"/>
-								</h:link>
-								- #{c.description}
-								<ui:fragment rendered="#{status.index + 1 ne cc.attrs.evidence.competences.size()}"><br/></ui:fragment>
+										<f:param name="compId" value="#{util:encodeId(c.id)}"/>
+									</h:link>
+									<h:link rendered="#{cc.attrs.role == 'MANAGER'}"
+											outcome="/manage/competence"
+											value="#{c.title}">
+										<f:param name="compId" value="#{util:encodeId(c.id)}"/>
+									</h:link>
+									- #{c.description}
+									<ui:fragment rendered="#{status.index + 1 ne cc.attrs.evidence.competences.size()}"><br/></ui:fragment>
+								</p>
 							</ui:repeat>
 						</td>
 					</tr>
@@ -107,9 +111,8 @@
 					<td class="col01">Created:</td>
 					<td>
 						<utilcomp:convertTimeOutput
-								millis="#{cc.attrs.evidence.dateCreated}"
-								format="MMM DD, YYYY"
-						/>
+							millis="#{cc.attrs.evidence.dateCreated}"
+							format="rel" />
 					</td>
 				</tr>
 			</table>

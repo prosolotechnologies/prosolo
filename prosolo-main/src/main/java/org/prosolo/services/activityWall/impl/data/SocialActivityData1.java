@@ -7,6 +7,7 @@ import java.util.List;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview1;
+import org.prosolo.services.user.data.UserData;
 
 public class SocialActivityData1 implements Serializable {
 	
@@ -19,7 +20,7 @@ public class SocialActivityData1 implements Serializable {
 	/*
 	 * next group of fields together form post text that will be shown
 	 */
-	private org.prosolo.services.nodes.data.UserData actor;
+	private UserData actor;
 	private String predicate;
 	private ObjectData object;
 	private String relationToTarget;
@@ -73,11 +74,11 @@ public class SocialActivityData1 implements Serializable {
 		this.text = text;
 	}
 	
-	public org.prosolo.services.nodes.data.UserData getActor() {
+	public UserData getActor() {
 		return actor;
 	}
 	
-	public void setActor(org.prosolo.services.nodes.data.UserData actor) {
+	public void setActor(UserData actor) {
 		this.actor = actor;
 	}
 	

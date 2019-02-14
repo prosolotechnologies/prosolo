@@ -3,7 +3,9 @@ package org.prosolo.web.assessments;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
+import org.prosolo.common.domainmodel.credential.BlindAssessmentMode;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.assessment.RubricManager;
@@ -14,7 +16,8 @@ import org.prosolo.services.assessment.data.CompetenceAssessmentData;
 import org.prosolo.services.assessment.data.grading.GradeData;
 import org.prosolo.services.assessment.data.grading.RubricCriteriaGradeData;
 import org.prosolo.services.nodes.data.LearningResourceType;
-import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.user.data.UserBasicData;
+import org.prosolo.services.user.data.UserData;
 import org.prosolo.web.assessments.util.AssessmentDisplayMode;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
@@ -37,7 +40,7 @@ import java.util.Optional;
 @ManagedBean(name = "competenceAssessmentBean")
 @Component("competenceAssessmentBean")
 @Scope("view")
-public class StudentCompetenceAssessmentBean extends CompetenceAssessmentBean {
+public class StudentCompetenceAssessmentBean extends CompetenceAssessmentBean implements AssessmentCommentsAware {
 
 	private static final long serialVersionUID = 1614497321079210618L;
 
@@ -77,9 +80,11 @@ public class StudentCompetenceAssessmentBean extends CompetenceAssessmentBean {
 	}
 
 	private Optional<ActivityAssessmentData> getActivityAssessmentByEncodedId(String encodedActivityDiscussionId) {
-		for (ActivityAssessmentData act : getCompetenceAssessmentData().getActivityAssessmentData()) {
-			if (encodedActivityDiscussionId.equals(act.getEncodedActivityAssessmentId())) {
-				return Optional.of(act);
+		if (getCompetenceAssessmentData().getActivityAssessmentData() != null) {
+			for (ActivityAssessmentData act : getCompetenceAssessmentData().getActivityAssessmentData()) {
+				if (encodedActivityDiscussionId.equals(act.getEncodedActivityAssessmentId())) {
+					return Optional.of(act);
+				}
 			}
 		}
 		return Optional.empty();
@@ -107,19 +112,11 @@ public class StudentCompetenceAssessmentBean extends CompetenceAssessmentBean {
 			getCompetenceAssessmentData().setApproved(true);
 			getCompetenceAssessmentData().setAssessorNotified(false);
 
-			PageUtil.fireSuccessfulInfoMessage(
-					"You have successfully approved the " + ResourceBundleUtil.getMessage("label.competence").toLowerCase());
+			PageUtil.fireSuccessfulInfoMessage(ResourceBundleUtil.getMessage("label.competence") + " assessment is submitted");
 		} catch (Exception e) {
-			logger.error("Error approving the assessment", e);
-			PageUtil.fireErrorMessage("Error approving the " + ResourceBundleUtil.getMessage("label.competence").toLowerCase());
+			logger.error("Error submitting the assessment", e);
+			PageUtil.fireErrorMessage("Error submitting the " + ResourceBundleUtil.getMessage("label.competence").toLowerCase() + " assessment");
 		}
-	}
-
-	/*
-	This method is added because component which uses this bean relies on a method with id passed
-	 */
-	public void approveCompetence(long competenceAssessmentId) {
-		approveCompetence();
 	}
 
 	@Override
@@ -170,7 +167,18 @@ public class StudentCompetenceAssessmentBean extends CompetenceAssessmentBean {
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			PageUtil.fireErrorMessage("Error while trying to initialize assessment comments");
+			PageUtil.fireErrorMessage("Error trying to initialize assessment comments");
+		}
+	}
+
+	public void prepareLearningResourceAssessmentForApproving(CompetenceAssessmentData assessment) {
+		try {
+			setCompetenceAssessmentData(assessment);
+			currentResType = LearningResourceType.COMPETENCE;
+		} catch (Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+			PageUtil.fireErrorMessage("Error trying to initialize assessment comments");
 		}
 	}
 
@@ -189,6 +197,7 @@ public class StudentCompetenceAssessmentBean extends CompetenceAssessmentBean {
 		return 0;
 	}
 
+	@Override
 	public List<AssessmentDiscussionMessageData> getCurrentAssessmentMessages() {
 		if (currentResType == null) {
 			return null;
@@ -202,6 +211,21 @@ public class StudentCompetenceAssessmentBean extends CompetenceAssessmentBean {
 		return null;
 	}
 
+	@Override
+	public BlindAssessmentMode getCurrentBlindAssessmentMode() {
+		if (currentResType == null) {
+			return null;
+		}
+		switch (currentResType) {
+			case ACTIVITY:
+				return activityAssessmentBean.getActivityAssessmentData().getCompAssessment().getBlindAssessmentMode();
+			case COMPETENCE:
+				return getCompetenceAssessmentData().getBlindAssessmentMode();
+		}
+		return null;
+	}
+
+	@Override
 	public LearningResourceAssessmentBean getCurrentAssessmentBean() {
 		if (currentResType == null) {
 			return null;
@@ -309,6 +333,12 @@ public class StudentCompetenceAssessmentBean extends CompetenceAssessmentBean {
 		return 0;
 	}
 
+	public UserBasicData getStudentData() {
+		return getCompetenceAssessmentData() != null
+				? new UserBasicData(getCompetenceAssessmentData().getStudentId(), getCompetenceAssessmentData().getStudentFullName(), getCompetenceAssessmentData().getStudentAvatarUrl())
+				: null;
+	}
+
 	//actions based on currently selected resource type end
 
 	/*
@@ -352,14 +382,14 @@ public class StudentCompetenceAssessmentBean extends CompetenceAssessmentBean {
 
 			addNewCommentToAssessmentData(newComment);
 		} catch (Exception e){
-			logger.error("Error approving assessment data", e);
-			PageUtil.fireErrorMessage("Error approving the assessment");
+			logger.error("Error submitting assessment data", e);
+			PageUtil.fireErrorMessage("Error submitting the assessment");
 		}
 	}
 
 	private void addNewCommentToAssessmentData(AssessmentDiscussionMessageData newComment) {
 		if (loggedUserBean.getUserId() == getCompetenceAssessmentData().getAssessorId()) {
-			newComment.setSenderInstructor(true);
+			newComment.setSenderAssessor(true);
 		}
 		getCompetenceAssessmentData().getMessages().add(newComment);
 		getCompetenceAssessmentData().setNumberOfMessages(getCompetenceAssessmentData().getNumberOfMessages() + 1);
@@ -368,7 +398,7 @@ public class StudentCompetenceAssessmentBean extends CompetenceAssessmentBean {
 	// grading actions
 
 	@Override
-	public void updateGrade() throws DbConnectionException {
+	public void updateGrade() throws DbConnectionException, IllegalDataStateException {
 		try {
 			getCompetenceAssessmentData().setGradeData(getAssessmentManager().updateGradeForCompetenceAssessment(
 					getCompetenceAssessmentData().getCompetenceAssessmentId(),
@@ -377,7 +407,7 @@ public class StudentCompetenceAssessmentBean extends CompetenceAssessmentBean {
 			getCompetenceAssessmentData().setAssessorNotified(false);
 
 			PageUtil.fireSuccessfulInfoMessage("The grade has been updated");
-		} catch (DbConnectionException e) {
+		} catch (DbConnectionException|IllegalDataStateException e) {
 			logger.error("Error", e);
 			PageUtil.fireErrorMessage("Error updating the grade");
 			throw e;
@@ -391,10 +421,10 @@ public class StudentCompetenceAssessmentBean extends CompetenceAssessmentBean {
 
 	//STUDENT ONLY CODE
 	public void initAskForAssessment() {
-		initAskForAssessment(getCompetenceAssessmentData(), getAssessmentTypesConfig());
+		initAskForAssessment(getCompetenceAssessmentData());
 	}
 
-	public void initAskForAssessment(CompetenceAssessmentData compAssessment, List<AssessmentTypeConfig> assessmentTypesConfig) {
+	public void initAskForAssessment(CompetenceAssessmentData compAssessment) {
 		UserData assessor = null;
 		if (compAssessment.getAssessorId() > 0) {
 			assessor = new UserData();
@@ -402,7 +432,11 @@ public class StudentCompetenceAssessmentBean extends CompetenceAssessmentBean {
 			assessor.setFullName(compAssessment.getAssessorFullName());
 			assessor.setAvatarUrl(compAssessment.getAssessorAvatarUrl());
 		}
-		askForAssessmentBean.init(compAssessment.getCredentialId(), compAssessment.getCompetenceId(), compAssessment.getTargetCompetenceId(), compAssessment.getType(), assessor, getBlindAssessmentMode(compAssessment, assessmentTypesConfig));
+		/*
+		in this context we are always initiating assessor notification request and never
+		new assessment request so blind assessment mode is retrieved from competence assessment
+		 */
+		askForAssessmentBean.init(compAssessment.getCredentialId(), compAssessment.getCompetenceId(), compAssessment.getTargetCompetenceId(), compAssessment.getType(), assessor, compAssessment.getBlindAssessmentMode());
 
 		setCompetenceAssessmentData(compAssessment);
 	}

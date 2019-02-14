@@ -10,7 +10,7 @@ import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UnitManager;
-import org.prosolo.services.nodes.UserGroupManager;
+import org.prosolo.services.user.UserGroupManager;
 import org.prosolo.services.nodes.data.ResourceVisibilityMember;
 import org.prosolo.services.nodes.data.TitleData;
 import org.prosolo.services.nodes.data.credential.CredentialIdData;
@@ -243,7 +243,7 @@ public class CredentialUserPrivilegeBean implements Serializable {
 				loadData();
 			} catch (Exception e) {
 				logger.error(e);
-				PageUtil.fireErrorMessage("Error while reloading data. Try to refresh the page.");
+				PageUtil.fireErrorMessage("Error reloading data. Try to refresh the page.");
 			}
 		}
 	}

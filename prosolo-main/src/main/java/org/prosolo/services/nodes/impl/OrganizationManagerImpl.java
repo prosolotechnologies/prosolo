@@ -22,12 +22,13 @@ import org.prosolo.services.event.EventQueue;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.data.LearningResourceLearningStage;
-import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.user.data.UserData;
 import org.prosolo.services.nodes.data.organization.CredentialCategoryData;
 import org.prosolo.services.nodes.data.organization.LearningStageData;
 import org.prosolo.services.nodes.data.organization.OrganizationData;
 import org.prosolo.services.nodes.data.organization.factory.OrganizationDataFactory;
 import org.prosolo.services.nodes.factory.LearningResourceLearningStageDataFactory;
+import org.prosolo.services.user.UserManager;
 import org.prosolo.services.util.roles.SystemRoleNames;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -97,7 +98,7 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
             throw e;
         } catch (Exception e) {
             logger.error("Error", e);
-            throw new DbConnectionException("Error while saving organization");
+            throw new DbConnectionException("Error saving organization");
         }
     }
 
@@ -110,7 +111,9 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
      * @throws DataIntegrityViolationException
      * @throws DbConnectionException
      */
-    private EventQueue updateOrganizationLearningStages(long orgId, OrganizationData organization, UserContextData context) {
+    @Override
+    @Transactional
+    public EventQueue updateOrganizationLearningStages(long orgId, OrganizationData organization, UserContextData context) {
         //if learning stages are not enabled, we don't update learning stages for organization
         EventQueue queue = EventQueue.newEventQueue();
         if (Settings.getInstance().config.application.pluginConfig.learningInStagesPlugin.enabled) {
@@ -173,7 +176,9 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
      * @throws DataIntegrityViolationException
      * @throws DbConnectionException
      */
-    private void updateOrganizationCredentialCategories(long orgId, OrganizationData organization) {
+    @Override
+    @Transactional
+    public void updateOrganizationCredentialCategories(long orgId, OrganizationData organization) {
         try {
             Organization org = (Organization) persistence.currentManager().load(Organization.class, orgId);
 
@@ -238,7 +243,7 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
         } catch (Exception e) {
             logger.error(e);
             e.printStackTrace();
-            throw new DbConnectionException("Error while retriving organization");
+            throw new DbConnectionException("Error retriving organization");
         }
     }
 
@@ -470,7 +475,7 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
             return response;
         } catch (Exception e) {
             logger.error("Error", e);
-            throw new DbConnectionException("Error while retrieving organization data");
+            throw new DbConnectionException("Error retrieving organization data");
         }
     }
 
@@ -493,7 +498,7 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
             organization.setDeleted(true);
             saveEntity(organization);
         } catch (ResourceCouldNotBeLoadedException e) {
-            throw new DbConnectionException("Error while deleting organization");
+            throw new DbConnectionException("Error deleting organization");
         }
     }
 
@@ -532,7 +537,7 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
             return q.list();
         } catch (Exception e) {
             logger.error("Error", e);
-            throw new DbConnectionException("Error while retrieving users");
+            throw new DbConnectionException("Error retrieving users");
         }
     }
 
@@ -550,7 +555,7 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
                     .uniqueResult();
         } catch (Exception e) {
             logger.error("Error", e);
-            throw new DbConnectionException("Error while retrieving organization title");
+            throw new DbConnectionException("Error retrieving organization title");
         }
     }
 

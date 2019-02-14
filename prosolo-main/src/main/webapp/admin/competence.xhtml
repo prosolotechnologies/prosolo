@@ -46,7 +46,9 @@
 				<div class="whiteBarContent">
 					<div class="whiteBarLeft"></div>
 					<div class="whiteBarRight">
-						<div class="duration item">#{competenceViewBeanAdmin.competenceData.durationString}</div>
+						<ui:fragment rendered="#{competenceViewBeanAdmin.competenceData.durationString ne null}">
+							<div class="duration item">#{competenceViewBeanAdmin.competenceData.durationString}</div>
+						</ui:fragment>
 					</div>
 				</div>
 			</div>
@@ -58,8 +60,8 @@
 					<li><h:link outcome="/admin/organizations">Organizations</h:link></li>
 				</ui:fragment>
 				<li>
-					<h:link outcome="/admin/units">
-						#{competenceViewBeanAdmin.organizationTitle}
+					<h:link outcome="/admin/units"
+							value="#{util:shortenAndAddDots(competenceViewBeanAdmin.organizationTitle)}">
 						<f:param name="id" value="#{param.orgId}" />
 					</h:link>
 				</li>
@@ -71,7 +73,7 @@
 				</li>
 				<li>
 					<h:link outcome="/admin/unit-credentials">
-						#{competenceViewBeanAdmin.unitTitle}
+						#{util:shortenAndAddDots(competenceViewBeanAdmin.unitTitle)}
 						<f:param name="id" value="#{param.orgId}" />
 						<f:param name="unitId" value="#{param.unitId}" />
 					</h:link>
@@ -86,14 +88,14 @@
 					</li>
 					<li>
 						<h:link outcome="/admin/credential">
-							#{competenceViewBeanAdmin.credentialTitle}
+							#{util:shortenAndAddDots(competenceViewBeanAdmin.credentialTitle)}
 							<f:param name="orgId" value="#{param.orgId}"/>
 							<f:param name="unitId" value="#{param.unitId}" />
 							<f:param name="id" value="#{param.credId}" />
 						</h:link>
 					</li>
 				</ui:fragment>
-				<li class="active">#{competenceViewBeanAdmin.competenceData.title}</li>
+				<li class="active">#{util:shortenAndAddDots(competenceViewBeanAdmin.competenceData.title)}</li>
 			</ol>
 		</div>
 

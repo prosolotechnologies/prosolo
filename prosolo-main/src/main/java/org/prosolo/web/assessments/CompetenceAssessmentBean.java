@@ -3,7 +3,6 @@ package org.prosolo.web.assessments;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.AccessDeniedException;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
-import org.prosolo.common.domainmodel.credential.BlindAssessmentMode;
 import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.assessment.config.AssessmentLoadConfig;
 import org.prosolo.services.assessment.data.AssessmentTypeConfig;
@@ -92,7 +91,7 @@ public abstract class CompetenceAssessmentBean extends LearningResourceAssessmen
 				if (!canAccessPreLoad()) {
 					throw new AccessDeniedException();
 				}
-				assessmentTypesConfig = compManager.getCompetenceAssessmentTypesConfig(decodedCompId, assessmentType == AssessmentType.PEER_ASSESSMENT);
+				assessmentTypesConfig = compManager.getCompetenceAssessmentTypesConfig(decodedCompId);
 				if (AssessmentUtil.isAssessmentTypeEnabled(assessmentTypesConfig, assessmentType)) {
 					competenceAssessmentData = assessmentManager.getCompetenceAssessmentData(
 							decodedCompAssessmentId, loggedUserBean.getUserId(), assessmentType, getLoadConfig(), new SimpleDateFormat("MMMM dd, yyyy"));
@@ -173,14 +172,6 @@ public abstract class CompetenceAssessmentBean extends LearningResourceAssessmen
 
 	public boolean isUserAllowedToSeeRubric(GradeData gradeData, LearningResourceType resType) {
 		return isFullDisplayMode() && AssessmentUtil.isUserAllowedToSeeRubric(gradeData, resType);
-	}
-
-	public BlindAssessmentMode getBlindAssessmentMode() {
-		return getBlindAssessmentMode(competenceAssessmentData, assessmentTypesConfig);
-	}
-
-	public BlindAssessmentMode getBlindAssessmentMode(CompetenceAssessmentData compAssessment, List<AssessmentTypeConfig> assessmentTypesConfig) {
-		return AssessmentUtil.getBlindAssessmentMode(assessmentTypesConfig, compAssessment.getType());
 	}
 
 	/*

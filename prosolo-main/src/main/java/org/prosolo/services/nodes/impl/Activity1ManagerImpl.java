@@ -5,6 +5,7 @@ import org.hibernate.Query;
 import org.prosolo.bigdata.common.exceptions.*;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
+import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
 import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.credential.visitor.ActivityVisitor;
 import org.prosolo.common.domainmodel.events.EventType;
@@ -16,10 +17,7 @@ import org.prosolo.common.util.ImageFormat;
 import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.assessment.RubricManager;
-import org.prosolo.services.assessment.data.ActivityAssessmentData;
-import org.prosolo.services.assessment.data.ActivityAssessmentsSummaryData;
-import org.prosolo.services.assessment.data.AssessmentBasicData;
-import org.prosolo.services.assessment.data.GradeDataFactory;
+import org.prosolo.services.assessment.data.*;
 import org.prosolo.services.assessment.data.factory.AssessmentDataFactory;
 import org.prosolo.services.assessment.data.grading.RubricAssessmentGradeSummary;
 import org.prosolo.services.data.Result;
@@ -42,6 +40,7 @@ import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.factory.ActivityDataFactory;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
+import org.prosolo.services.user.data.UserData;
 import org.prosolo.web.util.AvatarUtils;
 import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
@@ -174,7 +173,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while saving activity");
+			throw new DbConnectionException("Error saving activity");
 		}
 	}
 
@@ -259,7 +258,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while deleting activity");
+			throw new DbConnectionException("Error deleting activity");
 		}
 	}
 	
@@ -335,7 +334,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while loading activity data");
+			throw new DbConnectionException("Error loading activity data");
 		}
 	}
 	
@@ -369,7 +368,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while loading activities");
+			throw new DbConnectionException("Error loading activities");
 		}
 	}
 	
@@ -392,7 +391,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while enrolling activities");
+			throw new DbConnectionException("Error enrolling activities");
 		}
 	}
 
@@ -409,7 +408,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while creating target activity");
+			throw new DbConnectionException("Error creating target activity");
 		}
 	}
 	
@@ -433,7 +432,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while loading activities data");
+			throw new DbConnectionException("Error loading activities data");
 		}
 	}
 	
@@ -464,7 +463,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while loading activities");
+			throw new DbConnectionException("Error loading activities");
 		}
 	}
 	
@@ -490,7 +489,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while loading activity data");
+			throw new DbConnectionException("Error loading activity data");
 		}
 	}
 
@@ -566,7 +565,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		} catch(Exception e) {
 			e.printStackTrace();
 			logger.error(e);
-			throw new DbConnectionException("Error while retrieving competence activity data");
+			throw new DbConnectionException("Error retrieving competence activity data");
 		}
 	}
 	
@@ -733,7 +732,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while updating activity");
+			throw new DbConnectionException("Error updating activity");
 		}
 	}
 	
@@ -833,7 +832,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while loading competence data");
+			throw new DbConnectionException("Error loading competence data");
 		}
 	}
 
@@ -863,7 +862,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while saving assignment");
+			throw new DbConnectionException("Error saving assignment");
 		}
 	}
 
@@ -889,7 +888,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while editing response");
+			throw new DbConnectionException("Error editing response");
 		}
 	}
 
@@ -930,7 +929,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while updating activity progress");
+			throw new DbConnectionException("Error updating activity progress");
 		}
 	}
 	
@@ -953,7 +952,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while loading activity data");
+			throw new DbConnectionException("Error loading activity data");
 		}
 	}
 	
@@ -987,7 +986,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while loading competence data");
+			throw new DbConnectionException("Error loading competence data");
 		}
 	}
 	
@@ -1048,7 +1047,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while loading activity data");
+			throw new DbConnectionException("Error loading activity data");
 		}
 	}
 
@@ -1072,7 +1071,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while removing assignment");
+			throw new DbConnectionException("Error removing assignment");
 		}
 	}
 
@@ -1096,7 +1095,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while loading activity links");
+			throw new DbConnectionException("Error loading activity links");
 		}
 	}
 
@@ -1120,7 +1119,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while loading activity files");
+			throw new DbConnectionException("Error loading activity files");
 		}
 	}
 
@@ -1142,7 +1141,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving competence id");
+			throw new DbConnectionException("Error retrieving competence id");
 		}
 	}
 	
@@ -1187,7 +1186,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while loading activity results");
+			throw new DbConnectionException("Error loading activity results");
 		}
 	}
 
@@ -1285,7 +1284,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving student responses");
+			throw new DbConnectionException("Error retrieving student responses");
 		}
 	}
 
@@ -1429,7 +1428,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 					BigInteger rubricIdBI = (BigInteger) row[15];
 					long rubricId = rubricIdBI != null ? rubricIdBI.longValue() : 0;
 					RubricType rubricType = rubricId > 0 ? RubricType.valueOf((String) row[20]) : null;
-					//TODO stef star
+					//TODO star
 					Map<Long, RubricAssessmentGradeSummary> rubricGradeSummary = assessmentManager.getActivityAssessmentsRubricGradeSummary(Arrays.asList(ad.getActivityAssessmentId()));
 					ad.setGrade(GradeDataFactory.getGradeDataForActivity(
 							GradingMode.valueOf((String) row[14]),
@@ -1448,6 +1447,11 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 						ad.setCompAssessmentId(abd.getCompetenceAssessmentId());
 						ad.setCredAssessmentId(abd.getCredentialAssessmentId());
 						ad.setAssessorId(abd.getAssessorId());
+						//we need info whether competency assessment is approved
+						CompetenceAssessment competenceAssessment = (CompetenceAssessment) persistence.currentManager().load(CompetenceAssessment.class, abd.getCompetenceAssessmentId());
+						CompetenceAssessmentData cad = new CompetenceAssessmentData();
+						cad.setApproved(competenceAssessment.isApproved());
+						ad.setCompAssessment(cad);
 					}
 				}
 			}
@@ -1456,7 +1460,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			throw rnfe;
 		} catch (Exception e) {
 			logger.error("Error", e);
-			throw new DbConnectionException("Error while retrieving students activity assessments");
+			throw new DbConnectionException("Error retrieving students activity assessments");
 		}
 	}
 	
@@ -1674,7 +1678,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving activity response");
+			throw new DbConnectionException("Error retrieving activity response");
 		}
 	}
 	
@@ -1744,7 +1748,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 //		} catch (Exception e) {
 //			logger.error(e);
 //			e.printStackTrace();
-//			throw new DbConnectionException("Error while loading activity data");
+//			throw new DbConnectionException("Error loading activity data");
 //		}
 //	}
 //
@@ -1817,7 +1821,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 //		} catch (Exception e) {
 //			logger.error(e);
 //			e.printStackTrace();
-//			throw new DbConnectionException("Error while loading activity data");
+//			throw new DbConnectionException("Error loading activity data");
 //		}
 //	}
 //	
@@ -1870,7 +1874,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while cloning competence activity");
+			throw new DbConnectionException("Error cloning competence activity");
 		}
 	}
 
@@ -1918,7 +1922,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while cloning activity");
+			throw new DbConnectionException("Error cloning activity");
 		}
 	}
 
@@ -1993,7 +1997,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		}catch(Exception e){
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while updating creator of activities");
+			throw new DbConnectionException("Error updating creator of activities");
 		}
 	}
 
@@ -2046,7 +2050,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		} catch (Exception e) {
 			e.printStackTrace();
 			logger.error(e);
-			throw new DbConnectionException("Error while retrieving credential ids");
+			throw new DbConnectionException("Error retrieving credential ids");
 		}
 	}
 

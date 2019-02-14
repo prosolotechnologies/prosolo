@@ -1,21 +1,23 @@
 package org.prosolo.search.util.credential;
 
-import org.prosolo.services.util.SortingOption;
+import org.prosolo.services.common.data.SortingOption;
 
 public enum CredentialMembersSortOption {
 
-	STUDENT_NAME("Alphabetically", new String[] {"lastname", "name"}, SortingOption.ASC),  
-	DATE("Recent", new String[] {"credentials.dateEnrolled"}, SortingOption.DESC);
+	STUDENT_NAME("Alphabetically", new String[] {"lastname.sort", "name.sort"}, false, SortingOption.ASC),
+	DATE("Recent", new String[] {"credentials.dateEnrolled"}, true, SortingOption.DESC);
 	
 	//ui label
 	private String label;
 	//fields in elasticsearch corresponding to sort option
 	private String[] sortFields;
 	private SortingOption sortOrder;
+	private boolean nestedSort;
 	
-	private CredentialMembersSortOption(String label, String[] sortFields, SortingOption sortOrder) {
+	CredentialMembersSortOption(String label, String[] sortFields, boolean nestedSort, SortingOption sortOrder) {
 		this.label = label;
 		this.sortFields = sortFields;
+		this.nestedSort = nestedSort;
 		this.sortOrder = sortOrder;
 	}
 
@@ -31,5 +33,7 @@ public enum CredentialMembersSortOption {
 		return sortOrder;
 	}
 
-	
+	public boolean isNestedSort() {
+		return nestedSort;
+	}
 }

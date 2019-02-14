@@ -6,9 +6,7 @@ import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.annotation.Tag;
-import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.credential.*;
-import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.learningStage.LearningStage;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.UserContextData;
@@ -18,10 +16,13 @@ import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventQueue;
 import org.prosolo.services.nodes.config.competence.CompetenceLoadConfig;
-import org.prosolo.services.nodes.data.*;
+import org.prosolo.services.nodes.data.LearningInfo;
+import org.prosolo.services.nodes.data.Operation;
+import org.prosolo.services.nodes.data.ResourceCreator;
+import org.prosolo.services.nodes.data.ResourceVisibilityMember;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
-import org.prosolo.services.nodes.data.competence.TargetCompetenceData;
 import org.prosolo.services.nodes.data.resourceAccess.*;
+import org.prosolo.services.user.data.UserData;
 import org.w3c.dom.events.EventException;
 
 import java.util.List;
@@ -69,12 +70,12 @@ public interface Competence1Manager {
 	 * exclusive lock on a competence being updated
 	 * 
 	 * @param data
-	 * @param userId
+	 * @param context
 	 * @return
 	 * @throws StaleDataException
 	 * @throws IllegalDataStateException
 	 */
-	Competence1 updateCompetenceData(CompetenceData1 data, long userId) throws StaleDataException, 
+	Result<Competence1> updateCompetenceData(CompetenceData1 data, UserContextData context) throws StaleDataException,
 			IllegalDataStateException;
 
 	List<CompetenceData1> getCompetencesForCredential(long credId, long userId, CompetenceLoadConfig compLoadConfig) throws DbConnectionException;
@@ -299,13 +300,6 @@ public interface Competence1Manager {
 	Result<TargetCompetence1> enrollInCompetenceAndGetEvents(long compId, long userId, UserContextData context)
 			throws DbConnectionException;
 	
-	CompetenceData1 enrollInCompetenceAndGetCompetenceData(long compId, long userId,
-														   UserContextData context)
-			throws DbConnectionException;
-
-	Result<CompetenceData1> enrollInCompetenceGetCompetenceDataAndGetEvents(long compId, long userId, UserContextData context)
-			throws DbConnectionException;
-	
 	long countNumberOfStudentsLearningCompetence(long compId) throws DbConnectionException;
 	
 	void archiveCompetence(long compId, UserContextData context) throws DbConnectionException;
@@ -354,7 +348,10 @@ public interface Competence1Manager {
 	
 	EventQueue updateCompetenceProgress(long targetCompId, UserContextData context)
 			throws DbConnectionException;
-	
+
+	Result<Void> publishCompetenceIfNotPublished(long competenceId, UserContextData context)
+			throws DbConnectionException, IllegalDataStateException;
+
 	Result<Void> publishCompetenceIfNotPublished(Competence1 comp, UserContextData context)
 			throws DbConnectionException, IllegalDataStateException;
 
@@ -376,37 +373,6 @@ public interface Competence1Manager {
 										 UserContextData context) throws DbConnectionException;
 
 	List<Tag> getTagsForCompetence(long competenceId) throws DbConnectionException;
-	
-	/**
-	 * Method for getting all completed competences (competences that has progress == 100)
-	 * and a hiddenFromProfile flag set to a certain value.
-	 * 
-	 * @param userId
-	 * @param onlyForPublicPublicly - whether to load only credentials mark to be visible on public profile
-	 * @return
-	 * @throws DbConnectionException
-	 */
-	List<TargetCompetenceData> getAllCompletedCompetences(long userId, boolean onlyForPublicPublicly) throws DbConnectionException;
-	
-	/**
-	 * Method for getting all unfinished competences (competences that has progress != 100)
-	 * and a hiddenFromProfile flag set to a certain value.
-	 * 
-	 * @param userId
-	 * @param onlyForPublicPublicly - whether to load only credentials mark to be visible on public profile
-	 * @return
-	 * @throws DbConnectionException
-	 */
-	List<TargetCompetenceData> getAllInProgressCompetences(long userId, boolean onlyForPublicPublicly) throws DbConnectionException;
-	
-	/**
-	 * Update whether a competence should be visible on the profile or not.
-	 * 
-	 * @param compId
-	 * @param hiddenFromProfile
-	 * @throws DbConnectionException
-	 */
-	void updateHiddenTargetCompetenceFromProfile(long compId, boolean hiddenFromProfile) throws DbConnectionException;
 
 	Result<Void> changeOwnerAndGetEvents(long compId, long newOwnerId, UserContextData context) throws DbConnectionException;
 
@@ -458,28 +424,9 @@ public interface Competence1Manager {
 			long compId, long studentId, boolean loadAssessmentConfig, boolean loadLearningPathContent,
 			boolean loadCreator, boolean loadTags) throws DbConnectionException;
 
-	List<AssessmentTypeConfig> getCompetenceAssessmentTypesConfig(long compId, boolean loadBlindAssessmentMode) throws DbConnectionException;
+	List<AssessmentTypeConfig> getCompetenceAssessmentTypesConfig(long compId) throws DbConnectionException;
 
 	long getTargetCompetenceId(long compId, long studentId) throws DbConnectionException;
-
-	/**
-	 *
-	 * @param competenceId
-	 * @param studentId
-	 * @return
-	 * @throws DbConnectionException
-	 */
-	boolean isCompetenceAssessmentDisplayEnabled(long competenceId, long studentId);
-
-	/**
-	 * Returns the most restrictive blind assessment mode from all credentials with given competency and for given assessment type
-	 *
-	 * @param compId
-	 * @param assessmentType
-	 * @return
-	 * @throws DbConnectionException
-	 */
-	BlindAssessmentMode getTheMostRestrictiveCredentialBlindAssessmentModeForAssessmentTypeAndCompetence(long compId, AssessmentType assessmentType);
 
 	/**
 	 * Updates the {@code evidenceSummary} field of an instance of the {@link org.prosolo.common.domainmodel.credential.TargetCompetence1} class

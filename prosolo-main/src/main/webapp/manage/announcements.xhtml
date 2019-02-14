@@ -62,7 +62,9 @@
 						 <h:panelGroup rendered="#{announcementBeanManager.credentialData.mandatoryFlow}" styleClass="mandatoryTag item">
 						 	Mandatory flow
 						 </h:panelGroup>
-						 <div class="duration item">#{announcementBeanManager.credentialData.durationString}</div>
+						 <ui:fragment rendered="#{announcementBeanManager.credentialData.durationString ne null}">
+						 	<div class="duration item">#{announcementBeanManager.credentialData.durationString}</div>
+						 </ui:fragment>
 					 </div>
 				</div>
 			</div>
@@ -74,8 +76,7 @@
 					<h:link value="#{msg['label.credential.plural']}" outcome="/manage/library"/>
 				</li>
 				<li>
-					<h:link
-							value="#{announcementBeanManager.credentialData.idData.fullTitle}"
+					<h:link value="#{util:shortenAndAddDots(announcementBeanManager.credentialData.idData.fullTitle)}"
 							outcome="/manage/credential">
 						<f:param name="id" value="#{announcementBeanManager.credentialId}"></f:param>
 					</h:link>

@@ -27,7 +27,7 @@ public class ObservationConfigLoader {
 				throw new Exception();
 			}
 		} catch (Exception e) {
-			throw new Exception("Error while loading roles and capabilities");
+			throw new Exception("Error loading roles and capabilities");
 		} finally {
 			if (br != null) {
 				try {

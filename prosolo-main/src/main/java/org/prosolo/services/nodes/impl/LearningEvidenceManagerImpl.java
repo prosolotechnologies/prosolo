@@ -21,6 +21,7 @@ import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.data.BasicObjectInfo;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceData;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceDataFactory;
+import org.prosolo.services.nodes.data.evidence.LearningEvidenceLoadConfig;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
@@ -72,7 +73,8 @@ public class LearningEvidenceManagerImpl extends AbstractManagerImpl implements 
             }
 
             CompetenceEvidence ce = attachEvidenceToCompetence(targetCompId, ev, evidence.getRelationToCompetence());
-            res.setResult(learningEvidenceDataFactory.getCompetenceLearningEvidenceData(ev, ce, ev.getTags()));
+            res.setResult(learningEvidenceDataFactory.getCompetenceLearningEvidenceData(ev, ce, ev.getTags(), getCompetencesWithAddedEvidence(ev.getId()), LearningEvidenceLoadConfig.builder().loadTags(true).loadCompetences(true).build()));
+
             return res;
         } catch (DbConnectionException|ConstraintViolationException|DataIntegrityViolationException e) {
             throw e;
@@ -148,13 +150,13 @@ public class LearningEvidenceManagerImpl extends AbstractManagerImpl implements 
 
     @Override
     @Transactional
-    public List<LearningEvidenceData> getUserEvidencesForACompetence(long targetCompId, boolean loadTags) throws DbConnectionException {
+    public List<LearningEvidenceData> getUserEvidencesForACompetence(long targetCompId, LearningEvidenceLoadConfig loadConfig) throws DbConnectionException {
         try {
             String query =
                     "SELECT distinct ce " +
                     "FROM CompetenceEvidence ce " +
                     "INNER JOIN FETCH ce.evidence le ";
-            if (loadTags) {
+            if (loadConfig.isLoadTags()) {
                 query +=
                         "LEFT JOIN fetch le.tags ";
             }
@@ -171,7 +173,7 @@ public class LearningEvidenceManagerImpl extends AbstractManagerImpl implements 
             List<LearningEvidenceData> evidenceData = new ArrayList<>();
             for (CompetenceEvidence ce : evidence) {
                 evidenceData.add(learningEvidenceDataFactory.getCompetenceLearningEvidenceData(
-                        ce.getEvidence(), ce, loadTags ? ce.getEvidence().getTags() : null));
+                        ce.getEvidence(), ce, loadConfig.isLoadTags() ? ce.getEvidence().getTags() : null, getCompetencesWithAddedEvidence(ce.getEvidence().getId()), loadConfig));
             }
             return evidenceData;
         } catch (Exception e) {
@@ -222,7 +224,7 @@ public class LearningEvidenceManagerImpl extends AbstractManagerImpl implements 
     public LearningEvidenceData getLearningEvidence(long evidenceId) throws DbConnectionException {
         try {
             LearningEvidence le = (LearningEvidence) persistence.currentManager().load(LearningEvidence.class, evidenceId);
-            return learningEvidenceDataFactory.getLearningEvidenceData(le, null, null);
+            return learningEvidenceDataFactory.getCompetenceLearningEvidenceData(le, null, null, null, LearningEvidenceLoadConfig.builder().build());
         } catch (Exception e) {
             logger.error("Error", e);
             throw new DbConnectionException("Error loading the evidence");
@@ -262,7 +264,7 @@ public class LearningEvidenceManagerImpl extends AbstractManagerImpl implements 
                 .list();
 
         return evidences.stream()
-                .map(ev -> learningEvidenceDataFactory.getLearningEvidenceData(ev, ev.getTags(), getCompetencesWithAddedEvidence(ev.getId())))
+                .map(ev -> learningEvidenceDataFactory.getCompetenceLearningEvidenceData(ev, null, ev.getTags(), getCompetencesWithAddedEvidence(ev.getId()), LearningEvidenceLoadConfig.builder().loadCompetences(true).loadTags(true).build()))
                 .collect(Collectors.toList());
     }
 
@@ -335,11 +337,11 @@ public class LearningEvidenceManagerImpl extends AbstractManagerImpl implements 
 
     @Transactional (readOnly = true)
     @Override
-    public LearningEvidenceData getLearningEvidence(long evidenceId, boolean loadTags, boolean loadCompetencesWithEvidence) throws DbConnectionException {
+    public LearningEvidenceData getLearningEvidence(long evidenceId, LearningEvidenceLoadConfig loadConfig) throws DbConnectionException {
         try {
             String query =
                     "SELECT le FROM LearningEvidence le ";
-            if (loadTags) {
+            if (loadConfig.isLoadTags()) {
                query +=  "LEFT JOIN FETCH le.tags ";
             }
             query += "WHERE le.id = :evId " +
@@ -354,9 +356,9 @@ public class LearningEvidenceManagerImpl extends AbstractManagerImpl implements 
                 return null;
             }
 
-            Set<Tag> tags = loadTags ? evidence.getTags() : null;
-            List<BasicObjectInfo> competences = loadCompetencesWithEvidence ? getCompetencesWithAddedEvidence(evidence.getId()) : Collections.emptyList();
-            return learningEvidenceDataFactory.getLearningEvidenceData(evidence, tags, competences);
+            Set<Tag> tags = loadConfig.isLoadTags() ? evidence.getTags() : null;
+            List<BasicObjectInfo> competences = loadConfig.isLoadCompetences() ? getCompetencesWithAddedEvidence(evidence.getId()) : Collections.emptyList();
+            return learningEvidenceDataFactory.getCompetenceLearningEvidenceData(evidence, null, tags, competences, loadConfig);
         } catch (Exception e) {
             logger.error("Error", e);
             throw new DbConnectionException("Error loading the learning evidence");
@@ -482,10 +484,6 @@ public class LearningEvidenceManagerImpl extends AbstractManagerImpl implements 
                 return new ResourceAccessData(canAccess, canAccess, false, false, false);
             }
 
-            if (accessRequirements.getAccessMode() == AccessMode.USER) {
-                boolean canAccess = hasUserAllowedHisEvidenceToBeSeenByOtherStudents(le);
-                return new ResourceAccessData(canAccess, canAccess, false, false, false);
-            }
             return new ResourceAccessData(false, false, false, false, false);
         } catch (Exception e) {
             logger.error("Error", e);
@@ -493,30 +491,45 @@ public class LearningEvidenceManagerImpl extends AbstractManagerImpl implements 
         }
     }
 
-    /**
-     * Returns true if evidence display is enabled by user on at least one credential with competence for which this evidence is attached
-     * @param le
-     * @return
-     */
-    private boolean hasUserAllowedHisEvidenceToBeSeenByOtherStudents(LearningEvidence le) {
-        String q =
-                "SELECT tCred.id FROM CompetenceEvidence ce " +
-                "INNER JOIN ce.competence tc " +
-                "INNER JOIN tc.competence comp " +
-                "INNER JOIN comp.credentialCompetences cc " +
-                "INNER JOIN cc.credential cred " +
-                "INNER JOIN cred.targetCredentials tCred " +
-                    "WITH tCred.user.id = :userId " +
-                    "AND tCred.evidenceDisplayed IS TRUE " +
-                "WHERE ce.evidence.id = :evidenceId";
+    @Override
+    @Transactional(readOnly = true)
+    public boolean isCompetenceEvidencePublishedOnProfile(long compEvidenceId) {
+        try {
+            String q =
+                    "SELECT conf.id FROM CompetenceEvidenceProfileConfig conf " +
+                    "WHERE conf.competenceEvidence.id = :ceId";
 
-        Long res = (Long) persistence.currentManager().createQuery(q)
-                .setLong("userId", le.getUser().getId())
-                .setLong("evidenceId", le.getId())
-                .setMaxResults(1)
-                .uniqueResult();
+            Long res = (Long) persistence.currentManager().createQuery(q)
+                    .setLong("ceId", compEvidenceId)
+                    .setMaxResults(1)
+                    .uniqueResult();
 
-        return res != null;
+            return res != null;
+        } catch (Exception e) {
+            logger.error("error", e);
+            throw new DbConnectionException("error checking if competence evidence is published on profile");
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public LearningEvidenceData getCompetenceEvidenceData(long compEvidenceId, LearningEvidenceLoadConfig loadConfig) {
+        try {
+            CompetenceEvidence ce = (CompetenceEvidence) persistence.currentManager()
+                    .load(CompetenceEvidence.class, compEvidenceId);
+            if (ce == null) {
+                return null;
+            }
+            return learningEvidenceDataFactory.getCompetenceLearningEvidenceData(
+                    ce.getEvidence(),
+                    ce,
+                    loadConfig.isLoadTags() ? ce.getEvidence().getTags() : null,
+                    null,
+                    loadConfig);
+        } catch (Exception e) {
+            logger.error("error", e);
+            throw new DbConnectionException("error loading competency evidence");
+        }
     }
 
 }

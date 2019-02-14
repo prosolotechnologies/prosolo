@@ -8,7 +8,7 @@ public enum NotificationFilterType {
 	Comment(NotificationType.Comment, "Comments"),
 	Comment_Like(NotificationType.Comment_Like, "Comment Likes"),
 	Mention(NotificationType.Mention, "Mentions"),
-	Assessment_Approved(NotificationType.Assessment_Approved, "Assessments Approved"),
+	Assessment_Approved(NotificationType.Assessment_Approved, "Assessments Submitted"),
 	Assessment_Requested(NotificationType.Assessment_Requested, "Assessments Requested"),
 	Assessment_Comment(NotificationType.Assessment_Comment, "Assessment Comments"),
 	GradeAdded(NotificationType.GradeAdded, "Assessments Updated"),

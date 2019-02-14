@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
  * @author Zoran Jeremic 2013-06-10
  *
  */
+@Deprecated
 @Service("org.prosolo.services.indexing.ESIndexer")
 public class ESIndexerImpl implements ESIndexer {
 
@@ -50,23 +51,23 @@ public class ESIndexerImpl implements ESIndexer {
 //		Collection<String> links=StringUtil.pullLinks(content);
 // 	}
 	
-	@Override
-	public void addMapping(Client client, String indexName,String indexType) {
-		String mappingPath="/org/prosolo/services/indexing/"+indexType+"-mapping.json";
-		String mapping = null;
-		
-		try {
-			mapping = copyToStringFromClasspath(mappingPath);
-		} catch (IOException e1) {
-			logger.error("Exception happened during mapping:"+mappingPath,e1);
-		}
-		
-		try {
-			client.admin().indices().putMapping(putMappingRequest(indexName).type(indexType).source(mapping)).actionGet();
-		} catch (NoNodeAvailableException e) {
-			logger.error(e);
-		}
-	}
+//	@Override
+//	public void addMapping(Client client, String indexName,String indexType) {
+//		String mappingPath="/org/prosolo/services/indexing/"+indexType+"-mapping.json";
+//		String mapping = null;
+//
+//		try {
+//			mapping = copyToStringFromClasspath(mappingPath);
+//		} catch (IOException e1) {
+//			logger.error("Exception happened during mapping:"+mappingPath,e1);
+//		}
+//
+//		try {
+//			client.admin().indices().putMapping(putMappingRequest(indexName).type(indexType).source(mapping)).actionGet();
+//		} catch (NoNodeAvailableException e) {
+//			logger.error(e);
+//		}
+//	}
 	
 //	@Override
 //	public void indexFileUploadedByTargetActivity(TargetActivity targetActivity, long userId){
@@ -143,7 +144,7 @@ public class ESIndexerImpl implements ESIndexer {
 //			logger.error("MalformedURLException:" + contentLink);
 //		} catch (ConnectException ce) {
 //			logger.error("ConnectException:" + ce.getLocalizedMessage());
-//			logger.error("Error while indexing url:" + contentLink + " from " + event.getId());
+//			logger.error("Error indexing url:" + contentLink + " from " + event.getId());
 //		} catch (SocketTimeoutException ste) {
 //			logger.error("SocketTimeoutException happend during the processing HTML page:" + contentLink);
 //		} catch (IOException e) {

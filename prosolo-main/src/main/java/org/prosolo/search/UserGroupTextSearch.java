@@ -5,7 +5,7 @@ import java.util.List;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.nodes.data.ResourceVisibilityMember;
-import org.prosolo.services.nodes.data.UserGroupData;
+import org.prosolo.services.user.data.UserGroupData;
 
 /**
  * 

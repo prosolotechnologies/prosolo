@@ -37,6 +37,7 @@
 				<p:focus />
 				<p:growl id="growlMain" globalOnly="true" showDetail="true"/>
 				<h:inputHidden id="hiddenType" value="#{activityEditBean.activityData.typeString}" />
+
 				<div class="container">
 			    	<ui:fragment rendered="#{not empty param['credId']}">
 			    		<ol class="breadcrumb">
@@ -44,22 +45,20 @@
 				            	<h:link value="#{msg['label.credential.plural']}" outcome="credentialLibrary"/>
 				            </li>
 				            <li>
-								<h:link
-										value="#{activityEditBean.credentialIdData.fullTitle}"
+								<h:link value="#{util:shortenAndAddDots(activityEditBean.credentialIdData.fullTitle)}"
 										outcome="/manage/credential-create">
 									<f:param name="id" value="#{param.credId}"></f:param>
 								</h:link>
 				            </li>
 				            <li>
-				            	<h:link 
-				            		value="#{activityEditBean.activityData.competenceName}"
-				            		outcome="create-competence">
+				            	<h:link value="#{util:shortenAndAddDots(activityEditBean.activityData.competenceName)}"
+				            			outcome="create-competence">
 				            		<f:param name="id" value="#{param['compId']}" />
 				            		<f:param name="credId" value="#{param['credId']}" />
 				            	</h:link>
 				            </li>
 				            <ui:fragment rendered="#{!activityEditBean.isCreateUseCase()}">
-				            	<li class="active">#{activityEditBean.activityData.title}</li>
+				            	<li class="active">#{util:shortenAndAddDots(activityEditBean.activityData.title)}</li>
 				            </ui:fragment>
 				            <ui:fragment rendered="#{activityEditBean.isCreateUseCase()}">
 				            	<li class="active">New Activity</li>
@@ -72,14 +71,13 @@
 				            	<h:link value="#{msg['label.competence.plural']}" outcome="competenceLibrary"/>
 				            </li> 
 			    			<li>
-				            	<h:link 
-				            		value="#{activityEditBean.activityData.competenceName}"
-				            		outcome="create-competence">
+				            	<h:link value="#{util:shortenAndAddDots(activityEditBean.activityData.competenceName)}"
+				            			outcome="create-competence">
 				            		<f:param name="id" value="#{param['compId']}" />
 				            	</h:link>
 				            </li>
 				            <ui:fragment rendered="#{!activityEditBean.isCreateUseCase()}">
-				            	<li class="active">#{activityEditBean.activityData.title}</li>
+				            	<li class="active">#{util:shortenAndAddDots(activityEditBean.activityData.title)}</li>
 				            </ui:fragment>
 				            <ui:fragment rendered="#{activityEditBean.isCreateUseCase()}">
 				            	<li class="active">New Activity</li>
@@ -333,29 +331,30 @@
 		                    </div>
 		                    
 		                    <div class="modal-body alignLeft">
-		                        <h:inputText id="inputFileTitle"
-									autocomplete="off"
-		                        	placeholder="File title..."
-									value="#{activityEditBean.resLinkToAdd.linkName}">
-		                        </h:inputText>
+								<h:inputText id="inputFileTitle"
+											 autocomplete="off"
+											 placeholder="File title..."
+											 value="#{activityEditBean.resLinkToAdd.linkName}"/>
 
 								<ui:fragment rendered="#{activityEditBean.resLinkToAdd.linkNameInvalid}">
 									<small class="redText bottom5 topMinus20 displayBlock">File title must be entered</small>
 								</ui:fragment>
 		                        
 		                        <div class="chooseFileBox">
-		                        	<utilcomp:simpleFileUpload
-		                        		id="simpleFileUpload"
-					            		fileUploadListenerMethodName="handleFileUpload"
-					            		fileUploadListenerMethod="#{activityEditBean.handleFileUpload}"
-					            		toUpdate=":#{cc.clientId}:formModalUploadFile:panelFileName"
-					            		uploadButtonStyle="btn btn-green btn-sm"
-										oncomplete="$('#createActivity\\:formModalUploadFile\\:fileUploadMessagePanel').hide();"
-		                        	/>
+									<utilcomp:simpleFileUpload id="resourceFileUpload"
+															   fileUploadListenerMethodName="handleFileUpload"
+															   fileUploadListenerMethod="#{activityEditBean.handleFileUpload}"
+															   toUpdate=":#{cc.clientId}:formModalUploadFile:panelFileName"
+															   uploadButtonStyle="btn btn-green btn-sm"
+															   oncomplete="$('#createActivity\\:formModalUploadFile\\:fileUploadMessagePanel').hide();"
+															   fileSizeValidationMessageContainer="#resourceFileUploadValidation"/>
+
 		                            <h:panelGroup id="panelFileName">
 		                            	#{activityEditBean.resLinkToAdd.fetchedTitle}
 		                            </h:panelGroup>
 		                        </div>
+
+								<small id="resourceFileUploadValidation" class="redText topMinus10 displayBlock"></small>
 
 								<h:panelGroup  id="fileUploadMessagePanel" rendered="#{activityEditBean.resLinkToAdd.urlInvalid}">
 									<small class="redText bottom5 topMinus20 displayBlock">File must be uploaded</small>
@@ -438,8 +437,6 @@
 			            			oncomplete="hideLoader('#loaderContainerUrlTitle');"
 		                        	update="inputUrlTitle">
 		                        </p:remoteCommand>
-
-
 		                    </div>
 		                    
 		                    <div class="modal-footer alignLeft">
@@ -480,18 +477,20 @@
 								</ui:fragment>
 		                        
 		                        <div class="chooseFileBox">
-		                        	<utilcomp:simpleFileUpload
-		                        		id="simpleFileUploadCaptions"
-					            		fileUploadListenerMethodName="handleFileUpload"
-					            		fileUploadListenerMethod="#{activityEditBean.handleFileUpload}"
-					            		toUpdate=":#{cc.clientId}:formModalUploadCaption:panelFileName"
-					            		uploadButtonStyle="btn btn-green btn-sm"
-										oncomplete="$('#createActivity\\:formModalUploadCaption\\:subtitleUploadMessagePanel').hide();"
-		                        	/>
+									<utilcomp:simpleFileUpload id="captionsFileUpload"
+															   fileUploadListenerMethodName="handleFileUpload"
+															   fileUploadListenerMethod="#{activityEditBean.handleFileUpload}"
+															   toUpdate=":#{cc.clientId}:formModalUploadCaption:panelFileName"
+															   uploadButtonStyle="btn btn-green btn-sm"
+															   oncomplete="$('#createActivity\\:formModalUploadCaption\\:subtitleUploadMessagePanel').hide();"
+															   fileSizeValidationMessageContainer="#captionsFileUploadValidation"/>
+
 		                            <h:panelGroup id="panelFileName">
 		                            	#{activityEditBean.resLinkToAdd.fetchedTitle}
 		                            </h:panelGroup>
 		                        </div>
+
+								<small id="captionsFileUploadValidation" class="redText topMinus10 displayBlock"></small>
 
 								<ui:fragment rendered="#{activityEditBean.resLinkToAdd.urlInvalid}">
 									  <h:panelGroup id="subtitleUploadMessagePanel" rendered="#{empty activityEditBean.resLinkToAdd.url}">

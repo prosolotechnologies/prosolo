@@ -82,15 +82,13 @@
 						<h:link value="#{msg['label.credential.plural']}" outcome="credentialLibrary"/>
 					</li>
 					<li>
-						<h:link
-								value="#{competenceAssessmentBean.credentialTitle}"
+						<h:link value="#{util:shortenAndAddDots(competenceAssessmentBean.credentialTitle)}"
 								outcome="credential">
 							<f:param name="id" value="#{param.credId}"></f:param>
 						</h:link>
 					</li>
 					<li>
-						<h:link
-								value="#{competenceAssessmentBean.competenceAssessmentData.title}"
+						<h:link value="#{util:shortenAndAddDots(competenceAssessmentBean.competenceAssessmentData.title)}"
 								outcome="competence">
 							<f:param name="credId" value="#{param.credId}"/>
 							<f:param name="compId" value="#{param.compId}"/>
@@ -104,14 +102,12 @@
 			<ui:fragment rendered="#{empty param.credId}">
 				<ol class="breadcrumb">
 					<li>
-						<h:link
-								value="#{msg['label.competence.plural']}"
+						<h:link value="#{msg['label.competence.plural']}"
 								outcome="/competenceLibrary">
 						</h:link>
 					</li>
 					<li>
-						<h:link
-								value="#{competenceAssessmentBean.competenceAssessmentData.title}"
+						<h:link value="#{util:shortenAndAddDots(competenceAssessmentBean.competenceAssessmentData.title)}"
 								outcome="competence">
 							<f:param name="compId" value="#{param.compId}"/>
 						</h:link>
@@ -141,7 +137,7 @@
 									<assessment:assessmentActorName
 										actorId="#{competenceAssessmentBean.competenceAssessmentData.studentId}"
 										actorFullName="#{competenceAssessmentBean.competenceAssessmentData.studentFullName}"
-										blindAssessmentMode="#{competenceAssessmentBean.blindAssessmentMode}"
+										blindAssessmentMode="#{competenceAssessmentBean.competenceAssessmentData.blindAssessmentMode}"
 										actorType="STUDENT"
 									/>.
 									All comments between the student and the assessor are private.</p>
@@ -150,7 +146,6 @@
 							<h:form>
 								<assessment:competenceAssessment
 										competenceAssessment="#{competenceAssessmentBean.competenceAssessmentData}"
-										blindAssessmentMode="#{competenceAssessmentBean.blindAssessmentMode}"
 										bean="#{competenceAssessmentBean}"
 										credentialId="#{cc.attrs.credentialId}"
 										role="USER"
@@ -162,6 +157,8 @@
 										toUpdatePrivateConversationModal=":#{cc.clientId}:commentModal:formPrivateConversation:panelModalPrivateConversation"
 										currentUserAssessor="#{competenceAssessmentBean.isUserAssessorInCurrentContext()}"
 										currentUserAssessedStudent="#{competenceAssessmentBean.isUserAssessedStudentInCurrentContext()}"
+										approveModalId="approveAssessment"
+										toUpdateApproveModal=":#{cc.clientId}:approveModalContainer"
 								/>
 							</h:form>
 						</div>
@@ -175,7 +172,7 @@
 												actorId="#{competenceAssessmentBean.competenceAssessmentData.studentId}"
 												avatarUrl="#{competenceAssessmentBean.competenceAssessmentData.studentAvatarUrl}"
 												actorFullName="#{competenceAssessmentBean.competenceAssessmentData.studentFullName}"
-												blindAssessmentMode="#{competenceAssessmentBean.blindAssessmentMode}"
+												blindAssessmentMode="#{competenceAssessmentBean.competenceAssessmentData.blindAssessmentMode}"
 												actorType="STUDENT"
 										/>
 									</a>
@@ -184,7 +181,7 @@
 											<assessment:assessmentActorName
 													actorId="#{competenceAssessmentBean.competenceAssessmentData.studentId}"
 													actorFullName="#{competenceAssessmentBean.competenceAssessmentData.studentFullName}"
-													blindAssessmentMode="#{competenceAssessmentBean.blindAssessmentMode}"
+													blindAssessmentMode="#{competenceAssessmentBean.competenceAssessmentData.blindAssessmentMode}"
 													actorType="STUDENT"
 											/>
 										</a>
@@ -202,7 +199,7 @@
 													actorId="#{competenceAssessmentBean.competenceAssessmentData.assessorId}"
 													avatarUrl="#{competenceAssessmentBean.competenceAssessmentData.assessorAvatarUrl}"
 													actorFullName="#{competenceAssessmentBean.competenceAssessmentData.assessorFullName}"
-													blindAssessmentMode="#{competenceAssessmentBean.blindAssessmentMode}"
+													blindAssessmentMode="#{competenceAssessmentBean.competenceAssessmentData.blindAssessmentMode}"
 													actorType="ASSESSOR"
 											/>
 										</a>
@@ -211,7 +208,7 @@
 												<assessment:assessmentActorName
 														actorId="#{competenceAssessmentBean.competenceAssessmentData.assessorId}"
 														actorFullName="#{competenceAssessmentBean.competenceAssessmentData.assessorFullName}"
-														blindAssessmentMode="#{competenceAssessmentBean.blindAssessmentMode}"
+														blindAssessmentMode="#{competenceAssessmentBean.competenceAssessmentData.blindAssessmentMode}"
 														actorType="ASSESSOR"
 												/>
 											</a>
@@ -255,7 +252,7 @@
 				bean="#{competenceAssessmentBean.currentAssessmentBean}"
 				studentId="#{competenceAssessmentBean.competenceAssessmentData.studentId}"
 				assessorId="#{competenceAssessmentBean.competenceAssessmentData.assessorId}"
-				blindAssessmentMode="#{competenceAssessmentBean.blindAssessmentMode}"
+				blindAssessmentMode="#{competenceAssessmentBean.currentBlindAssessmentMode}"
 				learningContext="#{competenceAssessmentBean.currentResType eq 'ACTIVITY'
 					? util:addSubContext(cc.attrs.learningContext, 'name:competence|id:'.concat(activityAssessmentBean.activityAssessmentData.competenceId).concat('|context:/name:COMPETENCE_ASSESSMENT|id:').concat(activityAssessmentBean.activityAssessmentData.compAssessment.competenceAssessmentId).concat('|context:/name:activity|id:').concat(activityAssessmentBean.activityAssessmentData.activityId).concat('|context:/name:ACTIVITY_ASSESSMENT|id:').concat(activityAssessmentBean.activityAssessmentData.activityAssessmentId).concat('///'))
 					: util:addSubContext(cc.attrs.learningContext, 'name:competence|id:'.concat(competenceAssessmentBean.competenceAssessmentData.competenceId).concat('|context:/name:COMPETENCE_ASSESSMENT|id:').concat(competenceAssessmentBean.competenceAssessmentData.competenceAssessmentId).concat('/'))}"
@@ -303,6 +300,21 @@
 						toUpdate=":#{cc.clientId}:growlMain @(.assessmentActivityList.comp_#{competenceAssessmentBean.currentCompetenceAssessmentId}) @(.panelCompAssessment_#{competenceAssessmentBean.currentCompetenceAssessmentId}) @(.panelAssessorNotificationSelector)"
 						learningContext="#{competenceAssessmentBean.currentResType == null ? '' : (competenceAssessmentBean.currentResType == 'COMPETENCE' ? compAssessmentLearningContext : activityAssessmentLearningContext)}"
 						gradePanelSidebarId="gradeSidebar"
+				/>
+			</h:panelGroup>
+
+			<h:panelGroup id="approveModalContainer">
+				<ui:param name="compAssessmentLearningContext" value="#{util:addSubContext(cc.attrs.learningContext, 'name:competence|id:'.concat(competenceAssessmentBean.competenceAssessmentData.competenceId).concat('|context:/name:COMPETENCE_ASSESSMENT|id:').concat(competenceAssessmentBean.competenceAssessmentData.competenceAssessmentId).concat('/'))}" />
+				<assessment:approveAssessment
+						id="approveAssessment"
+						blindAssessmentMode="#{competenceAssessmentBean.competenceAssessmentData.blindAssessmentMode}"
+						approveAction="#{competenceAssessmentBean.approveCompetence()}"
+						gradeData="#{competenceAssessmentBean.competenceAssessmentData.gradeData}"
+						resourceTitle="#{competenceAssessmentBean.competenceAssessmentData.title}"
+						student="#{competenceAssessmentBean.studentData}"
+						resource="COMPETENCE"
+						toUpdate=":#{cc.clientId}:growlMain @(.panelAssessorNotificationSelector) @(.assessmentActivityList.comp_#{competenceAssessmentBean.competenceAssessmentData.competenceAssessmentId}) @(.panelCompAssessment_#{competenceAssessmentBean.competenceAssessmentData.competenceAssessmentId})"
+						learningContext="#{compAssessmentLearningContext}"
 				/>
 			</h:panelGroup>
 		</c:if>

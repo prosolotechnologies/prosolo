@@ -1,14 +1,6 @@
 package org.prosolo.services.studentProfile.observations.impl;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.inject.Inject;
-
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
@@ -20,13 +12,16 @@ import org.prosolo.common.domainmodel.observations.Symptom;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.services.data.Result;
-import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.interaction.MessagingManager;
 import org.prosolo.services.studentProfile.observations.ObservationManager;
+import org.prosolo.web.messaging.data.MessageData;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.inject.Inject;
+import java.util.*;
 
 @Service("org.prosolo.services.studentProfile.observations.ObservationManager")
 public class ObservationManagerImpl extends AbstractManagerImpl implements ObservationManager {
@@ -48,19 +43,16 @@ public class ObservationManagerImpl extends AbstractManagerImpl implements Obser
         try {
             String queryString =
                     "SELECT o " +
-                            "FROM Observation o " +
-                            "INNER JOIN fetch o.createdFor student " +
-                            "INNER JOIN fetch o.createdBy user " +
-                            "LEFT JOIN fetch o.symptoms sy " +
-                            "LEFT JOIN fetch o.suggestions su " +
-                            //"LEFT JOIN o.targetCredential targetCred " +
-                            "WHERE student.id = :id " +
-                            //"AND targetCred.id = :targetCredentialId " +
-                            "ORDER BY o.creationDate desc";
+                    "FROM Observation o " +
+                    "INNER JOIN fetch o.createdFor student " +
+                    "INNER JOIN fetch o.createdBy user " +
+                    "LEFT JOIN fetch o.symptoms sy " +
+                    "LEFT JOIN fetch o.suggestions su " +
+                    "WHERE student.id = :id " +
+                    "ORDER BY o.creationDate desc";
 
             Query query = persistence.currentManager().createQuery(queryString)
                     .setLong("id", userId)
-                    //.setLong("targetCredentialId", targetCredentialId)
                     .setMaxResults(1);
 
             return (Observation) query.uniqueResult();
@@ -82,20 +74,21 @@ public class ObservationManagerImpl extends AbstractManagerImpl implements Obser
 
     @Override
     @Transactional
-    public Result<Void> saveObservationAndGetEvents(long id, Date date, String message, String note,
+    public Result<Void> saveObservationAndGetEvents(long id, Date date, String messageText, String note,
                                                     List<Long> symptomIds, List<Long> suggestionIds,
                                                     UserContextData context, long studentId)
             throws DbConnectionException {
         try {
             boolean insert = true;
             Observation observation = new Observation();
+
             if (id > 0) {
                 insert = false;
                 observation.setId(id);
                 observation.setEdited(true);
             }
             observation.setCreationDate(date);
-            observation.setMessage(message);
+            observation.setMessage(messageText);
             observation.setNote(note);
             User creator = new User();
             creator.setId(context.getActorId());
@@ -123,25 +116,10 @@ public class ObservationManagerImpl extends AbstractManagerImpl implements Obser
             observation = saveEntity(observation);
             persistence.currentManager().evict(observation);
 
-            Map<String, Object> result = new HashMap<>();
-            result.put("observationId", observation.getId());
-
-            if (insert && message != null && !message.isEmpty() && context.getActorId() != studentId) {
-                Message msg = msgManager.sendMessage(context.getActorId(), studentId, message);
-                result.put("message", msg);
-            }
-
-            Object msg = result.get("message");
             Result<Void> res = new Result<>();
 
-            if(msg != null) {
-                Message message1 = (Message) msg;
-                Map<String, String> parameters = new HashMap<String, String>();
-                parameters.put("user", String.valueOf(studentId));
-                parameters.put("message", String.valueOf(message1.getId()));
-
-                res.appendEvent(eventFactory.generateEventData(EventType.SEND_MESSAGE, context,
-                        message1, null, null, parameters));
+            if (insert && !StringUtils.isBlank(messageText) && context.getActorId() != studentId) {
+                res.appendEvents(msgManager.sendMessageAndGetEvents(0, context.getActorId(), studentId, messageText, context).getEventQueue());
             }
 
             return res;
@@ -150,7 +128,7 @@ public class ObservationManagerImpl extends AbstractManagerImpl implements Obser
             throw dbce;
         } catch (Exception e) {
             e.printStackTrace();
-            throw new DbConnectionException("Error while saving observation");
+            throw new DbConnectionException("Error saving observation");
         }
     }
 

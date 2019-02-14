@@ -37,7 +37,9 @@
 				<div class="whiteBarContent">
 					<div class="whiteBarLeft"></div>
 					<div class="whiteBarRight">
-						<div class="duration item">#{activityViewBeanAdmin.competenceData.activityToShowWithDetails.durationString}</div>
+						<ui:fragment rendered="#{activityViewBeanAdmin.competenceData.activityToShowWithDetails.durationString ne null}">
+							<div class="duration item">#{activityViewBeanAdmin.competenceData.activityToShowWithDetails.durationString}</div>
+						</ui:fragment>
 					</div>
 				</div>
 			</div>
@@ -49,8 +51,8 @@
 					<li><h:link outcome="/admin/organizations">Organizations</h:link></li>
 				</ui:fragment>
 				<li>
-					<h:link outcome="/admin/units">
-						#{activityViewBeanAdmin.organizationTitle}
+					<h:link outcome="/admin/units"
+							value="#{util:shortenAndAddDots(activityViewBeanAdmin.organizationTitle)}">
 						<f:param name="id" value="#{param.orgId}" />
 					</h:link>
 				</li>
@@ -61,8 +63,8 @@
 					</h:link>
 				</li>
 				<li>
-					<h:link outcome="/admin/unit-credentials">
-						#{activityViewBeanAdmin.unitTitle}
+					<h:link outcome="/admin/unit-credentials"
+							value="#{util:shortenAndAddDots(activityViewBeanAdmin.unitTitle)}">
 						<f:param name="id" value="#{param.orgId}" />
 						<f:param name="unitId" value="#{param.unitId}" />
 					</h:link>
@@ -76,8 +78,8 @@
 						</h:link>
 					</li>
 					<li>
-						<h:link outcome="/admin/credential">
-							#{activityViewBeanAdmin.competenceData.credentialTitle}
+						<h:link outcome="/admin/credential"
+								value="#{util:shortenAndAddDots(activityViewBeanAdmin.competenceData.credentialTitle)}">
 							<f:param name="orgId" value="#{param.orgId}"/>
 							<f:param name="unitId" value="#{param.unitId}" />
 							<f:param name="id" value="#{param.credId}" />
@@ -85,15 +87,15 @@
 					</li>
 				</ui:fragment>
 				<li>
-					<h:link outcome="/admin/competence">
-						#{activityViewBeanAdmin.competenceData.title}
+					<h:link outcome="/admin/competence"
+							value="#{util:shortenAndAddDots(activityViewBeanAdmin.competenceData.title)}">
 						<f:param name="orgId" value="#{param.orgId}"/>
 						<f:param name="unitId" value="#{param.unitId}" />
 						<f:param name="credId" value="#{param.credId}" disable="#{empty param.credId}"/>
 						<f:param name="compId" value="#{param.compId}" />
 					</h:link>
 				</li>
-				<li class="active">#{activityViewBeanAdmin.competenceData.activityToShowWithDetails.title}</li>
+				<li class="active">#{util:shortenAndAddDots(activityViewBeanAdmin.competenceData.activityToShowWithDetails.title)}</li>
 			</ol>
 		</div>
 

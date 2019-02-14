@@ -4,9 +4,8 @@ import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.LearningEvidenceManager;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceData;
-import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
+import org.prosolo.services.nodes.data.evidence.LearningEvidenceLoadConfig;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
-import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageUtil;
@@ -18,6 +17,9 @@ import javax.inject.Inject;
 import java.io.Serializable;
 
 /**
+ * This bean displays a piece of evidence of a student. This page is accessed by the student creator of the piece of
+ * the piece of evidence.
+ *
  * @author stefanvuckovic
  * @date 2017-12-13
  * @since 1.2.0
@@ -40,29 +42,20 @@ public class LearningEvidenceBean implements Serializable {
     private LearningEvidenceData evidence;
     private ResourceAccessData access;
 
-    public void initManager() {
-        init(AccessMode.MANAGER);
-    }
-
-    public void initStudent() {
-        init(AccessMode.USER);
-    }
-
-    private void init(AccessMode accessMode) {
+    public void init() {
         try {
             long decodedEvId = idEncoder.decodeId(evidenceId);
             if (decodedEvId > 0) {
                 loadEvidence(decodedEvId);
+
                 if (evidence == null) {
                     PageUtil.notFound();
                 } else {
-                    if (accessMode == AccessMode.USER && evidence.getUserId() == loggedUserBean.getUserId()) {
+                    // only student creator can access this page
+                    if (evidence.getUserId() == loggedUserBean.getUserId()) {
                         access = new ResourceAccessData(true, true, true, false, false);
-                    } else {
-                        access = learningEvidenceManager.getResourceAccessRightsForEvidence(
-                                evidence.getId(), loggedUserBean.getUserId(), ResourceAccessRequirements.of(accessMode));
                     }
-                    if (!access.isCanAccess()) {
+                    if (access == null || !access.isCanAccess()) {
                         PageUtil.accessDenied();
                     }
                 }
@@ -76,7 +69,7 @@ public class LearningEvidenceBean implements Serializable {
     }
 
     private void loadEvidence(long evidenceId) {
-        evidence = learningEvidenceManager.getLearningEvidence(evidenceId, true, true);
+        evidence = learningEvidenceManager.getLearningEvidence(evidenceId, LearningEvidenceLoadConfig.builder().loadCompetences(true).loadTags(true).build());
     }
 
     public boolean isCurrentUserEvidenceOwner() {

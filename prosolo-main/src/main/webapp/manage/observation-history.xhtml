@@ -1,36 +1,40 @@
 <ui:composition
-	xmlns:ui="http://java.sun.com/jsf/facelets"
-	xmlns:h="http://java.sun.com/jsf/html"
-	xmlns:f="http://java.sun.com/jsf/core"
-	xmlns:p="http://primefaces.org/ui"
-	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+        xmlns:ui="http://java.sun.com/jsf/facelets"
+        xmlns:h="http://java.sun.com/jsf/html"
+        xmlns:p="http://primefaces.org/ui"
+        xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
 
-	<div role="tabpanel" class="tab-pane fade" id="observationsTab">
-		<h:form id="formLoadObservationHistory">
-			<p:remoteCommand 
-				name="loadObservationHistory"
-				process="@this"
-				action="#{observationBean.loadObservationHistory()}"
-				update=":panelObsHistory">
-			</p:remoteCommand>
-		</h:form>
-            <h:panelGroup id="panelObsHistory" layout="block" styleClass="whiteBox observationsList">
-            	<ui:repeat var="obs"
-					value="#{observationBean.observationHistory}">
-					<div class="observationLine">
+    <div role="tabpanel" class="tab-pane fade" id="observationsTab">
+        <h:form id="formLoadObservationHistory">
+            <p:remoteCommand
+                    name="loadObservationHistory"
+                    process="@this"
+                    action="#{observationBean.loadObservationHistory()}"
+                    update=":panelObsHistory">
+            </p:remoteCommand>
+        </h:form>
+        <ui:fragment rendered="#{empty observationBean.observationHistory}">
+            <div class="noContentMessage">
+                <p>No observations.</p>
+            </div>
+        </ui:fragment>
+        <h:panelGroup id="panelObsHistory" layout="block" styleClass="whiteBox observationsList">
+            <ui:repeat var="obs"
+                       value="#{observationBean.observationHistory}">
+                <div class="observationLine">
                     <div class="innerWrapper">
                         <div class="user32">
                             On&#160;
-							<utilcomp:convertTimeOutput
-									millis="#{obs.time}"
-									format="MMMM DD, YYYY"
-							/>
-							&#160;by:&#160;&#160;&#160;
+                            <utilcomp:convertTimeOutput
+                                    millis="#{obs.time}"
+                                    format="MMMM DD, YYYY"
+                            />
+                            &#160;by:&#160;&#160;&#160;
                             <a href="#">
-                              	<utilcomp:userAvatar
-									avatar="#{obs.createdBy.avatar}"
-									fullName="#{obs.createdBy.name}"	
-						    	/> 
+                                <utilcomp:userAvatar
+                                        avatar="#{obs.createdBy.avatar}"
+                                        fullName="#{obs.createdBy.name}"
+                                />
                             </a>
                             <h3><a href="#">#{obs.createdBy.name}</a></h3>
                         </div>
@@ -39,65 +43,40 @@
                             <h3>Symptoms</h3>
                             <ul class="symptoms">
                                 <ui:repeat var="symptom"
-									value="#{obs.symptoms}">
-									<li>#{symptom.description}</li>
-							    </ui:repeat>
+                                           value="#{obs.symptoms}">
+                                    <li>#{symptom.description}</li>
+                                </ui:repeat>
                             </ul>
                         </div>
                         <div class="obsBlocks">
                             <h3>Suggestions</h3>
                             <ul class="suggestions">
                                 <ui:repeat var="suggestion"
-									value="#{obs.suggestions}">
-									<li>#{suggestion.description}</li>
-							    </ui:repeat>
+                                           value="#{obs.suggestions}">
+                                    <li>#{suggestion.description}</li>
+                                </ui:repeat>
                             </ul>
                         </div>
                         <div class="obsBlocks">
-                            <ui:fragment
-								rendered="#{empty obs.message}">
-								<span>No message</span>
-							</ui:fragment>
-							<ui:fragment
-								rendered="#{not empty obs.message}">
-	                            <a href="#" data-toggle="modal" data-target="#viewMessage01">View Message</a>
-	                            <div class="modal fade" id="viewMessage01" tabindex="-1" role="dialog" aria-labelledby="viewMess01">
-	                                <div class="modal-dialog" role="document">
-	                                    <div class="modal-content">
-	                                        <div class="modal-header alignLeft">
-	                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
-	                                            <h2 class="modal-title" id="viewMess01">Message</h2>
-	                                        </div>
-	                                        <div class="modal-body alignLeft">
-	                                            <p>
-	                                               #{obs.message}
-	                                            </p>
-	                                        </div>
-	                                        <div class="modal-footer alignLeft">
-	                                            <a href="#" class="btn btn-default" data-dismiss="modal">Close</a>
-	                                        </div>
-	                                    </div>
-	                                </div>
-	                            </div>
-	                        </ui:fragment>
-                            <span class="bullet"></span>
-                            <ui:fragment
-								rendered="#{empty obs.note}">
-                           		<span>No note</span>
+                            <ui:fragment rendered="#{empty obs.message}">
+                                <span>No message</span>
                             </ui:fragment>
-                            <ui:fragment
-								rendered="#{not empty obs.note}">
-						 		<a href="#" data-toggle="modal" data-target="#viewNote01">View Note</a>
-                                <div class="modal fade" id="viewNote01" tabindex="-1" role="dialog" aria-labelledby="viewNot01">
+
+                            <ui:fragment rendered="#{not empty obs.message}">
+                                <a href="#" data-toggle="modal" data-target="#viewMessage01">View Message</a>
+                                <div class="modal fade" id="viewMessage01" tabindex="-1" role="dialog"
+                                     aria-labelledby="viewMess01">
                                     <div class="modal-dialog" role="document">
                                         <div class="modal-content">
                                             <div class="modal-header alignLeft">
-                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
-                                                <h2 class="modal-title" id="viewNot01">Note</h2>
+                                                <button type="button" class="close" data-dismiss="modal"
+                                                        aria-label="Close"><span aria-hidden="true">&#215;</span>
+                                                </button>
+                                                <h2 class="modal-title" id="viewMess01">Message</h2>
                                             </div>
                                             <div class="modal-body alignLeft">
                                                 <p>
-                                                   #{obs.note}
+                                                    #{obs.message}
                                                 </p>
                                             </div>
                                             <div class="modal-footer alignLeft">
@@ -106,12 +85,40 @@
                                         </div>
                                     </div>
                                 </div>
-							</ui:fragment>
+                            </ui:fragment>
+                            <span class="bullet"></span>
+                            <ui:fragment rendered="#{empty obs.note}">
+                                <span>No note</span>
+                            </ui:fragment>
+                            <ui:fragment rendered="#{not empty obs.note}">
+                                <a href="#" data-toggle="modal" data-target="#viewNote01">View Note</a>
+                                <div class="modal fade" id="viewNote01" tabindex="-1" role="dialog"
+                                     aria-labelledby="viewNot01">
+                                    <div class="modal-dialog" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header alignLeft">
+                                                <button type="button" class="close" data-dismiss="modal"
+                                                        aria-label="Close"><span aria-hidden="true">&#215;</span>
+                                                </button>
+                                                <h2 class="modal-title" id="viewNot01">Note</h2>
+                                            </div>
+                                            <div class="modal-body alignLeft">
+                                                <p>
+                                                    #{obs.note}
+                                                </p>
+                                            </div>
+                                            <div class="modal-footer alignLeft">
+                                                <a href="#" class="btn btn-default" data-dismiss="modal">Close</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </ui:fragment>
                         </div>
                         <div class="clear"></div>
                     </div>
                 </div>
-				</ui:repeat>
-            </h:panelGroup>
-        </div>
+            </ui:repeat>
+        </h:panelGroup>
+    </div>
 </ui:composition>

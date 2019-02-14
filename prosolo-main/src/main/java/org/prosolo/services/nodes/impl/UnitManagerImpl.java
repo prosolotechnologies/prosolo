@@ -22,10 +22,10 @@ import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UnitManager;
-import org.prosolo.services.nodes.UserGroupManager;
+import org.prosolo.services.user.UserGroupManager;
 import org.prosolo.services.nodes.data.TitleData;
 import org.prosolo.services.nodes.data.UnitData;
-import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.user.data.UserData;
 import org.prosolo.services.util.roles.SystemRoleNames;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -99,7 +99,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
         } catch (Exception e) {
             logger.error(e);
             e.printStackTrace();
-            throw new DbConnectionException("Error while saving organization unit");
+            throw new DbConnectionException("Error saving organization unit");
         }
     }
 
@@ -196,7 +196,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
             return res;
         } catch (Exception e) {
             logger.error("Error", e);
-            throw new DbConnectionException("Error while retrieving unit users");
+            throw new DbConnectionException("Error retrieving unit users");
         }
     }
 
@@ -300,7 +300,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
             return result;
         } catch (Exception e) {
             logger.error("Error", e);
-            throw new DbConnectionException("Error while adding user to unit");
+            throw new DbConnectionException("Error adding user to unit");
         }
     }
 
@@ -362,7 +362,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
             return result;
         } catch (Exception e) {
             logger.error("Error", e);
-            throw new DbConnectionException("Error while removing user from unit");
+            throw new DbConnectionException("Error removing user from unit");
         }
     }
 
@@ -406,7 +406,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
             return result;
         } catch (Exception e) {
             logger.error("Error", e);
-            throw new DbConnectionException("Error while removing user from unit");
+            throw new DbConnectionException("Error removing user from unit");
         }
     }
 
@@ -429,7 +429,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
             return units;
         } catch (Exception e) {
             logger.error("Error", e);
-            throw new DbConnectionException("Error while retrieving units");
+            throw new DbConnectionException("Error retrieving units");
         }
     }
 
@@ -441,7 +441,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
 
             return new UnitData(unit);
         } catch (ResourceCouldNotBeLoadedException e) {
-            throw new DbConnectionException("Error while loading unit");
+            throw new DbConnectionException("Error loading unit");
         }
     }
 
@@ -479,7 +479,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
         } catch (Exception e) {
             logger.error(e);
             e.printStackTrace();
-            throw new DbConnectionException("Error while saving organization unit");
+            throw new DbConnectionException("Error saving organization unit");
         }
     }
 
@@ -498,7 +498,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
                     .uniqueResult();
         } catch (Exception e) {
             logger.error("Error", e);
-            throw new DbConnectionException("Error while retrieving unit title");
+            throw new DbConnectionException("Error retrieving unit title");
         }
     }
 
@@ -522,7 +522,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
                     : null;
         } catch (Exception e) {
             logger.error("Error", e);
-            throw new DbConnectionException("Error while retrieving unit title");
+            throw new DbConnectionException("Error retrieving unit title");
         }
     }
 
@@ -541,7 +541,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
             return res;
         } catch (Exception e) {
             logger.error("Error", e);
-            throw new DbConnectionException("Error while retrieving unit users");
+            throw new DbConnectionException("Error retrieving unit users");
         }
     }
 
@@ -645,7 +645,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
         }catch(Exception e) {
             e.printStackTrace();
             logger.error(e);
-            throw new DbConnectionException("Error while trying to retrieve units");
+            throw new DbConnectionException("Error trying to retrieve units");
         }
     }
 
@@ -667,7 +667,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
                     .uniqueResult() != null;
         } catch (Exception e) {
             logger.error("Error", e);
-            throw new DbConnectionException("Error while retrieving user data");
+            throw new DbConnectionException("Error retrieving user data");
         }
     }
 
@@ -699,7 +699,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
             return getRootUnitsWithSubunits(units);
         } catch (Exception e) {
             logger.error("Error", e);
-            throw new DbConnectionException("Error while retrieving unit data");
+            throw new DbConnectionException("Error retrieving unit data");
         }
     }
 
@@ -732,7 +732,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
             logger.info("Credential (" + credId + ") already added to the unit (" + unitId + ") so it can't be added again");
         } catch (Exception e) {
             logger.error("Error", e);
-            throw new DbConnectionException("Error while adding credential to unit");
+            throw new DbConnectionException("Error adding credential to unit");
         }
 
         return res;
@@ -774,7 +774,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
             }
         } catch (Exception e) {
             logger.error("Error", e);
-            throw new DbConnectionException("Error while removing credential from unit");
+            throw new DbConnectionException("Error removing credential from unit");
         }
 
         return res;
@@ -805,7 +805,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
             return res;
         } catch (Exception e) {
             logger.error("Error", e);
-            throw new DbConnectionException("Error while retrieving units");
+            throw new DbConnectionException("Error retrieving units");
         }
     }
 
@@ -837,7 +837,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
             return getRootUnitsWithSubunits(units);
         } catch (Exception e) {
             logger.error("Error", e);
-            throw new DbConnectionException("Error while retrieving unit data");
+            throw new DbConnectionException("Error retrieving unit data");
         }
     }
 
@@ -870,7 +870,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
             logger.info("Competency (" + compId + ") already added to the unit (" + unitId + ") so it can't be added again");
         } catch (Exception e) {
             logger.error("Error", e);
-            throw new DbConnectionException("Error while adding competency to unit");
+            throw new DbConnectionException("Error adding competency to unit");
         }
 
         return res;
@@ -912,7 +912,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
             }
         } catch (Exception e) {
             logger.error("Error", e);
-            throw new DbConnectionException("Error while removing competency from unit");
+            throw new DbConnectionException("Error removing competency from unit");
         }
 
         return res;
@@ -936,7 +936,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
             return res;
         } catch (Exception e) {
             logger.error("Error", e);
-            throw new DbConnectionException("Error while retrieving units");
+            throw new DbConnectionException("Error retrieving units");
         }
     }
 
@@ -1013,7 +1013,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
             return result;
         } catch (Exception e) {
             logger.error("Error", e);
-            throw new DbConnectionException("Error while retrieving user units");
+            throw new DbConnectionException("Error retrieving user units");
         }
     }
 
@@ -1051,7 +1051,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
             return result;
         } catch (Exception e) {
             logger.error("Error", e);
-            throw new DbConnectionException("Error while retrieving user units");
+            throw new DbConnectionException("Error retrieving user units");
         }
     }
 
@@ -1083,7 +1083,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
             return getRootUnitsWithSubunits(units);
         } catch (Exception e) {
             logger.error("Error", e);
-            throw new DbConnectionException("Error while retrieving unit data");
+            throw new DbConnectionException("Error retrieving unit data");
         }
     }
 
@@ -1171,7 +1171,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
             return type == CredentialType.Original ? isOriginalCredentialConnectedToUnit(credId, unitId) : isCredentialDeliveryConnectedToUnit(credId, unitId);
         } catch (Exception e) {
             logger.error("Error", e);
-            throw new DbConnectionException("Error while retrieving credential info");
+            throw new DbConnectionException("Error retrieving credential info");
         }
     }
 

@@ -93,7 +93,7 @@ public class CompetenceDataFactory {
 	public List<AssessmentTypeConfig> getAssessmentConfig(Collection<CompetenceAssessmentConfig> assessmentConfig) {
 		List<AssessmentTypeConfig> types = new ArrayList<>();
 		for (CompetenceAssessmentConfig cac : assessmentConfig) {
-			types.add(new AssessmentTypeConfig(cac.getId(), cac.getAssessmentType(), cac.isEnabled(), cac.getAssessmentType() == AssessmentType.INSTRUCTOR_ASSESSMENT));
+			types.add(new AssessmentTypeConfig(cac.getId(), cac.getAssessmentType(), cac.isEnabled(), cac.getAssessmentType() == AssessmentType.INSTRUCTOR_ASSESSMENT, cac.getBlindAssessmentMode()));
 		}
 		return types;
 	}

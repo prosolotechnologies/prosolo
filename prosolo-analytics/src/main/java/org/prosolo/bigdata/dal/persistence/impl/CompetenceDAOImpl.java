@@ -1,7 +1,6 @@
 package org.prosolo.bigdata.dal.persistence.impl;
 
 import org.apache.log4j.Logger;
-import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
@@ -22,13 +21,7 @@ public class CompetenceDAOImpl extends GenericDAOImpl implements CompetenceDAO {
 			.getLogger(CompetenceDAOImpl.class);
 	
 	public CompetenceDAOImpl() {
-	/*	try{
-		setSession(HibernateUtil.getSessionFactory().openSession());
-	}catch(HibernateException ex){
-		logger.error(ex);
-	}finally{
-		session.close();
-	}*/
+		logger.info("CompetenceDAOImpl constructor init");
 	}
 	
 	@Override
@@ -105,7 +98,6 @@ public class CompetenceDAOImpl extends GenericDAOImpl implements CompetenceDAO {
 			}
 		} catch (IllegalDataStateException e) {
 			logger.error(e);
-			//cee.printStackTrace();
 			throw e;
 		} catch (Exception e) {
 			logger.error(e);

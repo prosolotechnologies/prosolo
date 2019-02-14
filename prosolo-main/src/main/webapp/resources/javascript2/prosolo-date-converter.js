@@ -34,13 +34,23 @@ function convertToRelativeTime(millis) {
 
     //future date
     if (diff < 0) {
-        return moment(millis).format("h:mm a [on] MMM DD, YYYY");
+        // check if the diff is over a year in order to display the year too
+        if (moment(millis).diff(moment(), "years")) {
+            return moment(millis).format("MMM DD, YYYY [at] h:mm A");
+        } else {
+            return moment(millis).format("MMM DD [at] h:mm A");
+        }
     }
 
     // Calculate difference in days
     var diffDays = Math.floor(diff / (24 * 60 * 60 * 1000));
     if (diffDays > 0) {
-        return moment(millis).format("h:mm a [on] MMM DD, YYYY");
+        // check if it was over a year ago in order to display the year too
+        if (moment().diff(moment(millis), "years")) {
+            return moment(millis).format("MMM DD, YYYY [at] h:mm A");
+        } else {
+            return moment(millis).format("MMM DD [at] h:mm A");
+        }
     }
 
     // Calculate difference in hours

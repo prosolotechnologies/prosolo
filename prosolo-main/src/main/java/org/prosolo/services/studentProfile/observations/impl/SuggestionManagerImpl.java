@@ -43,7 +43,7 @@ public class SuggestionManagerImpl extends AbstractManagerImpl implements Sugges
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while saving suggestion");
+			throw new DbConnectionException("Error saving suggestion");
 		}
 	}
 	
@@ -55,7 +55,7 @@ public class SuggestionManagerImpl extends AbstractManagerImpl implements Sugges
 			s.setId(id);
 			persistence.currentManager().delete(s);
 		}catch(Exception e){
-			throw new DbConnectionException("Error while deleting suggestion");
+			throw new DbConnectionException("Error deleting suggestion");
 		}
 	}
 	
@@ -99,7 +99,7 @@ public class SuggestionManagerImpl extends AbstractManagerImpl implements Sugges
 	
 			return new ArrayList<Long>();
 		}catch(Exception e){
-			throw new DbConnectionException("Error while validating suggestion name");
+			throw new DbConnectionException("Error validating suggestion name");
 		}
 	}
 	

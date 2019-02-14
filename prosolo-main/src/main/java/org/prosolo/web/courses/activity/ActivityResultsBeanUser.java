@@ -17,6 +17,7 @@ import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
+import org.prosolo.services.user.data.UserData;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
@@ -86,7 +87,7 @@ public class ActivityResultsBeanUser implements Serializable {
 						CommentsData commData = ad.getResultData().getResultComments();
 						commData.setNumberOfComments(numberOfComments);
 						
-						UserData ud = new UserData(loggedUser.getUserId(), loggedUser.getFullName(), 
+						UserData ud = new UserData(loggedUser.getUserId(), loggedUser.getFullName(),
 								loggedUser.getAvatar(), null, null, true);
 						ad.getResultData().setUser(ud);
 					}
@@ -103,7 +104,7 @@ public class ActivityResultsBeanUser implements Serializable {
 				PageUtil.notFound();
 			} catch(Exception e) {
 				logger.error(e);
-				PageUtil.fireErrorMessage("Error while loading activity results");
+				PageUtil.fireErrorMessage("Error loading activity results");
 			}
 		} else {
 			PageUtil.notFound();
@@ -149,7 +150,7 @@ public class ActivityResultsBeanUser implements Serializable {
 			}
 		} catch (DbConnectionException e) {
 			logger.error(e);
-			PageUtil.fireErrorMessage("Error while loading activity response");
+			PageUtil.fireErrorMessage("Error loading activity response");
 		}
 	}
 	
@@ -232,7 +233,7 @@ public class ActivityResultsBeanUser implements Serializable {
 			loadNextToLearnInfo();
 		} catch (DbConnectionException e) {
 			logger.error("Error", e);
-			PageUtil.fireErrorMessage("Error while marking activity as completed");
+			PageUtil.fireErrorMessage("Error marking activity as completed");
 		}
 	}
 	

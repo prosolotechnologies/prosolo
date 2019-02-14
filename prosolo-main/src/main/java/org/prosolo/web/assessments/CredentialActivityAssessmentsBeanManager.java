@@ -161,7 +161,7 @@ public class CredentialActivityAssessmentsBeanManager implements Serializable, P
 				PageUtil.notFound();
 			} catch (Exception e) {
 				logger.error(e);
-				PageUtil.fireErrorMessage("Error while loading assessmentsSummary results");
+				PageUtil.fireErrorMessage("Error loading assessmentsSummary results");
 			}
 		} else {
 			PageUtil.notFound();
@@ -191,7 +191,7 @@ public class CredentialActivityAssessmentsBeanManager implements Serializable, P
 			assessmentsSummary.setStudentResults(results);
 		} catch(Exception e) {
 			logger.error(e);
-			PageUtil.fireErrorMessage("Error while loading assessmentsSummary results");
+			PageUtil.fireErrorMessage("Error loading assessmentsSummary results");
 		}
 	}
 	
@@ -233,7 +233,7 @@ public class CredentialActivityAssessmentsBeanManager implements Serializable, P
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			PageUtil.fireErrorMessage("Error while trying to initialize assessment comments");
+			PageUtil.fireErrorMessage("Error trying to initialize assessment comments");
 		}
 	}
 	

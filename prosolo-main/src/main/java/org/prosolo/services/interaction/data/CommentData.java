@@ -5,7 +5,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.prosolo.common.util.date.DateUtil;
-import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.user.data.UserData;
 
 public class CommentData {
 

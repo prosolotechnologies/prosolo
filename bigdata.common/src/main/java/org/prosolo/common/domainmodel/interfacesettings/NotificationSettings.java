@@ -1,12 +1,11 @@
 package org.prosolo.common.domainmodel.interfacesettings;
 
-import java.io.Serializable;
-
-import javax.persistence.*;
-
 import org.hibernate.annotations.Type;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.notifications.NotificationType;
+
+import javax.persistence.*;
+import java.io.Serializable;
 
 /**
  * @author Nikola Milikic
@@ -14,7 +13,7 @@ import org.prosolo.common.domainmodel.user.notifications.NotificationType;
  *
  */
 @Entity
-@Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"type", "user"})})
+//unique constraint added from the script
 public class NotificationSettings implements Serializable {
 
 	private static final long serialVersionUID = 7481670064380351424L;

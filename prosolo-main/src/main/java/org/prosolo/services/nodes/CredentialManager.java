@@ -7,7 +7,6 @@ import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.annotation.Tag;
-import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.assessment.AssessorAssignmentMethod;
 import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.event.context.data.UserContextData;
@@ -16,6 +15,7 @@ import org.prosolo.search.util.credential.CredentialDeliverySortOption;
 import org.prosolo.search.util.credential.CredentialMembersSearchFilter;
 import org.prosolo.search.util.credential.CredentialSearchFilterManager;
 import org.prosolo.services.assessment.data.AssessmentTypeConfig;
+import org.prosolo.services.common.data.SortOrder;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventQueue;
 import org.prosolo.services.general.AbstractManager;
@@ -24,6 +24,9 @@ import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.credential.*;
 import org.prosolo.services.nodes.data.resourceAccess.*;
+import org.prosolo.services.user.data.StudentData;
+import org.prosolo.services.user.data.UserData;
+import org.prosolo.services.user.data.UserLearningProgress;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.Date;
@@ -217,41 +220,24 @@ public interface CredentialManager extends AbstractManager {
 	 * Method for getting all credentials (nevertheless the progress)
 	 * 
 	 * @param userId
-	 * @param onlyForPublicPublicly - whether to load only credentials mark to be visible on public profile
 	 * @return
 	 * @throws DbConnectionException
 	 */
-	List<TargetCredentialData> getAllCredentials(long userId, boolean onlyForPublicPublicly) throws DbConnectionException;
-	
-	/**
-	 * Method for getting all completed credentials (credentials that has progress == 100)
-	 * 
-	 * @param userId
-	 * @param onlyPubliclyVisible - whether to load only credentials mark to be visible on public profile
-	 * @return
-	 * @throws DbConnectionException
-	 */
-	List<CategorizedCredentialsData> getAllCompletedCredentials(long userId, boolean onlyPubliclyVisible) throws DbConnectionException;
-	
-	/**
-	 * Method for getting all uncompleted credentials (credentials that has progress < 100)
-	 * 
-	 * @param userId
-	 * @param onlyPubliclyVisible - whether to load only credentials mark to be visible on public profile
-	 * @return
-	 * @throws DbConnectionException
-	 */
-	List<CategorizedCredentialsData> getAllInProgressCredentials(long userId, boolean onlyPubliclyVisible) throws DbConnectionException;
+	List<TargetCredentialData> getAllCredentials(long userId) throws DbConnectionException;
 
-		
 	/**
-	 * Updated hidden_from_profile_field
-	 * @param id
-	 * @param hiddenFromProfile
+	 * Retrieves all credentials of a student that the user (requesting those data) has an access to. Manager can access
+	 * to all credentials, where an Instructor can access only credentials where they are (were) an assigned instructor
+	 * the the student.
+	 *
+	 * @param studentId	id of the student
+	 * @param userId	id the of the user requesting the credentials
+	 * @param accessMode	access mode of the user requesting the credentials
+	 * @return	list of credential progress data instances
 	 * @throws DbConnectionException
 	 */
-	void updateHiddenTargetCredentialFromProfile(long id, boolean hiddenFromProfile) throws DbConnectionException;
-	
+	List<CredentialProgressData> getCredentialsWithAccessTo(long studentId, long userId, AccessMode accessMode) throws DbConnectionException;
+
 	TargetCredential1 getTargetCredential(long credentialId, long userId, CredentialLoadConfig credentialLoadConfig) throws DbConnectionException;
 	
 	List<CredentialData> getTargetCredentialsProgressAndInstructorInfoForUser(long userId) throws DbConnectionException;
@@ -364,7 +350,7 @@ public interface CredentialManager extends AbstractManager {
 	CredentialInStagesDeliveriesSummaryData getOngoingDeliveriesSummaryDataFromAllStages(long firstStageCredentialId) throws DbConnectionException;
 	
 	RestrictedAccessResult<List<CredentialData>> getCredentialDeliveriesWithAccessRights(long credId, 
-			long userId, CredentialDeliverySortOption sortOption, CredentialSearchFilterManager filter) throws DbConnectionException;
+			long userId, SortOrder<CredentialDeliverySortOption> sortOrder, CredentialSearchFilterManager filter) throws DbConnectionException;
 	
 	void archiveCredential(long credId, UserContextData context) throws DbConnectionException;
 
@@ -404,7 +390,7 @@ public interface CredentialManager extends AbstractManager {
 
 	List<Tag> getHashtagsForCredential(long credentialId) throws DbConnectionException;
 
-	List<CredentialData> getCredentialDeliveriesForUserWithInstructPrivilege(long userId, CredentialDeliverySortOption sortOption)
+	List<CredentialData> getCredentialDeliveriesForUserWithInstructPrivilege(long userId, SortOrder<CredentialDeliverySortOption> sortOrder)
 			throws DbConnectionException;
 
 	long getCredentialIdForDelivery(long deliveryId) throws DbConnectionException;
@@ -458,42 +444,9 @@ public interface CredentialManager extends AbstractManager {
 
 	List<AssessmentTypeConfig> getCredentialAssessmentTypesConfig(long credId) throws DbConnectionException;
 
-	/**
-	 *
-	 * @param credId
-	 * @param assessmentType
-	 * @return
-	 * @throws DbConnectionException
-	 */
-	BlindAssessmentMode getCredentialBlindAssessmentModeForAssessmentType(long credId, AssessmentType assessmentType);
-
 	long getTargetCredentialId(long credId, long studentId) throws DbConnectionException;
 
 	CredentialCategory getCredentialCategory(long categoryId) throws DbConnectionException;
-
-	/**
-	 *
-	 * @param credentialId
-	 * @param studentId
-	 * @return
-	 * @throws DbConnectionException
-	 */
-	CredentialData getTargetCredentialDataWithEvidencesAndAssessmentCount(long credentialId, long studentId);
-
-	void updateCredentialAssessmentsVisibility(long targetCredentialId, boolean displayAssessments);
-
-	void updateCompetenceAssessmentsVisibility(long targetCredentialId, boolean displayAssessments);
-
-	void updateEvidenceVisibility(long targetCredentialId, boolean displayEvidence);
-
-	/**
-	 *
-	 * @param credId
-	 * @param studentId
-	 * @return
-	 * @throws DbConnectionException
-	 */
-	boolean isCredentialAssessmentDisplayEnabled(long credId, long studentId);
 
 	/**
 	 *
@@ -515,5 +468,14 @@ public interface CredentialManager extends AbstractManager {
 	boolean doesCredentialHaveAtLeastOneEvidenceBasedCompetence(long credId);
 
 	AssessorAssignmentMethod getAssessorAssignmentMethod(long credId);
+
+	/**
+	 * Returns basic info (id, title) for credentials user completed and that are not already added
+	 * to the profile
+	 *
+	 * @param userId
+	 * @return
+	 */
+	List<CredentialIdData> getCompletedCredentialsBasicDataForCredentialsNotAddedToProfile(long userId);
 
 }

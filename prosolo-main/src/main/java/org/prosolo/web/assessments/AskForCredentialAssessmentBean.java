@@ -2,12 +2,10 @@ package org.prosolo.web.assessments;
 
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
-import org.prosolo.common.domainmodel.assessment.AssessmentType;
-import org.prosolo.common.domainmodel.credential.BlindAssessmentMode;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.LearningResourceType;
-import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.user.data.UserData;
 import org.prosolo.services.nodes.data.assessments.AssessmentNotificationData;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -57,7 +55,7 @@ public class AskForCredentialAssessmentBean extends AskForAssessmentBean impleme
                             .getPeerAssessorIdsForUserAndCredential(resourceId, loggedUser.getUserId()));
                 }
 
-                PaginatedResult<UserData> result = userTextSearch.searchPeersWithoutAssessmentRequest(
+                PaginatedResult<UserData> result = userTextSearch.searchCredentialPeers(
                         loggedUser.getOrganizationId(), peerSearchTerm, 3, resourceId, usersToExcludeFromPeerSearch);
                 peersForAssessment = result.getFoundNodes();
             } catch (Exception e) {

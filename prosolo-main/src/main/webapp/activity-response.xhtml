@@ -61,49 +61,44 @@
 	            	<h:link value="#{msg['label.credential.plural']}" outcome="/credentialLibrary"/>
 	            </li>
 	            <li>
-	            	<h:link 
-	            		value="#{activityResultsBeanUser.competenceData.credentialTitle}"
-	            		outcome="/credential"
-	            		onclick="sendLogPageNavigation('/credential.xhtml', 
-								'#{facesContext.viewRoot.viewId}', 
-								'#{util:addSubContext(learningContext, &#34;name:breadcrumbs|context:/name:CREDENTIAL|id:&#34;.concat(activityResultsBeanUser.decodedCredId).concat(&#34;/&#34;))}', 
-								'');">
+	            	<h:link value="#{util:shortenAndAddDots(activityResultsBeanUser.competenceData.credentialTitle)}"
+							outcome="/credential"
+							onclick="sendLogPageNavigation('/credential.xhtml',
+															'#{facesContext.viewRoot.viewId}',
+															'#{util:addSubContext(learningContext, &#34;name:breadcrumbs|context:/name:CREDENTIAL|id:&#34;.concat(activityResultsBeanUser.decodedCredId).concat(&#34;/&#34;))}',
+															'');">
 	            		<f:param name="id" value="#{param['credId']}"></f:param>
 	            	</h:link>
 	            </li>
 	            <li>
-	            	<h:link 
-	            		value="#{activityResultsBeanUser.competenceData.title}"
-	            		outcome="/competence"
-	            		onclick="sendLogPageNavigation('/competence.xhtml', 
-								'#{facesContext.viewRoot.viewId}', 
-								'#{util:addSubContext(learningContext, &#34;name:breadcrumbs|context:/name:COMPETENCE|id:&#34;.concat(activityResultsBeanUser.decodedCompId).concat(&#34;/&#34;))}', 
-								'');">
+	            	<h:link value="#{util:shortenAndAddDots(activityResultsBeanUser.competenceData.title)}"
+							outcome="/competence"
+							onclick="sendLogPageNavigation('/competence.xhtml',
+															'#{facesContext.viewRoot.viewId}',
+															'#{util:addSubContext(learningContext, &#34;name:breadcrumbs|context:/name:COMPETENCE|id:&#34;.concat(activityResultsBeanUser.decodedCompId).concat(&#34;/&#34;))}',
+															'');">
 	            		<f:param name="compId" value="#{param['compId']}"></f:param>
 	            		<f:param name="credId" value="#{param['credId']}"></f:param>
 	            	</h:link>
 	            </li>
 	            <li>
-	            	<h:link 
-	            		value="#{activityResultsBeanUser.competenceData.activityToShowWithDetails.title}"
-	            		outcome="/activity"
-	            		onclick="sendLogPageNavigation('/activity.xhtml', 
-								'#{facesContext.viewRoot.viewId}', 
-								'#{util:addSubContext(learningContext, &#34;name:breadcrumbs|context:/name:activity|id:&#34;.concat(activityResultsBeanUser.decodedActId).concat(&#34;/&#34;))}', 
-								'');">
+	            	<h:link value="#{util:shortenAndAddDots(activityResultsBeanUser.competenceData.activityToShowWithDetails.title)}"
+							outcome="/activity"
+							onclick="sendLogPageNavigation('/activity.xhtml',
+														'#{facesContext.viewRoot.viewId}',
+														'#{util:addSubContext(learningContext, &#34;name:breadcrumbs|context:/name:activity|id:&#34;.concat(activityResultsBeanUser.decodedActId).concat(&#34;/&#34;))}',
+														'');">
 						<f:param name="actId" value="#{param['actId']}"></f:param>
 	            		<f:param name="compId" value="#{param['compId']}"></f:param>
 	            		<f:param name="credId" value="#{param['credId']}"></f:param>
 	            	</h:link>
-	            	
 	            </li>
 	            <li>
-	            	<h:link
-	            		outcome="/activity-responses"
-	            		onclick="sendLogPageNavigation('/activity-responses.xhtml', 
-								'#{facesContext.viewRoot.viewId}', 
-								'#{util:addSubContext(learningContext, &#34;name:breadcrumbs|context:/name:result|id:&#34;.concat(activityResultsBeanUser.targetActivityId).concat(&#34;/&#34;))}', 
-								'');">
+	            	<h:link outcome="/activity-responses"
+							onclick="sendLogPageNavigation('/activity-responses.xhtml',
+														'#{facesContext.viewRoot.viewId}',
+														'#{util:addSubContext(learningContext, &#34;name:breadcrumbs|context:/name:result|id:&#34;.concat(activityResultsBeanUser.targetActivityId).concat(&#34;/&#34;))}',
+														'');">
 	            		<f:param name="credId" value="#{param['credId']}" />
 		            	<f:param name="compId" value="#{param['compId']}" />
 		            	<f:param name="actId" value="#{param['actId']}" />
@@ -111,7 +106,7 @@
 	            	</h:link>
 	            </li>
 	            <li class="active">
-	            	#{activityResultsBeanUser.resultOwnerFullName}
+	            	#{util:shortenAndAddDots(activityResultsBeanUser.resultOwnerFullName)}
 	            </li>
 	        </ol>
 	    </ui:fragment>
@@ -121,42 +116,39 @@
     				<h:link value="#{msg['label.competence.plural']}" outcome="competenceLibrary"/>
 	            </li> 
     			<li>
-	            	<h:link 
-	            		value="#{activityResultsBeanUser.competenceData.title}"
-	            		outcome="/competence"
-	            		onclick="sendLogPageNavigation('/competence.xhtml', 
-								'#{facesContext.viewRoot.viewId}', 
-								'#{util:addSubContext(learningContext, &#34;name:breadcrumbs|context:/name:COMPETENCE|id:&#34;.concat(activityResultsBeanUser.decodedCompId).concat(&#34;/&#34;))}', 
-								'');">
+	            	<h:link value="#{util:shortenAndAddDots(activityResultsBeanUser.competenceData.title)}"
+							outcome="/competence"
+							onclick="sendLogPageNavigation('/competence.xhtml',
+															'#{facesContext.viewRoot.viewId}',
+															'#{util:addSubContext(learningContext, &#34;name:breadcrumbs|context:/name:COMPETENCE|id:&#34;.concat(activityResultsBeanUser.decodedCompId).concat(&#34;/&#34;))}',
+															'');">
 	            		<f:param name="compId" value="#{param['compId']}"></f:param>
 	            	</h:link>
 	            </li> 
 	            <li>
-	            	<h:link 
-	            		value="#{activityResultsBeanUser.competenceData.activityToShowWithDetails.title}"
-	            		outcome="/activity"
-	            		onclick="sendLogPageNavigation('/activity.xhtml', 
-								'#{facesContext.viewRoot.viewId}', 
-								'#{util:addSubContext(learningContext, &#34;name:breadcrumbs|context:/name:activity|id:&#34;.concat(activityResultsBeanUser.decodedActId).concat(&#34;/&#34;))}', 
-								'');">
+	            	<h:link value="#{util:shortenAndAddDots(activityResultsBeanUser.competenceData.activityToShowWithDetails.title)}"
+							outcome="/activity"
+							onclick="sendLogPageNavigation('/activity.xhtml',
+														'#{facesContext.viewRoot.viewId}',
+														'#{util:addSubContext(learningContext, &#34;name:breadcrumbs|context:/name:activity|id:&#34;.concat(activityResultsBeanUser.decodedActId).concat(&#34;/&#34;))}',
+														'');">
 						<f:param name="actId" value="#{param['actId']}"></f:param>
 	            		<f:param name="compId" value="#{param['compId']}"></f:param>
 	            	</h:link>
 	            </li>        
 	            <li>
-	            	<h:link
-	            		outcome="/activity-responses"
-	            		onclick="sendLogPageNavigation('/activity-responses.xhtml', 
-								'#{facesContext.viewRoot.viewId}', 
-								'#{util:addSubContext(learningContext, &#34;name:breadcrumbs|context:/name:result|id:&#34;.concat(activityResultsBeanUser.targetActivityId).concat(&#34;/&#34;))}', 
-								'');">
+	            	<h:link outcome="/activity-responses"
+	            			onclick="sendLogPageNavigation('/activity-responses.xhtml',
+															'#{facesContext.viewRoot.viewId}',
+															'#{util:addSubContext(learningContext, &#34;name:breadcrumbs|context:/name:result|id:&#34;.concat(activityResultsBeanUser.targetActivityId).concat(&#34;/&#34;))}',
+															'');">
 		            	<f:param name="compId" value="#{param['compId']}" />
 		            	<f:param name="actId" value="#{param['actId']}" />
 	            		Responses
 	            	</h:link>
 	            </li>
 	            <li class="active">
-	            	#{activityResultsBeanUser.resultOwnerFullName}
+	            	#{util:shortenAndAddDots(activityResultsBeanUser.resultOwnerFullName)}
 	            </li>
 	        </ol>
     	</ui:fragment>
@@ -198,22 +190,30 @@
 					</div>
 					
 					<div class="modal-footer">
-						<utilcomp:simpleFileUpload
-							id="simpleFileUpload"
-							fileUploadListenerMethodName="handleFileUpload"
-							fileUploadListenerMethod="#{activityResultsBeanUser.handleFileUpload}"
-							toUpdate=":panelUploadAssignment :growlMain"
-							uploadButtonStyle="btn btn-green"
-							chooseFileLabel="Upload New Response"
-							learningContext="#{learningContext}"
-							service="name:upload_result_dialog"
-							oncomplete="$('#newRes').modal('hide');"
-						/>
+						<utilcomp:simpleFileUpload id="updateActivityResult"
+												   fileUploadListenerMethodName="handleFileUpload"
+												   fileUploadListenerMethod="#{activityResultsBeanUser.handleFileUpload}"
+												   toUpdate=":panelUploadAssignment :growlMain"
+												   uploadButtonStyle="btn btn-green"
+												   chooseFileLabel="Upload New Response"
+												   learningContext="#{learningContext}"
+												   service="name:upload_result_dialog"
+												   oncomplete="$('#newRes').modal('hide');"
+												   fileSizeValidationMessageContainer="#updateActivityResultFileUploadValidation"/>
+
 						<a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+						<small id="updateActivityResultFileUploadValidation" class="redText displayBlock"></small>
 					</div>
 				</div>
 			</div>
 		</div>
+		<script>
+			$(function () {
+				$('#newRes').on('hidden.bs.modal', function() {
+					$('#updateActivityResultFileUploadValidation').html('');
+				});
+			})
+		</script>
 	</h:form>
 </ui:define>
 </ui:composition>

@@ -25,8 +25,8 @@ import org.prosolo.services.interaction.data.factory.CommentDataFactory;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.Role;
-import org.prosolo.services.nodes.data.UserData;
-import org.prosolo.services.util.SortingOption;
+import org.prosolo.services.user.data.UserData;
+import org.prosolo.services.common.data.SortingOption;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -119,10 +119,10 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 
 			if (loadOnlyCommentsFromUsersLearningSameDeliveries) {
 				if (!deliveries.isEmpty()) {
-					query.append("AND (user.id = :userId OR EXISTS " +
+					query.append("AND (user.id = :userId OR comment.managerComment IS TRUE OR EXISTS " +
 							"(from TargetCredential1 cred WHERE cred.user.id = user.id AND cred.credential.id IN (:credentials))) ");
 				} else {
-					query.append("AND user.id = :userId ");
+					query.append("AND user.id = :userId OR comment.managerComment IS TRUE ");
 				}
 			}
 			
@@ -194,7 +194,7 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while loading comments");
+			throw new DbConnectionException("Error loading comments");
 		}
 	}
 	@Override
@@ -225,10 +225,10 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 
 			if (loadOnlyCommentsFromUsersLearningSameDeliveries) {
 				if (!deliveries.isEmpty()) {
-					query.append("AND (user.id = :userId OR EXISTS " +
+					query.append("AND (user.id = :userId OR comment.managerComment IS TRUE OR EXISTS " +
 					"(from TargetCredential1 cred WHERE cred.user.id = user.id AND cred.credential.id IN (:credentials))) ");
 				} else {
-					query.append("AND user.id = :userId ");
+					query.append("AND user.id = :userId OR comment.managerComment IS TRUE ");
 				}
 			}
 			
@@ -296,7 +296,7 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while loading comments");
+			throw new DbConnectionException("Error loading comments");
 		}
 	}
 	
@@ -333,7 +333,7 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while loading comments");
+			throw new DbConnectionException("Error loading comments");
 		}
 	}
 
@@ -389,7 +389,7 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while saving comment like");
+			throw new DbConnectionException("Error  saving comment like");
 		}
 	}
 	
@@ -415,7 +415,7 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while saving comment like");
+			throw new DbConnectionException("Error saving comment like");
 		}
 	}
 	
@@ -428,7 +428,7 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 //		} catch(Exception e) {
 //			logger.error(e);
 //			e.printStackTrace();
-//			throw new DbConnectionException("Error while saving comment");
+//			throw new DbConnectionException("Error saving comment");
 //		}
 //	}
 
@@ -500,7 +500,7 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while saving activity");
+			throw new DbConnectionException("Error saving activity");
 		}
 	}
 	
@@ -517,7 +517,7 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while updating comment");
+			throw new DbConnectionException("Error updating comment");
 		}
 	}
 	
@@ -562,7 +562,7 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while loading user ids");
+			throw new DbConnectionException("Error loading user ids");
 		}
 	}
 	
@@ -600,7 +600,7 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while loading user id");
+			throw new DbConnectionException("Error loading user id");
 		}
 	}
 
@@ -652,7 +652,7 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while loading user role");
+			throw new DbConnectionException("Error loading user role");
 		}
 	}
 	
@@ -680,7 +680,7 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while retrieving number of comments");
+			throw new DbConnectionException("Error retrieving number of comments");
 		}
 	}
 	
@@ -705,7 +705,7 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while loading comments");
+			throw new DbConnectionException("Error loading comments");
 		}
 	}
 	

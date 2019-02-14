@@ -1,10 +1,9 @@
 package org.prosolo.common.domainmodel.credential;
 
-import org.hibernate.annotations.Type;
-import org.prosolo.common.domainmodel.assessment.AssessmentType;
-import org.prosolo.common.domainmodel.general.BaseEntity;
-
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 
 /**
  * @author stefanvuckovic
@@ -12,13 +11,10 @@ import javax.persistence.*;
  * @since 1.2.0
  */
 @Entity
-@Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"credential", "assessment_type"})})
-public class CredentialAssessmentConfig extends BaseEntity {
+//unique constraint added from the script
+public class CredentialAssessmentConfig extends AssessmentConfig {
 
     private Credential1 credential;
-    private AssessmentType assessmentType;
-    private BlindAssessmentMode blindAssessmentMode = BlindAssessmentMode.OFF;
-    private boolean enabled;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(nullable = false)
@@ -30,33 +26,4 @@ public class CredentialAssessmentConfig extends BaseEntity {
         this.credential = credential;
     }
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, name = "assessment_type")
-    public AssessmentType getAssessmentType() {
-        return assessmentType;
-    }
-
-    public void setAssessmentType(AssessmentType assessmentType) {
-        this.assessmentType = assessmentType;
-    }
-
-    @Type(type = "true_false")
-    @Column(columnDefinition = "char(1) DEFAULT 'F'")
-    public boolean isEnabled() {
-        return enabled;
-    }
-
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
-    }
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    public BlindAssessmentMode getBlindAssessmentMode() {
-        return blindAssessmentMode;
-    }
-
-    public void setBlindAssessmentMode(BlindAssessmentMode blindAssessmentMode) {
-        this.blindAssessmentMode = blindAssessmentMode;
-    }
 }

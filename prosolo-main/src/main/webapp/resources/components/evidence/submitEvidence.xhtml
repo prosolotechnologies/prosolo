@@ -121,16 +121,19 @@
 
 						<h:panelGroup id="panelUploadEvidence">
 							<ui:fragment rendered="#{empty submitEvidenceBean.evidence.url}">
-								<utilcomp:fileUpload
-										uploadFileInfo="Upload File"
-										fileUploadListenerMethodName="handleFileUpload"
-										fileUploadListenerMethod="#{submitEvidenceBean.handleFileUpload}"
-										disabled="false"
-										toUpdate=":#{cc.clientId}:formFileEvidence:panelUploadEvidence"
-								/>
+								<utilcomp:fileUpload id="evidenceFileUpload"
+													 uploadFileInfo="Upload File"
+													 fileUploadListenerMethodName="handleFileUpload"
+													 fileUploadListenerMethod="#{submitEvidenceBean.handleFileUpload}"
+													 disabled="false"
+													 toUpdate=":#{cc.clientId}:formFileEvidence:panelUploadEvidence"
+													 fileSizeValidationMessageContainer="#evidenceFileUploadValidationError"/>
 							</ui:fragment>
+
+							<small id="evidenceFileUploadValidationError" class="redText bottom10 displayBlock">&#160;</small>
+
 							<ui:fragment rendered="#{not empty submitEvidenceBean.evidence.url}">
-								<div class="whiteBox evidenceBox evidenceBoxSmall">
+								<div class="whiteBox evidenceBox evidenceBoxSmall topMinus30">
 									<div class="evidenceTop">
 										<div class="evidenceTopLeft #{styleUtilBean.getEvidenceFileTypeIcon(submitEvidenceBean.evidence.url)}">
 											<div class="icon iconType"></div>
@@ -172,7 +175,7 @@
 										 label="Relation to #{msg['label.competence'].toLowerCase()} field"
 										 value="#{submitEvidenceBean.evidence.relationToCompetence}"
 										 required="true"
-										 requiredMessage="Required field"
+										 requiredMessage="Relation to #{msg['label.competence'].toLowerCase()} is required"
 										 placeholder="How does this evidence show that you have met the requirements of the #{msg['label.competence'].toLowerCase()}?"
 										 h:autocomplete="off">
 									<f:validateLength maximum="2000"/>
@@ -254,7 +257,7 @@
 										 label="Relation to #{msg['label.competence'].toLowerCase()} field"
 										 value="#{submitEvidenceBean.evidence.relationToCompetence}"
 										 required="true"
-										 requiredMessage="Required field"
+										 requiredMessage="Relation to #{msg['label.competence'].toLowerCase()} is required"
 										 placeholder="How does this evidence show that you have met the requirements of the #{msg['label.competence'].toLowerCase()}?"
 										 autocomplete="off">
 									<f:validateLength maximum="2000"/>
@@ -289,7 +292,7 @@
 									 value="#{submitEvidenceBean.evidence.title}"
 									 placeholder="Evidence title"
 									 required="true"
-									 requiredMessage="Required field"
+									 requiredMessage="Evidence title is required"
 									 autocomplete="off">
 								<f:validateLength maximum="500"/>
 						</h:inputText>
@@ -323,7 +326,7 @@
 										 value="#{submitEvidenceBean.evidence.relationToCompetence}"
 										 placeholder="How does this evidence show that you have met the requirements of the #{msg['label.competence'].toLowerCase()}?"
 										 required="true"
-										 requiredMessage="Required field"
+										 requiredMessage="Relation to #{msg['label.competence'].toLowerCase()} is required"
 										 autocomplete="off">
 									<f:validateLength maximum="2000"/>
 							</h:inputText>
@@ -374,7 +377,7 @@
 						<h:panelGroup id="panelEvidenceSearchResults">
 							<ul class="list">
 								<ui:fragment rendered="#{empty learningEvidenceSearchBean.evidences}">
-									<li class="noPeople">No pieces of evidence.</li>
+									<li class="noPeople">No evidence.</li>
 								</ui:fragment>
 								<ui:repeat value="#{learningEvidenceSearchBean.evidences}" var="ev">
 									<li>
@@ -429,7 +432,7 @@
 													 label="Relation to #{msg['label.competence'].toLowerCase()} field"
 													 value="#{submitEvidenceBean.evidence.relationToCompetence}"
 													 required="true"
-													 requiredMessage="Required field"
+													 requiredMessage="Relation to #{msg['label.competence'].toLowerCase()} is required"
 													 placeholder="How does this evidence show that you have met the requirements of the #{msg['label.competence'].toLowerCase()}?"
 													 autocomplete="off">
 											<f:validateLength maximum="2000"/>

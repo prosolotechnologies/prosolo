@@ -19,13 +19,12 @@ import org.prosolo.services.activityWall.factory.RichContentDataFactory;
 import org.prosolo.services.activityWall.impl.data.ObjectData;
 import org.prosolo.services.activityWall.impl.data.SocialActivityData1;
 import org.prosolo.services.activityWall.impl.data.SocialActivityType;
-import org.prosolo.services.htmlparser.HTMLParser;
 import org.prosolo.services.htmlparser.LinkParser;
 import org.prosolo.services.htmlparser.LinkParserFactory;
 import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.interfaceSettings.InterfaceSettingsManager;
 import org.prosolo.services.media.util.LinkParserException;
-import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.user.data.UserData;
 import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview1;
 import org.prosolo.services.nodes.data.activity.attachmentPreview.MediaData;
 import org.prosolo.services.upload.UploadManager;
@@ -90,7 +89,7 @@ public class ActivityWallBean implements Serializable {
 	@PostConstruct
 	public void init() {
 		filters = StatusWallFilter.values();
-		FilterType ft = loggedUser.getSelectedStatusWallFilter().getFilterType();
+		FilterType ft = interfaceSettingsManager.getChosenFilter(loggedUser.getUserId());
 		for(StatusWallFilter swf : filters) {
 			if(swf.getFilter().getFilterType() == ft) {
 				filter = swf;
@@ -196,15 +195,11 @@ public class ActivityWallBean implements Serializable {
 		try {
 			FilterType filterType = filter.getFilter().getFilterType();
 			
-			if (loggedUser.getSelectedStatusWallFilter().getFilterType() != filterType) {
-				logger.debug("User "+loggedUser.getUserId()+" is changing Activity Wall filter to '"+filterType+"'.");
-				boolean successful = interfaceSettingsManager
-						.changeActivityWallFilter(loggedUser.getInterfaceSettings(), filterType, 0);
+			logger.debug("User "+loggedUser.getUserId()+" is changing Activity Wall filter to '"+filterType+"'.");
+			boolean successful = interfaceSettingsManager
+					.changeActivityWallFilter(loggedUser.getUserId(), filterType, 0);
 				
 				if (successful) {
-					loggedUser.refreshUserSettings();
-					loggedUser.loadStatusWallFilter(filterType, 0);
-					
 					this.filter = filter;
 					initializeActivities();
 					
@@ -212,7 +207,7 @@ public class ActivityWallBean implements Serializable {
 					PageUtil.fireSuccessfulInfoMessage("The Activity Wall filter has been changed");
 				} else {
 					logger.error("User "+loggedUser.getUserId()+" could not change Activity Wall filter to '"+filterType+"'.");
-					PageUtil.fireErrorMessage("Error chaniging the Activity Wall filter");
+					PageUtil.fireErrorMessage("Error changing the Activity Wall filter");
 				}
 
 				UserContextData context = loggedUser.getUserContext();
@@ -229,10 +224,8 @@ public class ActivityWallBean implements Serializable {
 					actionLogger.logEventWithIp(EventType.FILTER_CHANGE, context, loggedUser.getIpAddress(),
 							parameters);
 				});
-			}
 		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
+			logger.error("error", e);
 			PageUtil.fireErrorMessage("There was an error with changing Activity Wall filter!");
 		}
 	}
@@ -252,7 +245,7 @@ public class ActivityWallBean implements Serializable {
 			newSocialActivity = new SocialActivityData1();
 		} catch (DbConnectionException e) {
 			logger.error(e.getMessage());
-			PageUtil.fireErrorMessage("Error while posting status");
+			PageUtil.fireErrorMessage("Error posting status");
 		}
 	}
 	
@@ -266,7 +259,8 @@ public class ActivityWallBean implements Serializable {
 			populateDataForNewPost(postShareSocialActivity, postShare, SocialActivityType.Post_Reshare);
 			ObjectData obj = objectFactory.getObjectData(socialActivityForShare.getId(), null,
 					ResourceType.PostSocialActivity, socialActivityForShare.getActor().getId(), 
-					socialActivityForShare.getActor().getFullName(), 
+					socialActivityForShare.getActor().getName(),
+					socialActivityForShare.getActor().getLastName(),
 					loggedUser.getLocale());
 			postShareSocialActivity.setObject(obj);
 			postShareSocialActivity.setText(postShareText);
@@ -279,7 +273,7 @@ public class ActivityWallBean implements Serializable {
 			postShareText = null;
 		} catch (DbConnectionException e) {
 			logger.error(e.getMessage());
-			PageUtil.fireErrorMessage("Error while sharing post!");
+			PageUtil.fireErrorMessage("Error sharing post!");
 		}
 	}
 

@@ -11,7 +11,12 @@
     <utilcomp:messagesBundle var="msg" />
 
     <ui:define name="windowTitle">
-        Edit - #{learningEvidenceEditBean.evidence.title} - Evidence - ProSolo
+        <ui:fragment rendered="#{learningEvidenceEditBean.createUseCase}">
+            Add - Evidence - ProSolo
+        </ui:fragment>
+        <ui:fragment rendered="#{!learningEvidenceEditBean.createUseCase}">
+            Edit - #{learningEvidenceEditBean.evidence.title} - Evidence - ProSolo
+        </ui:fragment>
     </ui:define>
 
     <ui:define name="metadata">
@@ -38,11 +43,11 @@
         <div class="container">
             <ol class="breadcrumb">
                 <li>
-                    <h:link outcome="/evidences">
+                    <h:link outcome="/evidence-repository">
                         Evidence
                     </h:link>
                 </li>
-                <li class="active">#{learningEvidenceEditBean.createUseCase ? 'New Evidence' : learningEvidenceEditBean.evidence.title}</li>
+                <li class="active">#{learningEvidenceEditBean.createUseCase ? 'New Evidence' : util:shortenAndAddDots(learningEvidenceEditBean.evidence.title)}</li>
             </ol>
         </div>
 

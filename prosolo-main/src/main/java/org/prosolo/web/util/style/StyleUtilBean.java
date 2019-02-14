@@ -2,15 +2,14 @@ package org.prosolo.web.util.style;
 
 import org.prosolo.common.domainmodel.content.ImageSize;
 import org.prosolo.common.domainmodel.user.notifications.NotificationType;
-import org.prosolo.common.util.Pair;
+import org.prosolo.common.domainmodel.user.socialNetworks.SocialNetworkName;
 import org.prosolo.services.assessment.data.grading.AssessmentGradeSummary;
 import org.prosolo.services.assessment.data.grading.GradeData;
 import org.prosolo.services.assessment.data.grading.GradingMode;
 import org.prosolo.services.assessment.data.grading.RubricAssessmentGradeSummary;
 import org.prosolo.services.nodes.data.ActivityType;
-import org.prosolo.services.nodes.data.LearningResourceType;
-import org.prosolo.services.nodes.data.credential.CredentialDeliveryStatus;
 import org.prosolo.services.nodes.data.activity.attachmentPreview.MediaType1;
+import org.prosolo.services.nodes.data.credential.CredentialDeliveryStatus;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -132,7 +131,7 @@ public class StyleUtilBean implements Serializable {
 			case "odt":
 			case "rtf":
 			case "pdf":
-				return "evidenceText";
+				return "evidenceDoc";
 			case "jpg":
 			case "jpeg":
 			case "png":
@@ -160,15 +159,33 @@ public class StyleUtilBean implements Serializable {
 			case "7z":
 				return "evidenceArchive";
 			default:
-				return "evidenceDoc";
+				return "evidenceLink";
 		}
 	}
 
 	public String getGradeStarClass(AssessmentGradeSummary gradeSummary, String nongradedClass, boolean returnGradeClass) {
-		if (gradeSummary == null || gradeSummary.getGrade() == 0) {
+		if (gradeSummary == null) {
+			return getGradeStarClass(0, 0, nongradedClass, returnGradeClass);
+		}
+		return getGradeStarClass(gradeSummary.getGrade(), gradeSummary.getOutOf(), nongradedClass, returnGradeClass);
+	}
+
+	public String getGradeStarClass(int pointsAchieved, int maxPoints, String nongradedClass, boolean returnGradeClass) {
+		if (pointsAchieved <= 0) {
 			return nongradedClass;
 		}
-		return returnGradeClass ? "rubricStars has" + gradeSummary.getOutOf() + "Stars rubricStar0" + gradeSummary.getGrade() : "";
+		return returnGradeClass ? "rubricStars has" + maxPoints + "Stars rubricStar0" + pointsAchieved : "";
+	}
+
+	public String getGradeStarClassForGradeData(org.prosolo.services.user.data.profile.grade.GradeData gradeData, String nongradedClass, boolean returnGradeClass) {
+		if (gradeData == null) {
+			return getGradeStarClass(0, 0, nongradedClass, returnGradeClass);
+		}
+		return getGradeStarClass(gradeData.getScaledGrade(), gradeData.getScaledMaxGrade(), nongradedClass, returnGradeClass);
+	}
+
+	public String getGradeStarClassForGradeData(org.prosolo.services.user.data.profile.grade.GradeData gradeData) {
+		return getGradeStarClassForGradeData(gradeData, "", true);
 	}
 
 	public String getGradeStarClass(AssessmentGradeSummary gradeSummary) {
@@ -177,6 +194,10 @@ public class StyleUtilBean implements Serializable {
 
 	public String getEmptyStarClass(AssessmentGradeSummary gradeSummary) {
 		return getGradeStarClass(gradeSummary, "starEmpty",false);
+	}
+
+	public String getEmptyStarClassForGradeData(org.prosolo.services.user.data.profile.grade.GradeData gradeData) {
+		return getGradeStarClassForGradeData(gradeData, "starEmpty",false);
 	}
 
 	public String getRubricAssessmentStarLabel(RubricAssessmentGradeSummary gradeSummary) {
@@ -204,6 +225,26 @@ public class StyleUtilBean implements Serializable {
 		}
 
 		return "";
+	}
+
+	public String getSocialNetworkClass(SocialNetworkName socialNetwork) {
+		if (socialNetwork == null) {
+			return "";
+		}
+		switch (socialNetwork) {
+			case BLOG:
+				return "website";
+			case FACEBOOK:
+				return "facebook";
+			case GPLUS:
+				return "gplus";
+			case LINKEDIN:
+				return "linkedIn";
+			case TWITTER:
+				return "twitter";
+			default:
+				return "";
+		}
 	}
 
 }

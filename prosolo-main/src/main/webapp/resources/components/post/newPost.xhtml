@@ -71,7 +71,7 @@
                         name="searchUsersMentionedInPost"
                         update="panelUserSuggestion"
                         process="userSuggestInput inputHiddenContext inputHiddenPage"
-                        action="#{userSearchBean.searchUsers()}"/>
+                        action="#{userSearchBean.search()}"/>
 
                 <h:inputText id="userSuggestInput" style="display:none;"
                              styleClass="userSuggestInputSelector"
@@ -136,18 +136,21 @@
                         </div>
                         <div class="modal-body alignLeft">
                             <div class="fileLine">
-                                <utilcomp:simpleFileUpload
-                                        id="simpleFileUpload"
-                                        fileUploadListenerMethodName="handleFileUpload"
-                                        fileUploadListenerMethod="#{activityWallBean.handleFileUpload}"
-                                        toUpdate=":#{cc.clientId}:formUploadFile:growlFileUpload :#{cc.clientId}:formUploadFile:panelFileName :#{cc.clientId}:formUploadFile:inputTextFileTitle"
-                                        uploadButtonStyle="btn btn-green btn-sm"
-                                        oncomplete="$('#newPost\\:formUploadFile\\:fileUploadMessagePanel').hide();"/>
+                                <utilcomp:simpleFileUpload id="simpleFileUpload"
+                                                           fileUploadListenerMethodName="handleFileUpload"
+                                                           fileUploadListenerMethod="#{activityWallBean.handleFileUpload}"
+                                                           toUpdate=":#{cc.clientId}:formUploadFile:growlFileUpload :#{cc.clientId}:formUploadFile:panelFileName :#{cc.clientId}:formUploadFile:inputTextFileTitle"
+                                                           uploadButtonStyle="btn btn-green btn-sm"
+                                                           oncomplete="$('#newPost\\:formUploadFile\\:fileUploadMessagePanel').hide();"
+                                                           fileSizeValidationMessageContainer="#newPostFileUploadValidation"/>
 
                                 <h:panelGroup id="panelFileName">
                                     #{activityWallBean.uploadFile.fileName}
                                 </h:panelGroup>
                             </div>
+
+                            <small id="newPostFileUploadValidation" class="redText bottom20 topMinus20 displayBlock"></small>
+
                             <h:panelGroup id="fileUploadMessagePanel"
                                           rendered="#{facesContext.validationFailed and empty activityWallBean.uploadFile.link}">
                                 <small class="redText bottom30 topMinus30 displayBlock">File must be uploaded</small>

@@ -80,14 +80,14 @@ public class CredentialLibraryBean implements Serializable, Paginable {
 			initCategoryFilters();
 			searchCredentials(false);
 		} catch (DbConnectionException e) {
-			PageUtil.fireErrorMessage("Error while loading the page");
+			PageUtil.fireErrorMessage("Error loading the page");
 		}
 	}
 
 	private void initCategoryFilters() {
 		filterCategories = orgManager.getUsedOrganizationCredentialCategoriesData(loggedUserBean.getOrganizationId());
 		//add 'All' category and define it as default (initially selected)
-		filterCategory = new CredentialCategoryData(0, "All", false);
+		filterCategory = new CredentialCategoryData(0, "All categories", false);
 		filterCategories.add(0, filterCategory);
 	}
 
@@ -157,7 +157,7 @@ public class CredentialLibraryBean implements Serializable, Paginable {
 			PageUtil.redirect("/credentials/" + idEncoder.encodeId(cred.getIdData().getId()) + "?justEnrolled=true");
 		} catch(Exception e) {
 			logger.error(e);
-			PageUtil.fireErrorMessage("Error while enrolling a " +
+			PageUtil.fireErrorMessage("Error enrolling a " +
 					ResourceBundleUtil.getMessage("label.credential").toLowerCase());
 		}
 	}

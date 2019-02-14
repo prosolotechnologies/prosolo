@@ -11,7 +11,7 @@ import org.prosolo.common.domainmodel.lti.LtiTool;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.lti.LtiToolManager;
 import org.prosolo.web.lti.LTIConfigLoader;
-import org.prosolo.web.lti.LTIConstants;
+import org.prosolo.core.spring.security.authentication.lti.util.LTIConstants;
 import org.prosolo.web.lti.TCProfile;
 import org.prosolo.web.lti.json.data.BaseURL;
 import org.prosolo.web.lti.json.data.Description;
@@ -43,7 +43,7 @@ public class ToolProxyBuilder {
 			return tp;
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new Exception("Error while building the ToolProxy");
+			throw new Exception("Error building the ToolProxy");
 		}
 	}
 

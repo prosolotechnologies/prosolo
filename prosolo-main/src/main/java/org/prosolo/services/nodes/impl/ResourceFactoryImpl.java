@@ -46,14 +46,11 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 
     private static final long serialVersionUID = 2968104792929090003L;
 
-    @Autowired private PasswordEncoder passwordEncoder;
-    @Autowired private RoleManager roleManager;
     @Inject private CredentialManager credentialManager;
     @Inject private Competence1Manager competenceManager;
     @Inject private Activity1Manager activityManager;
     @Inject private TagManager tagManager;
     @Inject private AvatarProcessor avatarProcessor;
-    @Inject private UnitManager unitManager;
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -143,7 +140,7 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
         } catch(Exception e) {
             e.printStackTrace();
             logger.error(e);
-            throw new DbConnectionException("Error while saving credential");
+            throw new DbConnectionException("Error saving credential");
         }
     }
 
@@ -163,7 +160,7 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 			
 			return link;
 		}catch(Exception e){
-			throw new DbConnectionException("Error while loading learning goals");
+			throw new DbConnectionException("Error loading learning goals");
 		}
 	}
 
@@ -176,9 +173,9 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 
     @Override
     @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
-    public Competence1 updateCompetence(CompetenceData1 data, long userId) throws StaleDataException,
+    public Result<Competence1> updateCompetence(CompetenceData1 data, UserContextData context) throws StaleDataException,
             IllegalDataStateException {
-        return competenceManager.updateCompetenceData(data, userId);
+        return competenceManager.updateCompetenceData(data, context);
     }
 
     @Override
@@ -206,7 +203,7 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
         } catch(Exception e) {
             logger.error(e);
             e.printStackTrace();
-            throw new DbConnectionException("Error while saving new post");
+            throw new DbConnectionException("Error saving new post");
         }
 
     }
@@ -233,7 +230,7 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
         } catch(Exception e) {
             logger.error(e);
             e.printStackTrace();
-            throw new DbConnectionException("Error while saving new post");
+            throw new DbConnectionException("Error saving new post");
         }
 
     }
@@ -250,7 +247,7 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
         } catch(Exception e) {
             logger.error(e);
             e.printStackTrace();
-            throw new DbConnectionException("Error while updating post");
+            throw new DbConnectionException("Error updating post");
         }
 
     }
@@ -273,7 +270,7 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
         } catch (Exception e) {
             e.printStackTrace();
             logger.error(e);
-            throw new DbConnectionException("Error while saving user group");
+            throw new DbConnectionException("Error saving user group");
         }
     }
 

@@ -11,11 +11,13 @@ import org.prosolo.common.domainmodel.rubric.Rubric;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroup;
 import org.prosolo.common.util.ElasticsearchUtil;
-import org.prosolo.core.hibernate.HibernateUtil;
+import org.prosolo.core.db.hibernate.HibernateUtil;
 import org.prosolo.services.assessment.RubricManager;
 import org.prosolo.services.indexing.*;
 import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.data.organization.OrganizationData;
+import org.prosolo.services.user.UserGroupManager;
+import org.prosolo.services.user.UserManager;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -77,51 +79,40 @@ public class BulkDataAdministrationServiceImpl implements BulkDataAdministration
 
     @Override
     public void deleteAndReindexLearningContent(long orgId) throws IndexingServiceNotAvailable {
-        //reindex nodes and learning evidences
-        deleteAndReindexNodes(orgId);
-        deleteAndReindexEvidences(orgId);
-    }
+        //delete credentials, competences and evidence indexes
+        esAdministration.deleteIndex(
+                new String[] {
+                        orgId > 0 ? ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_CREDENTIALS, orgId) : ESIndexNames.INDEX_CREDENTIALS + "*",
+                        orgId > 0 ? ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_COMPETENCES, orgId) : ESIndexNames.INDEX_COMPETENCES + "*",
+                        orgId > 0 ? ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_EVIDENCE, orgId) : ESIndexNames.INDEX_EVIDENCE + "*"
+                });
 
-
-
-    private void deleteAndReindexNodes(long orgId) throws IndexingServiceNotAvailable {
-        //delete nodes indexes
-        esAdministration.deleteIndexByName(orgId > 0
-                ? ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_NODES, orgId)
-                : ESIndexNames.INDEX_NODES + "*");
-
-        createOrganizationsIndexes(orgId, new String[] {ESIndexNames.INDEX_NODES});
+        createOrganizationsIndexes(orgId, new String[] {ESIndexNames.INDEX_CREDENTIALS, ESIndexNames.INDEX_COMPETENCES, ESIndexNames.INDEX_EVIDENCE});
 
         indexNodes(orgId);
-    }
-
-    private void deleteAndReindexEvidences(long orgId) throws IndexingServiceNotAvailable {
-        //delete nodes indexes
-        esAdministration.deleteIndexByName(orgId > 0
-                ? ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_EVIDENCE, orgId)
-                : ESIndexNames.INDEX_EVIDENCE + "*");
-
-        createOrganizationsIndexes(orgId, new String[] {ESIndexNames.INDEX_EVIDENCE});
-
         indexEvidences(orgId);
     }
 
     @Override
     public void deleteAndReindexRubrics(long orgId) throws IndexingServiceNotAvailable {
-        //delete rubrics indexes
-        esAdministration.deleteIndexByName(orgId > 0
-                ? ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_RUBRIC_NAME, orgId)
-                : ESIndexNames.INDEX_RUBRIC_NAME + "*");
+        try {
+            //delete rubrics indexes
+            esAdministration.deleteIndex(orgId > 0
+                    ? ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_RUBRIC_NAME, orgId)
+                    : ESIndexNames.INDEX_RUBRIC_NAME + "*");
 
-        createOrganizationsIndexes(orgId, new String[] {ESIndexNames.INDEX_RUBRIC_NAME});
+            createOrganizationsIndexes(orgId, new String[]{ESIndexNames.INDEX_RUBRIC_NAME});
 
-        indexRubrics(orgId);
+            indexRubrics(orgId);
+        } catch (Exception e) {
+            logger.error("Error", e);
+        }
     }
 
     @Override
     public void deleteAndReindexUsersAndGroups(long orgId) throws IndexingServiceNotAvailable {
         //delete all user and user group indexes
-        esAdministration.deleteIndexesByName(
+        esAdministration.deleteIndex(
                 new String[] {
                         orgId > 0 ? ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USERS, orgId) : ESIndexNames.INDEX_USERS + "*",
                         orgId > 0 ? ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USER_GROUP, orgId) : ESIndexNames.INDEX_USER_GROUP + "*"

@@ -7,16 +7,13 @@ import org.prosolo.bigdata.common.enums.ESIndexTypes;
 import org.prosolo.common.ESIndexNames;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.LearningEvidence;
-import org.prosolo.common.domainmodel.rubric.Rubric;
+import org.prosolo.common.elasticsearch.impl.AbstractESIndexerImpl;
 import org.prosolo.common.util.ElasticsearchUtil;
-import org.prosolo.services.indexing.AbstractBaseEntityESServiceImpl;
 import org.prosolo.services.indexing.LearningEvidenceESService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
-import java.util.Date;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -25,7 +22,7 @@ import java.util.Set;
  * @since 1.2.0
  */
 @Service("org.prosolo.services.indexing.LearningEvidenceESService")
-public class LearningEvidenceESServiceImpl extends AbstractBaseEntityESServiceImpl implements LearningEvidenceESService {
+public class LearningEvidenceESServiceImpl extends AbstractESIndexerImpl implements LearningEvidenceESService {
 
     private static Logger logger = Logger.getLogger(LearningEvidenceESServiceImpl.class);
 
@@ -38,6 +35,7 @@ public class LearningEvidenceESServiceImpl extends AbstractBaseEntityESServiceIm
             builder.field("userId", evidence.getUser().getId());
             builder.field("name", evidence.getTitle());
             builder.field("type", evidence.getType());
+            builder.field("url", evidence.getUrl());
             builder.field("dateCreated", ElasticsearchUtil.getDateStringRepresentation(evidence.getDateCreated()));
             builder.startArray("tags");
             Set<Tag> tags = evidence.getTags();

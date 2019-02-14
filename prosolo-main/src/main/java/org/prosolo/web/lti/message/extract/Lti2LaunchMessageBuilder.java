@@ -1,32 +1,32 @@
 package org.prosolo.web.lti.message.extract;
 
-import java.util.List;
-
+import org.prosolo.core.spring.security.authentication.lti.util.LTIConstants;
 import org.prosolo.web.lti.LTIConfigLoader;
-import org.prosolo.web.lti.LTIConstants;
 import org.prosolo.web.lti.json.data.MessageParameter;
 import org.prosolo.web.lti.json.data.ResourceHandler;
 import org.prosolo.web.lti.json.data.ToolProxy;
 import org.prosolo.web.lti.message.LTILaunchMessage;
-import org.prosolo.web.util.page.PageUtil;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 public class Lti2LaunchMessageBuilder extends LtiLaunchMessageBuilder {
 
 	@Override
-	protected LTILaunchMessage getLtiLaunchMessageSpecific() throws Exception {
+	protected LTILaunchMessage getLtiLaunchMessageSpecific(HttpServletRequest request) throws Exception {
 		ToolProxy tp = LTIConfigLoader.getInstance().getToolProxy();
 		ResourceHandler rh = tp.getToolProfile().getResourceHandler().get(0);
 		LTILaunchMessage msg = new LTILaunchMessage();
 		List<MessageParameter> parameters = rh.getMessage().get(0).getParameter();
 		for (MessageParameter mp : parameters) {
-			setParam(msg, mp);
+			setParam(msg, mp, request);
 		}
 		return msg;
 
 	}
 
-	private void setParam(LTILaunchMessage msg, MessageParameter mp) throws Exception {
-		String param = PageUtil.getPostParameter("custom_" + mp.getName());
+	private void setParam(LTILaunchMessage msg, MessageParameter mp, HttpServletRequest request) throws Exception {
+		String param = request.getParameter("custom_" + mp.getName());
 		switch (mp.getParameterValue()) {
 		case LTIConstants.LTI2_PERSON_FIST_NAME:
 			msg.setUserFirstName(param);

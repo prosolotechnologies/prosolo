@@ -2,6 +2,7 @@ package org.prosolo.web.assessments;
 
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
@@ -78,7 +79,7 @@ public class ActivityAssessmentBean extends LearningResourceAssessmentBean {
 		} catch (Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			PageUtil.fireErrorMessage("Error while trying to initialize assessment comments");
+			PageUtil.fireErrorMessage("Error trying to initialize assessment comments");
 		}
 	}
 
@@ -124,14 +125,14 @@ public class ActivityAssessmentBean extends LearningResourceAssessmentBean {
 
 			addNewCommentToAssessmentData(newComment);
 		} catch (Exception e){
-			logger.error("Error approving assessment data", e);
-			PageUtil.fireErrorMessage("Error approving the assessment");
+			logger.error("Error submitting assessment data", e);
+			PageUtil.fireErrorMessage("Error submitting the assessment");
 		}
 	}
 
 	private void addNewCommentToAssessmentData(AssessmentDiscussionMessageData newComment) {
 		if (loggedUserBean.getUserId() == activityAssessmentData.getAssessorId()) {
-			newComment.setSenderInstructor(true);
+			newComment.setSenderAssessor(true);
 		}
 		activityAssessmentData.getActivityDiscussionMessageData().add(newComment);
 		activityAssessmentData.setNumberOfMessages(activityAssessmentData.getNumberOfMessages() + 1);
@@ -140,7 +141,7 @@ public class ActivityAssessmentBean extends LearningResourceAssessmentBean {
 	// grading actions
 
 	@Override
-	public void updateGrade() throws DbConnectionException {
+	public void updateGrade() throws DbConnectionException, IllegalDataStateException {
 		try {
 			activityAssessmentData.setGrade(assessmentManager.updateGradeForActivityAssessment(
 					idEncoder.decodeId(activityAssessmentData.getEncodedActivityAssessmentId()),
@@ -155,10 +156,9 @@ public class ActivityAssessmentBean extends LearningResourceAssessmentBean {
 			}
 
 			PageUtil.fireSuccessfulInfoMessage("The grade has been updated");
-		} catch (DbConnectionException e) {
-			e.printStackTrace();
-			logger.error(e);
-			PageUtil.fireErrorMessage("Error while updating grade");
+		} catch (DbConnectionException|IllegalDataStateException e) {
+			logger.error("Error", e);
+			PageUtil.fireErrorMessage("Error updating grade");
 			throw e;
 		}
 	}

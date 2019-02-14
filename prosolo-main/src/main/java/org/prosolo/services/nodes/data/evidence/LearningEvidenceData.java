@@ -19,10 +19,12 @@ public class LearningEvidenceData implements Serializable {
 
     private long id;
     private long userId;
+    private String userFullName;
     private long competenceEvidenceId;
     private String title;
     private String text;
     private String relationToCompetence;
+    private String competenceTitle;
     private LearningEvidenceType type;
     private String url;
     private Set<String> tags;
@@ -149,5 +151,21 @@ public class LearningEvidenceData implements Serializable {
 
     public void setRelationToCompetence(String relationToCompetence) {
         this.relationToCompetence = relationToCompetence;
+    }
+
+    public String getCompetenceTitle() {
+        return competenceTitle;
+    }
+
+    public void setCompetenceTitle(String competenceTitle) {
+        this.competenceTitle = competenceTitle;
+    }
+
+    public String getUserFullName() {
+        return userFullName;
+    }
+
+    public void setUserFullName(String userFullName) {
+        this.userFullName = userFullName;
     }
 }

@@ -59,7 +59,7 @@
 								submitButtonText="Submit"
 						/>
 
-						<h2>Added Pieces of Evidence</h2>
+						<h2>Added Evidence</h2>
 						<h:panelGroup id="panelEvidences">
 							<h:panelGroup id="panelEvidenceSummary">
 								<h:panelGroup layout="block" rendered="#{not empty cc.attrs.bean.competenceData.evidences}" styleClass="evidenceSummary">
@@ -79,7 +79,7 @@
 							<ui:fragment rendered="#{empty cc.attrs.bean.competenceData.evidences}">
 								<div class="noContentMessage">
 									<p>
-										No pieces of evidence.
+										No evidence.
 									</p>
 								</div>
 							</ui:fragment>
@@ -115,8 +115,30 @@
 											</ui:fragment>
 										</div>
 									</div>
-									<p><h:outputText escape="false" value="#{ev.text}"/></p>
+
+									<p class="textLimit4">
+										<h:outputText escape="false" value="#{ev.text}"/>
+									</p>
+
 									<table>
+										<tr>
+											<td class="col01">In #{msg['label.competence.plural']}:</td>
+											<td>
+                                                <ui:fragment rendered="#{empty ev.competences}">
+                                                    <span class="lightText">no #{msg['label.competence.plural'].toLowerCase()}</span>
+                                                </ui:fragment>
+                                                <ui:repeat value="#{ev.competences}" var="c" varStatus="status">
+                                                    <p class="textLimit4">
+                                                        <h:link outcome="/competence"
+                                                                value="#{c.title}">
+                                                            <f:param name="compId" value="#{util:encodeId(c.id)}"/>
+                                                        </h:link>
+                                                        - #{c.description}
+                                                        <ui:fragment rendered="#{status.index + 1 ne ev.competences.size()}"><br/></ui:fragment>
+                                                    </p>
+                                                </ui:repeat>
+											</td>
+										</tr>
 										<tr>
 											<td class="col01">Keywords:</td>
 											<td>
@@ -131,17 +153,12 @@
 											</td>
 										</tr>
 										<tr>
-											<td class="col01">Added:</td>
+											<td class="col01">Created:</td>
 											<td>
 												<utilcomp:convertTimeOutput
-														millis="#{ev.dateAttached}"
-														format="MMM DD, YYYY"
-												/>
+														millis="#{ev.dateCreated}"
+														format="rel" />
 											</td>
-										</tr>
-										<tr>
-										    <td class="col01">Relation:</td>
-											<td>#{ev.relationToCompetence}</td>
 										</tr>
 									</table>
 								</div>

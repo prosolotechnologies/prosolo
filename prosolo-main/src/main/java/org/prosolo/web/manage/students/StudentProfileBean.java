@@ -13,12 +13,15 @@ import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.config.competence.CompetenceLoadConfig;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
-import org.prosolo.services.urlencoding.UrlIdEncoder;
-import org.prosolo.web.LoggedUserBean;
 import org.prosolo.services.nodes.data.credential.TargetCredentialData;
+import org.prosolo.services.nodes.data.evidence.LearningEvidenceLoadConfig;
+import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
+import org.prosolo.services.urlencoding.UrlIdEncoder;
+import org.prosolo.services.user.UserManager;
+import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.manage.students.data.ActivityProgressData;
 import org.prosolo.web.manage.students.data.CompetenceProgressData;
-import org.prosolo.web.manage.students.data.CredentialProgressData;
+import org.prosolo.services.nodes.data.credential.CredentialProgressData;
 import org.prosolo.web.manage.students.data.observantions.StudentData;
 import org.prosolo.web.profile.data.UserSocialNetworksData;
 import org.prosolo.web.util.ResourceBundleUtil;
@@ -29,10 +32,7 @@ import org.springframework.stereotype.Component;
 import javax.faces.bean.ManagedBean;
 import javax.inject.Inject;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @ManagedBean(name = "studentProfileBean")
 @Component
@@ -94,10 +94,10 @@ public class StudentProfileBean implements Serializable {
 						" came to the studentProfile page for student with id " + decodedId);
 
 			} catch (ResourceCouldNotBeLoadedException e) {
-				logger.error(e);
+				logger.error("Error", e);
 				PageUtil.notFound();
 			} catch (DbConnectionException dbce) {
-				logger.error(dbce);
+				logger.error("Error", dbce);
 				PageUtil.fireErrorMessage(dbce.getMessage());
 			} catch (Exception ex) {
 				logger.error(ex);
@@ -110,42 +110,29 @@ public class StudentProfileBean implements Serializable {
 
 	public void loadSocialNetworkData() {
 		try {
-//			if (student.getInterests() == null) {
-//				User user = new User();
-//				user.setId(decodedId);
-//
-//				TopicPreference topicPreference = (TopicPreference) userManager.getUserPreferences(user,
-//						TopicPreference.class);
-//				Set<Tag> preferredKeywords = topicPreference.getPreferredKeywords();
-//
-//				student.addInterests(preferredKeywords);
-//			}
 			if (userSocialNetworksData == null) {
 				initSocialNetworks();
 			}
 		} catch (Exception e) {
-			logger.error(e);
-			PageUtil.fireErrorMessage("Error while loading social network data");
+			logger.error("Error", e);
+			PageUtil.fireErrorMessage("Error loading social network data");
 		}
 	}
 
 	private void initCredentials() {
 		try {
-			credentials = new ArrayList<>();
-			List<TargetCredentialData> userCredentials = credentialManager.getAllCredentials(decodedId, false);
-			boolean first = true;
 
-			for (TargetCredentialData targetCred : userCredentials) {
-				CredentialProgressData credProgressData = new CredentialProgressData(targetCred);
-				credentials.add(credProgressData);
+			if (loggedUserBean.hasCapability("basic.manager.access"))
+				credentials = credentialManager.getCredentialsWithAccessTo(decodedId, loggedUserBean.getUserId(), AccessMode.MANAGER);
+			else if (loggedUserBean.hasCapability("basic.instructor.access"))
+				credentials = credentialManager.getCredentialsWithAccessTo(decodedId, loggedUserBean.getUserId(), AccessMode.INSTRUCTOR);
 
-				if (first) {
-					selectCredential(credProgressData);
-					first = false;
-				}
+
+			if (!credentials.isEmpty()) {
+				selectCredential(credentials.get(0));
 			}
 		} catch (DbConnectionException e) {
-			logger.error(e);
+			logger.error("Error", e);
 			PageUtil.fireErrorMessage("Error loading " + ResourceBundleUtil.getMessage("label.credential").toLowerCase());
 		}
 	}
@@ -180,7 +167,7 @@ public class StudentProfileBean implements Serializable {
 			selectedCredential.setCompetences(competenecesProgress);
 
 		} catch (DbConnectionException e) {
-			logger.error(e);
+			logger.error("Error", e);
 			PageUtil.fireErrorMessage("Error loading competences.");
 		}
 	}
@@ -215,12 +202,12 @@ public class StudentProfileBean implements Serializable {
 			} else {
 				// load evidence only if student enrolled in a competence, otherwise he could not post evidence
 				if (cd.getId() > 0) {
-					cd.setEvidences(learningEvidenceManager.getUserEvidencesForACompetence(cd.getId(), false));
+					cd.setEvidences(learningEvidenceManager.getUserEvidencesForACompetence(cd.getId(), LearningEvidenceLoadConfig.builder().build()));
 				}
 			}
 
 		} catch (Exception e) {
-			throw new DbConnectionException("Error while loading activities");
+			throw new DbConnectionException("Error loading activities");
 		}
 	}
 
@@ -235,8 +222,8 @@ public class StudentProfileBean implements Serializable {
 		if (userSocialNetworksData == null) {
 			try {
 				userSocialNetworksData = socialNetworksManager.getUserSocialNetworkData(student.getId());
-			} catch (ResourceCouldNotBeLoadedException e) {
-				logger.error(e);
+			} catch (DbConnectionException e) {
+				logger.error("Error", e);
 			}
 		}
 	}

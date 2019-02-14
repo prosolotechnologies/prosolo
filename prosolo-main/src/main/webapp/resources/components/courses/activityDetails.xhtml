@@ -6,7 +6,8 @@
 	xmlns:composite="http://java.sun.com/jsf/composite"
 	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
 	xmlns:c="http://java.sun.com/jsp/jstl/core"
-	xmlns:activities="http://java.sun.com/jsf/composite/components/activities">
+	xmlns:activities="http://java.sun.com/jsf/composite/components/activities"
+	xmlns:util="http://www.prosolo.com/util">
 
 	<composite:interface>
 		<composite:attribute name="activity" required="true" />
@@ -166,7 +167,7 @@
 		            <ul class="whiteBox activityLinksBox">
 		            	<ui:repeat var="link" value="#{cc.attrs.activity.links}">
 		            		<li>
-		            			<ui:param name="urlSufix" value="#{(link.idParamName == null or link.idParamName.isEmpty()) ? '' : (link.url.contains('?') ? 'P' : '?').concat(link.idParamName).concat('=').concat(cc.attrs.role == 'USER' ? loggeduser.sessionData.encodedUserId : '[USER ID]')}" />
+		            			<ui:param name="urlSufix" value="#{(link.idParamName == null or link.idParamName.isEmpty()) ? '' : (link.url.contains('?') ? 'P' : '?').concat(link.idParamName).concat('=').concat(cc.attrs.role == 'USER' ? util:encodeId(loggeduser.userId) : '[USER ID]')}" />
 			                    <div class="actBoxLeft">
 			                        <h3>#{link.linkName}</h3>
 			                        <span>#{link.url}#{urlSufix}</span>
@@ -232,16 +233,18 @@
 	            		<h2>Submit Response</h2>
 	            		<c:if test="#{cc.attrs.activity.resultData.resultType eq 'FILE_UPLOAD'}">
 	            			<h:form id="formUpload" enctype="multipart/form-data">
-				            	<utilcomp:fileUpload
-				            		uploadFileInfo="Upload Response"
-				            		fileUploadListenerMethodName="handleFileUpload"
-				            		fileUploadListenerMethod="#{cc.attrs.bean.handleFileUpload}"
-				            		toUpdate=":#{cc.clientId}:panelUploadAssignment #{cc.attrs.updateProgress} :#{cc.clientId}:growlDetails"
-				            		learningContext="#{cc.attrs.learningContext}"
-				            		disabled="#{!(cc.attrs.bean.nextToLearn or !cc.attrs.bean.mandatoryOrder)}"
-				            		disabledReason="In order to submit a response for this activity, previous tasks need to be completed."
-				            	/> 
-			            	</h:form>
+								<utilcomp:fileUpload id="activityResultFileUpload"
+													 uploadFileInfo="Upload Response"
+													 fileUploadListenerMethodName="handleFileUpload"
+													 fileUploadListenerMethod="#{cc.attrs.bean.handleFileUpload}"
+													 toUpdate=":#{cc.clientId}:panelUploadAssignment #{cc.attrs.updateProgress} :#{cc.clientId}:growlDetails"
+													 learningContext="#{cc.attrs.learningContext}"
+													 disabled="#{!(cc.attrs.bean.nextToLearn or !cc.attrs.bean.mandatoryOrder)}"
+													 disabledReason="In order to submit a response for this activity, previous tasks need to be completed."
+													 fileSizeValidationMessageContainer="#activityResultFileUploadValidation"/>
+
+								<small id="activityResultFileUploadValidation" class="redText bottom10 displayBlock">&#160;</small>
+							</h:form>
 	            		</c:if>
 	            		<c:if test="#{cc.attrs.activity.resultData.resultType eq 'TEXT'}">
 	            			<script src="#{request.contextPath}/resources/javascript2/tinymce/tinymce.min.js"></script>
@@ -317,22 +320,31 @@
                             <small>Note: Current response will be over-written!</small></p>
                         </div>
                         <div class="modal-footer">
-                        	<utilcomp:simpleFileUpload
-                        		id="simpleFileUpload"
-			            		fileUploadListenerMethodName="handleFileUpload"
-			            		fileUploadListenerMethod="#{cc.attrs.bean.handleFileUpload}"
-			            		toUpdate=":#{cc.clientId}:panelUploadAssignment :#{cc.clientId}:growlDetails"
-			            		uploadButtonStyle="btn btn-green"
-			            		chooseFileLabel="Upload New Response"
-			            		learningContext="#{cc.attrs.learningContext}"
-			            		service="name:upload_result_dialog"
-			            		oncomplete="$('#newRes').modal('hide');"
-                        	/>
+							<utilcomp:simpleFileUpload id="updateActivityResult"
+													   fileUploadListenerMethodName="handleFileUpload"
+													   fileUploadListenerMethod="#{cc.attrs.bean.handleFileUpload}"
+													   toUpdate=":#{cc.clientId}:panelUploadAssignment :#{cc.clientId}:growlDetails"
+													   uploadButtonStyle="btn btn-green"
+													   chooseFileLabel="Upload New Response"
+													   learningContext="#{cc.attrs.learningContext}"
+													   service="name:upload_result_dialog"
+													   oncomplete="$('#newRes').modal('hide');"
+													   fileSizeValidationMessageContainer="#updateActivityResultFileUploadValidation"/>
+
                             <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
-                        </div>
+							<small id="updateActivityResultFileUploadValidation" class="redText displayBlock"></small>
+						</div>
                     </div>
                 </div>
             </div>
+
+			<script>
+				$(function () {
+					$('#newRes').on('hidden.bs.modal', function() {
+						$('#updateActivityResultFileUploadValidation').html('');
+					});
+				})
+			</script>
         </h:form> 
 		            	
 	</composite:implementation>

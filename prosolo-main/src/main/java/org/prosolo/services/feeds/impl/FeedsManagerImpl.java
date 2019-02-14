@@ -13,7 +13,6 @@ import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.prosolo.app.Settings;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
-import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.activitywall.TwitterPostSocialActivity1;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.feeds.FeedEntry;
@@ -35,7 +34,7 @@ import org.prosolo.services.feeds.data.CredentialFeedsData;
 import org.prosolo.services.feeds.data.UserFeedSourceAggregate;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.interfaceSettings.InterfaceSettingsManager;
-import org.prosolo.services.nodes.UserManager;
+import org.prosolo.services.user.UserManager;
 import org.prosolo.web.settings.data.FeedSourceData;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -777,7 +776,7 @@ public class FeedsManagerImpl extends AbstractManagerImpl implements FeedsManage
 		} catch(Exception e) {
 			e.printStackTrace();
 			logger.error(e);
-			throw new DbConnectionException("Error while loading credential feeds");
+			throw new DbConnectionException("Error loading credential feeds");
 		}
 	}
 	
@@ -813,7 +812,7 @@ public class FeedsManagerImpl extends AbstractManagerImpl implements FeedsManage
 		} catch(Exception e) {
 			e.printStackTrace();
 			logger.error(e);
-			throw new DbConnectionException("Error while loading credential feeds");
+			throw new DbConnectionException("Error loading credential feeds");
 		}
 	}
 	
@@ -827,7 +826,7 @@ public class FeedsManagerImpl extends AbstractManagerImpl implements FeedsManage
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
-			throw new DbConnectionException("Error while saving feed");
+			throw new DbConnectionException("Error saving feed");
 		}
 	}
 

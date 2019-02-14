@@ -49,7 +49,10 @@ public class EmailSender {
 		Message message = new MimeMessage(session);
 		message.setFrom(new InternetAddress(from, "ProSolo"));
 		message.addRecipient(Message.RecipientType.TO, new InternetAddress(email));
-		
+
+		if (CommonSettings.getInstance().config.emailNotifier.bcc)
+    		message.addRecipient(Message.RecipientType.BCC, new InternetAddress(CommonSettings.getInstance().config.emailNotifier.bccEmail));
+
 		message.setSubject(contentGenerator.getSubject());
 		
 		// Unformatted text version

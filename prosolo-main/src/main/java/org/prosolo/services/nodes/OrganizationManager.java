@@ -11,6 +11,7 @@ import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.data.Result;
+import org.prosolo.services.event.EventQueue;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.nodes.data.LearningResourceLearningStage;
 import org.prosolo.services.nodes.data.organization.CredentialCategoryData;
@@ -46,6 +47,10 @@ public interface OrganizationManager extends AbstractManager {
 
     Result<Organization> updateOrganizationAndGetEvents(OrganizationData organization, UserContextData context)
             throws DbConnectionException, ConstraintViolationException, DataIntegrityViolationException;
+
+    EventQueue updateOrganizationLearningStages(long orgId, OrganizationData organization, UserContextData context);
+
+    void updateOrganizationCredentialCategories(long orgId, OrganizationData organization);
 
     OrganizationData getOrganizationDataWithoutAdmins(long organizationId);
 

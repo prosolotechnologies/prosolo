@@ -89,7 +89,7 @@ public class WebPageParser extends LinkParser {
                         }
                     }
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    logger.debug("Could not fetch the image", e);
                 }
             }
         }

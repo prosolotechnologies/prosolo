@@ -11,8 +11,6 @@ public interface ESAdministration {
 
 	boolean createIndexes() throws IndexingServiceNotAvailable;
 
-	void deleteIndex(String indexName) throws IndexingServiceNotAvailable;
-
 	boolean deleteIndexes() throws IndexingServiceNotAvailable;
 
 }

@@ -9,15 +9,14 @@ import org.primefaces.model.UploadedFile;
 import org.prosolo.app.Settings;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.config.CommonSettings;
-import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.socialNetworks.ServiceType;
 import org.prosolo.common.domainmodel.user.socialNetworks.SocialNetworkAccount;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.nodes.SocialNetworksManager;
-import org.prosolo.services.nodes.UserManager;
-import org.prosolo.services.nodes.data.UserData;
 import org.prosolo.services.twitter.UserOauthTokensManager;
 import org.prosolo.services.upload.AvatarProcessor;
+import org.prosolo.services.user.UserManager;
+import org.prosolo.services.user.data.UserData;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.profile.data.SocialNetworkAccountData;
 import org.prosolo.web.profile.data.UserSocialNetworksData;
@@ -81,8 +80,8 @@ public class ProfileSettingsBean implements Serializable {
 			userSocialNetworksData = socialNetworksManager.getUserSocialNetworkData(loggedUser.getUserId());
 
 			connectedToTwitter = oauthAccessTokenManager.hasOAuthAccessToken(loggedUser.getUserId(), ServiceType.TWITTER);
-		} catch (ResourceCouldNotBeLoadedException e) {
-			logger.error(e);
+		} catch (DbConnectionException e) {
+			logger.error("error", e);
 			PageUtil.fireErrorMessage("Error loading the data");
 		}
 	}
@@ -93,13 +92,10 @@ public class ProfileSettingsBean implements Serializable {
 	public void saveAccountChanges() {
 		try {
 			userManager.saveAccountChanges(accountData, loggedUser.getUserContext());
-
-			loggedUser.reinitializeSessionData(accountData, loggedUser.getOrganizationId());
-
 			PageUtil.fireSuccessfulInfoMessage("Changes have been saved");
 		} catch (Exception e) {
 			logger.error(e);
-			PageUtil.fireErrorMessage("Error while saving account data");
+			PageUtil.fireErrorMessage("Error saving account data");
 		}
 	}
 
@@ -136,10 +132,7 @@ public class ProfileSettingsBean implements Serializable {
 
 		try {
 			String newAvatarPath = avatarProcessor.cropImage(loggedUser.getUserId(), imagePath, left, top, width, height);
-			User updatedUser = userManager.changeAvatar(loggedUser.getUserId(), newAvatarPath);
-
-			loggedUser.getSessionData().setAvatar(updatedUser.getAvatarUrl());
-			loggedUser.initializeAvatar();
+			userManager.changeAvatar(loggedUser.getUserId(), newAvatarPath);
 
 			accountData.setAvatarUrl(loggedUser.getAvatar());
 
@@ -148,8 +141,8 @@ public class ProfileSettingsBean implements Serializable {
 			PageUtil.fireSuccessfulInfoMessage(":profileForm:profileFormGrowl", "The profile photo has been updated");
 
 			init();
-		} catch (IOException | ResourceCouldNotBeLoadedException e) {
-			logger.error(e);
+		} catch (IOException | ResourceCouldNotBeLoadedException | DbConnectionException e) {
+			logger.error("error", e);
 			PageUtil.fireErrorMessage(":profileForm:profileFormGrowl", "There was an error changing the profile photo.");
 		}
 	}

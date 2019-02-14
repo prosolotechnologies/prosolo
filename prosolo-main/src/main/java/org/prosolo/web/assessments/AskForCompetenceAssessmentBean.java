@@ -10,7 +10,7 @@ import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.LearningResourceType;
-import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.user.data.UserData;
 import org.prosolo.services.nodes.data.assessments.AssessmentNotificationData;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;

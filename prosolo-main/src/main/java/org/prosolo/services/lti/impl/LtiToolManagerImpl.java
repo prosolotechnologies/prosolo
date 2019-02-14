@@ -28,7 +28,7 @@ public class LtiToolManagerImpl  extends AbstractManagerImpl implements LtiToolM
 		try{
 			return saveEntity(tool);
 		}catch(Exception e){
-			throw new DbConnectionException("Error while saving the tool");
+			throw new DbConnectionException("Error saving the tool");
 		}
 	}
 	
@@ -43,7 +43,7 @@ public class LtiToolManagerImpl  extends AbstractManagerImpl implements LtiToolM
 			t.setCustomCss(tool.getCustomCss());
 			return saveEntity(t);
 		}catch(Exception e){
-			throw new DbConnectionException("Error while updating the tool");
+			throw new DbConnectionException("Error updating the tool");
 		}
 	}
 	
@@ -55,7 +55,7 @@ public class LtiToolManagerImpl  extends AbstractManagerImpl implements LtiToolM
 			t.setEnabled(enabled);
 			return saveEntity(t);
 		}catch(Exception e){
-			throw new DbConnectionException("Error while updating the tool");
+			throw new DbConnectionException("Error updating the tool");
 		}
 	}
 	
@@ -67,13 +67,13 @@ public class LtiToolManagerImpl  extends AbstractManagerImpl implements LtiToolM
 			tool.setDeleted(true);
 			return saveEntity(tool);
 		}catch(Exception e){
-			throw new DbConnectionException("Error while deleting the tool");
+			throw new DbConnectionException("Error deleting the tool");
 		}
 	}
 
 	@Override
 	@Transactional(readOnly=true)
-	public LtiTool getToolDetails(long toolId) throws DbConnectionException{
+	public LtiTool getToolDetails(long toolId) throws DbConnectionException {
 		try{
 			return (LtiTool) persistence.currentManager().get(LtiTool.class, toolId);
 		}catch(Exception e){

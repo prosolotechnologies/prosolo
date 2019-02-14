@@ -1,10 +1,10 @@
 package org.prosolo.search.util.credential;
 
-import org.prosolo.services.util.SortingOption;
+import org.prosolo.services.common.data.SortingOption;
 
 public enum InstructorSortOption {
 
-	Instructor_Name("Alphabetically", new String[] {"lastname", "name"}, SortingOption.ASC),  
+	Instructor_Name("Alphabetically", new String[] {"lastname.sort", "name.sort"}, SortingOption.ASC),
 	Date("Recent", new String[] {"credentialsWithInstructorRole.dateAssigned"}, SortingOption.DESC);
 	
 	//ui label

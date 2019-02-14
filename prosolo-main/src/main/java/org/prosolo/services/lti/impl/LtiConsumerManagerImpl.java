@@ -48,7 +48,7 @@ public class LtiConsumerManagerImpl extends AbstractManagerImpl implements LtiCo
 		}catch(ConsumerAlreadyRegisteredException care){
 			throw care;
 		}catch(Exception e){
-			throw new DbConnectionException("Error while registering consumer");
+			throw new DbConnectionException("Error registering consumer");
 		}
 		
 	}

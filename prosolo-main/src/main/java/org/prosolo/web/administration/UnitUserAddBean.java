@@ -5,8 +5,8 @@ import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.nodes.UnitManager;
-import org.prosolo.services.nodes.UserManager;
-import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.user.UserManager;
+import org.prosolo.services.user.data.UserData;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
@@ -59,7 +59,7 @@ public class UnitUserAddBean implements Serializable, Paginable {
 			loadUsersFromDB();
 		} catch (Exception e) {
 			logger.error(e);
-			PageUtil.fireErrorMessage("Error while loading users");
+			PageUtil.fireErrorMessage("Error loading users");
 		}
 	}
 
@@ -105,19 +105,19 @@ public class UnitUserAddBean implements Serializable, Paginable {
 			unitManager.addUserToUnitWithRole(user.getId(), unitId,
 					roleId, loggedUser.getUserContext(orgId));
 			PageUtil.fireSuccessfulInfoMessage("The user " + user.getFullName()
-					+ " is added to the " + ResourceBundleUtil.getMessage("label.unit").toLowerCase() + "'" + unitTitle + "'");
+					+ " is added to the " + ResourceBundleUtil.getMessage("label.unit").toLowerCase() + " '" + unitTitle + "'");
 			resetSearchData();
 			try {
 				loadUsersFromDB();
 			} catch (DbConnectionException e) {
 				logger.error("Error", e);
-				PageUtil.fireErrorMessage("Error while loading user data");
+				PageUtil.fireErrorMessage("Error loading user data");
 			}
 			return true;
 		} catch (DbConnectionException e) {
 			logger.error("Error", e);
-			PageUtil.fireErrorMessage("Error while trying to add "
-					+ user.getFullName() + " to the " + ResourceBundleUtil.getMessage("label.unit").toLowerCase() + "'" + unitTitle + "'");
+			PageUtil.fireErrorMessage("Error trying to add "
+					+ user.getFullName() + " to the " + ResourceBundleUtil.getMessage("label.unit").toLowerCase() + " '" + unitTitle + "'");
 		}
 		return false;
 	}

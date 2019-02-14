@@ -1,9 +1,12 @@
 package org.prosolo.web.learningevidence;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.services.nodes.LearningEvidenceManager;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceData;
+import org.prosolo.services.nodes.data.evidence.LearningEvidenceLoadConfig;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageUtil;
@@ -42,7 +45,7 @@ public class LearningEvidenceEditBean implements Serializable {
                 submitEvidenceBean.init(new LearningEvidenceData());
             } else {
                 decodedEvidenceId = idEncoder.decodeId(evidenceId);
-                submitEvidenceBean.init(learningEvidenceManager.getLearningEvidence(decodedEvidenceId, true, false));
+                submitEvidenceBean.init(learningEvidenceManager.getLearningEvidence(decodedEvidenceId, LearningEvidenceLoadConfig.builder().loadTags(true).build()));
             }
         } catch (DbConnectionException e) {
             logger.error("Error", e);
@@ -76,14 +79,24 @@ public class LearningEvidenceEditBean implements Serializable {
 
     public void saveEvidence() {
         try {
+            String pageToRedirect = "/evidence";
+            String growlMessage = null;
+
             if (getEvidence().getId() > 0) {
                 learningEvidenceManager.updateEvidence(getEvidence(), loggedUserBean.getUserContext());
-                PageUtil.fireSuccessfulInfoMessage("Evidence saved");
+                growlMessage = "Evidence saved";
+
+                String sourcePage = PageUtil.getGetParameter("source");
+                if (!StringUtils.isBlank(sourcePage)) {
+                    pageToRedirect = sourcePage;
+                }
             } else {
                 learningEvidenceManager.postEvidence(getEvidence(), loggedUserBean.getUserContext());
-                PageUtil.fireSuccessfulInfoMessageAcrossPages("Evidence added");
-                PageUtil.redirect("/evidence");
+                growlMessage ="Evidence added";
             }
+
+            PageUtil.fireSuccessfulInfoMessageAcrossPages(growlMessage);
+            PageUtil.redirect(pageToRedirect);
         } catch (Exception e) {
             logger.error("Error", e);
             PageUtil.fireErrorMessage("Error saving the evidence");

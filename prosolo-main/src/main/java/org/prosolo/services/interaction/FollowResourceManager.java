@@ -12,7 +12,7 @@ import org.prosolo.search.util.users.UserSearchConfig;
 import org.prosolo.services.common.exception.EntityAlreadyExistsException;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.general.AbstractManager;
-import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.user.data.UserData;
 
 import java.util.List;
 
@@ -32,7 +32,7 @@ public interface FollowResourceManager extends AbstractManager {
 
 	Result<Boolean> unfollowUserAndGetEvents(long userToUnfollowId, UserContextData context) throws DbConnectionException;
 
-	List<User> getFollowingUsers(long userId) throws DbConnectionException;
+	List<User> getFollowingUsers(long userId, Session session) throws DbConnectionException;
 
 	List<User> getUserFollowers(long userId, Session session);
 
@@ -40,7 +40,7 @@ public interface FollowResourceManager extends AbstractManager {
 
 	boolean isUserFollowingUser(long followerUserId, long followedUserId);
 
-	List<User> getFollowers(long userId) throws DbConnectionException;
+	List<User> getFollowers(long userId, Session session) throws DbConnectionException;
 
 	PaginatedResult<UserData> getPaginatedUsersWithFollowInfo(long userId, UserSearchConfig searchConfig, int page, int limit) throws DbConnectionException;
 }

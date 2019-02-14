@@ -1,24 +1,23 @@
 package org.prosolo.web.lti.message.extract;
 
-import org.prosolo.web.lti.LTIConstants;
+import org.prosolo.core.spring.security.authentication.lti.util.LTIConstants;
 import org.prosolo.web.lti.message.LTIMessage;
-import org.prosolo.web.util.page.PageUtil;
+
+import javax.servlet.http.HttpServletRequest;
 
 public abstract class LtiMessageBuilder {
-	public LTIMessage getLtiMessage() throws Exception{
-		LTIMessage msg = getLtiMessageSpecific();
-		msg.setLtiVersion(PageUtil.getPostParameter(LTIConstants.LTI_VERSION));
-		try{
-			msg.setId(PageUtil.getGetParameter(LTIConstants.TOOL_ID));
-		}catch(Exception ex){
+	public LTIMessage getLtiMessage(HttpServletRequest request) throws Exception{
+		LTIMessage msg = getLtiMessageSpecific(request);
+		msg.setLtiVersion(request.getParameter(LTIConstants.LTI_VERSION));
+		try {
+			msg.setId(request.getParameter(LTIConstants.TOOL_ID));
+		} catch(Exception ex) {
 			//msg.setId("1");
 			return null;
 		}
 
-
-
 		return msg;
 	}
 
-	protected abstract LTIMessage getLtiMessageSpecific() throws Exception;
+	protected abstract LTIMessage getLtiMessageSpecific(HttpServletRequest request) throws Exception;
 }

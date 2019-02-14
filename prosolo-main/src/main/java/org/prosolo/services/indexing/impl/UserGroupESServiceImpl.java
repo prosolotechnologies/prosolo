@@ -6,10 +6,10 @@ import org.elasticsearch.common.xcontent.XContentFactory;
 import org.prosolo.bigdata.common.enums.ESIndexTypes;
 import org.prosolo.common.ESIndexNames;
 import org.prosolo.common.domainmodel.user.UserGroup;
+import org.prosolo.common.elasticsearch.impl.AbstractESIndexerImpl;
 import org.prosolo.common.util.ElasticsearchUtil;
-import org.prosolo.services.indexing.AbstractBaseEntityESServiceImpl;
 import org.prosolo.services.indexing.UserGroupESService;
-import org.prosolo.services.nodes.UserGroupManager;
+import org.prosolo.services.user.UserGroupManager;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,7 +17,7 @@ import javax.inject.Inject;
 import java.io.IOException;
 
 @Service("org.prosolo.services.indexing.UserGroupESService")
-public class UserGroupESServiceImpl extends AbstractBaseEntityESServiceImpl implements UserGroupESService {
+public class UserGroupESServiceImpl extends AbstractESIndexerImpl implements UserGroupESService {
 	
 	private static Logger logger = Logger.getLogger(UserGroupESServiceImpl.class);
 	

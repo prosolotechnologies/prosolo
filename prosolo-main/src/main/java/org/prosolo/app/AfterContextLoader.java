@@ -1,13 +1,15 @@
 package org.prosolo.app;
 
 import org.apache.log4j.Logger;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.client.transport.NoNodeAvailableException;
-import org.prosolo.app.bc.*;
+import org.prosolo.app.bc.BaseBusinessCase;
+import org.prosolo.app.bc.BusinessCase0_Blank;
+import org.prosolo.app.bc.BusinessCase4_EDX;
+import org.prosolo.app.bc.BusinessCase5_Demo;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
 import org.prosolo.common.config.CommonSettings;
+import org.prosolo.common.elasticsearch.ElasticSearchConnector;
 import org.prosolo.common.messaging.rabbitmq.QueueNames;
 import org.prosolo.common.messaging.rabbitmq.ReliableConsumer;
 import org.prosolo.common.messaging.rabbitmq.impl.ReliableConsumerImpl;
@@ -17,10 +19,9 @@ import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.admin.ResourceSettingsManager;
 import org.prosolo.services.importing.DataGenerator;
 import org.prosolo.services.indexing.ESAdministration;
-import org.prosolo.services.indexing.ElasticSearchFactory;
 import org.prosolo.services.messaging.rabbitmq.impl.DefaultMessageWorker;
 import org.prosolo.services.nodes.RoleManager;
-import org.prosolo.services.nodes.UserManager;
+import org.prosolo.services.user.UserManager;
 import org.prosolo.services.util.roles.SystemRoleNames;
 
 import javax.servlet.ServletContextEvent;
@@ -41,7 +42,7 @@ public class AfterContextLoader implements ServletContextListener {
 		// read settings from config.xml
 		final Settings settings = Settings.getInstance();
 			logger.debug("Initialized settings");
-			
+
 		if (settings.config.init.formatDB || settings.config.init.importCapabilities){
 			try{
 				ServiceLocator.getInstance().getService(SecurityService.class).initializeRolesAndCapabilities();
@@ -64,7 +65,7 @@ public class AfterContextLoader implements ServletContextListener {
 				logger.debug("initialize elasticsearch indexes");
 				initElasticSearchIndexes();
 			} catch (IndexingServiceNotAvailable e1) {
-				logger.error(e1);
+				logger.error("Error", e1);
 			}
 
 			logger.debug("Initializing static data!");
@@ -74,7 +75,7 @@ public class AfterContextLoader implements ServletContextListener {
 			initStaticData();
 			logger.debug("Static data initialised!");
 		
-			if (settings.config.init.bc != 0) {
+			if (settings.config.init.bc != null) {
 				logger.debug("Starting repository initialization");
 				initRepository(settings.config.init.bc);
 				logger.debug("Repository initialised!");
@@ -106,25 +107,20 @@ public class AfterContextLoader implements ServletContextListener {
 			ServiceLocator.getInstance().getService(DataGenerator.class).populateDBWithTestData();
 		}
 		
-		if (settings.config.init.indexTrainingSet) {
-			ServiceLocator.getInstance().getService(ESAdministration.class).indexTrainingSet();
-		}
-		
-		logger.debug("Initialize thread to start elastic search");
-		new Thread(() -> {
-            try {
-                Client client = ElasticSearchFactory.getClient();
-            } catch (NoNodeAvailableException e) {
-                logger.error(e);
-            }
 
-            logger.debug("Finished ElasticSearch initialization:" + CommonSettings.getInstance().config.rabbitMQConfig.distributed + " .."
-                    + CommonSettings.getInstance().config.rabbitMQConfig.masterNode);
-        }).start();
+		//init ES client if not initialized
+		initESClient();
+
 		logger.debug("initialize Application services");
 		
 		initApplicationServices();
 		logger.debug("Services initialized");
+	}
+
+	private void initESClient() {
+		logger.debug("Initialize ES client");
+		ElasticSearchConnector.initializeESClientIfNotInitialized();
+		logger.debug("Finished ES client initialization");
 	}
 
 	private void initElasticSearchIndexes() throws IndexingServiceNotAvailable {
@@ -187,20 +183,32 @@ public class AfterContextLoader implements ServletContextListener {
 
 	}
 	
-	void initRepository(int bc) {
+	void initRepository(String bc) {
+		if (bc.startsWith("test/")) {
+			String test = bc.substring(5);
+			test = test.replace('.', '_');
+			try {
+				((BaseBusinessCase) Class.forName("org.prosolo.app.bc.test.BusinessCase_Test_" + test).getConstructor().newInstance()).initRepository();
+			} catch (ClassNotFoundException e) {
+				logger.error("Test business case class not found for business case " + bc);
+			} catch (NoSuchMethodException e) {
+				logger.error("There is no default constructor in test business case " + bc);
+			} catch (Exception e) {
+				logger.error("Error", e);
+			}
+		}
 		switch (bc) {
-		
-		case 0:
-			ServiceLocator.getInstance().getService(BusinessCase0_Blank.class).initRepository();
-			break;
-		case 4:
-			ServiceLocator.getInstance().getService(BusinessCase4_EDX.class).initRepository();
-			break;
-		case 5:
-			ServiceLocator.getInstance().getService(BusinessCase5_UniSA.class).initRepository();
-			break;
-		default:
-			break;
+			case "0":
+				ServiceLocator.getInstance().getService(BusinessCase0_Blank.class).initRepository();
+				break;
+			case "4":
+				ServiceLocator.getInstance().getService(BusinessCase4_EDX.class).initRepository();
+				break;
+			case "5":
+				new BusinessCase5_Demo().initRepository();
+				break;
+			default:
+				break;
 		}
 	}
 

@@ -5,8 +5,8 @@ import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.nodes.UnitManager;
-import org.prosolo.services.nodes.UserGroupManager;
-import org.prosolo.services.nodes.data.UserData;
+import org.prosolo.services.user.UserGroupManager;
+import org.prosolo.services.user.data.UserData;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageUtil;
 import org.prosolo.web.util.pagination.Paginable;
@@ -61,7 +61,7 @@ public class GroupUserAddBean implements Serializable, Paginable {
 			loadUsersFromDB();
 		} catch (Exception e) {
 			logger.error(e);
-			PageUtil.fireErrorMessage("Error while loading data");
+			PageUtil.fireErrorMessage("Error loading data");
 		}
 	}
 
@@ -113,12 +113,12 @@ public class GroupUserAddBean implements Serializable, Paginable {
 				loadUsersFromDB();
 			} catch (DbConnectionException e) {
 				logger.error("Error", e);
-				PageUtil.fireErrorMessage("Error while loading user data");
+				PageUtil.fireErrorMessage("Error loading user data");
 			}
 			return true;
 		} catch (DbConnectionException e) {
 			logger.error("Error", e);
-			PageUtil.fireErrorMessage("Error while trying to add "
+			PageUtil.fireErrorMessage("Error trying to add "
 					+ user.getFullName() + " to the group '" + groupName + "'");
 		}
 		return false;

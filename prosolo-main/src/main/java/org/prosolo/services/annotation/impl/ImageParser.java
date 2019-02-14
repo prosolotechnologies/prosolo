@@ -4,7 +4,7 @@ package org.prosolo.services.annotation.impl;
 zoran
  */
 
-import java.io.IOException;
+/*import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
 import java.util.Set;
@@ -13,8 +13,8 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 
 import org.apache.commons.io.input.CloseShieldInputStream;
-import org.apache.log4j.Logger;
-import org.apache.tika.exception.TikaException;
+import org.apache.log4j.Logger;*/
+/*import org.apache.tika.exception.TikaException;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.mime.MediaType;
 import org.apache.tika.parser.ParseContext;
@@ -25,7 +25,7 @@ import org.xml.sax.SAXException;
 
 import com.drew.metadata.Directory;
 import com.drew.metadata.MetadataException;
-import com.drew.metadata.Tag;
+import com.drew.metadata.Tag;*/
 
 /**
  * This class implements a tika parser. To activate the parser we have to change
@@ -35,10 +35,10 @@ import com.drew.metadata.Tag;
  * return these values as metadata for Lucene
  * 
  */
-@Deprecated
-public class ImageParser implements Parser {
+//@Deprecated
+//public class ImageParser implements Parser {
 
-	private static final long serialVersionUID = 6799737490741895373L;
+	/*private static final long serialVersionUID = 6799737490741895373L;
 
 	private static Logger logger = Logger.getLogger(ImageParser.class);
 
@@ -81,10 +81,10 @@ public class ImageParser implements Parser {
 	 * @param inputStream
 	 * @param tikaMetaData
 	 */
-	@SuppressWarnings("null")
-	@Deprecated
-	private void extractJPEGMetaData(InputStream inputStream,
-			Metadata tikaMetaData) {
+//	@SuppressWarnings("null")
+//	@Deprecated
+//	private void extractJPEGMetaData(InputStream inputStream,
+//			Metadata tikaMetaData) {
 
 		// read the exif meta data
 		//com.drew.metadata.Metadata jpegMetaData=null;
@@ -92,10 +92,10 @@ public class ImageParser implements Parser {
 			//jpegMetaData = JpegMetadataReader.readMetadata(inputStream);
 
 			// iterate through metadata directories
-		Iterator<?> directories=null;
+	//	Iterator<?> directories=null;
 			//Iterator<?> directories = jpegMetaData.getDirectoryIterator();
 			
-			while (directories.hasNext()) {
+			/*while (directories.hasNext()) {
 				Directory directory = (Directory) directories.next();
 				// iterate through tags and print to System.out
 				Iterator<?> tags = directory.getTagIterator();
@@ -109,13 +109,13 @@ public class ImageParser implements Parser {
 						logger.error(e);
 					}
 				}
-			 }
+			 }*/
 	//	} catch (JpegProcessingException e) {
 	//		logger.error(e);
 	 //	}
-	}
+	//}
 
-	@Override
+/*	@Override
 	@Deprecated
 	public Set<MediaType> getSupportedTypes(ParseContext arg0) {
 		// TODO Auto-generated method stub
@@ -128,5 +128,5 @@ public class ImageParser implements Parser {
 			ParseContext arg3) throws IOException, SAXException, TikaException {
 		// TODO Auto-generated method stub
 		
-	}
-}
+	}*/
+//}

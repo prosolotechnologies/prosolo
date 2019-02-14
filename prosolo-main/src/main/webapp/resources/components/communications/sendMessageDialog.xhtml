@@ -1,75 +1,71 @@
 <ui:component
-	xmlns:h="http://java.sun.com/jsf/html"
-	xmlns:f="http://java.sun.com/jsf/core"
-	xmlns:ui="http://java.sun.com/jsf/facelets"
-	xmlns:composite="http://java.sun.com/jsf/composite"
-	xmlns:p="http://primefaces.org/ui"
-	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+        xmlns:h="http://java.sun.com/jsf/html"
+        xmlns:f="http://java.sun.com/jsf/core"
+        xmlns:ui="http://java.sun.com/jsf/facelets"
+        xmlns:composite="http://java.sun.com/jsf/composite"
+        xmlns:p="http://primefaces.org/ui"
+        xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
 
-	<composite:interface>
-		<composite:attribute name="receiverId" required="true" />
-		<composite:attribute name="receiverFullName" required="true"/>
-		<composite:attribute name="receiverAvatar" required="true"/>
-		<composite:attribute name="linkStyle" default="" />
-		<composite:attribute name="linkStyleClass" type="java.lang.String" default="btn btn-green btn-sm btnMessage"/>
-		<composite:attribute name="linkText" default="Message"/>
-		<composite:attribute name="toUpdate" default=""/>
-		<composite:attribute name="learningContext" default=""/>
-		<composite:attribute name="service" default=""/>
-	</composite:interface>
-	
-	<composite:implementation>
-		<script>
-			function hideMessageDialog(dialogId) {
-				$('#'+dialogId).modal('hide');
-				$("body").removeAttr("class").removeAttr("style")
-				$("div.modal-backdrop.fade.in").remove()
-			}
-		</script>
-		<a href="#" class="#{cc.attrs.linkStyleClass}" style="#{cc.attrs.linkStyle}" data-toggle="modal" data-target="#message"><span></span>#{cc.attrs.linkText}</a>
+    <composite:interface>
+        <composite:attribute name="receiverId" required="true"/>
+        <composite:attribute name="receiverFullName" required="true"/>
+        <composite:attribute name="receiverAvatar" required="true"/>
+        <composite:attribute name="toUpdate" default=""/>
+        <composite:attribute name="learningContext" default=""/>
+        <composite:attribute name="service" default=""/>
+    </composite:interface>
+
+    <composite:implementation>
         <div class="modal fade" id="message" tabindex="-1" role="dialog" aria-labelledby="sendMessage">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header alignLeft">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
-                        <h2 class="modal-title" id="sendMessage">Send a Message</h2>
-                    </div>
-                    <div class="messageModalMeta">
-                        <div class="messageModalMetaLine">
-                            <div class="messageModalMetaLeft">
-                                To:
-                            </div>
-                            <div class="messageModalMetaRight">
-                            	<utilcomp:userAvatar
-									avatar="#{cc.attrs.receiverAvatar}"
-									fullName="#{cc.attrs.receiverFullName}"	
-									width="32"
-									height="32"
-							    /> 
-                                <h3>#{cc.attrs.receiverFullName}</h3>
+            <h:form id="formMessage">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header alignLeft">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                    aria-hidden="true">×</span></button>
+                            <h2 class="modal-title" id="sendMessage">Send a Message</h2>
+                        </div>
+                        <div class="messageModalMeta">
+                            <div class="messageModalMetaLine">
+                                <div class="messageModalMetaLeft">
+                                    To:
+                                </div>
+                                <div class="messageModalMetaRight">
+                                    <utilcomp:userAvatar
+                                            avatar="#{cc.attrs.receiverAvatar}"
+                                            fullName="#{cc.attrs.receiverFullName}"
+                                    />
+                                    <h3>#{cc.attrs.receiverFullName}</h3>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="modal-body alignLeft">
-                         <h:inputTextarea 
-                         	id="messageContentTextarea"
-                         	placeholder="Type a message..." 
-                         	value="#{sendMessageBean.message}" >
-               			 </h:inputTextarea>
-                    </div>
-                    <div class="modal-footer alignLeft">
-                        <p:commandLink action="#{sendMessageBean.sendMessage(cc.attrs.receiverId)}"
-                      			styleClass="btn btn-green"
-                      			process="messageContentTextarea"
-                      			update="#{cc.attrs.toUpdate} messageContentTextarea"
-                      			oncomplete="hideMessageDialog('message')">
-                      			<f:param name="learningContext" value="#{cc.attrs.learningContext}"></f:param>	
-                      			<f:param name="page" value="#{facesContext.viewRoot.viewId}"></f:param>	
-                        	Send
-                        </p:commandLink>
+                        <div class="modal-body alignLeft">
+                            <h:inputTextarea id="messageContentTextarea"
+                                             label="Message"
+                                             required="true"
+                                             placeholder="Type a message..."
+                                             value="#{sendMessageBean.message}">
+                                <f:validateLength maximum="9000"/>
+                            </h:inputTextarea>
+
+                            <small class="redText bottom30 displayBlock">
+                                <h:message for="messageContentTextarea"></h:message>
+                            </small>
+                        </div>
+                        <div class="modal-footer alignLeft">
+                            <utilcomp:singleClickLink action="#{sendMessageBean.sendMessage(cc.attrs.receiverId)}"
+                                                      styleClass="btn btn-green"
+                                                      process=":#{cc.clientId}:formMessage:messageContentTextarea"
+                                                      update="#{cc.attrs.toUpdate} :#{cc.clientId}:formMessage"
+                                                      oncomplete="if (args &amp;&amp; !args.validationFailed)$('#message').modal('hide');">
+                                <f:param name="learningContext" value="#{cc.attrs.learningContext}"></f:param>
+                                <f:param name="page" value="#{facesContext.viewRoot.viewId}"></f:param>
+                                Send
+                            </utilcomp:singleClickLink>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </h:form>
         </div>
-	</composite:implementation>
+    </composite:implementation>
 </ui:component>

@@ -12,6 +12,7 @@ import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
+import org.prosolo.services.user.UserGroupManager;
 import org.prosolo.services.util.roles.SystemRoleNames;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.courses.resourceVisibility.ResourceVisibilityUtil;
@@ -190,7 +191,7 @@ public class CompetenceUserPrivilegeBean implements Serializable {
 				loadData();
 			} catch (Exception e) {
 				logger.error(e);
-				PageUtil.fireErrorMessage("Error while reloading data. Try to refresh the page.");
+				PageUtil.fireErrorMessage("Error reloading data. Try to refresh the page.");
 			}
 		}
 	}

@@ -9,8 +9,8 @@ import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.search.CompetenceTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
+import org.prosolo.search.util.credential.CompetenceLibrarySearchFilter;
 import org.prosolo.search.util.credential.CompetenceSearchConfig;
-import org.prosolo.search.util.credential.LearningResourceSearchFilter;
 import org.prosolo.services.logging.ComponentName;
 import org.prosolo.services.logging.LoggingService;
 import org.prosolo.services.nodes.Competence1Manager;
@@ -30,7 +30,10 @@ import org.springframework.stereotype.Component;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Component("competenceLibraryBean")
 @Scope("view")
@@ -52,10 +55,10 @@ public class CompetenceLibraryBean implements Serializable, Paginable {
 	
 	//search
 	private String searchTerm = "";
-	private LearningResourceSearchFilter searchFilter = LearningResourceSearchFilter.ALL;
+	private CompetenceLibrarySearchFilter searchFilter = CompetenceLibrarySearchFilter.ALL_COMPETENCES;
 	private PaginationData paginationData = new PaginationData();
 	
-	private LearningResourceSearchFilter[] searchFilters;
+	private CompetenceLibrarySearchFilter[] searchFilters;
 	
 	private final CompetenceSearchConfig config = CompetenceSearchConfig.of(
 			true, true, false, true, LearningResourceType.USER_CREATED);
@@ -65,10 +68,7 @@ public class CompetenceLibraryBean implements Serializable, Paginable {
 	private List<Long> unitIds = new ArrayList<>();
 
 	public void init() {
-		searchFilters = Arrays.stream(LearningResourceSearchFilter.values()).filter(
-				f -> f != LearningResourceSearchFilter.BY_STUDENTS &&
-					 f != LearningResourceSearchFilter.YOUR_CREDENTIALS)
-				.toArray(LearningResourceSearchFilter[]::new);
+		searchFilters = CompetenceLibrarySearchFilter.values();
 
 		try {
 			Long userRoleId = roleManager.getRoleIdByName(SystemRoleNames.USER);
@@ -76,7 +76,7 @@ public class CompetenceLibraryBean implements Serializable, Paginable {
 
 			searchCompetences(false);
 		} catch (DbConnectionException e) {
-			PageUtil.fireErrorMessage("Error while loading the page");
+			PageUtil.fireErrorMessage("Error loading the page");
 		}
 	}
 
@@ -116,7 +116,7 @@ public class CompetenceLibraryBean implements Serializable, Paginable {
 		competences = response.getFoundNodes();
 	}
 	
-	public void applySearchFilter(LearningResourceSearchFilter filter) {
+	public void applySearchFilter(CompetenceLibrarySearchFilter filter) {
 		this.searchFilter = filter;
 		paginationData.setPage(1);
 		searchCompetences(true);
@@ -150,7 +150,7 @@ public class CompetenceLibraryBean implements Serializable, Paginable {
 			}
 		} catch(DbConnectionException e) {
 			logger.error("Error", e);
-			PageUtil.fireErrorMessage("Error while enrolling in a " + ResourceBundleUtil.getMessage("label.competence").toLowerCase());
+			PageUtil.fireErrorMessage("Error enrolling in a " + ResourceBundleUtil.getMessage("label.competence").toLowerCase());
 		}
 	}
 
@@ -174,20 +174,16 @@ public class CompetenceLibraryBean implements Serializable, Paginable {
 		this.competences = competences;
 	}
 
-	public LearningResourceSearchFilter getSearchFilter() {
+	public CompetenceLibrarySearchFilter getSearchFilter() {
 		return searchFilter;
 	}
 
-	public void setSearchFilter(LearningResourceSearchFilter searchFilter) {
+	public void setSearchFilter(CompetenceLibrarySearchFilter searchFilter) {
 		this.searchFilter = searchFilter;
 	}
 
-	public LearningResourceSearchFilter[] getSearchFilters() {
+	public CompetenceLibrarySearchFilter[] getSearchFilters() {
 		return searchFilters;
-	}
-
-	public void setSearchFilters(LearningResourceSearchFilter[] searchFilters) {
-		this.searchFilters = searchFilters;
 	}
 
 }

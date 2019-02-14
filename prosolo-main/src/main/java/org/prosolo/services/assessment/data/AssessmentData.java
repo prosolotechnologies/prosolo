@@ -52,6 +52,7 @@ public class AssessmentData {
 			.reduce(Integer::sum);
 		data.setTotalNumberOfMessages(number.orElse(0));
 		data.setInitials(getInitialsFromName(data.getStudentFullName()));
+		data.setBlindAssessmentMode(assessment.getBlindAssessmentMode());
 		return data;
 	}
 

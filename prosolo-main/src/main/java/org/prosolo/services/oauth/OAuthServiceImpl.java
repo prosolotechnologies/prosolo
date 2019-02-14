@@ -39,7 +39,7 @@ public class OAuthServiceImpl implements OauthService, Serializable {
 			message.addRequiredParameters(oauthAccessor);
 			return message.getAuthorizationHeader(null);
 		} catch (Exception e) {
-			throw new OauthException("Error while signing the message");
+			throw new OauthException("Error signing the message");
 		}
 	}
 	

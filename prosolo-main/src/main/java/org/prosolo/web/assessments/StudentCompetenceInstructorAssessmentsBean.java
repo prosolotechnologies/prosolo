@@ -76,9 +76,11 @@ public class StudentCompetenceInstructorAssessmentsBean extends CompetenceInstru
 
 	private Optional<ActivityAssessmentData> getActivityAssessmentByEncodedId(String encodedActivityDiscussionId) {
 		for (CompetenceAssessmentData comp : getAssessments()) {
-			for (ActivityAssessmentData act : comp.getActivityAssessmentData()) {
-				if (encodedActivityDiscussionId.equals(act.getEncodedActivityAssessmentId())) {
-					return Optional.of(act);
+			if (comp.getActivityAssessmentData() != null) {
+				for (ActivityAssessmentData act : comp.getActivityAssessmentData()) {
+					if (encodedActivityDiscussionId.equals(act.getEncodedActivityAssessmentId())) {
+						return Optional.of(act);
+					}
 				}
 			}
 		}

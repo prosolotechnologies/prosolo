@@ -63,8 +63,7 @@
 		                </div>
 		                <div class="whiteBarRight">
 		                	<h:panelGroup id="panelSort" layout="block" styleClass="dropdown sortDrop item">
-								<span>Sort:</span>
-								<h:link 
+								<h:link
 									id="linkSortOption" 
 									pt:data-toggle="dropdown" 
 									pt:aria-haspopup="true" 
@@ -86,8 +85,7 @@
 								</ul>
 							</h:panelGroup>
 							<h:panelGroup layout="block" id="panelSearchFilters" styleClass="dropdown showDrop item">
-								<span>Show:</span>
-								<h:link 
+								<h:link
 									id="linkSearchFilter"
 									pt:data-toggle="dropdown" 
 									pt:aria-haspopup="true" 
@@ -121,12 +119,12 @@
 						<h:link value="#{msg['label.credential.plural']}" outcome="/manage/library"/>
 					</li>
 					<li>
-						<h:link value="#{competenceStudentsBean.credentialIdData.fullTitle}" outcome="/manage/credential">
+						<h:link value="#{util:shortenAndAddDots(competenceStudentsBean.credentialIdData.fullTitle)}" outcome="/manage/credential">
 							<f:param name="id" value="#{param['credId']}"></f:param>
 						</h:link>
 					</li>
 					<li>
-						<h:link value="#{competenceStudentsBean.competenceTitle}" outcome="/manage/create-competence">
+						<h:link value="#{util:shortenAndAddDots(competenceStudentsBean.competenceTitle)}" outcome="/manage/create-competence">
 							<f:param name="id" value="#{competenceStudentsBean.id}" />
 							<f:param name="credId" value="#{competenceStudentsBean.credId}" />
 						</h:link>
@@ -142,7 +140,7 @@
 						<h:link value="#{msg['label.competence.plural']}" outcome="/manage/competenceLibrary"/>
 					</li>
 					<li>
-						<h:link value="#{competenceStudentsBean.competenceTitle}" outcome="/manage/create-competence">
+						<h:link value="#{util:shortenAndAddDots(competenceStudentsBean.competenceTitle)}" outcome="/manage/create-competence">
 							<f:param name="id" value="#{competenceStudentsBean.id}" />
 						</h:link>
 					</li>

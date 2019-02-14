@@ -50,15 +50,13 @@
 						<h:link value="#{msg['label.credential.plural']}" outcome="/credentialLibrary"/>
 					</li>
 					<li>
-						<h:link
-								value="#{studentCompetencePeerAssessmentsBean.credentialTitle}"
+						<h:link value="#{util:shortenAndAddDots(studentCompetencePeerAssessmentsBean.credentialTitle)}"
 								outcome="/credential">
 							<f:param name="id" value="#{param.credId}"></f:param>
 						</h:link>
 					</li>
 					<li>
-						<h:link
-								value="#{studentCompetencePeerAssessmentsBean.competenceTitle}"
+						<h:link value="#{util:shortenAndAddDots(studentCompetencePeerAssessmentsBean.competenceTitle)}"
 								outcome="/competence">
 							<f:param name="credId" value="#{param.credId}"></f:param>
 							<f:param name="compId" value="#{param.compId}"/>
@@ -72,14 +70,12 @@
 			<ui:fragment rendered="#{empty param.credId}">
 				<ol class="breadcrumb">
 					<li>
-						<h:link
-								value="#{msg['label.competence.plural']}"
+						<h:link value="#{msg['label.competence.plural']}"
 								outcome="/competenceLibrary">
 						</h:link>
 					</li>
 					<li>
-						<h:link
-								value="#{studentCompetencePeerAssessmentsBean.competenceTitle}"
+						<h:link value="#{util:shortenAndAddDots(studentCompetencePeerAssessmentsBean.competenceTitle)}"
 								outcome="competence">
 							<f:param name="compId" value="#{param.compId}"/>
 						</h:link>
@@ -121,7 +117,7 @@
 																actorId="#{assessment.assessorId}"
 																avatarUrl="#{assessment.assessorAvatarUrl}"
 																actorFullName="#{assessment.assessorFullName}"
-																blindAssessmentMode="#{studentCompetencePeerAssessmentsBean.blindAssessmentMode}"
+																blindAssessmentMode="#{assessment.blindAssessmentMode}"
 																actorType="ASSESSOR"
 														/>
 														<f:param value="#{util:encodeId(assessment.assessmentId)}" name="assessmentId" />
@@ -134,7 +130,7 @@
 															<assessment:assessmentActorName
 																	actorId="#{assessment.assessorId}"
 																	actorFullName="#{assessment.assessorFullName}"
-																	blindAssessmentMode="#{studentCompetencePeerAssessmentsBean.blindAssessmentMode}"
+																	blindAssessmentMode="#{assessment.blindAssessmentMode}"
 																	actorType="ASSESSOR"
 															/>
 															<f:param value="#{util:encodeId(assessment.assessmentId)}" name="assessmentId" />
@@ -147,7 +143,7 @@
 													#{assessment.dateValue}
 												</div>
 											</div>
-											<h:panelGroup layout="block" styleClass="tagApproved left bottom30" rendered="#{assessment.approved}">Approved</h:panelGroup>
+											<h:panelGroup layout="block" styleClass="tagApproved left bottom30" rendered="#{assessment.approved}">Submitted</h:panelGroup>
 											<h:link outcome="/competence-peer-assessment">
 												View Details
 												<f:param value="#{util:encodeId(assessment.assessmentId)}" name="assessmentId" />

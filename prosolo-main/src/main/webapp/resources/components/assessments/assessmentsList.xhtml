@@ -30,7 +30,7 @@
 					<h:link value="#{msg['label.credential.plural']}" outcome="credentialLibrary"/>
 				</li>
 				<li>
-					<h:link value="#{cc.attrs.bean.credentialTitle}" outcome="credential">
+					<h:link value="#{util:shortenAndAddDots(cc.attrs.bean.credentialTitle)}" outcome="credential">
 						<f:param name="id" value="#{util:encodeId(cc.attrs.bean.decodedId)}"/>
 					</h:link>
 				</li>
@@ -69,7 +69,7 @@
 								</h2>
 
 								<ui:fragment rendered="#{assessmentData.approved}">
-									<div class="tagApproved">Approved</div>
+									<div class="tagApproved">Submitted</div>
 								</ui:fragment>
 
 								<ui:fragment rendered="#{not assessmentData.approved}">
@@ -121,7 +121,7 @@
 								<h:selectBooleanCheckbox id="searchForApprovedCheckbox" value="#{cc.attrs.bean.searchForApproved}">
 									<f:ajax execute="@this" event="change" render="filterAssessmentsForm"/>
 								</h:selectBooleanCheckbox>
-								<label for="checkApproved">Approved</label>
+								<label for="checkApproved">Submitted</label>
 							</div>
 							
 							<div class="checkLinks">

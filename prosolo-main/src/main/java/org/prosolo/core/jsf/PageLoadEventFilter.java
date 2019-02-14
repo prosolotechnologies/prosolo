@@ -6,10 +6,12 @@ import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.web.ApplicationPage;
 import org.prosolo.core.spring.ServiceLocator;
+import org.prosolo.core.spring.security.authentication.sessiondata.ProsoloUserDetails;
+import org.prosolo.services.authentication.AuthenticatedUserService;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.impl.Competence1ManagerImpl;
 import org.prosolo.web.ApplicationPagesBean;
-import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.services.RequestParameterResolver;
 import org.springframework.stereotype.Component;
 
 import javax.faces.application.ResourceHandler;
@@ -18,10 +20,7 @@ import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Component(value = "pageLoadEventFilter")
 public class PageLoadEventFilter implements Filter {
@@ -29,16 +28,20 @@ public class PageLoadEventFilter implements Filter {
 	private static Logger logger = Logger.getLogger(Competence1ManagerImpl.class);
 	
 	@Inject private EventFactory eventFactory;
+	@Inject private AuthenticatedUserService authenticatedUserService;
+	@Inject private RequestParameterResolver requestParameterResolver;
 
 	private static List<String> skipPages = Arrays.asList(
 			"/api/",
 			"/login.xhtml",
 			"/root.xhtml",
+			"/admin/root.xhtml",
 			"/ltiproviderlaunch.xhtml",
 			"/ltitoolproxyregistration.xhtml",
 			"/openid.xhtml",
 			"/favicon.ico",
 			"/robots.txt",
+			"/404.xhtml",
 			"/version.txt");
 	
 	@Override
@@ -69,11 +72,14 @@ public class PageLoadEventFilter implements Filter {
 
 			if (session != null) {
 				sessionId = session.getId();
-				LoggedUserBean loggedUserBean = (LoggedUserBean) session.getAttribute("loggeduser");
+                Optional<ProsoloUserDetails> userDetails = authenticatedUserService.getCurrentlyLoggedInUser(session);
 
-				if (loggedUserBean != null) {
-					userId = loggedUserBean.getUserId();
-					organizationId = loggedUserBean.getOrganizationId(request);
+				if (userDetails.isPresent()) {
+					userId = userDetails.get().getUserId();
+					organizationId = userDetails.get().getOrganizationId();
+					if (organizationId == 0) {
+					    organizationId = requestParameterResolver.getOrganizationIdFromRequestParameter(request);
+                    }
 				}
 			}
 			if (page == null) {
@@ -86,14 +92,13 @@ public class PageLoadEventFilter implements Filter {
 			} else {
 				ipAddress = request.getRemoteAddr();
 			}
-			logger.info("IP address: " + ipAddress);
+			logger.debug("IP address: " + ipAddress);
 
 			Map<String, String> params = new HashMap<>();
-			params.put("ip", ipAddress);
 			params.put("uri", uri);
 			params.put("pretty_uri", (String) request.getAttribute("javax.servlet.forward.request_uri"));
 			eventFactory.generateEvent(
-					EventType.PAGE_OPENED, UserContextData.of(userId, organizationId, sessionId, new PageContextData(uri, null, null)),
+					EventType.PAGE_OPENED, UserContextData.of(userId, organizationId, sessionId, ipAddress, new PageContextData(uri, null, null)),
 					null, null, null, params);
 		}
 		

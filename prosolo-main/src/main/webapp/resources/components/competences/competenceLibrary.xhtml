@@ -20,7 +20,7 @@
 	    <script src="#{request.contextPath}/resources/javascript2/search.js"></script>
 		<div id="#{cc.clientId}">
 
-			<h:form id="formMain">
+			<h:form id="formMain" onsubmit="return false;">
 				<p:growl id="growlMain" showDetail="true" globalOnly="true" />
 
 				<div class="whiteBar">
@@ -36,13 +36,13 @@
 									</p:remoteCommand>
 
 									<h:inputText id="inputCompName"
-										type="search"
-										styleClass="competencesSearchField"
-										placeholder="Search #{msg['label.competence.plural'].toLowerCase()}"
-										value="#{cc.attrs.bean.searchTerm}"
-										onclick="$(this).select();"
-										onkeyup="searchListener(execSearchCompetences);">
-									</h:inputText>
+												 autocomplete="off"
+												 type="search"
+												 styleClass="competencesSearchField"
+												 placeholder="Search #{msg['label.competence.plural'].toLowerCase()}"
+												 value="#{cc.attrs.bean.searchTerm}"
+												 onclick="$(this).select();"
+												 onkeyup="searchListener(execSearchCompetences);" />
 								</div>
 							</div>
 							<div class="whiteBarRight">
