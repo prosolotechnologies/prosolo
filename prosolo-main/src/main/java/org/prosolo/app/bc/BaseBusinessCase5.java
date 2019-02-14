@@ -38,7 +38,6 @@ import org.prosolo.services.user.UserGroupManager;
 import org.prosolo.services.user.data.UserData;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -511,13 +510,14 @@ public abstract class BaseBusinessCase5 extends BaseBusinessCase {
         assignInstructorToStudent(events, instructor, List.of(student), delivery);
     }
 
-    protected CommentData createNewComment(EventQueue events, User user, String text, long commentedResourceId, CommentedResourceType commentedResourceType, CommentData parent) {
+    protected CommentData createNewComment(EventQueue events, User user, String text, long commentedResourceId, CommentedResourceType commentedResourceType, CommentData parent, boolean isManagerComment) {
         CommentData newComment = new CommentData();
         newComment.setCommentedResourceId(commentedResourceId);
         newComment.setDateCreated(new Date());
         newComment.setComment(text);
         newComment.setCreator(new UserData(user));
         newComment.setParent(parent);
+        newComment.setManagerComment(isManagerComment);
 
         Comment1 comment = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).saveNewCommentAndGetEvents(newComment,
                 commentedResourceType, UserContextData.of(user.getId(), user.getOrganization().getId(), null, null, null)));

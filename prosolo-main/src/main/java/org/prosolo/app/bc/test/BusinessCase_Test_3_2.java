@@ -47,7 +47,7 @@ public class BusinessCase_Test_3_2 extends BusinessCase_Test_3 {
                 "Social network analysis (SNA) is the process of investigating social structures through the use of networks and graph theory.",
                 comp1UserHelenCampbell.getCompetence().getId(),
                 CommentedResourceType.Competence,
-                null);
+                null, false);
 
         likeComment(events, comment1, userGeorgeYoung);
 
@@ -56,7 +56,7 @@ public class BusinessCase_Test_3_2 extends BusinessCase_Test_3 {
                 "It characterizes networked structures in terms of nodes and the ties, edges, or links that connect them.",
                 comp1UserGeorgeYoung.getCompetence().getId(),
                 CommentedResourceType.Competence,
-                comment1);
+                comment1, false);
 
         likeComment(events, comment1Reply1, userHelenCampbell);
 
@@ -65,14 +65,14 @@ public class BusinessCase_Test_3_2 extends BusinessCase_Test_3 {
                 "Social network analysis has emerged as a key technique in modern sociology.",
                 comp1UserGeorgeYoung.getCompetence().getId(),
                 CommentedResourceType.Competence,
-                null);
+                null, false);
 
         CommentData comment3 = createNewComment(events,
                 userHelenCampbell,
                 "It has also gained a significant following in anthropology, biology, demography, communication studies, economics, geography, history, information science, organizational studies, political science, social psychology, development studies, sociolinguistics, and computer science and is now commonly available as a consumer tool.",
                 comp1UserHelenCampbell.getCompetence().getId(),
                 CommentedResourceType.Competence,
-                null);
+                null, false);
     }
 
     @Override
