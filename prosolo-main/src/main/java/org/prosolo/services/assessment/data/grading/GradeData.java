@@ -1,8 +1,8 @@
 package org.prosolo.services.assessment.data.grading;
 
-import org.prosolo.common.util.Pair;
+import java.io.Serializable;
 
-public interface GradeData {
+public interface GradeData extends Serializable {
 
 	<T> T accept(GradeDataVisitor<T> visitor);
 

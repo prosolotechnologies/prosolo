@@ -2,6 +2,7 @@ package org.prosolo.common.domainmodel.rubric;
 
 import org.prosolo.common.domainmodel.general.BaseEntity;
 
+import javax.persistence.Column;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
@@ -38,6 +39,7 @@ public class CriterionAssessment extends BaseEntity {
         this.level = level;
     }
 
+    @Column(length = 1000)
     public String getComment() {
         return comment;
     }

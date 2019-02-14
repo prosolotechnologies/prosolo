@@ -103,20 +103,29 @@
                                                                 </ui:fragment>
                                                             </h3>
 
-                                                            <p class="commentText">#{activityMessageData.content}</p>
+                                                            <p class="commentText #{compEditComment.isValid() ? '' : 'hidden'}">#{activityMessageData.content}</p>
 
-                                                            <div class="editComment hidden">
-                                                                <p:inputTextarea name="name"
-                                                                                 styleClass="contentEditableComment"
-                                                                                 style="width:100%;" rows="1"
-                                                                                 value="#{activityMessageData.content}"
-                                                                                 onkeyup="displaySubmitButtonPrivateConvModal(this)"/>
+                                                            <div class="editComment #{compEditComment.isValid() ? 'hidden' : ''}">
+                                                                <p:inputTextarea
+                                                                        id="textareaEditComment"
+                                                                        binding="#{compEditComment}"
+                                                                        label="Comment"
+                                                                        name="name"
+                                                                        styleClass="contentEditableComment"
+                                                                        style="width:100%;" rows="1"
+                                                                        value="#{activityMessageData.content}"
+                                                                        onkeyup="displaySubmitButtonPrivateConvModal(this)">
+                                                                    <f:validateLength maximum="9000"/>
+                                                                </p:inputTextarea>
+
+                                                                <small class="redText bottom30 displayBlock">
+                                                                    <h:message for="textareaEditComment"></h:message>
+                                                                </small>
 
                                                                 <utilcomp:singleClickLink
                                                                         styleClass="btn btn-sm btn-green"
                                                                         value="Submit"
                                                                         action="#{cc.attrs.bean.editComment(activityMessageData.content, activityMessageData.encodedMessageId)}"
-                                                                        oncomplete="hideEditPrivateConversationComment(this);"
                                                                         update=":#{cc.clientId}:formPrivateConversation:panelModalPrivateConversation"/>
 
                                                                 <a href="javascript:void(0)"
@@ -125,7 +134,7 @@
                                                             </div>
 
                                                             <div class="commentOptions">
-                                                                <a href="javascript:void(0)" class="edit"
+                                                                <a href="javascript:void(0)" class="edit #{compEditComment.isValid() ? '' : 'hidden'}"
                                                                    onclick="showEditComment(this)">
                                                                     <span class="icon"></span>Edit
                                                                 </a>
@@ -213,11 +222,20 @@
                                 </ui:fragment>
 
                                 <div class="commentForm">
-                                    <p:inputTextarea styleClass="contentEditableComment"
-                                                     style="width:100%;" rows="1"
-                                                     value="#{cc.attrs.bean.newCommentValue}"
-                                                     placeholder="Add Comment..."
-                                                     onkeyup="displaySubmitButtonPrivateConvModal(this)"/>
+                                    <p:inputTextarea
+                                            id="textareaAddNewComment"
+                                            label="Comment"
+                                            styleClass="contentEditableComment"
+                                            style="width:100%;" rows="1"
+                                            value="#{cc.attrs.bean.newCommentValue}"
+                                            placeholder="Add Comment..."
+                                            onkeyup="displaySubmitButtonPrivateConvModal(this)">
+                                            <f:validateLength maximum="9000"/>
+                                    </p:inputTextarea>
+
+                                    <small class="redText bottom30 displayBlock">
+                                        <h:message for="textareaAddNewComment"></h:message>
+                                    </small>
 
                                     <utilcomp:singleClickLink styleClass="btn btn-sm btn-green hidden"
                                                               value="Submit"
