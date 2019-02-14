@@ -14,17 +14,19 @@ public class InstructorEmailGenerator extends EmailContentGenerator {
 	
 	@Override
 	public String getSubject() {
-		return this.courseName + " - assinged/unassigned students";
+		return this.courseName + " - Assigned students update";
 	}
 	
 	private String name;
+	private String credentialLocalized;
 	private String courseName;
 	private List<String> assignedStudents;
 	private List<String> unassignedStudents;
 	
-	public InstructorEmailGenerator(String name, String courseName, List<String> assignedStudents,
+	public InstructorEmailGenerator(String name, String credentialLocalized, String courseName, List<String> assignedStudents,
 			List<String> unassignedStudents) {
 		this.name = name;
+		this.credentialLocalized = credentialLocalized;
 		this.courseName = courseName;
 		this.assignedStudents = assignedStudents;
 		this.unassignedStudents = unassignedStudents;
@@ -69,5 +71,12 @@ public class InstructorEmailGenerator extends EmailContentGenerator {
 	public boolean isHasUnassignedStudents() {
 		return this.unassignedStudents != null && !this.unassignedStudents.isEmpty();
 	}
-	
+
+	public String getCredentialLocalized() {
+		return credentialLocalized;
+	}
+
+	public void setCredentialLocalized(String credentialLocalized) {
+		this.credentialLocalized = credentialLocalized;
+	}
 }
