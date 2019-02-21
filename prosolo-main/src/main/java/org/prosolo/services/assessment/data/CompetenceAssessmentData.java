@@ -9,6 +9,7 @@ import org.prosolo.common.util.ImageFormat;
 import org.prosolo.common.util.Pair;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.assessment.data.grading.RubricAssessmentGradeSummary;
+import org.prosolo.services.assessment.data.parameterobjects.StudentCompetenceAndAssessmentData;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceData;
@@ -52,54 +53,32 @@ public class CompetenceAssessmentData {
 	private String durationString;
 	private String dateValue;
 	private AssessmentType type;
+	private AssessmentStatus status;
 	private LearningPathType learningPathType;
 	private String evidenceSummary;
 	private BlindAssessmentMode blindAssessmentMode;
 
-//	public static CompetenceAssessmentData from(CompetenceAssessment compAssessment, UrlIdEncoder encoder,
-//			long userId, DateFormat dateFormat) {
-//
-//		CompetenceAssessmentData data = new CompetenceAssessmentData();
-//		data.setTitle(compAssessment.getTargetCompetence().getCompetence().getTitle());
-//		data.setCompetenceAssessmentId(compAssessment.getId());
-//		data.setCompetenceAssessmentEncodedId(encoder.encodeId(compAssessment.getId()));
-//		data.setApproved(compAssessment.isApproved());
-//		data.setPoints(compAssessment.getPoints());
-//
-//		List<TargetActivity1> targetActivities = compAssessment.getTargetCompetence().getTargetActivities();
-//
-//		int maxPoints = 0;
-//		List<ActivityAssessmentData> activityAssessmentData = new ArrayList<>();
-//		for (TargetActivity1 targetActivity : targetActivities) {
-//			ActivityAssessmentData assessmentData = ActivityAssessmentData.from(targetActivity, compAssessment, encoder, userId);
-//			maxPoints += assessmentData.getGrade().getMaxGrade();
-//			activityAssessmentData.add(assessmentData);
-//		}
-//		data.setMaxPoints(maxPoints);
-//		data.setActivityAssessmentData(activityAssessmentData);
-//
-//		return data;
-//	}
-
-	public static CompetenceAssessmentData from(CompetenceData1 cd, CredentialAssessment credAssessment,
-				RubricAssessmentGradeSummary rubricGradeSummary, Map<Long, RubricAssessmentGradeSummary> activitiesRubricGradeSummary,
-				UrlIdEncoder encoder, long userId, DateFormat dateFormat, boolean loadDiscussion) {
-		CompetenceAssessment compAssessment = credAssessment.getCompetenceAssessmentByCompetenceId(cd.getCompetenceId());
-		return from(cd, compAssessment, credAssessment, rubricGradeSummary, activitiesRubricGradeSummary, encoder, userId, dateFormat, loadDiscussion);
+	public static CompetenceAssessmentData from(StudentCompetenceAndAssessmentData competenceAssessment,
+												CredentialAssessment credAssessment, UrlIdEncoder encoder,
+												DateFormat dateFormat) {
+		return from(competenceAssessment, credAssessment, null, null, encoder, 0, dateFormat, false);
 	}
 
-	public static CompetenceAssessmentData from(CompetenceData1 cd, CompetenceAssessment compAssessment,
+	public static CompetenceAssessmentData from(StudentCompetenceAndAssessmentData competenceAssessment,
 												CredentialAssessment credAssessment, RubricAssessmentGradeSummary rubricGradeSummary,
 												Map<Long, RubricAssessmentGradeSummary> activitiesRubricGradeSummary, UrlIdEncoder encoder,
 												long userId, DateFormat dateFormat, boolean loadDiscussion) {
 		CompetenceAssessmentData data = new CompetenceAssessmentData();
 		if (credAssessment != null) {
 			data.setCredentialAssessmentId(credAssessment.getId());
-			data.setCredentialId(credAssessment.getTargetCredential().getCredential().getId());
 		}
 
+		CompetenceData1 cd = competenceAssessment.getCompetenceData();
+		CompetenceAssessment compAssessment = competenceAssessment.getCompetenceAssessment();
+		data.setCredentialId(compAssessment.getTargetCredential().getCredential().getId());
 		data.setTitle(cd.getTitle());
 		data.setType(compAssessment.getType());
+		data.setStatus(compAssessment.getStatus());
 		data.setCompetenceId(cd.getCompetenceId());
 		data.setTargetCompetenceId(cd.getTargetCompId());
 		if (compAssessment.getAssessor() != null) {
@@ -107,78 +86,77 @@ public class CompetenceAssessmentData {
 			data.setAssessorFullName(compAssessment.getAssessor().getName() + " " + compAssessment.getAssessor().getLastname());
 			data.setAssessorAvatarUrl(AvatarUtils.getAvatarUrlInFormat(compAssessment.getAssessor(), ImageFormat.size120x120));
 		}
+		data.setStudentId(compAssessment.getStudent().getId());
 		data.setStudentFullName(compAssessment.getStudent().getName() + " " + compAssessment.getStudent().getLastname());
 		data.setStudentAvatarUrl(AvatarUtils.getAvatarUrlInFormat(compAssessment.getStudent(), ImageFormat.size120x120));
 		data.setCompetenceAssessmentId(compAssessment.getId());
 		data.setCompetenceAssessmentEncodedId(encoder.encodeId(compAssessment.getId()));
-		data.setApproved(compAssessment.isApproved());
-		data.setAssessorNotified(compAssessment.isAssessorNotified());
-		data.setLastAskedForAssessment(DateUtil.getMillisFromDate(compAssessment.getLastAskedForAssessment()));
-		data.setDuration(cd.getDuration());
-		data.calculateDurationString();
-		if (!cd.isEnrolled()) {
-			data.setReadOnly(true);
-		}
-
-		int maxPoints = 0;
-		data.setLearningPathType(cd.getLearningPathType());
-		if (cd.getLearningPathType() == LearningPathType.ACTIVITY) {
-			List<ActivityAssessmentData> activityAssessmentData = new ArrayList<>();
-			for (ActivityData ad : cd.getActivities()) {
-				ActivityAssessment aa = compAssessment.getDiscussionByActivityId(ad.getActivityId());
-				ActivityAssessmentData assessmentData = ActivityAssessmentData.from(ad, compAssessment,
-						credAssessment, activitiesRubricGradeSummary.get(aa.getId()), encoder, userId, loadDiscussion);
-				if (cd.getAssessmentSettings().getGradingMode() == GradingMode.AUTOMATIC) {
-					maxPoints += assessmentData.getGrade().getMaxGrade();
-				}
-				assessmentData.setCompAssessment(data);
-				activityAssessmentData.add(assessmentData);
-			}
-			data.setActivityAssessmentData(activityAssessmentData);
-		} else {
-			data.setEvidences(cd.getEvidences());
-			data.setEvidenceSummary(cd.getEvidenceSummary());
-		}
-		if (cd.getAssessmentSettings().getGradingMode() != GradingMode.AUTOMATIC) {
-			maxPoints = cd.getAssessmentSettings().getMaxPoints();
-		}
-		//set grade data
-		long rubricId = compAssessment.getCompetence().getRubric() != null
-				? compAssessment.getCompetence().getRubric().getId()
-				: 0;
-		RubricType rubricType = compAssessment.getCompetence().getRubric() != null
-				? compAssessment.getCompetence().getRubric().getRubricType()
-				: null;
-		data.setGradeData(GradeDataFactory.getGradeDataForLearningResource(
-				compAssessment.getCompetence().getGradingMode(),
-				maxPoints,
-				compAssessment.getPoints(),
-				rubricId,
-				rubricType,
-				rubricGradeSummary
-		));
-
-		if (loadDiscussion) {
-			data.setNumberOfMessages(compAssessment.getMessages().size());
-			CompetenceAssessmentDiscussionParticipant currentParticipant = compAssessment.getParticipantByUserId(userId);
-			if (currentParticipant != null) {
-				data.setParticipantInDiscussion(true);
-				data.setAllRead(currentParticipant.isRead());
-			} else {
-				// currentParticipant is null when userId (viewer of the page) is not the participating in this discussion
-				data.setAllRead(false);
-				data.setParticipantInDiscussion(false);
-			}
-		}
-		data.setStudentId(compAssessment.getStudent().getId());
-		data.setStudentFullName(compAssessment.getStudent().getName() + " " + compAssessment.getStudent().getLastname());
-		data.setStudentAvatarUrl(AvatarUtils.getAvatarUrlInFormat(compAssessment.getStudent(), ImageFormat.size120x120));
-
 		if (dateFormat != null) {
 			data.setDateValue(dateFormat.format(compAssessment.getDateCreated()));
 		}
 		data.setBlindAssessmentMode(compAssessment.getBlindAssessmentMode());
 
+		if (data.isAssessmentInitialized()) {
+			data.setApproved(compAssessment.isApproved());
+			data.setAssessorNotified(compAssessment.isAssessorNotified());
+			data.setLastAskedForAssessment(DateUtil.getMillisFromDate(compAssessment.getLastAskedForAssessment()));
+			data.setDuration(cd.getDuration());
+			data.calculateDurationString();
+			if (!cd.isEnrolled()) {
+				data.setReadOnly(true);
+			}
+
+			int maxPoints = 0;
+			data.setLearningPathType(cd.getLearningPathType());
+			if (cd.getLearningPathType() == LearningPathType.ACTIVITY) {
+				List<ActivityAssessmentData> activityAssessmentData = new ArrayList<>();
+				for (ActivityData ad : cd.getActivities()) {
+					ActivityAssessment aa = compAssessment.getDiscussionByActivityId(ad.getActivityId());
+					ActivityAssessmentData assessmentData = ActivityAssessmentData.from(ad, compAssessment,
+							credAssessment, activitiesRubricGradeSummary.get(aa.getId()), encoder, userId, loadDiscussion);
+					if (cd.getAssessmentSettings().getGradingMode() == GradingMode.AUTOMATIC) {
+						maxPoints += assessmentData.getGrade().getMaxGrade();
+					}
+					assessmentData.setCompAssessment(data);
+					activityAssessmentData.add(assessmentData);
+				}
+				data.setActivityAssessmentData(activityAssessmentData);
+			} else {
+				data.setEvidences(cd.getEvidences());
+				data.setEvidenceSummary(cd.getEvidenceSummary());
+			}
+			if (cd.getAssessmentSettings().getGradingMode() != GradingMode.AUTOMATIC) {
+				maxPoints = cd.getAssessmentSettings().getMaxPoints();
+			}
+			//set grade data
+			long rubricId = compAssessment.getCompetence().getRubric() != null
+					? compAssessment.getCompetence().getRubric().getId()
+					: 0;
+			RubricType rubricType = compAssessment.getCompetence().getRubric() != null
+					? compAssessment.getCompetence().getRubric().getRubricType()
+					: null;
+			data.setGradeData(GradeDataFactory.getGradeDataForLearningResource(
+					compAssessment.getCompetence().getGradingMode(),
+					maxPoints,
+					compAssessment.getPoints(),
+					rubricId,
+					rubricType,
+					rubricGradeSummary
+			));
+
+			if (loadDiscussion) {
+				data.setNumberOfMessages(compAssessment.getMessages().size());
+				CompetenceAssessmentDiscussionParticipant currentParticipant = compAssessment.getParticipantByUserId(userId);
+				if (currentParticipant != null) {
+					data.setParticipantInDiscussion(true);
+					data.setAllRead(currentParticipant.isRead());
+				} else {
+					// currentParticipant is null when userId (viewer of the page) is not the participating in this discussion
+					data.setAllRead(false);
+					data.setParticipantInDiscussion(false);
+				}
+			}
+		}
 		return data;
 	}
 
@@ -437,5 +415,20 @@ public class CompetenceAssessmentData {
 
 	public void setBlindAssessmentMode(BlindAssessmentMode blindAssessmentMode) {
 		this.blindAssessmentMode = blindAssessmentMode;
+	}
+
+	public AssessmentStatus getStatus() {
+		return status;
+	}
+
+	public void setStatus(AssessmentStatus status) {
+		this.status = status;
+	}
+
+	public boolean isAssessmentInitialized() {
+		return status == AssessmentStatus.PENDING
+				|| status == AssessmentStatus.SUBMITTED
+				|| status == AssessmentStatus.ASSESSMENT_QUIT
+				|| status == AssessmentStatus.SUBMITTED_ASSESSMENT_QUIT;
 	}
 }

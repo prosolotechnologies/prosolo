@@ -1,5 +1,7 @@
 package org.prosolo.services.assessment.data.factory;
 
+import org.prosolo.common.domainmodel.assessment.Assessment;
+import org.prosolo.common.domainmodel.assessment.AssessmentStatus;
 import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
 import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
 import org.prosolo.common.domainmodel.credential.*;
@@ -77,18 +79,15 @@ public class AssessmentDataFactory implements Serializable {
         return activitySummary;
     }
 
-    public AssessmentData getCredentialAssessmentData(CredentialAssessment ca, User student, User assessor, DateFormat dateFormat) {
-        return getAssessmentData(ca.getId(), ca.getDateCreated(), ca.isApproved(), student, assessor, dateFormat, ca.getBlindAssessmentMode());
-    }
-
-    public AssessmentData getCompetenceAssessmentData(CompetenceAssessment ca, User student, User assessor, DateFormat dateFormat) {
-        return getAssessmentData(ca.getId(), ca.getDateCreated(), ca.isApproved(), student, assessor, dateFormat, ca.getBlindAssessmentMode());
+    public AssessmentData getAssessmentData(Assessment assessment, User student, User assessor, DateFormat dateFormat) {
+        return getAssessmentData(assessment.getId(), assessment.getStatus(), assessment.getDateCreated(), assessment.isApproved(), student, assessor, dateFormat, assessment.getBlindAssessmentMode());
     }
 
     public AssessmentData getAssessmentData(
-            long assessmentId, Date dateCreated, boolean approved, User student, User assessor, DateFormat dateFormat, BlindAssessmentMode blindAssessmentMode) {
+            long assessmentId, AssessmentStatus status, Date dateCreated, boolean approved, User student, User assessor, DateFormat dateFormat, BlindAssessmentMode blindAssessmentMode) {
         AssessmentData data = new AssessmentData();
         data.setAssessmentId(assessmentId);
+        data.setStatus(status);
         data.setDateValue(dateFormat.format(dateCreated));
         data.setApproved(approved);
         if (student != null) {

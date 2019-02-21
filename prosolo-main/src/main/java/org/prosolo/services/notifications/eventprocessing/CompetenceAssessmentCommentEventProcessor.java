@@ -41,10 +41,8 @@ public class CompetenceAssessmentCommentEventProcessor extends AssessmentComment
 		Context context = this.ctxJsonParser.parseContext(event.getContext());
 		credentialId = Context.getIdFromSubContextWithName(context, ContextName.CREDENTIAL);
 		compAssessment = (CompetenceAssessment) session.load(CompetenceAssessment.class, event.getTarget().getId());
-		if (credentialId > 0) {
-			credentialAssessmentId = AssessmentLinkUtil.getCredentialAssessmentId(
-					context, credentialId, compAssessment.getId(), assessmentManager, session);
-		}
+		credentialAssessmentId = AssessmentLinkUtil.getCredentialAssessmentId(
+				context, compAssessment.getId(), assessmentManager, session);
 		assessmentBasicData = assessmentManager.getBasicAssessmentInfoForCompetenceAssessment(event.getTarget().getId());
 	}
 

@@ -1,5 +1,6 @@
 package org.prosolo.services.assessment.data;
 
+import org.prosolo.common.domainmodel.assessment.AssessmentStatus;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
 import org.prosolo.common.domainmodel.credential.BlindAssessmentMode;
@@ -8,7 +9,6 @@ import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.util.AvatarUtils;
 
 import java.text.DateFormat;
-import java.util.OptionalInt;
 
 public class AssessmentData {
 
@@ -28,9 +28,11 @@ public class AssessmentData {
 	private String initials;
 	private AssessmentType type;
 	private BlindAssessmentMode blindAssessmentMode = BlindAssessmentMode.OFF;
+	private AssessmentStatus status;
 
 	public static AssessmentData fromAssessment(CredentialAssessment assessment, UrlIdEncoder encoder, DateFormat dateFormat) {
 		AssessmentData data = new AssessmentData();
+		data.setStatus(assessment.getStatus());
 		data.setStudentFullName(assessment.getStudent().getName()+" "+assessment.getStudent().getLastname());
 		data.setStudentAvatarUrl(AvatarUtils.getAvatarUrlInFormat(assessment.getStudent(), ImageFormat.size120x120));
 		data.setStudentId(assessment.getStudent().getId());
@@ -44,13 +46,6 @@ public class AssessmentData {
 		data.setApproved(assessment.isApproved());
 		data.setEncodedAssessmentId(encoder.encodeId(assessment.getId()));
 		data.setEncodedCredentialId(encoder.encodeId(assessment.getTargetCredential().getCredential().getId()));
-		//TODO optimize, denormalize?
-		OptionalInt number = assessment.getCompetenceAssessments().stream()
-			.map(competenceAssessment -> competenceAssessment.getCompetenceAssessment().getActivityDiscussions())
-			.flatMap(discussions -> discussions.stream())
-			.mapToInt(discussion -> discussion.getMessages().size())
-			.reduce(Integer::sum);
-		data.setTotalNumberOfMessages(number.orElse(0));
 		data.setInitials(getInitialsFromName(data.getStudentFullName()));
 		data.setBlindAssessmentMode(assessment.getBlindAssessmentMode());
 		return data;
@@ -196,5 +191,13 @@ public class AssessmentData {
 
 	public BlindAssessmentMode getBlindAssessmentMode() {
 		return blindAssessmentMode;
+	}
+
+	public AssessmentStatus getStatus() {
+		return status;
+	}
+
+	public void setStatus(AssessmentStatus status) {
+		this.status = status;
 	}
 }

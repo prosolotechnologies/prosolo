@@ -19,6 +19,8 @@ public class Assessment extends BaseEntity {
 
     private boolean approved;
     private Date dateApproved;
+    //date used for specifying when was assessment declined, expired or quit
+    private Date quitDate;
 
     private User student;
     private User assessor;
@@ -125,5 +127,13 @@ public class Assessment extends BaseEntity {
 
     public void setBlindAssessmentMode(BlindAssessmentMode blindAssessmentMode) {
         this.blindAssessmentMode = blindAssessmentMode;
+    }
+
+    public Date getQuitDate() {
+        return quitDate;
+    }
+
+    public void setQuitDate(Date quitDate) {
+        this.quitDate = quitDate;
     }
 }

@@ -42,10 +42,8 @@ public class ActivityAssessmentCommentEventProcessor extends AssessmentCommentEv
 		competenceId = Context.getIdFromSubContextWithName(context, ContextName.COMPETENCE);
 		compAssessmentId = Context.getIdFromSubContextWithName(context, ContextName.COMPETENCE_ASSESSMENT);
 		credentialId = Context.getIdFromSubContextWithName(context, ContextName.CREDENTIAL);
-		if (credentialId > 0) {
-			credentialAssessmentId = AssessmentLinkUtil.getCredentialAssessmentId(
-					context, credentialId, compAssessmentId, assessmentManager, session);
-		}
+		credentialAssessmentId = AssessmentLinkUtil.getCredentialAssessmentId(
+				context, compAssessmentId, assessmentManager, session);
         assessmentBasicInfo = assessmentManager.getBasicAssessmentInfoForActivityAssessment(event.getTarget().getId());
     }
 

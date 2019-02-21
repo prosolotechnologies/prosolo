@@ -71,7 +71,7 @@ public class StudentCompetencePeerAssessmentsBean extends CompetencePeerAssessme
 		in this context new assessment request is always initiated so blind assessment mode is
 		loaded from competence.
 		 */
-		askForAssessmentBean.init(getDecodedCompId(), targetCompId, AssessmentType.PEER_ASSESSMENT, getBlindAssessmentMode());
+		askForAssessmentBean.init(getDecodedCredId(), getDecodedCompId(), targetCompId, AssessmentType.PEER_ASSESSMENT, getBlindAssessmentMode());
 	}
 
 	public void submitAssessment() {

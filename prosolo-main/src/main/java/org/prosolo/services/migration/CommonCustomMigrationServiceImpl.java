@@ -61,70 +61,70 @@ public class CommonCustomMigrationServiceImpl extends AbstractManagerImpl implem
     public EventQueue migrateAssessmentsAndGetEvents() {
         try {
             EventQueue eventQueue = EventQueue.newEventQueue();
-            List<CredentialAssessment> credentialAssessments = getAllCredentialAssessments();
-
-            for (CredentialAssessment ca : credentialAssessments) {
-                long assessorId = ca.getAssessor() != null ? ca.getAssessor().getId() : 0;
-
-                List<CompetenceData1> comps = compManager.getCompetencesForCredential(
-                        ca.getTargetCredential().getCredential().getId(), ca.getStudent().getId(), CompetenceLoadConfig.builder().setLoadActivities(true).setLoadEvidence(true).create());
-
-                for (CompetenceData1 cd : comps) {
-                    // if competence assessment has not been created, create it
-                    if (!compAssessmentCreated(ca, cd.getCompetenceId())) {
-                        Result<CompetenceAssessment> res = assessmentManager.getOrCreateCompetenceAssessmentAndGetEvents(
-                                cd, ca.getStudent().getId(), assessorId, ca.getType(), AssessmentStatus.PENDING, BlindAssessmentMode.OFF, false, UserContextData.empty());
-                        CredentialCompetenceAssessment cca = new CredentialCompetenceAssessment();
-                        cca.setCredentialAssessment(ca);
-                        cca.setCompetenceAssessment(res.getResult());
-                        saveEntity(cca);
-                        eventQueue.appendEvents(res.getEventQueue());
-                    } else {
-                        // if competence assessment has been created, check if all activity assessments have been created
-
-                        CompetenceAssessment compAssessment = ca.getCompetenceAssessmentByCompetenceId(cd.getCompetenceId());
-
-                        List<Long> participantIds = new ArrayList<>();
-                        long studentId = compAssessment.getStudent().getId();
-                        participantIds.add(studentId);
-                        //for self assessment student and assessor are the same user
-
-                        if (assessorId > 0 && assessorId != studentId) {
-                            participantIds.add(assessorId);
-                        }
-
-                        int compPoints = 0;
-                        boolean atLeastOneActivityGraded = false;
-
-                        for (ActivityData activityData : cd.getActivities()) {
-                            if (compAssessment.getActivityDiscussions().stream().noneMatch(aa -> aa.getActivity().getId() == activityData.getActivityId())) {
-                                Result<ActivityAssessment> actAssessment = assessmentManager.createActivityAssessmentAndGetEvents(
-                                        activityData, compAssessment.getId(), participantIds, compAssessment.getType(),
-                                        UserContextData.empty(), persistence.currentManager());
-
-                                eventQueue.appendEvents(actAssessment.getEventQueue());
-
-                                if (cd.getAssessmentSettings().getGradingMode() == GradingMode.AUTOMATIC) {
-                                    compPoints += actAssessment.getResult().getPoints() >= 0
-                                            ? actAssessment.getResult().getPoints()
-                                            : 0;
-                                    if (actAssessment.getResult().getPoints() >= 0) {
-                                        atLeastOneActivityGraded = true;
-                                    }
-                                }
-                            }
-                        }
-
-                        if (cd.getAssessmentSettings().getGradingMode() == GradingMode.AUTOMATIC && atLeastOneActivityGraded) {
-                            compAssessment.setPoints(compPoints);
-                        } else {
-                            compAssessment.setPoints(-1);
-                        }
-
-                        saveEntity(compAssessment);
-                    }
-                }
-            }
+//            List<CredentialAssessment> credentialAssessments = getAllCredentialAssessments();
+//
+//            for (CredentialAssessment ca : credentialAssessments) {
+//                long assessorId = ca.getAssessor() != null ? ca.getAssessor().getId() : 0;
+//
+//                List<CompetenceData1> comps = compManager.getCompetencesForCredential(
+//                        ca.getTargetCredential().getCredential().getId(), ca.getStudent().getId(), CompetenceLoadConfig.builder().setLoadActivities(true).setLoadEvidence(true).create());
+//
+//                for (CompetenceData1 cd : comps) {
+//                    // if competence assessment has not been created, create it
+//                    if (!compAssessmentCreated(ca, cd.getCompetenceId())) {
+//                        Result<CompetenceAssessment> res = assessmentManager.getOrCreateCompetenceAssessmentAndGetEvents(
+//                                cd, ca.getStudent().getId(), assessorId, ca.getType(), AssessmentStatus.PENDING, BlindAssessmentMode.OFF, false, UserContextData.empty());
+//                        CredentialCompetenceAssessment cca = new CredentialCompetenceAssessment();
+//                        cca.setCredentialAssessment(ca);
+//                        cca.setCompetenceAssessment(res.getResult());
+//                        saveEntity(cca);
+//                        eventQueue.appendEvents(res.getEventQueue());
+//                    } else {
+//                        // if competence assessment has been created, check if all activity assessments have been created
+//
+//                        CompetenceAssessment compAssessment = ca.getCompetenceAssessmentByCompetenceId(cd.getCompetenceId());
+//
+//                        List<Long> participantIds = new ArrayList<>();
+//                        long studentId = compAssessment.getStudent().getId();
+//                        participantIds.add(studentId);
+//                        //for self assessment student and assessor are the same user
+//
+//                        if (assessorId > 0 && assessorId != studentId) {
+//                            participantIds.add(assessorId);
+//                        }
+//
+//                        int compPoints = 0;
+//                        boolean atLeastOneActivityGraded = false;
+//
+//                        for (ActivityData activityData : cd.getActivities()) {
+//                            if (compAssessment.getActivityDiscussions().stream().noneMatch(aa -> aa.getActivity().getId() == activityData.getActivityId())) {
+//                                Result<ActivityAssessment> actAssessment = assessmentManager.createActivityAssessmentAndGetEvents(
+//                                        activityData, compAssessment.getId(), participantIds, compAssessment.getType(),
+//                                        UserContextData.empty(), persistence.currentManager());
+//
+//                                eventQueue.appendEvents(actAssessment.getEventQueue());
+//
+//                                if (cd.getAssessmentSettings().getGradingMode() == GradingMode.AUTOMATIC) {
+//                                    compPoints += actAssessment.getResult().getPoints() >= 0
+//                                            ? actAssessment.getResult().getPoints()
+//                                            : 0;
+//                                    if (actAssessment.getResult().getPoints() >= 0) {
+//                                        atLeastOneActivityGraded = true;
+//                                    }
+//                                }
+//                            }
+//                        }
+//
+//                        if (cd.getAssessmentSettings().getGradingMode() == GradingMode.AUTOMATIC && atLeastOneActivityGraded) {
+//                            compAssessment.setPoints(compPoints);
+//                        } else {
+//                            compAssessment.setPoints(-1);
+//                        }
+//
+//                        saveEntity(compAssessment);
+//                    }
+//                }
+//            }
             return eventQueue;
         } catch (Exception e) {
             logger.error("Error", e);
@@ -133,7 +133,8 @@ public class CommonCustomMigrationServiceImpl extends AbstractManagerImpl implem
     }
 
     private boolean compAssessmentCreated(CredentialAssessment credentialAssessment, long compId) {
-        return credentialAssessment.getCompetenceAssessments().stream().anyMatch(cca -> cca.getCompetenceAssessment().getCompetence().getId() == compId);
+        //return credentialAssessment.getCompetenceAssessments().stream().anyMatch(cca -> cca.getCompetenceAssessment().getCompetence().getId() == compId);
+        return false;
     }
 
     private List<CredentialAssessment> getAllCredentialAssessments() {

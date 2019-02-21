@@ -7,6 +7,7 @@ import org.prosolo.common.domainmodel.credential.BlindAssessmentMode;
 import org.prosolo.search.UserTextSearch;
 import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.assessment.data.AssessmentRequestData;
+import org.prosolo.services.assessment.data.AssessorData;
 import org.prosolo.services.nodes.data.LearningResourceType;
 import org.prosolo.services.user.data.UserData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
@@ -17,6 +18,7 @@ import org.prosolo.web.util.pagination.PaginationData;
 import javax.inject.Inject;
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -68,41 +70,59 @@ public abstract class AskForAssessmentBean implements Serializable {
     protected abstract void notifyAssessorToAssessResource() throws IllegalDataStateException;
     protected abstract boolean shouldStudentBeRemindedToSubmitEvidenceSummary();
 
-    public void init(long resourceId, long targetResourceId, AssessmentType assessmentType, BlindAssessmentMode blindAssessmentMode) {
-        initAssessmentBasicInfo(resourceId, targetResourceId, assessmentType, blindAssessmentMode);
+    private void initAssessorIfNeeded() {
         if (assessmentType == AssessmentType.INSTRUCTOR_ASSESSMENT) {
             initInstructorAssessmentAssessor();
         } else if (assessmentType == AssessmentType.PEER_ASSESSMENT && (blindAssessmentMode == BlindAssessmentMode.BLIND || blindAssessmentMode == BlindAssessmentMode.DOUBLE_BLIND)) {
             chooseRandomPeerForAssessor();
         }
-        determineWhetherStudentShouldBeRemindedToSubmitEvidenceSummary();
+    }
+
+    private void setOrInitAssessor(UserData assessor) {
+        if (assessor != null) {
+            setAssessor(assessor);
+        } else {
+            initAssessorIfNeeded();
+        }
     }
 
     /**
-     * init ask for assessment with assessor info
+     * Initializes initial data that need to be set before any other logic or initialization
+     * takes place
      *
      * @param resourceId
      * @param targetResourceId
      * @param assessmentType
-     * @param assessor
+     * @param blindAssessmentMode
      */
-    public void init(long resourceId, long targetResourceId, AssessmentType assessmentType, UserData assessor, BlindAssessmentMode blindAssessmentMode) {
-        initAssessmentBasicInfo(resourceId, targetResourceId, assessmentType, blindAssessmentMode);
-        if (assessor != null) {
-            assessmentRequestData.setAssessorId(assessor.getId());
-            assessmentRequestData.setAssessorFullName(assessor.getFullName());
-            assessmentRequestData.setAssessorAvatarUrl(assessor.getAvatarUrl());
-        }
-        determineWhetherStudentShouldBeRemindedToSubmitEvidenceSummary();
-    }
-
-    private void initAssessmentBasicInfo(long resourceId, long targetResourceId, AssessmentType assessmentType, BlindAssessmentMode blindAssessmentMode) {
+    protected void initCommonInitialData(long resourceId, long targetResourceId, AssessmentType assessmentType, BlindAssessmentMode blindAssessmentMode) {
         this.resourceId = resourceId;
         this.assessmentType = assessmentType;
         usersToExcludeFromPeerSearch = Arrays.asList(loggedUser.getUserId());
         this.blindAssessmentMode = blindAssessmentMode;
         populateAssessmentRequestFields(targetResourceId);
     }
+
+    /**
+     * Initializes other data (other than initial data), should be called
+     * after initial data is already initialized. This method is separated from
+     * {@link #initCommonInitialData(long, long, AssessmentType, BlindAssessmentMode)}
+     * to provide a way for classes inheriting this class to initialize their specific
+     * 'initial' data before this method is called
+     *
+     * @param assessor
+     */
+    protected void initOtherCommonData(UserData assessor) {
+        //init existing peer assessors if peer assessment
+        if (assessmentType == AssessmentType.PEER_ASSESSMENT) {
+            existingPeerAssessors = getExistingPeerAssessors();
+        }
+        setOrInitAssessor(assessor);
+        determineWhetherStudentShouldBeRemindedToSubmitEvidenceSummary();
+    }
+
+    protected abstract Set<Long> getExistingPeerAssessors();
+
 
     /**
      * new assessment request is when assessment request is submitted to new peer

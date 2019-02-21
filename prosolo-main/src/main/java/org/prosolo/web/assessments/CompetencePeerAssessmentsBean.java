@@ -93,7 +93,7 @@ public abstract class CompetencePeerAssessmentsBean implements Paginable, Serial
 
 	private void getAssessmentsFromDB() {
 		PaginatedResult<AssessmentData> res = assessmentManager.getPaginatedCompetencePeerAssessmentsForStudent(
-				decodedCompId, getStudentId(), shouldLoadOnlyApprovedAssessments(), new SimpleDateFormat("MMMM dd, yyyy"),
+				decodedCredId, decodedCompId, getStudentId(), shouldLoadOnlyApprovedAssessments(), new SimpleDateFormat("MMMM dd, yyyy"),
 				(paginationData.getPage() - 1) * paginationData.getLimit(), paginationData.getLimit());
 		paginationData.update((int) res.getHitsNumber());
 		assessments = res.getFoundNodes();
@@ -178,6 +178,10 @@ public abstract class CompetencePeerAssessmentsBean implements Paginable, Serial
 
 	public long getDecodedCompId() {
 		return decodedCompId;
+	}
+
+	public long getDecodedCredId() {
+		return decodedCredId;
 	}
 
 	public UrlIdEncoder getIdEncoder() {

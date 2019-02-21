@@ -14,6 +14,8 @@ public class AssessmentRequestData implements Serializable {
 	private long targetResourceId;
 	private boolean assessorSet;
 	private boolean newAssessment;
+	//when initiating competency assessment request, credential id should be set
+	private long credentialId;
 
 	public long getStudentId() {
 		return studentId;
@@ -82,5 +84,13 @@ public class AssessmentRequestData implements Serializable {
 
 	public long getResourceId() {
 		return resourceId;
+	}
+
+	public long getCredentialId() {
+		return credentialId;
+	}
+
+	public void setCredentialId(long credentialId) {
+		this.credentialId = credentialId;
 	}
 }

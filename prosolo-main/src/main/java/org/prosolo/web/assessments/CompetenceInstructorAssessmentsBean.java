@@ -13,7 +13,9 @@ import org.prosolo.web.assessments.util.AssessmentUtil;
 import javax.inject.Inject;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author stefanvuckovic
@@ -42,8 +44,10 @@ public abstract class CompetenceInstructorAssessmentsBean implements Serializabl
 	private List<AssessmentTypeConfig> assessmentTypesConfig;
 
 	public void loadInitialAssessmentData() {
-		assessments = assessmentManager.getInstructorCompetenceAssessmentsForStudent(
-				decodedCompId, getStudentId(), false, new SimpleDateFormat("MMMM dd, yyyy"));
+		Optional<CompetenceAssessmentData> competenceAssessmentData = assessmentManager.getInstructorCompetenceAssessmentForStudent(
+				decodedCredId, decodedCompId, getStudentId(), new SimpleDateFormat("MMMM dd, yyyy"));
+		assessments = new ArrayList<>();
+		competenceAssessmentData.ifPresent(assessment -> assessments.add(assessment));
 		competenceTitle = compManager.getCompetenceTitle(decodedCompId);
 		if (decodedCredId > 0) {
 			credentialTitle = credManager.getCredentialTitle(decodedCredId);

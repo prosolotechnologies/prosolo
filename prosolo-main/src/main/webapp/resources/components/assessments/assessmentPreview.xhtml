@@ -210,9 +210,9 @@
 						</li>
 
 						<li>
-							<h:link rendered="#{not cc.attrs.bean.isUserAssessedStudentInCurrentContext()}" value="Assessments" outcome="/assessments">
-								<f:param name="id" value="#{param.id}" />
-							</h:link>
+							<ui:fragment rendered="#{not cc.attrs.bean.isUserAssessedStudentInCurrentContext()}">
+								<span>Assessments</span>
+							</ui:fragment>
 							<h:link rendered="#{cc.attrs.bean.isUserAssessedStudentInCurrentContext()}" value="Assessments" outcome="/credential-instructor-assessment">
 								<f:param name="id" value="#{param.id}" />
 							</h:link>
