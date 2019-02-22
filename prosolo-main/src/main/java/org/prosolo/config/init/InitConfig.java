@@ -24,6 +24,9 @@ public class InitConfig {
 	
 	@Element(name = "default-user")
 	public DefaultUserConfig defaultUser;
+
+	@Element(name = "database-migration")
+	public DatabaseMigration databaseMigration;
 	
 	public String getLocalization() {
 		return localization;
