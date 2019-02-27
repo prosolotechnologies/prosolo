@@ -109,7 +109,7 @@
 											   oncomplete="if (args &amp;&amp; !args.validationFailed) {
 											   				scrollToNewestComment('newestCommentId#{cc.attrs.uniqueId}');
 											   			} else {
-											   				autosize.update($(escapeColons('##{cc.clientId}:formComments:comment')));
+											   				autosize.update($(escapeColons('##{cc.clientId}:formComments:comment')));return false;
 											   			}"
 											   update=":#{cc.clientId}:formComments #{cc.attrs.growlToUpdate} #{cc.attrs.toUpdateOnSaveTopLevelComment} #{cc.attrs.toUpdateOnCommentSave} @this">
 									<f:param name="page" value="#{facesContext.viewRoot.viewId}" />

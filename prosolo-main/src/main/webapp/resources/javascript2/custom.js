@@ -135,7 +135,7 @@ function removeQueryParameterAndGetNewUrl(key) {
 function scrollTo(elementId) {
     $('html, body').animate({
         scrollTop: $("#"+elementId).offset().top
-    }, 2000);
+    }, 1000);
 }
 
 function scrollToNewestComment(hiddenFieldId) {
