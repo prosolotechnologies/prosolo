@@ -162,9 +162,6 @@ public class CommentBean implements Serializable, ICommentBean {
 			newComment.setCommentedResourceId(commentsData.getResourceId());
 			newComment.setDateCreated(new Date());
 
-			// strip all tags except <br>
-			newComment.setComment(HTMLUtil.cleanHTMLTagsExceptBrA(newComment.getComment()));
-
 			UserData creator = new UserData(
 					loggedUser.getUserId(),
 					loggedUser.getName(),
@@ -231,20 +228,17 @@ public class CommentBean implements Serializable, ICommentBean {
 //        });
 	}
 	
-	public void editComment(CommentData comment, CommentsData commentsData) {
-		UserContextData context = loggedUser.getUserContext();
-		taskExecutor.execute(() -> {
-			try {
-				if(commentsData.getResourceType() == CommentedResourceType.SocialActivity) {
-					socialActivityManager.updateSocialActivityComment(
-							commentsData.getResourceId(), comment, context);
-				} else {
-					commentManager.updateComment(comment, context);
-				}
-			} catch (DbConnectionException e) {
-				logger.error(e);
+	public void editComment(CommentData comment, CommentsData allCommentsData) {
+		try {
+			if (allCommentsData.getResourceType() == CommentedResourceType.SocialActivity) {
+				socialActivityManager.updateSocialActivityComment(
+						allCommentsData.getResourceId(), comment, loggedUser.getUserContext());
+			} else {
+				commentManager.updateComment(comment, loggedUser.getUserContext());
 			}
-        });
+		} catch (DbConnectionException e) {
+			logger.error("Error", e);
+		}
 	}
 	
 	public void likeAction(CommentData data) {

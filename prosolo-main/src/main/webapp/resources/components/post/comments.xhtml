@@ -92,7 +92,6 @@
 								fullName="#{loggeduser.fullName}" />
 	
 							<div class="commentForm">
-
 								<h:inputTextarea id="comment"
 												 label="Comment"
 												 class="contentEditableComment"
@@ -102,23 +101,26 @@
 									<f:validateLength maximum="2000"/>
 								</h:inputTextarea>
 
-								<small class="redText"><h:message id="validationMessage" for="comment"/><br/></small>
+								<small class="redText validation"><h:message id="validationMessage" for="comment"/><br/></small>
 
 								<utilcomp:singleClickLink styleClass="btn btn-sm btn-green hidden submitBtn"
 											   value="Submit"
 											   action="#{commentBean.saveTopLevelComment(cc.attrs.comments)}"
-											   oncomplete="scrollToNewestComment('newestCommentId#{cc.attrs.uniqueId}');"
+											   oncomplete="if (args &amp;&amp; !args.validationFailed) {
+											   				scrollToNewestComment('newestCommentId#{cc.attrs.uniqueId}');
+											   			} else {
+											   				autosize.update($(escapeColons('##{cc.clientId}:formComments:comment')));
+											   			}"
 											   update=":#{cc.clientId}:formComments #{cc.attrs.growlToUpdate} #{cc.attrs.toUpdateOnSaveTopLevelComment} #{cc.attrs.toUpdateOnCommentSave} @this">
 									<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
 									<f:param name="learningContext" value="#{util:addSubContext(cc.attrs.learningContext, 'name:comment')}" />
 								</utilcomp:singleClickLink>
 
 								<script>
-									let validationMsg = $(escapeColons('##{cc.clientId}:validationMessage'));
+									var validationMsg = $(escapeColons('##{cc.clientId}:formComments:validationMessage'));
 									if (validationMsg.first().html() != "") {
 										displaySubmitButton($(escapeColons('##{cc.clientId}:formComments:comment'))[0]);
 									}
-
 									autosize($(escapeColons('##{cc.clientId}:formComments:comment')));
 								</script>
 							</div>

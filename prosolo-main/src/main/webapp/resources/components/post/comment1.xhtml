@@ -4,6 +4,7 @@
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:p="http://primefaces.org/ui"
 	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
 	xmlns:composite="http://java.sun.com/jsf/composite"
 	xmlns:post="http://java.sun.com/jsf/composite/components/post"
 	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
@@ -44,7 +45,7 @@
 						</ui:remove>
 					</h3>
 					<p class="commentText">
-						<h:outputText escape="false" value="#{comment.comment}" />
+						<h:outputText escape="false" value="#{fn:replace(comment.comment,'\\n','&lt;br/&gt;')}" />
 					</p>
 
 					<h:panelGroup layout="block" rendered="#{commentBean.isCurrentUserCommentCreator(comment)}" styleClass="editComment hidden">
@@ -60,7 +61,7 @@
 						<small class="redText"><h:message id="validationMessageCommentEdit" for="commentEdit"/><br/></small>
 
 						<script>
-							let validationMsg = $(escapeColons('##{cc.clientId}:validationMessageCommentEdit'));
+							var validationMsg = $(escapeColons('##{cc.clientId}:validationMessageCommentEdit'));
 							if (validationMsg.first().html() != "") {
 								showEditComment($(escapeColons('##{cc.clientId}:panelMainContent'))[0]);
 							}
@@ -101,7 +102,7 @@
 						<p:commandLink
 							rendered="#{commentBean.isCurrentUserCommentCreator(comment)}"
 							styleClass="edit"
-							onclick="showEditComment($(this).parent().parent()[0]);">
+							onclick="showEditComment($(this).parent().parent()[0]); autosize.update($(escapeColons('##{cc.clientId}:commentEdit')));">
 							<span class="icon"></span>
 							Edit
 						</p:commandLink>                            
