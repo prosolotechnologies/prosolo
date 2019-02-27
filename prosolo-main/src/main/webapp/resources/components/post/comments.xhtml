@@ -24,6 +24,8 @@
 	</composite:interface>
 	
 	<composite:implementation>
+		<h:outputScript library="javascript2" name="autosize.min.js" />
+
 		<div id="#{cc.clientId}">
 		<ui:fragment rendered="#{cc.attrs.rendered}">
 			<script>var firstLoad#{cc.attrs.uniqueId} = true;</script>
@@ -61,8 +63,7 @@
 					</c:if>
 					
 
-					<h:panelGroup layout="block" class="comments"
-						rendered="#{not empty cc.attrs.comments.comments}">
+					<h:panelGroup layout="block" class="comments" rendered="#{not empty cc.attrs.comments.comments}">
 						<ul class="media-list">
 							<li class="loadMoreComments">
 								<p:commandLink rendered="#{cc.attrs.comments.moreToLoad}"
@@ -91,13 +92,18 @@
 								fullName="#{loggeduser.fullName}" />
 	
 							<div class="commentForm">
-								<h:inputTextarea class="hidden"
-									value="#{cc.attrs.comments.topLevelComment}" />
-								
-								<div class="contentEditableComment" placeholder="Add Comment..." 
-									strip-br="true" contenteditable="true"
-									onkeyup="displaySubmitButton(this);"></div>
-	
+
+								<h:inputTextarea id="comment"
+												 label="Comment"
+												 class="contentEditableComment"
+												 placeholder="Add Comment..."
+												 value="#{cc.attrs.comments.topLevelComment}"
+												 onkeyup="displaySubmitButton(this);">
+									<f:validateLength maximum="2000"/>
+								</h:inputTextarea>
+
+								<small class="redText"><h:message id="validationMessage" for="comment"/><br/></small>
+
 								<utilcomp:singleClickLink styleClass="btn btn-sm btn-green hidden submitBtn"
 											   value="Submit"
 											   action="#{commentBean.saveTopLevelComment(cc.attrs.comments)}"
@@ -106,13 +112,16 @@
 									<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
 									<f:param name="learningContext" value="#{util:addSubContext(cc.attrs.learningContext, 'name:comment')}" />
 								</utilcomp:singleClickLink>
+
+								<script>
+									let validationMsg = $(escapeColons('##{cc.clientId}:validationMessage'));
+									if (validationMsg.first().html() != "") {
+										displaySubmitButton($(escapeColons('##{cc.clientId}:formComments:comment'))[0]);
+									}
+
+									autosize($(escapeColons('##{cc.clientId}:formComments:comment')));
+								</script>
 							</div>
-							
-							<script>
-								$('#' + escapeColons('#{cc.clientId}') + ' .addComment .contentEditableComment').on('keyup', function(e) {
-									$(this).prev('textarea').val($(this).html());
-								});
-							</script>
 						</ui:fragment>
 					</div>
                     <div class="clear"></div>

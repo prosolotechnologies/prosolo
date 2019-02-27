@@ -134,8 +134,9 @@
                                                             </div>
 
                                                             <div class="commentOptions">
-                                                                <a href="javascript:void(0)" class="edit #{compEditComment.isValid() ? '' : 'hidden'}"
-                                                                   onclick="showEditComment(this)">
+                                                                <a href="javascript:void(0)"
+                                                                   class="edit #{compEditComment.isValid() ? '' : 'hidden'}"
+                                                                   onclick="showEditComment($(this).parent().parent()[0])">
                                                                     <span class="icon"></span>Edit
                                                                 </a>
                                                             </div>

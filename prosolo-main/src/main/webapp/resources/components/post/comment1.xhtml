@@ -48,12 +48,25 @@
 					</p>
 
 					<h:panelGroup layout="block" rendered="#{commentBean.isCurrentUserCommentCreator(comment)}" styleClass="editComment hidden">
-						<h:inputTextarea class="hidden"	value="#{comment.comment}" />
+						<h:inputTextarea id="commentEdit"
+										 label="Comment"
+										 class="contentEditableComment"
+										 placeholder="Add Comment..."
+										 value="#{comment.comment}"
+										 onkeyup="displaySubmitButton(this);">
+							<f:validateLength maximum="2000"/>
+						</h:inputTextarea>
 
-						<div class="contentEditableComment"
-							 strip-br="true" contenteditable="true"
-							 placeholder="Add Comment..."
-							 onkeyup="displaySubmitButton(this);">#{comment.comment}</div>
+						<small class="redText"><h:message id="validationMessageCommentEdit" for="commentEdit"/><br/></small>
+
+						<script>
+							let validationMsg = $(escapeColons('##{cc.clientId}:validationMessageCommentEdit'));
+							if (validationMsg.first().html() != "") {
+								showEditComment($(escapeColons('##{cc.clientId}:panelMainContent'))[0]);
+							}
+
+							autosize($(escapeColons('##{cc.clientId}:commentEdit')));
+						</script>
 
 						<utilcomp:singleClickLink value="Submit"
 												  styleClass="btn btn-sm btn-green submitBtn"
@@ -64,12 +77,6 @@
 						</utilcomp:singleClickLink>
 
 						<a href="javascript:void(0)" class="btn btn-sm btn-green-stroke" onclick="hideEditComment(this)">Cancel</a>
-
-						<script>
-                            $('#' + escapeColons('comment_#{comment.commentId}') + ' .editComment .contentEditableComment').on('keyup', function(e) {
-                                $(this).parent().find('textarea').val($(this).html());
-                            });
-						</script>
 					</h:panelGroup>
 	                
 					<div class="commentOptions">
@@ -94,7 +101,7 @@
 						<p:commandLink
 							rendered="#{commentBean.isCurrentUserCommentCreator(comment)}"
 							styleClass="edit"
-							onclick="showEditComment(this)">
+							onclick="showEditComment($(this).parent().parent()[0]);">
 							<span class="icon"></span>
 							Edit
 						</p:commandLink>                            
@@ -110,12 +117,20 @@
 					
 					<div class="media-body replyComment">
 						<div class="commentForm">
-							<h:inputTextarea class="hidden"
-								value="#{comment.replyToComment}" />
+							<h:inputTextarea id="commentReply"
+											 label="Comment"
+											 class="contentEditableComment"
+											 placeholder="Add Comment..."
+											 value="#{comment.replyToComment}"
+											 onkeyup="displaySubmitButton(this);">
+								<f:validateLength maximum="2000"/>
+							</h:inputTextarea>
 
-							<div class="contentEditableComment" placeholder="Add Comment..."
-								strip-br="true" contenteditable="true"
-								onkeyup="displaySubmitButton(this);"></div>
+							<script>
+								autosize($(escapeColons('##{cc.clientId}:commentReply')));
+							</script>
+
+							<small class="redText"><h:message id="validationMessageCommentReply" for="commentReply"/><br/></small>
 
 							<utilcomp:singleClickLink value="Submit"
 													  styleClass="btn btn-sm btn-green hidden submitBtn"
@@ -125,18 +140,11 @@
 								<f:param name="page" value="#{facesContext.viewRoot.viewId}"/>
 								<f:param name="learningContext" value="#{util:addSubContext(cc.attrs.learningContext, 'name:comment')}"/>
 							</utilcomp:singleClickLink>
-							
-							<script>
-							$('#' + escapeColons('comment_#{comment.commentId}') + ' .replyComment .contentEditableComment').on('keyup', function(e) {
-								$(this).parent().find('textarea').val($(this).html());
-							});
-							</script>
 						</div>
 					</div>
                 </h:panelGroup>
 
 				<c:if test="#{cc.attrs.isTopLevel}">
-				
 				    <h:panelGroup layout="block" id="panelChildComments" styleClass="#{cc.attrs.isTopLevel ? 'topLevelCommentChildren_'.concat(comment.commentId) : ''} repliesWrapper">
 					    <ui:fragment rendered="#{cc.attrs.isTopLevel}">
 						    <ui:fragment rendered="#{comment.numberOfReplies > 0 and empty comment.childComments}">

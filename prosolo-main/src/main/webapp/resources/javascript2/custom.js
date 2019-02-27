@@ -37,10 +37,10 @@ function toggleReplyInput(replyBtn) {
     return false;
 }
 
-function showEditComment(editBtn) {
-    $(editBtn).parent().parent().find('.editComment').toggleClass('hidden');
-    $(editBtn).parent().parent().find('.commentText').toggleClass('hidden');
-    $(editBtn).addClass('hidden');
+function showEditComment(commentContainer) {
+    $(commentContainer).find('.editComment').toggleClass('hidden');
+    $(commentContainer).find('.commentText').toggleClass('hidden');
+    $(commentContainer).find('a.edit').addClass('hidden');
     return false;
 }
 

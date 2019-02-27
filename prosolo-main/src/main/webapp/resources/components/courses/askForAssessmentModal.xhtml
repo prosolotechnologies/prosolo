@@ -137,37 +137,24 @@
 							placeholder="Write message..."
 							value="#{askForAssessmentBean.assessmentRequestData.messageText}" />
 
-						<ui:remove>
-							<div class="assessmentMassageContent"
-								placeholder="Write message..." strip-br="true"
-								contenteditable="true" onkeyup="displaySubmitButton(this);"></div>
-						</ui:remove>
-
 						<script>
-							$(
-									'#'
-											+ escapeColons('comment_#{comment.commentId}')
-											+ ' .replyComment .contentEditableComment')
-									.on(
-											'keyup',
-											function(e) {
-												$(this).prev('textarea').val(
-														$(this).html());
-											});
+							$('#'+escapeColons('comment_#{comment.commentId}')+' .replyComment .contentEditableComment').on('keyup', function (e) {
+								$(this).prev('textarea').val($(this).html());
+							});
 						</script>
 					</div>
 
 					<div class="modal-footer alignLeft">
 						<p:commandLink process="messageContentTextarea"
-							update="#{cc.attrs.toUpdate}"
-							action="#{askForAssessmentBean.submitAssessment()}"
-							styleClass="btn btn-green"
-							oncomplete="hideAssesmentDialog('askAssessment')">
+									   update="#{cc.attrs.toUpdate}"
+									   action="#{askForAssessmentBean.submitAssessment()}"
+									   styleClass="btn btn-green"
+									   oncomplete="hideAssesmentDialog('askAssessment')">
 							<f:param name="page" value="#{facesContext.viewRoot.viewId}"></f:param>
 							<f:param name="learningContext" value="#{baseContext}"></f:param>
 							<f:param name="service" value="name:ask_for_assessment_dialog"></f:param>
-			                                    		Submit
-			                                    </p:commandLink>
+							Submit
+						</p:commandLink>
 					</div>
 				</div>
 			</div>
