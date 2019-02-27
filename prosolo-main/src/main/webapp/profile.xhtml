@@ -7,7 +7,8 @@
                 xmlns:util="http://www.prosolo.com/util"
                 xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
                 xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
-                xmlns:assessment="http://java.sun.com/jsf/composite/components/assessments">
+                xmlns:assessment="http://java.sun.com/jsf/composite/components/assessments"
+                xmlns:communications="http://java.sun.com/jsf/composite/components/communications">
 
     <ui:define name="windowTitle">
         #{profileBean.personalProfile ? '' : profileBean.userData.fullName.concat(' - ')}Profile - ProSolo
@@ -51,13 +52,13 @@
     </ui:define>
 
     <ui:define name="content">
-        <p:growl id="profileGrowl" showDetail="true" />
+        <p:growl id="profileGrowl" globalOnly="true" showDetail="true" />
 
         <div class="whiteBar">
             <div class="container">
                 <div class="whiteBarContent">
                     <div class="whiteBarLeft">
-                        <h:form id="whiteBarProfileForm">
+                        <h:form id="followForm">
                             <ui:fragment rendered="#{profileBean.personalProfile}" >
                                 <p:commandLink
                                         styleClass="btn btn-green btn-sm item"
@@ -84,56 +85,31 @@
                                 <p:commandLink id="unfollowButton"
                                                rendered="#{peopleActionBean.isLoggedUserFollowingUser(profileBean.decodedStudentId)}"
                                                action="#{peopleActionBean.unfollowCollegueById(profileBean.userData.fullName, profileBean.decodedStudentId)}"
-                                               update="whiteBarProfileForm"
+                                               update="followForm"
                                                process="@form"
                                                styleClass="btn btn-green-stroke btn-sm">
                                     <f:param name="page" value="/profile.xhtml" />
                                     <f:param name="learningContext" value="name:profile|id:#{profileBean.decodedStudentId}" />
                                     Following
                                 </p:commandLink>
-
-                                <a href="#" class="btn btn-green btn-sm btnMessage" data-toggle="modal" data-target="#message"><span></span>Message</a>
-
-                                <div class="modal fade" id="message" tabindex="-1" role="dialog" aria-labelledby="sendMessage">
-                                    <div class="modal-dialog" role="document">
-                                        <div class="modal-content">
-                                            <div class="modal-header alignLeft">
-                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
-                                                <h2 class="modal-title" id="sendMessage">Send a Message</h2>
-                                            </div>
-
-                                            <div class="messageModalMeta">
-                                                <div class="messageModalMetaLine">
-                                                    <div class="messageModalMetaLeft">
-                                                        To:
-                                                    </div>
-                                                    <div class="messageModalMetaRight">
-                                                        <img src="#{profileBean.userData.avatarUrl}" class="img-circle" width="32" height="32" alt="#{profileBean.userData.fullName}" />
-                                                        <h3>#{profileBean.userData.fullName}</h3>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div class="modal-body alignLeft">
-                                                <p:inputTextarea placeholder="Type a message..." value="#{profileBean.message}" id="messageContentTextarea" >
-                                                </p:inputTextarea>
-                                                <script>try{expandTextarea("messageContentTextarea")}catch(e){}</script>
-                                            </div>
-
-                                            <div class="modal-footer alignLeft">
-                                                <p:commandLink action="#{profileBean.sendMessage()}"
-                                                               styleClass="btn btn-green"
-                                                               process="messageContentTextarea"
-                                                               update="profileGrowl"
-                                                               oncomplete="$('#message').modal('hide');">
-                                                    Send
-                                                </p:commandLink>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
                             </ui:fragment>
                         </h:form>
+
+                        <ui:fragment rendered="#{loggeduser.hasCapability('basic.user.access') and not profileBean.personalProfile}" >
+                            <p:commandLink styleClass="btn btn-green btn-sm btnMessage"
+                                           action="#{sendMessageBean.prepareModal}"
+                                           update="messageDialog:formMessage"
+                                           oncomplete="$('#message').modal('show');">
+                                <span></span>Message
+                            </p:commandLink>
+
+                            <communications:sendMessageDialog id="messageDialog"
+                                                              receiverId="#{profileBean.userData.id}"
+                                                              receiverFullName="#{profileBean.userData.fullName}"
+                                                              receiverAvatar="#{profileBean.userData.avatarUrl}"
+                                                              toUpdate=":profileGrowl"
+                                                              learningContext="name:profile|id:#{profileBean.decodedStudentId}"/>
+                        </ui:fragment>
                     </div>
                 </div>
             </div>
@@ -734,16 +710,6 @@
                 </div>
             </div>
         </div>
-
-		<script>
-			$(function () {
-                $('#message').on('shown.bs.modal', function() {
-                    $('#'+escapeColons('whiteBarProfileForm:messageContentTextarea')).focus();
-                }).on('hidden.bs.modal', function() {
-                    $('#'+escapeColons('whiteBarProfileForm:messageContentTextarea')).val('');
-                });
-            })
-		</script>
 
     </ui:define>
 </ui:composition>

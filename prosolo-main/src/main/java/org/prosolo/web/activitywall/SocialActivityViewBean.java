@@ -21,6 +21,7 @@ import javax.inject.Inject;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Optional;
 
 @ManagedBean(name = "saViewBean")
 @Component("saViewBean")
@@ -47,12 +48,16 @@ public class SocialActivityViewBean implements Serializable {
 	
 	public void init() {
 		decodedId = idEncoder.decodeId(id);
-		if(decodedId > 0) {
-			initializeActivity();
-			if(socialActivity == null) {
-				PageUtil.notFound();
-			} else {
+
+		if (decodedId > 0) {
+			Optional<SocialActivityData1> saData = socialActivityManger.getSocialActivityById(decodedId,
+					loggedUser.getUserId(), loggedUser.getLocale());
+
+			if (saData.isPresent()) {
+				socialActivity = saData.get();
 				initializeCommentsIfNotInitialized(socialActivity);
+			} else {
+				PageUtil.notFound();
 			}
 		} else {
 			PageUtil.notFound();
@@ -61,12 +66,6 @@ public class SocialActivityViewBean implements Serializable {
 	
 	public SocialActivityData1 getSocialActivityForShare() {
 		return socialActivity;
-	}
-	
-	public void initializeActivity() {
-		socialActivity = socialActivityManger.getSocialActivityById(decodedId, 
-				loggedUser.getUserId(), loggedUser.getLocale());
-		logger.info("Initialized activity with id " + socialActivity.getId());
 	}
 	
 	public void initializeCommentsIfNotInitialized(SocialActivityData1 socialActivity) {

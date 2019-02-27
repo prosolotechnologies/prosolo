@@ -997,23 +997,21 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 	
 	@Override
 	@Transactional(readOnly = true)
-	public SocialActivityData1 getSocialActivityById(long socialActivityId, long userId, Locale locale) 
+	public Optional<SocialActivityData1> getSocialActivityById(long socialActivityId, long userId, Locale locale)
 			throws DbConnectionException {
 		try {
 			String specificCondition = "AND sa.id = :saId \n ";
-			Query q = createQueryWithCommonParametersSet(userId, 0, 0, specificCondition, 0L,
-					null, true, true, locale);
-			q.setParameter("saId", socialActivityId);
-			@SuppressWarnings("unchecked")
-			List<SocialActivityData1> res = q.list();
-			if(res == null) {
-				return null;
-			}
-			return res.get(0);
+
+			SocialActivityData1 res = (SocialActivityData1) createQueryWithCommonParametersSet(userId, 0, 0, specificCondition, 0L,
+					null, true, true, locale).
+					setParameter("saId", socialActivityId).
+					setMaxResults(1).
+					uniqueResult();
+
+			return res == null ? Optional.empty() : Optional.of(res);
 		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
-			throw new DbConnectionException("Error retrieving social actiity");
+			logger.error("Error", e);
+			throw new DbConnectionException("Error retrieving social activity.");
 		}
 	}
 	

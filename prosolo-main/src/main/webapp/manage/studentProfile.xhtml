@@ -102,16 +102,20 @@
 						<f:param name="id" value="#{param['cred']}"></f:param>
 					</h:link>
 
-					<h:form id="formMessage">
-						<communications:sendMessageDialog
-								receiverId="#{studentProfileBean.student.id}"
-								receiverFullName="#{studentProfileBean.student.name}"
-								receiverAvatar="#{studentProfileBean.student.avatar}"
-								toUpdate=":growl"
-								linkStyle="margin:0;"
-								learningContext="#{learningContext}"
-						/>
-					</h:form>
+					<p:commandLink styleClass="btn btn-green btn-sm btnMessage"
+								   style="margin:0;"
+								   action="#{sendMessageBean.prepareModal}"
+								   update="messageDialog:formMessage"
+								   oncomplete="$('#message').modal('show');">
+						<span></span>Message
+					</p:commandLink>
+
+					<communications:sendMessageDialog id="messageDialog"
+													  receiverId="#{studentProfileBean.student.id}"
+													  receiverFullName="#{studentProfileBean.student.name}"
+													  receiverAvatar="#{studentProfileBean.student.avatar}"
+													  toUpdate=":growl"
+													  learningContext="#{learningContext}"/>
                 </div>
             </div>
         </div>
