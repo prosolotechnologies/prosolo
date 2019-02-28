@@ -108,6 +108,15 @@
 															Remove Evidence
 														</p:commandLink>
 													</li>
+													<li>
+														<p:commandLink
+															pt:data-toggle="modal"
+															action="#{cc.attrs.bean.setEvidenceToEditRelation(ev)}"
+															update=":#{cc.clientId}:formEditRelation"
+															oncomplete="$('#editRelationModal').modal('show');">
+															Edit relation to #{msg['label.competence'].toLowerCase()}
+														</p:commandLink>
+													</li>
 												</ul>
 											</div>
 											<ui:fragment rendered="#{ev.type ne 'TEXT'}">
@@ -312,6 +321,40 @@
 					</div>
 				</div>
 			</div>
+		</ui:fragment>
+
+		<ui:fragment rendered="#{cc.attrs.startedLearning and cc.attrs.bean.competenceData.learningPathType eq 'EVIDENCE'}">
+			<h:form id="formEditRelation">
+				<div class="modal fade" id="editRelationModal" tabindex="-1" role="dialog" aria-labelledby="editRelation">
+					<div class="modal-dialog" role="document">
+						<div class="modal-content">
+							<div class="modal-header alignLeft">
+								<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+								<h2 class="modal-title" id="evidenceSummary">Relation to #{msg['label.competence']}</h2>
+							</div>
+							<div class="modal-body alignLeft">
+								<h:inputTextarea id="textareaRelationToCompetency"
+												 label="Relation to competency"
+												 placeholder="How is this evidence related to the #{msg['label.competence'].toLowerCase()}?"
+												 value="#{cc.attrs.bean.relationTextToEdit}">
+									<f:validateLength maximum="9000"/>
+								</h:inputTextarea>
+								<small class="redText bottom30 displayBlock"><h:message id="textareaRelationToCompetencyValidationMsg" for="textareaRelationToCompetency"></h:message></small>
+							</div>
+							<div class="modal-footer alignLeft">
+								<p:commandLink styleClass="btn btn-green"
+											   process="textareaRelationToCompetency"
+											   action="#{cc.attrs.bean.saveEvidenceRelationToCompetence()}"
+											   update="#{cc.attrs.growlToUpdate} :#{cc.clientId}:panelEvidences :#{cc.clientId}:submitEvidence:panelExistingEvidence #{cc.attrs.toUpdateOnEvidencePost}"
+											   oncomplete="$('#editRelationModal').modal('hide')">
+									Save Changes
+								</p:commandLink>
+								<a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+							</div>
+						</div>
+					</div>
+				</div>
+			</h:form>
 		</ui:fragment>
 
 		<ui:fragment rendered="#{cc.attrs.startedLearning and cc.attrs.bean.competenceData.learningPathType eq 'EVIDENCE'}">

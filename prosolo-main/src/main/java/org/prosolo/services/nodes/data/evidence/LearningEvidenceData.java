@@ -135,6 +135,10 @@ public class LearningEvidenceData implements Serializable {
         return competences;
     }
 
+    public void setCompetences(List<BasicObjectInfo> competences) {
+        this.competences = competences;
+    }
+
     public void addCompetence(BasicObjectInfo comp) {
         if (comp != null) {
             competences.add(comp);

@@ -64,6 +64,8 @@ public class CompetenceViewBeanUser implements Serializable {
 	private CommentsData commentsData;
 
 	private LearningEvidenceData evidenceToRemove;
+	private LearningEvidenceData evidenceToEditRelation;
+	private String relationTextToEdit;
 
 	private long nextCompToLearn;
 	private boolean mandatoryOrder;
@@ -257,6 +259,35 @@ public class CompetenceViewBeanUser implements Serializable {
 		}
 	}
 
+	public void setEvidenceToEditRelation(LearningEvidenceData evidenceToEditRelation) {
+		this.evidenceToEditRelation = evidenceToEditRelation;
+		BasicObjectInfo compBasicInfo = evidenceToEditRelation.getCompetences().stream().filter(c -> c.getId() == decodedCompId).findFirst().get();
+		this.relationTextToEdit = compBasicInfo.getDescription();
+	}
+
+	public void saveEvidenceRelationToCompetence() {
+		try {
+			if (evidenceToEditRelation != null) {
+				learningEvidenceManager.updateRelationToCompetency(evidenceToEditRelation.getCompetenceEvidenceId(), relationTextToEdit);
+
+				// pdate data object to render on the interface. Since BasicObjectInfo does not have setters, a new object is created and swapped with the original.
+				BasicObjectInfo compBasicInfo = evidenceToEditRelation.getCompetences().stream().filter(c -> c.getId() == decodedCompId).findFirst().get();
+				BasicObjectInfo updatedCompBasicInfo = new BasicObjectInfo(compBasicInfo.getId(), compBasicInfo.getTitle(), relationTextToEdit);
+
+				evidenceToEditRelation.setCompetences(evidenceToEditRelation.getCompetences().stream()
+														.map(c -> (c.getId() == updatedCompBasicInfo.getId()) ? updatedCompBasicInfo : c)
+														.collect(Collectors.toList()));
+				evidenceToEditRelation = null;
+				PageUtil.fireSuccessfulInfoMessage("Relation to " + ResourceBundleUtil.getLabel("competence").toLowerCase() + " is updated");
+			} else {
+				logger.debug("Evidence whose relation should be edited is null which means that user double-clicked the remove evidence button");
+			}
+		} catch (DbConnectionException e) {
+			logger.error("Error", e);
+			PageUtil.fireErrorMessage("Error updating relation to competency");
+		}
+	}
+
 	public void completeCompetence() {
 		try {
 			competenceManager.completeCompetence(
@@ -374,4 +405,11 @@ public class CompetenceViewBeanUser implements Serializable {
 		return credentialTitle;
 	}
 
+	public String getRelationTextToEdit() {
+		return relationTextToEdit;
+	}
+
+	public void setRelationTextToEdit(String relationTextToEdit) {
+		this.relationTextToEdit = relationTextToEdit;
+	}
 }

@@ -532,4 +532,15 @@ public class LearningEvidenceManagerImpl extends AbstractManagerImpl implements 
         }
     }
 
+    @Override
+    @Transactional(readOnly = false)
+    public void updateRelationToCompetency(long competenceEvidenceId, String newRelationText) {
+        try {
+            CompetenceEvidence ce = (CompetenceEvidence) persistence.currentManager().load(CompetenceEvidence.class, competenceEvidenceId);
+            ce.setDescription(newRelationText);
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error updating relation to competence");
+        }
+    }
 }
