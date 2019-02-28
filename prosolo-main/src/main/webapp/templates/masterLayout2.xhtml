@@ -209,7 +209,9 @@
 								<li>
 									<h:link value="Profile"
 										onclick="sendLogPageNavigation('profile','mainmenu');"
-										outcome="/profile" />
+										outcome="/profile">
+										<f:param name="id" value="#{util:encodeId(loggeduser.userId)}" />
+									</h:link>
 								</li>
 								<li>
 									<h:link value="Settings" 

@@ -60,8 +60,6 @@ public class ProfileBean {
 	private long decodedStudentId;
 	private String message;
 
-	private long ownerOfAProfileUserId;
-
 	private CredentialProfileData credentialToRemove;
 	private CredentialProfileOptionsData credentialForEdit;
 
@@ -71,10 +69,14 @@ public class ProfileBean {
 
 	public void init() {
 		decodedStudentId = idEncoder.decodeId(studentId);
-		ownerOfAProfileUserId = StringUtils.isNotBlank(studentId) ? decodedStudentId : loggedUserBean.getUserId();
-		if (ownerOfAProfileUserId > 0) {
+
+		if (studentId == null || StringUtils.isBlank(studentId)) {
+			PageUtil.redirect("/profile/" + idEncoder.encodeId(loggedUserBean.getUserId()));
+		}
+
+		if (decodedStudentId > 0) {
 		    try {
-                Optional<StudentProfileData> studentProfileDataOpt = studentProfileManager.getStudentProfileData(ownerOfAProfileUserId);
+                Optional<StudentProfileData> studentProfileDataOpt = studentProfileManager.getStudentProfileData(decodedStudentId);
                 if (studentProfileDataOpt.isPresent()) {
                     studentProfileData = studentProfileDataOpt.get();
                 } else {
@@ -146,7 +148,7 @@ public class ProfileBean {
 	public void prepareAddingCredentials() {
 		try {
 			credentialsToAdd.clear();
-			List<CredentialIdData> completedCredentialsBasicData = credentialManager.getCompletedCredentialsBasicDataForCredentialsNotAddedToProfile(ownerOfAProfileUserId);
+			List<CredentialIdData> completedCredentialsBasicData = credentialManager.getCompletedCredentialsBasicDataForCredentialsNotAddedToProfile(decodedStudentId);
 			completedCredentialsBasicData.forEach(cred -> credentialsToAdd.add(new SelectableData<>(cred)));
 		} catch (DbConnectionException e) {
 			logger.error("error", e);
@@ -163,7 +165,7 @@ public class ProfileBean {
                     .collect(Collectors.toList());
             int numberOfCredentialsToAdd = idsOfTargetCredentialsToAdd.size();
 		    if (numberOfCredentialsToAdd > 0) {
-                studentProfileManager.addCredentialsToProfile(ownerOfAProfileUserId, idsOfTargetCredentialsToAdd);
+                studentProfileManager.addCredentialsToProfile(decodedStudentId, idsOfTargetCredentialsToAdd);
                 boolean success = refreshProfile();
                 if (success) {
 					PageUtil.fireSuccessfulInfoMessage((numberOfCredentialsToAdd == 1 ? ResourceBundleUtil.getLabel("credential") : ResourceBundleUtil.getLabel("credential.plural")) + " added");
@@ -180,7 +182,7 @@ public class ProfileBean {
 	private boolean refreshProfile() {
 		//reload credentials
 		try {
-			studentProfileData.setProfileLearningData(studentProfileManager.getProfileLearningData(ownerOfAProfileUserId));
+			studentProfileData.setProfileLearningData(studentProfileManager.getProfileLearningData(decodedStudentId));
 			return true;
 		} catch (Exception e) {
 			logger.error("error", e);
@@ -195,7 +197,7 @@ public class ProfileBean {
 
 	public void removeCredentialFromProfile() {
 		try {
-			studentProfileManager.removeCredentialFromProfile(ownerOfAProfileUserId, credentialToRemove.getTargetCredentialId());
+			studentProfileManager.removeCredentialFromProfile(decodedStudentId, credentialToRemove.getTargetCredentialId());
 			boolean success = refreshProfile();
 			if (success) {
 				PageUtil.fireSuccessfulInfoMessage(ResourceBundleUtil.getLabel("credential") + " successfully removed from profile");
@@ -260,7 +262,7 @@ public class ProfileBean {
 	}
 
 	public boolean isPersonalProfile() {
-		return ownerOfAProfileUserId == loggedUserBean.getUserId();
+		return decodedStudentId == loggedUserBean.getUserId();
 	}
 
 	public String getMessage() {
@@ -346,6 +348,6 @@ public class ProfileBean {
     }
 
 	public long getOwnerOfAProfileUserId() {
-		return ownerOfAProfileUserId;
+		return decodedStudentId;
 	}
 }
