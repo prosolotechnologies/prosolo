@@ -65,7 +65,7 @@ public abstract class AskForAssessmentBean implements Serializable {
     public abstract UserData getRandomPeerForAssessor();
     protected abstract LearningResourceType getResourceType();
     protected abstract void submitAssessmentRequest() throws IllegalDataStateException;
-    protected abstract void notifyAssessorToAssessResource();
+    protected abstract void notifyAssessorToAssessResource() throws IllegalDataStateException;
     protected abstract boolean shouldStudentBeRemindedToSubmitEvidenceSummary();
 
     public void init(long resourceId, long targetResourceId, AssessmentType assessmentType, BlindAssessmentMode blindAssessmentMode) {

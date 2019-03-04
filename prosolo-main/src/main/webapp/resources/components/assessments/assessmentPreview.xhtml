@@ -8,6 +8,7 @@
 			  xmlns:util="http://www.prosolo.com/util"
 			  xmlns:c="http://java.sun.com/jsp/jstl/core"
 			  xmlns:assessment="http://java.sun.com/jsf/composite/components/assessments"
+			  xmlns:credential="http://java.sun.com/jsf/composite/components/courses"
 >
 
 	<composite:interface>
@@ -562,6 +563,9 @@
 									oncomplete="$('#askAssessment').modal('show');">
 							</p:commandLink>
 						</c:if>
+						<c:if test="#{cc.attrs.bean.fullAssessmentData.type eq 'INSTRUCTOR_ASSESSMENT' and cc.attrs.bean.isUserAssessorInCurrentContext()}">
+							<a href="#" class="btn btn-green-stroke btn-sm" data-toggle="modal" data-target="#instructorWithdrawModal">Withdraw</a>
+						</c:if>
 					</h:panelGroup>
 				</c:if>
 			</div>
@@ -638,6 +642,14 @@
 						assessmentReviewField="#{cc.attrs.bean.fullAssessmentData.review}"
 						toUpdate="#{cc.attrs.bean.currentResType eq 'CREDENTIAL' ? cc.clientId.concat(':growlMain :').concat(cc.clientId).concat(':assessCredentialForm :assessmentPreview:competenceAssessmentPanel @(.panelAssessorNotificationSelector) ').concat(cc.attrs.role eq 'MANAGER' ? ':assessmentPreview:otherAssessments'  : '') : cc.clientId.concat(':growlMain @(.panelAssessorNotificationSelector) @(.panelCompAssessment_').concat(cc.attrs.bean.currentCompetenceAssessmentId).concat(') @(.assessmentActivityList.comp_').concat(cc.attrs.bean.currentCompetenceAssessmentId).concat(')')}"
 				/>
+
+				<c:if test="#{cc.attrs.bean.fullAssessmentData.type eq 'INSTRUCTOR_ASSESSMENT' and cc.attrs.bean.isUserAssessorInCurrentContext()}">
+					<credential:withdrawBeingInstructor
+							withdrawAction="#{cc.attrs.bean.withdrawInstructor()}"
+							learningContext="#{learningContext}"
+							toUpdate=":#{cc.clientId}:growlMain"
+					/>
+				</c:if>
 			</c:if>
 		</c:if>
 	</composite:implementation>

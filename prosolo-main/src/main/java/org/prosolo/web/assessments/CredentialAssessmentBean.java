@@ -19,6 +19,7 @@ import org.prosolo.services.assessment.data.grading.AutomaticGradeData;
 import org.prosolo.services.assessment.data.grading.GradeData;
 import org.prosolo.services.assessment.data.grading.GradingMode;
 import org.prosolo.services.assessment.data.grading.RubricCriteriaGradeData;
+import org.prosolo.services.nodes.CredentialInstructorManager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.LearningResourceType;
 import org.prosolo.services.nodes.data.credential.CredentialIdData;
@@ -49,7 +50,7 @@ import java.util.Optional;
 @ManagedBean(name = "credentialAssessmentBean")
 @Component("credentialAssessmentBean")
 @Scope("view")
-public class CredentialAssessmentBean extends LearningResourceAssessmentBean implements AssessmentCommentsAware, Serializable {
+public class CredentialAssessmentBean extends LearningResourceAssessmentBean implements AssessmentCommentsAware, InstructorWithdrawAware, Serializable {
 
 	private static final long serialVersionUID = 7344090333263528353L;
 	private static Logger logger = Logger.getLogger(CredentialAssessmentBean.class);
@@ -67,6 +68,7 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 	@Inject private StudentCompetenceAssessmentBean compAssessmentBean;
 	@Inject private RubricManager rubricManager;
 	@Inject private AskForCredentialAssessmentBean askForAssessmentBean;
+	@Inject private CredentialInstructorManager credentialInstructorManager;
 
 	// PARAMETERS
 	private String id;
@@ -164,11 +166,14 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 		try {
 			assessmentTypesConfig = credManager.getCredentialAssessmentTypesConfig(decodedId);
 			if (AssessmentUtil.isAssessmentTypeEnabled(assessmentTypesConfig, type)) {
-				fullAssessmentData = assessmentManager.getFullAssessmentDataForAssessmentType(decodedAssessmentId,
-						loggedUserBean.getUserId(), type, new SimpleDateFormat("MMMM dd, yyyy"), getLoadConfig());
+				if (decodedAssessmentId > 0) {
+					fullAssessmentData = assessmentManager.getFullAssessmentDataForAssessmentType(decodedAssessmentId,
+							loggedUserBean.getUserId(), type, new SimpleDateFormat("MMMM dd, yyyy"), getLoadConfig());
+				}
 				if (fullAssessmentData == null) {
-					PageUtil.notFound();
-					success = false;
+					credentialIdData = new CredentialIdData(false);
+					credentialIdData.setId(decodedId);
+					credentialIdData.setTitle(credManager.getCredentialTitle(decodedId));
 				} else {
 					/*
 					if user is not student or assessor, he is not allowed to access this page
@@ -740,6 +745,18 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 		} catch (Exception e) {
 			logger.error("Error", e);
 			PageUtil.fireErrorMessage("Error sending the assessment request");
+		}
+	}
+
+	@Override
+	public void withdrawInstructor() {
+		try {
+			credentialInstructorManager.withdrawFromBeingInstructor(fullAssessmentData.getTargetCredentialId(), loggedUserBean.getUserContext());
+			PageUtil.fireSuccessfulInfoMessageAcrossPages("You have withdrawn from being " + ResourceBundleUtil.getLabel("instructor").toLowerCase() + " to " + fullAssessmentData.getStudentFullName());
+			PageUtil.redirect("/manage/credentials/" + id + "/students");
+		} catch (Exception e) {
+			logger.error("error", e);
+			PageUtil.fireErrorMessage("Error withdrawing from being " + ResourceBundleUtil.getLabel("instructor"));
 		}
 	}
 	//STUDENT ONLY CODE

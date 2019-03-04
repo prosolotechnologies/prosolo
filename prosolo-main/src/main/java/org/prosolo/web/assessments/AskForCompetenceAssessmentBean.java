@@ -66,7 +66,7 @@ public class AskForCompetenceAssessmentBean extends AskForAssessmentBean impleme
 
     @Override
     public void initInstructorAssessmentAssessor() {
-        Optional<UserData> assessor = assessmentManager.getInstructorCompetenceAssessmentAssessor(credentialId, getResourceId(), loggedUser.getUserId());
+        Optional<UserData> assessor = assessmentManager.getActiveInstructorCompetenceAssessmentAssessor(credentialId, getResourceId(), loggedUser.getUserId());
         assessor.ifPresent(a -> {
             getAssessmentRequestData().setAssessorId(a.getId());
             getAssessmentRequestData().setAssessorFullName(a.getFullName());
@@ -110,7 +110,7 @@ public class AskForCompetenceAssessmentBean extends AskForAssessmentBean impleme
     }
 
     @Override
-    protected void notifyAssessorToAssessResource() {
+    protected void notifyAssessorToAssessResource() throws IllegalDataStateException {
         assessmentManager.notifyAssessorToAssessCompetence(
                 AssessmentNotificationData.of(
                         credentialId,

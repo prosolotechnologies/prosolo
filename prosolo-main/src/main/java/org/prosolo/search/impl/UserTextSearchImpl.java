@@ -43,6 +43,7 @@ import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.data.instructor.InstructorData;
 import org.prosolo.services.user.UserManager;
+import org.prosolo.services.user.data.StudentAssessmentInfo;
 import org.prosolo.services.user.data.StudentData;
 import org.prosolo.services.user.data.UserData;
 import org.springframework.stereotype.Service;
@@ -462,11 +463,13 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 									student.setProgress(Integer.parseInt(
 											credential.get("progress").toString()));
 									Optional<Long> credAssessmentId = assessmentManager
-											.getInstructorCredentialAssessmentId(credId, user.getId());
+											.getActiveInstructorCredentialAssessmentId(credId, user.getId());
 									if (credAssessmentId.isPresent()) {
-										student.setAssessmentId(credAssessmentId.get());
+										student.setStudentAssessmentInfo(
+												new StudentAssessmentInfo(
+														credAssessmentId.get(),
+														Boolean.parseBoolean(credential.get("assessorNotified").toString())));
 									}
-									student.setSentAssessmentNotification(Boolean.parseBoolean(credential.get("assessorNotified").toString()));
 //									@SuppressWarnings("unchecked")
 //									Map<String, Object> profile = (Map<String, Object>) course.get("profile");
 //								    if(profile != null && !profile.isEmpty()) {

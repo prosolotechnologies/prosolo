@@ -5345,6 +5345,8 @@ header {
           margin: 0; }
           .peopleList > li .peopleListRight .assignedTo p span {
             font-size: 12px; }
+        .peopleList > li .peopleListRight .assignedTo .optMoreMenu {
+          margin-left: 30px; }
       .peopleList > li .peopleListRight .studentFollowOpt {
         width: 50%; }
         .peopleList > li .peopleListRight .studentFollowOpt > .btn {

@@ -36,7 +36,7 @@ public class AskForCredentialAssessmentBean extends AskForAssessmentBean impleme
 
     @Override
     public void initInstructorAssessmentAssessor() {
-        Optional<UserData> assessor = assessmentManager.getInstructorCredentialAssessmentAssessor(getResourceId(), loggedUser.getUserId());
+        Optional<UserData> assessor = assessmentManager.getActiveInstructorCredentialAssessmentAssessor(getResourceId(), loggedUser.getUserId());
         assessor.ifPresent(a -> {
             getAssessmentRequestData().setAssessorId(a.getId());
             getAssessmentRequestData().setAssessorFullName(a.getFullName());
@@ -80,7 +80,7 @@ public class AskForCredentialAssessmentBean extends AskForAssessmentBean impleme
     }
 
     @Override
-    protected void notifyAssessorToAssessResource() {
+    protected void notifyAssessorToAssessResource() throws IllegalDataStateException {
         assessmentManager.notifyAssessorToAssessCredential(
                 AssessmentNotificationData.of(
                         resourceId,
