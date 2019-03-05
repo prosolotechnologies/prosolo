@@ -5,7 +5,6 @@ import org.apache.log4j.Logger;
 import org.prosolo.services.assessment.data.ActivityAssessmentData;
 import org.prosolo.services.assessment.data.CompetenceAssessmentData;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.assessments.util.AssessmentDisplayMode;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -55,11 +54,6 @@ public class StudentCompetenceInstructorAssessmentsBean extends CompetenceInstru
 	@Override
 	long getStudentId() {
 		return loggedUserBean.getUserId();
-	}
-
-	@Override
-	AssessmentDisplayMode getAssessmentDisplayMode() {
-		return AssessmentDisplayMode.FULL;
 	}
 
 	public void markActivityAssessmentDiscussionRead() {

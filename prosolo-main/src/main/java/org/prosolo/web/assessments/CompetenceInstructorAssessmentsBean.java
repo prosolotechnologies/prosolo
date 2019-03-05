@@ -7,7 +7,6 @@ import org.prosolo.services.assessment.data.CompetenceAssessmentData;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
-import org.prosolo.web.assessments.util.AssessmentDisplayMode;
 import org.prosolo.web.assessments.util.AssessmentUtil;
 
 import javax.inject.Inject;
@@ -61,7 +60,6 @@ public abstract class CompetenceInstructorAssessmentsBean implements Serializabl
 	}
 
 	abstract long getStudentId();
-	abstract AssessmentDisplayMode getAssessmentDisplayMode();
 
 	public boolean isPeerAssessmentEnabled() {
 		return AssessmentUtil.isPeerAssessmentEnabled(assessmentTypesConfig);
