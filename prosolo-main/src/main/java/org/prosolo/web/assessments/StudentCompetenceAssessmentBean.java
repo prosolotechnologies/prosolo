@@ -11,14 +11,12 @@ import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.assessment.RubricManager;
 import org.prosolo.services.assessment.data.ActivityAssessmentData;
 import org.prosolo.services.assessment.data.AssessmentDiscussionMessageData;
-import org.prosolo.services.assessment.data.AssessmentTypeConfig;
 import org.prosolo.services.assessment.data.CompetenceAssessmentData;
 import org.prosolo.services.assessment.data.grading.GradeData;
 import org.prosolo.services.assessment.data.grading.RubricCriteriaGradeData;
 import org.prosolo.services.nodes.data.LearningResourceType;
 import org.prosolo.services.user.data.UserBasicData;
 import org.prosolo.services.user.data.UserData;
-import org.prosolo.web.assessments.util.AssessmentDisplayMode;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
@@ -60,11 +58,6 @@ public class StudentCompetenceAssessmentBean extends CompetenceAssessmentBean im
 	@Override
 	boolean canAccessPostLoad() {
 		return isUserAssessedStudentInCurrentContext() || isUserAssessorInCurrentContext();
-	}
-
-	@Override
-	AssessmentDisplayMode getDisplayMode() {
-		return AssessmentDisplayMode.FULL;
 	}
 
 	public void markActivityAssessmentDiscussionRead() {

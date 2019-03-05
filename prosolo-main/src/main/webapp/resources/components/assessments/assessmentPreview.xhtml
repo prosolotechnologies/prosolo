@@ -27,73 +27,71 @@
 		<script
 				src="#{request.contextPath}/resources/javascript2/bootstrap-slider.min.js"></script>
 
-		<c:if test="#{cc.attrs.bean.fullDisplayMode}">
-			<script>
-				function hideConfirmDialog(dialogId) {
-					$('#' + dialogId).modal('hide');
-					$("body").removeAttr("class").removeAttr("style")
-					$("div.modal-backdrop.fade.in").remove()
-				}
+        <script>
+            function hideConfirmDialog(dialogId) {
+                $('#' + dialogId).modal('hide');
+                $("body").removeAttr("class").removeAttr("style")
+                $("div.modal-backdrop.fade.in").remove()
+            }
 
-				function markDiscussionAsSeen(assessmentId, el, resource) {
-					switch (resource) {
-						case 'ACTIVITY':
-							markActivityDiscussionRead
-								([{
-									name: 'assessmentEncId',
-									value: assessmentId
-								}]);
-							break;
-						case 'COMPETENCE':
-							markCompetenceAssessmentDiscussionRead
-								([{
-									name: 'assessmentEncId',
-									value: assessmentId
-								}]);
-							break;
-						case 'CREDENTIAL':
-							markCredentialAssessmentDiscussionRead
-							([{
-								name: 'assessmentEncId',
-								value: assessmentId
-							}]);
-							break;
-					}
-					$(el).removeClass("hasNewComments");
-				}
+            function markDiscussionAsSeen(assessmentId, el, resource) {
+                switch (resource) {
+                    case 'ACTIVITY':
+                        markActivityDiscussionRead
+                            ([{
+                                name: 'assessmentEncId',
+                                value: assessmentId
+                            }]);
+                        break;
+                    case 'COMPETENCE':
+                        markCompetenceAssessmentDiscussionRead
+                            ([{
+                                name: 'assessmentEncId',
+                                value: assessmentId
+                            }]);
+                        break;
+                    case 'CREDENTIAL':
+                        markCredentialAssessmentDiscussionRead
+                        ([{
+                            name: 'assessmentEncId',
+                            value: assessmentId
+                        }]);
+                        break;
+                }
+                $(el).removeClass("hasNewComments");
+            }
 
-				//comment form hide/show
-				function displaySubmitButton(inputElem) {
-					if ($(inputElem).val().length == 0) {
-						$(inputElem).parent().find('a.btn-green').addClass('hidden');
-					} else {
-						$(inputElem).parent().find('a.btn-green').removeClass('hidden');
-					}
-				}
+            //comment form hide/show
+            function displaySubmitButton(inputElem) {
+                if ($(inputElem).val().length == 0) {
+                    $(inputElem).parent().find('a.btn-green').addClass('hidden');
+                } else {
+                    $(inputElem).parent().find('a.btn-green').removeClass('hidden');
+                }
+            }
 
-				function displaySubmitButtonPrivateConvModal(inputElem) {
-					if ($(inputElem).val().length == 0) {
-						$(inputElem).parent().find('a.btn-green').addClass('hidden');
-					} else {
-						$(inputElem).parent().find('a.btn-green').removeClass('hidden');
-					}
-				}
+            function displaySubmitButtonPrivateConvModal(inputElem) {
+                if ($(inputElem).val().length == 0) {
+                    $(inputElem).parent().find('a.btn-green').addClass('hidden');
+                } else {
+                    $(inputElem).parent().find('a.btn-green').removeClass('hidden');
+                }
+            }
 
-			</script>
-			<h:form prependId="false" id="remoteCommandForm">
-				<p:remoteCommand process="@this" action="#{cc.attrs.bean.markActivityAssessmentDiscussionRead()}"
-								 name="markActivityDiscussionRead"></p:remoteCommand>
-				<p:remoteCommand process="@this" action="#{cc.attrs.bean.markCompetenceAssessmentDiscussionRead()}"
-								 name="markCompetenceAssessmentDiscussionRead"/>
-				<p:remoteCommand process="@this" action="#{cc.attrs.bean.markCredentialAssessmentDiscussionRead()}"
-								 name="markCredentialAssessmentDiscussionRead"/>
-			</h:form>
-		</c:if>
+        </script>
+        <h:form prependId="false" id="remoteCommandForm">
+            <p:remoteCommand process="@this" action="#{cc.attrs.bean.markActivityAssessmentDiscussionRead()}"
+                             name="markActivityDiscussionRead"></p:remoteCommand>
+            <p:remoteCommand process="@this" action="#{cc.attrs.bean.markCompetenceAssessmentDiscussionRead()}"
+                             name="markCompetenceAssessmentDiscussionRead"/>
+            <p:remoteCommand process="@this" action="#{cc.attrs.bean.markCredentialAssessmentDiscussionRead()}"
+                             name="markCredentialAssessmentDiscussionRead"/>
+        </h:form>
 
 		<p:growl id="growlMain" globalOnly="true" showDetail="true" />
 
 		<div class="whiteBar">
-			<c:if test="#{cc.attrs.bean.fullDisplayMode and not cc.attrs.bean.isUserAssessedStudentInCurrentContext()}">
+			<c:if test="#{cc.attrs.bean.fullAssessmentData.assessmentInitialized and not cc.attrs.bean.isUserAssessedStudentInCurrentContext()}">
 				<div class="container">
 					<div class="whiteBarContent">
 						<div class="whiteBarLeft">
@@ -103,13 +101,13 @@
 									<div class="tagApproved left item">Submitted</div>
 								</ui:fragment>
 
-								<ui:fragment rendered="#{not cc.attrs.bean.fullAssessmentData.approved and cc.attrs.bean.isUserAssessorInCurrentContext() and not cc.attrs.bean.allCompetencesStarted()}">
+								<ui:fragment rendered="#{cc.attrs.bean.fullAssessmentData.assessmentActive and not cc.attrs.bean.fullAssessmentData.approved and cc.attrs.bean.isUserAssessorInCurrentContext() and not cc.attrs.bean.allCompetencesStarted()}">
 									<a href="javascript:void(0);" disabled="disabled" class="btn btn-green btn-sm item" data-toggle="tooltip" title="#{msg['label.credential']} assessment cannot be submitted until all #{msg['label.competence.plural'].toLowerCase()} are started">Submit</a>
 								</ui:fragment>
 
 								<ui:param name="credentialAssessmentDisabledIndicator" value="#{util:isCredentialFullyGraded(cc.attrs.bean.fullAssessmentData)}" />
 
-								<ui:fragment rendered="#{not cc.attrs.bean.fullAssessmentData.approved and cc.attrs.bean.isUserAssessorInCurrentContext() and cc.attrs.bean.allCompetencesStarted()}">
+								<ui:fragment rendered="#{cc.attrs.bean.fullAssessmentData.assessmentActive and not cc.attrs.bean.fullAssessmentData.approved and cc.attrs.bean.isUserAssessorInCurrentContext() and cc.attrs.bean.allCompetencesStarted()}">
 									<p:commandLink
 										rendered="#{credentialAssessmentDisabledIndicator == 'NONE'}"
 										styleClass="btn btn-green btn-sm item"
@@ -155,6 +153,7 @@
 										learningContext="#{learningContext}"
 										learningResource="CREDENTIAL"
 										approved="#{cc.attrs.bean.fullAssessmentData.approved}"
+                                        readOnly="#{not cc.attrs.bean.fullAssessmentData.assessmentActive}"
 								/>
 							</h:form>
 						</div>
@@ -199,76 +198,38 @@
 				</ui:fragment>
 
 				<ui:fragment rendered="#{cc.attrs.role eq 'USER'}">
-					<ui:fragment rendered="#{cc.attrs.bean.fullDisplayMode}">
-						<li>
-							<h:link value="#{msg['label.credential.plural']}" outcome="credentialLibrary"/>
-						</li>
-						<li>
-							<h:link value="#{util:shortenAndAddDots(cc.attrs.bean.credentialTitle)}" outcome="credential">
-								<f:param name="id" value="#{util:encodeId(cc.attrs.bean.decodedId)}"/>
-							</h:link>
-						</li>
+                    <li>
+                        <h:link value="#{msg['label.credential.plural']}" outcome="credentialLibrary"/>
+                    </li>
+                    <li>
+                        <h:link value="#{util:shortenAndAddDots(cc.attrs.bean.credentialTitle)}" outcome="credential">
+                            <f:param name="id" value="#{util:encodeId(cc.attrs.bean.decodedId)}"/>
+                        </h:link>
+                    </li>
 
-						<li>
-							<ui:fragment rendered="#{not cc.attrs.bean.isUserAssessedStudentInCurrentContext()}">
-								<span>Assessments</span>
-							</ui:fragment>
-							<h:link rendered="#{cc.attrs.bean.isUserAssessedStudentInCurrentContext()}" value="Assessments" outcome="/credential-instructor-assessment">
-								<f:param name="id" value="#{param.id}" />
-							</h:link>
-						</li>
-						<ui:fragment rendered="#{cc.attrs.bean.fullAssessmentData.assessorId > 0}">
-							<li class="active">
-								<assessment:assessmentActorName
-										actorId="#{cc.attrs.bean.fullAssessmentData.assessorId}"
-										actorFullName="#{util:shortenAndAddDots(cc.attrs.bean.fullAssessmentData.assessorFullName)}"
-										blindAssessmentMode="#{cc.attrs.bean.fullAssessmentData.blindAssessmentMode}"
-										actorType="ASSESSOR"
-								/>
-							</li>
-						</ui:fragment>
-					</ui:fragment>
-					<ui:fragment rendered="#{not cc.attrs.bean.fullDisplayMode}">
-						<ui:fragment rendered="#{cc.attrs.bean.fullAssessmentData.blindAssessmentMode eq 'OFF'}">
-							<li>
-								<h:link value="#{util:shortenAndAddDots(cc.attrs.bean.fullAssessmentData.studentFullName)}" outcome="profile">
-									<f:param name="id" value="#{util:encodeId(cc.attrs.bean.fullAssessmentData.assessedStudentId)}"/>
-								</h:link>
-							</li>
-							<li>
-								<h:link value="#{util:shortenAndAddDots(cc.attrs.bean.credentialTitle)}" outcome="public-credential">
-									<f:param name="credId" value="#{cc.attrs.bean.id}"/>
-									<f:param name="studentId" value="#{param.studentId}"/>
-								</h:link>
-							</li>
-						</ui:fragment>
-						<ui:fragment rendered="#{cc.attrs.bean.isUserAssessedStudentInCurrentContext()}">
-							<li>
-								<h:link value="Assessments" outcome="/credential-instructor-assessment-profile">
-									<f:param name="credId" value="#{cc.attrs.bean.id}" />
-									<f:param name="studentId" value="#{param.studentId}"/>
-								</h:link>
-							</li>
-						</ui:fragment>
-						<ui:fragment rendered="#{cc.attrs.bean.fullAssessmentData.type ne 'SELF_ASSESSMENT' and cc.attrs.bean.fullAssessmentData.assessorId > 0}">
-							<li class="active">
-								<assessment:assessmentActorName
-										actorId="#{cc.attrs.bean.fullAssessmentData.assessorId}"
-										actorFullName="#{util:shortenAndAddDots(cc.attrs.bean.fullAssessmentData.assessorFullName)}"
-										blindAssessmentMode="#{cc.attrs.bean.fullAssessmentData.blindAssessmentMode}"
-										actorType="ASSESSOR"
-								/>
-							</li>
-						</ui:fragment>
-						<ui:fragment rendered="#{cc.attrs.bean.fullAssessmentData.type eq 'SELF_ASSESSMENT'}">
-							<li class="active">Assessment</li>
-						</ui:fragment>
-					</ui:fragment>
+                    <li>
+                        <ui:fragment rendered="#{not cc.attrs.bean.isUserAssessedStudentInCurrentContext()}">
+                            <span>Assessments</span>
+                        </ui:fragment>
+                        <h:link rendered="#{cc.attrs.bean.isUserAssessedStudentInCurrentContext()}" value="Assessments" outcome="/credential-instructor-assessment">
+                            <f:param name="id" value="#{param.id}" />
+                        </h:link>
+                    </li>
+                    <ui:fragment rendered="#{cc.attrs.bean.fullAssessmentData.assessorId > 0}">
+                        <li class="active">
+                            <assessment:assessmentActorName
+                                    actorId="#{cc.attrs.bean.fullAssessmentData.assessorId}"
+                                    actorFullName="#{util:shortenAndAddDots(cc.attrs.bean.fullAssessmentData.assessorFullName)}"
+                                    blindAssessmentMode="#{cc.attrs.bean.fullAssessmentData.blindAssessmentMode}"
+                                    actorType="ASSESSOR"
+                            />
+                        </li>
+                    </ui:fragment>
 				</ui:fragment>
 			</ol>
 		</div>
 
-		<c:if test="#{cc.attrs.bean.fullDisplayMode and cc.attrs.bean.isUserAssessedStudentInCurrentContext()}">
+		<c:if test="#{cc.attrs.bean.isUserAssessedStudentInCurrentContext()}">
 			<div class="container">
 				<div class="row">
 					<div class="col-md-12">
@@ -282,27 +243,10 @@
 			</div>
 		</c:if>
 
-		<c:if test="#{not cc.attrs.bean.fullDisplayMode}">
-			<div class="container">
-				<div class="row">
-					<div class="col-md-12">
-						<assessment:credentialAssessmentStudentTabsPublic
-								encodedCredId="#{cc.attrs.bean.id}"
-								encodedStudentId="#{param.studentId}"
-								peerAssessmentEnabled="#{cc.attrs.bean.peerAssessmentEnabled}"
-								selfAssessmentEnabled="#{cc.attrs.bean.selfAssessmentEnabled}"
-						/>
-					</div>
-				</div>
-			</div>
-		</c:if>
-
 		<div class="container">
 			<div class="row">
-				<div class="col-md-#{cc.attrs.bean.fullAssessmentData.type eq 'SELF_ASSESSMENT' or (not cc.attrs.bean.fullDisplayMode and not cc.attrs.bean.fullAssessmentData.approved) ? '12' : '9'} mandatoryFlow">
-					<c:if test="#{cc.attrs.bean.fullDisplayMode or cc.attrs.bean.fullAssessmentData.approved}">
-						<h2 class="bottom10">#{msg['label.credential']} Assessment</h2>
-					</c:if>
+				<div class="col-md-#{cc.attrs.bean.fullAssessmentData.type eq 'SELF_ASSESSMENT' ? '12' : '9'} mandatoryFlow">
+					<h2 class="bottom10">#{msg['label.credential']} Assessment (#{msg['label.enum.AssessmentStatus.'.concat(cc.attrs.bean.fullAssessmentData.status.name())]})</h2>
 
 					<ui:fragment rendered="#{cc.attrs.role eq 'MANAGER'}">
 						<div class="fromBox">
@@ -345,26 +289,76 @@
 						</div>
 					</ui:fragment>
 
-					<c:if test="#{not cc.attrs.bean.fullDisplayMode and not cc.attrs.bean.fullAssessmentData.approved}">
-						<div class="noContentMessage">
-							<p>
-								No assessments.
-							</p>
-						</div>
-					</c:if>
-					<c:if test="#{cc.attrs.bean.fullDisplayMode or cc.attrs.bean.fullAssessmentData.approved}">
-						<ui:fragment rendered="#{cc.attrs.bean.fullDisplayMode and cc.attrs.bean.fullAssessmentData.type ne 'SELF_ASSESSMENT'}">
-							<p>This is the ${msg['label.credential'].toLowerCase()} assessment for student
-								<assessment:assessmentActorName
-										actorId="#{cc.attrs.bean.fullAssessmentData.assessedStudentId}"
-										actorFullName="#{cc.attrs.bean.fullAssessmentData.studentFullName}"
-										blindAssessmentMode="#{cc.attrs.bean.fullAssessmentData.blindAssessmentMode}"
-										actorType="STUDENT"
-								/>.
-								All comments between the student and the assessor are private.</p>
-						</ui:fragment>
+					<ui:fragment rendered="#{cc.attrs.bean.fullAssessmentData.type ne 'SELF_ASSESSMENT'}">
+						<p>This is the ${msg['label.credential'].toLowerCase()} assessment for student
+							<assessment:assessmentActorName
+									actorId="#{cc.attrs.bean.fullAssessmentData.assessedStudentId}"
+									actorFullName="#{cc.attrs.bean.fullAssessmentData.studentFullName}"
+									blindAssessmentMode="#{cc.attrs.bean.fullAssessmentData.blindAssessmentMode}"
+									actorType="STUDENT"
+							/>.
+							All comments between the student and the assessor are private.</p>
+					</ui:fragment>
 
-						<c:if test="#{cc.attrs.bean.fullDisplayMode and not cc.attrs.bean.isUserAssessedStudentInCurrentContext()}">
+					<ui:fragment rendered="#{cc.attrs.bean.fullAssessmentData.status eq 'REQUESTED'}">
+                        <p>Assessment request is created by the student
+                        <assessment:assessmentActorName
+                                actorId="#{cc.attrs.bean.fullAssessmentData.assessedStudentId}"
+                                actorFullName="#{cc.attrs.bean.fullAssessmentData.studentFullName}"
+                                blindAssessmentMode="#{cc.attrs.bean.fullAssessmentData.blindAssessmentMode}"
+                                actorType="STUDENT"
+                        />
+                        on
+                        <utilcomp:convertTimeOutput
+                                millis="#{cc.attrs.bean.fullAssessmentData.dateCreated}"
+								format="MMM DD, YYYY" />.</p>
+					</ui:fragment>
+					<ui:fragment rendered="#{cc.attrs.bean.fullAssessmentData.status eq 'REQUEST_DECLINED'}">
+						<p>Assessment request has been declined by the assessor
+						<assessment:assessmentActorName
+								actorId="#{cc.attrs.bean.fullAssessmentData.assessorId}"
+								actorFullName="#{cc.attrs.bean.fullAssessmentData.assessorFullName}"
+								blindAssessmentMode="#{cc.attrs.bean.fullAssessmentData.blindAssessmentMode}"
+								actorType="ASSESSOR"/>
+						on
+						<utilcomp:convertTimeOutput
+								millis="#{cc.attrs.bean.fullAssessmentData.quitDate}"
+								format="MMM DD, YYYY" />.
+
+							Declined assessment requests cannot be revoked. Only new assessment requests can be made.</p>
+					</ui:fragment>
+					<ui:fragment rendered="#{cc.attrs.bean.fullAssessmentData.status eq 'REQUEST_EXPIRED'}">
+						<p>Assessment request has expired on
+						<utilcomp:convertTimeOutput
+								millis="#{cc.attrs.bean.fullAssessmentData.quitDate}"
+								format="MMM DD, YYYY" />.
+						due to not getting a response from the assessor
+						<assessment:assessmentActorName
+								actorId="#{cc.attrs.bean.fullAssessmentData.assessorId}"
+								actorFullName="#{cc.attrs.bean.fullAssessmentData.assessorFullName}"
+								blindAssessmentMode="#{cc.attrs.bean.fullAssessmentData.blindAssessmentMode}"
+								actorType="ASSESSOR"/>
+						in 14 days from the day it was initiated.
+
+							Expired assessment requests cannot be revoked. Only new assessment requests can be made.</p>
+					</ui:fragment>
+					<ui:fragment rendered="#{cc.attrs.bean.fullAssessmentData.status eq 'ASSESSMENT_QUIT' or cc.attrs.bean.fullAssessmentData.status eq 'SUBMITTED_ASSESSMENT_QUIT'}">
+						<p>Assessment has been withdrawn by the assessor
+						<assessment:assessmentActorName
+								actorId="#{cc.attrs.bean.fullAssessmentData.assessorId}"
+								actorFullName="#{cc.attrs.bean.fullAssessmentData.assessorFullName}"
+								blindAssessmentMode="#{cc.attrs.bean.fullAssessmentData.blindAssessmentMode}"
+								actorType="ASSESSOR"
+						/> on
+						<utilcomp:convertTimeOutput
+								millis="#{cc.attrs.bean.fullAssessmentData.quitDate}"
+								format="MMM DD, YYYY" />.
+
+							Withdrawn assessments cannot be changed, nor revoked. Only new assessment requests can be made.</p>
+					</ui:fragment>
+
+					<c:if test="#{cc.attrs.bean.fullAssessmentData.assessmentInitialized}">
+						<c:if test="#{not cc.attrs.bean.isUserAssessedStudentInCurrentContext()}">
 							<h:panelGroup id="panelAssessorNotification" styleClass="panelAssessorNotificationSelector">
 								<h:panelGroup layout="block" styleClass="innerWrapper" rendered="#{cc.attrs.bean.fullAssessmentData.assessorNotified}">
 									<div class="alert alert-warning alert-dismissible fade in bottom0" role="alert">
@@ -379,11 +373,11 @@
 							<br/>
 						</c:if>
 
-						<c:if test="#{!cc.attrs.bean.fullDisplayMode or cc.attrs.bean.isUserAssessedStudentInCurrentContext()}">
+						<c:if test="#{cc.attrs.bean.isUserAssessedStudentInCurrentContext()}">
 							<h:form id="assessCredentialForm" prependId="false">
 								<article class="whiteBox summaryCard summaryCompetence summaryAssessments">
 									<h:panelGroup id="panelAssessorNotification" styleClass="panelAssessorNotificationSelector">
-										<h:panelGroup layout="block" styleClass="innerWrapper" rendered="#{cc.attrs.bean.fullDisplayMode and cc.attrs.bean.fullAssessmentData.assessorNotified}">
+										<h:panelGroup layout="block" styleClass="innerWrapper" rendered="#{cc.attrs.bean.fullAssessmentData.assessmentActive and cc.attrs.bean.fullAssessmentData.assessorNotified}">
 											<div class="alert alert-warning alert-dismissible fade in bottom0" role="alert">
 												You have asked for assessment of this #{msg['label.credential'].toLowerCase()} on
 												<utilcomp:convertTimeOutput
@@ -393,20 +387,20 @@
 											</div>
 										</h:panelGroup>
 									</h:panelGroup>
-									<div class="summaryAssessmentsHead #{(cc.attrs.bean.fullDisplayMode and (!cc.attrs.bean.fullAssessmentData.participantInDiscussion or cc.attrs.bean.fullAssessmentData.allRead or cc.attrs.bean.fullAssessmentData.numberOfMessages eq 0)) ? '' : 'hasNewComments'}">
+									<div class="summaryAssessmentsHead #{!cc.attrs.bean.fullAssessmentData.participantInDiscussion or cc.attrs.bean.fullAssessmentData.allRead or cc.attrs.bean.fullAssessmentData.numberOfMessages eq 0 ? '' : 'hasNewComments'}">
 										<h2>#{cc.attrs.bean.credentialTitle}</h2>
 										<div class="activityOptions">
 											<ui:fragment rendered="#{cc.attrs.bean.fullAssessmentData.approved}">
 												<div class="tagApproved">Submitted</div>
 											</ui:fragment>
 
-											<ui:fragment rendered="#{cc.attrs.bean.fullDisplayMode and not cc.attrs.bean.fullAssessmentData.approved and cc.attrs.bean.isUserAssessorInCurrentContext() and not cc.attrs.bean.allCompetencesStarted()}">
+											<ui:fragment rendered="#{cc.attrs.bean.fullAssessmentData.status eq 'PENDING' and cc.attrs.bean.fullAssessmentData.assessmentActive and not cc.attrs.bean.fullAssessmentData.approved and cc.attrs.bean.isUserAssessorInCurrentContext() and not cc.attrs.bean.allCompetencesStarted()}">
 												<a href="javascript:void(0);" disabled="disabled" class="linkApprove" data-toggle="tooltip" title="#{msg['label.credential']} assessment cannot be submitted until all #{msg['label.competence.plural'].toLowerCase()} are started">Submit<span></span></a>
 											</ui:fragment>
 
 											<ui:param name="credentialAssessmentDisabledIndicator" value="#{util:isCredentialFullyGraded(cc.attrs.bean.fullAssessmentData)}" />
 
-											<ui:fragment rendered="#{cc.attrs.bean.fullDisplayMode and not cc.attrs.bean.fullAssessmentData.approved and cc.attrs.bean.isUserAssessorInCurrentContext() and cc.attrs.bean.allCompetencesStarted()}">
+											<ui:fragment rendered="#{cc.attrs.bean.fullAssessmentData.status eq 'PENDING' and cc.attrs.bean.fullAssessmentData.assessmentActive and not cc.attrs.bean.fullAssessmentData.approved and cc.attrs.bean.isUserAssessorInCurrentContext() and cc.attrs.bean.allCompetencesStarted()}">
 												<p:commandLink
 														rendered="#{credentialAssessmentDisabledIndicator == 'NONE'}"
 														styleClass="linkApprove"
@@ -430,7 +424,6 @@
 													#{cc.attrs.bean.fullAssessmentData.gradeData.maxGrade}</div>
 											</ui:remove>
 											<p:commandLink styleClass="commentsIcon" pt:data-toggle="modal"
-														   rendered="#{cc.attrs.bean.fullDisplayMode}"
 														   onclick="markDiscussionAsSeen('#{util:encodeId(cc.attrs.bean.fullAssessmentData.credAssessmentId)}', this.parentElement.parentElement, 'CREDENTIAL')"
 														   action="#{cc.attrs.bean.prepareLearningResourceAssessmentForCommenting()}"
 														   update=":assessmentPreview:commentModal:formPrivateConversation:panelModalPrivateConversation"
@@ -451,7 +444,7 @@
 													growlToUpdate=":#{cc.clientId}:growlMain"
 													role="#{cc.attrs.role}"
 													learningContext="#{learningContext}"
-													fullDisplayMode="#{cc.attrs.bean.fullDisplayMode}"
+													readOnly="#{not cc.attrs.bean.fullAssessmentData.assessmentActive}"
 													learningResource="CREDENTIAL"
 													approved="#{cc.attrs.bean.fullAssessmentData.approved}"
 											/>
@@ -467,7 +460,6 @@
 									<assessment:competenceAssessment
 											competenceAssessment="#{competenceAssessment}"
 											bean="#{cc.attrs.bean}"
-											fullDisplayMode="#{cc.attrs.bean.fullDisplayMode}"
 											credentialId="#{cc.attrs.bean.fullAssessmentData.credentialId}"
 											role="#{cc.attrs.role}"
 											learningContext="#{learningContext}"
@@ -487,7 +479,7 @@
 					</c:if>
 				</div>
 
-				<c:if test="#{cc.attrs.bean.fullDisplayMode or cc.attrs.bean.fullAssessmentData.approved}">
+				<c:if test="#{cc.attrs.bean.fullAssessmentData.assessmentInitialized}">
 					<h:panelGroup layout="block" rendered="#{cc.attrs.bean.fullAssessmentData.type ne 'SELF_ASSESSMENT'}" styleClass="col-md-3">
 						<div class="sidebarBlock">
 							<h2>Student</h2>
@@ -551,9 +543,11 @@
 
 						<div class="sidebarBlock">
 							<h2>Requested</h2>
-							<p>#{cc.attrs.bean.fullAssessmentData.dateValue}</p>
+							<utilcomp:convertTimeOutput
+									millis="#{cc.attrs.bean.fullAssessmentData.dateCreated}"
+									format="MMMM DD, YYYY" />
 						</div>
-						<c:if test="#{cc.attrs.bean.fullDisplayMode and cc.attrs.bean.isUserAssessedStudentInCurrentContext()}">
+						<c:if test="#{cc.attrs.bean.fullAssessmentData.assessmentActive and cc.attrs.bean.isUserAssessedStudentInCurrentContext()}">
 							<p:commandLink
 									styleClass="btn btn-green"
 									pt:data-toggle="modal"
@@ -563,7 +557,7 @@
 									oncomplete="$('#askAssessment').modal('show');">
 							</p:commandLink>
 						</c:if>
-						<c:if test="#{cc.attrs.bean.fullAssessmentData.type eq 'INSTRUCTOR_ASSESSMENT' and cc.attrs.bean.isUserAssessorInCurrentContext()}">
+						<c:if test="#{cc.attrs.bean.fullAssessmentData.type eq 'INSTRUCTOR_ASSESSMENT' and cc.attrs.bean.isUserAssessorInCurrentContext() and cc.attrs.bean.fullAssessmentData.assessorId eq cc.attrs.bean.fullAssessmentData.instructorUserId}">
 							<a href="#" class="btn btn-green-stroke btn-sm" data-toggle="modal" data-target="#instructorWithdrawModal">Withdraw</a>
 						</c:if>
 					</h:panelGroup>
@@ -571,7 +565,7 @@
 			</div>
 		</div>
 
-		<c:if test="#{cc.attrs.bean.fullDisplayMode}">
+		<c:if test="#{cc.attrs.bean.fullAssessmentData.assessmentInitialized}">
 			<assessment:assessmentCommentModal
 					id="commentModal"
 					toUpdate=":#{cc.clientId}:growlMain @(.assessmentActivityList.comp_#{cc.attrs.bean.currentCompetenceAssessmentId}) @(.panelCompAssessment_#{cc.attrs.bean.currentCompetenceAssessmentId}) :assessmentPreview:assessCredentialForm"
@@ -580,6 +574,7 @@
 					studentId="#{cc.attrs.bean.fullAssessmentData.assessedStudentId}"
 					assessorId="#{cc.attrs.bean.fullAssessmentData.assessorId}"
 					blindAssessmentMode="#{cc.attrs.bean.currentBlindAssessmentMode}"
+					readOnly="#{cc.attrs.bean.isCurrentAssessmentReadOnly()}"
 					learningContext="#{cc.attrs.bean.currentResType eq 'ACTIVITY'
 						? util:addSubContext(learningContext, 'name:competence|id:'.concat(activityAssessmentBean.activityAssessmentData.competenceId).concat('|context:/name:COMPETENCE_ASSESSMENT|id:').concat(activityAssessmentBean.activityAssessmentData.compAssessment.competenceAssessmentId).concat('|context:/name:activity|id:').concat(activityAssessmentBean.activityAssessmentData.activityId).concat('|context:/name:ACTIVITY_ASSESSMENT|id:').concat(activityAssessmentBean.activityAssessmentData.activityAssessmentId).concat('/').concat('/').concat('/'))
 						: cc.attrs.bean.currentResType eq 'COMPETENCE'

@@ -22,7 +22,6 @@ import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.prosolo.web.util.pagination.Paginable;
 import org.prosolo.web.util.pagination.PaginationData;
@@ -33,8 +32,6 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import java.io.Serializable;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -70,8 +67,6 @@ public class CredentialCompetenceAssessmentsBeanManager implements AssessmentCom
 	
 	private ResourceAccessData access;
 
-	private DateFormat dateFormat = new SimpleDateFormat("MMMM dd, yyyy");
-
 	private LearningResourceType currentResType;
 
 	private SelectableAssessmentFilter[] filters;
@@ -106,7 +101,7 @@ public class CredentialCompetenceAssessmentsBeanManager implements AssessmentCom
 					assessmentsSummary = assessmentManager
 							.getCompetenceAssessmentsDataForInstructorCredentialAssessment(
 									decodedCredId, decodedCompId, loggedUserBean.getUserId(), !access.isCanEdit(),
-									dateFormat, getSelectedFilters(), paginationData.getLimit(),
+									getSelectedFilters(), paginationData.getLimit(),
 									(paginationData.getPage() - 1) * paginationData.getLimit());
 
 					this.paginationData.update((int) assessmentsSummary.getAssessments().getHitsNumber());
@@ -363,7 +358,7 @@ public class CredentialCompetenceAssessmentsBeanManager implements AssessmentCom
 				assessmentsSummary.setAssessments(
 						assessmentManager.getPaginatedStudentsCompetenceAssessments(
 								decodedCredId, decodedCompId, loggedUserBean.getUserId(), !access.isCanEdit(),
-								getSelectedFilters(), paginationData.getLimit(), (paginationData.getPage() - 1) * paginationData.getLimit(), dateFormat));
+								getSelectedFilters(), paginationData.getLimit(), (paginationData.getPage() - 1) * paginationData.getLimit()));
 				this.paginationData.update((int) assessmentsSummary.getAssessments().getHitsNumber());
 			}
 		} catch(Exception e) {

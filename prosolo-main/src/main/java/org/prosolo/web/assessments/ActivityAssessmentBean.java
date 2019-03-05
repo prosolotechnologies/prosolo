@@ -9,8 +9,8 @@ import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.assessment.RubricManager;
-import org.prosolo.services.assessment.data.AssessmentDiscussionMessageData;
 import org.prosolo.services.assessment.data.ActivityAssessmentData;
+import org.prosolo.services.assessment.data.AssessmentDiscussionMessageData;
 import org.prosolo.services.assessment.data.grading.AutomaticGradeData;
 import org.prosolo.services.assessment.data.grading.GradeData;
 import org.prosolo.services.assessment.data.grading.GradingMode;
@@ -168,7 +168,7 @@ public class ActivityAssessmentBean extends LearningResourceAssessmentBean {
 		return activityAssessmentData.getType();
 	}
 
-	/*
+    /*
 	 * GETTERS / SETTERS
 	 */
 
