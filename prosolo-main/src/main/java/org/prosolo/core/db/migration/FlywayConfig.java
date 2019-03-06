@@ -30,8 +30,8 @@ public class FlywayConfig {
         List<String> migrations = new ArrayList<>();
         migrations.add("classpath:db/migration/schema");
         migrations.add("classpath:org/prosolo/db/migration/data/common");
-        if (CommonSettings.getInstance().config.appConfig.deployment == AppConfig.Deployment.UNISA) {
-            migrations.add("classpath:org/prosolo/db/migration/data/unisa");
+        if (CommonSettings.getInstance().config.appConfig.deployment != AppConfig.Deployment.LOCAL) {
+            migrations.add("classpath:org/prosolo/db/migration/data/" + CommonSettings.getInstance().config.appConfig.deployment.name().toLowerCase());
         }
         FluentConfiguration flywayConf = Flyway
                 .configure()
