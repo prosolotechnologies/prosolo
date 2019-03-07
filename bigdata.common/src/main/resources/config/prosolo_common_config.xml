@@ -4,7 +4,7 @@
 	<app-config>
 		<app-name>prosolo</app-name>
 		<project-mode>DEV</project-mode> <!-- DEV or PROD -->
-		<deployment>LOCAL</deployment> <!-- LOCAL or UNISA -->
+		<deployment>LOCAL</deployment> <!-- LOCAL or UNISA; for each deployment other than 'LOCAL' all data migrations specific to that deployment should be created in package 'org.prosolo.db.migration.data.{lowercased_deployment}' (example: for deployment UNISA migrations should go to package 'org.prosolo.db.migration.data.unisa'). -->
 		<developer-email>name.lastname@gmail.com</developer-email>
 		<support-email>administrator@prosolo.ca</support-email>
 		<maintenance>false</maintenance>
