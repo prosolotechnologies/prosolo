@@ -26,6 +26,7 @@
 		<composite:attribute name="showLinkForIndividualAssessmentPage" default="false" type="java.lang.Boolean"/>
 		<composite:attribute name="approveModalId" default=""/>
 		<composite:attribute name="toUpdateApproveModal" default=""/>
+		<composite:attribute name="displaySubmittedIcon" default="true" type="java.lang.Boolean"/>
 	</composite:interface>
 
 	<composite:implementation>
@@ -99,14 +100,14 @@
 					<h:panelGroup layout="block" id="panelCompAssessmentOptions" styleClass="activityOptions panelCompAssessment_#{cc.attrs.competenceAssessment.competenceAssessmentId}">
 						<ui:param name="compAssessmentLearningContext" value="#{util:addSubContext(cc.attrs.learningContext, 'name:COMPETENCE|id:'.concat(cc.attrs.competenceAssessment.competenceId).concat('|context:/name:COMPETENCE_ASSESSMENT|id:').concat(cc.attrs.competenceAssessment.competenceAssessmentId).concat('/'))}" />
 
-						<h:panelGroup rendered="#{cc.attrs.competenceAssessment.status eq 'SUBMITTED'}"
+						<h:panelGroup rendered="#{cc.attrs.displaySubmittedIcon and cc.attrs.competenceAssessment.status eq 'SUBMITTED'}"
 									  styleClass="tagApproved" layout="block">
 							Submitted
 						</h:panelGroup>
 
 						<ui:param name="competenceAssessmentDisabledIndicator" value="#{util:isCompetenceFullyGraded(cc.attrs.competenceAssessment)}" />
 
-						<ui:fragment rendered="#{cc.attrs.competenceAssessment.assessmentActive and cc.attrs.competenceAssessment.status eq 'PENDING' and cc.attrs.currentUserAssessor and competenceAssessmentDisabledIndicator == 'NONE'}">
+						<ui:fragment rendered="#{cc.attrs.competenceAssessment.status eq 'PENDING' and cc.attrs.currentUserAssessor and competenceAssessmentDisabledIndicator == 'NONE'}">
 							<p:commandLink styleClass="linkApprove"
 										   process="@this"
 										   pt:data-toggle="modal"
@@ -116,7 +117,7 @@
 								Submit<span></span>
 							</p:commandLink>
 						</ui:fragment>
-						<ui:fragment rendered="#{cc.attrs.competenceAssessment.assessmentActive and cc.attrs.competenceAssessment.status eq 'PENDING' and cc.attrs.currentUserAssessor and competenceAssessmentDisabledIndicator != 'NONE'}">
+						<ui:fragment rendered="#{cc.attrs.competenceAssessment.status eq 'PENDING' and cc.attrs.currentUserAssessor and competenceAssessmentDisabledIndicator != 'NONE'}">
 							<a class="disabled linkApprove" data-toggle="tooltip" title="#{msg['label.enum.AssessmentDisabledIndicator.'.concat(competenceAssessmentDisabledIndicator)]}">Submit<span></span></a>
 						</ui:fragment>
 						<script>

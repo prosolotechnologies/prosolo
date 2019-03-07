@@ -4,6 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
+import org.prosolo.common.domainmodel.assessment.AssessmentStatus;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.credential.BlindAssessmentMode;
 import org.prosolo.common.event.context.data.UserContextData;
@@ -103,6 +104,7 @@ public class StudentCompetenceAssessmentBean extends CompetenceAssessmentBean im
 		try {
 			getAssessmentManager().approveCompetence(getCompetenceAssessmentData().getCompetenceAssessmentId(), loggedUserBean.getUserContext());
 			getCompetenceAssessmentData().setApproved(true);
+			getCompetenceAssessmentData().setStatus(AssessmentStatus.SUBMITTED);
 			getCompetenceAssessmentData().setAssessorNotified(false);
 
 			PageUtil.fireSuccessfulInfoMessage(ResourceBundleUtil.getMessage("label.competence") + " assessment is submitted");

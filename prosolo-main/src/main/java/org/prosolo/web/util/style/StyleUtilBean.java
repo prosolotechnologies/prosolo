@@ -1,5 +1,6 @@
 package org.prosolo.web.util.style;
 
+import org.prosolo.common.domainmodel.assessment.AssessmentStatus;
 import org.prosolo.common.domainmodel.content.ImageSize;
 import org.prosolo.common.domainmodel.user.notifications.NotificationType;
 import org.prosolo.common.domainmodel.user.socialNetworks.SocialNetworkName;
@@ -242,6 +243,31 @@ public class StyleUtilBean implements Serializable {
 				return "linkedIn";
 			case TWITTER:
 				return "twitter";
+			default:
+				return "";
+		}
+	}
+
+	public String getIconClassForAssessmentStatus(AssessmentStatus status) {
+		if (status == null) {
+			return "";
+		}
+		switch (status) {
+			case REQUESTED:
+				return "tagPending";
+			case REQUEST_EXPIRED:
+				return "tagDeclined";
+			case REQUEST_DECLINED:
+				return "tagDeclined";
+			case PENDING:
+				return "tagPending" +
+						"";
+			case SUBMITTED:
+				return "tagApproved";
+			case ASSESSMENT_QUIT:
+				return "tagDeclined";
+			case SUBMITTED_ASSESSMENT_QUIT:
+				return "tagDeclined";
 			default:
 				return "";
 		}

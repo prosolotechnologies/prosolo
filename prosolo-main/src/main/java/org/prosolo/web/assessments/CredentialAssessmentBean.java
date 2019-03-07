@@ -5,6 +5,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
+import org.prosolo.common.domainmodel.assessment.AssessmentStatus;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.credential.BlindAssessmentMode;
 import org.prosolo.common.domainmodel.credential.CredentialType;
@@ -564,6 +565,7 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 
 	private void markCredentialApproved() {
 		fullAssessmentData.setApproved(true);
+		fullAssessmentData.setStatus(AssessmentStatus.SUBMITTED);
 		//remove notification when credential is approved
 		fullAssessmentData.setAssessorNotified(false);
 		for (CompetenceAssessmentData compAssessmentData : fullAssessmentData.getCompetenceAssessmentData()) {
