@@ -1,6 +1,7 @@
 package org.prosolo.core.db.migration;
 
 import org.flywaydb.core.Flyway;
+import org.prosolo.app.Settings;
 
 /**
  * @author stefanvuckovic
@@ -10,17 +11,18 @@ import org.flywaydb.core.Flyway;
 public class DefaultFlywayMigrationStrategy implements FlywayMigrationStrategy {
 
     private Flyway flyway;
-    private boolean formatDb;
 
-    public DefaultFlywayMigrationStrategy(Flyway flyway, boolean formatDb) {
+    public DefaultFlywayMigrationStrategy(Flyway flyway) {
         this.flyway = flyway;
-        this.formatDb = formatDb;
     }
 
     @Override
     public void migrate() {
-        if (formatDb) {
+        if (Settings.getInstance().config.init.formatDB) {
             flyway.clean();
+        }
+        if (Settings.getInstance().config.init.databaseMigration.repair) {
+            flyway.repair();
         }
         flyway.migrate();
     }

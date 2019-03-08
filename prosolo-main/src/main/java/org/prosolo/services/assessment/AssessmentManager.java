@@ -120,8 +120,8 @@ public interface AssessmentManager {
 			throws DbConnectionException, IllegalDataStateException;
 
 	/**
-	 * Returns id of the newest valid ('REQUESTED', 'PENDING' or 'SUBMITTED') instructor credential assessment from
-	 * currently assigned instructor
+	 * Returns an id of the newest valid ('REQUESTED', 'PENDING' or 'SUBMITTED') instructor credential assessment from
+	 * the currently assigned instructor.
 	 *
 	 * @param credId
 	 * @param studentId
@@ -131,8 +131,8 @@ public interface AssessmentManager {
 	Optional<Long> getActiveInstructorCredentialAssessmentId(long credId, long studentId);
 
 	/**
-	 * Returns id of the newest valid ('REQUESTED', 'PENDING' or 'SUBMITTED') instructor credential assessment from
-	 * currently assigned instructor
+	 * Returns the newest valid ('REQUESTED', 'PENDING' or 'SUBMITTED') instructor credential assessment from the
+	 * currently assigned instructor.
 	 *
 	 * @param credId
 	 * @param studentId
