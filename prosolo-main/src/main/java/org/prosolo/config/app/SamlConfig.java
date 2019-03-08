@@ -2,10 +2,13 @@ package org.prosolo.config.app;
 
 import java.util.List;
 
+import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
 
-public class SamlIdentityProviders {
+public class SamlConfig {
 
+	@Element(name = "prosolo-metadata-file-name")
+	public String prosoloMetadataFileName;
 	@ElementList(inline = true, entry="provider")
 	public List<SAMLIdentityProviderInfo> samlProviders;
 
