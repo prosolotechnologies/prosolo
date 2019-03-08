@@ -64,14 +64,8 @@ public class SAMLUserDetailsServiceImpl implements SAMLUserDetailsService {
             SAMLIdentityProviderInfo provider = getIdentityProviderUsedForAuthentication(credential.getRemoteEntityID());
             logger.info("Identity provider that issued authentication: " + provider.getEntityId());
 			String email = credential.getAttributeAsString(provider.emailAttribute);
-			String firstname = null;
-			if (provider.firstNameAttribute != null && !provider.firstNameAttribute.isEmpty()) {
-                firstname = credential.getAttributeAsString(provider.firstNameAttribute);
-            }
-            String lastname = null;
-			if (provider.lastNameAttribute != null && !provider.lastNameAttribute.isEmpty()) {
-			    lastname = credential.getAttributeAsString(provider.lastNameAttribute);
-            }
+			String firstname = credential.getAttributeAsString(provider.firstNameAttribute);
+			String lastname = credential.getAttributeAsString(provider.lastNameAttribute);
 			logger.info("SAML RETURNED:email:" + email + " firstname:" + firstname + " lastname:" + lastname + " nameID:" + credential.getNameID().getValue());
 
 			//try to log in as regular user
