@@ -1,21 +1,21 @@
 package org.prosolo.db.migration.data.unisa;
 
-import org.flywaydb.core.api.migration.BaseJavaMigration;
 import org.flywaydb.core.api.migration.Context;
-import org.prosolo.common.domainmodel.credential.BlindAssessmentMode;
+import org.prosolo.db.migration.BaseMigration;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
 
 /**
  * @author stefanvuckovic
  * @date 2018-12-18
  * @since 1.2.0
  */
-public class V17__20190221_unisa_migrate_assessment_data_after_schema_change extends BaseJavaMigration {
-
+public class V17__20190221_unisa_migrate_assessment_data_after_schema_change extends BaseMigration {
 
     @Override
-    public void migrate(Context context) throws Exception {
+    protected void doMigrate(Context context) throws Exception {
         migrateWhenCompetencyToCredentialAssessmentIsOneToOne(context.getConnection());
     }
 
