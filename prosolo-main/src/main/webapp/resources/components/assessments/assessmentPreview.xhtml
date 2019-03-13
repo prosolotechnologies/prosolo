@@ -241,8 +241,8 @@
 
 			<div class="container">
 				<div class="row">
-					<div class="col-md-#{cc.attrs.bean.fullAssessmentData.type eq 'SELF_ASSESSMENT' ? '12' : '9'} mandatoryFlow">
-						<h2 class="bottom10">#{msg['label.assessment.type.'.concat(cc.attrs.bean.fullAssessmentData.type.name())]} (#{msg['label.enum.AssessmentStatus.'.concat(cc.attrs.bean.fullAssessmentData.status.name())]})</h2>
+					<div class="col-md-#{cc.attrs.bean.fullAssessmentData.type eq 'SELF_ASSESSMENT' ? '12' : '9'}">
+						<h2 class="bottom20">#{msg['label.assessment.type.'.concat(cc.attrs.bean.fullAssessmentData.type.name())]} (#{msg['label.enum.AssessmentStatus.'.concat(cc.attrs.bean.fullAssessmentData.status.name())]})</h2>
 
 						<ui:fragment rendered="#{cc.attrs.role eq 'MANAGER'}">
 							<div class="fromBox">

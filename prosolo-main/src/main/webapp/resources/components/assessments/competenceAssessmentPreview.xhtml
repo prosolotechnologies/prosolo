@@ -132,7 +132,7 @@
 
                         <div class="row">
                             <div class="col-md-#{competenceAssessmentBean.competenceAssessmentData.type eq 'SELF_ASSESSMENT' ? '12' : '9'} mandatoryFlow">
-                                <h2 class="bottom10">#{msg['label.assessment.type.'.concat(competenceAssessmentBean.competenceAssessmentData.type.name())]} (#{msg['label.enum.AssessmentStatus.'.concat(competenceAssessmentBean.competenceAssessmentData.status.name())]})</h2>
+                                <h2 class="bottom20">#{msg['label.assessment.type.'.concat(competenceAssessmentBean.competenceAssessmentData.type.name())]} (#{msg['label.enum.AssessmentStatus.'.concat(competenceAssessmentBean.competenceAssessmentData.status.name())]})</h2>
 
                                 <ui:fragment rendered="#{competenceAssessmentBean.competenceAssessmentData.status eq 'REQUESTED'}">
                                     <div class="alert alert-warning" role="alert">
