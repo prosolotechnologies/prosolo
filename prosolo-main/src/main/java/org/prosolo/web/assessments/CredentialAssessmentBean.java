@@ -5,6 +5,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
+import org.prosolo.common.domainmodel.assessment.AssessmentStatus;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.credential.BlindAssessmentMode;
 import org.prosolo.common.domainmodel.credential.CredentialType;
@@ -30,7 +31,6 @@ import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.services.user.data.UserBasicData;
 import org.prosolo.services.user.data.UserData;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.assessments.util.AssessmentDisplayMode;
 import org.prosolo.web.assessments.util.AssessmentUtil;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
@@ -41,7 +41,6 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import java.io.Serializable;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -86,13 +85,10 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 
 	private List<AssessmentTypeConfig> assessmentTypesConfig;
 
-	private AssessmentDisplayMode displayMode = AssessmentDisplayMode.FULL;
-
 	private ResourceAccessData access;
 
-	public void initSelfAssessment(String encodedCredId, String encodedAssessmentId, AssessmentDisplayMode displayMode) {
+	public void initSelfAssessment(String encodedCredId, String encodedAssessmentId) {
 		setIds(encodedCredId, encodedAssessmentId);
-		this.displayMode = displayMode;
 		initSelfAssessment();
 	}
 
@@ -101,9 +97,8 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 //		initPeerAssessment();
 //	}
 
-	public void initInstructorAssessment(String encodedCredId, String encodedAssessmentId, AssessmentDisplayMode displayMode) {
+	public void initInstructorAssessment(String encodedCredId, String encodedAssessmentId) {
 		setIds(encodedCredId, encodedAssessmentId);
-		this.displayMode = displayMode;
 		initInstructorAssessment();
 	}
 
@@ -127,7 +122,7 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 					PageUtil.accessDenied();
 				} else {
 					fullAssessmentData = assessmentManager.getFullAssessmentData(decodedAssessmentId,
-							loggedUserBean.getUserId(), new SimpleDateFormat("MMMM dd, yyyy"), getLoadConfig());
+							loggedUserBean.getUserId(), AssessmentLoadConfig.of(true, true, true));
 					if (fullAssessmentData == null) {
 						PageUtil.notFound();
 					} else {
@@ -168,7 +163,7 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 			if (AssessmentUtil.isAssessmentTypeEnabled(assessmentTypesConfig, type)) {
 				if (decodedAssessmentId > 0) {
 					fullAssessmentData = assessmentManager.getFullAssessmentDataForAssessmentType(decodedAssessmentId,
-							loggedUserBean.getUserId(), type, new SimpleDateFormat("MMMM dd, yyyy"), getLoadConfig());
+							loggedUserBean.getUserId(), type, AssessmentLoadConfig.of(true, true, true));
 				}
 				if (fullAssessmentData == null) {
 					credentialIdData = new CredentialIdData(false);
@@ -212,19 +207,7 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 		if full display mode user can access page if user is student or assessor in current context
 		and if public display mode user can access page if assessment display is enabled by student
 		 */
-		return displayMode == AssessmentDisplayMode.FULL &&
-				(isUserAssessedStudentInCurrentContext() || isUserAssessorInCurrentContext());
-	}
-
-	private AssessmentLoadConfig getLoadConfig() {
-		//assessment data should be loaded only if full display mode
-		//also assessment discussion should be loaded only if full display mode
-		boolean fullDisplay = displayMode == AssessmentDisplayMode.FULL;
-		return AssessmentLoadConfig.of(fullDisplay, fullDisplay, fullDisplay);
-	}
-
-	public boolean isFullDisplayMode() {
-		return displayMode == AssessmentDisplayMode.FULL;
+		return isUserAssessedStudentInCurrentContext() || isUserAssessorInCurrentContext();
 	}
 
 	public boolean isPeerAssessmentEnabled() {
@@ -353,6 +336,21 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 				return fullAssessmentData.getMessages();
 		}
 		return null;
+	}
+
+	public boolean isCurrentAssessmentReadOnly() {
+		if (currentResType == null) {
+			return true;
+		}
+		switch (currentResType) {
+			case ACTIVITY:
+				return !activityAssessmentBean.getActivityAssessmentData().getCompAssessment().isAssessmentActive();
+			case COMPETENCE:
+				return !compAssessmentBean.getCompetenceAssessmentData().isAssessmentActive();
+			case CREDENTIAL:
+				return !fullAssessmentData.isAssessmentActive();
+		}
+		return false;
 	}
 
 	@Override
@@ -522,7 +520,7 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 	//LearningResourceAssessmentBean impl end
 
 	public boolean isUserAllowedToSeeRubric(GradeData gradeData, LearningResourceType resourceType) {
-		return isFullDisplayMode() && AssessmentUtil.isUserAllowedToSeeRubric(gradeData, resourceType);
+		return AssessmentUtil.isUserAllowedToSeeRubric(gradeData, resourceType);
 	}
 
 	public boolean allCompetencesStarted() {
@@ -567,6 +565,7 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 
 	private void markCredentialApproved() {
 		fullAssessmentData.setApproved(true);
+		fullAssessmentData.setStatus(AssessmentStatus.SUBMITTED);
 		//remove notification when credential is approved
 		fullAssessmentData.setAssessorNotified(false);
 		for (CompetenceAssessmentData compAssessmentData : fullAssessmentData.getCompetenceAssessmentData()) {
@@ -817,7 +816,4 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 		return idEncoder;
 	}
 
-	protected void setDisplayMode(AssessmentDisplayMode displayMode) {
-		this.displayMode = displayMode;
-	}
 }

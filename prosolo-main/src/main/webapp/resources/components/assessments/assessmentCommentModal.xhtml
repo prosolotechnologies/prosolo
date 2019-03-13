@@ -16,6 +16,7 @@
         <composite:attribute name="blindAssessmentMode" required="true"/>
         <composite:attribute name="toUpdate" default=""/>
         <composite:attribute name="learningContext" default=""/>
+        <composite:attribute name="readOnly" required="true" type="java.lang.Boolean"/>
     </composite:interface>
 
 
@@ -106,7 +107,7 @@
                                                             <p class="commentText #{compEditComment.isValid() ? '' : 'hidden'}">#{activityMessageData.content}</p>
 
                                                             <div class="editComment #{compEditComment.isValid() ? 'hidden' : ''}">
-                                                                <p:inputTextarea
+                                                                <h:inputTextarea
                                                                         id="textareaEditComment"
                                                                         binding="#{compEditComment}"
                                                                         label="Comment"
@@ -116,7 +117,7 @@
                                                                         value="#{activityMessageData.content}"
                                                                         onkeyup="displaySubmitButtonPrivateConvModal(this)">
                                                                     <f:validateLength maximum="9000"/>
-                                                                </p:inputTextarea>
+                                                                </h:inputTextarea>
 
                                                                 <small class="redText bottom30 displayBlock">
                                                                     <h:message for="textareaEditComment"></h:message>
@@ -134,10 +135,12 @@
                                                             </div>
 
                                                             <div class="commentOptions">
-                                                                <a href="javascript:void(0)" class="edit #{compEditComment.isValid() ? '' : 'hidden'}"
-                                                                   onclick="showEditComment(this)">
-                                                                    <span class="icon"></span>Edit
-                                                                </a>
+                                                                <ui:fragment rendered="#{not cc.attrs.readOnly}">
+                                                                    <a href="javascript:void(0)" class="edit #{compEditComment.isValid() ? '' : 'hidden'}"
+                                                                       onclick="showEditComment(this)">
+                                                                        <span class="icon"></span>Edit
+                                                                    </a>
+                                                                </ui:fragment>
                                                             </div>
                                                         </div>
                                                     </ui:fragment>
@@ -166,38 +169,6 @@
                                                             </h3>
                                                             <p>#{activityMessageData.content}</p>
                                                         </div>
-
-                                                        <div class="media replyInput hidden">
-                                                            <div class="media-left">
-                                                                <ui:fragment rendered="#{activityMessageData.senderId ne cc.attrs.studentId and not activityMessageData.senderAssessor}">
-                                                                    <utilcomp:userAvatar
-                                                                            avatar="#{activityMessageData.senderAvatarUrl}"
-                                                                            fullName="#{activityMessageData.senderFullName}"/>
-                                                                </ui:fragment>
-
-                                                                <ui:fragment rendered="#{activityMessageData.senderId eq cc.attrs.studentId or activityMessageData.senderAssessor}">
-                                                                    <assessment:assessmentActorAvatar
-                                                                            actorId="#{activityMessageData.senderId}"
-                                                                            avatarUrl="#{activityMessageData.senderAvatarUrl}"
-                                                                            actorFullName="#{activityMessageData.senderFullName}"
-                                                                            blindAssessmentMode="#{cc.attrs.blindAssessmentMode}"
-                                                                            actorType="#{activityMessageData.senderAssessor ? 'ASSESSOR' : 'STUDENT'}"
-                                                                    />
-                                                                </ui:fragment>
-                                                            </div>
-
-                                                            <div class="media-body replyComment">
-                                                                <div class="commentForm">
-																	<textarea placeholder="Add Comment..."
-                                                                              onkeyup="displaySubmitButtonPrivateConvModal(this)"></textarea>
-                                                                    <button type="button"
-                                                                            class="btn btn-sm btn-green hidden"
-                                                                            name="button">
-                                                                        Submit
-                                                                    </button>
-                                                                </div>
-                                                            </div>
-                                                        </div>
                                                     </ui:fragment>
                                                 </div>
                                             </li>
@@ -205,48 +176,50 @@
                                     </ul>
                                 </ui:fragment>
                             </div>
-                            <div class="addComment">
-                                <ui:fragment rendered="#{loggeduser.userId ne cc.attrs.studentId and loggeduser.userId ne cc.attrs.assessorId}">
-                                    <utilcomp:userAvatar avatar="#{loggeduser.avatar}"
-                                                         fullName="#{loggeduser.fullName}"/>
-                                </ui:fragment>
+                            <ui:fragment rendered="#{not cc.attrs.readOnly}">
+                                <div class="addComment">
+                                    <ui:fragment rendered="#{loggeduser.userId ne cc.attrs.studentId and loggeduser.userId ne cc.attrs.assessorId}">
+                                        <utilcomp:userAvatar avatar="#{loggeduser.avatar}"
+                                                             fullName="#{loggeduser.fullName}"/>
+                                    </ui:fragment>
 
-                                <ui:fragment rendered="#{loggeduser.userId eq cc.attrs.studentId or loggeduser.userId eq cc.attrs.assessorId}">
-                                    <assessment:assessmentActorAvatar
-                                            actorId="#{loggeduser.userId}"
-                                            avatarUrl="#{loggeduser.avatar}"
-                                            actorFullName="#{loggeduser.fullName}"
-                                            blindAssessmentMode="#{cc.attrs.blindAssessmentMode}"
-                                            actorType="#{loggeduser.userId eq cc.attrs.assessorId ? 'ASSESSOR' : 'STUDENT'}"
-                                    />
-                                </ui:fragment>
+                                    <ui:fragment rendered="#{loggeduser.userId eq cc.attrs.studentId or loggeduser.userId eq cc.attrs.assessorId}">
+                                        <assessment:assessmentActorAvatar
+                                                actorId="#{loggeduser.userId}"
+                                                avatarUrl="#{loggeduser.avatar}"
+                                                actorFullName="#{loggeduser.fullName}"
+                                                blindAssessmentMode="#{cc.attrs.blindAssessmentMode}"
+                                                actorType="#{loggeduser.userId eq cc.attrs.assessorId ? 'ASSESSOR' : 'STUDENT'}"
+                                        />
+                                    </ui:fragment>
 
-                                <div class="commentForm">
-                                    <p:inputTextarea
-                                            id="textareaAddNewComment"
-                                            label="Comment"
-                                            styleClass="contentEditableComment"
-                                            style="width:100%;" rows="1"
-                                            value="#{cc.attrs.bean.newCommentValue}"
-                                            placeholder="Add Comment..."
-                                            onkeyup="displaySubmitButtonPrivateConvModal(this)">
-                                            <f:validateLength maximum="9000"/>
-                                    </p:inputTextarea>
+                                    <div class="commentForm">
+                                        <h:inputTextarea
+                                                id="textareaAddNewComment"
+                                                label="Comment"
+                                                styleClass="contentEditableComment"
+                                                style="width:100%;" rows="1"
+                                                value="#{cc.attrs.bean.newCommentValue}"
+                                                placeholder="Add Comment..."
+                                                onkeyup="displaySubmitButtonPrivateConvModal(this)">
+                                                <f:validateLength maximum="9000"/>
+                                        </h:inputTextarea>
 
-                                    <small class="redText bottom30 displayBlock">
-                                        <h:message for="textareaAddNewComment"></h:message>
-                                    </small>
+                                        <small class="redText bottom30 displayBlock">
+                                            <h:message for="textareaAddNewComment"></h:message>
+                                        </small>
 
-                                    <utilcomp:singleClickLink styleClass="btn btn-sm btn-green hidden"
-                                                              value="Submit"
-                                                              action="#{cc.attrs.bean.addCommentToAssessmentDiscussion()}"
-                                                              update=":#{cc.clientId}:formPrivateConversation:panelModalPrivateConversation #{cc.attrs.toUpdate}">
-                                        <f:param name="page" value="#{facesContext.viewRoot.viewId}"/>
-                                        <f:param name="learningContext" value="#{cc.attrs.learningContext}"/>
-                                        <f:param name="service" value="name:result_private_conversation_dialog"/>
-                                    </utilcomp:singleClickLink>
+                                        <utilcomp:singleClickLink styleClass="btn btn-sm btn-green hidden"
+                                                                  value="Submit"
+                                                                  action="#{cc.attrs.bean.addCommentToAssessmentDiscussion()}"
+                                                                  update=":#{cc.clientId}:formPrivateConversation:panelModalPrivateConversation #{cc.attrs.toUpdate}">
+                                            <f:param name="page" value="#{facesContext.viewRoot.viewId}"/>
+                                            <f:param name="learningContext" value="#{cc.attrs.learningContext}"/>
+                                            <f:param name="service" value="name:result_private_conversation_dialog"/>
+                                        </utilcomp:singleClickLink>
+                                    </div>
                                 </div>
-                            </div>
+                            </ui:fragment>
                             <div class="clear"></div>
                         </div>
                     </h:panelGroup>

@@ -42,9 +42,9 @@ public interface AssessmentManager {
 
 	Result<Long> createSelfAssessmentAndGetEvents(TargetCredential1 targetCredential, UserContextData context) throws DbConnectionException, IllegalDataStateException;
 
-	AssessmentDataFull getFullAssessmentData(long id, long userId, DateFormat dateFormat, AssessmentLoadConfig loadConfig);
+	AssessmentDataFull getFullAssessmentData(long id, long userId, AssessmentLoadConfig loadConfig);
 
-	AssessmentDataFull getFullAssessmentDataForAssessmentType(long id, long userId, AssessmentType type, DateFormat dateFormat, AssessmentLoadConfig loadConfig);
+	AssessmentDataFull getFullAssessmentDataForAssessmentType(long id, long userId, AssessmentType type, AssessmentLoadConfig loadConfig);
 
 	void approveCredential(long credentialAssessmentId, String reviewText, UserContextData context)
 			throws DbConnectionException, IllegalDataStateException;
@@ -350,17 +350,17 @@ public interface AssessmentManager {
 
 	PaginatedResult<CompetenceAssessmentData> getPaginatedStudentsCompetenceAssessments(
 			long credId, long compId, long userId, boolean countOnlyAssessmentsWhereUserIsAssessor,
-			List<AssessmentFilter> filters, int limit, int offset, DateFormat dateFormat) throws DbConnectionException;
+			List<AssessmentFilter> filters, int limit, int offset) throws DbConnectionException;
 
 	CompetenceAssessmentsSummaryData getCompetenceAssessmentsDataForInstructorCredentialAssessment(
-			long credId, long compId, long userId, boolean countOnlyAssessmentsWhereUserIsAssessor, DateFormat dateFormat, List<AssessmentFilter> filters, int limit, int offset)
+			long credId, long compId, long userId, boolean countOnlyAssessmentsWhereUserIsAssessor, List<AssessmentFilter> filters, int limit, int offset)
 			throws DbConnectionException, ResourceNotFoundException;
 
-	Optional<CompetenceAssessmentData> getInstructorCompetenceAssessmentForStudent(long credId, long compId, long studentId, DateFormat dateFormat) throws DbConnectionException;
+	Optional<CompetenceAssessmentData> getInstructorCompetenceAssessmentForStudent(long credId, long compId, long studentId) throws DbConnectionException;
 
 	Optional<Long> getSelfCompetenceAssessmentId(long credId, long compId, long studentId) throws DbConnectionException;
 
-	CompetenceAssessmentData getCompetenceAssessmentData(long competenceAssessmentId, long userId, AssessmentType assessmentType, AssessmentLoadConfig loadConfig, DateFormat dateFormat)
+	CompetenceAssessmentData getCompetenceAssessmentData(long competenceAssessmentId, long userId, AssessmentType assessmentType, AssessmentLoadConfig loadConfig)
 			throws DbConnectionException;
 
 	PaginatedResult<AssessmentData> getPaginatedCredentialPeerAssessmentsForStudent(

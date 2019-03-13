@@ -3,7 +3,6 @@ package org.prosolo.web.assessments;
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.assessments.util.AssessmentDisplayMode;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -67,11 +66,6 @@ public class StudentCredentialPeerAssessmentsBean extends CredentialPeerAssessme
 			logger.error("Error", e);
 			PageUtil.fireErrorMessage("Error sending the assessment request");
 		}
-	}
-
-	@Override
-	protected AssessmentDisplayMode getAssessmentDisplayMode() {
-		return AssessmentDisplayMode.FULL;
 	}
 
 	@Override

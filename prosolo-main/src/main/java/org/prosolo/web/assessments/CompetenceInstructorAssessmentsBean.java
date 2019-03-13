@@ -7,12 +7,10 @@ import org.prosolo.services.assessment.data.CompetenceAssessmentData;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
-import org.prosolo.web.assessments.util.AssessmentDisplayMode;
 import org.prosolo.web.assessments.util.AssessmentUtil;
 
 import javax.inject.Inject;
 import java.io.Serializable;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -45,7 +43,7 @@ public abstract class CompetenceInstructorAssessmentsBean implements Serializabl
 
 	public void loadInitialAssessmentData() {
 		Optional<CompetenceAssessmentData> competenceAssessmentData = assessmentManager.getInstructorCompetenceAssessmentForStudent(
-				decodedCredId, decodedCompId, getStudentId(), new SimpleDateFormat("MMMM dd, yyyy"));
+				decodedCredId, decodedCompId, getStudentId());
 		assessments = new ArrayList<>();
 		competenceAssessmentData.ifPresent(assessment -> assessments.add(assessment));
 		competenceTitle = compManager.getCompetenceTitle(decodedCompId);
@@ -62,7 +60,6 @@ public abstract class CompetenceInstructorAssessmentsBean implements Serializabl
 	}
 
 	abstract long getStudentId();
-	abstract AssessmentDisplayMode getAssessmentDisplayMode();
 
 	public boolean isPeerAssessmentEnabled() {
 		return AssessmentUtil.isPeerAssessmentEnabled(assessmentTypesConfig);
