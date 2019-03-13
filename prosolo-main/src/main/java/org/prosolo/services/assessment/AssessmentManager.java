@@ -331,6 +331,9 @@ public interface AssessmentManager {
 	Optional<UserData> getActiveInstructorCompetenceAssessmentAssessor(long credId, long compId, long userId)
 			throws DbConnectionException;
 
+	Optional<Long> getActiveInstructorCompetenceAssessmentId(long credId, long compId, long userId)
+			throws DbConnectionException;
+
 	/**
 	 * Returns list of ids of all assessors that this particular user has asked
 	 * for assessment of the credential with the given id

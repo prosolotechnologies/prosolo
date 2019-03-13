@@ -3042,6 +3042,39 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		}
 	}
 
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<Long> getActiveInstructorCompetenceAssessmentId(long credId, long compId, long userId)
+            throws DbConnectionException {
+        try {
+            String query = "SELECT ca.id " +
+                    "FROM CompetenceAssessment ca " +
+                    "INNER JOIN ca.targetCredential tc " +
+                    "WITH tc.credential.id = :credId " +
+                    "INNER JOIN tc.instructor inst " +
+                    "WHERE ca.competence.id = :compId " +
+                    "AND ca.student.id = :userId " +
+                    "AND ca.type = :instructorAssessment " +
+                    "AND inst.user.id = ca.assessor.id " +
+                    "AND ca.status IN (:statuses)";
+
+            Long id = (Long) persistence.currentManager()
+                    .createQuery(query)
+                    .setLong("compId", compId)
+                    .setLong("credId", credId)
+                    .setString("instructorAssessment", AssessmentType.INSTRUCTOR_ASSESSMENT.name())
+                    .setLong("userId", userId)
+                    .setParameterList("statuses", AssessmentStatus.getActiveStatuses())
+                    .setMaxResults(1)
+                    .uniqueResult();
+
+            return Optional.ofNullable(id);
+        } catch(Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error retrieving the competency assessment id");
+        }
+    }
+
 	// get assessor for instructor competence assessment end
 
 	//NOTIFY ASSESSOR CREDENTIAL BEGIN

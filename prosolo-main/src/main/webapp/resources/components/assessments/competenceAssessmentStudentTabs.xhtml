@@ -13,11 +13,10 @@
 		<div class="whiteBox">
 			<ul class="nav nav-tabs pageSubmenu" role="tablist">
 				<ui:param name="page" value="#{util:getPagePath(view.viewId)}"></ui:param>
-				<li role="presentation" class="#{page eq 'competence-instructor-assessments'
-				 								 or page eq 'competence-instructor-assessment' ? 'active' : ''}">
+				<li role="presentation" class="#{page eq 'competence-instructor-assessment' ? 'active' : ''}">
 					<h:link includeViewParams="true"
 							value="#{msg['label.assessment.type.INSTRUCTOR_ASSESSMENT']}"
-							outcome="/competence-instructor-assessments">
+							outcome="/competence-instructor-assessment">
 					</h:link>
 				</li>
 				<ui:fragment rendered="#{cc.attrs.peerAssessmentEnabled}">
