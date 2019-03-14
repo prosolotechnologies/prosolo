@@ -294,10 +294,10 @@ public interface Competence1Manager {
 	List<TargetCompetence1> getTargetCompetencesForCompetence(long compId, 
 			boolean justUncompleted) throws DbConnectionException;
 
-	TargetCompetence1 enrollInCompetence(long compId, long userId, UserContextData context)
+	TargetCompetence1 enrollInCompetence(long credId, long compId, long userId, UserContextData context)
 			throws DbConnectionException;
 
-	Result<TargetCompetence1> enrollInCompetenceAndGetEvents(long compId, long userId, UserContextData context)
+	Result<TargetCompetence1> enrollInCompetenceAndGetEvents(long credId, long compId, long userId, UserContextData context)
 			throws DbConnectionException;
 	
 	long countNumberOfStudentsLearningCompetence(long compId) throws DbConnectionException;
@@ -418,7 +418,7 @@ public interface Competence1Manager {
 	boolean isUserEnrolled(long compId, long userId) throws DbConnectionException;
 
 	CompetenceData1 getTargetCompetenceOrCompetenceData(
-			long compId, long studentId, boolean loadAssessmentConfig, boolean loadLearningPathContent,
+			long credId, long compId, long studentId, boolean loadAssessmentConfig, boolean loadLearningPathContent,
 			boolean loadCreator, boolean loadTags) throws DbConnectionException;
 
 	List<AssessmentTypeConfig> getCompetenceAssessmentTypesConfig(long compId) throws DbConnectionException;

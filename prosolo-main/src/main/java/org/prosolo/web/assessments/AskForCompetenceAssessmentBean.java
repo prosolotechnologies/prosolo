@@ -20,6 +20,7 @@ import javax.inject.Inject;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * @author stefanvuckovic
@@ -43,15 +44,29 @@ public class AskForCompetenceAssessmentBean extends AskForAssessmentBean impleme
     private boolean studentCanChooseInstructor;
 
     public void init(long credentialId, long competenceId, long targetCompId, AssessmentType assessmentType, BlindAssessmentMode blindAssessmentMode) {
-        this.credentialId = credentialId;
-        init(competenceId, targetCompId, assessmentType, blindAssessmentMode);
-        initStudentCanChooseInstructorFlag();
+        init(credentialId, competenceId, targetCompId, assessmentType, null, blindAssessmentMode);
     }
 
     public void init(long credentialId, long competenceId, long targetCompId, AssessmentType assessmentType, UserData assessor, BlindAssessmentMode blindAssessmentMode) {
-        this.credentialId = credentialId;
-        init(competenceId, targetCompId, assessmentType, assessor, blindAssessmentMode);
+        initInitialData(credentialId, competenceId, targetCompId, assessmentType, blindAssessmentMode);
+        initOtherCommonData(assessor);
         initStudentCanChooseInstructorFlag();
+    }
+
+    /**
+     * Initializes all initial data that must be initialized before any other
+     * logic or initialization takes place
+     *
+     * @param credentialId
+     * @param competenceId
+     * @param targetCompId
+     * @param assessmentType
+     * @param blindAssessmentMode
+     */
+    private void initInitialData(long credentialId, long competenceId, long targetCompId, AssessmentType assessmentType, BlindAssessmentMode blindAssessmentMode) {
+        initCommonInitialData(competenceId, targetCompId, assessmentType, blindAssessmentMode);
+        this.credentialId = credentialId;
+        assessmentRequestData.setCredentialId(credentialId);
     }
 
     private void initStudentCanChooseInstructorFlag() {
@@ -82,7 +97,7 @@ public class AskForCompetenceAssessmentBean extends AskForAssessmentBean impleme
             try {
                 if (existingPeerAssessors == null) {
                     existingPeerAssessors = new HashSet<>(assessmentManager
-                            .getPeerAssessorIdsForUserAndCompetence(resourceId, loggedUser.getUserId()));
+                            .getPeerAssessorIdsForCompetence(credentialId, resourceId, loggedUser.getUserId()));
                 }
 
                 PaginatedResult<UserData> result = userTextSearch.searchUsersLearningCompetence(
@@ -125,6 +140,12 @@ public class AskForCompetenceAssessmentBean extends AskForAssessmentBean impleme
     protected boolean shouldStudentBeRemindedToSubmitEvidenceSummary() {
         //student should be reminded if competency is evidence based
         return compManager.getCompetenceLearningPathType(resourceId) == LearningPathType.EVIDENCE;
+    }
+
+    @Override
+    protected Set<Long> getExistingPeerAssessors() {
+        return new HashSet<>(assessmentManager
+                .getPeerAssessorIdsForCompetence(credentialId, resourceId, loggedUser.getUserId()));
     }
 
     public long getCredentialId() {

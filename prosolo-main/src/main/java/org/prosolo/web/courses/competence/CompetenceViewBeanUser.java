@@ -11,7 +11,6 @@ import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.LearningEvidenceManager;
-import org.prosolo.services.nodes.data.BasicObjectInfo;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
@@ -169,7 +168,7 @@ public class CompetenceViewBeanUser implements Serializable {
 	public void enrollInCompetence() {
 		try {
 			competenceManager.enrollInCompetence(
-					competenceData.getCompetenceId(), loggedUser.getUserId(), loggedUser.getUserContext());
+					decodedCredId, competenceData.getCompetenceId(), loggedUser.getUserId(), loggedUser.getUserContext());
 			PageUtil.fireSuccessfulInfoMessage("You have started the " + ResourceBundleUtil.getMessage("label.competence").toLowerCase());
 			try {
 				RestrictedAccessResult<CompetenceData1> res = competenceManager

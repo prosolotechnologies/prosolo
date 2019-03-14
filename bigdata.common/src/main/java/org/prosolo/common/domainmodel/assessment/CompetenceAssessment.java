@@ -3,6 +3,7 @@ package org.prosolo.common.domainmodel.assessment;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 import org.prosolo.common.domainmodel.credential.Competence1;
+import org.prosolo.common.domainmodel.credential.TargetCredential1;
 
 import javax.persistence.*;
 import java.util.HashSet;
@@ -17,13 +18,14 @@ public class CompetenceAssessment extends Assessment {
 	private List<ActivityAssessment> activityDiscussions;
 	//private TargetCompetence1 targetCompetence;
 	private Competence1 competence;
+	private TargetCredential1 targetCredential;
+	//can be null if competence assessment can exist independently
+	private CredentialAssessment credentialAssessment;
 
-	private Set<CredentialCompetenceAssessment> credentialAssessments;
 	private Set<CompetenceAssessmentDiscussionParticipant> participants;
 	private Set<CompetenceAssessmentMessage> messages;
 
 	public CompetenceAssessment() {
-		this.credentialAssessments = new HashSet<>();
 		this.participants = new HashSet<>();
 		this.messages = new HashSet<>();
 	}
@@ -68,15 +70,6 @@ public class CompetenceAssessment extends Assessment {
 		return null;
 	}
 
-	@OneToMany(mappedBy = "competenceAssessment")
-	public Set<CredentialCompetenceAssessment> getCredentialAssessments() {
-		return credentialAssessments;
-	}
-
-	public void setCredentialAssessments(Set<CredentialCompetenceAssessment> credentialAssessments) {
-		this.credentialAssessments = credentialAssessments;
-	}
-
 	@OneToMany(mappedBy = "assessment")
 	public Set<CompetenceAssessmentDiscussionParticipant> getParticipants() {
 		return participants;
@@ -105,4 +98,21 @@ public class CompetenceAssessment extends Assessment {
 		return null;
 	}
 
+	@ManyToOne(fetch = FetchType.LAZY, optional = false)
+	public TargetCredential1 getTargetCredential() {
+		return targetCredential;
+	}
+
+	public void setTargetCredential(TargetCredential1 targetCredential) {
+		this.targetCredential = targetCredential;
+	}
+
+	@ManyToOne(fetch = FetchType.LAZY, optional = true)
+    public CredentialAssessment getCredentialAssessment() {
+        return credentialAssessment;
+    }
+
+    public void setCredentialAssessment(CredentialAssessment credentialAssessment) {
+        this.credentialAssessment = credentialAssessment;
+    }
 }

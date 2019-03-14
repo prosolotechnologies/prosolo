@@ -1441,7 +1441,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 							rubricGradeSummary.get(ad.getActivityAssessmentId())));
 
 					//load additional assessment data
-					AssessmentBasicData abd = assessmentManager.getInstructorAssessmentBasicData(credId,
+					AssessmentBasicData abd = assessmentManager.getActiveInstructorAssessmentBasicData(credId,
 							compId, 0, ard.getUser().getId());
 					if (abd != null) {
 						ad.setCompAssessmentId(abd.getCompetenceAssessmentId());

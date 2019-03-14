@@ -14,26 +14,15 @@ public class CredentialAssessment extends Assessment {
 	private static final long serialVersionUID = -1120206934780603166L;
 	
 	private TargetCredential1 targetCredential;
-	private Set<CredentialCompetenceAssessment> competenceAssessments;
 	private boolean assessed;
 	private String review;
 	private Set<CredentialAssessmentDiscussionParticipant> participants;
 	private Set<CredentialAssessmentMessage> messages;
+	private Set<CompetenceAssessment> competenceAssessments;
 
 	public CredentialAssessment() {
 		this.participants = new HashSet<>();
 		this.messages = new HashSet<>();
-	}
-
-	public CompetenceAssessment getCompetenceAssessmentByCompetenceId(long compId) {
-		if (competenceAssessments != null && !competenceAssessments.isEmpty()) {
-			for (CredentialCompetenceAssessment cca : competenceAssessments) {
-				if (cca.getCompetenceAssessment().getCompetence().getId() == compId) {
-					return cca.getCompetenceAssessment();
-				}
-			}
-		}
-		return null;
 	}
 
 	@ManyToOne (fetch=FetchType.LAZY)
@@ -43,15 +32,6 @@ public class CredentialAssessment extends Assessment {
 
 	public void setTargetCredential(TargetCredential1 targetCredential) {
 		this.targetCredential = targetCredential;
-	}
-
-	@OneToMany(mappedBy="credentialAssessment")
-	public Set<CredentialCompetenceAssessment> getCompetenceAssessments() {
-		return competenceAssessments;
-	}
-
-	public void setCompetenceAssessments(Set<CredentialCompetenceAssessment> competenceAssessments) {
-		this.competenceAssessments = competenceAssessments;
 	}
 
 	@OneToMany(mappedBy = "assessment")
@@ -99,4 +79,12 @@ public class CredentialAssessment extends Assessment {
 		this.assessed = assessed;
 	}
 
+	@OneToMany(mappedBy = "credentialAssessment")
+	public Set<CompetenceAssessment> getCompetenceAssessments() {
+		return competenceAssessments;
+	}
+
+	public void setCompetenceAssessments(Set<CompetenceAssessment> competenceAssessments) {
+		this.competenceAssessments = competenceAssessments;
+	}
 }

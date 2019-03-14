@@ -93,7 +93,6 @@ public class CredentialData extends StandardObservable implements Serializable {
 	//category
 	private CredentialCategoryData category;
 
-	private int numberOfAssessments;
 	
 	public CredentialData(boolean listenChanges) {
 		//this.status = PublishedStatus.UNPUBLISH;
@@ -601,14 +600,6 @@ public class CredentialData extends StandardObservable implements Serializable {
 	public void setCategory(CredentialCategoryData category) {
 		observeAttributeChange("category", this.category, category);
 		this.category = category;
-	}
-
-	public int getNumberOfAssessments() {
-		return numberOfAssessments;
-	}
-
-	public void setNumberOfAssessments(int numberOfAssessments) {
-		this.numberOfAssessments = numberOfAssessments;
 	}
 
 	public UserData getStudent() {

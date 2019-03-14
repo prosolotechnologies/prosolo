@@ -2,8 +2,8 @@ package org.prosolo.web.courses.credential;
 
 import org.apache.log4j.Logger;
 import org.prosolo.services.assessment.AssessmentManager;
-import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.assessment.data.AssessmentData;
+import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageUtil;
@@ -15,7 +15,6 @@ import org.springframework.stereotype.Component;
 import javax.faces.bean.ManagedBean;
 import javax.inject.Inject;
 import java.io.Serializable;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -93,12 +92,12 @@ public class StudentAssessmentBean implements Paginable,Serializable {
 			paginationData.update(0);
 			assessmentData = new ArrayList<>();
 		} else {
-			paginationData.update(assessmentManager.countAssessmentsForUser(loggedUserBean.getUserId(),
-					searchForPending, searchForApproved, decodedId));
-			assessmentData = assessmentManager.getAllAssessmentsForStudent(loggedUserBean.getUserId(),
-					searchForPending, searchForApproved, idEncoder, new SimpleDateFormat("MMMM dd, yyyy"),
-					paginationData.getPage() - 1,
-					paginationData.getLimit(), decodedId);
+//			paginationData.update(assessmentManager.countAssessmentsForUser(loggedUserBean.getUserId(),
+//					searchForPending, searchForApproved, decodedId));
+//			assessmentData = assessmentManager.getAllAssessmentsForStudent(loggedUserBean.getUserId(),
+//					searchForPending, searchForApproved, idEncoder, new SimpleDateFormat("MMMM dd, yyyy"),
+//					paginationData.getPage() - 1,
+//					paginationData.getLimit(), decodedId);
 		}
 	}
 

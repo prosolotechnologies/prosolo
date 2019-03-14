@@ -14,7 +14,6 @@ import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.assessment.AssessmentStatus;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.assessment.AssessorAssignmentMethod;
-import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
 import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.feeds.FeedSource;
@@ -444,9 +443,6 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				Set<Tag> hashtags = credentialLoadConfig.isLoadTags() ? res.getCredential().getHashtags() : null;
 				credData = credentialFactory.getCredentialData(
 						res, creator, student, aConfig, tags, hashtags, false);
-				if (credentialLoadConfig.isLoadAssessmentCount()) {
-					credData.setNumberOfAssessments(assessmentManager.getNumberOfApprovedAssessmentsForUserCredential(res.getId()));
-				}
 				if (credData != null && credentialLoadConfig.isLoadCompetences()) {
 					List<CompetenceData1> targetCompData = compManager
 							.getCompetencesForCredential(credentialId, userId, credentialLoadConfig.getCompetenceLoadConfig());
@@ -454,7 +450,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					if (credentialLoadConfig.isLoadAssessmentConfig()) {
 						for (AssessmentTypeConfig conf : credData.getAssessmentTypes()) {
 							if (conf.isEnabled()) {
-								conf.setGradeSummary(assessmentManager.getCredentialAssessmentsGradeSummary(credentialId, userId, conf.getType()));
+								conf.setGradeSummary(assessmentManager.getActiveCredentialAssessmentsGradeSummary(credentialId, userId, conf.getType()));
 							}
 						}
 					}
@@ -1655,21 +1651,17 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@Override
 	@Transactional(readOnly = true)
 	public List<TargetCredentialData> getAllCredentials(long userid) throws DbConnectionException {
-		return getTargetCredentialsData(userid, false, false, UserLearningProgress.ANY);
+		return getTargetCredentialsData(userid, false, UserLearningProgress.ANY);
 	}
 
-	private List<TargetCredentialData> getTargetCredentialsData(long userId, boolean sortByCategory, boolean loadNumberOfAssessments, UserLearningProgress progress)
+	private List<TargetCredentialData> getTargetCredentialsData(long userId, boolean sortByCategory, UserLearningProgress progress)
 			throws DbConnectionException {
 		try {
 			List<TargetCredentialData> resultList = new ArrayList<>();
-			List<TargetCredential1> result = getTargetCredentials(userId, sortByCategory, loadNumberOfAssessments, progress);
+			List<TargetCredential1> result = getTargetCredentials(userId, sortByCategory, progress);
 
 			for (TargetCredential1 targetCredential1 : result) {
-				int numberOfAssessments = 0;
-				if (loadNumberOfAssessments) {
-					numberOfAssessments = assessmentManager.getNumberOfApprovedAssessmentsForUserCredential(targetCredential1.getId());
-				}
-				TargetCredentialData targetCredentialData = new TargetCredentialData(targetCredential1, sortByCategory ? targetCredential1.getCredential().getCategory() : null, numberOfAssessments);
+				TargetCredentialData targetCredentialData = new TargetCredentialData(targetCredential1, sortByCategory ? targetCredential1.getCredential().getCategory() : null);
 				resultList.add(targetCredentialData);
 			}
 
@@ -1735,7 +1727,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 
-	private List<TargetCredential1> getTargetCredentials(long userId, boolean sortByCategory, boolean loadNumberOfAssessments, UserLearningProgress progress)
+	private List<TargetCredential1> getTargetCredentials(long userId, boolean sortByCategory, UserLearningProgress progress)
 			throws DbConnectionException {
 		try {
 			String query =

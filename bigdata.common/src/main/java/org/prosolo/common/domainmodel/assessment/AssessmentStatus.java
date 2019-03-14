@@ -1,5 +1,7 @@
 package org.prosolo.common.domainmodel.assessment;
 
+import java.util.List;
+
 /**
  * @author stefanvuckovic
  * @date 2019-01-24
@@ -16,5 +18,14 @@ public enum AssessmentStatus {
      */
     PENDING,
     ASSESSMENT_QUIT,
-    SUBMITTED
+    SUBMITTED,
+    SUBMITTED_ASSESSMENT_QUIT;
+
+    public static List<AssessmentStatus> getActiveStatuses() {
+        return List.of(REQUESTED, PENDING, SUBMITTED);
+    }
+
+    public static List<AssessmentStatus> getInactiveStatuses() {
+        return List.of(REQUEST_DECLINED, REQUEST_EXPIRED, ASSESSMENT_QUIT, SUBMITTED_ASSESSMENT_QUIT);
+    }
 }

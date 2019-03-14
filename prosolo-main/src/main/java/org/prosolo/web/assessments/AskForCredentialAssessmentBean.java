@@ -2,6 +2,8 @@ package org.prosolo.web.assessments;
 
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
+import org.prosolo.common.domainmodel.assessment.AssessmentType;
+import org.prosolo.common.domainmodel.credential.BlindAssessmentMode;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.LearningResourceType;
@@ -15,6 +17,7 @@ import javax.inject.Inject;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * @author stefanvuckovic
@@ -34,6 +37,15 @@ public class AskForCredentialAssessmentBean extends AskForAssessmentBean impleme
     @Inject
     private CredentialManager credManager;
 
+    public void init(long credentialId, long targetCredentialId, AssessmentType assessmentType, BlindAssessmentMode blindAssessmentMode) {
+        init(credentialId, targetCredentialId, assessmentType, null, blindAssessmentMode);
+    }
+
+    public void init(long credentialId, long targetCredentialId, AssessmentType assessmentType, UserData assessor, BlindAssessmentMode blindAssessmentMode) {
+        initCommonInitialData(credentialId, targetCredentialId, assessmentType, blindAssessmentMode);
+        initOtherCommonData(assessor);
+    }
+
     @Override
     public void initInstructorAssessmentAssessor() {
         Optional<UserData> assessor = assessmentManager.getActiveInstructorCredentialAssessmentAssessor(getResourceId(), loggedUser.getUserId());
@@ -52,7 +64,7 @@ public class AskForCredentialAssessmentBean extends AskForAssessmentBean impleme
             try {
                 if (existingPeerAssessors == null) {
                     existingPeerAssessors = new HashSet<>(assessmentManager
-                            .getPeerAssessorIdsForUserAndCredential(resourceId, loggedUser.getUserId()));
+                            .getPeerAssessorIdsForCredential(resourceId, loggedUser.getUserId()));
                 }
 
                 PaginatedResult<UserData> result = userTextSearch.searchCredentialPeers(
@@ -93,5 +105,11 @@ public class AskForCredentialAssessmentBean extends AskForAssessmentBean impleme
     @Override
     protected boolean shouldStudentBeRemindedToSubmitEvidenceSummary() {
         return credManager.doesCredentialHaveAtLeastOneEvidenceBasedCompetence(resourceId);
+    }
+
+    @Override
+    protected Set<Long> getExistingPeerAssessors() {
+        return new HashSet<>(assessmentManager
+                .getPeerAssessorIdsForCredential(resourceId, loggedUser.getUserId()));
     }
 }

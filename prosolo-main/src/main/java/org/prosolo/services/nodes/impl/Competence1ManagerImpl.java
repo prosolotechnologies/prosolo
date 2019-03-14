@@ -293,10 +293,6 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 									List<LearningEvidenceData> compEvidences = learningEvidenceManager.getUserEvidencesForACompetence(compData.getTargetCompId(), LearningEvidenceLoadConfig.builder().build());
 									compData.setEvidences(compEvidences);
 								}
-								//load number of competence assessments if needed
-								if (compLoadConfig.isLoadAssessmentCount()) {
-									compData.setNumberOfAssessments(assessmentManager.getNumberOfApprovedAssessmentsForUserCompetence(compData.getCompetenceId(), userId));
-								}
 							}
 						} else {
 							compData = competenceFactory.getCompetenceData(createdBy, cc, null, tags, false);
@@ -319,16 +315,16 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	}
 
 	@Override
-	public TargetCompetence1 enrollInCompetence(long compId, long userId, UserContextData context)
+	public TargetCompetence1 enrollInCompetence(long credId, long compId, long userId, UserContextData context)
 			throws DbConnectionException {
-		Result<TargetCompetence1> res = self.enrollInCompetenceAndGetEvents(compId, userId, context);
+		Result<TargetCompetence1> res = self.enrollInCompetenceAndGetEvents(credId, compId, userId, context);
 		eventFactory.generateEvents(res.getEventQueue());
 		return res.getResult();
 	}
 
 	@Override
 	@Transactional
-	public Result<TargetCompetence1> enrollInCompetenceAndGetEvents(long compId, long userId, UserContextData context)
+	public Result<TargetCompetence1> enrollInCompetenceAndGetEvents(long credId, long compId, long userId, UserContextData context)
 			throws DbConnectionException {
 		try {
 			Date now = new Date();
@@ -368,13 +364,12 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 					.filter(config -> config.getAssessmentType() == AssessmentType.SELF_ASSESSMENT)
 					.findFirst().get()
 					.isEnabled()) {
-				res.appendEvents(assessmentManager.createSelfCompetenceAssessmentAndGetEvents(compId, userId, context).getEventQueue());
+				res.appendEvents(assessmentManager.createSelfCompetenceAssessmentAndGetEvents(credId, compId, userId, context).getEventQueue());
 			}
 
 			return res;
 		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
+			logger.error("error", e);
 			throw new DbConnectionException("Error enrolling a competence");
 		}
 	}
@@ -1079,7 +1074,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 					if (loadAssessmentConfig) {
 						for (AssessmentTypeConfig conf : compData.getAssessmentTypes()) {
 							if (conf.isEnabled()) {
-								conf.setGradeSummary(assessmentManager.getCompetenceAssessmentsGradeSummary(compId, userId, conf.getType()));
+								conf.setGradeSummary(assessmentManager.getActiveCompetenceAssessmentsGradeSummary(credId, compId, userId, conf.getType()));
 							}
 						}
 					}
@@ -2641,12 +2636,12 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	@Override
 	@Transactional(readOnly = true)
 	public CompetenceData1 getTargetCompetenceOrCompetenceData(
-			long compId, long studentId, boolean loadAssessmentConfig, boolean loadLearningPathContent,
+			long credId, long compId, long studentId, boolean loadAssessmentConfig, boolean loadLearningPathContent,
 			boolean loadCreator, boolean loadTags) throws DbConnectionException {
 		try {
-			CompetenceData1 compData = getTargetCompetenceData(0, compId, studentId, loadAssessmentConfig, loadLearningPathContent);
+			CompetenceData1 compData = getTargetCompetenceData(credId, compId, studentId, loadAssessmentConfig, loadLearningPathContent);
 			if (compData == null) {
-				compData = getCompetenceData(0, compId, loadCreator, loadAssessmentConfig, loadTags, loadLearningPathContent, false);
+				compData = getCompetenceData(credId, compId, loadCreator, loadAssessmentConfig, loadTags, loadLearningPathContent, false);
 			}
 
 			return compData;

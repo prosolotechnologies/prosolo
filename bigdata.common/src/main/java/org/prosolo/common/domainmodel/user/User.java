@@ -44,6 +44,9 @@ public class User extends BaseEntity {
 	private boolean verified;
 	private String verificationKey;
 
+	private boolean availableForAssessments;
+	private int numberOfTokens;
+
 	private List<UnitRoleMembership> unitMemberships;
 	private List<UserGroupUser> groups;
 	
@@ -260,5 +263,21 @@ public class User extends BaseEntity {
 
 	public void setGroups(List<UserGroupUser> groups) {
 		this.groups = groups;
+	}
+
+	public int getNumberOfTokens() {
+		return numberOfTokens;
+	}
+
+	public void setNumberOfTokens(int numberOfTokens) {
+		this.numberOfTokens = numberOfTokens;
+	}
+
+	public boolean isAvailableForAssessments() {
+		return availableForAssessments;
+	}
+
+	public void setAvailableForAssessments(boolean availableForAssessments) {
+		this.availableForAssessments = availableForAssessments;
 	}
 }
