@@ -16,7 +16,6 @@ import org.prosolo.services.nodes.util.TimeUtil;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.util.AvatarUtils;
 
-import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -31,7 +30,7 @@ public class AssessmentDataFull {
 	private String assessorAvatarUrl;
 	private long assessorId;
 	private long assessedStudentId;
-	private String dateValue;
+	private long dateCreated;
 	private String title;
 	private boolean approved;
 	private String encodedId;
@@ -43,6 +42,7 @@ public class AssessmentDataFull {
 	private long credentialId;
 	private AssessmentType type;
 	private AssessmentStatus status;
+	private long quitDate;
 	private GradeData gradeData;
 	private List<AssessmentDiscussionMessageData> messages = new LinkedList<>();
 	private boolean allRead = true; 	// whether user has read all the messages in the thread
@@ -52,18 +52,19 @@ public class AssessmentDataFull {
 	private String review;
 	private boolean assessorNotified;
 	private long lastAskedForAssessment;
+	private long instructorUserId;
 
 	private BlindAssessmentMode blindAssessmentMode;
 
 	private List<CompetenceAssessmentData> competenceAssessmentData;
 
-	public static AssessmentDataFull fromAssessment(CredentialAssessment assessment, UrlIdEncoder encoder, DateFormat dateFormat) {
-		return fromAssessment(assessment, 0, null, null, null, null, encoder, 0, dateFormat, false);
+	public static AssessmentDataFull fromAssessment(CredentialAssessment assessment, UrlIdEncoder encoder) {
+		return fromAssessment(assessment, 0, null, null, null, null, encoder, 0, false);
 	}
 
 	public static AssessmentDataFull fromAssessment(CredentialAssessment assessment, int credAssessmentPoints, List<StudentCompetenceAndAssessmentData> competenceAndAssessmentData,
 													RubricAssessmentGradeSummary credAssessmentGradeSummary, Map<Long, RubricAssessmentGradeSummary> compAssessmentsGradeSummary,
-													Map<Long, RubricAssessmentGradeSummary> actAssessmentsGradeSummary, UrlIdEncoder encoder, long userId, DateFormat dateFormat, boolean loadDiscussion) {
+													Map<Long, RubricAssessmentGradeSummary> actAssessmentsGradeSummary, UrlIdEncoder encoder, long userId, boolean loadDiscussion) {
 		AssessmentDataFull data = new AssessmentDataFull();
 		data.setCredAssessmentId(assessment.getId());
 		data.setAssessedStudentId(assessment.getStudent().getId());
@@ -76,13 +77,14 @@ public class AssessmentDataFull {
 			data.setAssessorId(assessment.getAssessor().getId());
 		}
 		data.setBlindAssessmentMode(assessment.getBlindAssessmentMode());
-		data.setDateValue(dateFormat.format(assessment.getDateCreated()));
+		data.setDateCreated(DateUtil.getMillisFromDate(assessment.getDateCreated()));
 		data.setTitle(assessment.getTargetCredential().getCredential().getTitle());
 		data.setCredentialId(assessment.getTargetCredential().getCredential().getId());
 		data.setEncodedId(encoder.encodeId(assessment.getId()));
 		data.setTargetCredentialId(assessment.getTargetCredential().getId());
 		data.setType(assessment.getType());
 		data.setStatus(assessment.getStatus());
+		data.setQuitDate(DateUtil.getMillisFromDate(assessment.getQuitDate()));
 
 		if (data.isAssessmentInitialized()) {
 			data.setAssessorNotified(assessment.isAssessorNotified());
@@ -97,7 +99,7 @@ public class AssessmentDataFull {
 			List<CompetenceAssessmentData> compDatas = new ArrayList<>();
 			for (StudentCompetenceAndAssessmentData competence : competenceAndAssessmentData) {
 				CompetenceAssessmentData cas = CompetenceAssessmentData.from(
-						competence, assessment, compAssessmentsGradeSummary.get(competence.getCompetenceAssessment().getId()), actAssessmentsGradeSummary, encoder, userId, null, loadDiscussion);
+						competence, assessment, compAssessmentsGradeSummary.get(competence.getCompetenceAssessment().getId()), actAssessmentsGradeSummary, encoder, userId, loadDiscussion);
 				//only for automatic grading max points is sum of competences max points
 				if (assessment.getTargetCredential().getCredential().getGradingMode() == GradingMode.AUTOMATIC) {
 					maxPoints += cas.getGradeData().getMaxGrade();
@@ -138,6 +140,7 @@ public class AssessmentDataFull {
 				}
 			}
 		}
+		data.setInstructorUserId(assessment.getTargetCredential().getInstructor().getUser().getId());
 
 		return data;
 	}
@@ -192,12 +195,12 @@ public class AssessmentDataFull {
 		this.assessorAvatarUrl = assessorAvatarUrl;
 	}
 
-	public String getDateValue() {
-		return dateValue;
+	public long getDateCreated() {
+		return dateCreated;
 	}
 
-	public void setDateValue(String dateValue) {
-		this.dateValue = dateValue;
+	public void setDateCreated(long dateCreated) {
+		this.dateCreated = dateCreated;
 	}
 
 	public String getTitle() {
@@ -417,4 +420,27 @@ public class AssessmentDataFull {
 				|| status == AssessmentStatus.SUBMITTED_ASSESSMENT_QUIT;
 	}
 
+	public boolean isAssessmentRequestedOrActive() {
+		return status == AssessmentStatus.REQUESTED || isAssessmentActive();
+	}
+
+	public boolean isAssessmentActive() {
+		return status == AssessmentStatus.PENDING || status == AssessmentStatus.SUBMITTED;
+	}
+
+	public long getQuitDate() {
+		return quitDate;
+	}
+
+	public void setQuitDate(long quitDate) {
+		this.quitDate = quitDate;
+	}
+
+	public long getInstructorUserId() {
+		return instructorUserId;
+	}
+
+	public void setInstructorUserId(long instructorUserId) {
+		this.instructorUserId = instructorUserId;
+	}
 }

@@ -6,20 +6,21 @@ import org.prosolo.common.domainmodel.credential.GradingMode;
 import org.prosolo.common.domainmodel.credential.LearningPathType;
 import org.prosolo.common.domainmodel.rubric.RubricType;
 import org.prosolo.common.util.ImageFormat;
-import org.prosolo.common.util.Pair;
 import org.prosolo.common.util.date.DateUtil;
+import org.prosolo.services.assessment.data.grading.GradeData;
 import org.prosolo.services.assessment.data.grading.RubricAssessmentGradeSummary;
 import org.prosolo.services.assessment.data.parameterobjects.StudentCompetenceAndAssessmentData;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceData;
 import org.prosolo.services.nodes.util.TimeUtil;
-import org.prosolo.services.assessment.data.grading.GradeData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.util.AvatarUtils;
 
-import java.text.DateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 public class CompetenceAssessmentData {
 	
@@ -51,23 +52,23 @@ public class CompetenceAssessmentData {
 	private String studentAvatarUrl;
 	private long duration;
 	private String durationString;
-	private String dateValue;
+	private long dateCreated;
 	private AssessmentType type;
 	private AssessmentStatus status;
+	private long quitDate;
 	private LearningPathType learningPathType;
 	private String evidenceSummary;
 	private BlindAssessmentMode blindAssessmentMode;
 
 	public static CompetenceAssessmentData from(StudentCompetenceAndAssessmentData competenceAssessment,
-												CredentialAssessment credAssessment, UrlIdEncoder encoder,
-												DateFormat dateFormat) {
-		return from(competenceAssessment, credAssessment, null, null, encoder, 0, dateFormat, false);
+												CredentialAssessment credAssessment, UrlIdEncoder encoder) {
+		return from(competenceAssessment, credAssessment, null, null, encoder, 0, false);
 	}
 
 	public static CompetenceAssessmentData from(StudentCompetenceAndAssessmentData competenceAssessment,
 												CredentialAssessment credAssessment, RubricAssessmentGradeSummary rubricGradeSummary,
 												Map<Long, RubricAssessmentGradeSummary> activitiesRubricGradeSummary, UrlIdEncoder encoder,
-												long userId, DateFormat dateFormat, boolean loadDiscussion) {
+												long userId, boolean loadDiscussion) {
 		CompetenceAssessmentData data = new CompetenceAssessmentData();
 		if (credAssessment != null) {
 			data.setCredentialAssessmentId(credAssessment.getId());
@@ -79,6 +80,7 @@ public class CompetenceAssessmentData {
 		data.setTitle(cd.getTitle());
 		data.setType(compAssessment.getType());
 		data.setStatus(compAssessment.getStatus());
+		data.setQuitDate(DateUtil.getMillisFromDate(compAssessment.getQuitDate()));
 		data.setCompetenceId(cd.getCompetenceId());
 		data.setTargetCompetenceId(cd.getTargetCompId());
 		if (compAssessment.getAssessor() != null) {
@@ -91,9 +93,7 @@ public class CompetenceAssessmentData {
 		data.setStudentAvatarUrl(AvatarUtils.getAvatarUrlInFormat(compAssessment.getStudent(), ImageFormat.size120x120));
 		data.setCompetenceAssessmentId(compAssessment.getId());
 		data.setCompetenceAssessmentEncodedId(encoder.encodeId(compAssessment.getId()));
-		if (dateFormat != null) {
-			data.setDateValue(dateFormat.format(compAssessment.getDateCreated()));
-		}
+		data.setDateCreated(DateUtil.getMillisFromDate(compAssessment.getDateCreated()));
 		data.setBlindAssessmentMode(compAssessment.getBlindAssessmentMode());
 
 		if (data.isAssessmentInitialized()) {
@@ -345,12 +345,12 @@ public class CompetenceAssessmentData {
 		return studentAvatarUrl;
 	}
 
-	public String getDateValue() {
-		return dateValue;
+	public long getDateCreated() {
+		return dateCreated;
 	}
 
-	public void setDateValue(String dateValue) {
-		this.dateValue = dateValue;
+	public void setDateCreated(long dateCreated) {
+		this.dateCreated = dateCreated;
 	}
 
 	public List<LearningEvidenceData> getEvidences() {
@@ -430,5 +430,21 @@ public class CompetenceAssessmentData {
 				|| status == AssessmentStatus.SUBMITTED
 				|| status == AssessmentStatus.ASSESSMENT_QUIT
 				|| status == AssessmentStatus.SUBMITTED_ASSESSMENT_QUIT;
+	}
+
+	public boolean isAssessmentRequestedOrActive() {
+		return status == AssessmentStatus.REQUESTED || isAssessmentActive();
+	}
+
+	public boolean isAssessmentActive() {
+		return status == AssessmentStatus.PENDING || status == AssessmentStatus.SUBMITTED;
+	}
+
+	public long getQuitDate() {
+		return quitDate;
+	}
+
+	public void setQuitDate(long quitDate) {
+		this.quitDate = quitDate;
 	}
 }
