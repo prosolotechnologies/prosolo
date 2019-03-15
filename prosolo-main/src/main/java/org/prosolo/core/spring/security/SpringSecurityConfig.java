@@ -480,7 +480,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
     // Initialization of OpenSAML library
     @Bean
     public static SAMLBootstrap sAMLBootstrap() {
-        return new SAMLBootstrap();
+        return new SAMLBootstrapSHA256();
     }
  
     // Logger for SAML messages and events
