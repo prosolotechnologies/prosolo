@@ -7,6 +7,7 @@ import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
 import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.ImageFormat;
+import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.assessment.data.ActivityAssessmentsSummaryData;
 import org.prosolo.services.assessment.data.AssessmentData;
 import org.prosolo.services.assessment.data.CompetenceAssessmentsSummaryData;
@@ -79,17 +80,19 @@ public class AssessmentDataFactory implements Serializable {
         return activitySummary;
     }
 
-    public AssessmentData getAssessmentData(Assessment assessment, User student, User assessor, DateFormat dateFormat) {
-        return getAssessmentData(assessment.getId(), assessment.getStatus(), assessment.getDateCreated(), assessment.isApproved(), student, assessor, dateFormat, assessment.getBlindAssessmentMode());
+    public AssessmentData getAssessmentData(Assessment assessment, User student, User assessor) {
+        return getAssessmentData(assessment.getId(), assessment.getStatus(), assessment.getDateCreated(), assessment.getQuitDate(), assessment.isApproved(), assessment.getDateApproved(), student, assessor, assessment.getBlindAssessmentMode());
     }
 
     public AssessmentData getAssessmentData(
-            long assessmentId, AssessmentStatus status, Date dateCreated, boolean approved, User student, User assessor, DateFormat dateFormat, BlindAssessmentMode blindAssessmentMode) {
+            long assessmentId, AssessmentStatus status, Date dateCreated, Date dateQuit, boolean approved, Date dateSubmitted, User student, User assessor, BlindAssessmentMode blindAssessmentMode) {
         AssessmentData data = new AssessmentData();
         data.setAssessmentId(assessmentId);
         data.setStatus(status);
-        data.setDateValue(dateFormat.format(dateCreated));
+        data.setDateRequested(DateUtil.getMillisFromDate(dateCreated));
+        data.setDateQuit(DateUtil.getMillisFromDate(dateQuit));
         data.setApproved(approved);
+        data.setDateSubmitted(DateUtil.getMillisFromDate(dateSubmitted));
         if (student != null) {
             data.setStudentFullName(student.getName() + " " + student.getLastname());
             data.setStudentAvatarUrl(AvatarUtils.getAvatarUrlInFormat(student, ImageFormat.size120x120));
