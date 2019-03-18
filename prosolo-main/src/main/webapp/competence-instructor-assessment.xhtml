@@ -14,10 +14,9 @@
 
     <ui:define name="metadata">
         <f:metadata>
-            <f:viewParam name="assessmentId" value="#{competenceAssessmentBean.competenceAssessmentId}" default="null" />
-            <f:viewParam name="compId" value="#{competenceAssessmentBean.competenceId}" default="null" />
-            <f:viewParam name="credId" value="#{competenceAssessmentBean.credId}" default="null" />
-            <f:viewAction action="#{competenceAssessmentBean.initInstructorAssessment()}" />
+            <f:viewParam name="compId" value="#{competenceInstructorAssessmentBean.id}" default="null" />
+            <f:viewParam name="credId" value="#{competenceInstructorAssessmentBean.credId}" default="null" />
+            <f:viewAction action="#{competenceInstructorAssessmentBean.initInstructorAssessment()}" />
         </f:metadata>
     </ui:define>
 
