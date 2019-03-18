@@ -136,7 +136,7 @@
 
                                 <ui:fragment rendered="#{competenceAssessmentBean.competenceAssessmentData.status eq 'REQUESTED'}">
                                     <div class="alert alert-warning" role="alert">
-                                        This is the assessment request. If an assessment is not started within the 14 days since requested, it will automatically expire.
+                                        This is the assessment request. If the assessment is not started within the 14 days since requested, it will automatically expire.
                                     </div>
                                 </ui:fragment>
                                 <ui:fragment rendered="#{competenceAssessmentBean.competenceAssessmentData.status eq 'REQUEST_DECLINED'}">
@@ -151,12 +151,12 @@
                                 </ui:fragment>
                                 <ui:fragment rendered="#{competenceAssessmentBean.competenceAssessmentData.status eq 'SUBMITTED'}">
                                     <div class="alert alert-warning" role="alert">
-                                        Since the assessment is submitted, it cannot be changed any more.
+                                        The assessment has been submitted, and it cannot be changed any more.
                                     </div>
                                 </ui:fragment>
                                 <ui:fragment rendered="#{competenceAssessmentBean.competenceAssessmentData.status eq 'ASSESSMENT_QUIT' or competenceAssessmentBean.competenceAssessmentData.status eq 'SUBMITTED_ASSESSMENT_QUIT'}">
                                     <div class="alert alert-warning" role="alert">
-                                        The assessor has withdrawn from this assessment.
+                                        The assessor has withdrawn from the assessment.
                                     </div>
                                 </ui:fragment>
 

@@ -260,8 +260,7 @@ public class StyleUtilBean implements Serializable {
 			case REQUEST_DECLINED:
 				return "tagDeclined";
 			case PENDING:
-				return "tagPending" +
-						"";
+				return "tagPending";
 			case SUBMITTED:
 				return "tagApproved";
 			case ASSESSMENT_QUIT:

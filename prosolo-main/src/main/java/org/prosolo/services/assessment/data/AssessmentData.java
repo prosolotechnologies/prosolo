@@ -5,6 +5,7 @@ import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
 import org.prosolo.common.domainmodel.credential.BlindAssessmentMode;
 import org.prosolo.common.util.ImageFormat;
+import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.util.AvatarUtils;
 
@@ -18,9 +19,11 @@ public class AssessmentData {
 	private String assessorFullName;
 	private String assessorAvatarUrl;
 	private long assessorId;
-	private String dateValue;
+	private long dateRequested;
+	private long dateQuit;
 	private String title;
 	private boolean approved;
+	private long dateSubmitted;
 	private long assessmentId;
 	private String encodedAssessmentId;
 	private String encodedCredentialId;
@@ -41,9 +44,12 @@ public class AssessmentData {
 			data.setAssessorAvatarUrl(AvatarUtils.getAvatarUrlInFormat(assessment.getAssessor(), ImageFormat.size120x120));
 			data.setAssessorId(assessment.getAssessor().getId());
 		}
-		data.setDateValue(dateFormat.format(assessment.getDateCreated()));
+		data.setDateRequested(DateUtil.getMillisFromDate(assessment.getDateCreated()));
+
+		data.setDateQuit(DateUtil.getMillisFromDate(assessment.getQuitDate()));
 		data.setTitle(assessment.getTargetCredential().getCredential().getTitle());
 		data.setApproved(assessment.isApproved());
+		data.setDateSubmitted(DateUtil.getMillisFromDate(assessment.getDateApproved()));
 		data.setEncodedAssessmentId(encoder.encodeId(assessment.getId()));
 		data.setEncodedCredentialId(encoder.encodeId(assessment.getTargetCredential().getCredential().getId()));
 		data.setInitials(getInitialsFromName(data.getStudentFullName()));
@@ -58,7 +64,7 @@ public class AssessmentData {
 	public void setStudentFullName(String studentFullName) {
 		this.studentFullName = studentFullName;
 	}
-	
+
 	public String getAssessorFullName() {
 		return assessorFullName;
 	}
@@ -75,12 +81,20 @@ public class AssessmentData {
 		this.assessorAvatarUrl = assessorAvatarUrl;
 	}
 
-	public String getDateValue() {
-		return dateValue;
+	public long getDateRequested() {
+		return dateRequested;
 	}
 
-	public void setDateValue(String dateValue) {
-		this.dateValue = dateValue;
+	public void setDateRequested(long dateRequested) {
+		this.dateRequested = dateRequested;
+	}
+
+	public long getDateQuit() {
+		return dateQuit;
+	}
+
+	public void setDateQuit(long dateQuit) {
+		this.dateQuit = dateQuit;
 	}
 
 	public String getTitle() {
@@ -130,7 +144,7 @@ public class AssessmentData {
 	public void setStudentAvatarUrl(String studentAvatarUrl) {
 		this.studentAvatarUrl = studentAvatarUrl;
 	}
-	
+
 	public String getInitials() {
 		return initials;
 	}
@@ -199,5 +213,13 @@ public class AssessmentData {
 
 	public void setStatus(AssessmentStatus status) {
 		this.status = status;
+	}
+
+	public long getDateSubmitted() {
+		return dateSubmitted;
+	}
+
+	public void setDateSubmitted(long dateSubmitted) {
+		this.dateSubmitted = dateSubmitted;
 	}
 }

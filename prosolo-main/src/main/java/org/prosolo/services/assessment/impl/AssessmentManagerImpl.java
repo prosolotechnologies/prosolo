@@ -3602,7 +3602,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		List<AssessmentData> res = new ArrayList<>();
 		for (CredentialAssessment ca : assessments) {
 			res.add(assessmentDataFactory.getAssessmentData(
-					ca, null, ca.getAssessor(), dateFormat));
+					ca, null, ca.getAssessor()));
 		}
 
 		return res;
@@ -3679,7 +3679,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		List<AssessmentData> res = new ArrayList<>();
 		for (CompetenceAssessment ca : assessments) {
 			res.add(assessmentDataFactory.getAssessmentData(
-					ca, null, ca.getAssessor(), dateFormat));
+					ca, null, ca.getAssessor()));
 		}
 
 		return res;
