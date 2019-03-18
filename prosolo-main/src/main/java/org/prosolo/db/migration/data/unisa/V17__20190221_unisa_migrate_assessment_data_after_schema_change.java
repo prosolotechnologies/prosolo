@@ -65,6 +65,23 @@ public class V17__20190221_unisa_migrate_assessment_data_after_schema_change ext
     }
 
     private void migrateWhenCompetencyAssessmentIsConnectedToSeveralCredentialAssessments(Connection connection) throws SQLException {
+        try (Statement statement = connection.createStatement()) {
+            statement.addBatch("DELETE FROM credential_assessment ca where ca.target_credential = 983040");
+            statement.addBatch("DELETE FROM target_credential1 WHERE id = 983040");
 
+            statement.addBatch("DELETE FROM credential_assessment ca where ca.target_credential = 98316");
+            statement.addBatch("DELETE FROM target_credential1 WHERE id = 98316");
+
+            statement.addBatch("DELETE FROM credential_assessment ca where ca.target_credential = 131072");
+            statement.addBatch("DELETE FROM target_credential1 WHERE id = 131072");
+
+            statement.addBatch("DELETE FROM credential_assessment ca where ca.target_credential = 950273");
+            statement.addBatch("DELETE FROM target_credential1 WHERE id = 950273");
+
+            statement.addBatch("DELETE FROM credential_assessment ca where ca.target_credential = 917505");
+            statement.addBatch("DELETE FROM target_credential1 WHERE id = 917505");
+
+            statement.executeBatch();
+        }
     }
 }
