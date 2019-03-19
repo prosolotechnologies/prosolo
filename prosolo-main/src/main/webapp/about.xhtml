@@ -1,70 +1,52 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8"></meta>
-    <meta http-equiv="X-UA-Compatible" content="IE=edge"></meta>
-	<meta name="viewport" content="width=device-width, initial-scale=1"></meta>
-	<link rel="icon" href="#{request.contextPath}/favicon.ico" type="image/x-icon" />
-    <title>About - ProSolo</title>
-    <link rel="stylesheet" type="text/css" media="all"
-		href="#{request.contextPath}/resources/css2/bootstrap.min.css" />
-    <link rel="stylesheet" type="text/css" media="all"
-		href="#{request.contextPath}/resources/css2/awesome-bootstrap-checkbox.css" />
-    <link rel="stylesheet" type="text/css" media="all"
-		href="#{request.contextPath}/resources/css2/style.css?#{applicationbean.loginTime}" />
-</head>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+				xmlns:ui="http://java.sun.com/jsf/facelets"
+				template="#{loggeduser.getPublicTemplateForUser()}">
 
-<body id="termsPage">
-    <div class="container">
-        <div class="col-md-8 col-md-offset-2">
-            <header>
-                <a href="" id="logo">ProSolo</a>
-                <a href="login" class="btn btn-green btn-sm">Login</a>
-            </header>
-        </div>
-    </div>
+	<ui:define name="windowTitle">
+		About - ProSolo
+	</ui:define>
 
-    <div class="container">
-        <div class="col-md-8 col-md-offset-2">
-            <div class="whiteBox">
-				<h1>About ProSolo</h1>
-				<p>
-					ProSolo represents the future model of education. The traditional model of education and training has long been focused on a classroom centric process with formalised credentials being the domain for the higher education space. However, this process is being challenged with the growth of new and open education models. Increasingly, private, and public industry are now recognising the importance for all forms of learning from formal, to informal and workplace based. There is growing acknowledgement within and outside the education sector that the achievement of competencies, learning outcomes and awarding of credentials is not limited and cannot be limited to Universities and colleges alone.
-				</p>
-				<p>
-					ProSolo harnesses the transformative power of adaptive and personalized learning to unbundle degrees, programs and courses and re-aggregate in new ways that better match each student’s learning needs, interests and career goals
-				</p>
-				<p>
-					ProSolo provides all learners with the ability to personalize their education experience. There has been much anticipation and debate around the capacity for technology to provide “adaptive and personalized learning”. Arguably, ProSolo is the first integrated platform to provide learners the opportunity to customize, modify and personalize their learning journey. At ProSolo we truly believe education is for everyone and learning occurs everywhere. ProSolo’s unique design and conceptual model truly captures the essence of personalized learning. ProSolo’ provides users with the ability to unbundle education programs, courses and units into discrete yet inter-related competencies to allow learners to construct their education pathway that better reflect their interests and future career motivations and requirements. 
-				</p>
-				<p>
-					The growth of informal learning opportunities such as Massive Open Online Courses and their associated certifications has forced universities to rethink the processes for credentialing and learning to establish more flexible models for recognizing alternate educational pathways. ProSolo’s mapping of learning goals and experiences directly to the achievement of competencies provides learners with greater flexibility in their study options, as well as the recognition of alternate learning pathways and prior experience. For education providers ProSolo maps curriculum activities directly to learner competencies and outcomes allowing for easy unbundling and reassembling of degree programs and courses. ProSolo unpacks the rigidity of existing programs to cater for alternate educational pathways and provide students with new opportunities to gain recognition for prior and alternate credentials and experiences. ProSolo doesn’t just break the concept of the credit hour - it totally removes it. 
-				</p>
-				
-				<h2>Organisational learning</h2>
-				<p>
-					The nature of work is rapidly changing. Careers and job profiles that have previously lasted for decades are now redundant or regularly morphed into new profiles requiring added or alternate skills and knowledge. It is not uncommon for individuals to multiple jobs across varying fields over the duration of their working lives. For organizations, managing, developing and tracking knowledge of the competencies of employees is a critical business process. An organization’s capacity for resilience and adaptivity to respond to new opportunities stems from the knowledge and skills of its employees.
-				</p>
-                
-				<h2>Personal Data</h2>
-				<p>
-					Personal data in your user profile including your name, e-mail address, company position as well as other personal data that is produced or contributed through the use of ProSolo could potentially be made available to other ProSolo users. All personal data will be automatically deleted on request or upon termination of your ProSolo account. Contributions made during certain activities, such as created Learning Goals, created Learning Activities, uploaded documents, presentations or videos will remain intact if the deletion of data would result in the loss of context or where there is a negative impact on other users. This decision will be undertaken in review of the nature of the data and the privacy implications for all users.
-				</p>
-				<p>
-					How individuals prepare for new careers is changing as well. Constant learning – in classrooms, on the job, lifelong – is central to employability. The worlds of formal and informal learning converge on competencies. On demonstrating what individuals can do and can learn. ProSolo views competencies as the currency of the new economy and the future of work. ProSolo enables organizations to exploit the benefits of social media for employees/ individuals to manage and share their own competence development, capturing formal training as well as skills learned on the job or informally, thereby increasing organizational awareness of skills available and aiding career path development. ProSolo’s software allows companies and individuals to develop, track, manage, and validate all competencies, providing an organization-wide inventory and analysis as well as a way of sharing competencies for various career paths.
-				</p>
-				<p>
-					As formal training is only a small part of how employees develop and practice their competencies, ProSolo makes competencies a collaborative and social activity to build enterprise knowledge awareness and capacity. Unlike formal training sites focussed on capturing competency development solely from training interventions, ProSolo allows competencies to be documented and validated through employee networks.
-				</p>
-				
-                <div class="clear1px"></div>
-            </div>
-        </div>
-    </div>
+	<ui:define name="content">
+		<div class="whiteBar">
+		</div>
 
-    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-    <!-- Include all compiled plugins (below), or include individual files as needed -->
-    <script src="javascript2/bootstrap.min.js"></script>
-</body>
-</html>
+		<div class="container">
+			<div class="row">
+				<div class="col-md-12">
+					<div class="whiteBox">
+						<h1>About ProSolo</h1>
+						<p>
+							ProSolo represents the future model of education. The traditional model of education and training has long been focused on a classroom centric process with formalised credentials being the domain for the higher education space. However, this process is being challenged with the growth of new and open education models. Increasingly, private, and public industry are now recognising the importance for all forms of learning from formal, to informal and workplace based. There is growing acknowledgement within and outside the education sector that the achievement of competencies, learning outcomes and awarding of credentials is not limited and cannot be limited to Universities and colleges alone.
+						</p>
+						<p>
+							ProSolo harnesses the transformative power of adaptive and personalized learning to unbundle degrees, programs and courses and re-aggregate in new ways that better match each student’s learning needs, interests and career goals
+						</p>
+						<p>
+							ProSolo provides all learners with the ability to personalize their education experience. There has been much anticipation and debate around the capacity for technology to provide “adaptive and personalized learning”. Arguably, ProSolo is the first integrated platform to provide learners the opportunity to customize, modify and personalize their learning journey. At ProSolo we truly believe education is for everyone and learning occurs everywhere. ProSolo’s unique design and conceptual model truly captures the essence of personalized learning. ProSolo’ provides users with the ability to unbundle education programs, courses and units into discrete yet inter-related competencies to allow learners to construct their education pathway that better reflect their interests and future career motivations and requirements.
+						</p>
+						<p>
+							The growth of informal learning opportunities such as Massive Open Online Courses and their associated certifications has forced universities to rethink the processes for credentialing and learning to establish more flexible models for recognizing alternate educational pathways. ProSolo’s mapping of learning goals and experiences directly to the achievement of competencies provides learners with greater flexibility in their study options, as well as the recognition of alternate learning pathways and prior experience. For education providers ProSolo maps curriculum activities directly to learner competencies and outcomes allowing for easy unbundling and reassembling of degree programs and courses. ProSolo unpacks the rigidity of existing programs to cater for alternate educational pathways and provide students with new opportunities to gain recognition for prior and alternate credentials and experiences. ProSolo doesn’t just break the concept of the credit hour - it totally removes it.
+						</p>
+
+						<h2>Organisational learning</h2>
+						<p>
+							The nature of work is rapidly changing. Careers and job profiles that have previously lasted for decades are now redundant or regularly morphed into new profiles requiring added or alternate skills and knowledge. It is not uncommon for individuals to multiple jobs across varying fields over the duration of their working lives. For organizations, managing, developing and tracking knowledge of the competencies of employees is a critical business process. An organization’s capacity for resilience and adaptivity to respond to new opportunities stems from the knowledge and skills of its employees.
+						</p>
+
+						<h2>Personal Data</h2>
+						<p>
+							Personal data in your user profile including your name, e-mail address, company position as well as other personal data that is produced or contributed through the use of ProSolo could potentially be made available to other ProSolo users. All personal data will be automatically deleted on request or upon termination of your ProSolo account. Contributions made during certain activities, such as created Learning Goals, created Learning Activities, uploaded documents, presentations or videos will remain intact if the deletion of data would result in the loss of context or where there is a negative impact on other users. This decision will be undertaken in review of the nature of the data and the privacy implications for all users.
+						</p>
+						<p>
+							How individuals prepare for new careers is changing as well. Constant learning – in classrooms, on the job, lifelong – is central to employability. The worlds of formal and informal learning converge on competencies. On demonstrating what individuals can do and can learn. ProSolo views competencies as the currency of the new economy and the future of work. ProSolo enables organizations to exploit the benefits of social media for employees/ individuals to manage and share their own competence development, capturing formal training as well as skills learned on the job or informally, thereby increasing organizational awareness of skills available and aiding career path development. ProSolo’s software allows companies and individuals to develop, track, manage, and validate all competencies, providing an organization-wide inventory and analysis as well as a way of sharing competencies for various career paths.
+						</p>
+						<p>
+							As formal training is only a small part of how employees develop and practice their competencies, ProSolo makes competencies a collaborative and social activity to build enterprise knowledge awareness and capacity. Unlike formal training sites focussed on capturing competency development solely from training interventions, ProSolo allows competencies to be documented and validated through employee networks.
+						</p>
+						<div class="clear1px"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</ui:define>
+</ui:composition>
