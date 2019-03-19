@@ -3,10 +3,7 @@ package org.prosolo.db.migration.data.unisa;
 import org.flywaydb.core.api.migration.Context;
 import org.prosolo.db.migration.BaseMigration;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 
 /**
  * @author stefanvuckovic
@@ -17,6 +14,7 @@ public class V17__20190221_unisa_migrate_assessment_data_after_schema_change ext
 
     @Override
     protected void doMigrate(Context context) throws Exception {
+        migrateWhenCompetencyAssessmentIsConnectedToSeveralCredentialAssessments(context.getConnection());
         migrateWhenCompetencyToCredentialAssessmentIsOneToOne(context.getConnection());
         migrateWhenCompetencyAssessmentIsNotConnectedToAnyCredentialAssessments(context.getConnection());
     }
@@ -66,22 +64,28 @@ public class V17__20190221_unisa_migrate_assessment_data_after_schema_change ext
 
     private void migrateWhenCompetencyAssessmentIsConnectedToSeveralCredentialAssessments(Connection connection) throws SQLException {
         try (Statement statement = connection.createStatement()) {
-            statement.addBatch("DELETE FROM credential_assessment ca where ca.target_credential = 983040");
-            statement.addBatch("DELETE FROM target_credential1 WHERE id = 983040");
+            try (
+                ResultSet rs = statement.executeQuery(
+                        "SELECT cca.competence_assessment FROM credential_competence_assessment cca INNER JOIN credential_assessment credA on credA.id = cca.credential_assessment AND credA.target_credential IN (983040, 98316, 131072, 950273, 917505) AND credA.type = 'INSTRUCTOR_ASSESSMENT'");
+            ) {
+                statement.addBatch("DELETE msg FROM credential_assessment ca INNER JOIN credential_assessment_message msg on msg.assessment = ca.id where ca.target_credential IN (983040, 98316, 131072, 950273, 917505)");
+                statement.addBatch("DELETE participant FROM credential_assessment ca INNER JOIN credential_assessment_discussion_participant participant on participant.assessment = ca.id where ca.target_credential IN (983040, 98316, 131072, 950273, 917505)");
+                statement.addBatch("DELETE cca FROM credential_assessment ca INNER JOIN credential_competence_assessment cca on cca.credential_assessment = ca.id where ca.target_credential IN (983040, 98316, 131072, 950273, 917505)");
+                statement.addBatch("DELETE cca FROM credential_assessment ca INNER JOIN credential_criterion_assessment cca on cca.assessment = ca.id where ca.target_credential IN (983040, 98316, 131072, 950273, 917505)");
+                statement.addBatch("DELETE ca FROM credential_assessment ca where ca.target_credential IN (983040, 98316, 131072, 950273, 917505)");
 
-            statement.addBatch("DELETE FROM credential_assessment ca where ca.target_credential = 98316");
-            statement.addBatch("DELETE FROM target_credential1 WHERE id = 98316");
+                statement.addBatch("DELETE FROM target_credential1 WHERE id IN (983040, 98316, 131072, 950273, 917505)");
 
-            statement.addBatch("DELETE FROM credential_assessment ca where ca.target_credential = 131072");
-            statement.addBatch("DELETE FROM target_credential1 WHERE id = 131072");
+                while (rs.next()) {
+                    long compAssessmentId = rs.getLong(1);
+                    statement.addBatch("DELETE msg FROM competence_assessment_message msg where msg.assessment = " + compAssessmentId);
+                    statement.addBatch("DELETE participant FROM competence_assessment_discussion_participant participant WHERE participant.assessment = " + compAssessmentId);
+                    statement.addBatch("DELETE cca FROM competence_criterion_assessment cca WHERE cca.assessment = " + compAssessmentId);
+                    statement.addBatch("DELETE ca FROM competence_assessment ca WHERE ca.id = " + compAssessmentId);
+                }
 
-            statement.addBatch("DELETE FROM credential_assessment ca where ca.target_credential = 950273");
-            statement.addBatch("DELETE FROM target_credential1 WHERE id = 950273");
-
-            statement.addBatch("DELETE FROM credential_assessment ca where ca.target_credential = 917505");
-            statement.addBatch("DELETE FROM target_credential1 WHERE id = 917505");
-
-            statement.executeBatch();
+                statement.executeBatch();
+            }
         }
     }
 }
