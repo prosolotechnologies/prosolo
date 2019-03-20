@@ -61,7 +61,16 @@ public class SAMLUserDetailsServiceImpl implements SAMLUserDetailsService {
 			logger.info("Authentication through SAML requested; Remote entity id: " + credential.getRemoteEntityID() + "; SAML Credential Name Id: " + credential.getNameID());
 			//Gson g=new Gson();
 			//System.out.println("LOAD USER BY SAML:"+g.toJson(credential));
-            SAMLIdentityProviderInfo provider = getIdentityProviderUsedForAuthentication(credential.getRemoteEntityID());
+			logger.debug("NameID:" + credential.getNameID());
+			List<Attribute> attributes = credential.getAttributes();
+			for (Attribute attribute : attributes) {
+				logger.debug("SAML attribute:" + attribute.getName() + " friendly name:" + attribute.getFriendlyName());
+				for (XMLObject value : attribute.getAttributeValues()) {
+					logger.debug("has value:" + ((XSString) value).getValue());
+				}
+			}
+
+			SAMLIdentityProviderInfo provider = getIdentityProviderUsedForAuthentication(credential.getRemoteEntityID());
             logger.info("Identity provider that issued authentication: " + provider.getEntityId());
 			String email = credential.getAttributeAsString(provider.emailAttribute);
 			String firstname = credential.getAttributeAsString(provider.firstNameAttribute);

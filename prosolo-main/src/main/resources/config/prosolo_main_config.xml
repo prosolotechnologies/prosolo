@@ -66,9 +66,9 @@
 				<provider>
 					<display-name>Sign in with UNISA</display-name>
 					<entity-id>http://fed.students-tst.unisa.edu.au/adfs/services/trust</entity-id>
-					<email-attribute>E-Mail-Addresses</email-attribute>
-					<first-name-attribute>Given-Name</first-name-attribute>
-					<last-name-attribute>Surname</last-name-attribute>
+					<email-attribute>http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress</email-attribute>
+					<first-name-attribute>http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname</first-name-attribute>
+					<last-name-attribute>http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname</last-name-attribute>
 					<metadata-type>CLASSPATH</metadata-type><!-- URL or CLASSPATH -->
 					<metadata-path>unisadev-metadata.xml</metadata-path><!-- if URL based metadata this will be the url to the metadata and if CLASSPATH, this will be the metadata file name on the classpath -->
 					<create-account-for-nonexistent-user>false</create-account-for-nonexistent-user>
