@@ -13,9 +13,7 @@ import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.nodes.data.LearningResourceLearningStage;
-import org.prosolo.services.nodes.data.organization.CredentialCategoryData;
-import org.prosolo.services.nodes.data.organization.LearningStageData;
-import org.prosolo.services.nodes.data.organization.OrganizationData;
+import org.prosolo.services.nodes.data.organization.*;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.List;
@@ -33,18 +31,54 @@ public interface OrganizationManager extends AbstractManager {
     List<User> getOrganizationUsers(long organizationId, boolean returnDeleted, Session session, List<Role> roles)
             throws DbConnectionException;
 
-    Organization createNewOrganization(OrganizationData org, UserContextData context)
+    Organization createNewOrganization(OrganizationBasicData organizationBasicData, UserContextData context)
             throws DbConnectionException;
 
-    Result<Organization> createNewOrganizationAndGetEvents(OrganizationData org, UserContextData context)
+    Result<Organization> createNewOrganizationAndGetEvents(OrganizationBasicData organizationBasicData, UserContextData context)
             throws DbConnectionException;
+
+    /**
+     *
+     * @param orgId
+     * @param organizationLearningStageData
+     * @param context
+     *
+     * @throws ConstraintViolationException
+     * @throws DataIntegrityViolationException
+     * @throws DbConnectionException
+     */
+    void updateOrganizationLearningStages(long orgId, OrganizationLearningStageData organizationLearningStageData, UserContextData context);
+
+    /**
+     *
+     * @param orgId
+     * @param organizationLearningStageData
+     * @param context
+     * @return
+     *
+     * @throws ConstraintViolationException
+     * @throws DataIntegrityViolationException
+     * @throws DbConnectionException
+     */
+    Result<Void> updateOrganizationLearningStagesAndGetEvents(long orgId, OrganizationLearningStageData organizationLearningStageData, UserContextData context);
+
+    /**
+     *
+     * @param orgId
+     * @param organizationCategoryData
+     *
+     * @throws ConstraintViolationException
+     * @throws DataIntegrityViolationException
+     * @throws DbConnectionException
+     */
+    void updateOrganizationCredentialCategories(long orgId, OrganizationCategoryData organizationCategoryData);
 
     OrganizationData getOrganizationForEdit(long organizationId, List<Role> userRoles) throws DbConnectionException;
 
-    Organization updateOrganization(OrganizationData organization, UserContextData context)
+    Organization updateOrganizationBasicInfo(long organizationid, OrganizationBasicData org, UserContextData context)
             throws DbConnectionException, ConstraintViolationException, DataIntegrityViolationException;
 
-    Result<Organization> updateOrganizationAndGetEvents(OrganizationData organization, UserContextData context)
+    Result<Organization> updateOrganizationBasicInfoAndGetEvents(long organizationid, OrganizationBasicData org, UserContextData context)
             throws DbConnectionException, ConstraintViolationException, DataIntegrityViolationException;
 
     OrganizationData getOrganizationDataWithoutAdmins(long organizationId);
@@ -71,5 +105,52 @@ public interface OrganizationManager extends AbstractManager {
      * @throws DbConnectionException
      */
     List<CredentialCategoryData> getUsedOrganizationCredentialCategoriesData(long organizationId);
+
+    /**
+     *
+     * @param orgId
+     * @return
+     *
+     * @throws DbConnectionException
+     */
+    List<LearningStageData> getOrganizationLearningStagesData(long orgId);
+
+    /**
+     *
+     * @param orgId
+     * @param loadCategoryUsageInfo
+     * @param listenChanges
+     * @return
+     *
+     * @throws DbConnectionException
+     */
+    List<CredentialCategoryData> getOrganizationCredentialCategoriesData(long orgId, boolean loadCategoryUsageInfo, boolean listenChanges);
+
+    /**
+     *
+     * @param organizationId
+     * @param tokenData
+     *
+     * @throws DbConnectionException
+     */
+    void updateOrganizationTokenInfo(long organizationId, OrganizationTokenData tokenData);
+
+    /**
+     *
+     * @param organizationId
+     * @param numberOfTokens
+     *
+     * @throws DbConnectionException
+     */
+    void resetTokensForAllOrganizationUsers(long organizationId, int numberOfTokens);
+
+    /**
+     *
+     * @param organizationId
+     * @param numberOfTokens
+     *
+     * @throws DbConnectionException
+     */
+    void addTokensToAllOrganizationUsers(long organizationId, int numberOfTokens);
 }
 
