@@ -107,6 +107,7 @@ public class RewriteConfigurationProvider extends HttpConfigurationProvider {
 
 				.addRule(Join.path("/posts/{id}").to("/wall-post-view.xhtml"))
 				.addRule(Join.path("/groups/{id}/join").to("/groups-join.xhtml"))
+				.addRule(Join.path("/assessments/my/credential").to("/my-assessments-credentials.xhtml"))
 
 				.addRule(Join.path("/manage/notfound").to("/manage/404.xhtml"))
 				.addRule(Join.path("/manage/accessDenied").to("/manage/accessDenied.xhtml"))

@@ -1,0 +1,46 @@
+<ui:component xmlns:h="http://java.sun.com/jsf/html"
+			  xmlns:f="http://java.sun.com/jsf/core"
+			  xmlns:ui="http://java.sun.com/jsf/facelets"
+			  xmlns:composite="http://java.sun.com/jsf/composite"
+			  xmlns:p="http://primefaces.org/ui"
+			  xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+>
+
+	<composite:interface>
+	</composite:interface>
+
+	<composite:implementation>
+		<h:outputScript library="javascript2" name="bootstrap-toggle.min.js" target="head" />
+		<h:outputStylesheet name="bootstrap-toggle.css" library="css2"/>
+
+		<p:growl id="growlAvailability" globalOnly="true" showDetail="true"/>
+		<ui:fragment rendered="#{assessmentAvailabilityBean.assessmentTokenData.assessmentTokensEnabled}">
+			<div class="sidebarBlock">
+				Assessment tokens: <div class="tokensNr" data-toggle="tooltip" title="" data-original-title="Assessment Tokens enable you to make assessment requests for your #{msg['label.credential.plural'].toLowerCase()} and #{msg['label.competence.plural'].toLowerCase()} to your peers. Assessment tokens can be earned by providing assessments to your peers.">#{assessmentAvailabilityBean.assessmentTokenData.numberOfTokensAvailable}</div>
+			</div>
+		</ui:fragment>
+		<div class="sidebarBlock">
+			<h:form id = "formAssessmentAvailability">
+				<h2>Assessment Availability</h2>
+				<p>Set availability status to give assessments to your peers. When your Assessment Availability is ON, you will start receiving assessment requests from your peers.<br/><br/>
+					Available for assessments?</p>
+				<h:selectBooleanCheckbox id="checkAssessmentAvailability"
+										 value="#{assessmentAvailabilityBean.assessmentTokenData.userAvailableForAssessments}">
+					<f:ajax event="change" execute="@this"
+							listener="#{assessmentAvailabilityBean.updateAssessmentAvailability()}"
+							render=":#{cc.clientId}:formAssessmentAvailability :#{cc.clientId}:growlAvailability" />
+				</h:selectBooleanCheckbox>
+				<script>
+					$(function() {
+						$('#' + escapeColons('#{cc.clientId}:formAssessmentAvailability:checkAssessmentAvailability')).bootstrapToggle({
+							on: 'Yes',
+							off: 'No',
+							onstyle: 'success',
+							size: 'mini'
+						});
+					})
+				</script>
+			</h:form>
+		</div>
+	</composite:implementation>
+</ui:component>
