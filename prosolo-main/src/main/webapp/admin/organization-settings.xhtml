@@ -642,10 +642,10 @@
                     <h:panelGroup layout="block" id="panelAddTokens" styleClass="modal-content">
                         <div class="modal-header">
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
-                            <h2 class="modal-title" id="addTokensTitle">Add #{organizationEditBean.tokensToAdd} tokens to each student?</h2>
+                            <h2 class="modal-title" id="addTokensTitle">Add #{organizationEditBean.tokensToAdd} #{organizationEditBean.tokensToAdd eq 1 ? 'token' : 'tokens'} to each student?</h2>
                         </div>
                         <div class="modal-body">
-                            <p>Are you sure you want to add #{organizationEditBean.tokensToAdd} tokens to each student of this organization? Note that this action is irreversible.</p>
+                            <p>Are you sure you want to add #{organizationEditBean.tokensToAdd} #{organizationEditBean.tokensToAdd eq 1 ? 'token' : 'tokens'} to each student of this organization? Note that this action is irreversible.</p>
                         </div>
                         <div class="modal-footer">
                             <p:commandLink
