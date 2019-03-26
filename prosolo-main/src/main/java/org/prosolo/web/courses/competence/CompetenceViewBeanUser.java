@@ -91,19 +91,9 @@ public class CompetenceViewBeanUser implements Serializable {
 						competenceData.getCompetenceId(), false, false);
 				commentsData.setCommentId(idEncoder.decodeId(commentId));
 				commentBean.loadComments(commentsData);
-				
-				if(decodedCredId > 0) {
+
+				if (decodedCredId > 0) {
 					credentialTitle = credManager.getCredentialTitle(decodedCredId);
-//					if(competenceData.isEnrolled()) {
-////						LearningInfo li = credManager.getCredentialLearningInfo(decodedCredId, 
-////								loggedUser.getUserId(), false);
-//						//credTitle = li.getCredentialTitle();
-//						//TODO cred-redesign-07 what to do with mandatory order now when competence is independent resource
-//						//nextCompToLearn = li.getNextCompetenceToLearn();
-//						//mandatoryOrder = li.isMandatoryFlow();
-//					} else {
-//						credTitle = credManager.getCredentialTitle(decodedCredId);
-//					}
 				}
 				if (competenceData.getLearningPathType() == LearningPathType.EVIDENCE && competenceData.isEnrolled()) {
 					submitEvidenceBean.init(new LearningEvidenceData());

@@ -7,8 +7,7 @@
 		xmlns:post="http://java.sun.com/jsf/composite/components/post"
 		xmlns:activities="http://java.sun.com/jsf/composite/components/activities"
 		xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
-		xmlns:p="http://primefaces.org/ui"
->
+		xmlns:p="http://primefaces.org/ui">
 
 	<composite:interface>
 		<composite:attribute name="bean" required="true"/>
@@ -24,27 +23,23 @@
 		<div class="container">
 			<div class="row">
 				<div class="col-md-8">
-					<courses:activityDetails
-						id="activityDetails"
-						credentialId="#{cc.attrs.bean.decodedCredId}"
-						competenceId="#{cc.attrs.bean.decodedCompId}"
-						activity="#{cc.attrs.bean.competenceData.activityToShowWithDetails}"
-						bean="#{cc.attrs.bean}"
-						learningContext="#{cc.attrs.learningContext}"
-						role="#{cc.attrs.role}"
-						updateProgress="#{cc.attrs.updateProgress} :#{cc.clientId}:#{cc.attrs.panelCompProgressId}"
-					/>
+					<courses:activityDetails id="activityDetails"
+											 credentialId="#{cc.attrs.bean.decodedCredId}"
+											 competenceId="#{cc.attrs.bean.decodedCompId}"
+											 activity="#{cc.attrs.bean.competenceData.activityToShowWithDetails}"
+											 bean="#{cc.attrs.bean}"
+											 learningContext="#{cc.attrs.learningContext}"
+											 role="#{cc.attrs.role}"
+											 updateProgress="#{cc.attrs.updateProgress} :#{cc.clientId}:#{cc.attrs.panelCompProgressId}"/>
 
 					<c:if test="#{cc.attrs.role ne 'ADMIN'}">
-						<post:comments
-							id="comments"
-							comments="#{cc.attrs.bean.commentsData}"
-							commentsContainerDivId="commentsContainerDiv"
-							growlToUpdate="#{cc.attrs.growlToUpdate}"
-							learningContext="#{cc.attrs.learningContext}"
-							readOnly="#{cc.attrs.readOnly}"
-							rendered="#{cc.attrs.bean.competenceData.activityToShowWithDetails.enrolled or cc.attrs.role eq 'MANAGER'}"
-					   />
+						<post:comments id="comments"
+									   comments="#{cc.attrs.bean.commentsData}"
+									   commentsContainerDivId="commentsContainerDiv"
+									   growlToUpdate="#{cc.attrs.growlToUpdate}"
+									   learningContext="#{cc.attrs.learningContext}"
+									   readOnly="#{cc.attrs.readOnly}"
+									   rendered="#{cc.attrs.bean.competenceData.activityToShowWithDetails.enrolled or cc.attrs.role eq 'MANAGER'}"/>
 					</c:if>
 				</div>
 
@@ -52,8 +47,7 @@
 					<div class="sidebarBlock">
 						<activities:activityCompProgress
 							bean="#{cc.attrs.bean}"
-							learningContext="#{cc.attrs.learningContext}"
-						/>
+							learningContext="#{cc.attrs.learningContext}"/>
 					</div>
 					<h:panelGroup layout="block" styleClass="sidebarBlock" rendered="#{not empty cc.attrs.bean.competenceData.activityToShowWithDetails.tags}">
 						<h2>Keywords</h2>
