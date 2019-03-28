@@ -33,8 +33,10 @@ public class CompetenceInstructorAssessmentBean implements Serializable {
 	public void initInstructorAssessment() {
 		decodedId = idEncoder.decodeId(id);
 		decodedCredId = idEncoder.decodeId(credId);
+
 		if (decodedId > 0 && decodedCredId > 0) {
 			Optional<Long> optAssessmentId = assessmentManager.getActiveInstructorCompetenceAssessmentId(decodedCredId, decodedId, loggedUserBean.getUserId());
+
 			if (optAssessmentId.isPresent()) {
 				competenceAssessmentBean.initInstructorAssessment(id, idEncoder.encodeId(optAssessmentId.get()), credId);
 			} else {

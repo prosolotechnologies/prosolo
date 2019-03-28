@@ -69,11 +69,14 @@ public class ActivityResultsBeanUser implements Serializable {
 		decodedCompId = idEncoder.decodeId(compId);
 		decodedCredId = idEncoder.decodeId(credId);
 		
-		if (decodedActId > 0 && decodedCompId > 0) {
+		if (decodedActId > 0 && decodedCompId > 0 && decodedCredId > 0) {
 			try {
-				competenceData = activityManager
-						.getTargetCompetenceActivitiesWithResultsForSpecifiedActivity(
-								decodedCredId, decodedCompId, decodedActId, loggedUser.getUserId(), false);
+				// check if credential, competency and activity are mutually connected
+				activityManager.checkIfActivityAndCompetenceArePartOfCredential(decodedCredId, decodedCompId, decodedActId);
+
+				competenceData = activityManager.getTargetCompetenceActivitiesWithResultsForSpecifiedActivity(
+						decodedCredId, decodedCompId, decodedActId, loggedUser.getUserId(), false);
+
 				if (competenceData == null) {
 					PageUtil.notFound();
 				} else {
@@ -120,7 +123,10 @@ public class ActivityResultsBeanUser implements Serializable {
 		decodedCredId = idEncoder.decodeId(credId);
 
 		try {
-			if (decodedActId > 0 && decodedCompId > 0 && decodedTargetActId > 0) {
+			if (decodedActId > 0 && decodedCompId > 0 && decodedCredId > 0 && decodedTargetActId > 0) {
+				// check whether credId, compId and actId are valid (and mutually related)
+
+
 				ActivityData activityWithDetails = activityManager.getActivityResponseForUserToView(
 						decodedTargetActId, loggedUser.getUserId());
 

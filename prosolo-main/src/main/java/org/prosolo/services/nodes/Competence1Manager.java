@@ -84,7 +84,6 @@ public interface Competence1Manager {
 	/**
 	 * Returns competence data with access rights info for user specified by {@code userId} id.
 	 * 
-	 * @param credId
 	 * @param compId
 	 * @param loadCreator
 	 * @param loadTags
@@ -97,13 +96,12 @@ public interface Competence1Manager {
 	 * @throws IllegalArgumentException
 	 * @throws DbConnectionException
 	 */
-	RestrictedAccessResult<CompetenceData1> getCompetenceDataWithAccessRightsInfo(long credId, long compId, boolean loadCreator, 
+	RestrictedAccessResult<CompetenceData1> getCompetenceDataWithAccessRightsInfo(long compId, boolean loadCreator,
 			boolean loadAssessmentConfig, boolean loadTags, boolean loadActivities, long userId, ResourceAccessRequirements req,
 			boolean shouldTrackChanges) throws ResourceNotFoundException, IllegalArgumentException, DbConnectionException;
 	
 	/**
 	 * 
-	 * @param credId
 	 * @param compId
 	 * @param loadCreator
 	 * @param loadTags
@@ -114,7 +112,7 @@ public interface Competence1Manager {
 	 * @throws IllegalArgumentException
 	 * @throws DbConnectionException
 	 */
-	CompetenceData1 getCompetenceData(long credId, long compId, boolean loadCreator, 
+	CompetenceData1 getCompetenceData(long compId, boolean loadCreator,
 			boolean loadAssessmentConfig, boolean loadTags, boolean loadActivities, boolean shouldTrackChanges)
 					throws ResourceNotFoundException, IllegalArgumentException, DbConnectionException;
 
@@ -406,11 +404,10 @@ public interface Competence1Manager {
 	TargetCompetence1 getTargetCompetence(long compId, long userId) throws DbConnectionException;
 
 	/**
-	 * Checks if competence specified with {@code compId} id is part of a credential with {@code credId} id
-	 * and if not throws {@link ResourceNotFoundException}.
+	 * Checks if the competence is a part of the credential.
 	 *
-	 * @param credId
-	 * @param compId
+	 * @param credId id of the credential
+	 * @param compId id of the competence
 	 * @throws ResourceNotFoundException
 	 */
 	void checkIfCompetenceIsPartOfACredential(long credId, long compId) throws ResourceNotFoundException;

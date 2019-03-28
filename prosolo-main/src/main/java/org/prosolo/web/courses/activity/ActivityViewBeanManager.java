@@ -59,10 +59,9 @@ public class ActivityViewBeanManager implements Serializable {
 	public void init() {	
 		decodedActId = idEncoder.decodeId(actId);
 		decodedCompId = idEncoder.decodeId(compId);
-		if (decodedActId > 0 && decodedCompId > 0) {
-			if(credId != null) {
-				decodedCredId = idEncoder.decodeId(credId);
-			}
+		decodedCredId = idEncoder.decodeId(credId);
+
+		if (decodedActId > 0 && decodedCompId > 0 && decodedCredId > 0) {
 			try {
 				ResourceAccessRequirements req = ResourceAccessRequirements
 						.of(AccessMode.MANAGER)
@@ -76,12 +75,15 @@ public class ActivityViewBeanManager implements Serializable {
 				if (!access.isCanRead()) {
 					PageUtil.accessDenied();
 				} else {
-					competenceData = activityManager
-							.getCompetenceActivitiesWithSpecifiedActivityInFocus(
+					// check if credential, competency and activity are mutually connected
+					activityManager.checkIfActivityAndCompetenceArePartOfCredential(decodedCredId, decodedCompId, decodedActId);
+
+					competenceData = activityManager.getCompetenceActivitiesWithSpecifiedActivityInFocus(
 									decodedCredId, decodedCompId, decodedActId);
 					commentsData = new CommentsData(CommentedResourceType.Activity, 
 							competenceData.getActivityToShowWithDetails().getActivityId(), 
 							access.isCanInstruct(), true);
+
 					commentsData.setCommentId(idEncoder.decodeId(commentId));
 					commentBean.loadComments(commentsData);
 					

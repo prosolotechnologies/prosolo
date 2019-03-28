@@ -91,19 +91,20 @@ public class ActivityEditBean extends LearningResourceAssessmentSettingsBean imp
 	public void init() {
 		manageSection = PageSection.MANAGE.equals(PageUtil.getSectionForView());
 		initializeValues();
+
 		decodedCredId = idEncoder.decodeId(credId);
+		decodedCompId = idEncoder.decodeId(compId);
+
 		try {
-			if(compId == null) {
-				PageUtil.notFound();
-			} else {
-				decodedCompId = idEncoder.decodeId(compId);
-				if(id == null) {
+			if(decodedCompId > 0 && decodedCredId > 0) {
+				if (id == null) {
 					activityData = new ActivityData(false);
 					//make sure that activity can be created for given competency - that appropriate learning path is set
 					LearningPathType lPath = compManager.getCompetenceLearningPathType(decodedCompId);
+
 					if (lPath != LearningPathType.ACTIVITY) {
 						PageUtil.fireErrorMessageAcrossPages(ResourceBundleUtil.getLabel("competence") + " doesn't support adding activities");
-						PageUtil.redirect("/manage/competences/" + compId + "/edit");
+						PageUtil.redirect("/manage/credentials/"+credId+"/competences/" + compId + "/edit");
 						return;
 					}
 				} else {
@@ -111,10 +112,13 @@ public class ActivityEditBean extends LearningResourceAssessmentSettingsBean imp
 					logger.info("Editing activity with id " + decodedId);
 					loadActivityData(decodedCredId, decodedCompId, decodedId);
 				}
+
 				setContext();
 				activityData.setCompetenceId(decodedCompId);
 				loadCompAndCredTitle();
 				loadAssessmentData();
+			} else {
+				PageUtil.notFound();
 			}
 		} catch(Exception e) {
 			logger.error(e);
@@ -373,17 +377,7 @@ public class ActivityEditBean extends LearningResourceAssessmentSettingsBean imp
 		boolean saved = saveActivityData(!isNew);
 		
 		if (saved && isNew) {
-			/*
-			 * this will not work if there are multiple levels of directories in current view path
-			 * example: /credentials/credential-create will return /credentials as a section but this
-			 * may not be what we really want.
-			 */
-			StringBuilder url = new StringBuilder(PageUtil.getSectionForView().getPrefix() +
-					"/competences/" + compId + "/edit?tab=paths");
-			if (credId != null && !credId.isEmpty()) {
-				url.append("&credId=" + credId);
-			}
-			PageUtil.redirect(url.toString());
+			PageUtil.redirect("/manage/credentials/" + credId + "/competences/" + compId + "/edit?tab=paths");
 		}
 	}
 	
@@ -435,19 +429,7 @@ public class ActivityEditBean extends LearningResourceAssessmentSettingsBean imp
 		try {
 			if (activityData.getActivityId() > 0) {
 				activityManager.deleteActivity(decodedId, loggedUser.getUserContext());
-				//activityData = new ActivityData(false);
-				//PageUtil.fireSuccessfulInfoMessage("Changes are saved");
-				/*
-				 * this will not work if there are multiple levels of directories in current view path
-				 * example: /credentials/credential-create will return /credentials as a section but this
-				 * may not be what we really want.
-				 */
-				StringBuilder url = new StringBuilder(PageUtil.getSectionForView().getPrefix() +
-						"/competences/" + compId + "/edit?tab=paths");
-				if (credId != null && !credId.isEmpty()) {
-					url.append("&credId=" + credId);
-				}
-				PageUtil.redirect(url.toString());
+				PageUtil.redirect("/manage/credentials/" + credId + "/competences/" + compId + "/edit?tab=paths");
 			} else {
 				PageUtil.fireErrorMessage("Activity is not saved so it can't be deleted");
 			}

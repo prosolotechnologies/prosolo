@@ -54,19 +54,22 @@ public class CompetenceViewBeanManager implements Serializable {
 
 	public void init() {	
 		decodedCompId = idEncoder.decodeId(compId);
-		if (decodedCompId > 0) {
-			if(credId != null) {
-				decodedCredId = idEncoder.decodeId(credId);
-			}
+		decodedCredId = idEncoder.decodeId(credId);
+
+		if (decodedCompId > 0 && decodedCredId > 0) {
 			try {
+				// check if credential and competency are connected
+				competenceManager.checkIfCompetenceIsPartOfACredential(decodedCredId, decodedCompId);
+
 				ResourceAccessRequirements req = ResourceAccessRequirements
 						.of(AccessMode.MANAGER)
 						.addPrivilege(UserGroupPrivilege.Edit)
 						.addPrivilege(UserGroupPrivilege.Instruct);
+
 				RestrictedAccessResult<CompetenceData1> result = competenceManager
-						.getCompetenceDataWithAccessRightsInfo(decodedCredId, decodedCompId, true, false, true, true,
+						.getCompetenceDataWithAccessRightsInfo(decodedCompId, true, false, true, true,
 								loggedUser.getUserId(), req, false);
-				
+
 				unpackResult(result);
 				/*
 				 * if user does not have at least access to resource in read only mode throw access denied exception.
@@ -74,7 +77,7 @@ public class CompetenceViewBeanManager implements Serializable {
 				if (!access.isCanRead()) {
 					throw new AccessDeniedException();
 				}
-				
+
 				/*
 				 * check if user has instructor privilege and if has, we should mark his comments as
 				 * instructor comments
@@ -83,12 +86,9 @@ public class CompetenceViewBeanManager implements Serializable {
 						competenceData.getCompetenceId(), access.isCanInstruct(), true);
 				commentsData.setCommentId(idEncoder.decodeId(commentId));
 				commentBean.loadComments(commentsData);
-//					commentBean.init(CommentedResourceType.Competence, competenceData.getCompetenceId(),
-//							hasInstructorCapability);
-				if (decodedCredId > 0) {
-					credentialIdData = credManager.getCredentialIdData(decodedCredId, null);
-					competenceData.setCredentialId(decodedCredId);
-				}
+
+				credentialIdData = credManager.getCredentialIdData(decodedCredId, null);
+				competenceData.setCredentialId(decodedCredId);
 			} catch (AccessDeniedException ade) {
 				PageUtil.accessDenied();
 			} catch (ResourceNotFoundException rnfe) {

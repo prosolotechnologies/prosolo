@@ -376,7 +376,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 
 	@Override
 	@Transactional(readOnly = true)
-	public RestrictedAccessResult<CompetenceData1> getCompetenceDataWithAccessRightsInfo(long credId, long compId, 
+	public RestrictedAccessResult<CompetenceData1> getCompetenceDataWithAccessRightsInfo(long compId,
 			boolean loadCreator, boolean loadAssessmentConfig, boolean loadTags, boolean loadActivities, long userId,
 			ResourceAccessRequirements req, boolean shouldTrackChanges) 
 					throws ResourceNotFoundException, IllegalArgumentException, DbConnectionException {
@@ -384,7 +384,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			if(req == null) {
 				throw new IllegalArgumentException();
 			}
-			CompetenceData1 compData = getCompetenceData(credId, compId, loadCreator, loadAssessmentConfig, loadTags, loadActivities,
+			CompetenceData1 compData = getCompetenceData(compId, loadCreator, loadAssessmentConfig, loadTags, loadActivities,
 					shouldTrackChanges);
 			
 			ResourceAccessData access = getResourceAccessData(compId, userId, req);
@@ -404,11 +404,11 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	
 	@Override
 	@Transactional(readOnly = true)
-	public CompetenceData1 getCompetenceData(long credId, long compId, boolean loadCreator, 
+	public CompetenceData1 getCompetenceData(long compId, boolean loadCreator,
 			boolean loadAssessmentConfig, boolean loadTags, boolean loadActivities, boolean shouldTrackChanges)
 					throws ResourceNotFoundException, DbConnectionException {
 		try {
-			Competence1 comp = getCompetence(credId, compId, loadCreator, loadTags, true);
+			Competence1 comp = getCompetence(compId, loadCreator, loadTags, true);
 			
 			if (comp == null) {
 				throw new ResourceNotFoundException();
@@ -438,34 +438,17 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	}
 
 	/**
-	 * @param credId
 	 * @param compId
 	 * @param loadCreator
 	 * @param loadTags
 	 * @param returnIfArchived
 	 * @return
 	 */
-	private Competence1 getCompetence(long credId, long compId, boolean loadCreator, boolean loadTags,
-			boolean returnIfArchived) {
+	private Competence1 getCompetence(long compId, boolean loadCreator, boolean loadTags, boolean returnIfArchived) {
 		StringBuilder builder = new StringBuilder();
-		builder.append("SELECT comp ");
-		/*
-		 * if credential id is passed need to make sure that competence really
-		 * is in credential with specified id
-		 */
-		if(credId > 0) {
-			builder.append("FROM CredentialCompetence1 credComp " +
-						   "INNER JOIN credComp.competence comp " +
-						   		"WITH comp.id = :compId " +
-						   	    "AND comp.deleted = :deleted ");
-			if(!returnIfArchived) {
-				builder.append("AND comp.archived = :archived ");
-			}
-		} else {
-			builder.append("FROM Competence1 comp ");
-		}
-		// builder.append("SELECT comp " +
-		// "FROM Competence1 comp ");
+		builder.append(
+				"SELECT comp " +
+				"FROM Competence1 comp ");
 
 		if (loadCreator) {
 			builder.append("INNER JOIN fetch comp.createdBy user ");
@@ -473,33 +456,26 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		if (loadTags) {
 			builder.append("LEFT JOIN fetch comp.tags tags ");
 		}
-		// if(loadActivities) {
-		// builder.append("LEFT JOIN fetch comp.activities compAct " +
-		// "INNER JOIN fetch compAct.activity act ");
-		// }
-		if (credId > 0) {
-			builder.append("WHERE credComp.credential.id = :credId");
-		} else {
-			builder.append("WHERE comp.id = :compId " +
-					   "AND comp.deleted = :deleted ");
-			if(!returnIfArchived) {
-				builder.append("AND comp.archived = :archived ");
-			}
+
+		builder.append(
+				"WHERE comp.id = :compId " +
+					"AND comp.deleted = :deleted ");
+
+		if (!returnIfArchived) {
+			builder.append("AND comp.archived = :archived ");
 		}
 
 		logger.info("QUERY: " + builder.toString());
-		Query q = persistence.currentManager().createQuery(builder.toString()).setLong("compId", compId)
+
+		Query q = persistence.currentManager().createQuery(builder.toString())
+				.setLong("compId", compId)
 				.setBoolean("deleted", false);
 
-		if (credId > 0) {
-			q.setLong("credId", credId);
-		}
-		if(!returnIfArchived) {
+		if (!returnIfArchived) {
 			q.setBoolean("archived", false);
 		}
 
-		Competence1 res = (Competence1) q.uniqueResult();
-		return res;
+		return (Competence1) q.uniqueResult();
 	}
 
 	@Override
@@ -982,15 +958,14 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		CompetenceData1 compData = null;
 		try {
 			compData = getTargetCompetenceData(credId, compId, userId, true, true);
+
 			if (compData == null) {
-//				compData = getCompetenceData(compId, true, true, true, userId,
-//						LearningResourceReturnResultType.FIRST_TIME_DRAFT_FOR_USER, true);
-				//compData = getCompetenceDataForUser(credId, compId, true, true, true, userId, true);
 				ResourceAccessRequirements req = ResourceAccessRequirements
 						.of(AccessMode.USER)
 						.addPrivilege(UserGroupPrivilege.Learn)
 						.addPrivilege(UserGroupPrivilege.Edit);
-				return getCompetenceDataWithAccessRightsInfo(credId, compId, true, true, true, true, userId,
+
+				return getCompetenceDataWithAccessRightsInfo(compId, true, true, true, true, userId,
 						req, false);
 			}
 				
@@ -1029,30 +1004,24 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		CompetenceData1 compData;
 		try {
 			StringBuilder builder = new StringBuilder();
-			builder.append("SELECT targetComp " +
+			builder.append(
+					"SELECT targetComp " +
 					"FROM TargetCompetence1 targetComp " +
-					"INNER JOIN fetch targetComp.competence comp ");
-
-			if (credId > 0) {
-				builder.append("INNER JOIN comp.credentialCompetences credComp " +
-						"WITH credComp.credential.id = :credId ");
-			}
-
-			builder.append("INNER JOIN fetch comp.createdBy user " +
+					"INNER JOIN fetch targetComp.competence comp " +
+					"INNER JOIN comp.credentialCompetences credComp " +
+						"WITH credComp.credential.id = :credId " +
+					"INNER JOIN fetch comp.createdBy user " +
 					"LEFT JOIN fetch comp.tags tags " +
 					"WHERE targetComp.user.id = :userId " +
-					"AND comp.id = :compId ");
-
+						"AND comp.id = :compId ");
 
 			logger.info("QUERY: " + builder.toString());
+
 			Query q = persistence.currentManager()
 					.createQuery(builder.toString())
 					.setLong("compId", compId)
-					.setLong("userId", userId);
-
-			if (credId > 0) {
-				q.setLong("credId", credId);
-			}
+					.setLong("userId", userId)
+					.setLong("credId", credId);
 
 			TargetCompetence1 res = (TargetCompetence1) q.uniqueResult();
 
@@ -1991,28 +1960,28 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	
 	@Override
 	@Transactional(readOnly = true)
-	public String getCompetenceTitleForCompetenceWithType(long id, LearningResourceType type)
+	public String getCompetenceTitleForCompetenceWithType(long compId, LearningResourceType type)
 			throws DbConnectionException {
 		try {
 			StringBuilder queryBuilder = new StringBuilder(
-				   "SELECT c.title " +
-				   "FROM Competence1 c " +
-				   "WHERE c.id = :compId ");
-			
-			if(type != null) {
+					"SELECT c.title " +
+					"FROM Competence1 c " +
+					"WHERE c.id = :compId ");
+
+			if (type != null) {
 				queryBuilder.append("AND c.type = :type");
 			}
-			
+
 			Query q = persistence.currentManager()
-				.createQuery(queryBuilder.toString())
-				.setLong("compId", id);
-			
-			if(type != null) {
+					.createQuery(queryBuilder.toString())
+					.setLong("compId", compId);
+
+			if (type != null) {
 				q.setParameter("type", type);
 			}
-			
+
 			String title = (String) q.uniqueResult();
-			
+
 			return title;
 		} catch(Exception e) {
 			logger.error(e);
@@ -2090,7 +2059,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		try {
 			ResourceAccessRequirements req = ResourceAccessRequirements.of(accessMode)
 					.addPrivilege(UserGroupPrivilege.Edit);
-			RestrictedAccessResult<CompetenceData1> res = getCompetenceDataWithAccessRightsInfo(credId, compId, true, true, true, true, userId,
+			RestrictedAccessResult<CompetenceData1> res = getCompetenceDataWithAccessRightsInfo(compId, true, true, true, true, userId,
 					req, true);
 			
 			boolean canUnpublish = !isThereOngoingDeliveryWithCompetence(compId);
@@ -2600,25 +2569,20 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	@Transactional
 	public void checkIfCompetenceIsPartOfACredential(long credId, long compId)
 			throws ResourceNotFoundException {
-		/*
-		 * check if passed credential has specified competence
-		 */
-		if(credId > 0) {
-			String query1 = "SELECT credComp.id " +
-					"FROM CredentialCompetence1 credComp " +
-					"WHERE credComp.credential.id = :credId " +
+		String query1 =
+				"SELECT credComp.id " +
+				"FROM CredentialCompetence1 credComp " +
+				"WHERE credComp.credential.id = :credId " +
 					"AND credComp.competence.id = :compId";
 
-			@SuppressWarnings("unchecked")
-			List<Long> res1 = persistence.currentManager()
-					.createQuery(query1)
-					.setLong("credId", credId)
-					.setLong("compId", compId)
-					.list();
+		List<Long> res1 = persistence.currentManager()
+				.createQuery(query1)
+				.setLong("credId", credId)
+				.setLong("compId", compId)
+				.list();
 
-			if(res1 == null || res1.isEmpty()) {
-				throw new ResourceNotFoundException();
-			}
+		if (res1 == null || res1.isEmpty()) {
+			throw new ResourceNotFoundException();
 		}
 	}
 
@@ -2641,7 +2605,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		try {
 			CompetenceData1 compData = getTargetCompetenceData(credId, compId, studentId, loadAssessmentConfig, loadLearningPathContent);
 			if (compData == null) {
-				compData = getCompetenceData(credId, compId, loadCreator, loadAssessmentConfig, loadTags, loadLearningPathContent, false);
+				compData = getCompetenceData(compId, loadCreator, loadAssessmentConfig, loadTags, loadLearningPathContent, false);
 			}
 
 			return compData;

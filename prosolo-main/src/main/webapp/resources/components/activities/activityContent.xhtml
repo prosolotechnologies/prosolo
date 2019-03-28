@@ -57,7 +57,7 @@
 							</ui:repeat>
 						</ul>
 					</h:panelGroup>
-					<c:if test="#{cc.attrs.role eq 'USER'}">
+					<c:if test="#{cc.attrs.role eq 'USER' and cc.attrs.bean.competenceData.activityToShowWithDetails.assessmentSettings.gradingMode ne 'NONGRADED'}">
 						<div class="sidebarBlock">
 							<p class="sidebarStrokeText">
 								<ui:fragment rendered="#{cc.attrs.bean.competenceData.activityToShowWithDetails.assessmentSettings.maxPoints gt 0}">

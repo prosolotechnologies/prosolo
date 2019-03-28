@@ -71,10 +71,13 @@ public class CompetenceViewBeanUser implements Serializable {
 
 	public void init() {
 		decodedCompId = idEncoder.decodeId(compId);
-		if (decodedCompId > 0) {
+		decodedCredId = idEncoder.decodeId(credId);
+
+		if (decodedCompId > 0 && decodedCredId > 0) {
 			try {
-				decodedCredId = idEncoder.decodeId(credId);
-				
+				// check if credential and competency are connected
+				competenceManager.checkIfCompetenceIsPartOfACredential(decodedCredId, decodedCompId);
+
 				RestrictedAccessResult<CompetenceData1> res = competenceManager
 						.getFullTargetCompetenceOrCompetenceData(decodedCredId, decodedCompId, 
 								loggedUser.getUserId());

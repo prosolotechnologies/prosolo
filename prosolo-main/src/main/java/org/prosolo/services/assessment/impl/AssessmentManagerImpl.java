@@ -3492,14 +3492,15 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	public Optional<Long> getSelfCompetenceAssessmentId(long credId, long compId, long studentId)
 			throws DbConnectionException {
 		try {
-			String query = "SELECT ca.id " +
+			String query =
+					"SELECT ca.id " +
 					"FROM CompetenceAssessment ca " +
 					"INNER JOIN ca.competence comp " +
 					"INNER JOIN ca.targetCredential tc " +
 					"WHERE comp.id = :compId " +
-					"AND ca.student.id = :studentId " +
-					"AND ca.type = :type " +
-					"AND tc.credential.id = :credId";
+						"AND ca.student.id = :studentId " +
+						"AND ca.type = :type " +
+						"AND tc.credential.id = :credId";
 
 			Long id = (Long) persistence.currentManager()
 					.createQuery(query)
