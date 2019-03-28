@@ -52,7 +52,7 @@ function hideEditComment(cancelBtn) {
     commentContainer.removeClass('hidden');
 
     var textarea1 = editCommentContainer.find('.contentEditableComment').first();
-    textarea1.html(commentContainer.text());
+    textarea1.val(commentContainer.text());
 
     $(cancelBtn).parent().next('.commentOptions').find('a.edit').removeClass('hidden');
     return false;

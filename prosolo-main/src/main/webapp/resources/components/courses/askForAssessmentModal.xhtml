@@ -136,12 +136,6 @@
 						<h:inputTextarea id="messageContentTextarea"
 							placeholder="Write message..."
 							value="#{askForAssessmentBean.assessmentRequestData.messageText}" />
-
-						<script>
-							$('#'+escapeColons('comment_#{comment.commentId}')+' .replyComment .contentEditableComment').on('keyup', function (e) {
-								$(this).prev('textarea').val($(this).html());
-							});
-						</script>
 					</div>
 
 					<div class="modal-footer alignLeft">
