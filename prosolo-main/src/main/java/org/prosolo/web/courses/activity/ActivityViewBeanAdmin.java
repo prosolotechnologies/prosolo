@@ -1,5 +1,7 @@
 package org.prosolo.web.courses.activity;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.services.nodes.Activity1Manager;
@@ -38,21 +40,22 @@ public class ActivityViewBeanAdmin implements Serializable {
 	@Inject private UnitManager unitManager;
 	@Inject private PageAccessRightsResolver pageAccessRightsResolver;
 
-	private String orgId;
-	private long decodedOrgId;
-	private String unitId;
+	@Getter @Setter private String orgId;
+	@Getter @Setter private String unitId;
+	@Getter @Setter private String actId;
+	@Getter @Setter private String compId;
+	@Getter @Setter private String credId;
+
+	@Getter private long decodedOrgId;
 	private long decodedUnitId;
-	private String actId;
 	private long decodedActId;
-	private String compId;
 	private long decodedCompId;
-	private String credId;
 	private long decodedCredId;
 
-	private CompetenceData1 competenceData;
+	@Getter private CompetenceData1 competenceData;
 
-	private String organizationTitle;
-	private String unitTitle;
+	@Getter private String organizationTitle;
+	@Getter private String unitTitle;
 
 	public void init() {
 		decodedOrgId = idEncoder.decodeId(orgId);
@@ -105,12 +108,10 @@ public class ActivityViewBeanAdmin implements Serializable {
 	private void loadCompetenceAndCredentialTitle() {
 		String compTitle = compManager.getCompetenceTitle(decodedCompId);
 		competenceData.setTitle(compTitle);
-		if (decodedCredId > 0) {
-			String credTitle = credManager.getCredentialTitle(decodedCredId);
-			competenceData.setCredentialId(decodedCredId);
-			competenceData.setCredentialTitle(credTitle);
-		}
-		
+
+		String credTitle = credManager.getCredentialTitle(decodedCredId);
+		competenceData.setCredentialId(decodedCredId);
+		competenceData.setCredentialTitle(credTitle);
 	}
 
 	public boolean isActivityActive(ActivityData act) {
@@ -121,87 +122,4 @@ public class ActivityViewBeanAdmin implements Serializable {
 		return competenceData.getActivityToShowWithDetails().getCreatorId() == loggedUser.getUserId();
 	}
 	
-	/*
-	 * GETTERS / SETTERS
-	 */
-
-	public CompetenceData1 getCompetenceData() {
-		return competenceData;
-	}
-
-	public String getActId() {
-		return actId;
-	}
-
-	public void setActId(String actId) {
-		this.actId = actId;
-	}
-
-	public long getDecodedActId() {
-		return decodedActId;
-	}
-
-	public void setDecodedActId(long decodedActId) {
-		this.decodedActId = decodedActId;
-	}
-
-	public String getCompId() {
-		return compId;
-	}
-
-	public void setCompId(String compId) {
-		this.compId = compId;
-	}
-
-	public long getDecodedCompId() {
-		return decodedCompId;
-	}
-
-	public void setDecodedCompId(long decodedCompId) {
-		this.decodedCompId = decodedCompId;
-	}
-
-	public String getCredId() {
-		return credId;
-	}
-
-	public void setCredId(String credId) {
-		this.credId = credId;
-	}
-
-	public long getDecodedCredId() {
-		return decodedCredId;
-	}
-
-	public void setDecodedCredId(long decodedCredId) {
-		this.decodedCredId = decodedCredId;
-	}
-
-	public void setCompetenceData(CompetenceData1 competenceData) {
-		this.competenceData = competenceData;
-	}
-
-	public String getOrgId() {
-		return orgId;
-	}
-
-	public void setOrgId(String orgId) {
-		this.orgId = orgId;
-	}
-
-	public String getUnitId() {
-		return unitId;
-	}
-
-	public void setUnitId(String unitId) {
-		this.unitId = unitId;
-	}
-
-	public String getOrganizationTitle() {
-		return organizationTitle;
-	}
-
-	public String getUnitTitle() {
-		return unitTitle;
-	}
 }

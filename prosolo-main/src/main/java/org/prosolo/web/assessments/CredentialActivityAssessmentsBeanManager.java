@@ -107,7 +107,6 @@ public class CredentialActivityAssessmentsBeanManager implements Serializable, P
 					}
 				}
 			} catch (ResourceNotFoundException rnfe) {
-				logger.error("Error", rnfe);
 				PageUtil.notFound();
 			} catch(Exception e) {
 				logger.error("Error", e);
@@ -165,7 +164,6 @@ public class CredentialActivityAssessmentsBeanManager implements Serializable, P
 					}
 				}
 			} catch (ResourceNotFoundException rnfe) {
-				logger.error(rnfe);
 				PageUtil.notFound();
 			} catch (Exception e) {
 				logger.error(e);

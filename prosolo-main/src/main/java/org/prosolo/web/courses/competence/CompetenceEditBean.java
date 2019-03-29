@@ -198,10 +198,8 @@ public class CompetenceEditBean extends CompoundLearningResourceAssessmentSettin
 				
 				logger.info("Loaded competence data for competence with id "+ id);
 			}
-		} catch(ResourceNotFoundException rnfe) {
-			competenceData = new CompetenceData1(false);
-			PageUtil.fireErrorMessage(ResourceBundleUtil.getMessage("label.competence") + " can not be found");
-			logger.info(rnfe);
+		} catch (ResourceNotFoundException rnfe) {
+			PageUtil.notFound();
 		}
 	}
 
