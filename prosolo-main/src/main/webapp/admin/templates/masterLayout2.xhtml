@@ -18,7 +18,9 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1"></meta>
 		<link rel="icon" href="#{request.contextPath}/favicon.ico"
 			  type="image/x-icon" />
-		<title><ui:insert name="windowTitle" /></title>
+		<h:panelGroup id="panelWindowTitle">
+			<title><ui:insert name="windowTitle" /></title>
+		</h:panelGroup>
 	</f:facet>
 
 	<link rel="stylesheet" type="text/css" media="all"

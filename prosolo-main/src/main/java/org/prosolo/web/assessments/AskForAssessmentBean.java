@@ -8,8 +8,8 @@ import org.prosolo.search.UserTextSearch;
 import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.assessment.data.AssessmentRequestData;
 import org.prosolo.services.nodes.data.LearningResourceType;
-import org.prosolo.services.user.data.UserData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
+import org.prosolo.services.user.data.UserData;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageUtil;
 import org.prosolo.web.util.pagination.PaginationData;
@@ -17,7 +17,6 @@ import org.prosolo.web.util.pagination.PaginationData;
 import javax.inject.Inject;
 import java.io.Serializable;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 

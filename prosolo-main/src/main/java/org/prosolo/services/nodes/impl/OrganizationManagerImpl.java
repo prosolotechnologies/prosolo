@@ -507,8 +507,10 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
             sb.append("WHERE user.organization.id = :orgId ");
 
             if (!returnDeleted) {
-                sb.append("AND user.deleted = :boolFalse");
+                sb.append("AND user.deleted = :boolFalse ");
             }
+
+            sb.append("ORDER BY user.lastname, user.name");
 
             Query q = session
                     .createQuery(sb.toString())
@@ -592,11 +594,19 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
     @Transactional
     public void resetTokensForAllOrganizationUsers(long organizationId, int numberOfTokens) {
         try {
-            String query = "UPDATE User u SET u.numberOfTokens = :numberOfTokens WHERE u.organization.id = :orgId";
+            String query =
+                    "UPDATE user u " +
+                    "INNER JOIN user_user_role uur " +
+                    "ON uur.user = u.id " +
+                    "INNER JOIN role r " +
+                    "ON r.id = uur.roles " +
+                    "AND r.title = :studentRoleName " +
+                    "SET u.number_of_tokens = :numberOfTokens WHERE u.organization = :orgId";
             persistence.currentManager()
-                    .createQuery(query)
+                    .createSQLQuery(query)
                     .setInteger("numberOfTokens", numberOfTokens)
                     .setLong("orgId", organizationId)
+                    .setString("studentRoleName", SystemRoleNames.USER)
                     .executeUpdate();
         } catch (Exception e){
             logger.error("Error", e);
@@ -608,11 +618,19 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
     @Transactional
     public void addTokensToAllOrganizationUsers(long organizationId, int numberOfTokens) {
         try {
-            String query = "UPDATE User u SET u.numberOfTokens = u.numberOfTokens + :numberOfTokens WHERE u.organization.id = :orgId";
+            String query =
+                    "UPDATE user u " +
+                    "INNER JOIN user_user_role uur " +
+                    "ON uur.user = u.id " +
+                    "INNER JOIN role r " +
+                    "ON r.id = uur.roles " +
+                    "AND r.title = :studentRoleName " +
+                    "SET u.number_of_tokens = u.number_of_tokens + :numberOfTokens WHERE u.organization = :orgId";
             persistence.currentManager()
-                    .createQuery(query)
+                    .createSQLQuery(query)
                     .setInteger("numberOfTokens", numberOfTokens)
                     .setLong("orgId", organizationId)
+                    .setString("studentRoleName", SystemRoleNames.USER)
                     .executeUpdate();
         } catch (Exception e){
             logger.error("Error", e);
