@@ -315,7 +315,7 @@ public class MessagesBean implements Serializable {
             }
 
             logger.debug("User " + loggedUser.getUserId() + " sent a message to thread " + selectedThread.getId() + " with content: '" + this.messageText + "'");
-            PageUtil.fireSuccessfulInfoMessage("messagesFormGrowl", "Your message is sent");
+            PageUtil.fireSuccessfulInfoMessage("Your message is sent");
 
             this.messageText = null;
 
