@@ -37,6 +37,7 @@ import javax.faces.validator.ValidatorException;
 import javax.inject.Inject;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -224,8 +225,15 @@ public class OrganizationEditBean implements Serializable {
         }else{
             userData.setObjectStatus(ObjectStatus.CREATED);
             this.organization.getAdmins().add(userData);
+            sortOrganizationAdmins();
         }
         searchTerm = "";
+    }
+
+    private void sortOrganizationAdmins() {
+        Comparator<UserData> comparator = Comparator.comparing(admin -> admin.getLastName());
+        comparator = comparator.thenComparing(admin -> admin.getName());
+        this.organization.getAdmins().sort(comparator);
     }
 
     public void createNewOrganization(){
@@ -262,8 +270,8 @@ public class OrganizationEditBean implements Serializable {
 
             PageUtil.fireSuccessfulInfoMessage("The organization has been updated");
         } catch (ConstraintViolationException | DataIntegrityViolationException e) {
-                logger.error("Error", e);
-                PageUtil.fireErrorMessage("Error updating the organization");
+            logger.error("Error", e);
+            PageUtil.fireErrorMessage("Error updating the organization");
         } catch (DbConnectionException e) {
             logger.error("error", e);
             PageUtil.fireErrorMessage("Error updating the organization");

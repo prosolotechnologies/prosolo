@@ -507,8 +507,10 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
             sb.append("WHERE user.organization.id = :orgId ");
 
             if (!returnDeleted) {
-                sb.append("AND user.deleted = :boolFalse");
+                sb.append("AND user.deleted = :boolFalse ");
             }
+
+            sb.append("ORDER BY user.lastname, user.name");
 
             Query q = session
                     .createQuery(sb.toString())
