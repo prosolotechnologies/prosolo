@@ -34,7 +34,7 @@ import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.credential.CredentialData;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceData;
-import org.prosolo.services.nodes.data.organization.OrganizationData;
+import org.prosolo.services.nodes.data.organization.OrganizationBasicData;
 import org.prosolo.services.user.UserManager;
 import org.prosolo.services.user.data.UserData;
 import org.prosolo.services.util.roles.SystemRoleNames;
@@ -90,7 +90,7 @@ public class BusinessCase4_EDX {
 				userNickPowell, null, null, params));
 
 		//create organization
-		OrganizationData orgData = new OrganizationData();
+		OrganizationBasicData orgData = new OrganizationBasicData();
 		orgData.setTitle("Desert Winds University");
 		orgData.setAdmins(Arrays.asList(new UserData(userNickPowell)));
 

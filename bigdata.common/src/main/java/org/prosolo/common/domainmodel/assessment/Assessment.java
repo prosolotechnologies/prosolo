@@ -31,6 +31,13 @@ public class Assessment extends BaseEntity {
     private Date lastAssessment;
     private BlindAssessmentMode blindAssessmentMode = BlindAssessmentMode.OFF;
 
+    /*
+    number of tokens spent for making the assessment request to be able to know how many tokens to return
+    to the user if request is declined/expired/withdrawn
+     */
+    private int numberOfTokensSpent;
+
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     public AssessmentStatus getStatus() {
@@ -135,5 +142,13 @@ public class Assessment extends BaseEntity {
 
     public void setQuitDate(Date quitDate) {
         this.quitDate = quitDate;
+    }
+
+    public int getNumberOfTokensSpent() {
+        return numberOfTokensSpent;
+    }
+
+    public void setNumberOfTokensSpent(int numberOfTokensSpent) {
+        this.numberOfTokensSpent = numberOfTokensSpent;
     }
 }

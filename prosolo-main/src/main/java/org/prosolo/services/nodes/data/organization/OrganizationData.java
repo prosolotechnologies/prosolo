@@ -4,7 +4,6 @@ import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.services.user.data.UserData;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -14,44 +13,45 @@ import java.util.List;
 public class OrganizationData implements Serializable {
 
     private long id;
-    private String title;
-    private List<UserData> admins;
-    private boolean learningInStagesEnabled;
-    private List<LearningStageData> learningStages;
-    //storing learning stages marked for removal in a separate collection
-    private List<LearningStageData> learningStagesForDeletion;
-    private List<CredentialCategoryData> credentialCategories;
-    private List<CredentialCategoryData> credentialCategoriesForDeletion;
+    private OrganizationBasicData basicData;
+    private OrganizationLearningStageData learningStageData;
+    private OrganizationCategoryData categoryData;
+    private OrganizationTokenData tokenData;
 
     public OrganizationData(){
-        learningStages = new ArrayList<>();
-        learningStagesForDeletion = new ArrayList<>();
-        credentialCategories = new ArrayList<>();
-        credentialCategoriesForDeletion = new ArrayList<>();
+        basicData = new OrganizationBasicData();
+        learningStageData = new OrganizationLearningStageData();
+        categoryData = new OrganizationCategoryData();
+        tokenData = new OrganizationTokenData();
     }
 
     public OrganizationData(Organization organization){
         this();
         this.id = organization.getId();
-        this.title = organization.getTitle();
-        this.learningInStagesEnabled = organization.isLearningInStagesEnabled();
+        setTitle(organization.getTitle());
+        setLearningInStagesEnabled(organization.isLearningInStagesEnabled());
+        tokenData.setAssessmentTokensEnabled(organization.isAssessmentTokensEnabled());
+        tokenData.setInitialNumberOfTokensGiven(organization.getInitialNumberOfTokensGiven());
+        tokenData.setNumberOfEarnedTokensPerAssessment(organization.getNumberOfEarnedTokensPerAssessment());
+        tokenData.setNumberOfSpentTokensPerRequest(organization.getNumberOfSpentTokensPerRequest());
     }
 
     public OrganizationData(Organization organization, List<UserData> chosenAdmins){
         this(organization);
-        this.admins = chosenAdmins;
+        setAdmins(chosenAdmins);
     }
 
     public OrganizationData(long id, String title){
         this();
         this.id = id;
-        this.title = title;
+        setTitle(title);
     }
 
     public String getAdminsString() {
         String adminsString = "";
-        if(admins != null) {
-            for(UserData a : admins) {
+        List<UserData> admins = getAdmins();
+        if (admins != null) {
+            for (UserData a : admins) {
                 if(!adminsString.isEmpty()) {
                     adminsString += ", ";
                 }
@@ -70,66 +70,83 @@ public class OrganizationData implements Serializable {
     }
 
     public String getTitle() {
-        return title;
+        return basicData.getTitle();
     }
 
     public void setTitle(String title) {
-        this.title = title;
+        basicData.setTitle(title);
     }
 
     public List<UserData> getAdmins() {
-        return admins;
+        return basicData.getAdmins();
     }
 
     public void setAdmins(List<UserData> admins) {
-        this.admins = admins;
+        basicData.setAdmins(admins);
     }
 
     public List<LearningStageData> getLearningStages() {
-        return learningStages;
+        return learningStageData.getLearningStages();
     }
 
     public void addLearningStage(LearningStageData lStage) {
-        learningStages.add(lStage);
+        learningStageData.addLearningStage(lStage);
     }
 
     public void addAllLearningStages(Collection<LearningStageData> learningStages) {
-        this.learningStages.addAll(learningStages);
+        learningStageData.addAllLearningStages(learningStages);
     }
 
     public List<LearningStageData> getLearningStagesForDeletion() {
-        return learningStagesForDeletion;
+        return learningStageData.getLearningStagesForDeletion();
     }
 
     public void addLearningStageForDeletion(LearningStageData learningStageForDeletion) {
-        learningStagesForDeletion.add(learningStageForDeletion);
+        learningStageData.addLearningStageForDeletion(learningStageForDeletion);
     }
 
     public boolean isLearningInStagesEnabled() {
-        return learningInStagesEnabled;
+        return learningStageData.isLearningInStagesEnabled();
     }
 
     public void setLearningInStagesEnabled(boolean learningInStagesEnabled) {
-        this.learningInStagesEnabled = learningInStagesEnabled;
+        this.learningStageData.setLearningInStagesEnabled(learningInStagesEnabled);
     }
 
     public List<CredentialCategoryData> getCredentialCategories() {
-        return credentialCategories;
+        return categoryData.getCredentialCategories();
     }
 
     public void addCredentialCategory(CredentialCategoryData category) {
-        credentialCategories.add(category);
+        categoryData.addCredentialCategory(category);
     }
 
     public void addAllCredentialCategories(Collection<CredentialCategoryData> categories) {
-        credentialCategories.addAll(categories);
+        categoryData.addAllCredentialCategories(categories);
     }
 
     public List<CredentialCategoryData> getCredentialCategoriesForDeletion() {
-        return credentialCategoriesForDeletion;
+        return categoryData.getCredentialCategoriesForDeletion();
     }
 
     public void addCredentialCategoryForDeletion(CredentialCategoryData category) {
-        credentialCategoriesForDeletion.add(category);
+        categoryData.addCredentialCategoryForDeletion(category);
     }
+
+    public OrganizationTokenData getTokenData() {
+        return tokenData;
+    }
+
+    public OrganizationBasicData getBasicData() {
+        return basicData;
+    }
+
+    public OrganizationLearningStageData getLearningStageData() {
+        return learningStageData;
+    }
+
+    public OrganizationCategoryData getCategoryData() {
+        return categoryData;
+    }
+
 }

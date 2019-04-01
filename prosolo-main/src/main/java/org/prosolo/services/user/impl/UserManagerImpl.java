@@ -24,6 +24,7 @@ import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.*;
+import org.prosolo.services.user.data.UserAssessmentTokenData;
 import org.prosolo.services.user.data.UserCreationData;
 import org.prosolo.services.user.data.UserData;
 import org.prosolo.services.upload.AvatarProcessor;
@@ -1302,6 +1303,34 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 		} catch (Exception e) {
 			logger.error("error", e);
 			throw new DbConnectionException("Error updating account data for user: " + accountData.getId());
+		}
+	}
+
+	@Override
+	@Transactional (readOnly = true)
+	public UserAssessmentTokenData getUserAssessmentTokenData(long userId) {
+		try {
+			User user = (User) persistence.currentManager().load(User.class, userId);
+			boolean tokensEnabled = false;
+			if (user.getOrganization() != null) {
+				tokensEnabled = user.getOrganization().isAssessmentTokensEnabled();
+			}
+			return new UserAssessmentTokenData(tokensEnabled, user.isAvailableForAssessments(), user.getNumberOfTokens());
+		} catch (Exception e) {
+			logger.error("error", e);
+			throw new DbConnectionException("Error loading user assessment tokens data");
+		}
+	}
+
+	@Override
+	@Transactional
+	public void updateAssessmentAvailability(long userId, boolean availableForAssessments) {
+		try {
+			User user = (User) persistence.currentManager().load(User.class, userId);
+			user.setAvailableForAssessments(availableForAssessments);
+		} catch (Exception e) {
+			logger.error("error", e);
+			throw new DbConnectionException("Error updating assessment availability");
 		}
 	}
 
