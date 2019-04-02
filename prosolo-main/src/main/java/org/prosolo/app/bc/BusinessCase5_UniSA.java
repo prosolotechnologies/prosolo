@@ -40,7 +40,7 @@ import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.config.competence.CompetenceLoadConfig;
 import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.ResourceVisibilityMember;
-import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview1;
+import org.prosolo.services.nodes.data.statusWall.AttachmentPreview;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.credential.CredentialData;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceData;
@@ -590,8 +590,8 @@ public class BusinessCase5_UniSA {
 
 		try {
 			LinkParser parser = LinkParserFactory.buildParser(StringUtil.cleanHtml(url));
-			AttachmentPreview1 attachmentPreview1 = parser.parse();
-			newSocialActivity.setAttachmentPreview(attachmentPreview1);
+			AttachmentPreview attachmentPreview = parser.parse();
+			newSocialActivity.setAttachmentPreview(attachmentPreview);
 		} catch (LinkParserException e) {
 			e.printStackTrace();
 			logger.error("Error", e);

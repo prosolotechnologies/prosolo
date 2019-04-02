@@ -7,8 +7,8 @@ import org.primefaces.json.JSONObject;
 import org.prosolo.common.domainmodel.content.ContentType1;
 import org.prosolo.services.htmlparser.LinkParser;
 import org.prosolo.services.media.util.LinkParserException;
-import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview1;
-import org.prosolo.services.nodes.data.activity.attachmentPreview.MediaType1;
+import org.prosolo.services.nodes.data.statusWall.AttachmentPreview;
+import org.prosolo.services.nodes.data.statusWall.MediaType1;
 import org.prosolo.services.util.GetRequestClient;
 import org.prosolo.services.util.impl.GetRequestClientImpl;
 import org.prosolo.services.util.url.URLUtil;
@@ -33,11 +33,11 @@ public class SlideShareParser extends LinkParser {
     }
 
     @Override
-    public AttachmentPreview1 parse() throws LinkParserException {
+    public AttachmentPreview parse() throws LinkParserException {
         if (document.baseUri() == null) {
             return null;
         }
-        AttachmentPreview1 attachementPreview = new AttachmentPreview1();
+        AttachmentPreview attachementPreview = new AttachmentPreview();
         attachementPreview.setInitialized(true);
 
         String fullUrl = document.baseUri().trim();

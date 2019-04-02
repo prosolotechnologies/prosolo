@@ -1713,7 +1713,8 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		try {
 			Result<Void> result = new Result();
 			CompetenceAssessment competenceAssessment = (CompetenceAssessment) persistence.currentManager().load(CompetenceAssessment.class, competenceAssessmentId);
-            if (competenceAssessment.getStatus() != AssessmentStatus.SUBMITTED) {
+
+			if (competenceAssessment.getStatus() != AssessmentStatus.SUBMITTED) {
 				if (competenceAssessment.getStatus() != AssessmentStatus.PENDING) {
 					throw new IllegalDataStateException("Only pending assessment can be approved. This assessment has status: " + competenceAssessment.getStatus());
 				}
@@ -1726,9 +1727,11 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 				competenceAssessment.setApproved(true);
 				competenceAssessment.setDateApproved(new Date());
 				competenceAssessment.setAssessorNotified(false);
+
 				//if instructor assessment, mark approved competence as completed if not already
 				if (competenceAssessment.getType() == AssessmentType.INSTRUCTOR_ASSESSMENT) {
 					TargetCompetence1 tc = compManager.getTargetCompetence(competenceAssessment.getCompetence().getId(), competenceAssessment.getStudent().getId());
+
 					if (tc.getProgress() < 100) {
 						result.appendEvents(compManager.completeCompetenceAndGetEvents(tc.getId(), context).getEventQueue());
 					}

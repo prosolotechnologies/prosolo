@@ -253,6 +253,7 @@ public class CompetenceViewBeanUser implements Serializable {
 		try {
 			competenceManager.completeCompetence(
 					competenceData.getTargetCompId(),
+					decodedCredId,
 					loggedUser.getUserContext());
 			competenceData.setProgress(100);
 

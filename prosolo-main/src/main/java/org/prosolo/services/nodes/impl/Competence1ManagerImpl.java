@@ -2098,44 +2098,85 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	@Transactional(readOnly = false)
 	public EventQueue updateCompetenceProgress(long targetCompId, UserContextData context)
 			throws DbConnectionException {
+		EventQueue eventQueue = EventQueue.newEventQueue();
+
 		try {
-			EventQueue eventQueue = EventQueue.newEventQueue();
-			
-			String query = "SELECT comp.id, act.id, tAct.completed " +
-				   "FROM TargetActivity1 tAct " +
-				   "INNER JOIN tAct.targetCompetence tComp " +
-				   "INNER JOIN tComp.competence comp " +
-				   "INNER JOIN tAct.activity act " +
-				   "WHERE tComp.id = :tCompId " +
-				   "ORDER BY tAct.order";
-	
-			@SuppressWarnings("unchecked")
+			String query =
+				"SELECT credComp.credential, comp.id, act.id, tAct.completed " +
+				"FROM target_activity1 tAct " +
+				"INNER JOIN target_competence1 tComp ON tAct.target_competence = tComp.id " +
+				"INNER JOIN competence1 comp ON tComp.competence = comp.id " +
+				"INNER JOIN activity1 act ON tAct.activity = act.id " +
+				"INNER JOIN credential_competence1 credComp ON credComp.competence = comp.id " +
+				"INNER JOIN credential1 cred ON cred.id = credComp.credential " +
+				"INNER JOIN target_credential1 tCred ON tCred.credential = credComp.credential " +
+				"WHERE tComp.id = :tCompId " +
+					"AND cred.type = 'Delivery' " +
+					"AND tCred.user = :userId " +
+				"ORDER BY tAct.act_order";
+//			String query =
+//					"SELECT comp.id, act.id, tAct.completed " +
+//					"FROM TargetActivity1 tAct " +
+//					"INNER JOIN tAct.targetCompetence tComp " +
+//					"INNER JOIN tComp.competence comp " +
+//					"INNER JOIN tAct.activity act " +
+//					"JOIN CredentialCompetence1 credComp " +
+//					"JOIN CredentialCompetence1 credComp " +
+//					"WHERE tComp.id = :tCompId " +
+//					"ORDER BY tAct.order";
+
 			List<Object[]> res = persistence.currentManager()
-				.createQuery(query)
-				.setLong("tCompId", targetCompId)
-				.list();
-			
-			if(res != null) {
+					.createSQLQuery(query)
+					.setLong("tCompId", targetCompId)
+					.setLong("userId", context.getActorId())
+					.list();
+
+			if (res != null) {
 				int cumulativeCompProgress = 0;
 				int numberOfActivitiesInACompetence = 0;
 				long nextActToLearnInACompetenceId = 0;
-				
-				for(Object[] obj : res) {
-					long actId = (long) obj[1];
-					boolean actCompleted = (boolean) obj[2];
-					
+
+				for (Object[] obj : res) {
+					long actId = (long) obj[2];
+					boolean actCompleted = (boolean) obj[3];
+
 					int progress = actCompleted ? 100 : 0;
 					cumulativeCompProgress += progress;
-					numberOfActivitiesInACompetence ++;
-					if(nextActToLearnInACompetenceId == 0 && !actCompleted) {
+					numberOfActivitiesInACompetence++;
+					if (nextActToLearnInACompetenceId == 0 && !actCompleted) {
 						nextActToLearnInACompetenceId = actId;
 					}
 				}
 				int finalCompProgress = cumulativeCompProgress / numberOfActivitiesInACompetence;
-				
-				eventQueue.appendEvents(updateCompetenceProgress(targetCompId, (long) res.get(0)[0], finalCompProgress,
-						nextActToLearnInACompetenceId, context));
-				
+
+				updateCompetenceProgress(targetCompId, finalCompProgress, nextActToLearnInACompetenceId);
+
+				// generate appropriate events
+				long credId = (long) res.get(0)[0];
+				long compId = (long) res.get(0)[1];
+
+				TargetCompetence1 tComp = new TargetCompetence1();
+				tComp.setId(targetCompId);
+				Competence1 competence = new Competence1();
+				competence.setId(compId);
+				tComp.setCompetence(competence);
+
+				Map<String, String> params = new HashMap<>();
+
+				// if the competence is completed
+				if (finalCompProgress == 100) {
+					params.put("dateCompleted", DateUtil.getMillisFromDate(new Date()) + "");
+					params.put("credId", credId+"");
+
+					eventQueue.appendEvent(eventFactory.generateEventData(
+							EventType.Completion, context, tComp, null, null, params));
+				}
+
+				EventData ev = eventFactory.generateEventData(EventType.ChangeProgress,
+						context, tComp, null, null, null);
+				ev.setProgress(finalCompProgress);
+				eventQueue.appendEvent(ev);
+
 				eventQueue.appendEvents(credentialManager.updateCredentialProgress(targetCompId, context));
 			}
 			return eventQueue;
@@ -2148,55 +2189,28 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		}
 	}
 
-	private EventQueue updateCompetenceProgress(long targetCompId, long compId, int finalCompProgress,
-			long nextActivityToLearnId, UserContextData context) {
-		Date now = new Date();
-		
+	private void updateCompetenceProgress(long targetCompId, int finalCompProgress,
+										  long nextActivityToLearnId) {
 		StringBuilder builder = new StringBuilder();
 		builder.append("UPDATE TargetCompetence1 targetComp SET " +
- 				 	   "targetComp.progress = :progress, " +
-					   "targetComp.nextActivityToLearnId = :nextActToLearnId ");
+				"targetComp.progress = :progress, " +
+				"targetComp.nextActivityToLearnId = :nextActToLearnId ");
+
 		if (finalCompProgress == 100) {
 			builder.append(", targetComp.dateCompleted = :dateCompleted ");
 		}
 		builder.append("WHERE targetComp.id = :targetCompId");
-		
+
 		Query q = persistence.currentManager()
-			.createQuery(builder.toString())
-			.setInteger("progress", finalCompProgress)
-			.setLong("targetCompId", targetCompId)
-			.setLong("nextActToLearnId", nextActivityToLearnId);
-		
+				.createQuery(builder.toString())
+				.setInteger("progress", finalCompProgress)
+				.setLong("targetCompId", targetCompId)
+				.setLong("nextActToLearnId", nextActivityToLearnId);
+
 		if (finalCompProgress == 100) {
-			q.setTimestamp("dateCompleted", now);
+			q.setTimestamp("dateCompleted", new Date());
 		}
 		q.executeUpdate();
-		
-		EventQueue events = EventQueue.newEventQueue();
-		
-		TargetCompetence1 tComp = new TargetCompetence1();
-		tComp.setId(targetCompId);
-		Competence1 competence = new Competence1();
-		competence.setId(compId);
-		tComp.setCompetence(competence);
-
-		Map<String, String> params = new HashMap<>();
-
-		if (finalCompProgress == 100) {
-			params.put("dateCompleted", DateUtil.getMillisFromDate(now) + "");
-
-			events.appendEvent(eventFactory.generateEventData(
-					EventType.Completion, context, tComp, null,null, params));
-		}
-
-		EventData ev = eventFactory.generateEventData(EventType.ChangeProgress,
-				context, tComp, null, null, params);
-		ev.setProgress(finalCompProgress);
-		events.appendEvent(ev);
-//		eventFactory.generateChangeProgressEvent(userId, tComp, finalCompProgress, 
-//				lcPage, lcContext, lcService, params);
-
-		return events;
 	}
 	
 	@Override
@@ -2505,26 +2519,33 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	}
 
 	@Override
-	public void completeCompetence(long targetCompetenceId, UserContextData context) throws DbConnectionException {
-		Result<Void> res = self.completeCompetenceAndGetEvents(targetCompetenceId, context);
+	public void completeCompetence(long targetCompetenceId, long credentialId, UserContextData context) throws DbConnectionException {
+		Result<Void> res = self.completeCompetenceAndGetEvents(targetCompetenceId, credentialId, context);
 		eventFactory.generateEvents(res.getEventQueue());
 	}
 
 	@Override
 	@Transactional
-	public Result<Void> completeCompetenceAndGetEvents(long targetCompetenceId, UserContextData context)
+	public Result<Void> completeCompetenceAndGetEvents(long targetCompetenceId, long credentialId, UserContextData context)
 			throws DbConnectionException {
 		try {
+			Date dateCompleted = new Date();
+
 			TargetCompetence1 tc = (TargetCompetence1) persistence.currentManager()
 					.load(TargetCompetence1.class, targetCompetenceId);
 			tc.setProgress(100);
-			tc.setDateCompleted(new Date());
+			tc.setDateCompleted(dateCompleted);
 
 			Result<Void> res = new Result<>();
 			TargetCompetence1 tComp = new TargetCompetence1();
 			tComp.setId(targetCompetenceId);
+
+			Map<String, String> params = new HashMap<>();
+			params.put("dateCompleted", DateUtil.getMillisFromDate(dateCompleted) + "");
+			params.put("credId", credentialId+"");
+
 			res.appendEvent(eventFactory.generateEventData(
-					EventType.Completion, context, tComp, null, null, null));
+					EventType.Completion, context, tComp, null, null, params));
 
 			EventData ev = eventFactory.generateEventData(EventType.ChangeProgress,
 					context, tComp, null, null, null);
@@ -2536,6 +2557,39 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			res.appendEvents(credentialManager.updateCredentialProgress(targetCompetenceId, context));
 
 			return res;
+		} catch (DbConnectionException e) {
+			throw e;
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error marking the competence as completed");
+		}
+	}
+
+	@Override
+	@Transactional
+	public Result<Void> completeCompetenceAndGetEvents(long targetCompetenceId, UserContextData context)
+			throws DbConnectionException {
+		try {
+			String query =
+					"SELECT cred.id " +
+					"FROM TargetCredential1 tCred " +
+					"INNER JOIN tCred.credential cred " +
+					"INNER JOIN cred.competences credComp1 " +
+					"INNER JOIN credComp1.competence comp1 " +
+					"INNER JOIN comp1.targetCompetences tComp1 " +
+					"WITH tComp1.id = :targetCompId ";
+
+			@SuppressWarnings("unchecked")
+			Long credentialId = (Long) persistence.currentManager()
+					.createQuery(query)
+					.setLong("targetCompId", targetCompetenceId)
+					.uniqueResult();
+
+			if (credentialId > 0) {
+				return completeCompetenceAndGetEvents(targetCompetenceId, credentialId, context);
+			} else {
+				throw new RuntimeException("Error finding credential isd for the Target Comeptence " + targetCompetenceId);
+			}
 		} catch (DbConnectionException e) {
 			throw e;
 		} catch (Exception e) {
