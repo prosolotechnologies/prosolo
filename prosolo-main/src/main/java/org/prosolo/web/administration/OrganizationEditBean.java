@@ -22,6 +22,7 @@ import org.prosolo.services.util.roles.SystemRoleNames;
 import org.prosolo.web.ApplicationBean;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.PageAccessRightsResolver;
+import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.prosolo.web.util.page.UseCase;
 import org.springframework.context.annotation.Scope;
@@ -36,6 +37,7 @@ import javax.faces.validator.ValidatorException;
 import javax.inject.Inject;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -84,6 +86,9 @@ public class OrganizationEditBean implements Serializable {
 
     private CredentialCategoryData selectedCategory;
     private UseCase credentialCategoryUseCase = UseCase.ADD;
+
+    private int tokensToReset;
+    private int tokensToAdd;
 
     public void init() {
         logger.debug("initializing");
@@ -203,11 +208,11 @@ public class OrganizationEditBean implements Serializable {
 
     //credential categories administration end
 
-    public void saveOrganization(){
-        if(this.organization.getId() == 0){
+    public void saveOrganizationBasicInfo() {
+        if (this.organization.getId() == 0) {
             createNewOrganization();
-        }else{
-            updateOrganization();
+        } else {
+            updateOrganizationBasicInfo();
         }
     }
 
@@ -220,14 +225,21 @@ public class OrganizationEditBean implements Serializable {
         }else{
             userData.setObjectStatus(ObjectStatus.CREATED);
             this.organization.getAdmins().add(userData);
+            sortOrganizationAdmins();
         }
         searchTerm = "";
+    }
+
+    private void sortOrganizationAdmins() {
+        Comparator<UserData> comparator = Comparator.comparing(admin -> admin.getLastName());
+        comparator = comparator.thenComparing(admin -> admin.getName());
+        this.organization.getAdmins().sort(comparator);
     }
 
     public void createNewOrganization(){
         try {
             if(this.organization.getAdmins() != null && !this.organization.getAdmins().isEmpty()) {
-                Organization organization = organizationManager.createNewOrganization(this.organization, loggedUser.getUserContext(decodedId));
+                Organization organization = organizationManager.createNewOrganization(this.organization.getBasicData(), loggedUser.getUserContext(decodedId));
 
                 logger.debug("New Organization (" + organization.getTitle() + ")");
 
@@ -245,33 +257,101 @@ public class OrganizationEditBean implements Serializable {
              */
             PageUtil.fireErrorMessage("Error creating the organization");
         } catch (Exception e){
-            logger.error(e);
+            logger.error("error", e);
             PageUtil.fireErrorMessage("Error creating the organization");
         }
     }
 
-    public void updateOrganization(){
+    public void updateOrganizationBasicInfo() {
         try {
-            organizationManager.updateOrganization(this.organization, loggedUser.getUserContext(decodedId));
+            organizationManager.updateOrganizationBasicInfo(organization.getId(), organization.getBasicData(), loggedUser.getUserContext(decodedId));
 
             logger.debug("Organization (" + organization.getTitle() + ") updated by the user " + loggedUser.getUserId());
 
             PageUtil.fireSuccessfulInfoMessage("The organization has been updated");
+        } catch (ConstraintViolationException | DataIntegrityViolationException e) {
+            logger.error("Error", e);
+            PageUtil.fireErrorMessage("Error updating the organization");
+        } catch (DbConnectionException e) {
+            logger.error("error", e);
+            PageUtil.fireErrorMessage("Error updating the organization");
+        }
+    }
+
+    public void updateOrganizationLearningStages() {
+        try {
+            organizationManager.updateOrganizationLearningStages(organization.getId(), organization.getLearningStageData(), loggedUser.getUserContext(decodedId));
+
+            logger.debug("Organization (" + organization.getTitle() + ") learning stages updated by the user " + loggedUser.getUserId());
+
+            PageUtil.fireSuccessfulInfoMessage("The organization learning stage configuration has been updated");
             try {
-                initOrgData();
+                List<LearningStageData> learningStages = organizationManager.getOrganizationLearningStagesData(organization.getId());
+                organization.getLearningStageData().resetLearningStages(learningStages);
             } catch (Exception e) {
                 PageUtil.fireErrorMessage("Error refreshing the data");
             }
         } catch (ConstraintViolationException | DataIntegrityViolationException e) {
-                logger.error("Error", e);
-                /* TODO exception - pay attention to this case - we can have several constraints violated
-                   and we don't know which one is actually violated so we can't generate specific, meaningful
-                   message. Should we maybe have a specific exception for each constraint
-                 */
-                PageUtil.fireErrorMessage("Error updating the organization");
+            logger.error("Error", e);
+            PageUtil.fireErrorMessage("Error updating the organization learning stage configuration");
         } catch (DbConnectionException e) {
-            logger.error(e);
-            PageUtil.fireErrorMessage("Error updating the organization");
+            logger.error("error", e);
+            PageUtil.fireErrorMessage("Error updating the organization learning stage configuration");
+        }
+    }
+
+    public void updateOrganizationCategories(){
+        try {
+            organizationManager.updateOrganizationCredentialCategories(organization.getId(), organization.getCategoryData());
+
+            logger.debug("Organization (" + organization.getTitle() + ") credential categories updated by the user " + loggedUser.getUserId());
+
+            PageUtil.fireSuccessfulInfoMessage("The organization " + ResourceBundleUtil.getLabel("credential").toLowerCase() + " category configuration has been updated");
+            try {
+                List<CredentialCategoryData> categories = organizationManager.getOrganizationCredentialCategoriesData(organization.getId(), true, true);
+                organization.getCategoryData().resetCredentialCategories(categories);
+            } catch (Exception e) {
+                PageUtil.fireErrorMessage("Error refreshing the data");
+            }
+        } catch (ConstraintViolationException | DataIntegrityViolationException e) {
+            logger.error("Error", e);
+            PageUtil.fireErrorMessage("Error updating the organization " + ResourceBundleUtil.getLabel("credential").toLowerCase() + " category configuration");
+        } catch (DbConnectionException e) {
+            logger.error("error", e);
+            PageUtil.fireErrorMessage("Error updating the organization " + ResourceBundleUtil.getLabel("credential").toLowerCase() + " category configuration");
+        }
+    }
+
+    public void updateOrganizationTokenData() {
+        try {
+            organizationManager.updateOrganizationTokenInfo(organization.getId(), organization.getTokenData());
+            logger.debug("Organization (" + organization.getTitle() + ") token info updated by the user " + loggedUser.getUserId());
+            PageUtil.fireSuccessfulInfoMessage("The organization assessment token configuration has been updated");
+        } catch (DbConnectionException e) {
+            logger.error("error", e);
+            PageUtil.fireErrorMessage("Error updating the organization assessment token configuration");
+        }
+    }
+
+    public void resetTokensForOrganizationUsers() {
+        try {
+            organizationManager.resetTokensForAllOrganizationUsers(organization.getId(), tokensToReset);
+            logger.debug("Tokens reset for all users in organization " + organization.getTitle());
+            PageUtil.fireSuccessfulInfoMessage("Assessment tokens has been successfully reset");
+        } catch (DbConnectionException e) {
+            logger.error("error", e);
+            PageUtil.fireErrorMessage("Error resetting assessment tokens");
+        }
+    }
+
+    public void addTokensToOrganizationUsers() {
+        try {
+            organizationManager.addTokensToAllOrganizationUsers(organization.getId(), tokensToAdd);
+            logger.debug("Tokens added to all users in organization " + organization.getTitle());
+            PageUtil.fireSuccessfulInfoMessage("Assessment tokens has been successfully added to users");
+        } catch (DbConnectionException e) {
+            logger.error("error", e);
+            PageUtil.fireErrorMessage("Error adding assessment tokens to users");
         }
     }
 
@@ -392,5 +472,21 @@ public class OrganizationEditBean implements Serializable {
 
     public CredentialCategoryData getSelectedCategory() {
         return selectedCategory;
+    }
+
+    public int getTokensToReset() {
+        return tokensToReset;
+    }
+
+    public void setTokensToReset(int tokensToReset) {
+        this.tokensToReset = tokensToReset;
+    }
+
+    public int getTokensToAdd() {
+        return tokensToAdd;
+    }
+
+    public void setTokensToAdd(int tokensToAdd) {
+        this.tokensToAdd = tokensToAdd;
     }
 }

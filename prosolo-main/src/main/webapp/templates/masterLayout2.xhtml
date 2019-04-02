@@ -193,7 +193,9 @@
 							</h:panelGroup>
 						</div>
 					</div>
-
+					<ui:fragment rendered="#{assessmentTokenSessionBean.assessmentTokensEnabled}">
+						<h:link styleClass="iconTokens" outcome="/my-assessments-credentials">#{assessmentTokenSessionBean.numberOfTokensAvailable}</h:link>
+					</ui:fragment>
 					<h:form id="userMenuForm">
 						<div class="dropdown userMenu">
 							<a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
@@ -205,6 +207,11 @@
 							</a>
 
 							<ul class="dropdown-menu dropdown-menu-right bullet pull-right" aria-labelledby="dropdownMenu1">
+								<li>
+									<h:link value="My Assessments"
+											onclick="sendLogPageNavigation('my-assessments-credentials','mainmenu');"
+											outcome="/my-assessments-credentials" />
+								</li>
 								<li>
 									<h:link value="Profile"
 										onclick="sendLogPageNavigation('profile','mainmenu');"

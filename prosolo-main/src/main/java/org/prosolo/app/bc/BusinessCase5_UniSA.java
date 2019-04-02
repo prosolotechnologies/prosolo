@@ -45,7 +45,8 @@ import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.credential.CredentialData;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceData;
 import org.prosolo.services.nodes.data.organization.LearningStageData;
-import org.prosolo.services.nodes.data.organization.OrganizationData;
+import org.prosolo.services.nodes.data.organization.OrganizationBasicData;
+import org.prosolo.services.nodes.data.organization.OrganizationLearningStageData;
 import org.prosolo.services.nodes.data.rubrics.RubricCriterionData;
 import org.prosolo.services.nodes.data.rubrics.RubricData;
 import org.prosolo.services.nodes.data.rubrics.RubricLevelData;
@@ -101,25 +102,24 @@ public class BusinessCase5_UniSA {
 				userNickPowell, null, null, params));
 
 		//create organization
-		OrganizationData orgData = new OrganizationData();
+		OrganizationBasicData orgData = new OrganizationBasicData();
 		orgData.setTitle("Desert Winds University");
 		orgData.setAdmins(Arrays.asList(new UserData(userNickPowell)));
-
 
 		Organization org = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(OrganizationManager.class)
 				.createNewOrganizationAndGetEvents(orgData, UserContextData.empty()));
 
 		// create learning stage
+		OrganizationLearningStageData organizationLearningStageData = new OrganizationLearningStageData();
 		LearningStageData graduateLearningStage = new LearningStageData(false);
 		graduateLearningStage.setTitle("Graduate");
 		graduateLearningStage.setOrder(1);
 		graduateLearningStage.setStatus(ObjectStatus.CREATED);	// this needs to be set in order for the stage to be created in the method createNewOrganizationAndGetEvents
-		orgData.setId(org.getId());
-		orgData.setLearningInStagesEnabled(true);
-		orgData.addLearningStage(graduateLearningStage);
+		organizationLearningStageData.setLearningInStagesEnabled(true);
+		organizationLearningStageData.addLearningStage(graduateLearningStage);
 
 		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(OrganizationManager.class)
-				.updateOrganizationAndGetEvents(orgData, UserContextData.empty()));
+				.updateOrganizationLearningStagesAndGetEvents(org.getId(), organizationLearningStageData, UserContextData.empty()));
 
 
 		// load learning stage from db in order to obtain its id

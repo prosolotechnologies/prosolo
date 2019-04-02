@@ -90,6 +90,7 @@ public class RewriteConfigurationProvider extends HttpConfigurationProvider {
 
 				.addRule(Join.path("/posts/{id}").to("/wall-post-view.xhtml"))
 				.addRule(Join.path("/groups/{id}/join").to("/groups-join.xhtml"))
+				.addRule(Join.path("/assessments/my/credential").to("/my-assessments-credentials.xhtml"))
 
 				.addRule(Join.path("/manage/notfound").to("/manage/404.xhtml"))
 				.addRule(Join.path("/manage/accessDenied").to("/manage/accessDenied.xhtml"))
@@ -188,7 +189,6 @@ public class RewriteConfigurationProvider extends HttpConfigurationProvider {
 				.addRule(Join.path("/admin/settings").to("/admin/settings.xhtml"))
 				.addRule(Join.path("/admin/settings_old").to("/admin/settings_old.xhtml"))
 //				.addRule(Join.path("/admin/messages").to("/admin/messages.xhtml"))
-				.addRule(Join.path("/admin/other").to("/admin/other.xhtml"))
-				.addRule(Join.path("/admin/migrations").to("/admin/migrations.xhtml"));
+				.addRule(Join.path("/admin/other").to("/admin/other.xhtml"));
 	}
 }
