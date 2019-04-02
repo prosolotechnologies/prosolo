@@ -82,6 +82,7 @@ public class SocialActivityDataFactory {
             String credObjectActorName,
             String credObjectActorLastname,
             String credObjectDescription,
+            BigInteger parentCredentialId,
 //not used currently
 //			BigInteger commentObjectId,
 //			String commentObjectComment,
@@ -230,6 +231,7 @@ public class SocialActivityDataFactory {
                     credObjectActorLastname);
         } else if (dType.equals(CompetenceCompleteSocialActivity.class.getSimpleName())) {
             //competence complete
+
             sad.setType(SocialActivityType.Learning_Completion);
             obj = objectFactory.getObjectData(0, null,
                     ResourceType.Competence, 0, null, null, locale);
@@ -237,7 +239,7 @@ public class SocialActivityDataFactory {
             ap = richContentFactory.getAttachmentPreviewForCompetence(compObjectId.longValue(),
                     compObjectDuration.longValue(), compObjectTitle, compObjectDescription,
                     LearningResourceType.valueOf(compObjectType), compObjectActorName,
-                    compObjectActorLastname, 0);
+                    compObjectActorLastname, parentCredentialId.longValue());
         } else if (dType.equals(UnitWelcomePostSocialActivity.class.getSimpleName())) {
             sad.setType(SocialActivityType.Unit_Welcome_Post);
             //set welcome message as social activity text
@@ -393,7 +395,7 @@ public class SocialActivityDataFactory {
             obj = objectFactory.getObjectData(0, null,
                     ResourceType.Competence, 0, null, null, locale);
 
-            Credential1 credential = ccAct.getCredential();
+            Credential1 credential = ccAct.getParentCredential();
 
             // TODO: remove ternary operator when reading cred id once all SocialActivity data is migrated
             ap = richContentFactory.getAttachmentPreviewForCompetence(comp.getId(),

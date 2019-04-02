@@ -216,6 +216,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 				"credObjectActor.name AS credObjectActorName, " +
 				"credObjectActor.lastname AS credObjectActorLastname, " +
 				"credObject.description AS credObjectDescription, " +
+				"sa.parent_credential AS parentCredentialId, " +
 				//comment social activity (competence and activity)
 						//types of social activity not used currently
 					//"sa.comment_object AS commentObjectId, " +
@@ -402,9 +403,6 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 
 			@Override
 			public Object transformTuple(Object[] tuple, String[] aliases) {
-				//Sometimes Integer is returned and sometimes BigInteger
-				boolean liked = 1 == Integer.valueOf(tuple[54].toString());
-
 				return socialActivityFactory.getSocialActivityData(
 						(BigInteger) tuple[0],
 						(String) tuple[1],
@@ -451,6 +449,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 						(String) tuple[42],
 						(String) tuple[43],
 						(String) tuple[44],
+						(BigInteger) tuple[45],
 //not used social activity types
 //						(BigInteger) tuple[45],
 //						(String) tuple[46],
@@ -472,17 +471,17 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 //						(String) tuple[62],
 //						(String) tuple[63],
 //						(BigInteger) tuple[64],
-						(BigInteger) tuple[45],
-						(String) tuple[46],
-						(BigInteger) tuple[47],
-						(String) tuple[48],
-						(BigInteger) tuple[49],
-						(String) tuple[50],
+						(BigInteger) tuple[46],
+						(String) tuple[47],
+						(BigInteger) tuple[48],
+						(String) tuple[49],
+						(BigInteger) tuple[50],
 						(String) tuple[51],
 						(String) tuple[52],
 						(String) tuple[53],
-						liked,
-						(BigInteger) tuple[55],
+						(String) tuple[54],
+						1 == Integer.valueOf(tuple[55].toString()),	//Sometimes Integer is returned and sometimes BigInteger
+						(BigInteger) tuple[56],
 						locale);
 			}
 

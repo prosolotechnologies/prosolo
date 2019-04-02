@@ -11,7 +11,7 @@ public class CompetenceCompleteSocialActivity extends SocialActivity1 {
 	private static final long serialVersionUID = 9134195596253201117L;
 	
 	private TargetCompetence1 targetCompetenceObject;
-	private Credential1 credential;
+	private Credential1 parentCredential;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	public TargetCompetence1 getTargetCompetenceObject() {
@@ -23,11 +23,11 @@ public class CompetenceCompleteSocialActivity extends SocialActivity1 {
 	}
 
 	@ManyToOne
-	public Credential1 getCredential() {
-		return credential;
+	public Credential1 getParentCredential() {
+		return parentCredential;
 	}
 
-	public void setCredential(Credential1 credential) {
-		this.credential = credential;
+	public void setParentCredential(Credential1 parentCredential) {
+		this.parentCredential = parentCredential;
 	}
 }

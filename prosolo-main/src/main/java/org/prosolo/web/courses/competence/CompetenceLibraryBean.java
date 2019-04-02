@@ -3,6 +3,8 @@
  */
 package org.prosolo.web.courses.competence;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
@@ -48,21 +50,23 @@ public class CompetenceLibraryBean implements Serializable, Paginable {
 	@Inject private RoleManager roleManager;
 	@Inject private UnitManager unitManager;
 
+	@Getter @Setter
 	private List<CompetenceData1> competences;
-	
-	//search
-	private String searchTerm = "";
+	@Getter @Setter
 	private LearningResourceSearchFilter searchFilter = LearningResourceSearchFilter.ALL;
-	private PaginationData paginationData = new PaginationData();
-	
+	@Getter
 	private LearningResourceSearchFilter[] searchFilters;
-	
-	private final CompetenceSearchConfig config = CompetenceSearchConfig.of(
-			true, true, false, true, LearningResourceType.USER_CREATED);
+
+	//search
+	@Getter @Setter
+	private String searchTerm = "";
+	private PaginationData paginationData = new PaginationData();
 
 	private String context = "name:library";
-
 	private List<Long> unitIds = new ArrayList<>();
+
+	private final CompetenceSearchConfig config = CompetenceSearchConfig.of(
+			true, true, false, true, LearningResourceType.USER_CREATED);
 
 	public void init() {
 		searchFilters = Arrays.stream(LearningResourceSearchFilter.values()).filter(
@@ -143,51 +147,11 @@ public class CompetenceLibraryBean implements Serializable, Paginable {
 		try {
 			compManager.enrollInCompetence(comp.getCredentialId(), comp.getCompetenceId(), loggedUserBean.getUserId(), loggedUserBean.getUserContext());
 
-			if (comp.getCredentialId() > 0) {
-				PageUtil.redirect("/credentials/" + idEncoder.encodeId(comp.getCredentialId()) + "/" + idEncoder.encodeId(comp.getCompetenceId()) + "?justEnrolled=true");
-			} else {
-				PageUtil.redirect("/competences/" + idEncoder.encodeId(comp.getCompetenceId()) + "?justEnrolled=true");
-			}
+			PageUtil.redirect("/credentials/" + idEncoder.encodeId(comp.getCredentialId()) + "/competences/" + idEncoder.encodeId(comp.getCompetenceId()) + "?justEnrolled=true");
 		} catch(DbConnectionException e) {
 			logger.error("Error", e);
 			PageUtil.fireErrorMessage("Error enrolling in a " + ResourceBundleUtil.getMessage("label.competence").toLowerCase());
 		}
-	}
-
-	/*
-	 * GETTERS / SETTERS
-	 */
-
-	public String getSearchTerm() {
-		return searchTerm;
-	}
-
-	public void setSearchTerm(String searchTerm) {
-		this.searchTerm = searchTerm;
-	}
-
-	public List<CompetenceData1> getCompetences() {
-		return competences;
-	}
-
-	public void setCompetences(List<CompetenceData1> competences) {
-		this.competences = competences;
-	}
-
-	public LearningResourceSearchFilter getSearchFilter() {
-		return searchFilter;
-	}
-
-	public void setSearchFilter(LearningResourceSearchFilter searchFilter) {
-		this.searchFilter = searchFilter;
-	}
-
-	public LearningResourceSearchFilter[] getSearchFilters() {
-		return searchFilters;
-	}
-
-	public void setSearchFilters(LearningResourceSearchFilter[] searchFilters) {
-		this.searchFilters = searchFilters;
 	}
 
 }

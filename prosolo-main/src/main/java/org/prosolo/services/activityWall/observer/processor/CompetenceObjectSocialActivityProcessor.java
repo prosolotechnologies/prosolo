@@ -40,7 +40,7 @@ public class CompetenceObjectSocialActivityProcessor extends SocialActivityProce
 				if (parameters != null && parameters.containsKey("credId")) {
 					long credId = Long.parseLong(parameters.get("credId"));
 					Credential1 credential = (Credential1) session.load(Credential1.class, credId);
-					((CompetenceCompleteSocialActivity) act).setCredential(credential);
+					((CompetenceCompleteSocialActivity) act).setParentCredential(credential);
 				} else {
 					throw new RuntimeException("Credential id ('credId' entry) could not be found in the event parameters for the event Completion on a competence object.");
 				}

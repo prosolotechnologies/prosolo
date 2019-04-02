@@ -2519,6 +2519,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	}
 
 	@Override
+	//nt
 	public void completeCompetence(long targetCompetenceId, long credentialId, UserContextData context) throws DbConnectionException {
 		Result<Void> res = self.completeCompetenceAndGetEvents(targetCompetenceId, credentialId, context);
 		eventFactory.generateEvents(res.getEventQueue());
@@ -2572,17 +2573,20 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		try {
 			String query =
 					"SELECT cred.id " +
-					"FROM TargetCredential1 tCred " +
-					"INNER JOIN tCred.credential cred " +
-					"INNER JOIN cred.competences credComp1 " +
-					"INNER JOIN credComp1.competence comp1 " +
-					"INNER JOIN comp1.targetCompetences tComp1 " +
-					"WITH tComp1.id = :targetCompId ";
+					"FROM TargetCompetence1 tComp " +
+					"LEFT JOIN tComp.competence comp " +
+					"LEFT JOIN comp.credentialCompetences credComp " +
+					"LEFT JOIN credComp.credential cred " +
+					"LEFT JOIN cred.targetCredentials tCred " +
+					"LEFT JOIN tCred.user user " +
+					"WHERE tComp.id = :targetCompId " +
+						"AND user.id = :studentId ";
 
 			@SuppressWarnings("unchecked")
 			Long credentialId = (Long) persistence.currentManager()
 					.createQuery(query)
 					.setLong("targetCompId", targetCompetenceId)
+					.setLong("studentId", context.getActorId())
 					.uniqueResult();
 
 			if (credentialId > 0) {
