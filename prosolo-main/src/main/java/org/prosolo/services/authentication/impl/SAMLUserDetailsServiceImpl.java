@@ -19,6 +19,7 @@ package org.prosolo.services.authentication.impl;
 import org.apache.log4j.Logger;
 import org.opensaml.saml2.core.Attribute;
 import org.opensaml.xml.XMLObject;
+import org.opensaml.xml.schema.XSAny;
 import org.opensaml.xml.schema.XSString;
 import org.prosolo.app.Settings;
 import org.prosolo.common.domainmodel.organization.Role;
@@ -61,12 +62,16 @@ public class SAMLUserDetailsServiceImpl implements SAMLUserDetailsService {
 			logger.info("Authentication through SAML requested; Remote entity id: " + credential.getRemoteEntityID() + "; SAML Credential Name Id: " + credential.getNameID());
 			//Gson g=new Gson();
 			//System.out.println("LOAD USER BY SAML:"+g.toJson(credential));
-			logger.debug("NameID:" + credential.getNameID());
+			String nameId = null;
+			if (credential.getNameID() != null) {
+				nameId = credential.getNameID().getValue();
+			}
+			logger.debug("NameID:" + nameId);
 			List<Attribute> attributes = credential.getAttributes();
 			for (Attribute attribute : attributes) {
-				logger.debug("SAML attribute:" + attribute.getName() + " friendly name:" + attribute.getFriendlyName());
+				logger.debug("SAML attribute: " + attribute.getName() + " friendly name: " + attribute.getFriendlyName());
 				for (XMLObject value : attribute.getAttributeValues()) {
-					logger.debug("has value:" + ((XSString) value).getValue());
+					logger.debug("has value: " + getStringValueFromXmlObject(value));
 				}
 			}
 
@@ -103,6 +108,16 @@ public class SAMLUserDetailsServiceImpl implements SAMLUserDetailsService {
 		} catch(Exception e) {
 			logger.error("Error", e);
 			throw new UsernameNotFoundException("Error occurred while logging. Please try again.");
+		}
+	}
+
+	private String getStringValueFromXmlObject(XMLObject xmlObj) {
+		if (xmlObj instanceof XSString) {
+			return ((XSString) xmlObj).getValue();
+		} else if (xmlObj instanceof XSAny) {
+			return ((XSAny) xmlObj).getTextContent();
+		} else {
+			return null;
 		}
 	}
 
