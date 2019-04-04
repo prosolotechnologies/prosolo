@@ -28,10 +28,12 @@
     </ui:define>
 
     <ui:define name="resourceTitle">
-        <h1>
-            <h:outputText rendered="#{organizationEditBean.decodedId == 0}" value="New Organization" />
-            <h:outputText rendered="#{organizationEditBean.decodedId gt 0}" value="#{organizationEditBean.organization.title}" />
-        </h1>
+        <h:panelGroup id="panelHeaderTitle">
+            <h1>
+                <h:outputText rendered="#{organizationEditBean.decodedId == 0}" value="New Organization" />
+                <h:outputText rendered="#{organizationEditBean.decodedId gt 0}" value="#{organizationEditBean.organization.title}" />
+            </h1>
+        </h:panelGroup>
     </ui:define>
 
     <ui:define name="content">
@@ -46,7 +48,7 @@
 
         <div class="container">
             <div class="row">
-                <div class="container">
+                <h:panelGroup id="panelBreadcrumbs" layout="block" styleClass="container">
                     <ol class="breadcrumb">
                         <ui:fragment rendered="#{loggeduser.hasCapability('admin.advanced')}">
                             <li>
@@ -66,7 +68,7 @@
                             <li class="active">New Organization</li>
                         </ui:fragment>
                     </ol>
-                </div>
+                </h:panelGroup>
 
                 <div class="col-md-12">
                     <div class="whiteBox">
@@ -170,7 +172,7 @@
                                     <div class="formLineRight">
                                         <p:commandLink styleClass="btn btn-green"
                                                        value="#{organizationEditBean.decodedId == 0 ? 'Create' : 'Save Changes'}"
-                                                       action="#{organizationEditBean.saveOrganizationBasicInfo()}" update=":formMain :growlMain">
+                                                       action="#{organizationEditBean.saveOrganizationBasicInfo()}" update=":formMain :growlMain :panelWindowTitle :panelHeaderTitle :panelBreadcrumbs">
                                             <f:param name="page" value="#{facesContext.viewRoot.viewId}" />
                                             <f:param name="learningContext" value="name:organization#{organizationEditBean.decodedId > 0 ? '|id:'.concat(organizationEditBean.decodedId) : ''}" />
                                         </p:commandLink>

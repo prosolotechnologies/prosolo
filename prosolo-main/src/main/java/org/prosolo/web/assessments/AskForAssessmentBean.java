@@ -12,6 +12,7 @@ import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.services.user.data.UserAssessmentTokenExtendedData;
 import org.prosolo.services.user.data.UserData;
 import org.prosolo.web.AssessmentTokenSessionBean;
+
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageUtil;
 import org.prosolo.web.util.pagination.PaginationData;

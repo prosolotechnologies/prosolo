@@ -109,48 +109,11 @@
 
 
 									<ui:repeat var="assessment" value="#{studentCompetencePeerAssessmentsBean.assessments}">
-										<div class="whiteBox assessmentsBox">
-											<div class="assessmentsBoxTop">
-												<div class="user32">
-													<h:link outcome="/competence-peer-assessment">
-														<assessment:assessmentActorAvatar
-																actorId="#{assessment.assessorId}"
-																avatarUrl="#{assessment.assessorAvatarUrl}"
-																actorFullName="#{assessment.assessorFullName}"
-																blindAssessmentMode="#{assessment.blindAssessmentMode}"
-																actorType="ASSESSOR"
-														/>
-														<f:param value="#{util:encodeId(assessment.assessmentId)}" name="assessmentId" />
-														<f:param value="#{param.compId}" name="compId" />
-														<f:param value="#{param.credId}" name="credId" disable="#{empty param.credId}" />
-													</h:link>
-
-													<h3>
-														<h:link outcome="/competence-peer-assessment">
-															<assessment:assessmentActorName
-																	actorId="#{assessment.assessorId}"
-																	actorFullName="#{assessment.assessorFullName}"
-																	blindAssessmentMode="#{assessment.blindAssessmentMode}"
-																	actorType="ASSESSOR"
-															/>
-															<f:param value="#{util:encodeId(assessment.assessmentId)}" name="assessmentId" />
-															<f:param value="#{param.compId}" name="compId" />
-															<f:param value="#{param.credId}" name="credId" disable="#{empty param.credId}" />
-														</h:link>
-													</h3>
-												</div>
-												<div class="timestamp">
-													#{assessment.dateValue}
-												</div>
-											</div>
-											<h:panelGroup layout="block" styleClass="tagApproved left bottom30" rendered="#{assessment.approved}">Submitted</h:panelGroup>
-											<h:link outcome="/competence-peer-assessment">
-												View Details
-												<f:param value="#{util:encodeId(assessment.assessmentId)}" name="assessmentId" />
-												<f:param value="#{param.compId}" name="compId" />
-												<f:param value="#{param.credId}" name="credId" disable="#{empty param.credId}" />
-											</h:link>
-										</div>
+                                        <assessment:competenceAssessmentItem
+                                            assessment="#{assessment}"
+                                            encodedCredId="#{param.credId}"
+                                            encodedCompId="#{param.compId}"
+                                        />
 									</ui:repeat>
 								</h:panelGroup>
 

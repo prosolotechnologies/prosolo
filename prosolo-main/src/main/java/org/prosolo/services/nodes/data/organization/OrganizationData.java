@@ -6,6 +6,7 @@ import org.prosolo.services.user.data.UserData;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by Bojan on 6/6/2017.
@@ -48,17 +49,9 @@ public class OrganizationData implements Serializable {
     }
 
     public String getAdminsString() {
-        String adminsString = "";
-        List<UserData> admins = getAdmins();
-        if (admins != null) {
-            for (UserData a : admins) {
-                if(!adminsString.isEmpty()) {
-                    adminsString += ", ";
-                }
-                adminsString += a.getFullName();
-            }
-        }
-        return adminsString;
+        return getAdmins().stream()
+                .map(a -> a.getFullName())
+                .collect(Collectors.joining(", "));
     }
 
     public long getId() {

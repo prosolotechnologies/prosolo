@@ -4,6 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
+import org.prosolo.common.domainmodel.assessment.AssessmentStatus;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.credential.BlindAssessmentMode;
 import org.prosolo.common.event.context.data.UserContextData;
@@ -11,14 +12,12 @@ import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.assessment.RubricManager;
 import org.prosolo.services.assessment.data.ActivityAssessmentData;
 import org.prosolo.services.assessment.data.AssessmentDiscussionMessageData;
-import org.prosolo.services.assessment.data.AssessmentTypeConfig;
 import org.prosolo.services.assessment.data.CompetenceAssessmentData;
 import org.prosolo.services.assessment.data.grading.GradeData;
 import org.prosolo.services.assessment.data.grading.RubricCriteriaGradeData;
 import org.prosolo.services.nodes.data.LearningResourceType;
 import org.prosolo.services.user.data.UserBasicData;
 import org.prosolo.services.user.data.UserData;
-import org.prosolo.web.assessments.util.AssessmentDisplayMode;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
@@ -60,11 +59,6 @@ public class StudentCompetenceAssessmentBean extends CompetenceAssessmentBean im
 	@Override
 	boolean canAccessPostLoad() {
 		return isUserAssessedStudentInCurrentContext() || isUserAssessorInCurrentContext();
-	}
-
-	@Override
-	AssessmentDisplayMode getDisplayMode() {
-		return AssessmentDisplayMode.FULL;
 	}
 
 	public void markActivityAssessmentDiscussionRead() {
@@ -110,6 +104,7 @@ public class StudentCompetenceAssessmentBean extends CompetenceAssessmentBean im
 		try {
 			getAssessmentManager().approveCompetence(getCompetenceAssessmentData().getCompetenceAssessmentId(), loggedUserBean.getUserContext());
 			getCompetenceAssessmentData().setApproved(true);
+			getCompetenceAssessmentData().setStatus(AssessmentStatus.SUBMITTED);
 			getCompetenceAssessmentData().setAssessorNotified(false);
 
 			PageUtil.fireSuccessfulInfoMessage(ResourceBundleUtil.getMessage("label.competence") + " assessment is submitted");

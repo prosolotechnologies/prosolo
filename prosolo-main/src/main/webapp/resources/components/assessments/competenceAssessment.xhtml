@@ -11,7 +11,6 @@
 
 	<composite:interface>
 		<composite:attribute name="bean" required="true" />
-		<composite:attribute name="fullDisplayMode" default="true" type="java.lang.Boolean" />
 		<composite:attribute name="learningContext" default="" />
 		<composite:attribute name="competenceAssessment" type="org.prosolo.services.assessment.data.CompetenceAssessmentData" required="true" />
 		<composite:attribute name="credentialId" default="0" type="java.lang.Long"/>
@@ -27,6 +26,7 @@
 		<composite:attribute name="showLinkForIndividualAssessmentPage" default="false" type="java.lang.Boolean"/>
 		<composite:attribute name="approveModalId" default=""/>
 		<composite:attribute name="toUpdateApproveModal" default=""/>
+		<composite:attribute name="displaySubmittedIcon" default="true" type="java.lang.Boolean"/>
 	</composite:interface>
 
 	<composite:implementation>
@@ -34,7 +34,7 @@
 		<ui:fragment rendered="#{not cc.attrs.competenceAssessment.readOnly}">
 			<article class="whiteBox summaryCard summaryCompetence summaryAssessments">
 				<h:panelGroup id="panelAssessorNotificationComp" styleClass="panelAssessorNotificationSelector">
-					<h:panelGroup layout="block" styleClass="innerWrapper" rendered="#{cc.attrs.fullDisplayMode and cc.attrs.competenceAssessment.assessorNotified}">
+					<h:panelGroup layout="block" styleClass="innerWrapper" rendered="#{cc.attrs.competenceAssessment.assessmentActive and cc.attrs.competenceAssessment.assessorNotified}">
 						<div class="alert alert-warning alert-dismissible fade in bottom0" role="alert">
 							<ui:fragment rendered="#{cc.attrs.currentUserAssessedStudent}">
 								You have asked for assessment of this #{msg['label.competence'].toLowerCase()} on
@@ -57,7 +57,7 @@
 					<h2 class="bottom0">#{cc.attrs.competenceAssessment.title}</h2>
 					<div class="clear1px"></div>
 				</h:panelGroup>
-				<div class="summaryAssessmentsHead #{cc.attrs.fullDisplayMode and (!cc.attrs.competenceAssessment.participantInDiscussion or cc.attrs.competenceAssessment.allRead or cc.attrs.competenceAssessment.numberOfMessages eq 0) ? '' : 'hasNewComments'}">
+				<div class="summaryAssessmentsHead #{(!cc.attrs.competenceAssessment.participantInDiscussion or cc.attrs.competenceAssessment.allRead or cc.attrs.competenceAssessment.numberOfMessages eq 0) ? '' : 'hasNewComments'}">
 					<ui:fragment rendered="#{cc.attrs.displayStudentNameInHeader}">
 						<div class="user32">
 							<assessment:assessmentActorAvatar
@@ -81,22 +81,18 @@
 					</ui:fragment>
 					<ui:fragment rendered="#{not cc.attrs.displayStudentNameInHeader}">
 						<h2>
-							<h:link outcome="competence" rendered="#{cc.attrs.fullDisplayMode and not cc.attrs.showLinkForIndividualAssessmentPage}">
+							<h:link outcome="competence" rendered="#{not cc.attrs.showLinkForIndividualAssessmentPage}">
 								#{cc.attrs.competenceAssessment.title}
 								<f:param name="compId" value="#{util:encodeId(cc.attrs.competenceAssessment.competenceId)}" />
 								<f:param name="credId" value="#{util:encodeId(cc.attrs.credentialId)}"
 										 disable="#{empty cc.attrs.credentialId}" />
 							</h:link>
-							<ui:fragment rendered="#{not cc.attrs.fullDisplayMode and not cc.attrs.showLinkForIndividualAssessmentPage}">
-								#{cc.attrs.competenceAssessment.title}
-							</ui:fragment>
-							<h:link outcome="/competence-#{cc.attrs.competenceAssessment.type eq 'INSTRUCTOR_ASSESSMENT' ? 'instructor' : cc.attrs.competenceAssessment.type eq 'PEER_ASSESSMENT' ? 'peer' : 'self'}-assessment#{cc.attrs.fullDisplayMode ? '' : '-profile'}" rendered="#{cc.attrs.showLinkForIndividualAssessmentPage}">
+							<h:link outcome="/competence-#{cc.attrs.competenceAssessment.type eq 'INSTRUCTOR_ASSESSMENT' ? 'instructor' : cc.attrs.competenceAssessment.type eq 'PEER_ASSESSMENT' ? 'peer' : 'self'}-assessment" rendered="#{cc.attrs.showLinkForIndividualAssessmentPage}">
 								#{cc.attrs.competenceAssessment.title}
 								<f:param value="#{util:encodeId(cc.attrs.competenceAssessment.competenceAssessmentId)}" name="assessmentId" disable="#{cc.attrs.competenceAssessment.type eq 'SELF_ASSESSMENT'}"/>
 								<f:param name="compId" value="#{util:encodeId(cc.attrs.competenceAssessment.competenceId)}" />
 								<f:param name="credId" value="#{util:encodeId(cc.attrs.credentialId)}"
-										 disable="#{not cc.attrs.fullDisplayMode or empty cc.attrs.credentialId}" />
-								<f:param name="studentId" value="#{util:encodeId(cc.attrs.competenceAssessment.studentId)}" disable="#{cc.attrs.fullDisplayMode}"/>
+										 disable="#{empty cc.attrs.credentialId}" />
 							</h:link>
 						</h2>
 					</ui:fragment>
@@ -104,14 +100,14 @@
 					<h:panelGroup layout="block" id="panelCompAssessmentOptions" styleClass="activityOptions panelCompAssessment_#{cc.attrs.competenceAssessment.competenceAssessmentId}">
 						<ui:param name="compAssessmentLearningContext" value="#{util:addSubContext(cc.attrs.learningContext, 'name:COMPETENCE|id:'.concat(cc.attrs.competenceAssessment.competenceId).concat('|context:/name:COMPETENCE_ASSESSMENT|id:').concat(cc.attrs.competenceAssessment.competenceAssessmentId).concat('/'))}" />
 
-						<h:panelGroup rendered="#{cc.attrs.competenceAssessment.approved}"
+						<h:panelGroup rendered="#{cc.attrs.displaySubmittedIcon and cc.attrs.competenceAssessment.status eq 'SUBMITTED'}"
 									  styleClass="tagApproved" layout="block">
 							Submitted
 						</h:panelGroup>
 
 						<ui:param name="competenceAssessmentDisabledIndicator" value="#{util:isCompetenceFullyGraded(cc.attrs.competenceAssessment)}" />
 
-						<ui:fragment rendered="#{cc.attrs.fullDisplayMode and not cc.attrs.competenceAssessment.approved and cc.attrs.currentUserAssessor and competenceAssessmentDisabledIndicator == 'NONE'}">
+						<ui:fragment rendered="#{cc.attrs.competenceAssessment.status eq 'PENDING' and cc.attrs.currentUserAssessor and competenceAssessmentDisabledIndicator == 'NONE'}">
 							<p:commandLink styleClass="linkApprove"
 										   process="@this"
 										   pt:data-toggle="modal"
@@ -121,13 +117,13 @@
 								Submit<span></span>
 							</p:commandLink>
 						</ui:fragment>
-						<ui:fragment rendered="#{cc.attrs.fullDisplayMode and not cc.attrs.competenceAssessment.approved and cc.attrs.currentUserAssessor and competenceAssessmentDisabledIndicator != 'NONE'}">
+						<ui:fragment rendered="#{cc.attrs.competenceAssessment.status eq 'PENDING' and cc.attrs.currentUserAssessor and competenceAssessmentDisabledIndicator != 'NONE'}">
 							<a class="disabled linkApprove" data-toggle="tooltip" title="#{msg['label.enum.AssessmentDisabledIndicator.'.concat(competenceAssessmentDisabledIndicator)]}">Submit<span></span></a>
 						</ui:fragment>
 						<script>
 							$("[data-toggle='tooltip']").tooltip();
 						</script>
-						<p:commandLink styleClass="commentsIcon" pt:data-toggle="modal" rendered="#{cc.attrs.fullDisplayMode}"
+						<p:commandLink styleClass="commentsIcon" pt:data-toggle="modal"
 									   onclick="markDiscussionAsSeen('#{util:encodeId(cc.attrs.competenceAssessment.competenceAssessmentId)}', this.parentElement.parentElement, 'COMPETENCE')"
 									   action="#{cc.attrs.bean.prepareLearningResourceAssessmentForCommenting(cc.attrs.competenceAssessment)}"
 									   update="#{cc.attrs.toUpdatePrivateConversationModal}"
@@ -149,14 +145,14 @@
 								growlToUpdate="#{cc.attrs.growlToUpdate}"
 								role="#{cc.attrs.role}"
 								learningContext="#{compAssessmentLearningContext}"
-								fullDisplayMode="#{cc.attrs.fullDisplayMode}"
+								readOnly="#{not cc.attrs.competenceAssessment.assessmentActive}"
 								learningResource="COMPETENCE"
 								approved="#{cc.attrs.competenceAssessment.approved}"
 						/>
 					</h:panelGroup>
 				</div>
 
-				<ui:fragment rendered="#{cc.attrs.fullDisplayMode and (cc.attrs.currentUserAssessor or cc.attrs.currentUserAssessedStudent) and cc.attrs.competenceAssessment.learningPathType eq 'EVIDENCE'}">
+				<ui:fragment rendered="#{(cc.attrs.currentUserAssessor or cc.attrs.currentUserAssessedStudent) and cc.attrs.competenceAssessment.learningPathType eq 'EVIDENCE'}">
 					<ui:fragment rendered="#{empty cc.attrs.competenceAssessment.evidenceSummary}">
 						<div class="summaryAssessmentsSubHead">
 						   <i>No evidence summary.</i>
@@ -192,18 +188,15 @@
 							<ui:repeat varStatus="actAssIndex" var="activityAssessment" value="#{cc.attrs.competenceAssessment.activityAssessmentData}">
 								<li class="#{styleUtilBean.getStyleClassBasedOnActivityType(activityAssessment.activityType)} #{(!activityAssessment.participantInDiscussion or activityAssessment.allRead or activityAssessment.numberOfMessages eq 0) ? '' : 'hasNewComments'}">
 									<span class="#{activityAssessment.completed ? 'check' : 'iconType'}"></span>
-									<h:link outcome="activity" rendered="#{cc.attrs.fullDisplayMode}">
+									<h:link outcome="activity">
 										#{activityAssessment.title}
 										<f:param name="actId" value="#{util:encodeId(activityAssessment.activityId)}" />
 										<f:param name="compId" value="#{util:encodeId(cc.attrs.competenceAssessment.competenceId)}" />
 										<f:param name="credId" value="#{util:encodeId(cc.attrs.credentialId)}"
 												 disable="#{empty cc.attrs.credentialId}" />
 									</h:link>
-									<ui:fragment rendered="#{not cc.attrs.fullDisplayMode}">
-										<a href="javascript:void(0);">#{activityAssessment.title}</a>
-									</ui:fragment>
 									<div class="activityOptions">
-										<ui:fragment rendered="#{cc.attrs.fullDisplayMode and (activityAssessment.resultType eq 'TEXT' or activityAssessment.resultType eq 'FILE_UPLOAD') and not empty activityAssessment.result}">
+										<ui:fragment rendered="#{(activityAssessment.resultType eq 'TEXT' or activityAssessment.resultType eq 'FILE_UPLOAD') and not empty activityAssessment.result}">
 											<h:link outcome="activity-response"
 													styleClass="viewResult"
 													rendered="#{cc.attrs.role eq 'USER'}"
@@ -224,7 +217,7 @@
 												<f:param name="user" value="#{util:encodeId(cc.attrs.competenceAssessment.studentId)}" />
 											</h:link>
 										</ui:fragment>
-										<p:commandLink styleClass="commentsIcon" pt:data-toggle="modal" rendered="#{cc.attrs.fullDisplayMode}"
+										<p:commandLink styleClass="commentsIcon" pt:data-toggle="modal"
 													   onclick="markDiscussionAsSeen('#{activityAssessment.encodedActivityAssessmentId}',this.parentElement.parentElement, 'ACTIVITY')"
 													   action="#{cc.attrs.bean.prepareLearningResourceAssessmentForCommenting(activityAssessment)}"
 													   update="#{cc.attrs.toUpdatePrivateConversationModal}"
@@ -246,7 +239,7 @@
 											growlToUpdate="#{cc.attrs.growlToUpdate}"
 											role="#{cc.attrs.role}"
 											learningContext="#{util:addSubContext(compAssessmentLearningContext, 'name:ACTIVITY|id:'.concat(activityAssessment.activityId).concat('|context:/name:ACTIVITY_ASSESSMENT|id:').concat(activityAssessment.activityAssessmentId).concat('/'))}"
-											fullDisplayMode="#{cc.attrs.fullDisplayMode}"
+											readOnly="#{not cc.attrs.competenceAssessment.assessmentActive}"
 											learningResource="ACTIVITY"
 											approved="#{cc.attrs.competenceAssessment.approved}"
 										/>
@@ -269,8 +262,8 @@
 					<assessment:evidenceItems
 							evidences="#{cc.attrs.competenceAssessment.evidences}"
 							studentId="#{cc.attrs.competenceAssessment.studentId}"
-							canViewEvidence="#{cc.attrs.fullDisplayMode and (cc.attrs.currentUserAssessedStudent or cc.attrs.currentUserAssessor)}"
-							showMessageWhyUserCantViewEvidence="#{cc.attrs.fullDisplayMode}"
+							canViewEvidence="#{cc.attrs.competenceAssessment.assessmentActive and (cc.attrs.currentUserAssessedStudent or cc.attrs.currentUserAssessor)}"
+							showMessageWhyUserCantViewEvidence="#{cc.attrs.competenceAssessment.assessmentActive}"
 					/>
 				</ui:fragment>
 			</article>
@@ -319,14 +312,6 @@
 										 disable="#{empty cc.attrs.credentialId}" />
 							</h:link>
 						</h2>
-					</ui:fragment>
-
-					<ui:fragment rendered="#{not cc.attrs.competenceAssessment.approved and cc.attrs.currentUserAssessor}">
-						<div class="activityOptions">
-							<a href="javascript:void(0);" class="linkApprove">
-								<div class="disabledOverlay"></div>Submit<span></span>
-							</a>
-						</div>
 					</ui:fragment>
 				</div>
 
