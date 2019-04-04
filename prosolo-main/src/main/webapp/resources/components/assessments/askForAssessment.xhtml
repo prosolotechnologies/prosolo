@@ -245,7 +245,8 @@
 							<p:commandLink
 									rendered="#{cc.attrs.bean.isValidRequest()}"
 									process="@this"
-									update="#{cc.attrs.toUpdate}"
+									onclick="showLoaderNextToElem(this, '#{request.contextPath}')"
+									update="#{cc.attrs.toUpdate} :panelHeaderNumberOfTokens"
 									action="#{cc.attrs.submitAssessmentRequestAction}"
 									styleClass="btn btn-green"
 									oncomplete="hideAssesmentDialog('askAssessmentPeer')">

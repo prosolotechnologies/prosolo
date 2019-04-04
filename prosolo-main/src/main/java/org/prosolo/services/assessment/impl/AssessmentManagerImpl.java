@@ -404,18 +404,18 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
                 });
             } else {
             	Organization org = (Organization) persistence.currentManager().load(Organization.class, context.getOrganizationId());
-				User student;
+				competenceAssessment = new CompetenceAssessment();
+            	User student;
             	if (numberOfTokensForAssessmentRequest > 0 && org.isAssessmentTokensEnabled()) {
             		student = (User) persistence.currentManager().load(User.class, studentId, LockOptions.UPGRADE);
 					if (numberOfTokensForAssessmentRequest > student.getNumberOfTokens()) {
                         throw new IllegalDataStateException("Student does not have enough tokens");
                     }
-                    student.setNumberOfTokens(student.getNumberOfTokens() - numberOfTokensForAssessmentRequest);
+					student.setNumberOfTokens(student.getNumberOfTokens() - numberOfTokensForAssessmentRequest);
+					competenceAssessment.setNumberOfTokensSpent(numberOfTokensForAssessmentRequest);
                 } else {
 					student = (User) persistence.currentManager().load(User.class, studentId);
 				}
-
-                competenceAssessment = new CompetenceAssessment();
                 competenceAssessment.setDateCreated(new Date());
                 //compAssessment.setTitle(targetCompetence.getTitle());
                 long targetCredentialId = credManager.getTargetCredentialId(credentialId, studentId);

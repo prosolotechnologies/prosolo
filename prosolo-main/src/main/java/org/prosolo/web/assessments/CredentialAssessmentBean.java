@@ -140,7 +140,7 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 	}
 
 	public void initSelfAssessment() {
-		initAssessmentStudent(AssessmentType.SELF_ASSESSMENT);
+		initAssessmentStudent(AssessmentType.SELF_ASSESSMENT, true);
 	}
 
 	public void initPeerAssessment() {
@@ -148,14 +148,14 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 	}
 
 	public boolean initPeerAssessmentAndReturnSuccessMessage() {
-		return initAssessmentStudent(AssessmentType.PEER_ASSESSMENT);
+		return initAssessmentStudent(AssessmentType.PEER_ASSESSMENT, true);
 	}
 
 	public void initInstructorAssessment() {
-		initAssessmentStudent(AssessmentType.INSTRUCTOR_ASSESSMENT);
+		initAssessmentStudent(AssessmentType.INSTRUCTOR_ASSESSMENT, false);
 	}
 
-	public boolean initAssessmentStudent(AssessmentType type) {
+	public boolean initAssessmentStudent(AssessmentType type, boolean notFoundIfAssessmentNull) {
 		decodeCredentialAndAssessmentIds();
 		boolean success = true;
 		try {
@@ -166,9 +166,14 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 							loggedUserBean.getUserId(), type, AssessmentLoadConfig.of(true, true, true));
 				}
 				if (fullAssessmentData == null) {
-					credentialIdData = new CredentialIdData(false);
-					credentialIdData.setId(decodedId);
-					credentialIdData.setTitle(credManager.getCredentialTitle(decodedId));
+					if (notFoundIfAssessmentNull) {
+						PageUtil.notFound();
+						success = false;
+					} else {
+						credentialIdData = new CredentialIdData(false);
+						credentialIdData.setId(decodedId);
+						credentialIdData.setTitle(credManager.getCredentialTitle(decodedId));
+					}
 				} else {
 					/*
 					if user is not student or assessor, he is not allowed to access this page
