@@ -22,7 +22,6 @@ import org.prosolo.services.nodes.data.ResourceCreator;
 import org.prosolo.services.nodes.data.ResourceVisibilityMember;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.resourceAccess.*;
-import org.prosolo.services.user.data.UserData;
 import org.w3c.dom.events.EventException;
 
 import java.util.List;
@@ -380,8 +379,6 @@ public interface Competence1Manager {
 	LearningPathType getCompetenceLearningPathType(long compId) throws DbConnectionException;
 
 	EventQueue updateCompetenceLearningStage(Competence1 competence, LearningStage stage, UserContextData context) throws DbConnectionException;
-
-	UserData chooseRandomPeer(long compId, long userId) throws DbConnectionException;
 
 	/**
 	 * Returns full target competence data when id of a target competence is not

@@ -46,7 +46,6 @@ import org.prosolo.services.nodes.factory.CompetenceDataFactory;
 import org.prosolo.services.nodes.factory.UserDataFactory;
 import org.prosolo.services.nodes.observers.learningResources.CompetenceChangeTracker;
 import org.prosolo.services.user.UserGroupManager;
-import org.prosolo.services.user.data.UserData;
 import org.prosolo.services.util.roles.SystemRoleNames;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -2496,42 +2495,6 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		} catch (Exception e) {
 			logger.error("Error", e);
 			throw new DbConnectionException("Error loading competence learning path type");
-		}
-	}
-
-	@Override
-	@Transactional(readOnly = true)
-	public UserData chooseRandomPeer(long compId, long userId) throws DbConnectionException {
-		try {
-			String query =
-					"SELECT user " +
-					"FROM TargetCompetence1 tComp " +
-					"INNER JOIN tComp.user user " +
-					"WHERE tComp.competence.id = :compId " +
-					"AND user.id != :userId " +
-					"AND user.id NOT IN ( " +
-						"SELECT assessment.assessor.id " +
-						"FROM CompetenceAssessment assessment " +
-						"WHERE assessment.student.id = :userId " +
-						"AND assessment.competence.id = :compId " +
-						"AND assessment.assessor IS NOT NULL " + // can be NULL in default assessments when instructor is not set
-						"AND assessment.type = :aType " +
-					") " +
-					"ORDER BY RAND()";
-
-			@SuppressWarnings("unchecked")
-			User res = (User) persistence.currentManager()
-					.createQuery(query)
-					.setLong("compId", compId)
-					.setLong("userId", userId)
-					.setString("aType", AssessmentType.PEER_ASSESSMENT.name())
-					.setMaxResults(1)
-					.uniqueResult();
-
-			return res != null ? new UserData(res) : null;
-		} catch (Exception e) {
-			logger.error("Error", e);
-			throw new DbConnectionException("Error retrieving random peer");
 		}
 	}
 
