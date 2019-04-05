@@ -3,6 +3,8 @@
  */
 package org.prosolo.web.courses.credential;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.credential.CredentialType;
@@ -48,7 +50,6 @@ public class CredentialInstructorsBean implements Serializable, Paginable {
 
 	private static Logger logger = Logger.getLogger(CredentialInstructorsBean.class);
 
-	private List<InstructorData> instructors;
 
 	@Inject private UrlIdEncoder idEncoder;
 	@Inject private UserTextSearch userTextSearch;
@@ -61,28 +62,36 @@ public class CredentialInstructorsBean implements Serializable, Paginable {
 	@Inject private UnitManager unitManager;
 
 	// PARAMETERS
+	@Getter	@Setter
 	private String id;
 	private long decodedId;
 
+	@Getter
+	private List<InstructorData> instructors;
+	@Getter	@Setter
 	private String searchTerm = "";
+	@Getter	@Setter
 	private InstructorSortOption sortOption = InstructorSortOption.Date;
+	@Getter
 	private PaginationData paginationData = new PaginationData();
 	
 	private InstructorData instructorForRemoval;
+	@Getter	@Setter
 	private boolean reassignAutomatically = true;
-	//private InstructorData instructorForStudentAssign;
-	
+
 	private String context;
-	
+	@Getter
 	private CredentialIdData credentialIdData;
-	
+	@Getter	@Setter
 	private InstructorSortOption[] sortOptions;
 	
 	//for searching unassigned instructors
+	@Getter	@Setter
 	private String instructorSearchTerm;
+	@Getter
 	private List<UserData> unassignedInstructors;
 	private long instructorRoleId;
-	List<Long> unitIds;
+	private List<Long> unitIds;
 	//list of ids of instructors that are already assigned to this credential
 	private List<Long> excludedInstructorIds = new ArrayList<>();
 	
@@ -169,8 +178,12 @@ public class CredentialInstructorsBean implements Serializable, Paginable {
 			String page = PageUtil.getPostParameter("page");
 			String service = PageUtil.getPostParameter("service");
 			PageContextData ctx = new PageContextData(page, context, service);
-			credInstructorManager
-					.addInstructorToCredential(decodedId, user.getId(), 0, loggedUserBean.getUserContext(ctx));
+			credInstructorManager.addInstructorToCredential(decodedId, user.getId(), 0, loggedUserBean.getUserContext(ctx));
+
+			// update cache
+			unassignedInstructors.remove(user);
+
+			// reset main instructor list
 			paginationData.setPage(1);
 			searchTerm = "";
 			sortOption = InstructorSortOption.Date;
@@ -219,7 +232,7 @@ public class CredentialInstructorsBean implements Serializable, Paginable {
 					instructorForRemoval.getInstructorId(), decodedId, reassignAutomatically,
 					loggedUserBean.getUserContext(ctx));
 
-			excludedInstructorIds.remove(new Long(instructorForRemoval.getUser().getId()));
+			excludedInstructorIds.remove(instructorForRemoval.getUser().getId());
 			searchCredentialInstructors();
 			instructorForRemoval = null;
 			PageUtil.fireSuccessfulInfoMessage("The " + ResourceBundleUtil.getLabel("instructor").toLowerCase() + " has been removed from the " + ResourceBundleUtil.getMessage("label.credential").toLowerCase());
@@ -241,103 +254,11 @@ public class CredentialInstructorsBean implements Serializable, Paginable {
 	}
 
 	/*
-	 * PARAMETERS
-	 */
-	public void setId(String id) {
-		this.id = id;
-	}
-
-	public String getId() {
-		return id;
-	}
-
-	/*
 	 * GETTERS / SETTERS
 	 */
 
-	public String getSearchTerm() {
-		return searchTerm;
-	}
-
-	public void setSearchTerm(String searchTerm) {
-		this.searchTerm = searchTerm;
-	}
-
-	@Override
-	public PaginationData getPaginationData() {
-		return paginationData;
-	}
-	
-	public List<InstructorData> getInstructors() {
-		return instructors;
-	}
-
-	public void setInstructors(List<InstructorData> instructors) {
-		this.instructors = instructors;
-	}
-
-	public InstructorSortOption getSortOption() {
-		return sortOption;
-	}
-
-	public void setSortOption(InstructorSortOption sortOption) {
-		this.sortOption = sortOption;
-	}
-
-	public InstructorData getInstructorForRemoval() {
-		return instructorForRemoval;
-	}
-
-	public void setInstructorForRemoval(InstructorData instructorForRemoval) {
-		this.instructorForRemoval = instructorForRemoval;
-	}
-
-//	public InstructorData getInstructorForStudentAssign() {
-//		return instructorForStudentAssign;
-//	}
-//
-//	public void setInstructorForStudentAssign(InstructorData instructorForStudentAssign) {
-//		this.instructorForStudentAssign = instructorForStudentAssign;
-//	}
-
 	public String getCredentialTitle() {
 		return credentialIdData.getTitle();
-	}
-
-	public CredentialIdData getCredentialIdData() {
-		return credentialIdData;
-	}
-
-	public InstructorSortOption[] getSortOptions() {
-		return sortOptions;
-	}
-
-	public void setSortOptions(InstructorSortOption[] sortOptions) {
-		this.sortOptions = sortOptions;
-	}
-
-	public String getInstructorSearchTerm() {
-		return instructorSearchTerm;
-	}
-
-	public void setInstructorSearchTerm(String instructorSearchTerm) {
-		this.instructorSearchTerm = instructorSearchTerm;
-	}
-
-	public List<UserData> getUnassignedInstructors() {
-		return unassignedInstructors;
-	}
-
-	public void setUnassignedInstructors(List<UserData> unassignedInstructors) {
-		this.unassignedInstructors = unassignedInstructors;
-	}
-
-	public boolean isReassignAutomatically() {
-		return reassignAutomatically;
-	}
-
-	public void setReassignAutomatically(boolean reassignAutomatically) {
-		this.reassignAutomatically = reassignAutomatically;
 	}
 
 	public long getCredentialId() {
