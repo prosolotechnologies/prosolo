@@ -2,6 +2,7 @@
 	xmlns:h="http://java.sun.com/jsf/html"
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
 	xmlns:composite="http://java.sun.com/jsf/composite"
 	xmlns:p="http://primefaces.org/ui"
 	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
@@ -11,6 +12,8 @@
 	
 	<composite:implementation>
 		<script src="#{request.contextPath}/resources/javascript2/search.js"></script>
+		<h:outputScript library="javascript2" name="autosize.min.js" />
+
 		<script>
 			function changeConversation(threadId) {
 			    if (typeof threadId != 'undefined') {
@@ -205,7 +208,9 @@
 												/>
 											</span>
 	                                		<div class="clear"></div>
-	                                		<p>#{message.content}</p>
+											<p>
+												<h:outputText escape="false" value="#{fn:replace(message.content,'\\n','&lt;br/&gt;')}" />
+											</p>
 	                            		</div>
 	                        		</div>
 	                    		</ui:repeat>
@@ -231,7 +236,9 @@
 												/>
 											</span>
 	                                		<div class="clear"></div>
-	                                		<p>#{message.content}</p>
+	                                		<p>
+												<h:outputText escape="false" value="#{fn:replace(message.content,'\\n','&lt;br/&gt;')}" />
+											</p>
 	                            		</div>
 	                        		</div>
 	                    		</ui:repeat>
@@ -254,7 +261,6 @@
 												<f:validateLength maximum="9000"/>
 											</h:inputTextarea>
 
-
 											<utilcomp:singleClickLink value="Send"
 																	  styleClass="btn btn-green btn-sm hidden submitBtn"
 																	  action="#{messagesBean.sendMessage()}"
@@ -262,16 +268,18 @@
 	                                    	/>
 
 											<script>
+												autosize($(escapeColons('#messages:messageContentTextarea')));
 												$(escapeColons('#messages:messageContentTextarea')).focus();
 
 												let validationMsg = $(escapeColons('##{cc.clientId}:messageContentTextareaValidation'));
 												if (validationMsg.first().html() != "") {
 													displaySubmitButton($(escapeColons('##{cc.clientId}:messageContentTextarea'))[0]);
+													scrollTo(escapeColons('#{cc.clientId}:messageContentTextareaValidation'));
 												}
 											</script>
-		                                </div>
+										</div>
 										<small class="redText bottom30 displayBlock">
-											<h:message id="messageContentTextareaValidation" for="messageContentTextarea"></h:message>
+											<h:message id="messageContentTextareaValidation" for="messageContentTextarea" class="redText"></h:message>
 										</small>
 		                            </div>
 		                        </div>
