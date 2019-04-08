@@ -94,16 +94,19 @@
 						<p:focus/>
 						<p:growl globalOnly="true" showDetail="true" />
 
+						<label>Evidence Title:</label>
+
 						<h:inputText id="inputFileEvidenceTitle"
 									 label="Title"
 									 value="#{submitEvidenceBean.evidence.title}"
-									 placeholder="Evidence title"
 									 required="true"
 									 requiredMessage="Title is required"
 									 autocomplete="off">
 							<f:validateLength maximum="500"/>
 						</h:inputText>
 						<small class="redText bottom30 topMinus30 displayBlock"><h:message for="inputFileEvidenceTitle"></h:message></small>
+
+						<label>Description:</label>
 
 						<h:inputTextarea id="textareaFileEvidenceDesc"
 										 label="Description"
@@ -162,15 +165,20 @@
 								<small class="redText bottom30 topMinus30 displayBlock"><h:message for="inputHiddenFileEvidence"></h:message></small>
 							</ui:fragment>
 						</h:panelGroup>
+
+						<label>Keywords (optional):</label>
+
 						<h:inputText id="inputFileEvidenceKeywords"
 									 styleClass="tagsInputEvidence"
 									 value="#{submitEvidenceBean.evidence.tagsString}"
-									 placeholder="Keywords - Type and press 'Enter'"
+									 placeholder="Type and press 'Enter'"
 									 pt:data-role="tagsinput"
 									 autocomplete="off" />
 						<script>$('.tagsInputEvidence').tagsinput();</script>
 
 						<c:if test="#{cc.attrs.addEvidenceToCompetence}">
+							<label>Relation:</label>
+
 							<h:inputTextarea id="inputFileEvidenceRelationToComp"
 											 label="Relation to #{msg['label.competence'].toLowerCase()} field"
 											 value="#{submitEvidenceBean.evidence.relationToCompetence}"
@@ -207,16 +215,19 @@
 						<p:focus/>
 						<p:growl globalOnly="true" showDetail="true" />
 
+						<label>Evidence Title:</label>
+
 						<h:inputText id="inputURLEvidenceTitle"
 									 label="Title"
 									 value="#{submitEvidenceBean.evidence.title}"
-									 placeholder="Evidence title"
 									 required="true"
 									 requiredMessage="Title is required"
 									 autocomplete="off">
 							<f:validateLength maximum="500"/>
 						</h:inputText>
 						<small class="redText bottom30 topMinus30 displayBlock"><h:message for="inputURLEvidenceTitle"></h:message></small>
+
+						<label>Description:</label>
 
 						<h:inputTextarea id="textareaURLEvidenceDesc"
 										 label="Description"
@@ -232,6 +243,8 @@
 
 						<small class="redText bottom30 displayBlock"><h:message for="textareaURLEvidenceDesc"></h:message></small>
 
+						<label>URL:</label>
+
 						<h:inputText id="inputUrl"
 									 label="URL"
 									 styleClass="urlInput"
@@ -245,15 +258,19 @@
 						</h:inputText>
 						<small class="redText bottom30 topMinus30 displayBlock"><h:message for="inputUrl" /></small>
 
+						<label>Keywords (optional):</label>
+
 						<h:inputText styleClass="tagsInputEvidence"
 									 id="inputURLEvidenceKeywords"
 									 value="#{submitEvidenceBean.evidence.tagsString}"
-									 placeholder="Keywords - Type and press 'Enter'"
+									 placeholder="Type and press 'Enter'"
 									 pt:data-role="tagsinput"
 									 autocomplete="off" />
 						<script>$('.tagsInputEvidence').tagsinput();</script>
 
 						<c:if test="#{cc.attrs.addEvidenceToCompetence}">
+							<label>Relation:</label>
+
 							<h:inputTextarea id="inputURLEvidenceRelationToComp"
 											 label="Relation to #{msg['label.competence'].toLowerCase()} field"
 											 value="#{submitEvidenceBean.evidence.relationToCompetence}"
@@ -290,20 +307,23 @@
 						<p:focus/>
 						<p:growl globalOnly="true" showDetail="true" />
 
+						<label>Evidence Title:</label>
+
 						<h:inputText id="inputTextualEvidenceTitle"
 									 label="Title"
 									 value="#{submitEvidenceBean.evidence.title}"
-									 placeholder="Evidence title"
 									 required="true"
-									 requiredMessage="Evidence title is required"
+									 requiredMessage="Title is required"
 									 autocomplete="off">
 								<f:validateLength maximum="500"/>
 						</h:inputText>
 						<small class="redText bottom30 topMinus30 displayBlock"><h:message for="inputTextualEvidenceTitle"></h:message></small>
 
+						<label>Description:</label>
+
 						<h:inputTextarea id="textareaTextualEvidenceDesc"
 										 label="Description"
-										 placeholder="Short description here"
+										 placeholder="Detailed description here"
 										 value="#{submitEvidenceBean.evidence.text}"
 										 required="true"
 										 requiredMessage="Description is required">
@@ -315,15 +335,19 @@
 
 						<small class="redText bottom30 displayBlock"><h:message for="textareaTextualEvidenceDesc"></h:message></small>
 
+						<label>Keywords (optional):</label>
+
 						<h:inputText styleClass="tagsInputEvidence"
 									 id="inputTextualEvidenceKeywords"
 									 value="#{submitEvidenceBean.evidence.tagsString}"
-									 placeholder="Keywords - Type and press 'Enter'"
+									 placeholder="Type and press 'Enter'"
 									 pt:data-role="tagsinput"
 									 autocomplete="off" />
 						<script>$('.tagsInputEvidence').tagsinput();</script>
 
 						<c:if test="#{cc.attrs.addEvidenceToCompetence}">
+							<label>Relation:</label>
+
 							<h:inputTextarea id="inputTextualEvidenceRelationToComp"
 											 label="Relation to #{msg['label.competence'].toLowerCase()} field"
 											 value="#{submitEvidenceBean.evidence.relationToCompetence}"
