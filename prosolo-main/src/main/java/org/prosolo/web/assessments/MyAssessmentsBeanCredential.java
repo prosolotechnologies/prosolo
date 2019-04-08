@@ -1,10 +1,12 @@
 package org.prosolo.web.assessments;
 
 import org.apache.log4j.Logger;
+import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.assessment.data.AssessmentData;
-import org.prosolo.services.nodes.CredentialManager;
+import org.prosolo.services.assessment.data.filter.AssessmentStatusFilter;
 import org.prosolo.web.LoggedUserBean;
+import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.prosolo.web.util.pagination.Paginable;
 import org.prosolo.web.util.pagination.PaginationData;
@@ -26,13 +28,13 @@ public class MyAssessmentsBeanCredential implements Paginable, Serializable {
 
 	@Inject private AssessmentManager assessmentManager;
 	@Inject private LoggedUserBean loggedUserBean;
-	@Inject private CredentialManager credentialManager;
 	@Inject private AssessmentAvailabilityBean assessmentAvailabilityBean;
 
 	private int page;
 
-	private String context;
-	private List<AssessmentData> assessmentData;
+	private List<AssessmentData> assessmentsData;
+	private AssessmentStatusFilter assessmentStatusFilter = AssessmentStatusFilter.ALL;
+	private AssessmentStatusFilter[] assessmentStatusFilters;
 
 	private PaginationData paginationData = new PaginationData(5);
 
@@ -41,7 +43,8 @@ public class MyAssessmentsBeanCredential implements Paginable, Serializable {
 			if (page > 0) {
 				paginationData.setPage(page);
 			}
-			getAssessments();
+			assessmentStatusFilters = AssessmentStatusFilter.values();
+			loadAssessments();
 			assessmentAvailabilityBean.init();
 		} catch (Exception e) {
 			logger.error("Error loading assessments", e);
@@ -49,46 +52,62 @@ public class MyAssessmentsBeanCredential implements Paginable, Serializable {
 		}
 	}
 
-	private void getAssessments() {
-//			paginationData.update(assessmentManager.countAssessmentsForUser(loggedUserBean.getUserId(),
-//					searchForPending, searchForApproved, decodedId));
-//			assessmentData = assessmentManager.getAllAssessmentsForStudent(loggedUserBean.getUserId(),
-//					searchForPending, searchForApproved, idEncoder, new SimpleDateFormat("MMMM dd, yyyy"),
-//					paginationData.getPage() - 1,
-//					paginationData.getLimit(), decodedId);
+	private void loadAssessments() {
+		PaginatedResult<AssessmentData> res = assessmentManager.getPaginatedCredentialPeerAssessmentsForAssessor(
+				loggedUserBean.getUserId(), assessmentStatusFilter, (paginationData.getPage() - 1) * paginationData.getLimit(), paginationData.getLimit());
+		paginationData.update((int) res.getHitsNumber());
+		assessmentsData = res.getFoundNodes();
 	}
 
-	private void getAssessmentsWithExceptionHandling() {
+	private void loadAssessmentsWithExceptionHandling() {
 		try {
-			getAssessments();
+			loadAssessments();
 		} catch (Exception e) {
 			logger.error("Error", e);
 			PageUtil.fireErrorMessage("Error loading the data");
 		}
 	}
 
-	public String getContext() {
-		return context;
-	}
-
-	public void setContext(String context) {
-		this.context = context;
-	}
-
-	public List<AssessmentData> getAssessmentData() {
-		return assessmentData;
-	}
-
-	public PaginationData getPaginationData() {
-		return paginationData;
-	}
-
 	@Override
 	public void changePage(int page) {
 		if(this.paginationData.getPage() != page) {
 			this.paginationData.setPage(page);
-			getAssessmentsWithExceptionHandling();
+			loadAssessmentsWithExceptionHandling();
 		}
+	}
+
+	public void applyAssessmentStatusFilter(AssessmentStatusFilter filter) {
+		this.assessmentStatusFilter = filter;
+		this.paginationData.setPage(1);
+		loadAssessmentsWithExceptionHandling();
+	}
+
+	public String getLabelForSelectedFilter() {
+		return getLabelForFilter(assessmentStatusFilter);
+	}
+
+	public String getLabelForFilter(AssessmentStatusFilter filter) {
+		if (filter == AssessmentStatusFilter.ALL) {
+			return ResourceBundleUtil.getLabel("enum.AssessmentStatusFilter." + filter.name());
+		} else {
+			return ResourceBundleUtil.getLabel("enum.AssessmentStatus." + filter.getStatuses().get(0).name());
+		}
+	}
+
+	public List<AssessmentData> getAssessmentsData() {
+		return assessmentsData;
+	}
+
+	public AssessmentStatusFilter getAssessmentStatusFilter() {
+		return assessmentStatusFilter;
+	}
+
+	public void setAssessmentStatusFilter(AssessmentStatusFilter assessmentStatusFilter) {
+		this.assessmentStatusFilter = assessmentStatusFilter;
+	}
+
+	public PaginationData getPaginationData() {
+		return paginationData;
 	}
 
 	public int getPage() {
@@ -97,5 +116,9 @@ public class MyAssessmentsBeanCredential implements Paginable, Serializable {
 
 	public void setPage(int page) {
 		this.page = page;
+	}
+
+	public AssessmentStatusFilter[] getAssessmentStatusFilters() {
+		return assessmentStatusFilters;
 	}
 }

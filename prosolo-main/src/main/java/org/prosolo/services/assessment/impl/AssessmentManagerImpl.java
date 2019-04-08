@@ -25,6 +25,7 @@ import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.assessment.config.AssessmentLoadConfig;
 import org.prosolo.services.assessment.data.*;
 import org.prosolo.services.assessment.data.factory.AssessmentDataFactory;
+import org.prosolo.services.assessment.data.filter.AssessmentStatusFilter;
 import org.prosolo.services.assessment.data.grading.*;
 import org.prosolo.services.assessment.data.parameterobjects.StudentCompetenceAndAssessmentData;
 import org.prosolo.services.common.data.SortOrder;
@@ -188,7 +189,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
                 }
 
                 //generate event only for peer assessment
-                if (type == AssessmentType.PEER_ASSESSMENT) {
+                if (type == AssessmentType.PEER_ASSESSMENT && assessorId > 0) {
                     Map<String, String> parameters = new HashMap<>();
                     parameters.put("credentialId", targetCredential.getCredential().getId() + "");
                     CredentialAssessment assessment1 = new CredentialAssessment();
@@ -4063,6 +4064,71 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			logger.error("Error", e);
 			throw new DbConnectionException("Error in method getUserIdsFromCompetenceAssessorPool");
 		}
+	}
+
+	@Override
+	@Transactional
+	public PaginatedResult<AssessmentData> getPaginatedCredentialPeerAssessmentsForAssessor(
+			long assessorId, AssessmentStatusFilter filter, int offset, int limit) {
+		try {
+			PaginatedResult<AssessmentData> res = new PaginatedResult<>();
+			res.setHitsNumber(countCredentialPeerAssessmentsForAssessor(assessorId, filter));
+			if (res.getHitsNumber() > 0) {
+				res.setFoundNodes(getCredentialPeerAssessmentsForAssessor(assessorId, filter, offset, limit));
+			}
+			return res;
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error loading credential assessments");
+		}
+	}
+
+	private List<AssessmentData> getCredentialPeerAssessmentsForAssessor(
+			long assessorId, AssessmentStatusFilter filter, int offset, int limit) {
+		String q =
+				"SELECT ca FROM CredentialAssessment ca " +
+				"LEFT JOIN fetch ca.student " +
+				"WHERE ca.assessor.id = :assessorId " +
+				"AND ca.type = :type ";
+		if (!filter.getStatuses().isEmpty()) {
+			q += "AND ca.status IN (:statuses) ";
+		}
+		q += "ORDER BY ca.dateCreated DESC";
+
+		Query query = persistence.currentManager().createQuery(q)
+				.setLong("assessorId", assessorId)
+				.setString("type", AssessmentType.PEER_ASSESSMENT.name())
+				.setMaxResults(limit)
+				.setFirstResult(offset);
+		if (!filter.getStatuses().isEmpty()) {
+			query.setParameterList("statuses", filter.getStatuses());
+		}
+
+		List<CredentialAssessment> assessments = (List<CredentialAssessment>) query.list();
+
+		List<AssessmentData> res = new ArrayList<>();
+		for (CredentialAssessment ca : assessments) {
+			res.add(assessmentDataFactory.getAssessmentData(ca, ca.getStudent(), null));
+		}
+
+		return res;
+	}
+
+	private long countCredentialPeerAssessmentsForAssessor(long assessorId, AssessmentStatusFilter filter) {
+		String q =
+				"SELECT COUNT(ca.id) FROM CredentialAssessment ca " +
+				"WHERE ca.assessor.id = :assessorId " +
+				"AND ca.type = :type ";
+		if (!filter.getStatuses().isEmpty()) {
+			q += "AND ca.status IN (:statuses)";
+		}
+		Query query = persistence.currentManager().createQuery(q)
+				.setLong("assessorId", assessorId)
+				.setString("type", AssessmentType.PEER_ASSESSMENT.name());
+		if (!filter.getStatuses().isEmpty()) {
+			query.setParameterList("statuses", filter.getStatuses());
+		}
+		return (long) query.uniqueResult();
 	}
 
 }

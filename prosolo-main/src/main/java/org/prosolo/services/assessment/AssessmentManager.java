@@ -13,6 +13,7 @@ import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.assessment.config.AssessmentLoadConfig;
 import org.prosolo.services.assessment.data.*;
+import org.prosolo.services.assessment.data.filter.AssessmentStatusFilter;
 import org.prosolo.services.assessment.data.grading.AssessmentGradeSummary;
 import org.prosolo.services.assessment.data.grading.GradeData;
 import org.prosolo.services.assessment.data.grading.RubricAssessmentGradeSummary;
@@ -485,4 +486,17 @@ public interface AssessmentManager {
 	 * @throws DbConnectionException
 	 */
 	List<Long> getUserIdsFromCompetenceAssessorPool(long credId, long compId, long studentId);
+
+	/**
+	 *
+	 * @param assessorId
+	 * @param filter
+	 * @param offset
+	 * @param limit
+	 * @return
+	 *
+	 * @throws DbConnectionException
+	 */
+	PaginatedResult<AssessmentData> getPaginatedCredentialPeerAssessmentsForAssessor(
+			long assessorId, AssessmentStatusFilter filter, int offset, int limit);
 }

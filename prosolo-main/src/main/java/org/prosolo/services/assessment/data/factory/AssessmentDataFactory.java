@@ -2,8 +2,6 @@ package org.prosolo.services.assessment.data.factory;
 
 import org.prosolo.common.domainmodel.assessment.Assessment;
 import org.prosolo.common.domainmodel.assessment.AssessmentStatus;
-import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
-import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
 import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.ImageFormat;
@@ -18,9 +16,7 @@ import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
 import java.io.Serializable;
-import java.text.DateFormat;
 import java.util.Date;
-import java.util.OptionalInt;
 
 /**
  * @author stefanvuckovic
@@ -81,18 +77,14 @@ public class AssessmentDataFactory implements Serializable {
     }
 
     public AssessmentData getAssessmentData(Assessment assessment, User student, User assessor) {
-        return getAssessmentData(assessment.getId(), assessment.getStatus(), assessment.getDateCreated(), assessment.getQuitDate(), assessment.isApproved(), assessment.getDateApproved(), student, assessor, assessment.getBlindAssessmentMode());
-    }
-
-    public AssessmentData getAssessmentData(
-            long assessmentId, AssessmentStatus status, Date dateCreated, Date dateQuit, boolean approved, Date dateSubmitted, User student, User assessor, BlindAssessmentMode blindAssessmentMode) {
         AssessmentData data = new AssessmentData();
-        data.setAssessmentId(assessmentId);
-        data.setStatus(status);
-        data.setDateRequested(DateUtil.getMillisFromDate(dateCreated));
-        data.setDateQuit(DateUtil.getMillisFromDate(dateQuit));
-        data.setApproved(approved);
-        data.setDateSubmitted(DateUtil.getMillisFromDate(dateSubmitted));
+        data.setAssessmentId(assessment.getId());
+        data.setCredentialTitle(assessment.getTargetCredential().getCredential().getTitle());
+        data.setStatus(assessment.getStatus());
+        data.setDateRequested(DateUtil.getMillisFromDate(assessment.getDateCreated()));
+        data.setDateQuit(DateUtil.getMillisFromDate(assessment.getQuitDate()));
+        data.setApproved(assessment.isApproved());
+        data.setDateSubmitted(DateUtil.getMillisFromDate(assessment.getDateApproved()));
         if (student != null) {
             data.setStudentFullName(student.getName() + " " + student.getLastname());
             data.setStudentAvatarUrl(AvatarUtils.getAvatarUrlInFormat(student, ImageFormat.size120x120));
@@ -103,7 +95,8 @@ public class AssessmentDataFactory implements Serializable {
             data.setAssessorAvatarUrl(AvatarUtils.getAvatarUrlInFormat(assessor, ImageFormat.size120x120));
             data.setAssessorId(assessor.getId());
         }
-        data.setBlindAssessmentMode(blindAssessmentMode);
+        data.setBlindAssessmentMode(assessment.getBlindAssessmentMode());
+        data.setCredentialId(assessment.getTargetCredential().getCredential().getId());
 
         return data;
     }
