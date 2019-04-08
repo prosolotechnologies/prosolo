@@ -223,7 +223,7 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 		return AssessmentUtil.isSelfAssessmentEnabled(assessmentTypesConfig);
 	}
 
-	public void prepareLearningResourceAssessmentForGrading(CompetenceAssessmentData assessment) {
+	public void prepareLearningResourceAssessmentForGrading(CompetenceAssessmentDataFull assessment) {
 		compAssessmentBean.prepareLearningResourceAssessmentForGrading(assessment);
 		currentResType = LearningResourceType.COMPETENCE;
 	}
@@ -239,7 +239,7 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 		currentResType = LearningResourceType.ACTIVITY;
 	}
 
-	public void prepareLearningResourceAssessmentForCommenting(CompetenceAssessmentData assessment) {
+	public void prepareLearningResourceAssessmentForCommenting(CompetenceAssessmentDataFull assessment) {
 		compAssessmentBean.prepareLearningResourceAssessmentForCommenting(assessment);
 		currentResType = LearningResourceType.COMPETENCE;
 	}
@@ -250,7 +250,7 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 		currentResType = LearningResourceType.CREDENTIAL;
 	}
 
-	public void prepareLearningResourceAssessmentForApproving(CompetenceAssessmentData assessment) {
+	public void prepareLearningResourceAssessmentForApproving(CompetenceAssessmentDataFull assessment) {
 		compAssessmentBean.prepareLearningResourceAssessmentForApproving(assessment);
 		currentResType = LearningResourceType.COMPETENCE;
 	}
@@ -529,7 +529,7 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 	}
 
 	public boolean allCompetencesStarted() {
-		for (CompetenceAssessmentData cad : fullAssessmentData.getCompetenceAssessmentData()) {
+		for (CompetenceAssessmentDataFull cad : fullAssessmentData.getCompetenceAssessmentData()) {
 			if (cad.isReadOnly()) {
 				return false;
 			}
@@ -573,7 +573,7 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 		fullAssessmentData.setStatus(AssessmentStatus.SUBMITTED);
 		//remove notification when credential is approved
 		fullAssessmentData.setAssessorNotified(false);
-		for (CompetenceAssessmentData compAssessmentData : fullAssessmentData.getCompetenceAssessmentData()) {
+		for (CompetenceAssessmentDataFull compAssessmentData : fullAssessmentData.getCompetenceAssessmentData()) {
 			compAssessmentData.setApproved(true);
 			//remove notification when competence is approved
 			compAssessmentData.setAssessorNotified(false);
@@ -581,7 +581,7 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 	}
 
 	private void markCompetenceApproved(long competenceAssessmentId) {
-		for (CompetenceAssessmentData competenceAssessment : fullAssessmentData.getCompetenceAssessmentData()) {
+		for (CompetenceAssessmentDataFull competenceAssessment : fullAssessmentData.getCompetenceAssessmentData()) {
 			if (competenceAssessment.getCompetenceAssessmentEncodedId().equals(idEncoder.encodeId(competenceAssessmentId))) {
 				competenceAssessment.setApproved(true);
 				competenceAssessment.setAssessorNotified(false);
@@ -602,9 +602,9 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 	}
 
 	private Optional<ActivityAssessmentData> getActivityAssessmentByEncodedId(String encodedActivityDiscussionId) {
-		List<CompetenceAssessmentData> competenceAssessmentData = fullAssessmentData.getCompetenceAssessmentData();
+		List<CompetenceAssessmentDataFull> competenceAssessmentData = fullAssessmentData.getCompetenceAssessmentData();
 		if (CollectionUtils.isNotEmpty(competenceAssessmentData)) {
-			for (CompetenceAssessmentData comp : competenceAssessmentData) {
+			for (CompetenceAssessmentDataFull comp : competenceAssessmentData) {
 				if (comp.getActivityAssessmentData() != null) {
 					for (ActivityAssessmentData act : comp.getActivityAssessmentData()) {
 						if (encodedActivityDiscussionId.equals(act.getEncodedActivityAssessmentId())) {
@@ -624,7 +624,7 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 			long assessmentId = idEncoder.decodeId(encodedAssessmentId);
 			assessmentManager.markCompetenceAssessmentDiscussionAsSeen(loggedUserBean.getUserId(),
 					assessmentId);
-			Optional<CompetenceAssessmentData> compAssessment = getCompetenceAssessmentById(
+			Optional<CompetenceAssessmentDataFull> compAssessment = getCompetenceAssessmentById(
 					assessmentId);
 			compAssessment.ifPresent(data -> data.setAllRead(true));
 		}
@@ -641,10 +641,10 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 		}
 	}
 
-	private Optional<CompetenceAssessmentData> getCompetenceAssessmentById(long assessmentId) {
-		List<CompetenceAssessmentData> competenceAssessmentData = fullAssessmentData.getCompetenceAssessmentData();
+	private Optional<CompetenceAssessmentDataFull> getCompetenceAssessmentById(long assessmentId) {
+		List<CompetenceAssessmentDataFull> competenceAssessmentData = fullAssessmentData.getCompetenceAssessmentData();
 		if (CollectionUtils.isNotEmpty(competenceAssessmentData)) {
-			for (CompetenceAssessmentData ca : competenceAssessmentData) {
+			for (CompetenceAssessmentDataFull ca : competenceAssessmentData) {
 				if (assessmentId == ca.getCompetenceAssessmentId()) {
 					return Optional.of(ca);
 				}

@@ -349,7 +349,7 @@ public interface AssessmentManager {
 
 	long getCredentialAssessmentIdForCompetenceAssessment(long compAssessmentId, Session session) throws DbConnectionException;
 
-	PaginatedResult<CompetenceAssessmentData> getPaginatedStudentsCompetenceAssessments(
+	PaginatedResult<CompetenceAssessmentDataFull> getPaginatedStudentsCompetenceAssessments(
 			long credId, long compId, long userId, boolean countOnlyAssessmentsWhereUserIsAssessor,
 			List<AssessmentFilter> filters, int limit, int offset) throws DbConnectionException;
 
@@ -357,11 +357,11 @@ public interface AssessmentManager {
 			long credId, long compId, long userId, boolean countOnlyAssessmentsWhereUserIsAssessor, List<AssessmentFilter> filters, int limit, int offset)
 			throws DbConnectionException, ResourceNotFoundException;
 
-	Optional<CompetenceAssessmentData> getInstructorCompetenceAssessmentForStudent(long credId, long compId, long studentId) throws DbConnectionException;
+	Optional<CompetenceAssessmentDataFull> getInstructorCompetenceAssessmentForStudent(long credId, long compId, long studentId) throws DbConnectionException;
 
 	Optional<Long> getSelfCompetenceAssessmentId(long credId, long compId, long studentId) throws DbConnectionException;
 
-	CompetenceAssessmentData getCompetenceAssessmentData(long competenceAssessmentId, long userId, AssessmentType assessmentType, AssessmentLoadConfig loadConfig)
+	CompetenceAssessmentDataFull getCompetenceAssessmentData(long competenceAssessmentId, long userId, AssessmentType assessmentType, AssessmentLoadConfig loadConfig)
 			throws DbConnectionException;
 
 	PaginatedResult<AssessmentData> getPaginatedCredentialPeerAssessmentsForStudent(
@@ -498,5 +498,18 @@ public interface AssessmentManager {
 	 * @throws DbConnectionException
 	 */
 	PaginatedResult<AssessmentData> getPaginatedCredentialPeerAssessmentsForAssessor(
+			long assessorId, AssessmentStatusFilter filter, int offset, int limit);
+
+	/**
+	 *
+	 * @param assessorId
+	 * @param filter
+	 * @param offset
+	 * @param limit
+	 * @return
+	 *
+	 * @throws DbConnectionException
+	 */
+	PaginatedResult<CompetenceAssessmentData> getPaginatedCompetencePeerAssessmentsForAssessor(
 			long assessorId, AssessmentStatusFilter filter, int offset, int limit);
 }

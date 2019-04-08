@@ -2,14 +2,13 @@ package org.prosolo.services.assessment.data.factory;
 
 import org.prosolo.common.domainmodel.assessment.Assessment;
 import org.prosolo.common.domainmodel.assessment.AssessmentStatus;
+import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
+import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
 import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.ImageFormat;
 import org.prosolo.common.util.date.DateUtil;
-import org.prosolo.services.assessment.data.ActivityAssessmentsSummaryData;
-import org.prosolo.services.assessment.data.AssessmentData;
-import org.prosolo.services.assessment.data.CompetenceAssessmentsSummaryData;
-import org.prosolo.services.assessment.data.CredentialAssessmentsSummaryData;
+import org.prosolo.services.assessment.data.*;
 import org.prosolo.services.nodes.factory.ActivityDataFactory;
 import org.prosolo.web.util.AvatarUtils;
 import org.springframework.stereotype.Component;
@@ -76,8 +75,13 @@ public class AssessmentDataFactory implements Serializable {
         return activitySummary;
     }
 
-    public AssessmentData getAssessmentData(Assessment assessment, User student, User assessor) {
+    public AssessmentData getCredentialAssessmentData(CredentialAssessment assessment, User student, User assessor) {
         AssessmentData data = new AssessmentData();
+        populateAndReturnAssessmentData(data, assessment, student, assessor);
+        return data;
+    }
+
+    private void populateAndReturnAssessmentData(AssessmentData data, Assessment assessment, User student, User assessor) {
         data.setAssessmentId(assessment.getId());
         data.setCredentialTitle(assessment.getTargetCredential().getCredential().getTitle());
         data.setStatus(assessment.getStatus());
@@ -97,7 +101,13 @@ public class AssessmentDataFactory implements Serializable {
         }
         data.setBlindAssessmentMode(assessment.getBlindAssessmentMode());
         data.setCredentialId(assessment.getTargetCredential().getCredential().getId());
+    }
 
+    public CompetenceAssessmentData getCompetenceAssessmentData(CompetenceAssessment assessment, User student, User assessor) {
+        CompetenceAssessmentData data = new CompetenceAssessmentData();
+        data.setCompetenceId(assessment.getCompetence().getId());
+        data.setCompetenceTitle(assessment.getCompetence().getTitle());
+        populateAndReturnAssessmentData(data, assessment, student, assessor);
         return data;
     }
 }

@@ -12,7 +12,7 @@ import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.assessment.RubricManager;
 import org.prosolo.services.assessment.data.ActivityAssessmentData;
 import org.prosolo.services.assessment.data.AssessmentDiscussionMessageData;
-import org.prosolo.services.assessment.data.CompetenceAssessmentData;
+import org.prosolo.services.assessment.data.CompetenceAssessmentDataFull;
 import org.prosolo.services.assessment.data.grading.GradeData;
 import org.prosolo.services.assessment.data.grading.RubricCriteriaGradeData;
 import org.prosolo.services.nodes.data.LearningResourceType;
@@ -128,7 +128,7 @@ public class StudentCompetenceAssessmentBean extends CompetenceAssessmentBean im
 	}
 
 	//prepare for grading
-	public void prepareLearningResourceAssessmentForGrading(CompetenceAssessmentData assessment) {
+	public void prepareLearningResourceAssessmentForGrading(CompetenceAssessmentDataFull assessment) {
 		setCompetenceAssessmentData(assessment);
 		initializeGradeData();
 		this.currentResType = LearningResourceType.COMPETENCE;
@@ -150,7 +150,7 @@ public class StudentCompetenceAssessmentBean extends CompetenceAssessmentBean im
 	}
 
 	//prepare for commenting
-	public void prepareLearningResourceAssessmentForCommenting(CompetenceAssessmentData assessment) {
+	public void prepareLearningResourceAssessmentForCommenting(CompetenceAssessmentDataFull assessment) {
 		try {
 			if (!assessment.isMessagesInitialized()) {
 				assessment.populateDiscussionMessages(getAssessmentManager()
@@ -166,7 +166,7 @@ public class StudentCompetenceAssessmentBean extends CompetenceAssessmentBean im
 		}
 	}
 
-	public void prepareLearningResourceAssessmentForApproving(CompetenceAssessmentData assessment) {
+	public void prepareLearningResourceAssessmentForApproving(CompetenceAssessmentDataFull assessment) {
 		try {
 			setCompetenceAssessmentData(assessment);
 			currentResType = LearningResourceType.COMPETENCE;
@@ -419,7 +419,7 @@ public class StudentCompetenceAssessmentBean extends CompetenceAssessmentBean im
 		initAskForAssessment(getCompetenceAssessmentData());
 	}
 
-	public void initAskForAssessment(CompetenceAssessmentData compAssessment) {
+	public void initAskForAssessment(CompetenceAssessmentDataFull compAssessment) {
 		UserData assessor = null;
 		if (compAssessment.getAssessorId() > 0) {
 			assessor = new UserData();
