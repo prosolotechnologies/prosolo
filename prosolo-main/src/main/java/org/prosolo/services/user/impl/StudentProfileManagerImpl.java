@@ -2,6 +2,7 @@ package org.prosolo.services.user.impl;
 
 import org.hibernate.LockOptions;
 import org.hibernate.Query;
+import org.hibernate.Session;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
@@ -13,7 +14,6 @@ import org.prosolo.common.domainmodel.studentprofile.*;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.assessment.data.AssessmentSortOrder;
-import org.prosolo.services.assessment.data.grading.AssessmentGradeSummary;
 import org.prosolo.services.common.data.SelectableData;
 import org.prosolo.services.common.data.SortOrder;
 import org.prosolo.services.common.data.SortingOption;
@@ -33,6 +33,7 @@ import org.prosolo.services.user.data.profile.factory.CredentialProfileOptionsDa
 import org.prosolo.services.user.data.profile.factory.GradeDataFactory;
 import org.prosolo.services.user.data.profile.grade.GradeData;
 import org.prosolo.web.profile.data.UserSocialNetworksData;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -66,7 +67,8 @@ public class StudentProfileManagerImpl extends AbstractManagerImpl implements St
                 return Optional.empty();
             } else {
                 UserSocialNetworksData userSocialNetworkData = socialNetworksManager.getUserSocialNetworkData(userId);
-                return Optional.of(new StudentProfileData(userData, userSocialNetworkData, getProfileLearningData(userId)));
+                ProfileSettingsData profileSettingsData = getProfileSettingsData(userId);
+                return Optional.of(new StudentProfileData(userData, userSocialNetworkData, getProfileLearningData(userId), profileSettingsData));
             }
         } catch (DbConnectionException e) {
             logger.error("error", e);
@@ -88,9 +90,10 @@ public class StudentProfileManagerImpl extends AbstractManagerImpl implements St
     private ProfileSummaryData getProfileSummaryData(long userId) {
         try {
             String query =
-                    "SELECT type(conf), count(conf.id) FROM StudentProfileConfig conf " +
-                            "WHERE conf.student.id = :userId " +
-                            "GROUP BY type(conf)";
+                    "SELECT type(conf), count(conf.id) " +
+                    "FROM StudentProfileConfig conf " +
+                    "WHERE conf.student.id = :userId " +
+                    "GROUP BY type(conf)";
             List<Object[]> counts = (List<Object[]>) persistence.currentManager()
                     .createQuery(query)
                     .setLong("userId", userId)
@@ -233,6 +236,22 @@ public class StudentProfileManagerImpl extends AbstractManagerImpl implements St
         } catch (Exception e) {
             logger.error("error", e);
             throw new DbConnectionException("Error loading competency assessments profile data");
+        }
+    }
+
+    @Override
+    @Transactional
+    public void updateProfileSettings(ProfileSettingsData profileSettings) {
+        try {
+            ProfileSettings user = loadResource(ProfileSettings.class, profileSettings.getId());
+            user.setSummarySidebarEnabled(profileSettings.isSummarySidebarEnabled());
+            user.setCustomProfileUrl(profileSettings.getCustomProfileUrl());
+        } catch (DataIntegrityViolationException e) {
+            logger.error("Error", e);
+            throw e;
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error saving profile settings with id " + profileSettings.getId());
         }
     }
 
@@ -570,6 +589,36 @@ public class StudentProfileManagerImpl extends AbstractManagerImpl implements St
                 .setLong("compAssessmentId", compAssessmentId)
                 .uniqueResult();
         return Optional.ofNullable(res);
+    }
+
+
+    @Override
+    @Transactional(readOnly = true)
+    public ProfileSettingsData getProfileSettingsData(long userId) {
+        String q =
+                "SELECT profileSettings " +
+                "FROM ProfileSettings profileSettings " +
+                "INNER JOIN profileSettings.user user " +
+                "WITH user.id = :userId";
+
+        ProfileSettings res = (ProfileSettings) persistence.currentManager()
+                .createQuery(q)
+                .setLong("userId", userId)
+                .uniqueResult();
+
+        return new ProfileSettingsData(res);
+    }
+
+    @Override
+    @Transactional(readOnly = false)
+    public ProfileSettingsData createProfileSettings(User user, String profileUrl, boolean summarySidebarEnabled, Session session) {
+        ProfileSettings profileSettings = new ProfileSettings();
+        profileSettings.setCustomProfileUrl(profileUrl);
+        profileSettings.setSummarySidebarEnabled(summarySidebarEnabled);
+        profileSettings.setUser(user);
+        session.save(profileSettings);
+
+        return new ProfileSettingsData(profileSettings);
     }
 
 }

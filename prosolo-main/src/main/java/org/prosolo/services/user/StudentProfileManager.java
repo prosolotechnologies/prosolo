@@ -1,9 +1,14 @@
 package org.prosolo.services.user;
 
+import org.hibernate.Session;
+import org.hibernate.exception.ConstraintViolationException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.StaleDataException;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.user.data.profile.*;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -106,4 +111,29 @@ public interface StudentProfileManager extends AbstractManager {
      * @throws DbConnectionException
      */
     List<AssessmentByTypeProfileData> getCompetenceAssessmentsProfileData(long competenceProfileConfigId);
+
+    /**
+     * Updates profile settings.
+     *
+     * @param profileSettings profile settings to be updated
+     */
+    void updateProfileSettings(ProfileSettingsData profileSettings) throws ConstraintViolationException;
+
+    /**
+     * Retirieves profiel settings for the given student.
+     *
+     * @param userId user (student) id
+     * @return
+     */
+    ProfileSettingsData getProfileSettingsData(long userId);
+
+    /**
+     * Creates new profile settings for the given user.
+     *
+     * @param user profile owner of the profile
+     * @param summarySidebarEnabled whether summary should be displayed in the Profile page
+     * @param session Hibernate session used to perform queries
+     * @return
+     */
+    ProfileSettingsData createProfileSettings(User user, String profileUrl, boolean summarySidebarEnabled, Session session) throws DataIntegrityViolationException;
 }

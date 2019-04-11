@@ -11,7 +11,7 @@
                 xmlns:communications="http://java.sun.com/jsf/composite/components/communications">
 
     <ui:define name="windowTitle">
-        #{profileBean.personalProfile ? '' : profileBean.userData.fullName.concat(' - ')}Profile - ProSolo
+        #{profileBean.userData.fullName} - Profile - ProSolo
     </ui:define>
 
     <ui:define name="metadata">
@@ -23,19 +23,17 @@
 
     <ui:define name="resourceTitle">
         <div class="profileHeader">
-            <ui:fragment rendered="#{not empty profileBean.userData.avatarUrl}" >
-                <img src="#{profileBean.userData.avatarUrl}" class="img-circle" width="120" height="120"
-                     alt="#{profileBean.userData.fullName}" />
-            </ui:fragment>
-
-            <ui:fragment rendered="#{empty profileBean.userData.avatarUrl}" >
-                <span class="letterAvatar letterAvatar120 img-circle">#{util:initials(profileBean.userData.fullName)}</span>
-            </ui:fragment>
+            <utilcomp:userAvatar
+                    avatar="#{profileBean.userData.avatarUrl}"
+                    fullName="#{profileBean.userData.fullName}"
+                    width="120"
+                    height="120"/>
 
             <div class="profileHeaderInfo">
                 <h1>#{profileBean.userData.fullName}</h1>
                 <div>#{profileBean.userData.position}</div>
                 <div>#{profileBean.userData.locationName}</div>
+
                 <ul class="socialLinks">
                     <ui:repeat value="#{profileBean.userSocialNetworksData.socialNetworkAccountsData.entrySet().toArray()}"
                                var="socialNetworkData" varStatus="iterator">
@@ -52,7 +50,9 @@
     </ui:define>
 
     <ui:define name="content">
-        <p:growl id="profileGrowl" globalOnly="true" showDetail="true" />
+        <script src="#{request.contextPath}/resources/javascript2/clipboard.js/clipboard.min.js"></script>
+
+        <p:growl id="profileGrowl" widgetVar="profileGrowl" globalOnly="true" showDetail="true" />
 
         <div class="whiteBar">
             <div class="container">
@@ -68,7 +68,8 @@
                                         update="profileGrowl :formAddCredentials:panelAddCredentials"
                                         oncomplete="$('#addStandard').modal('show');">
                                 </p:commandLink>
-                                <h:link outcome="settings" class="btn btn-green-stroke btn-sm">Edit Your Info</h:link>
+                                <h:link outcome="settings" class="btn btn-green-stroke btn-sm item">Edit Your Info</h:link>
+                                <a href="#" class="btn btn-green-stroke btn-sm" data-toggle="modal" data-target="#profileSettings">Profile Settings</a>
                             </ui:fragment>
 
                             <ui:fragment rendered="#{loggeduser.hasCapability('basic.user.access') and not profileBean.personalProfile}" >
@@ -115,9 +116,9 @@
             </div>
         </div>
 
-        <div class="container">
+        <h:panelGroup layout="block" id="container" styleClass="container">
             <div class="row">
-                <h:panelGroup layout="block" id="panelCredentials" styleClass="col-md-8">
+                <h:panelGroup layout="block" id="panelCredentials" styleClass="#{profileBean.studentProfileData.profileSettings.summarySidebarEnabled ? 'col-md-8' : 'col-md-12'}">
                     <ui:fragment rendered="#{empty profileBean.credentialProfileData}">
                         <div class="noContentMessage">
                             <p> No #{msg['label.credential.plural'].toLowerCase()}. </p>
@@ -141,21 +142,17 @@
                                             <a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">options menu</a>
                                             <ul class="dropdown-menu bullet pull-center" aria-labelledby="dropdownMenu1">
                                                 <li>
-                                                    <p:commandLink
-                                                            value="Edit"
-                                                            pt:data-toggle="modal"
-                                                            action="#{profileBean.prepareEditCredential(cred)}"
-                                                            update="profileGrowl :formEditCredential:panelEditCredential"
-                                                            oncomplete="$('#editStandard').modal('show')">
-                                                    </p:commandLink>
+                                                    <p:commandLink value="Edit"
+                                                                   pt:data-toggle="modal"
+                                                                   action="#{profileBean.prepareEditCredential(cred)}"
+                                                                   update="profileGrowl :formEditCredential:panelEditCredential"
+                                                                   oncomplete="$('#editStandard').modal('show')"/>
                                                 </li>
                                                 <li>
-                                                    <p:commandLink
-                                                        value="Remove"
-                                                        pt:data-toggle="modal"
-                                                        action="#{profileBean.prepareRemovingCredentialFromProfile(cred)}"
-                                                        oncomplete="$('#removeStandard').modal('show')"
-                                                    />
+                                                    <p:commandLink value="Remove"
+                                                                   pt:data-toggle="modal"
+                                                                   action="#{profileBean.prepareRemovingCredentialFromProfile(cred)}"
+                                                                   oncomplete="$('#removeStandard').modal('show')"/>
                                                 </li>
                                             </ul>
                                         </div>
@@ -184,8 +181,7 @@
                                                     <td>
                                                         <utilcomp:convertTimeOutput
                                                                 millis="#{cred.dateCompleted}"
-                                                                format="MMM DD, YYYY"
-                                                        />
+                                                                format="MMM DD, YYYY"/>
                                                     </td>
                                                 </tr>
                                             </table>
@@ -280,52 +276,63 @@
                         </ui:repeat>
                     </ui:repeat>
                 </h:panelGroup>
-                <div class="col-md-4">
-                    <div class="sidebarBlock">
-                        <h:panelGroup layout="block" id="panelStats" styleClass="whiteBox paddingNone sidebarProfileStats">
-                            <table>
-                                <tr class="row01">
-                                    <td class="col01">
-                                        <div class="line01">
-                                            #{profileBean.getFormattedStatsNumber(profileBean.profileSummaryData.numberOfCompletedCredentials)}
-                                        </div>
-                                        <div class="line02">
-                                            Completed<br/>#{msg['label.credential.plural']}
-                                        </div>
-                                    </td>
-                                    <td class="col02">
-                                        <div class="line01">
-                                            #{profileBean.getFormattedStatsNumber(profileBean.profileSummaryData.numberOfCompletedCompetencies)}
-                                        </div>
-                                        <div class="line02">
-                                            Completed<br/>#{msg['label.competence.plural']}
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr class="row02">
-                                    <td class="col01">
-                                        <div class="line01">
-                                            #{profileBean.getFormattedStatsNumber(profileBean.profileSummaryData.numberOfAssessments)}
-                                        </div>
-                                        <div class="line02">
-                                            Assessments
-                                        </div>
-                                    </td>
-                                    <td class="col02">
-                                        <div class="line01">
-                                            #{profileBean.getFormattedStatsNumber(profileBean.profileSummaryData.numberOfPiecesOfEvidence)}
-                                        </div>
-                                        <div class="line02">
-                                            Evidence
-                                        </div>
-                                    </td>
-                                </tr>
-                            </table>
-                        </h:panelGroup>
+
+                <ui:fragment rendered="#{profileBean.studentProfileData.profileSettings.summarySidebarEnabled}">
+                    <div class="col-md-4">
+                        <div class="sidebarBlock">
+                            <h:panelGroup layout="block" id="panelStats" styleClass="whiteBox paddingNone sidebarProfileStats">
+                                <table>
+                                    <tr class="row01">
+                                        <td class="col01">
+                                            <div class="line01">
+                                                <h:outputText value="#{profileBean.profileSummaryData.numberOfCompletedCredentials}">
+                                                    <f:convertNumber minIntegerDigits="2" maxFractionDigits="0"/>
+                                                </h:outputText>
+                                            </div>
+                                            <div class="line02">
+                                                Completed<br/>#{msg['label.credential.plural']}
+                                            </div>
+                                        </td>
+                                        <td class="col02">
+                                            <div class="line01">
+                                                <h:outputText value="#{profileBean.profileSummaryData.numberOfCompletedCompetencies}">
+                                                    <f:convertNumber minIntegerDigits="2" maxFractionDigits="0"/>
+                                                </h:outputText>
+                                            </div>
+                                            <div class="line02">
+                                                Completed<br/>#{msg['label.competence.plural']}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr class="row02">
+                                        <td class="col01">
+                                            <div class="line01">
+                                                <h:outputText value="#{profileBean.profileSummaryData.numberOfAssessments}">
+                                                    <f:convertNumber minIntegerDigits="2" maxFractionDigits="0"/>
+                                                </h:outputText>
+                                            </div>
+                                            <div class="line02">
+                                                Assessments
+                                            </div>
+                                        </td>
+                                        <td class="col02">
+                                            <div class="line01">
+                                                <h:outputText value="#{profileBean.profileSummaryData.numberOfPiecesOfEvidence}">
+                                                    <f:convertNumber minIntegerDigits="2" maxFractionDigits="0"/>
+                                                </h:outputText>
+                                            </div>
+                                            <div class="line02">
+                                                Evidence
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </h:panelGroup>
+                        </div>
                     </div>
-                </div>
+                </ui:fragment>
             </div>
-        </div>
+        </h:panelGroup>
 
         <h:form id="formAddCredentials">
             <div class="modal fade" id="addStandard" tabindex="-1" role="dialog" aria-labelledby="addStandardModal">
@@ -361,8 +368,7 @@
                                     value="Add"
                                     action="#{profileBean.addCredentials()}"
                                     update="profileGrowl panelCredentials panelStats"
-                                    oncomplete="$('#addStandard').modal('hide');"
-                            />
+                                    oncomplete="$('#addStandard').modal('hide');"/>
                             <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
                         </div>
                     </h:panelGroup>
@@ -455,23 +461,20 @@
                                                                 avatarUrl="#{assessment.userBasicData.avatar}"
                                                                 actorFullName="#{assessment.userBasicData.fullName}"
                                                                 blindAssessmentMode="#{assessment.blindAssessmentMode}"
-                                                                actorType="ASSESSOR"
-                                                        />
+                                                                actorType="ASSESSOR"/>
                                                         <h3>
                                                             <assessment:assessmentActorName
                                                                     actorId="#{assessment.userBasicData.id}"
                                                                     actorFullName="#{assessment.userBasicData.fullName}"
                                                                     blindAssessmentMode="#{assessment.blindAssessmentMode}"
-                                                                    actorType="ASSESSOR"
-                                                            />
+                                                                    actorType="ASSESSOR"/>
                                                         </h3>
                                                     </div>
                                                 </div>
                                                 <div class="assessmentRight">
                                                     <utilcomp:convertTimeOutput
                                                             millis="#{assessment.dateApproved}"
-                                                            format="MMM DD, YYYY"
-                                                    />
+                                                            format="MMM DD, YYYY"/>
                                                 </div>
                                             </div>
                                         </ui:repeat>
@@ -517,10 +520,9 @@
                                                         <div class="assessmentLeft">
                                                             <div class="subIndicator"></div>
                                                             <div class="checkbox">
-                                                                <h:selectBooleanCheckbox
-                                                                        id="checkCredentialAssessment"
-                                                                        value="#{assessment.selected}"
-                                                                        pt:data-check-id="#{checkAllCredAssessmentsComp.clientId}"/>
+                                                                <h:selectBooleanCheckbox id="checkCredentialAssessment"
+                                                                                         value="#{assessment.selected}"
+                                                                                         pt:data-check-id="#{checkAllCredAssessmentsComp.clientId}"/>
                                                                 <h:outputLabel for="checkCredentialAssessment"/>
                                                             </div>
                                                             <div class="assessmentsStar #{styleUtilBean.getGradeStarClassForGradeData(assessment.data.assessmentGradeSummary)}">
@@ -532,23 +534,20 @@
                                                                         avatarUrl="#{assessment.data.userBasicData.avatar}"
                                                                         actorFullName="#{assessment.data.userBasicData.fullName}"
                                                                         blindAssessmentMode="#{assessment.data.blindAssessmentMode}"
-                                                                        actorType="ASSESSOR"
-                                                                />
+                                                                        actorType="ASSESSOR"/>
                                                                 <h3>
                                                                     <assessment:assessmentActorName
                                                                             actorId="#{assessment.data.userBasicData.id}"
                                                                             actorFullName="#{assessment.data.userBasicData.fullName}"
                                                                             blindAssessmentMode="#{assessment.data.blindAssessmentMode}"
-                                                                            actorType="ASSESSOR"
-                                                                    />
+                                                                            actorType="ASSESSOR"/>
                                                                 </h3>
                                                             </div>
                                                         </div>
                                                         <div class="assessmentRight">
                                                             <utilcomp:convertTimeOutput
                                                                     millis="#{assessment.data.dateApproved}"
-                                                                    format="MMM DD, YYYY"
-                                                            />
+                                                                    format="MMM DD, YYYY"/>
                                                         </div>
                                                     </div>
                                                 </ui:repeat>
@@ -584,8 +583,7 @@
                                                                 <h:selectBooleanCheckbox
                                                                         id="checkEvidence"
                                                                         value="#{evidence.selected}"
-                                                                        pt:data-check-id="#{checkAllCompEvidenceComp.clientId}"
-                                                                />
+                                                                        pt:data-check-id="#{checkAllCompEvidenceComp.clientId}"/>
                                                                 <h:outputLabel for="checkEvidence"/>
                                                             </div>
                                                             <div class="icon iconType"></div>
@@ -620,10 +618,9 @@
                                                             <div class="assessmentLeft">
                                                                 <div class="subIndicator"></div>
                                                                 <div class="checkbox">
-                                                                    <h:selectBooleanCheckbox
-                                                                            id="checkCompetenceAssessment"
-                                                                            value="#{assessment.selected}"
-                                                                            pt:data-check-id="#{checkAllCompAssessmentsComp.clientId}"/>
+                                                                    <h:selectBooleanCheckbox id="checkCompetenceAssessment"
+                                                                                             value="#{assessment.selected}"
+                                                                                             pt:data-check-id="#{checkAllCompAssessmentsComp.clientId}"/>
                                                                     <h:outputLabel for="checkCompetenceAssessment"/>
                                                                 </div>
                                                                 <div class="assessmentsStar #{styleUtilBean.getGradeStarClassForGradeData(assessment.data.assessmentGradeSummary)}">
@@ -635,23 +632,20 @@
                                                                             avatarUrl="#{assessment.data.userBasicData.avatar}"
                                                                             actorFullName="#{assessment.data.userBasicData.fullName}"
                                                                             blindAssessmentMode="#{assessment.data.blindAssessmentMode}"
-                                                                            actorType="ASSESSOR"
-                                                                    />
+                                                                            actorType="ASSESSOR"/>
                                                                     <h3>
                                                                         <assessment:assessmentActorName
                                                                                 actorId="#{assessment.data.userBasicData.id}"
                                                                                 actorFullName="#{assessment.data.userBasicData.fullName}"
                                                                                 blindAssessmentMode="#{assessment.data.blindAssessmentMode}"
-                                                                                actorType="ASSESSOR"
-                                                                        />
+                                                                                actorType="ASSESSOR"/>
                                                                     </h3>
                                                                 </div>
                                                             </div>
                                                             <div class="assessmentRight">
                                                                 <utilcomp:convertTimeOutput
                                                                         millis="#{assessment.data.dateApproved}"
-                                                                        format="MMM DD, YYYY"
-                                                                />
+                                                                        format="MMM DD, YYYY"/>
                                                             </div>
                                                         </div>
                                                     </ui:repeat>
@@ -673,8 +667,7 @@
                                         value="Done"
                                         action="#{profileBean.updateCredentialProfileOptions()}"
                                         update="profileGrowl panelCredentials panelStats"
-                                        oncomplete="$('#editStandard').modal('hide');"
-                                />
+                                        oncomplete="$('#editStandard').modal('hide');"/>
                                 <p:defaultCommand target="linkUpdateCred"/>
                                 <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
                             </div>
@@ -703,13 +696,78 @@
                                 value="Remove"
                                 action="#{profileBean.removeCredentialFromProfile()}"
                                 update="profileGrowl panelCredentials panelStats"
-                                oncomplete="$('#removeStandard').modal('hide');"
-                        />
+                                oncomplete="$('#removeStandard').modal('hide');"/>
                         <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
                     </div>
                 </div>
             </div>
         </div>
 
+        <div class="modal fade" id="profileSettings" tabindex="-1" role="dialog" aria-labelledby="profileSettingsModalTitle">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <h:form id="formProfileSettings">
+                        <div class="modal-header alignLeft">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+                            <h2 class="modal-title" id="profileSettingsModalTitle">Profile Settings</h2>
+                        </div>
+                        <div class="modal-body alignLeft">
+                            <p class="bottom10">Personalize the URL for your profile:</p>
+                            <div class="customURL">
+                                #{applicationbean.commonConfig.appConfig.domain}<h:inputText id="customProfileUrl"
+                                                                                             maxlength="50"
+                                                                                             label="Custom URL"
+                                                                                             value="#{profileBean.studentProfileData.profileSettings.customProfileUrl}">
+                                                                                    <f:validator validatorId="customProfileUrlValidator" />
+                                                                                </h:inputText>
+                                <a id="copyProfileUrlBtn" href="#">Copy URL</a>
+                            </div>
+
+                            <div class="bottom10 top10">
+                                <small>Note: Your custom profile URL must contain 5-50 letters, numbers or dashes. Please do not use spaces, symbols, or special characters.</small>
+                            </div>
+                            <small class="redText validation"><h:message id="customProfileUrlValidationText" for="customProfileUrl"/></small>
+
+                            <div class="checkbox checkLine bottom30 top10">
+                                <h:selectBooleanCheckbox id="checkSummary"
+                                                         value="#{profileBean.studentProfileData.profileSettings.summarySidebarEnabled}" />
+                                <h:outputLabel for="checkSummary">Show summary sidebar</h:outputLabel>
+                            </div>
+                        </div>
+                        <div class="modal-footer alignLeft">
+                            <p:commandLink id="saveProfileSettingsBtn"
+                                           styleClass="btn btn-green"
+                                           pt:data-dismiss="modal"
+                                           value="Save"
+                                           action="#{profileBean.updateProfileSettings}"
+                                           update="@form profileGrowl :container"/>
+                            <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+                        </div>
+                    </h:form>
+                </div>
+            </div>
+            <script>
+                $(function(){
+                    var enforceModalFocusFn = $.fn.modal.Constructor.prototype.enforceFocus;
+
+                    $.fn.modal.Constructor.prototype.enforceFocus = function() {};
+
+                    $('#profileSettings').on('hidden', function() {
+                        $.fn.modal.Constructor.prototype.enforceFocus = enforceModalFocusFn;
+                    });
+
+                    new ClipboardJS('#copyProfileUrlBtn', {
+                        text: function() {
+                            PF('profileGrowl').renderMessage({"summary":"Successful",
+                                "detail":"Your profile URL is copied",
+                                "severity":"info"});
+
+                            let customUrl = $(escapeColons('#formProfileSettings:customProfileUrl')).val();
+                            return "#{applicationbean.commonConfig.appConfig.domain}"+customUrl;
+                        }
+                    });
+                });
+            </script>
+        </div>
     </ui:define>
 </ui:composition>

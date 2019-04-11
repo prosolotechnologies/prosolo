@@ -1,14 +1,13 @@
 package org.prosolo.web.profile;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
-import org.prosolo.common.domainmodel.messaging.Message;
-import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.services.common.data.SelectableData;
-import org.prosolo.services.interaction.MessagingManager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.LearningResourceType;
 import org.prosolo.services.nodes.data.credential.CredentialIdData;
@@ -18,7 +17,6 @@ import org.prosolo.services.user.data.UserData;
 import org.prosolo.services.user.data.profile.*;
 import org.prosolo.services.user.data.profile.factory.CredentialProfileOptionsFullToBasicFunction;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.messaging.data.MessageData;
 import org.prosolo.web.profile.data.UserSocialNetworksData;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
@@ -48,23 +46,28 @@ public class ProfileBean {
 	private UrlIdEncoder idEncoder;
 	@Inject
 	private StudentProfileManager studentProfileManager;
-	@Inject 
-	private MessagingManager messagingManager;
-	@Inject private CredentialProfileOptionsFullToBasicFunction credentialProfileOptionsFullToBasicFunction;
+	@Inject
+	private CredentialProfileOptionsFullToBasicFunction credentialProfileOptionsFullToBasicFunction;
 
-	private StudentProfileData studentProfileData;
-	private List<SelectableData<CredentialIdData>> credentialsToAdd = new ArrayList<>();
-
-	/* parameter that can be provided in the via UI*/
+	@Getter @Setter
 	private String studentId;
+	@Getter
 	private long decodedStudentId;
+	@Getter @Setter
 	private String message;
 
+	@Getter
+	private StudentProfileData studentProfileData;
+	@Getter
+	private List<SelectableData<CredentialIdData>> credentialsToAdd = new ArrayList<>();
+
 	private CredentialProfileData credentialToRemove;
+	@Getter
 	private CredentialProfileOptionsData credentialForEdit;
 
 	private CredentialProfileData selectedCredentialProfileData;
 	private CompetenceProfileData selectedCompetenceProfileData;
+	@Getter
 	private LearningResourceType selectedResourceType;
 
 	public void init() {
@@ -253,36 +256,24 @@ public class ProfileBean {
 		}
 	}
 
+	public void updateProfileSettings() {
+		try {
+			if (studentProfileData.getProfileSettings().hasObjectChanged()) {
+				studentProfileManager.updateProfileSettings(studentProfileData.getProfileSettings());
+			}
+			PageUtil.fireSuccessfulInfoMessage("Profile settings are updated");
+		} catch (Exception e) {
+			logger.error("Error", e);
+			PageUtil.fireErrorMessage("Error updating profile settings");
+		}
+	}
+
 	/*
 	 * GETTERS / SETTERS
 	 */
 
-	public String getStudentId() {
-		return studentId;
-	}
-
 	public boolean isPersonalProfile() {
 		return decodedStudentId == loggedUserBean.getUserId();
-	}
-
-	public String getMessage() {
-		return message;
-	}
-
-	public void setStudentId(String studentId) {
-		this.studentId = studentId;
-	}
-
-	public void setMessage(String message) {
-		this.message = message;
-	}
-
-	public long getDecodedStudentId() {
-		return decodedStudentId;
-	}
-
-	public StudentProfileData getStudentProfileData() {
-		return studentProfileData;
 	}
 
 	public UserData getUserData() {
@@ -293,20 +284,12 @@ public class ProfileBean {
 		return studentProfileData != null ? studentProfileData.getSocialNetworks() : null;
 	}
 
-	public List<SelectableData<CredentialIdData>> getCredentialsToAdd() {
-		return credentialsToAdd;
-	}
-
 	public List<CategorizedCredentialsProfileData> getCredentialProfileData() {
 	    return studentProfileData != null ? studentProfileData.getProfileLearningData().getCredentialProfileData() : null;
     }
 
 	public ProfileSummaryData getProfileSummaryData() {
 		return studentProfileData != null ? studentProfileData.getProfileLearningData().getProfileSummaryData() : null;
-	}
-
-	public CredentialProfileOptionsData getCredentialForEdit() {
-		return credentialForEdit;
 	}
 
 	public String getSelectedResourceTitle() {
@@ -323,10 +306,6 @@ public class ProfileBean {
 				: Collections.emptyList();
 	}
 
-	public LearningResourceType getSelectedResourceType() {
-		return selectedResourceType;
-	}
-
 	public List<AssessmentByTypeProfileData> getSelectedResourceAssessmentsByType() {
 		return selectedResourceType != null
 				? selectedResourceType == LearningResourceType.CREDENTIAL
@@ -341,10 +320,6 @@ public class ProfileBean {
 	        return assessments.get(0).getAssessmentType() == type;
         }
 	    return false;
-    }
-
-    public String getFormattedStatsNumber(long number) {
-        return String.format("%02d", number);
     }
 
 	public long getOwnerOfAProfileUserId() {
