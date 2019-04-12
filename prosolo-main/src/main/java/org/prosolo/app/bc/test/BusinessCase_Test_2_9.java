@@ -9,6 +9,7 @@ import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.event.EventQueue;
 import org.prosolo.services.interaction.data.CommentData;
 import org.prosolo.services.nodes.Competence1Manager;
+import org.prosolo.services.nodes.CredentialInstructorManager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.config.competence.CompetenceLoadConfig;
 import org.prosolo.services.nodes.data.ActivityResultType;
@@ -26,6 +27,9 @@ import java.util.List;
 public class BusinessCase_Test_2_9 extends BaseBusinessCase5 {
 
     private static Logger logger = Logger.getLogger(BusinessCase_Test_2_9.class.getName());
+
+    private CredentialInstructor credential1Delivery1InstructorPhilArmstrong;
+    private CredentialInstructor credential1Delivery2InstructorAnnaHallowell;
 
     @Override
     protected void createAdditionalDataBC5(EventQueue events) throws Exception {
@@ -261,13 +265,20 @@ public class BusinessCase_Test_2_9 extends BaseBusinessCase5 {
         // Create deliveries
         /////////////////////////
         Credential1 credentialWithActivities1Delivery1 = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CredentialManager.class).createCredentialDeliveryAndGetEvents(credentialWithActivities1.getId(), DateUtil.getDateFromMillis(new Date().getTime()), DateUtil.getDateFromMillis(getDaysFromNow(90)), createUserContext(userNickPowell)));
-        Credential1 credentialWithActivities1Delivery2 = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CredentialManager.class).createCredentialDeliveryAndGetEvents(credentialWithActivities2.getId(), DateUtil.getDateFromMillis(new Date().getTime()), DateUtil.getDateFromMillis(getDaysFromNow(90)), createUserContext(userNickPowell)));
-        Credential1 credentialWithActivities1Delivery3 = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CredentialManager.class).createCredentialDeliveryAndGetEvents(credentialWithActivities3.getId(), DateUtil.getDateFromMillis(new Date().getTime()), DateUtil.getDateFromMillis(getDaysFromNow(90)), createUserContext(userNickPowell)));
+        Credential1 credentialWithActivities1Delivery2 = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CredentialManager.class).createCredentialDeliveryAndGetEvents(credentialWithActivities1.getId(), DateUtil.getDateFromMillis(new Date().getTime()), DateUtil.getDateFromMillis(getDaysFromNow(90)), createUserContext(userNickPowell)));
+        Credential1 credentialWithActivities2Delivery1 = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CredentialManager.class).createCredentialDeliveryAndGetEvents(credentialWithActivities2.getId(), DateUtil.getDateFromMillis(new Date().getTime()), DateUtil.getDateFromMillis(getDaysFromNow(90)), createUserContext(userNickPowell)));
+        Credential1 credentialWithActivities3Delivery1 = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CredentialManager.class).createCredentialDeliveryAndGetEvents(credentialWithActivities3.getId(), DateUtil.getDateFromMillis(new Date().getTime()), DateUtil.getDateFromMillis(getDaysFromNow(90)), createUserContext(userNickPowell)));
 
         // give learn privilege to all students from both user groups
-        givePrivilegeToGroupOnDelivery(events, credentialWithActivities1Delivery1, UserGroupPrivilege.Learn, userNickPowell, organization, List.of(userGroupScienceEducationStudents, userGroupArtsEducationStudents));
-        givePrivilegeToGroupOnDelivery(events, credentialWithActivities1Delivery2, UserGroupPrivilege.Learn, userNickPowell, organization, List.of(userGroupScienceEducationStudents, userGroupArtsEducationStudents));
-        givePrivilegeToGroupOnDelivery(events, credentialWithActivities1Delivery3, UserGroupPrivilege.Learn, userNickPowell, organization, List.of(userGroupScienceEducationStudents, userGroupArtsEducationStudents));
+        givePrivilegeToGroupOnDelivery(events, credentialWithActivities1Delivery1, UserGroupPrivilege.Learn, userNickPowell, organization, List.of(userGroupArtsEducationStudents));
+        givePrivilegeToGroupOnDelivery(events, credentialWithActivities1Delivery2, UserGroupPrivilege.Learn, userNickPowell, organization, List.of(userGroupScienceEducationStudents));
+        givePrivilegeToGroupOnDelivery(events, credentialWithActivities2Delivery1, UserGroupPrivilege.Learn, userNickPowell, organization, List.of(userGroupScienceEducationStudents, userGroupArtsEducationStudents));
+        givePrivilegeToGroupOnDelivery(events, credentialWithActivities3Delivery1, UserGroupPrivilege.Learn, userNickPowell, organization, List.of(userGroupScienceEducationStudents, userGroupArtsEducationStudents));
+
+
+        // add instructors to deliveries
+        credential1Delivery1InstructorPhilArmstrong = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CredentialInstructorManager.class).addInstructorToCredentialAndGetEvents(credentialWithActivities1Delivery1.getId(), userPhilArmstrong.getId(), 0, createUserContext(userNickPowell)));
+        credential1Delivery2InstructorAnnaHallowell = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CredentialInstructorManager.class).addInstructorToCredentialAndGetEvents(credentialWithActivities1Delivery2.getId(), userAnnaHallowell.getId(), 0, createUserContext(userNickPowell)));
 
         ////////////////////////////////
         // enroll users to Delivery 1
@@ -275,17 +286,19 @@ public class BusinessCase_Test_2_9 extends BaseBusinessCase5 {
         enrollToDelivery(events, credential1Delivery1, userHelenCampbell);
 
         ///////////////////////////////////////////
-        // enroll in competencies from Delivery 1
+        // enroll in competencies
         ///////////////////////////////////////////
-        List<CompetenceData1> standard1Competencies = ServiceLocator.getInstance().getService(Competence1Manager.class).getCompetencesForCredential(credential1Delivery1.getId(), userHelenCampbell.getId(), new CompetenceLoadConfig.CompetenceLoadConfigBuilder().create());
+
+        // Helen Campbell starts all competencies from credentialWithActivities1Delivery1
+        List<CompetenceData1> standard1CompetenciesHelenCampbell = ServiceLocator.getInstance().getService(Competence1Manager.class).getCompetencesForCredential(credential1Delivery1.getId(), userHelenCampbell.getId(), new CompetenceLoadConfig.CompetenceLoadConfigBuilder().create());
 
         // we need a reference to the TargetCompetence1
-        TargetCompetence1 credential1Comp1Target = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(credential1Delivery1.getId(), standard1Competencies.get(0).getCompetenceId(), userHelenCampbell.getId(), createUserContext(userHelenCampbell)));
-        TargetCompetence1 credential1Comp2Target = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(credential1Delivery1.getId(), standard1Competencies.get(1).getCompetenceId(), userHelenCampbell.getId(), createUserContext(userHelenCampbell)));
-        TargetCompetence1 credential1Comp3Target = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(credential1Delivery1.getId(), standard1Competencies.get(2).getCompetenceId(), userHelenCampbell.getId(), createUserContext(userHelenCampbell)));
-        TargetCompetence1 credential1Comp4Target = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(credential1Delivery1.getId(), standard1Competencies.get(3).getCompetenceId(), userHelenCampbell.getId(), createUserContext(userHelenCampbell)));
-        TargetCompetence1 credential1Comp5Target = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(credential1Delivery1.getId(), standard1Competencies.get(4).getCompetenceId(), userHelenCampbell.getId(), createUserContext(userHelenCampbell)));
-        TargetCompetence1 credential1Comp6Target = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(credential1Delivery1.getId(), standard1Competencies.get(5).getCompetenceId(), userHelenCampbell.getId(), createUserContext(userHelenCampbell)));
+        TargetCompetence1 credential1Comp1Target = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(credential1Delivery1.getId(), standard1CompetenciesHelenCampbell.get(0).getCompetenceId(), userHelenCampbell.getId(), createUserContext(userHelenCampbell)));
+        TargetCompetence1 credential1Comp2Target = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(credential1Delivery1.getId(), standard1CompetenciesHelenCampbell.get(1).getCompetenceId(), userHelenCampbell.getId(), createUserContext(userHelenCampbell)));
+        TargetCompetence1 credential1Comp3Target = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(credential1Delivery1.getId(), standard1CompetenciesHelenCampbell.get(2).getCompetenceId(), userHelenCampbell.getId(), createUserContext(userHelenCampbell)));
+        TargetCompetence1 credential1Comp4Target = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(credential1Delivery1.getId(), standard1CompetenciesHelenCampbell.get(3).getCompetenceId(), userHelenCampbell.getId(), createUserContext(userHelenCampbell)));
+        TargetCompetence1 credential1Comp5Target = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(credential1Delivery1.getId(), standard1CompetenciesHelenCampbell.get(4).getCompetenceId(), userHelenCampbell.getId(), createUserContext(userHelenCampbell)));
+        TargetCompetence1 credential1Comp6Target = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(credential1Delivery1.getId(), standard1CompetenciesHelenCampbell.get(5).getCompetenceId(), userHelenCampbell.getId(), createUserContext(userHelenCampbell)));
 
         // add pieces of evidence to the all competencies
         LearningEvidence evidence1 = createEvidence(
@@ -363,7 +376,9 @@ public class BusinessCase_Test_2_9 extends BaseBusinessCase5 {
         ////////////////////////////////
         enrollToDelivery(events, credentialWithActivities1Delivery1, userHelenCampbell);
         enrollToDelivery(events, credentialWithActivities1Delivery1, userGeorgeYoung);
-        enrollToDelivery(events, credentialWithActivities1Delivery1, userHelenCampbell);
+
+        // assign instructors to students
+        assignInstructorToStudent(events, credential1Delivery1InstructorPhilArmstrong, List.of(userHelenCampbell, userGeorgeYoung), credentialWithActivities1Delivery1);
 
         ///////////////////////////////////////////
         // enroll in competencies from Delivery 1
@@ -374,8 +389,6 @@ public class BusinessCase_Test_2_9 extends BaseBusinessCase5 {
         List<CompetenceData1> competenciesUserGeorgeYoung = ServiceLocator.getInstance().getService(Competence1Manager.class).getCompetencesForCredential(credentialWithActivities1Delivery1.getId(), userGeorgeYoung.getId(), new CompetenceLoadConfig.CompetenceLoadConfigBuilder().create());
         TargetCompetence1 comp1UserGeorgeYoung = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(credentialWithActivities1Delivery1.getId(), competenciesUserGeorgeYoung.get(0).getCompetenceId(), userGeorgeYoung.getId(), createUserContext(userGeorgeYoung)));
 
-
-
         ///////////////////////////////////////////
         // Add comments to competencies
         ///////////////////////////////////////////
@@ -384,7 +397,8 @@ public class BusinessCase_Test_2_9 extends BaseBusinessCase5 {
                 "Social network analysis (SNA) is the process of investigating social structures through the use of networks and graph theory.",
                 comp1UserHelenCampbell.getCompetence().getId(),
                 CommentedResourceType.Competence,
-                null);
+                null,
+                false);
 
         likeComment(events, comment1, userGeorgeYoung);
 
@@ -393,21 +407,88 @@ public class BusinessCase_Test_2_9 extends BaseBusinessCase5 {
                 "It characterizes networked structures in terms of nodes and the ties, edges, or links that connect them.",
                 comp1UserHelenCampbell.getCompetence().getId(),
                 CommentedResourceType.Competence,
-                comment1);
+                comment1,
+                false);
 
         likeComment(events, comment1Reply1, userHelenCampbell);
 
-        CommentData comment2 = createNewComment(events, userGeorgeYoung,
+        CommentData comment2 = createNewComment(events,
+                userGeorgeYoung,
                 "Social network analysis has emerged as a key technique in modern sociology.",
                 comp1UserHelenCampbell.getCompetence().getId(),
                 CommentedResourceType.Competence,
-                null);
+                null,
+                false);
 
-        CommentData comment3 = createNewComment(events, userHelenCampbell,
+        CommentData comment3 = createNewComment(events,
+                userHelenCampbell,
                 "It has also gained a significant following in anthropology, biology, demography, communication studies, economics, geography, history, information science, organizational studies, political science, social psychology, development studies, sociolinguistics, and computer science and is now commonly available as a consumer tool.",
                 comp1UserHelenCampbell.getCompetence().getId(),
                 CommentedResourceType.Competence,
-                null);
+                null,
+                false);
+
+        CommentData comment3reply = createNewComment(events,
+                userPhilArmstrong,
+                "This is a good definition.",
+                comp1UserHelenCampbell.getCompetence().getId(),
+                CommentedResourceType.Competence,
+                comment3,
+                true);
+
+        CommentData comment4 = createNewComment(events,
+                userPhilArmstrong,
+                "The aim of social network analysis is to understand a community by mapping the relationships\n" +
+                        "that connect them as a network, and then trying to draw out key individuals, groups within the\n" +
+                        "network (‘components’), and/or associations between the individuals",
+                comp1UserHelenCampbell.getCompetence().getId(),
+                CommentedResourceType.Competence,
+                null,
+                true);
+
+
+        ////////////////////////////////
+        // enroll users to Delivery 2 of credential with activities 1
+        ////////////////////////////////
+        enrollToDelivery(events, credentialWithActivities1Delivery2, userTaniaCortese);
+
+        // assign instructors to students
+        assignInstructorToStudent(events, credential1Delivery2InstructorAnnaHallowell, List.of(userTaniaCortese), credentialWithActivities1Delivery1);
+
+        // Tania Cortese starts all competencies from credentialWithActivities1Delivery2
+        List<CompetenceData1> competenciesUserTaniaCortese = ServiceLocator.getInstance().getService(Competence1Manager.class).getCompetencesForCredential(credentialWithActivities1Delivery2.getId(), userTaniaCortese.getId(), new CompetenceLoadConfig.CompetenceLoadConfigBuilder().create());
+        TargetCompetence1 comp1UserTaniaCortese = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(credentialWithActivities1Delivery2.getId(), competenciesUserTaniaCortese.get(0).getCompetenceId(), userTaniaCortese.getId(), createUserContext(userTaniaCortese)));
+
+        ///////////////////////////////////////////
+        // Add comments to competencies
+        ///////////////////////////////////////////
+        CommentData comment5 = createNewComment(events,
+                userTaniaCortese,
+                "Social network analysis [SNA] is the mapping and measuring of relationships and flows between people, groups, organizations, computers, URLs, and other connected information/knowledge entities.",
+                comp1UserTaniaCortese.getCompetence().getId(),
+                CommentedResourceType.Competence,
+                null,
+                false);
+
+        CommentData comment5Reply = createNewComment(events,
+                userAnnaHallowell,
+                "This is acceptable as a definition",
+                comp1UserTaniaCortese.getCompetence().getId(),
+                CommentedResourceType.Competence,
+                comment5,
+                true);
+
+        CommentData comment6 = createNewComment(events,
+                userAnnaHallowell,
+                "A network is simply a number of points (or ‘nodes’) that are connected by links. Generally in\n" +
+                        "social network analysis, the nodes are people and the links are any social connection between\n" +
+                        "them – for example, friendship, marital/family ties, or financial ties.",
+                comp1UserTaniaCortese.getCompetence().getId(),
+                CommentedResourceType.Competence,
+                null,
+                true);
+
+
     }
 
     @Override

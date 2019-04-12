@@ -7,7 +7,7 @@ package org.prosolo.web.assessments;
  */
 public enum AssessmentFilter {
 
-    NOTIFIED(org.prosolo.services.assessment.data.AssessmentFilter.NOTIFIED, "Sent Notification"),
+    NOTIFIED(org.prosolo.services.assessment.data.AssessmentFilter.NOTIFIED, "Ready to be (re)assessed"),
     NOT_ASSESSED(org.prosolo.services.assessment.data.AssessmentFilter.NOT_ASSESSED, "Not Assessed"),
     ASSESSED(org.prosolo.services.assessment.data.AssessmentFilter.ASSESSED, "Assessed");
 

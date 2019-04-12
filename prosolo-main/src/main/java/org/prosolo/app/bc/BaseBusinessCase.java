@@ -7,6 +7,7 @@ import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.OperationForbiddenException;
 import org.prosolo.common.domainmodel.activitywall.PostSocialActivity1;
+import org.prosolo.common.domainmodel.activitywall.SocialActivity1;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
 import org.prosolo.common.domainmodel.credential.GradingMode;
@@ -204,7 +205,7 @@ public abstract class BaseBusinessCase {
         // Erika Ames is Instructor (already set when user is defined)
     }
 
-    protected void createSocialActivity(EventQueue events, User user, String text, String url) {
+    protected SocialActivity1 createSocialActivity(EventQueue events, User user, String text, String url) {
         SocialActivityData1 newSocialActivity = new SocialActivityData1();
         newSocialActivity.setText(text);
 
@@ -235,6 +236,8 @@ public abstract class BaseBusinessCase {
         } finally {
             HibernateUtil.close(session2);
         }
+
+        return postSocialActivity1;
     }
 
     private Organization createOrganization(EventQueue events) {

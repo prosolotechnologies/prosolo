@@ -58,7 +58,7 @@ public abstract class CommentEventProcessor extends NotificationEventProcessor {
 	}
 
 	protected void setResource() {
-		this.resource = (Comment1) session.load(event.getObject().getClass(), event.getObject().getId());
+		this.resource = (Comment1) session.get(event.getObject().getClass(), event.getObject().getId());
 	}
 
 	@Override
