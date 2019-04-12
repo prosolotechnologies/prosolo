@@ -190,22 +190,30 @@
 					</div>
 					
 					<div class="modal-footer">
-						<utilcomp:simpleFileUpload
-							id="simpleFileUpload"
-							fileUploadListenerMethodName="handleFileUpload"
-							fileUploadListenerMethod="#{activityResultsBeanUser.handleFileUpload}"
-							toUpdate=":panelUploadAssignment :growlMain"
-							uploadButtonStyle="btn btn-green"
-							chooseFileLabel="Upload New Response"
-							learningContext="#{learningContext}"
-							service="name:upload_result_dialog"
-							oncomplete="$('#newRes').modal('hide');"
-						/>
+						<utilcomp:simpleFileUpload id="updateActivityResult"
+												   fileUploadListenerMethodName="handleFileUpload"
+												   fileUploadListenerMethod="#{activityResultsBeanUser.handleFileUpload}"
+												   toUpdate=":panelUploadAssignment :growlMain"
+												   uploadButtonStyle="btn btn-green"
+												   chooseFileLabel="Upload New Response"
+												   learningContext="#{learningContext}"
+												   service="name:upload_result_dialog"
+												   oncomplete="$('#newRes').modal('hide');"
+												   fileSizeValidationMessageContainer="#updateActivityResultFileUploadValidation"/>
+
 						<a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+						<small id="updateActivityResultFileUploadValidation" class="redText displayBlock"></small>
 					</div>
 				</div>
 			</div>
 		</div>
+		<script>
+			$(function () {
+				$('#newRes').on('hidden.bs.modal', function() {
+					$('#updateActivityResultFileUploadValidation').html('');
+				});
+			})
+		</script>
 	</h:form>
 </ui:define>
 </ui:composition>

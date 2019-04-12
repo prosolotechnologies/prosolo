@@ -37,7 +37,9 @@
 				<div class="whiteBarContent">
 					<div class="whiteBarLeft"></div>
 					<div class="whiteBarRight">
-						<div class="duration item">#{activityViewBeanAdmin.competenceData.activityToShowWithDetails.durationString}</div>
+						<ui:fragment rendered="#{activityViewBeanAdmin.competenceData.activityToShowWithDetails.durationString ne null}">
+							<div class="duration item">#{activityViewBeanAdmin.competenceData.activityToShowWithDetails.durationString}</div>
+						</ui:fragment>
 					</div>
 				</div>
 			</div>

@@ -1,12 +1,12 @@
 package org.prosolo.search;
 
+import org.prosolo.search.data.SortingOption;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.search.util.competences.CompetenceSearchFilter;
+import org.prosolo.search.util.credential.CompetenceLibrarySearchFilter;
 import org.prosolo.search.util.credential.CompetenceSearchConfig;
-import org.prosolo.search.util.credential.LearningResourceSearchFilter;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
-import org.prosolo.search.data.SortingOption;
 
 import java.util.List;
 
@@ -35,7 +35,7 @@ public interface CompetenceTextSearch extends AbstractManager {
 	
 	PaginatedResult<CompetenceData1> searchCompetences(
 			long organizationId, String searchTerm, int page, int limit, long userId,
-			List<Long> unitIds, LearningResourceSearchFilter filter, CompetenceSearchConfig config);
+			List<Long> unitIds, CompetenceLibrarySearchFilter filter, CompetenceSearchConfig config);
 	
 	PaginatedResult<CompetenceData1> searchCompetencesForManager(
 			long organizationId, String searchTerm, int page, int limit, long userId, CompetenceSearchFilter filter);

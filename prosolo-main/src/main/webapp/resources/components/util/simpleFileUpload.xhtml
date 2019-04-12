@@ -1,45 +1,68 @@
 <ui:component
 	xmlns:ui="http://java.sun.com/jsf/facelets"
-	xmlns:h="http://java.sun.com/jsf/html"
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:p="http://primefaces.org/ui"
-	xmlns:c="http://java.sun.com/jsp/jstl/core"
-	xmlns:composite="http://java.sun.com/jsf/composite"
-	xmlns:link="http://java.sun.com/jsf/composite/components/resourceLinks"
-	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
-	xmlns:post="http://java.sun.com/jsf/composite/components/post">
+	xmlns:composite="http://java.sun.com/jsf/composite">
 
 	<composite:interface>
 		<composite:attribute name="uploadFileButtonText" default="Choose File"/>
 		<composite:attribute name="fileUploadListenerMethodName" required="true"/>
-		<composite:attribute name="fileUploadListenerMethod" method-signature="void #{cc.attrs.fileUploadListenerMethodName}(
-			org.primefaces.event.FileUploadEvent)"/>
+		<composite:attribute name="fileUploadListenerMethod" method-signature="void #{cc.attrs.fileUploadListenerMethodName}(org.primefaces.event.FileUploadEvent)"/>
 		<composite:attribute name="toUpdate" default="" />
 		<composite:attribute name="uploadButtonStyle" default="btn btn-green" />
 		<composite:attribute name="chooseFileLabel" default="Choose File" />
 		<composite:attribute name="oncomplete" default="" />
 		<composite:attribute name="learningContext" default="" />
 		<composite:attribute name="service" default="" />
+		<composite:attribute name="fileSizeValidationMessageContainer" required="true" />
+		<composite:attribute name="allowTypes" default="" />
 	</composite:interface>
-	
+
 	<composite:implementation>
 		<p:fileUpload id="fileUploadFile"
-			process="@this"
-			style="display: none;"
-			fileUploadListener="#{cc.attrs.fileUploadListenerMethod}"
-			dragDropSupport="true"
-			fileLimit="1"
-			auto="true"
-			label="Choose a file"
-			update="@this #{cc.attrs.toUpdate}"
-			onstart="$('#' + escapeColons('#{cc.clientId}:loaderSvg')).show();"
-			oncomplete="$('#' + escapeColons('#{cc.clientId}:loaderSvg')).hide(); #{cc.attrs.oncomplete}">
-			<f:attribute name="page" value="#{facesContext.viewRoot.viewId}" />
-			<f:attribute name="learningContext" value="#{cc.attrs.learningContext}" />
-			<f:attribute name="service" value="#{cc.attrs.service}" />
+					  process="@this"
+					  style="display: none;"
+					  fileUploadListener="#{cc.attrs.fileUploadListenerMethod}"
+					  dragDropSupport="true"
+					  fileLimit="1"
+					  auto="true"
+					  allowTypes="#{cc.attrs.allowTypes != '' ? '/(\\.|\\/)('.concat(cc.attrs.allowTypes).concat(')$/') : '/.*(\\.).*$/'}"
+					  sizeLimit="#{applicationbean.config.fileManagement.maxFileUploadSize * 1024 * 1024}"
+					  invalidSizeMessage="Maximum file size allowed is #{applicationbean.config.fileManagement.maxFileUploadSize} MB."
+					  update="@this #{cc.attrs.toUpdate}"
+					  onstart="$('#' + escapeColons('#{cc.clientId}:loaderSvg')).show();"
+					  oncomplete="$('#' + escapeColons('#{cc.clientId}:loaderSvg')).hide(); #{cc.attrs.oncomplete}">
+			<f:attribute name="page" value="#{facesContext.viewRoot.viewId}"/>
+			<f:attribute name="learningContext" value="#{cc.attrs.learningContext}"/>
+			<f:attribute name="service" value="#{cc.attrs.service}"/>
 		</p:fileUpload>
-		<a href="javascript:void(0);" id="linkTriggerSimpleFileUpload" class="#{cc.attrs.uploadButtonStyle}"
-			onclick="$('#' + escapeColons('#{cc.clientId}:fileUploadFile') + ' :input').trigger('click');">#{cc.attrs.chooseFileLabel}</a>
-		<img class="loaderSvg" id="#{cc.clientId}:loaderSvg" src="#{request.contextPath}/resources/images2/loader.svg" width="20" height="20" style="display:none;"/>
+
+		<a id="linkTriggerSimpleFileUpload"
+		   href="javascript:void(0);"
+		   class="#{cc.attrs.uploadButtonStyle}"
+		   onclick="$('#' + escapeColons('#{cc.clientId}:fileUploadFile') + ' :input').trigger('click');">#{cc.attrs.chooseFileLabel}</a>
+
+		<img id="#{cc.clientId}:loaderSvg"
+			 class="loaderSvg"
+			 src="#{request.contextPath}/resources/images2/loader.svg"
+			 width="20" height="20"
+			 style="display:none;"/>
+
+		<script>
+			// https://stackoverflow.com/a/34495163/362752
+			(function($) {
+				var originalShowFunction = $.fn.show;
+				$.fn.show = function() {
+					this.trigger("show");
+					return originalShowFunction.apply(this, arguments);
+				};
+			})(jQuery);
+
+			$(document).on("show", ".ui-fileupload-content>.ui-messages", function() {
+				let summaryElem = $(this).find("span.ui-messages-error-summary")[0];
+				$('#{cc.attrs.fileSizeValidationMessageContainer}').html(summaryElem.textContent);
+			});
+		</script>
+
 	</composite:implementation>
 </ui:component>

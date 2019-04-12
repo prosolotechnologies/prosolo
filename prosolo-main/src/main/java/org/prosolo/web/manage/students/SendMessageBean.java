@@ -30,6 +30,10 @@ public class SendMessageBean implements Serializable {
 
 	private String message;
 
+	public void prepareModal() {
+		message = null;
+	}
+
 	public void sendMessage(long receiverId) {
 		if(receiverId != loggedUserBean.getUserId()) {
 			try {
@@ -39,11 +43,7 @@ public class SendMessageBean implements Serializable {
 				logger.debug("User "+loggedUserBean.getUserId()+" sent a message to " + receiverId +
 						" with content: '"+message+"'");
 				
-				List<UserData> participants = new ArrayList<UserData>();
-				
-				participants.add(new UserData(loggedUserBean.getUserId(), loggedUserBean.getFullName(), loggedUserBean.getAvatar()));
-
-				this.message = "";
+				this.message = null;
 
 				PageUtil.fireSuccessfulInfoMessage("Your message is sent");
 			} catch (Exception e) {

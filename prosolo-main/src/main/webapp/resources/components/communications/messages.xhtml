@@ -132,7 +132,7 @@
 						process="@this" 
 						action="#{messagesBean.resetSearch}" />
               
-              		<p:growl id="messagesFormGrowl" showDetail="true" />
+              		<p:growl id="messagesFormGrowl" globalOnly="true" showDetail="true" />
 
 					<!-- displayed when there ARE NO messages -->
 					<h:panelGroup layout="block"
@@ -247,22 +247,32 @@
 		                            <div class="media-body">
 		                                <div class="">
 		                                    <h:inputTextarea id="messageContentTextarea"
+															 label="Message"
 															 placeholder="Write message..."
 															 value="#{messagesBean.messageText}"
-															 onkeyup="displaySubmitButton(this);" />
+															 onkeyup="displaySubmitButton(this);">
+												<f:validateLength maximum="9000"/>
+											</h:inputTextarea>
 
-		                                    <utilcomp:singleClickLink value="Send"
+
+											<utilcomp:singleClickLink value="Send"
 																	  styleClass="btn btn-green btn-sm hidden submitBtn"
 																	  action="#{messagesBean.sendMessage()}"
 																	  update=":#{cc.clientId}:threadsForm :#{cc.clientId}:messagesForm"
 	                                    	/>
 
 											<script>
-                                                $(function(){
-                                                    $('#' + escapeColons('messages:messageContentTextarea')).focus();
-                                                })
+												$(escapeColons('#messages:messageContentTextarea')).focus();
+
+												let validationMsg = $(escapeColons('##{cc.clientId}:messageContentTextareaValidation'));
+												if (validationMsg.first().html() != "") {
+													displaySubmitButton($(escapeColons('##{cc.clientId}:messageContentTextarea'))[0]);
+												}
 											</script>
 		                                </div>
+										<small class="redText bottom30 displayBlock">
+											<h:message id="messageContentTextareaValidation" for="messageContentTextarea"></h:message>
+										</small>
 		                            </div>
 		                        </div>
 	                    	</div>

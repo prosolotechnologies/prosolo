@@ -69,6 +69,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.inject.Inject;
 import java.math.BigInteger;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service("org.prosolo.services.nodes.CredentialManager")
 public class CredentialManagerImpl extends AbstractManagerImpl implements CredentialManager {
@@ -642,15 +643,6 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			Credential1 cred = res.getResult();
 
 			eventFactory.generateEvents(res.getEventQueue());
-
-			fireEditEvent(data, cred, context);
-			//we should generate update hashtags only for deliveries
-			if (data.getType() == CredentialType.Delivery && data.isHashtagsStringChanged()) {
-				Map<String, String> params = new HashMap<>();
-				params.put("newhashtags", data.getHashtagsString());
-				params.put("oldhashtags", data.getOldHashtags());
-				eventFactory.generateEvent(EventType.UPDATE_HASHTAGS, context, cred, null, null, params);
-			}
 			/* 
 			 * flushing to force lock timeout exception so it can be caught here.
 			 * It is rethrown as StaleDataException.
@@ -686,7 +678,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		return res != null ? res : 0;
 	}
 
-	private void fireEditEvent(CredentialData data, Credential1 cred,
+	private EventData fireEditEvent(CredentialData data, Credential1 cred,
 							   UserContextData context) {
 	    CredentialChangeTracker changeTracker = new CredentialChangeTracker(
 	    		data.isTitleChanged(), data.isDescriptionChanged(), false,
@@ -697,7 +689,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 		Map<String, String> params = new HashMap<>();
 		params.put("changes", jsonChangeTracker);
-	    eventFactory.generateEvent(EventType.Edit, context, cred, null,null, params);
+	    return eventFactory.generateEventData(EventType.Edit, context, cred, null,null, params);
 	}
 
 	@Override
@@ -865,6 +857,15 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			}
     	} else {
     		updateDeliveryTimes(credToUpdate, data, deliveryStart, deliveryEnd);
+		}
+
+		res.appendEvent(fireEditEvent(data, credToUpdate, context));
+		//we should generate update hashtags only for deliveries
+		if (data.getType() == CredentialType.Delivery && data.isHashtagsStringChanged()) {
+			Map<String, String> params = new HashMap<>();
+			params.put("newhashtags", data.getHashtagsString());
+			params.put("oldhashtags", data.getOldHashtags());
+			res.appendEvent(eventFactory.generateEventData(EventType.UPDATE_HASHTAGS, context, credToUpdate, null, null, params));
 		}
 
 		res.setResult(credToUpdate);
@@ -1672,6 +1673,43 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		} catch (Exception e) {
 			logger.error("Error", e);
 			throw new DbConnectionException("Error loading target credentials");
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<CredentialProgressData> getCredentialsWithAccessTo(long studentId, long userId, AccessMode accessMode) throws DbConnectionException {
+		try {
+			List<TargetCredential1> result;
+
+			switch (accessMode) {
+				case MANAGER:
+					result = getTargetCredentials(studentId, false, UserLearningProgress.ANY);
+					break;
+				case INSTRUCTOR:
+					String query =
+							"SELECT targetCredential1 " +
+							"FROM TargetCredential1 targetCredential1 " +
+							"LEFT JOIN FETCH targetCredential1.credential cred " +
+							"LEFT JOIN targetCredential1.instructor instructor " +
+							"WHERE targetCredential1.user.id = :studentId " +
+								"AND instructor.user.id = :userId " +
+							"ORDER BY cred.title";
+
+					result = (List<TargetCredential1>) persistence.currentManager()
+							.createQuery(query)
+							.setLong("studentId", studentId)
+							.setLong("userId", userId)
+							.list();
+					break;
+				default:
+					return null;
+			}
+
+			return result.stream().map(tc -> new CredentialProgressData(tc)).collect(Collectors.toList());
+		} catch (DbConnectionException e) {
+			logger.error("error", e);
+			throw e;
 		}
 	}
 

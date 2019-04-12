@@ -10,5 +10,6 @@ public enum AccessMode {
 
 	NONE,
 	USER,
-	MANAGER;
+	MANAGER,
+	INSTRUCTOR
 }

@@ -12,8 +12,8 @@ public enum LearningEvidenceLabeledSearchFilter {
 
     ALL(LearningEvidenceSearchFilter.ALL, "All"),
     FILE(LearningEvidenceSearchFilter.FILE, "File"),
-    URL(LearningEvidenceSearchFilter.URL, "URL"),
-    TEXT(LearningEvidenceSearchFilter.TEXT, "Text");
+    URL(LearningEvidenceSearchFilter.URL, "URL");
+//    TEXT(LearningEvidenceSearchFilter.TEXT, "Text");
 
     private LearningEvidenceSearchFilter filter;
     private String label;

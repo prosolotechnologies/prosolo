@@ -107,15 +107,14 @@
                                                             <p class="commentText #{compEditComment.isValid() ? '' : 'hidden'}">#{activityMessageData.content}</p>
 
                                                             <div class="editComment #{compEditComment.isValid() ? 'hidden' : ''}">
-                                                                <h:inputTextarea
-                                                                        id="textareaEditComment"
-                                                                        binding="#{compEditComment}"
-                                                                        label="Comment"
-                                                                        name="name"
-                                                                        styleClass="contentEditableComment"
-                                                                        style="width:100%;" rows="1"
-                                                                        value="#{activityMessageData.content}"
-                                                                        onkeyup="displaySubmitButtonPrivateConvModal(this)">
+                                                                <h:inputTextarea id="textareaEditComment"
+                                                                                 binding="#{compEditComment}"
+                                                                                 label="Comment"
+                                                                                 name="name"
+                                                                                 styleClass="contentEditableComment"
+                                                                                 style="width:100%;" rows="1"
+                                                                                 value="#{activityMessageData.content}"
+                                                                                 onkeyup="displaySubmitButtonPrivateConvModal(this)">
                                                                     <f:validateLength maximum="9000"/>
                                                                 </h:inputTextarea>
 
@@ -211,6 +210,7 @@
 
                                         <utilcomp:singleClickLink styleClass="btn btn-sm btn-green hidden"
                                                                   value="Submit"
+                                                                  process=":#{cc.clientId}:formPrivateConversation:textareaAddNewComment"
                                                                   action="#{cc.attrs.bean.addCommentToAssessmentDiscussion()}"
                                                                   update=":#{cc.clientId}:formPrivateConversation:panelModalPrivateConversation #{cc.attrs.toUpdate}">
                                             <f:param name="page" value="#{facesContext.viewRoot.viewId}"/>

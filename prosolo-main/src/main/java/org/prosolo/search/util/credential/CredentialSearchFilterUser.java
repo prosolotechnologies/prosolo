@@ -1,8 +1,10 @@
 package org.prosolo.search.util.credential;
 
+import org.prosolo.web.util.ResourceBundleUtil;
+
 public enum CredentialSearchFilterUser {
 
-	ALL("All"), 
+	ALL("All " + ResourceBundleUtil.getLabel("credential.plural").toLowerCase()),
 	ENROLLED("Enrolled"),
 	BOOKMARKS("Bookmarks");
 	

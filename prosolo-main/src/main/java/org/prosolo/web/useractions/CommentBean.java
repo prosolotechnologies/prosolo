@@ -65,7 +65,7 @@ public class CommentBean implements Serializable, ICommentBean {
 			List<CommentData> comments = null;
 
 			//TODO hack - if it is competency or activity comment and it is Student,
-			// load comments only if from same deliveries user is learning
+			// load comments only if from same deliveries user is learning and all manager comments
 			boolean loadCommentsFromSameDeliveries =
 					(commentsData.getResourceType() == CommentedResourceType.Activity
 							|| commentsData.getResourceType() == CommentedResourceType.Competence)

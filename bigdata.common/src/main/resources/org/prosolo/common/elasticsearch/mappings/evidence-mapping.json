@@ -28,11 +28,15 @@
         "type":"date",
         "format":"yyyy/MM/dd HH:mm:ss"
       },
+      "url":{
+        "store": false,
+        "type":"keyword"
+      },
       "tags": {
         "properties":{
           "title":{
             "store": false,
-            "type":"keyword"
+            "type":"text"
           }
         }
       }
