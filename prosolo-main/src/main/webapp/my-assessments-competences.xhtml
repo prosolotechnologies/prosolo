@@ -26,10 +26,9 @@
     </ui:define>
 
     <ui:define name="navLinks">
-        <ul class="nav nav-tabs headerSubmenu">
-            <li role="presentation"><h:link outcome="/my-assessments-credentials" value="#{msg['label.credential.plural']}"/></li>
-            <li role="presentation" class="active"><a>#{msg['label.competence.plural']}</a></li>
-        </ul>
+        <assessment:myAssessmentsNavLinks
+            resource="COMPETENCE"
+        />
     </ui:define>
 
     <ui:define name="content">

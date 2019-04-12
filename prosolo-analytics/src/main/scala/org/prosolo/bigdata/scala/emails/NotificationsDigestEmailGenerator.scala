@@ -70,6 +70,16 @@ class NotificationsDigestEmailGenerator(
   def assessmentsRequests():java.util.List[Notification]= getNotificationsByType(NotificationType.Assessment_Requested)
   def hasMoreAssessmentsRequests:Boolean=hasMore(assessmentsRequestsCount)
 
+  def hasAcceptedAssessmentRequests():Boolean= hasNotificationType(NotificationType.ASSESSMENT_REQUEST_ACCEPTED)
+  def acceptedAssessmentRequestsCount():Int= getNotificationTypeCount(NotificationType.ASSESSMENT_REQUEST_ACCEPTED)
+  def acceptedAssessmentRequests():java.util.List[Notification]= getNotificationsByType(NotificationType.ASSESSMENT_REQUEST_ACCEPTED)
+  def hasMoreAcceptedAssessmentRequests:Boolean=hasMore(acceptedAssessmentRequestsCount)
+
+  def hasDeclinedAssessmentRequests():Boolean= hasNotificationType(NotificationType.ASSESSMENT_REQUEST_DECLINED)
+  def declinedAssessmentRequestsCount():Int= getNotificationTypeCount(NotificationType.ASSESSMENT_REQUEST_DECLINED)
+  def declinedAssessmentRequests():java.util.List[Notification]= getNotificationsByType(NotificationType.ASSESSMENT_REQUEST_DECLINED)
+  def hasMoreDeclinedAssessmentRequests:Boolean=hasMore(declinedAssessmentRequestsCount)
+
   def hasGradeAdded():Boolean= hasNotificationType(NotificationType.GradeAdded)
   def gradeAddedCount():Int={ getNotificationTypeCount(NotificationType.GradeAdded)}
   def gradesAdded():java.util.List[Notification]= getNotificationsByType(NotificationType.GradeAdded)

@@ -33,7 +33,7 @@ public abstract class CompetenceAssessmentNotificationEventProcessor extends Ass
 		this.competenceManager = competenceManager;
 		assessment = (CompetenceAssessment) session.load(CompetenceAssessment.class, event.getObject().getId());
 		context = ctxJsonParserService.parseContext(event.getContext());
-		credentialId = Context.getIdFromSubContextWithName(context, ContextName.CREDENTIAL);
+		credentialId = assessment.getTargetCredential().getCredential().getId();
 	}
 
 	@Override

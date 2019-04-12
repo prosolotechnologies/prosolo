@@ -24,8 +24,10 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import javax.faces.bean.ManagedBean;
+import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -111,6 +113,32 @@ public class StudentCompetenceAssessmentBean extends CompetenceAssessmentBean im
 		} catch (Exception e) {
 			logger.error("Error submitting the assessment", e);
 			PageUtil.fireErrorMessage("Error submitting the " + ResourceBundleUtil.getMessage("label.competence").toLowerCase() + " assessment");
+		}
+	}
+
+	public void acceptAssessmentRequest() {
+		try {
+			getAssessmentManager().acceptCompetenceAssessmentRequest(getCompetenceAssessmentData().getCompetenceAssessmentId(), loggedUserBean.getUserContext());
+			PageUtil.fireSuccessfulInfoMessageAcrossPages("Assessment request has been successfully accepted");
+			PageUtil.redirect(getRefreshUrl());
+		} catch (Exception e) {
+			logger.error("error", e);
+			PageUtil.fireErrorMessage("Error accepting assessment request");
+		}
+	}
+
+	private String getRefreshUrl() {
+		return "/competences/" + getCompetenceId() + "/assessments/peer/" + getCompetenceAssessmentId() + "?credId=" + getCredId();
+	}
+
+	public void declineAssessmentRequest() {
+		try {
+			getAssessmentManager().declineCompetenceAssessmentRequest(getCompetenceAssessmentData().getCompetenceAssessmentId(), loggedUserBean.getUserContext());
+			PageUtil.fireSuccessfulInfoMessageAcrossPages("Assessment request has been successfully declined");
+			PageUtil.redirect(getRefreshUrl());
+		} catch (Exception e) {
+			logger.error("error", e);
+			PageUtil.fireErrorMessage("Error declining assessment request");
 		}
 	}
 

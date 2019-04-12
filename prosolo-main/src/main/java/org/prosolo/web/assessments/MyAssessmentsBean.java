@@ -32,7 +32,7 @@ public abstract class MyAssessmentsBean implements Paginable, Serializable {
     private AssessmentStatusFilter assessmentStatusFilter = AssessmentStatusFilter.ALL;
     private AssessmentStatusFilter[] assessmentStatusFilters;
 
-    private PaginationData paginationData = new PaginationData(2);
+    private PaginationData paginationData = new PaginationData(5);
 
     public void init() {
         try {

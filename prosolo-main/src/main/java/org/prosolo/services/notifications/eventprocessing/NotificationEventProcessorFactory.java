@@ -125,6 +125,12 @@ public class NotificationEventProcessorFactory {
 							notificationsSettingsManager, idEncoder, contextJsonParserService, assessmentManager, credentialManager);
 				}
 				break;
+			case ASSESSMENT_REQUEST_ACCEPTED:
+				return new CompetenceAssessmentRequestAcceptEventProcessor(event, session, notificationManager, notificationsSettingsManager, idEncoder,
+						contextJsonParserService, credentialManager, competenceManager);
+			case ASSESSMENT_REQUEST_DECLINED:
+				return new CompetenceAssessmentRequestDeclineEventProcessor(event, session, notificationManager, notificationsSettingsManager, idEncoder,
+						contextJsonParserService, credentialManager, competenceManager);
 			default:
 				return null;
 		}

@@ -512,4 +512,50 @@ public interface AssessmentManager {
 	 */
 	PaginatedResult<CompetenceAssessmentData> getPaginatedCompetencePeerAssessmentsForAssessor(
 			long assessorId, AssessmentStatusFilter filter, int offset, int limit);
+
+	/**
+	 * Sets the assessments status to PENDING and initializes assessment - creates activity assessments
+	 * if activity based competency. Also, this method returns events to be generated.
+	 *
+	 * @param compAssessmentId
+	 * @param context
+	 * @return
+	 * @throws IllegalDataStateException
+	 * @throws DbConnectionException
+	 */
+	Result<Void> acceptCompetenceAssessmentRequestAndGetEvents(long compAssessmentId, UserContextData context) throws IllegalDataStateException;
+
+	/**
+	 * Sets the assessments status to PENDING, initializes assessment (creates activity assessments
+	 * if activity based competency) and generates events.
+	 *
+	 * @param compAssessmentId
+	 * @param context
+	 * @throws IllegalDataStateException
+	 * @throws DbConnectionException
+	 */
+	void acceptCompetenceAssessmentRequest(long compAssessmentId, UserContextData context) throws IllegalDataStateException;
+
+	/**
+	 * Declines the assessment request, returns spent tokens to the student (if assessment tokens enabled) and
+	 * returns events to be generated.
+	 *
+	 * @param compAssessmentId
+	 * @param context
+	 * @return
+	 * @throws IllegalDataStateException
+	 * @throws DbConnectionException
+	 */
+	Result<Void> declineCompetenceAssessmentRequestAndGetEvents(long compAssessmentId, UserContextData context) throws IllegalDataStateException;
+
+	/**
+	 * Declines the assessment request, returns spent tokens to the student (if assessment tokens enabled) and
+	 * generates appropriate events.
+	 *
+	 * @param compAssessmentId
+	 * @param context
+	 * @throws IllegalDataStateException
+	 * @throws DbConnectionException
+	 */
+	void declineCompetenceAssessmentRequest(long compAssessmentId, UserContextData context) throws IllegalDataStateException;
 }
