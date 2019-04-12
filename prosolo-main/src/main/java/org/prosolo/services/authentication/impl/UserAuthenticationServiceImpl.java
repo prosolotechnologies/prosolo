@@ -15,6 +15,7 @@ import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
 import org.prosolo.services.logging.AccessResolver;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.web.util.AvatarUtils;
+import org.prosolo.web.util.ResourceBundleUtil;
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -53,9 +54,12 @@ public class UserAuthenticationServiceImpl implements UserAuthenticationService 
 
     @Override
     @Transactional
-    public ProsoloUserDetails authenticateUser(User user) throws UsernameNotFoundException, DbConnectionException {
+    public ProsoloUserDetails authenticateUser(User user) throws UsernameNotFoundException, LockedException, DbConnectionException {
         if (user == null) {
             throw new UsernameNotFoundException("There is no user with this email");
+        }
+        if (user.isDeleted()) {
+            throw new LockedException(ResourceBundleUtil.getSpringMessage("AbstractUserDetailsAuthenticationProvider.locked"));
         }
         try {
             //load other user data needed for principal object
