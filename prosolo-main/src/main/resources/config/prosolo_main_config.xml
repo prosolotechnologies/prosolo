@@ -65,12 +65,12 @@
 				</provider>
 				<provider>
 					<display-name>Sign in with UNISA</display-name>
-					<entity-id>http://adfs.testmail.unisa.edu.au/adfs/services/trust</entity-id>
+					<entity-id>http://fed.unisa.edu.au/adfs/services/trust</entity-id>
 					<email-attribute>http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress</email-attribute>
 					<first-name-attribute>http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname</first-name-attribute>
 					<last-name-attribute>http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname</last-name-attribute>
 					<metadata-type>CLASSPATH</metadata-type><!-- URL or CLASSPATH -->
-					<metadata-path>unisatest-metadata.xml</metadata-path><!-- if URL based metadata this will be the url to the metadata and if CLASSPATH, this will be the metadata file name on the classpath -->
+					<metadata-path>unisaprod-metadata.xml</metadata-path><!-- if URL based metadata this will be the url to the metadata and if CLASSPATH, this will be the metadata file name on the classpath -->
 					<create-account-for-nonexistent-user>false</create-account-for-nonexistent-user>
 					<enabled>false</enabled>
 					<style-class>btnDefault</style-class>
