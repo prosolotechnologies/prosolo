@@ -18,6 +18,8 @@ import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.notifications.NotificationManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
+import org.prosolo.services.user.StudentProfileManager;
+import org.prosolo.web.manage.students.StudentProfileBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -36,15 +38,16 @@ public class NotificationEventProcessorFactory {
 	private UrlIdEncoder idEncoder;
 	@Inject
 	private CommentManager commentManager;
-	@Autowired 
-	private FollowResourceManager followResourceManager;
 	@Inject
 	private AssessmentManager assessmentManager;
 	@Inject
 	private CredentialManager credentialManager;
 	@Inject
 	private ContextJsonParserService contextJsonParserService;
-	@Inject private Competence1Manager competenceManager;
+	@Inject
+	private Competence1Manager competenceManager;
+	@Inject
+	private StudentProfileManager studentProfileManager;
 
 	public NotificationEventProcessor getNotificationEventProcessor(Event event, Session session) {
 		switch (event.getAction()) {
@@ -77,7 +80,7 @@ public class NotificationEventProcessorFactory {
 				break;
 			case Follow:
 				return new FollowUserEventProcessor(event, session, notificationManager,
-						notificationsSettingsManager, idEncoder, followResourceManager);
+						notificationsSettingsManager, idEncoder, studentProfileManager);
 			case AssessmentComment:
 				BaseEntity target = event.getTarget();
 				if (target instanceof ActivityAssessment) {

@@ -23,11 +23,11 @@ public interface StudentProfileManager extends AbstractManager {
     /**
      * Returns {@link StudentProfileData} object for the given user id
      *
-     * @param userId
+     * @param customProfileUrl custom profile URL of the student
      * @return
      * @throws DbConnectionException
      */
-    Optional<StudentProfileData> getStudentProfileData(long userId);
+    Optional<StudentProfileData> getStudentProfileData(String customProfileUrl);
 
     /**
      * Returns student profile learning data
@@ -120,20 +120,29 @@ public interface StudentProfileManager extends AbstractManager {
     void updateProfileSettings(ProfileSettingsData profileSettings) throws ConstraintViolationException;
 
     /**
-     * Retirieves profiel settings for the given student.
+     * Retirieves profile settings for the given student.
      *
-     * @param userId user (student) id
+     * @param customProfileUrl custom profile URL of the student
      * @return
      */
-    ProfileSettingsData getProfileSettingsData(long userId);
+    Optional<ProfileSettingsData> getProfileSettingsData(String customProfileUrl);
+
+    /**
+     * Retirieves profile settings for the given student.
+     *
+     * @param userId id of the student
+     * @return
+     */
+    Optional<ProfileSettingsData> getProfileSettingsData(long userId);
 
     /**
      * Creates new profile settings for the given user.
      *
      * @param user profile owner of the profile
+     * @param customProfileUrl custom profile URL of the student
      * @param summarySidebarEnabled whether summary should be displayed in the Profile page
      * @param session Hibernate session used to perform queries
      * @return
      */
-    ProfileSettingsData createProfileSettings(User user, String profileUrl, boolean summarySidebarEnabled, Session session) throws DataIntegrityViolationException;
+    ProfileSettingsData createProfileSettings(User user, String customProfileUrl, boolean summarySidebarEnabled, Session session) throws DataIntegrityViolationException;
 }

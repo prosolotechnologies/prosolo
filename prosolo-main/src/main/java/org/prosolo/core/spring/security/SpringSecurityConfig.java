@@ -116,7 +116,8 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers("/elb_ping").permitAll()
 				.antMatchers("/terms").permitAll()
 				.antMatchers("/profile").hasAuthority("BASIC.USER.ACCESS")
-				.antMatchers("/profile/*").permitAll()
+				.antMatchers("/profile/*").permitAll()	// legacy profile page
+				.antMatchers("/p/*").permitAll()
 				.antMatchers("/maintenance").permitAll()
 				.antMatchers("/digest").permitAll()
 				.antMatchers("/login").permitAll()
@@ -154,7 +155,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers("/credentials/*/students").hasAuthority("BASIC.USER.ACCESS")
 				.antMatchers("/credentials/*/students/*").hasAuthority("BASIC.USER.ACCESS")
 				.antMatchers("/credentials/*/keywords").hasAuthority("BASIC.USER.ACCESS")
-				.antMatchers("/profile/*/evidence/*").permitAll()
+				.antMatchers("/p/*/evidence/*").permitAll()
 				.antMatchers("/competences/*/edit").hasAuthority("BASIC.USER.ACCESS")
 				.antMatchers("/credentials/*/*").hasAuthority("BASIC.USER.ACCESS")
 				.antMatchers("/credentials/*/assessments").hasAuthority("BASIC.USER.ACCESS")

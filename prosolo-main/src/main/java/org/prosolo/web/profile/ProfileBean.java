@@ -31,6 +31,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+/**
+ * This class was introduced to serve the custom profile URL scheme. It serves the page profile-new.xhtml.
+ */
 @ManagedBean(name = "profileBean")
 @Component("profileBean")
 @Scope("view")
@@ -50,11 +53,11 @@ public class ProfileBean {
 	private CredentialProfileOptionsFullToBasicFunction credentialProfileOptionsFullToBasicFunction;
 
 	@Getter @Setter
-	private String studentId;
-	@Getter
-	private long decodedStudentId;
+	private String customProfileId;
 	@Getter @Setter
 	private String message;
+	@Getter
+	private long studentId;
 
 	@Getter
 	private StudentProfileData studentProfileData;
@@ -71,17 +74,12 @@ public class ProfileBean {
 	private LearningResourceType selectedResourceType;
 
 	public void init() {
-		decodedStudentId = idEncoder.decodeId(studentId);
-
-		if (studentId == null || StringUtils.isBlank(studentId)) {
-			PageUtil.redirect("/profile/" + idEncoder.encodeId(loggedUserBean.getUserId()));
-		}
-
-		if (decodedStudentId > 0) {
+		if (!StringUtils.isBlank(customProfileId)) {
 		    try {
-                Optional<StudentProfileData> studentProfileDataOpt = studentProfileManager.getStudentProfileData(decodedStudentId);
+                Optional<StudentProfileData> studentProfileDataOpt = studentProfileManager.getStudentProfileData(customProfileId);
                 if (studentProfileDataOpt.isPresent()) {
                     studentProfileData = studentProfileDataOpt.get();
+					studentId = studentProfileData.getStudentData().getId();
                 } else {
                     PageUtil.notFound();
                 }
@@ -151,7 +149,7 @@ public class ProfileBean {
 	public void prepareAddingCredentials() {
 		try {
 			credentialsToAdd.clear();
-			List<CredentialIdData> completedCredentialsBasicData = credentialManager.getCompletedCredentialsBasicDataForCredentialsNotAddedToProfile(decodedStudentId);
+			List<CredentialIdData> completedCredentialsBasicData = credentialManager.getCompletedCredentialsBasicDataForCredentialsNotAddedToProfile(studentId);
 			completedCredentialsBasicData.forEach(cred -> credentialsToAdd.add(new SelectableData<>(cred)));
 		} catch (DbConnectionException e) {
 			logger.error("error", e);
@@ -168,7 +166,7 @@ public class ProfileBean {
                     .collect(Collectors.toList());
             int numberOfCredentialsToAdd = idsOfTargetCredentialsToAdd.size();
 		    if (numberOfCredentialsToAdd > 0) {
-                studentProfileManager.addCredentialsToProfile(decodedStudentId, idsOfTargetCredentialsToAdd);
+                studentProfileManager.addCredentialsToProfile(studentId, idsOfTargetCredentialsToAdd);
                 boolean success = refreshProfile();
                 if (success) {
 					PageUtil.fireSuccessfulInfoMessage((numberOfCredentialsToAdd == 1 ? ResourceBundleUtil.getLabel("credential") : ResourceBundleUtil.getLabel("credential.plural")) + " added");
@@ -185,7 +183,7 @@ public class ProfileBean {
 	private boolean refreshProfile() {
 		//reload credentials
 		try {
-			studentProfileData.setProfileLearningData(studentProfileManager.getProfileLearningData(decodedStudentId));
+			studentProfileData.setProfileLearningData(studentProfileManager.getProfileLearningData(studentId));
 			return true;
 		} catch (Exception e) {
 			logger.error("error", e);
@@ -200,7 +198,7 @@ public class ProfileBean {
 
 	public void removeCredentialFromProfile() {
 		try {
-			studentProfileManager.removeCredentialFromProfile(decodedStudentId, credentialToRemove.getTargetCredentialId());
+			studentProfileManager.removeCredentialFromProfile(studentId, credentialToRemove.getTargetCredentialId());
 			boolean success = refreshProfile();
 			if (success) {
 				PageUtil.fireSuccessfulInfoMessage(ResourceBundleUtil.getLabel("credential") + " successfully removed from profile");
@@ -273,7 +271,7 @@ public class ProfileBean {
 	 */
 
 	public boolean isPersonalProfile() {
-		return decodedStudentId == loggedUserBean.getUserId();
+		return studentId == loggedUserBean.getUserId();
 	}
 
 	public UserData getUserData() {
@@ -323,6 +321,6 @@ public class ProfileBean {
     }
 
 	public long getOwnerOfAProfileUserId() {
-		return decodedStudentId;
+		return studentId;
 	}
 }

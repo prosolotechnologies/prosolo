@@ -60,15 +60,19 @@ public class StudentProfileManagerImpl extends AbstractManagerImpl implements St
     @Inject private GradeDataFactory gradeDataFactory;
 
     @Override
-    public Optional<StudentProfileData> getStudentProfileData(long userId) {
+    @Transactional
+    public Optional<StudentProfileData> getStudentProfileData(String customProfileUrl) {
         try {
-            UserData userData = userManager.getUserData(userId);
-            if (userData == null) {
-                return Optional.empty();
-            } else {
+            Optional<ProfileSettingsData> profileSettingsData = getProfileSettingsData(customProfileUrl);
+
+            if (profileSettingsData.isPresent()) {
+                long userId = profileSettingsData.get().getUserId();
+
+                UserData userData = userManager.getUserData(userId);
                 UserSocialNetworksData userSocialNetworkData = socialNetworksManager.getUserSocialNetworkData(userId);
-                ProfileSettingsData profileSettingsData = getProfileSettingsData(userId);
-                return Optional.of(new StudentProfileData(userData, userSocialNetworkData, getProfileLearningData(userId), profileSettingsData));
+                return Optional.of(new StudentProfileData(userData, userSocialNetworkData, getProfileLearningData(userId), profileSettingsData.get()));
+            } else {
+                return Optional.empty();
             }
         } catch (DbConnectionException e) {
             logger.error("error", e);
@@ -594,26 +598,51 @@ public class StudentProfileManagerImpl extends AbstractManagerImpl implements St
 
     @Override
     @Transactional(readOnly = true)
-    public ProfileSettingsData getProfileSettingsData(long userId) {
+    public Optional<ProfileSettingsData> getProfileSettingsData(String customProfileUrl) {
         String q =
                 "SELECT profileSettings " +
                 "FROM ProfileSettings profileSettings " +
-                "INNER JOIN profileSettings.user user " +
-                "WITH user.id = :userId";
+                "LEFT JOIN FETCH profileSettings.user user " +
+                "WHERE profileSettings.customProfileUrl = :customProfileUrl";
+
+        ProfileSettings res = (ProfileSettings) persistence.currentManager()
+                .createQuery(q)
+                .setString("customProfileUrl", customProfileUrl)
+                .uniqueResult();
+
+        if (res != null) {
+            return Optional.of(new ProfileSettingsData(res));
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<ProfileSettingsData> getProfileSettingsData(long userId) {
+        String q =
+                "SELECT profileSettings " +
+                "FROM ProfileSettings profileSettings " +
+                "LEFT JOIN profileSettings.user user " +
+                "WHERE user.id = :userId";
 
         ProfileSettings res = (ProfileSettings) persistence.currentManager()
                 .createQuery(q)
                 .setLong("userId", userId)
                 .uniqueResult();
 
-        return new ProfileSettingsData(res);
+        if (res != null) {
+            return Optional.of(new ProfileSettingsData(res));
+        } else {
+            return Optional.empty();
+        }
     }
 
     @Override
     @Transactional(readOnly = false)
-    public ProfileSettingsData createProfileSettings(User user, String profileUrl, boolean summarySidebarEnabled, Session session) {
+    public ProfileSettingsData createProfileSettings(User user, String customProfileUrl, boolean summarySidebarEnabled, Session session) {
         ProfileSettings profileSettings = new ProfileSettings();
-        profileSettings.setCustomProfileUrl(profileUrl);
+        profileSettings.setCustomProfileUrl(customProfileUrl);
         profileSettings.setSummarySidebarEnabled(summarySidebarEnabled);
         profileSettings.setUser(user);
         session.save(profileSettings);

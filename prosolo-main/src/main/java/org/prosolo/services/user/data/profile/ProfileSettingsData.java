@@ -19,6 +19,8 @@ public class ProfileSettingsData extends StandardObservable {
     private String customProfileUrl;
     @Getter
     private boolean summarySidebarEnabled;
+    @Getter @Setter
+    private long userId;
 
     public ProfileSettingsData() {
         startObservingChanges();
@@ -29,6 +31,7 @@ public class ProfileSettingsData extends StandardObservable {
         this.id = profileSettings.getId();
         this.customProfileUrl = profileSettings.getCustomProfileUrl();
         this.summarySidebarEnabled = profileSettings.isSummarySidebarEnabled();
+        this.userId = profileSettings.getUser().getId();
     }
 
     public void setCustomProfileUrl(String customProfileUrl) {

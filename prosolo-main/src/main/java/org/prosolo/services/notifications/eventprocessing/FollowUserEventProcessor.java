@@ -1,8 +1,5 @@
 package org.prosolo.services.notifications.eventprocessing;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.prosolo.common.domainmodel.user.notifications.NotificationActorRole;
@@ -15,21 +12,26 @@ import org.prosolo.services.notifications.NotificationManager;
 import org.prosolo.services.notifications.eventprocessing.data.NotificationReceiverData;
 import org.prosolo.services.notifications.eventprocessing.data.NotificationSenderData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
+import org.prosolo.services.user.StudentProfileManager;
+import org.prosolo.services.user.data.profile.ProfileSettingsData;
 import org.prosolo.web.util.page.PageSection;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 public class FollowUserEventProcessor extends NotificationEventProcessor {
 
 	@SuppressWarnings("unused")
 	private static Logger logger = Logger.getLogger(FollowUserEventProcessor.class);
 
-	private FollowResourceManager followResourceManager;
-
+	private StudentProfileManager studentProfileManager;
 
 	public FollowUserEventProcessor(Event event, Session session, NotificationManager notificationManager,
-			NotificationsSettingsManager notificationsSettingsManager, UrlIdEncoder idEncoder,
-			FollowResourceManager followResourceManager) {
+									NotificationsSettingsManager notificationsSettingsManager, UrlIdEncoder idEncoder,
+									StudentProfileManager studentProfileManager) {
 		super(event, session, notificationManager, notificationsSettingsManager, idEncoder);
-		this.followResourceManager = followResourceManager;
+		this.studentProfileManager = studentProfileManager;
 	}
 
 	@Override
@@ -72,14 +74,8 @@ public class FollowUserEventProcessor extends NotificationEventProcessor {
 
 	
 	private String getNotificationLink() {
-		return "/profile/" + idEncoder.encodeId(getSenderId());
+		Optional<ProfileSettingsData> profileSettings = studentProfileManager.getProfileSettingsData(getSenderId());
+		return "/p/" + profileSettings.get().getCustomProfileUrl();
 	}
 
-	public FollowResourceManager getFollowResourceManager() {
-		return followResourceManager;
-	}
-
-	public void setFollowResourceManager(FollowResourceManager followResourceManager) {
-		this.followResourceManager = followResourceManager;
-	}
 }
