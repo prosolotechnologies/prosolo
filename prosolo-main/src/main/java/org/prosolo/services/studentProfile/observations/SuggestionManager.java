@@ -9,15 +9,15 @@ public interface SuggestionManager {
 
 	List<Suggestion> getAllSuggestions() throws DbConnectionException;
 
-	public Suggestion saveSuggestion(long id, String description) throws DbConnectionException;
+	Suggestion saveSuggestion(long id, String description) throws DbConnectionException;
 	
-	public void deleteSuggestion(long id) throws DbConnectionException;
+	void deleteSuggestion(long id) throws DbConnectionException;
 	
-	public boolean isSuggestionUsed(long suggestionId) throws DbConnectionException;
+	boolean isSuggestionUsed(long suggestionId) throws DbConnectionException;
 	
-	public List<Long> getSuggestionIdsWithName(String name) throws DbConnectionException;
+	List<Long> getSuggestionIdsWithName(String name) throws DbConnectionException;
 	
-	public String getSuggestionNameForId(long id) throws DbConnectionException;
+	String getSuggestionNameForId(long id) throws DbConnectionException;
 	
 	void saveSuggestions(List<String> suggestions) throws DbConnectionException;
 }

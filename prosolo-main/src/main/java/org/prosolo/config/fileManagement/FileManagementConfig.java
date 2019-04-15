@@ -14,9 +14,15 @@ public class FileManagementConfig {
 	@Element(name = "url-prefix-folder")
 	public String urlPrefixFolder;
 
+	@Element(name = "max-file-upload-size")
+	public int maxFileUploadSize;
+
 	@Override
 	public String toString() {
 		return StringUtils.toStringByReflection(this);
 	}
 
+	public int getMaxFileUploadSize() {
+		return maxFileUploadSize;
+	}
 }

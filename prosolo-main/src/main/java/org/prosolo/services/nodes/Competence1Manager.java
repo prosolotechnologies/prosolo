@@ -69,12 +69,12 @@ public interface Competence1Manager {
 	 * exclusive lock on a competence being updated
 	 * 
 	 * @param data
-	 * @param userId
+	 * @param context
 	 * @return
 	 * @throws StaleDataException
 	 * @throws IllegalDataStateException
 	 */
-	Competence1 updateCompetenceData(CompetenceData1 data, long userId) throws StaleDataException, 
+	Result<Competence1> updateCompetenceData(CompetenceData1 data, UserContextData context) throws StaleDataException,
 			IllegalDataStateException;
 
 	List<CompetenceData1> getCompetencesForCredential(long credId, long userId, CompetenceLoadConfig compLoadConfig) throws DbConnectionException;
@@ -347,7 +347,10 @@ public interface Competence1Manager {
 	
 	EventQueue updateCompetenceProgress(long targetCompId, UserContextData context)
 			throws DbConnectionException;
-	
+
+	Result<Void> publishCompetenceIfNotPublished(long competenceId, UserContextData context)
+			throws DbConnectionException, IllegalDataStateException;
+
 	Result<Void> publishCompetenceIfNotPublished(Competence1 comp, UserContextData context)
 			throws DbConnectionException, IllegalDataStateException;
 

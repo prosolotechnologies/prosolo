@@ -251,30 +251,6 @@ public class ProfileBean {
 		}
 	}
 
-	public void sendMessage() {
-		if (!isPersonalProfile()) {
-			try {
-				MessageData messageData = messagingManager.sendMessage(0, loggedUserBean.getUserId(), decodedStudentId, this.message, loggedUserBean.getUserContext());
-				logger.debug("User "+loggedUserBean.getUserId()+" sent a message to "+decodedStudentId+" with content: '"+messageData+"'");
-
-				List<UserData> participants = new ArrayList<UserData>();
-
-				participants.add(new UserData(loggedUserBean.getUserId(), loggedUserBean.getFullName()));
-
-				final Message message1 = new Message();
-				message1.setId(messageData.getId());
-
-				UserContextData userContext = loggedUserBean.getUserContext();
-
-				this.message = "";
-
-				PageUtil.fireSuccessfulInfoMessage("Your message is sent");
-			} catch (Exception e) {
-				logger.error(e);
-			}
-		}
-	}
-	
 	/*
 	 * GETTERS / SETTERS
 	 */

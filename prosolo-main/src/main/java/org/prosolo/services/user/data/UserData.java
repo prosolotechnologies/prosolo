@@ -72,6 +72,8 @@ public class UserData implements Serializable {
 	public UserData(long id, String firstName, String lastName, String avatar, String position,
 					String email, boolean isAvatarReady) {
 		this(id, getFullName(firstName, lastName) , avatar, position, email, isAvatarReady);
+		this.setName(firstName);
+		this.setLastName(lastName);
 	}
 
 	public UserData(long id, String fullName, String avatar, String position,

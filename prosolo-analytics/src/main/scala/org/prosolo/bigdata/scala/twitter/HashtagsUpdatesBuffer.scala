@@ -2,7 +2,8 @@ package org.prosolo.bigdata.scala.twitter
 
 import scala.collection.mutable.ListBuffer
 import org.prosolo.bigdata.events.pojo.AnalyticsEvent
-import java.util.{TimerTask, Timer}
+import java.util.{Timer, TimerTask}
+import org.prosolo.bigdata.config.Settings
 import org.prosolo.bigdata.scala.twitter.TwitterHashtagsStreamsManager.updateHashTagsFromBufferAndRestartStream
 import org.prosolo.bigdata.scala.twitter.util.TwitterUtils._
 
@@ -13,11 +14,13 @@ object HashtagsUpdatesBuffer {
   val buffer: ListBuffer[AnalyticsEvent] = ListBuffer()
   /** heartbeat scheduler timer. */
   private[this] val timer = new Timer("Hashtags Updates Monitor", true)
-  timer.scheduleAtFixedRate(new TimerTask {
-    def run() {
-      processBufferEvents
-    }
-  }, 1000, 10000)
+  if (Settings.getInstance.config.schedulerConfig.streamingJobs.twitterStreaming) {
+    timer.scheduleAtFixedRate(new TimerTask {
+      def run() {
+        processBufferEvents
+      }
+    }, 1000, 10000)
+  }
 
   def addEvent(event: AnalyticsEvent) {
     buffer += (event)

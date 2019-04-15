@@ -150,7 +150,7 @@ public class StudentProfileManagerImpl extends AbstractManagerImpl implements St
     public List<CompetenceProfileData> getCredentialCompetencesProfileData(long credProfileConfigId) {
         try {
             String query =
-                    "SELECT conf, count(evidenceConf.id), count(assessmentConf.id) FROM CompetenceProfileConfig conf " +
+                    "SELECT conf, count(distinct evidenceConf.id), count(distinct assessmentConf.id) FROM CompetenceProfileConfig conf " +
                     "INNER JOIN fetch conf.credentialProfileConfig tc " +
                     "INNER JOIN fetch conf.targetCompetence tc " +
                     "INNER JOIN fetch tc.competence c " +

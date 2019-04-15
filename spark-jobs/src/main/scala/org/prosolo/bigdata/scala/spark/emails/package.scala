@@ -15,7 +15,11 @@ package emails {
   case class NotificationReceiverSummary(receiver:Receiver, summary:NotificationsSummary, role: NotificationSections.NotificationSection)extends EmailSummary with Serializable
   case class EmailSuccess(email:String, template:String, subject:String, success:Boolean)
   object NotificationSections {
-    sealed abstract class NotificationSection (val name: String)
+    sealed abstract class NotificationSection (val name: String){
+      def this(){
+        this("Student")
+      }
+    }
     case object STUDENT extends NotificationSection ("Student")
     case object MANAGE extends NotificationSection ("Manage")
   }

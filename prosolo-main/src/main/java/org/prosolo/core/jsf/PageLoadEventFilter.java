@@ -35,6 +35,7 @@ public class PageLoadEventFilter implements Filter {
 			"/api/",
 			"/login.xhtml",
 			"/root.xhtml",
+			"/admin/root.xhtml",
 			"/ltiproviderlaunch.xhtml",
 			"/ltitoolproxyregistration.xhtml",
 			"/openid.xhtml",

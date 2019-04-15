@@ -65,6 +65,8 @@ public class NotificationObserver extends EventObserver {
 				EventType.AssessmentComment,
 				EventType.AnnouncementPublished,
 				EventType.GRADE_ADDED,
+				EventType.ASSESSMENT_REQUEST_ACCEPTED,
+				EventType.ASSESSMENT_REQUEST_DECLINED
 		};
 	}
 

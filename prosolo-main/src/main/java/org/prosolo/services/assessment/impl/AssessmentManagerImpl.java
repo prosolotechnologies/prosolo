@@ -467,18 +467,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
             }
 
             if (comp.getLearningPathType() == LearningPathType.ACTIVITY && competenceAssessment.getStatus() == AssessmentStatus.PENDING && (previousStatus == null || previousStatus == AssessmentStatus.REQUESTED)) {
-                List<Long> participantIds = new ArrayList<>();
-                participantIds.add(studentId);
-                //for self assessment student and assessor are the same user
-                if (assessorId > 0 && assessorId != studentId) {
-                    participantIds.add(assessorId);
-                }
-                List<Result<ActivityAssessment>> activityAssessments = createActivityAssessmentsForCompetence(competenceAssessment, comp.getActivities(), participantIds, context);
-                activityAssessments.forEach(result -> res.appendEvents(result.getEventQueue()));
-                if (comp.getAssessmentSettings().getGradingMode() == GradingMode.AUTOMATIC
-                        && activityAssessments.stream().anyMatch(result -> result.getResult().getPoints() >= 0)) {
-                    competenceAssessment.setPoints(activityAssessments.stream().mapToInt(result -> result.getResult().getPoints() >= 0 ? result.getResult().getPoints() : 0).sum());
-                }
+				res.appendEvents(createActivityAssessmentsForCompetenceAndUpdateCompetenceAssessmentGrade(studentId, assessorId, competenceAssessment, comp.getActivities(), comp.getAssessmentSettings().getGradingMode(), context).getEventQueue());
             }
 
             res.setResult(competenceAssessment);
@@ -489,6 +478,23 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			logger.error("Error", e);
 			throw new DbConnectionException("Error saving competency assessment");
 		}
+	}
+
+	private Result<Void> createActivityAssessmentsForCompetenceAndUpdateCompetenceAssessmentGrade(long studentId, long assessorId, CompetenceAssessment competenceAssessment, List<ActivityData> activities, GradingMode competenceGradingMode, UserContextData context) {
+		Result<Void> res = new Result<>();
+		List<Long> participantIds = new ArrayList<>();
+		participantIds.add(studentId);
+		//for self assessment student and assessor are the same user
+		if (assessorId > 0 && assessorId != studentId) {
+			participantIds.add(assessorId);
+		}
+		List<Result<ActivityAssessment>> activityAssessments = createActivityAssessmentsForCompetence(competenceAssessment, activities, participantIds, context);
+		activityAssessments.forEach(result -> res.appendEvents(result.getEventQueue()));
+		if (competenceGradingMode == GradingMode.AUTOMATIC
+				&& activityAssessments.stream().anyMatch(result -> result.getResult().getPoints() >= 0)) {
+			competenceAssessment.setPoints(activityAssessments.stream().mapToInt(result -> result.getResult().getPoints() >= 0 ? result.getResult().getPoints() : 0).sum());
+		}
+		return res;
 	}
 
 	private List<Result<ActivityAssessment>> createActivityAssessmentsForCompetence(
@@ -4191,6 +4197,87 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			query.setParameterList("statuses", filter.getStatuses());
 		}
 		return (long) query.uniqueResult();
+	}
+
+	@Override
+	public void acceptCompetenceAssessmentRequest(long compAssessmentId, UserContextData context) throws IllegalDataStateException {
+		Result<Void> res = self.acceptCompetenceAssessmentRequestAndGetEvents(compAssessmentId, context);
+		eventFactory.generateEvents(res.getEventQueue());
+	}
+
+	@Override
+	@Transactional
+	public Result<Void> acceptCompetenceAssessmentRequestAndGetEvents(long compAssessmentId, UserContextData context) throws IllegalDataStateException {
+		try {
+			CompetenceAssessment ca = (CompetenceAssessment) persistence.currentManager().load(CompetenceAssessment.class, compAssessmentId);
+			if (ca.getStatus() != AssessmentStatus.REQUESTED) {
+				throw new IllegalDataStateException("Assessment not in requested status");
+			}
+			if (ca.getAssessor() == null || ca.getAssessor().getId() != context.getActorId()) {
+				throw new IllegalDataStateException("User is not assessor in specified assessment");
+			}
+			Result<Void> res = new Result<>();
+			ca.setStatus(AssessmentStatus.PENDING);
+
+			CompetenceAssessment eventObj = new CompetenceAssessment();
+			eventObj.setId(compAssessmentId);
+			res.appendEvent(eventFactory.generateEventData(EventType.ASSESSMENT_REQUEST_ACCEPTED, context, eventObj, null, null, null));
+
+			if (ca.getCompetence().getLearningPathType() == LearningPathType.ACTIVITY) {
+				long targetCompId = compManager.getTargetCompetenceId(ca.getCompetence().getId(), ca.getStudent().getId());
+				List<ActivityData> activities;
+				if (targetCompId > 0) {
+					activities = activityManager.getTargetActivitiesData(targetCompId);
+				} else {
+					activities = activityManager.getCompetenceActivitiesData(ca.getCompetence().getId());
+				}
+				res.appendEvents(createActivityAssessmentsForCompetenceAndUpdateCompetenceAssessmentGrade(ca.getStudent().getId(), ca.getAssessor().getId(), ca, activities, ca.getCompetence().getGradingMode(), context).getEventQueue());
+			}
+			return res;
+		} catch (IllegalDataStateException e) {
+			throw e;
+		} catch (Exception e) {
+			throw new DbConnectionException("Error accepting the competency assessment request");
+		}
+	}
+
+	@Override
+	public void declineCompetenceAssessmentRequest(long compAssessmentId, UserContextData context) throws IllegalDataStateException {
+		Result<Void> res = self.declineCompetenceAssessmentRequestAndGetEvents(compAssessmentId, context);
+		eventFactory.generateEvents(res.getEventQueue());
+	}
+
+	@Override
+	@Transactional
+	public Result<Void> declineCompetenceAssessmentRequestAndGetEvents(long compAssessmentId, UserContextData context) throws IllegalDataStateException {
+		try {
+			CompetenceAssessment ca = (CompetenceAssessment) persistence.currentManager().load(CompetenceAssessment.class, compAssessmentId);
+			if (ca.getStatus() != AssessmentStatus.REQUESTED) {
+				throw new IllegalDataStateException("Assessment not in requested status");
+			}
+			if (ca.getAssessor() == null || ca.getAssessor().getId() != context.getActorId()) {
+				throw new IllegalDataStateException("User is not assessor in specified assessment");
+			}
+			Result<Void> res = new Result<>();
+			ca.setStatus(AssessmentStatus.REQUEST_DECLINED);
+			ca.setQuitDate(new Date());
+
+			Organization org = (Organization) persistence.currentManager().load(Organization.class, context.getOrganizationId());
+			if (org.isAssessmentTokensEnabled()) {
+				//return tokens to the student since assessment request is declined
+				ca.getStudent().setNumberOfTokens(ca.getStudent().getNumberOfTokens() + ca.getNumberOfTokensSpent());
+			}
+
+			CompetenceAssessment eventObj = new CompetenceAssessment();
+			eventObj.setId(compAssessmentId);
+			res.appendEvent(eventFactory.generateEventData(EventType.ASSESSMENT_REQUEST_DECLINED, context, eventObj, null, null, null));
+
+			return res;
+		} catch (IllegalDataStateException e) {
+			throw e;
+		} catch (Exception e) {
+			throw new DbConnectionException("Error declining the competency assessment request");
+		}
 	}
 
 }

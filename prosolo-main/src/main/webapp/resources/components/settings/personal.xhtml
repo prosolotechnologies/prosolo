@@ -202,7 +202,9 @@
 				<div class="col-md-4">
 					<div class="whiteBox yourPhotoBox">
 						<h2>Your Photo</h2>
-						
+
+						<div class="clear"></div>
+
 						<h:form id="settingsAvatarForm">
 							<p:growl id="settingsAvatarFormGrowl" showDetail="true" enctype="multipart/form-data" />
 							
@@ -222,13 +224,17 @@
 										</h:panelGroup>
 
 										<div class="chooseBtnBox">
-											<utilcomp:simpleFileUpload id="simpleFileUploadAvatar"
-												fileUploadListenerMethodName="handleFileUpload"
-												fileUploadListenerMethod="#{profileSettings.handleFileUpload}"
-												toUpdate=":#{cc.clientId}:settingsAvatarForm:editAvatar :#{cc.clientId}:settingsAvatarForm:displayAvatar"
-												uploadButtonStyle="btn btn-green" />
+											<utilcomp:simpleFileUpload id="avatarFileUpload"
+																	   fileUploadListenerMethodName="handleFileUpload"
+																	   fileUploadListenerMethod="#{profileSettings.handleFileUpload}"
+																	   toUpdate=":#{cc.clientId}:settingsAvatarForm:editAvatar :#{cc.clientId}:settingsAvatarForm:displayAvatar"
+																	   uploadButtonStyle="btn btn-green"
+																	   fileSizeValidationMessageContainer="#avatarFileUploadValidation"
+																	   allowTypes="gif|jpe?g|png"/>
+
+											<small id="avatarFileUploadValidation" class="redText displayBlock"></small>
 											<div class="clear"></div>
-											<small>JPG or PNG,<br />Min 400x400 px.</small>
+											<small>GIF, JPG or PNG,<br />Min 400x400 px.</small>
 										</div>
 									</div>
 								</h:panelGroup>

@@ -49,7 +49,8 @@ public class Config {
 	public AnalyticalServerConfig getAnalyticalServerConfig() {
 		return analyticalServerConfig;
 	}
-	
-	
 
+	public FileManagementConfig getFileManagement() {
+		return fileManagement;
+	}
 }
