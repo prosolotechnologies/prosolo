@@ -212,32 +212,29 @@
 							<div class="assessmentsSidebarHead">
 								<h2>Assessments</h2>
 								<h:link value="View All"
-										outcome="/competence-instructor-assessment">
+										outcome="/competence-assessments-root">
 									<f:param name="credId" value="#{param.credId}" />
 									<f:param name="compId" value="#{param.compId}" />
 								</h:link>
 							</div>
 							<ul class="assessmentsSidebar">
-								<c:if test="#{cc.attrs.bean.decodedCredId gt 0}">
+								<c:if test="#{cc.attrs.bean.competenceData.selfAssessmentEnabled}">
 									<li>
-										<h3>#{msg['label.instructor']} Assessment</h3>
+										<h3>#{msg['label.assessment.type.SELF_ASSESSMENT']}</h3>
 										<div class="right">
-											<p:commandLink
-													pt:data-toggle="modal"
-													value="Ask"
-													action="#{cc.attrs.bean.initAskForAssessment('INSTRUCTOR_ASSESSMENT')}"
-													update="formAskForAssessment:askForAssessment:askForAssessmentPanel"
-													oncomplete="$('#askAssessment').modal('show');">
-											</p:commandLink>
-											<div class="assessmentsStar #{styleUtilBean.getGradeStarClass(cc.attrs.bean.competenceData.getGradeSummary('INSTRUCTOR_ASSESSMENT'))}">
-												<div class="star #{styleUtilBean.getEmptyStarClass(cc.attrs.bean.competenceData.getGradeSummary('INSTRUCTOR_ASSESSMENT'))}"></div>
+											<h:link outcome="/competence-self-assessment" value="Write">
+												<f:param name="compId" value="#{param.compId}"/>
+												<f:param name="credId" value="#{param.credId}" disable="#{empty param.credId}" />
+											</h:link>
+											<div class="assessmentsStar #{styleUtilBean.getGradeStarClass(cc.attrs.bean.competenceData.getGradeSummary('SELF_ASSESSMENT'))}">
+												<div class="star #{styleUtilBean.getEmptyStarClass(cc.attrs.bean.competenceData.getGradeSummary('SELF_ASSESSMENT'))}"></div>
 											</div>
 										</div>
 									</li>
 								</c:if>
 								<c:if test="#{cc.attrs.bean.competenceData.peerAssessmentEnabled}">
 									<li>
-										<h3>Peer Assessment</h3>
+										<h3>#{msg['label.assessment.type.PEER_ASSESSMENT']}</h3>
 										<div class="right">
 											<p:commandLink
 													pt:data-toggle="modal"
@@ -252,20 +249,21 @@
 										</div>
 									</li>
 								</c:if>
-								<c:if test="#{cc.attrs.bean.competenceData.selfAssessmentEnabled}">
-									<li>
-										<h3>Self-Assessment</h3>
-										<div class="right">
-											<h:link outcome="/competence-self-assessment" value="Write">
-												<f:param name="compId" value="#{param.compId}"/>
-												<f:param name="credId" value="#{param.credId}" disable="#{empty param.credId}" />
-											</h:link>
-											<div class="assessmentsStar #{styleUtilBean.getGradeStarClass(cc.attrs.bean.competenceData.getGradeSummary('SELF_ASSESSMENT'))}">
-												<div class="star #{styleUtilBean.getEmptyStarClass(cc.attrs.bean.competenceData.getGradeSummary('SELF_ASSESSMENT'))}"></div>
-											</div>
+								<li>
+									<h3>#{msg['label.assessment.type.INSTRUCTOR_ASSESSMENT']}</h3>
+									<div class="right">
+										<p:commandLink
+												pt:data-toggle="modal"
+												value="Ask"
+												action="#{cc.attrs.bean.initAskForAssessment('INSTRUCTOR_ASSESSMENT')}"
+												update="formAskForAssessment:askForAssessment:askForAssessmentPanel"
+												oncomplete="$('#askAssessment').modal('show');">
+										</p:commandLink>
+										<div class="assessmentsStar #{styleUtilBean.getGradeStarClass(cc.attrs.bean.competenceData.getGradeSummary('INSTRUCTOR_ASSESSMENT'))}">
+											<div class="star #{styleUtilBean.getEmptyStarClass(cc.attrs.bean.competenceData.getGradeSummary('INSTRUCTOR_ASSESSMENT'))}"></div>
 										</div>
-									</li>
-								</c:if>
+									</div>
+								</li>
 							</ul>
 							<h:form id="formAskForAssessment">
 								<assessment:askForAssessment

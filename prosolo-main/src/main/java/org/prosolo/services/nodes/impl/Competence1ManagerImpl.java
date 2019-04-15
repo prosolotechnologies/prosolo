@@ -2678,15 +2678,17 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	public List<AssessmentTypeConfig> getCompetenceAssessmentTypesConfig(long compId) throws DbConnectionException {
 		try {
 			String q =
-					"SELECT conf FROM CompetenceAssessmentConfig conf " +
+					"SELECT conf " +
+					"FROM CompetenceAssessmentConfig conf " +
 					"WHERE conf.competence.id = :compId";
+
 			@SuppressWarnings("unchecked")
 			List<CompetenceAssessmentConfig> assessmentTypesConfig = persistence.currentManager()
 					.createQuery(q)
 					.setLong("compId", compId)
 					.list();
-			List<AssessmentTypeConfig> res = competenceFactory.getAssessmentConfig(assessmentTypesConfig);
-			return res;
+
+			return competenceFactory.getAssessmentConfig(assessmentTypesConfig);
 		} catch (Exception e) {
 			logger.error("Error", e);
 			throw new DbConnectionException("Error loading the assessment types config for competence");

@@ -77,47 +77,68 @@
             </div>
 
             <div class="container">
-                <ui:fragment rendered="#{not empty param.credId}">
-                    <ol class="breadcrumb">
-                        <li>
-                            <h:link value="#{msg['label.credential.plural']}" outcome="credentialLibrary"/>
-                        </li>
-                        <li>
-                            <h:link value="#{util:shortenAndAddDots(competenceAssessmentBean.credentialTitle)}"
-                                    outcome="credential">
-                                <f:param name="id" value="#{param.credId}"></f:param>
-                            </h:link>
-                        </li>
-                        <li>
-                            <h:link value="#{util:shortenAndAddDots(competenceAssessmentBean.competenceAssessmentData.title)}"
-                                    outcome="competence">
-                                <f:param name="credId" value="#{param.credId}"/>
-                                <f:param name="compId" value="#{param.compId}"/>
-                            </h:link>
-                        </li>
+                <ol class="breadcrumb">
+                    <li>
+                        <h:link value="#{msg['label.credential.plural']}" outcome="credentialLibrary"/>
+                    </li>
+                    <li>
+                        <h:link value="#{util:shortenAndAddDots(competenceAssessmentBean.credentialTitle)}"
+                                outcome="credential">
+                            <f:param name="id" value="#{param.credId}"></f:param>
+                        </h:link>
+                    </li>
+                    <li>
+                        <h:link value="#{util:shortenAndAddDots(competenceAssessmentBean.competenceAssessmentData.title)}"
+                                outcome="competence">
+                            <f:param name="credId" value="#{param.credId}"/>
+                            <f:param name="compId" value="#{param.compId}"/>
+                        </h:link>
+                    </li>
+                    <li>
+                        <h:link value="Assessments" outcome="/competence-assessments-root">
+                            <f:param name="credId" value="#{param.credId}"/>
+                            <f:param name="compId" value="#{param.compId}"/>
+                        </h:link>
+                    </li>
+
+                    <ui:fragment rendered="#{competenceAssessmentBean.isUserAssessedStudentInCurrentContext() and util:getPagePath(view.viewId) == 'competence-self-assessment'}">
                         <li class="active">
-                            Assessments
+                            #{msg['label.assessment.type.SELF_ASSESSMENT.short']}
                         </li>
-                    </ol>
-                </ui:fragment>
-                <ui:fragment rendered="#{empty param.credId}">
-                    <ol class="breadcrumb">
-                        <li>
-                            <h:link value="#{msg['label.competence.plural']}"
-                                    outcome="/competenceLibrary">
-                            </h:link>
-                        </li>
-                        <li>
-                            <h:link value="#{util:shortenAndAddDots(competenceAssessmentBean.competenceAssessmentData.title)}"
-                                    outcome="competence">
-                                <f:param name="compId" value="#{param.compId}"/>
-                            </h:link>
-                        </li>
+                    </ui:fragment>
+
+                    <ui:fragment rendered="#{competenceAssessmentBean.isUserAssessedStudentInCurrentContext() and (util:getPagePath(view.viewId) == 'competence-peer-assessment' or util:getPagePath(view.viewId) == 'competence-peer-assessments')}">
+
+                        <ui:fragment rendered="#{util:getPagePath(view.viewId) == 'competence-peer-assessments'}">
+                            <li class="active">
+                                #{msg['label.assessment.type.PEER_ASSESSMENT.short']}
+                            </li>
+                        </ui:fragment>
+
+                        <ui:fragment rendered="#{util:getPagePath(view.viewId) == 'competence-peer-assessment'}">
+                            <li>
+                                <h:link includeViewParams="true"
+                                        value="#{msg['label.assessment.type.PEER_ASSESSMENT.short']}"
+                                        outcome="/competence-peer-assessments">
+                                </h:link>
+                            </li>
+                            <li class="active">
+                                <assessment:assessmentActorName
+                                        actorId="#{competenceAssessmentBean.competenceAssessmentData.assessorId}"
+                                        actorFullName="#{competenceAssessmentBean.competenceAssessmentData.assessorFullName}"
+                                        blindAssessmentMode="#{competenceAssessmentBean.competenceAssessmentData.blindAssessmentMode}"
+                                        actorType="ASSESSOR"
+                                />
+                            </li>
+                        </ui:fragment>
+                    </ui:fragment>
+
+                    <ui:fragment rendered="#{competenceAssessmentBean.isUserAssessedStudentInCurrentContext() and util:getPagePath(view.viewId) == 'competence-instructor-assessment'}">
                         <li class="active">
-                            Assessments
+                            #{msg['label.assessment.type.INSTRUCTOR_ASSESSMENT.short']}
                         </li>
-                    </ol>
-                </ui:fragment>
+                    </ui:fragment>
+                </ol>
             </div>
 
             <div class="container">

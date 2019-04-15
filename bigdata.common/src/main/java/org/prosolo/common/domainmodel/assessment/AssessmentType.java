@@ -7,8 +7,8 @@ package org.prosolo.common.domainmodel.assessment;
  */
 public enum AssessmentType {
 
-    INSTRUCTOR_ASSESSMENT,
     SELF_ASSESSMENT,
-    PEER_ASSESSMENT
+    PEER_ASSESSMENT,
+    INSTRUCTOR_ASSESSMENT
     //EXTERNAL_ASSESSMENT
 }

@@ -140,7 +140,4 @@ public abstract class CredentialPeerAssessmentsBean implements Paginable, Serial
 		return credentialManager;
 	}
 
-	public UrlIdEncoder getIdEncoder() {
-		return idEncoder;
-	}
 }
