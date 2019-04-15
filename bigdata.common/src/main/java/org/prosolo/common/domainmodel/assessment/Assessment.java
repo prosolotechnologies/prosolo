@@ -1,6 +1,7 @@
 package org.prosolo.common.domainmodel.assessment;
 
 import org.prosolo.common.domainmodel.credential.BlindAssessmentMode;
+import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
 
@@ -16,6 +17,8 @@ import java.util.Date;
 public class Assessment extends BaseEntity {
 
     private AssessmentStatus status;
+
+    private TargetCredential1 targetCredential;
 
     private boolean approved;
     private Date dateApproved;
@@ -150,5 +153,14 @@ public class Assessment extends BaseEntity {
 
     public void setNumberOfTokensSpent(int numberOfTokensSpent) {
         this.numberOfTokensSpent = numberOfTokensSpent;
+    }
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    public TargetCredential1 getTargetCredential() {
+        return targetCredential;
+    }
+
+    public void setTargetCredential(TargetCredential1 targetCredential) {
+        this.targetCredential = targetCredential;
     }
 }

@@ -6,7 +6,7 @@ import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.assessment.config.AssessmentLoadConfig;
 import org.prosolo.services.assessment.data.AssessmentTypeConfig;
-import org.prosolo.services.assessment.data.CompetenceAssessmentData;
+import org.prosolo.services.assessment.data.CompetenceAssessmentDataFull;
 import org.prosolo.services.assessment.data.grading.GradeData;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
@@ -40,7 +40,7 @@ public abstract class CompetenceAssessmentBean extends LearningResourceAssessmen
 	private String credId;
 	private long decodedCredId;
 
-	private CompetenceAssessmentData competenceAssessmentData;
+	private CompetenceAssessmentDataFull competenceAssessmentData;
 
 	private String credentialTitle;
 	private String competenceTitle;
@@ -175,11 +175,11 @@ public abstract class CompetenceAssessmentBean extends LearningResourceAssessmen
 	 * GETTERS / SETTERS
 	 */
 
-	public CompetenceAssessmentData getCompetenceAssessmentData() {
+	public CompetenceAssessmentDataFull getCompetenceAssessmentData() {
 		return competenceAssessmentData;
 	}
 
-	public void setCompetenceAssessmentData(CompetenceAssessmentData competenceAssessmentData) {
+	public void setCompetenceAssessmentData(CompetenceAssessmentDataFull competenceAssessmentData) {
 		this.competenceAssessmentData = competenceAssessmentData;
 	}
 

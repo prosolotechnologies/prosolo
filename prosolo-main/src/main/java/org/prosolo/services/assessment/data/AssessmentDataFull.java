@@ -56,7 +56,7 @@ public class AssessmentDataFull {
 
 	private BlindAssessmentMode blindAssessmentMode;
 
-	private List<CompetenceAssessmentData> competenceAssessmentData;
+	private List<CompetenceAssessmentDataFull> competenceAssessmentData;
 
 	public static AssessmentDataFull fromAssessment(CredentialAssessment assessment, UrlIdEncoder encoder) {
 		return fromAssessment(assessment, 0, null, null, null, null, encoder, 0, false);
@@ -96,9 +96,9 @@ public class AssessmentDataFull {
 			data.calculateDurationString();
 
 			int maxPoints = 0;
-			List<CompetenceAssessmentData> compDatas = new ArrayList<>();
+			List<CompetenceAssessmentDataFull> compDatas = new ArrayList<>();
 			for (StudentCompetenceAndAssessmentData competence : competenceAndAssessmentData) {
-				CompetenceAssessmentData cas = CompetenceAssessmentData.from(
+				CompetenceAssessmentDataFull cas = CompetenceAssessmentDataFull.from(
 						competence, assessment, compAssessmentsGradeSummary.get(competence.getCompetenceAssessment().getId()), actAssessmentsGradeSummary, encoder, userId, loadDiscussion);
 				//only for automatic grading max points is sum of competences max points
 				if (assessment.getTargetCredential().getCredential().getGradingMode() == GradingMode.AUTOMATIC) {
@@ -237,11 +237,11 @@ public class AssessmentDataFull {
 		this.initials = initials;
 	}
 
-	public List<CompetenceAssessmentData> getCompetenceAssessmentData() {
+	public List<CompetenceAssessmentDataFull> getCompetenceAssessmentData() {
 		return competenceAssessmentData;
 	}
 
-	public void setCompetenceAssessmentData(List<CompetenceAssessmentData> competenceAssessmentData) {
+	public void setCompetenceAssessmentData(List<CompetenceAssessmentDataFull> competenceAssessmentData) {
 		this.competenceAssessmentData = competenceAssessmentData;
 	}
 
@@ -301,8 +301,8 @@ public class AssessmentDataFull {
 		this.type = type;
 	}
 
-	public CompetenceAssessmentData findCompetenceAssessmentData(long compAssessmentId) {
-		for (CompetenceAssessmentData compAssessment : competenceAssessmentData) {
+	public CompetenceAssessmentDataFull findCompetenceAssessmentData(long compAssessmentId) {
+		for (CompetenceAssessmentDataFull compAssessment : competenceAssessmentData) {
 			if (compAssessment.getCompetenceAssessmentId() == compAssessmentId) {
 				return compAssessment;
 			}

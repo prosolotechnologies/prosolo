@@ -3,7 +3,6 @@ package org.prosolo.common.domainmodel.assessment;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 import org.prosolo.common.domainmodel.credential.Competence1;
-import org.prosolo.common.domainmodel.credential.TargetCredential1;
 
 import javax.persistence.*;
 import java.util.HashSet;
@@ -18,7 +17,6 @@ public class CompetenceAssessment extends Assessment {
 	private List<ActivityAssessment> activityDiscussions;
 	//private TargetCompetence1 targetCompetence;
 	private Competence1 competence;
-	private TargetCredential1 targetCredential;
 	//can be null if competence assessment can exist independently
 	private CredentialAssessment credentialAssessment;
 
@@ -96,15 +94,6 @@ public class CompetenceAssessment extends Assessment {
 			}
 		}
 		return null;
-	}
-
-	@ManyToOne(fetch = FetchType.LAZY, optional = false)
-	public TargetCredential1 getTargetCredential() {
-		return targetCredential;
-	}
-
-	public void setTargetCredential(TargetCredential1 targetCredential) {
-		this.targetCredential = targetCredential;
 	}
 
 	@ManyToOne(fetch = FetchType.LAZY, optional = true)

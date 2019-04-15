@@ -129,6 +129,6 @@
 	<function>
 		<function-name>isCompetenceFullyGraded</function-name>
 		<function-class>org.prosolo.web.assessments.util.AssessmentUtil</function-class>
-		<function-signature>org.prosolo.web.assessments.util.AssessmentDisabledIndicator isCompetenceFullyGraded(org.prosolo.services.assessment.data.CompetenceAssessmentData)</function-signature>
+		<function-signature>org.prosolo.web.assessments.util.AssessmentDisabledIndicator isCompetenceFullyGraded(org.prosolo.services.assessment.data.CompetenceAssessmentDataFull)</function-signature>
 	</function>
 </facelet-taglib>

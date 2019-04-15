@@ -13,7 +13,6 @@ public class CredentialAssessment extends Assessment {
 
 	private static final long serialVersionUID = -1120206934780603166L;
 	
-	private TargetCredential1 targetCredential;
 	private boolean assessed;
 	private String review;
 	private Set<CredentialAssessmentDiscussionParticipant> participants;
@@ -23,15 +22,6 @@ public class CredentialAssessment extends Assessment {
 	public CredentialAssessment() {
 		this.participants = new HashSet<>();
 		this.messages = new HashSet<>();
-	}
-
-	@ManyToOne (fetch=FetchType.LAZY)
-	public TargetCredential1 getTargetCredential() {
-		return targetCredential;
-	}
-
-	public void setTargetCredential(TargetCredential1 targetCredential) {
-		this.targetCredential = targetCredential;
 	}
 
 	@OneToMany(mappedBy = "assessment")
