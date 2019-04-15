@@ -7,17 +7,16 @@ import org.prosolo.common.domainmodel.credential.BlindAssessmentMode;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.LearningResourceType;
-import org.prosolo.services.user.data.UserData;
 import org.prosolo.services.nodes.data.assessments.AssessmentNotificationData;
+import org.prosolo.services.user.data.UserAssessmentTokenExtendedData;
+import org.prosolo.services.user.data.UserData;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import javax.faces.bean.ManagedBean;
 import javax.inject.Inject;
 import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author stefanvuckovic
@@ -77,8 +76,8 @@ public class AskForCredentialAssessmentBean extends AskForAssessmentBean impleme
     }
 
     @Override
-    public UserData getRandomPeerForAssessor() {
-        return credManager.chooseRandomPeer(resourceId, loggedUser.getUserId());
+    public UserData getPeerAssessorFromAssessorPool() {
+        return null;
     }
 
     @Override
@@ -105,6 +104,21 @@ public class AskForCredentialAssessmentBean extends AskForAssessmentBean impleme
     @Override
     protected boolean shouldStudentBeRemindedToSubmitEvidenceSummary() {
         return credManager.doesCredentialHaveAtLeastOneEvidenceBasedCompetence(resourceId);
+    }
+
+    @Override
+    protected boolean isThereUnassignedAssessmentForThisUser() {
+        return false;
+    }
+
+    @Override
+    protected List<Long> loadAssessorPoolUserIds() {
+        return new ArrayList<>();
+    }
+
+    @Override
+    protected UserAssessmentTokenExtendedData loadUserAssessmentTokenDataAndRefreshInSession() {
+        return new UserAssessmentTokenExtendedData(false, false, 0, 0);
     }
 
     @Override

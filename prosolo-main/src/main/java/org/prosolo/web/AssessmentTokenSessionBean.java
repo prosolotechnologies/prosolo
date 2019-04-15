@@ -61,6 +61,10 @@ public class AssessmentTokenSessionBean implements Serializable {
                 userAssessmentTokenData.getNumberOfTokensAvailable());
     }
 
+    public void tokensSpent(int numberOfTokens) {
+        assessmentTokenData.setNumberOfTokensAvailable(assessmentTokenData.getNumberOfTokensAvailable() - numberOfTokens);
+    }
+
     private UserAssessmentTokenData getAssessmentTokenData() {
         if (userId != loggedUserBean.getUserId()) {
             init();

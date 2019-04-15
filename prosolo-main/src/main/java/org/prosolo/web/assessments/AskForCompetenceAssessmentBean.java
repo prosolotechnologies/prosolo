@@ -10,8 +10,12 @@ import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.LearningResourceType;
+import org.prosolo.services.user.UserManager;
+import org.prosolo.services.user.data.UserAssessmentTokenExtendedData;
 import org.prosolo.services.user.data.UserData;
 import org.prosolo.services.nodes.data.assessments.AssessmentNotificationData;
+import org.prosolo.web.AssessmentTokenSessionBean;
+import org.prosolo.web.LoggedUserBean;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -19,6 +23,7 @@ import javax.faces.bean.ManagedBean;
 import javax.inject.Inject;
 import java.io.Serializable;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -39,6 +44,8 @@ public class AskForCompetenceAssessmentBean extends AskForAssessmentBean impleme
 
     @Inject private Competence1Manager compManager;
     @Inject private CredentialManager credManager;
+    @Inject private UserManager userManager;
+    @Inject private LoggedUserBean loggedUserBean;
 
     private long credentialId;
     private boolean studentCanChooseInstructor;
@@ -100,8 +107,8 @@ public class AskForCompetenceAssessmentBean extends AskForAssessmentBean impleme
                             .getPeerAssessorIdsForCompetence(credentialId, resourceId, loggedUser.getUserId()));
                 }
 
-                PaginatedResult<UserData> result = userTextSearch.searchUsersLearningCompetence(
-                        loggedUser.getOrganizationId(), peerSearchTerm, 3, resourceId, usersToExcludeFromPeerSearch);
+                PaginatedResult<UserData> result = userTextSearch.searchUsers(
+                        loggedUser.getOrganizationId(), peerSearchTerm, 0, 3, false, assessorPoolUserIds, usersToExcludeFromPeerSearch);
                 peersForAssessment = result.getFoundNodes();
             } catch (Exception e) {
                 logger.error(e);
@@ -109,9 +116,14 @@ public class AskForCompetenceAssessmentBean extends AskForAssessmentBean impleme
         }
     }
 
+
     @Override
-    public UserData getRandomPeerForAssessor() {
-        return compManager.chooseRandomPeer(resourceId, loggedUser.getUserId());
+    public UserData getPeerAssessorFromAssessorPool() {
+        return assessmentManager.getPeerFromAvailableAssessorsPoolForCompetenceAssessment(
+                assessmentRequestData.getCredentialId(),
+                assessmentRequestData.getResourceId(),
+                loggedUserBean.getUserId(),
+                getUserAssessmentTokenData().isAssessmentTokensEnabled());
     }
 
     @Override
@@ -140,6 +152,23 @@ public class AskForCompetenceAssessmentBean extends AskForAssessmentBean impleme
     protected boolean shouldStudentBeRemindedToSubmitEvidenceSummary() {
         //student should be reminded if competency is evidence based
         return compManager.getCompetenceLearningPathType(resourceId) == LearningPathType.EVIDENCE;
+    }
+
+    @Override
+    protected boolean isThereUnassignedAssessmentForThisUser() {
+        return assessmentManager.isThereExistingUnasignedPeerCompetencyAssessment(assessmentRequestData.getCredentialId(), assessmentRequestData.getResourceId(), loggedUserBean.getUserId());
+    }
+
+    @Override
+    protected List<Long> loadAssessorPoolUserIds() {
+        return assessmentManager.getUserIdsFromCompetenceAssessorPool(assessmentRequestData.getCredentialId(), assessmentRequestData.getResourceId(), loggedUserBean.getUserId());
+    }
+
+    @Override
+    protected UserAssessmentTokenExtendedData loadUserAssessmentTokenDataAndRefreshInSession() {
+        UserAssessmentTokenExtendedData userAssessmentTokenExtendedData = userManager.getUserAssessmentTokenExtendedData(loggedUserBean.getUserId());
+        assessmentTokenSessionBean.refreshData(userAssessmentTokenExtendedData);
+        return userAssessmentTokenExtendedData;
     }
 
     @Override

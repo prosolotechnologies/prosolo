@@ -77,7 +77,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 	@Override
 	public PaginatedResult<UserData> searchUsers(
 			long orgId, String searchString, int page, int limit, boolean loadOneMore,
-			Collection<Long> excludeUserIds) {
+			Collection<Long> includeUserIds, Collection<Long> excludeUserIds) {
 		
 		PaginatedResult<UserData> response = new PaginatedResult<>();
 		
@@ -91,12 +91,20 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 					.field("name").field("lastname");
 			
 			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
-			bQueryBuilder.should(qb);
+			bQueryBuilder.filter(qb);
 
 			if (orgId > 0) {
 				bQueryBuilder.mustNot(termQuery("system", true));
 			}
-			
+
+			if (includeUserIds != null) {
+				BoolQueryBuilder includeUsersQueryBuilder = QueryBuilders.boolQuery();
+				for (Long userId : includeUserIds) {
+					includeUsersQueryBuilder.should(termQuery("id", userId));
+				}
+				bQueryBuilder.filter(includeUsersQueryBuilder);
+			}
+
 			if (excludeUserIds != null) {
 				for (Long exUserId : excludeUserIds) {
 					bQueryBuilder.mustNot(termQuery("id", exUserId));

@@ -25,6 +25,7 @@ import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.*;
 import org.prosolo.services.user.data.UserAssessmentTokenData;
+import org.prosolo.services.user.data.UserAssessmentTokenExtendedData;
 import org.prosolo.services.user.data.UserCreationData;
 import org.prosolo.services.user.data.UserData;
 import org.prosolo.services.upload.AvatarProcessor;
@@ -1316,6 +1317,24 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 				tokensEnabled = user.getOrganization().isAssessmentTokensEnabled();
 			}
 			return new UserAssessmentTokenData(tokensEnabled, user.isAvailableForAssessments(), user.getNumberOfTokens());
+		} catch (Exception e) {
+			logger.error("error", e);
+			throw new DbConnectionException("Error loading user assessment tokens data");
+		}
+	}
+
+	@Override
+	@Transactional (readOnly = true)
+	public UserAssessmentTokenExtendedData getUserAssessmentTokenExtendedData(long userId) {
+		try {
+			User user = (User) persistence.currentManager().load(User.class, userId);
+			boolean tokensEnabled = false;
+			int numberOfTokensSpentPerRequest = 0;
+			if (user.getOrganization() != null) {
+				tokensEnabled = user.getOrganization().isAssessmentTokensEnabled();
+				numberOfTokensSpentPerRequest = user.getOrganization().getNumberOfSpentTokensPerRequest();
+			}
+			return new UserAssessmentTokenExtendedData(tokensEnabled, user.isAvailableForAssessments(), user.getNumberOfTokens(), numberOfTokensSpentPerRequest);
 		} catch (Exception e) {
 			logger.error("error", e);
 			throw new DbConnectionException("Error loading user assessment tokens data");

@@ -140,7 +140,9 @@ public class AssessmentDataFull {
 				}
 			}
 		}
-		data.setInstructorUserId(assessment.getTargetCredential().getInstructor().getUser().getId());
+		if (assessment.getTargetCredential().getInstructor() != null) {
+			data.setInstructorUserId(assessment.getTargetCredential().getInstructor().getUser().getId());
+		}
 
 		return data;
 	}

@@ -251,7 +251,7 @@ public interface AssessmentManager {
 	long requestCompetenceAssessment(AssessmentRequestData assessmentRequestData, UserContextData context)
 			throws DbConnectionException, IllegalDataStateException;
 
-	Result<CompetenceAssessment> requestCompetenceAssessmentAndGetEvents(long credentialId, long competenceId, long studentId, long assessorId, UserContextData context) throws DbConnectionException, IllegalDataStateException;
+	Result<CompetenceAssessment> requestCompetenceAssessmentAndGetEvents(long credentialId, long competenceId, long studentId, long assessorId, int numberOfTokensForAssessmentRequest, UserContextData context) throws DbConnectionException, IllegalDataStateException;
 
 	Result<CompetenceAssessment> createSelfCompetenceAssessmentAndGetEvents(long credentialId, long competenceId, long studentId, UserContextData context) throws DbConnectionException, IllegalDataStateException;
 
@@ -273,8 +273,8 @@ public interface AssessmentManager {
 	 */
 	 Result<CompetenceAssessment> getOrCreateCompetenceAssessmentAndGetEvents(
 	         long targetCredentialId, CompetenceData1 comp, long studentId, long assessorId, AssessmentType type,
-             AssessmentStatus status, BlindAssessmentMode blindAssessmentMode, Optional<CredentialAssessment> credentialAssessment,
-             UserContextData context) throws DbConnectionException;
+             AssessmentStatus status, BlindAssessmentMode blindAssessmentMode, int numberOfTokensForAssessmentRequest,
+			 Optional<CredentialAssessment> credentialAssessment, UserContextData context) throws DbConnectionException, IllegalDataStateException;
 
 	/**
 	 * Updates grade and returns populated GradeData object.
@@ -436,4 +436,53 @@ public interface AssessmentManager {
 	void declineCredentialAssessmentIfActive(long credentialId, long studentId, long assessorId, AssessmentType assessmentType);
 
 	StudentAssessmentInfo getStudentAssessmentInfoForActiveInstructorCredentialAssessment(long credId, long studentId);
+
+	/**
+	 * Returns true if there is an existing peer competency assessment in Requested status with no assessor assigned and
+	 * for given student, credential and competency ids.
+	 *
+	 * @param credentialId
+	 * @param competenceId
+	 * @param studentId
+	 * @return
+	 *
+	 * @throws DbConnectionException
+	 */
+	boolean isThereExistingUnasignedPeerCompetencyAssessment(long credentialId, long competenceId, long studentId);
+
+	/**
+	 * Retrieves peer from the pool of available peer assessors for given credential, competence and student.
+	 *
+	 * Members of the assessor pool are users meeting the criteria as specified in {@link #getUserIdsFromCompetenceAssessorPool(long, long, long)}.
+	 *
+	 * Criteria for choosing the peer to be returned:
+	 * - If {@code orderByTokens} is true, all assessors from the pool are sorted ascending by the number of tokens owned and the assessor with the least tokens is chosen.
+	 * - If there is more than one assessor with the same number of tokens (or {@code orderByTokens} is false), they are sorted ascending by the total number of peer assessments given (in the particular competence) and the assessor with the lowest number of assessments given is chosen.
+	 * - If there is more than one assessor with the same number of assessments given, they are sorted by the date of enrollment to the competence. The assessor who has enrolled earlier is chosen.
+	 *
+	 * @param credId
+	 * @param compId
+	 * @param userId
+	 * @param orderByTokens
+	 * @return
+	 */
+	UserData getPeerFromAvailableAssessorsPoolForCompetenceAssessment(long credId, long compId, long userId, boolean orderByTokens);
+
+	/**
+	 * Returns list of user ids for all users in competence assessor pool.
+	 * Members of the Assessor Pool are users who have:
+	 * - Started the competence
+	 * - Started the credential
+	 * - Turned the Assessment Availability status ON
+	 * - not already given assessment for the same student (assessment in Requested, Pending or Submitted status) and for the same competence and credential
+	 * - not declined (request declined, expired, quit assessment) assessment in the last 30 days
+	 *
+	 * @param credId
+	 * @param compId
+	 * @param studentId
+	 * @return
+	 *
+	 * @throws DbConnectionException
+	 */
+	List<Long> getUserIdsFromCompetenceAssessorPool(long credId, long compId, long studentId);
 }

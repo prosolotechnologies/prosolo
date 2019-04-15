@@ -43,6 +43,7 @@ public abstract class CompetenceAssessmentBean extends LearningResourceAssessmen
 	private CompetenceAssessmentData competenceAssessmentData;
 
 	private String credentialTitle;
+	private String competenceTitle;
 
 	private List<AssessmentTypeConfig> assessmentTypesConfig;
 
@@ -68,40 +69,46 @@ public abstract class CompetenceAssessmentBean extends LearningResourceAssessmen
 	}
 
 	public void initSelfAssessment() {
-		initAssessment(AssessmentType.SELF_ASSESSMENT);
+		initAssessment(AssessmentType.SELF_ASSESSMENT, true);
 	}
 
 	public void initPeerAssessment() {
-		initAssessment(AssessmentType.PEER_ASSESSMENT);
+		initAssessment(AssessmentType.PEER_ASSESSMENT, true);
 	}
 
 	public void initInstructorAssessment() {
-		initAssessment(AssessmentType.INSTRUCTOR_ASSESSMENT);
+		initAssessment(AssessmentType.INSTRUCTOR_ASSESSMENT, false);
 	}
 
-	public void initAssessment(AssessmentType assessmentType) {
+	public void initAssessment(AssessmentType assessmentType, boolean notFoundIfAssessmentNull) {
 		decodedCompId = idEncoder.decodeId(competenceId);
 		decodedCompAssessmentId = idEncoder.decodeId(competenceAssessmentId);
 		decodedCredId = idEncoder.decodeId(credId);
 
-		if (decodedCompId > 0 && decodedCompAssessmentId > 0) {
+		if (decodedCompId > 0 && decodedCredId > 0) {
 			try {
 				if (!canAccessPreLoad()) {
 					throw new AccessDeniedException();
 				}
 				assessmentTypesConfig = compManager.getCompetenceAssessmentTypesConfig(decodedCompId);
 				if (AssessmentUtil.isAssessmentTypeEnabled(assessmentTypesConfig, assessmentType)) {
-					competenceAssessmentData = assessmentManager.getCompetenceAssessmentData(
-							decodedCompAssessmentId, loggedUserBean.getUserId(), assessmentType, AssessmentLoadConfig.of(true, true, true));
+					if (decodedCompAssessmentId > 0) {
+						competenceAssessmentData = assessmentManager.getCompetenceAssessmentData(
+								decodedCompAssessmentId, loggedUserBean.getUserId(), assessmentType, AssessmentLoadConfig.of(true, true, true));
+					}
 					if (competenceAssessmentData == null) {
-						PageUtil.notFound();
+						if (notFoundIfAssessmentNull) {
+							PageUtil.notFound();
+						} else {
+							credentialTitle = credManager.getCredentialTitle(decodedCredId);
+							competenceTitle = compManager.getCompetenceTitle(decodedCompId);
+						}
 					} else {
 						if (!canAccessPostLoad()) {
 							throw new AccessDeniedException();
 						}
-						if (decodedCredId > 0) {
-							credentialTitle = credManager.getCredentialTitle(decodedCredId);
-						}
+						credentialTitle = credManager.getCredentialTitle(decodedCredId);
+						competenceTitle = competenceAssessmentData.getTitle();
 					}
 				} else {
 					PageUtil.notFound("This page is no longer available");
@@ -222,5 +229,13 @@ public abstract class CompetenceAssessmentBean extends LearningResourceAssessmen
 
 	public List<AssessmentTypeConfig> getAssessmentTypesConfig() {
 		return assessmentTypesConfig;
+	}
+
+	public String getCompetenceTitle() {
+		return competenceTitle;
+	}
+
+	public void setCompetenceTitle(String competenceTitle) {
+		this.competenceTitle = competenceTitle;
 	}
 }
