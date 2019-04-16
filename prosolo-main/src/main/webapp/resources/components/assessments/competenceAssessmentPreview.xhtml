@@ -299,6 +299,10 @@
                                             oncomplete="$('#askAssessmentPeer').modal('show');">
                                     </p:commandLink>
                                 </c:if>
+
+                                <ui:fragment rendered="#{competenceAssessmentBean.isUserAssessorInCurrentContext() and competenceAssessmentBean.competenceAssessmentData.status eq 'PENDING'}">
+                                    <a href="#" class="btn btn-green-stroke btn-sm" data-toggle="modal" data-target="#declinePendingAssessment">Withdraw</a>
+                                </ui:fragment>
                             </h:panelGroup>
                         </div>
                     </div>
@@ -399,6 +403,34 @@
                                     action="#{competenceAssessmentBean.declineAssessmentRequest()}"
                                     update=":#{cc.clientId}:growlMain">
                                 Decline
+                                <f:param name="page" value="#{facesContext.viewRoot.viewId}"/>
+                                <f:param name="learningContext" value="#{util:addSubContext(cc.attrs.learningContext, 'name:COMPETENCE|id:'.concat(competenceAssessmentBean.competenceAssessmentData.competenceId).concat('|context:/name:COMPETENCE_ASSESSMENT|id:').concat(competenceAssessmentBean.competenceAssessmentData.competenceAssessmentId).concat('/'))}"/>
+                            </p:commandLink>
+                            <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </c:if>
+
+        <c:if test="#{competenceAssessmentBean.isUserAssessorInCurrentContext() and competenceAssessmentBean.competenceAssessmentData.status eq 'PENDING'}">
+            <div class="modal fade" id="declinePendingAssessment" tabindex="-1" role="dialog" aria-labelledby="declinePendingAssessmentModalTitle">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+                            <h2 class="modal-title" id="declinePendingAssessmentModalTitle">Withdraw from Assessment?</h2>
+                        </div>
+                        <div class="modal-body">
+                            <p>Are you sure you want to withdraw from this assessment?</p>
+                        </div>
+                        <div class="modal-footer">
+                            <p:commandLink
+                                    styleClass="btn btn-red"
+                                    process="@this"
+                                    action="#{competenceAssessmentBean.withdrawFromAssessment()}"
+                                    update=":#{cc.clientId}:growlMain">
+                                Withdraw
                                 <f:param name="page" value="#{facesContext.viewRoot.viewId}"/>
                                 <f:param name="learningContext" value="#{util:addSubContext(cc.attrs.learningContext, 'name:COMPETENCE|id:'.concat(competenceAssessmentBean.competenceAssessmentData.competenceId).concat('|context:/name:COMPETENCE_ASSESSMENT|id:').concat(competenceAssessmentBean.competenceAssessmentData.competenceAssessmentId).concat('/'))}"/>
                             </p:commandLink>

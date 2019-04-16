@@ -15,7 +15,8 @@ public enum NotificationFilterType {
 	Announcement_Published(NotificationType.AnnouncementPublished, "Announcements"),
 	Social_Activity_Like(NotificationType.Social_Activity_Like, "Post Likes"),
 	Assessment_Request_Accepted(NotificationType.ASSESSMENT_REQUEST_ACCEPTED, "Assessment requests accepted"),
-	Assessment_Request_Declined(NotificationType.ASSESSMENT_REQUEST_DECLINED, "Assessment requests declined");
+	Assessment_Request_Declined(NotificationType.ASSESSMENT_REQUEST_DECLINED, "Assessment requests declined"),
+	Assessor_Withdrew_From_Assessment(NotificationType.ASSESSOR_WITHDREW_FROM_ASSESSMENT, "Withdrawn assessments by assessor");
 
 	private NotificationType notificationType;
 	private String label;

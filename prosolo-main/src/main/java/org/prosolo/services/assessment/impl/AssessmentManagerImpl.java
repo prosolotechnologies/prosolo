@@ -4262,11 +4262,8 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			ca.setStatus(AssessmentStatus.REQUEST_DECLINED);
 			ca.setQuitDate(new Date());
 
-			Organization org = (Organization) persistence.currentManager().load(Organization.class, context.getOrganizationId());
-			if (org.isAssessmentTokensEnabled()) {
-				//return tokens to the student since assessment request is declined
-				ca.getStudent().setNumberOfTokens(ca.getStudent().getNumberOfTokens() + ca.getNumberOfTokensSpent());
-			}
+            //return tokens to the student since assessment request is declined
+            returnTokensToStudentIfEnabled(context.getOrganizationId(), ca);
 
 			CompetenceAssessment eventObj = new CompetenceAssessment();
 			eventObj.setId(compAssessmentId);
@@ -4279,5 +4276,48 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			throw new DbConnectionException("Error declining the competency assessment request");
 		}
 	}
+
+	@Override
+	public void declinePendingCompetenceAssessment(long compAssessmentId, UserContextData context) throws IllegalDataStateException {
+		Result<Void> res = self.declinePendingCompetenceAssessmentAndGetEvents(compAssessmentId, context);
+		eventFactory.generateEvents(res.getEventQueue());
+	}
+
+	@Override
+	@Transactional
+	public Result<Void> declinePendingCompetenceAssessmentAndGetEvents(long compAssessmentId, UserContextData context) throws IllegalDataStateException {
+		try {
+			CompetenceAssessment ca = (CompetenceAssessment) persistence.currentManager().load(CompetenceAssessment.class, compAssessmentId);
+			if (ca.getStatus() != AssessmentStatus.PENDING) {
+				throw new IllegalDataStateException("Assessment not in pending status");
+			}
+			if (ca.getAssessor() == null || ca.getAssessor().getId() != context.getActorId()) {
+				throw new IllegalDataStateException("User is not assessor in specified assessment");
+			}
+			Result<Void> res = new Result<>();
+			ca.setStatus(AssessmentStatus.ASSESSMENT_QUIT);
+			ca.setQuitDate(new Date());
+
+            //return tokens to the student since assessment is quit
+			returnTokensToStudentIfEnabled(context.getOrganizationId(), ca);
+
+			CompetenceAssessment eventObj = new CompetenceAssessment();
+			eventObj.setId(compAssessmentId);
+			res.appendEvent(eventFactory.generateEventData(EventType.ASSESSOR_WITHDREW_FROM_ASSESSMENT, context, eventObj, null, null, null));
+
+			return res;
+		} catch (IllegalDataStateException e) {
+			throw e;
+		} catch (Exception e) {
+			throw new DbConnectionException("Error declining the competency assessment");
+		}
+	}
+
+	private void returnTokensToStudentIfEnabled(long organizationId, Assessment assessment) {
+        Organization org = (Organization) persistence.currentManager().load(Organization.class, organizationId);
+        if (org.isAssessmentTokensEnabled()) {
+            assessment.getStudent().setNumberOfTokens(assessment.getStudent().getNumberOfTokens() + assessment.getNumberOfTokensSpent());
+        }
+    }
 
 }

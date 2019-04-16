@@ -116,6 +116,7 @@ public enum EventType {
 	AnnouncementPublished,
 	ASSESSMENT_REQUEST_DECLINED,
 	ASSESSMENT_REQUEST_ACCEPTED,
+	ASSESSOR_WITHDREW_FROM_ASSESSMENT,
 	
 	Typed_Response_Posted,
 	Typed_Response_Edit,
