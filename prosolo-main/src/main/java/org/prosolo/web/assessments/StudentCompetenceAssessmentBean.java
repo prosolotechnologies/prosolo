@@ -16,18 +16,18 @@ import org.prosolo.services.assessment.data.CompetenceAssessmentDataFull;
 import org.prosolo.services.assessment.data.grading.GradeData;
 import org.prosolo.services.assessment.data.grading.RubricCriteriaGradeData;
 import org.prosolo.services.nodes.data.LearningResourceType;
+import org.prosolo.services.user.UserManager;
 import org.prosolo.services.user.data.UserBasicData;
 import org.prosolo.services.user.data.UserData;
+import org.prosolo.web.AssessmentTokenSessionBean;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import javax.faces.bean.ManagedBean;
-import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -50,8 +50,10 @@ public class StudentCompetenceAssessmentBean extends CompetenceAssessmentBean im
 	@Inject private RubricManager rubricManager;
 	@Inject private ActivityAssessmentBean activityAssessmentBean;
 	@Inject private AskForCompetenceAssessmentBean askForAssessmentBean;
+    @Inject private AssessmentTokenSessionBean assessmentTokenSessionBean;
+    @Inject private UserManager userManager;
 
-	private LearningResourceType currentResType;
+    private LearningResourceType currentResType;
 
 	@Override
 	boolean canAccessPreLoad() {
@@ -109,12 +111,24 @@ public class StudentCompetenceAssessmentBean extends CompetenceAssessmentBean im
 			getCompetenceAssessmentData().setStatus(AssessmentStatus.SUBMITTED);
 			getCompetenceAssessmentData().setAssessorNotified(false);
 
-			PageUtil.fireSuccessfulInfoMessage(ResourceBundleUtil.getMessage("label.competence") + " assessment is submitted");
+            PageUtil.fireSuccessfulInfoMessage(ResourceBundleUtil.getMessage("label.competence") + " assessment is submitted");
+
+            try {
+			    refreshTokenSessionData();
+            } catch (Exception e) {
+			    logger.error("error", e);
+			    PageUtil.fireErrorMessage("Error refreshing the data");
+            }
 		} catch (Exception e) {
 			logger.error("Error submitting the assessment", e);
 			PageUtil.fireErrorMessage("Error submitting the " + ResourceBundleUtil.getMessage("label.competence").toLowerCase() + " assessment");
 		}
 	}
+
+    private void refreshTokenSessionData() {
+        assessmentTokenSessionBean.refreshData(
+                userManager.getUserAssessmentTokenData(loggedUserBean.getUserId()));
+    }
 
 	public void acceptAssessmentRequest() {
 		try {

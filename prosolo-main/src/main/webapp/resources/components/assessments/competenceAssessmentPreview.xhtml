@@ -78,7 +78,7 @@
                     <div class="whiteBarContent">
                         <div class="whiteBarLeft">
                             <ui:fragment rendered="#{competenceAssessmentBean.isUserAssessorInCurrentContext() and competenceAssessmentBean.competenceAssessmentData.status eq 'REQUESTED'}">
-                                <p:commandLink
+                                <utilcomp:singleClickLink
                                         styleClass="btn btn-green btn-sm item"
                                         process="@this"
                                         action="#{competenceAssessmentBean.acceptAssessmentRequest()}"
@@ -86,7 +86,7 @@
                                     Start Assessment
                                     <f:param name="page" value="#{facesContext.viewRoot.viewId}"/>
                                     <f:param name="learningContext" value="#{util:addSubContext(cc.attrs.learningContext, 'name:COMPETENCE|id:'.concat(competenceAssessmentBean.competenceAssessmentData.competenceId).concat('|context:/name:COMPETENCE_ASSESSMENT|id:').concat(competenceAssessmentBean.competenceAssessmentData.competenceAssessmentId).concat('/'))}"/>
-                                </p:commandLink>
+                                </utilcomp:singleClickLink>
                                 <a href="#" class="btn btn-default btn-sm item" data-toggle="modal" data-target="#declineAssessment">Decline Request</a>
                             </ui:fragment>
                         </div>
@@ -379,7 +379,7 @@
 						resourceTitle="#{competenceAssessmentBean.competenceAssessmentData.title}"
 						student="#{competenceAssessmentBean.studentData}"
 						resource="COMPETENCE"
-						toUpdate=":#{cc.clientId}:panelCompetenceAssessmentPreview"
+						toUpdate=":#{cc.clientId}:panelCompetenceAssessmentPreview :panelHeaderNumberOfTokens"
 						learningContext="#{compAssessmentLearningContext}"
 				/>
 			</h:panelGroup>
@@ -397,7 +397,7 @@
                             <p>Are you sure you want to decline this assessment request?</p>
                         </div>
                         <div class="modal-footer">
-                            <p:commandLink
+                            <utilcomp:singleClickLink
                                     styleClass="btn btn-red"
                                     process="@this"
                                     action="#{competenceAssessmentBean.declineAssessmentRequest()}"
@@ -405,7 +405,7 @@
                                 Decline
                                 <f:param name="page" value="#{facesContext.viewRoot.viewId}"/>
                                 <f:param name="learningContext" value="#{util:addSubContext(cc.attrs.learningContext, 'name:COMPETENCE|id:'.concat(competenceAssessmentBean.competenceAssessmentData.competenceId).concat('|context:/name:COMPETENCE_ASSESSMENT|id:').concat(competenceAssessmentBean.competenceAssessmentData.competenceAssessmentId).concat('/'))}"/>
-                            </p:commandLink>
+                            </utilcomp:singleClickLink>
                             <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
                         </div>
                     </div>
@@ -425,7 +425,7 @@
                             <p>Are you sure you want to withdraw from this assessment?</p>
                         </div>
                         <div class="modal-footer">
-                            <p:commandLink
+                            <utilcomp:singleClickLink
                                     styleClass="btn btn-red"
                                     process="@this"
                                     action="#{competenceAssessmentBean.withdrawFromAssessment()}"
@@ -433,7 +433,7 @@
                                 Withdraw
                                 <f:param name="page" value="#{facesContext.viewRoot.viewId}"/>
                                 <f:param name="learningContext" value="#{util:addSubContext(cc.attrs.learningContext, 'name:COMPETENCE|id:'.concat(competenceAssessmentBean.competenceAssessmentData.competenceId).concat('|context:/name:COMPETENCE_ASSESSMENT|id:').concat(competenceAssessmentBean.competenceAssessmentData.competenceAssessmentId).concat('/'))}"/>
-                            </p:commandLink>
+                            </utilcomp:singleClickLink>
                             <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
                         </div>
                     </div>

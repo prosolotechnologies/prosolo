@@ -1769,6 +1769,14 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 					}
 				}
 
+				if (competenceAssessment.getType() == AssessmentType.PEER_ASSESSMENT) {
+				    //if peer assessment check whether assessment tokens are enabled and if yes, award peer assessor with specified number of tokens
+                    Organization org = (Organization) persistence.currentManager().load(Organization.class, context.getOrganizationId());
+                    if (org.isAssessmentTokensEnabled()) {
+                        competenceAssessment.getAssessor().setNumberOfTokens(competenceAssessment.getAssessor().getNumberOfTokens() + org.getNumberOfEarnedTokensPerAssessment());
+                    }
+				}
+
 				/*
 				 only if request for competence assessment approve is direct we should generate this event
 				 if competence is being approved as a part of submitting credential assessment this
