@@ -19,7 +19,7 @@ public class RegistrationConfig {
 	public boolean selfRegistration;
 	
 	@Element(name = "saml")
-	public SamlIdentityProviders samlProviders;
+	public SamlConfig samlConfig;
 
 	public boolean isGoogle() {
 		return google;
@@ -33,8 +33,8 @@ public class RegistrationConfig {
 		return selfRegistration;
 	}
 
-	public SamlIdentityProviders getSamlProviders() {
-		return samlProviders;
+	public SamlConfig getSamlConfig() {
+		return samlConfig;
 	}
 	
 }
