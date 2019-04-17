@@ -9,6 +9,24 @@ public class SAMLIdentityProviderInfo {
 	
 	@Element(name = "entity-id")
 	public String entityId;
+
+	@Element(name = "email-attribute")
+	public String emailAttribute;
+
+	@Element(name = "first-name-attribute")
+	public String firstNameAttribute;
+
+	@Element(name = "last-name-attribute")
+	public String lastNameAttribute;
+
+	@Element(name = "metadata-type")
+	public MetadataType metadataType;
+
+	@Element(name = "metadata-path")
+	public String metadataPath;
+
+	@Element(name = "create-account-for-nonexistent-user")
+	public boolean createAccountForNonexistentUser;
 	
 	@Element(name = "enabled")
 	public boolean enabled;
