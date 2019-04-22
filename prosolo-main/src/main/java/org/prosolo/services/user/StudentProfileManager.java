@@ -136,13 +136,12 @@ public interface StudentProfileManager extends AbstractManager {
     Optional<ProfileSettingsData> getProfileSettingsData(long userId);
 
     /**
-     * Creates new profile settings for the given user.
+     * Generates new profile settings for the given user.
      *
-     * @param user profile owner of the profile
-     * @param customProfileUrl custom profile URL of the student
+     * @param userId id of the profile owner
      * @param summarySidebarEnabled whether summary should be displayed in the Profile page
-     * @param session Hibernate session used to perform queries
+     * @param session Hibernate session to be used to perform queries
      * @return
      */
-    ProfileSettingsData createProfileSettings(User user, String customProfileUrl, boolean summarySidebarEnabled, Session session) throws DataIntegrityViolationException;
+    ProfileSettingsData generateProfileSettings(long userId, boolean summarySidebarEnabled, Session session);
 }

@@ -10,6 +10,7 @@ import org.prosolo.core.db.hibernate.HibernateUtil;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.event.EventObserver;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
+import org.prosolo.services.user.data.profile.ProfileSettingsData;
 import org.prosolo.util.StringUtils;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -55,43 +56,7 @@ public class ProfileSettingsObserver extends EventObserver {
         try {
             transaction = session.beginTransaction();
 
-            User user = (User) session.get(User.class, userId);
-
-            // remove all non alphabetic characters from the name
-            String name = StringUtils.stripNonAlphanumericCharacters(user.getName());
-
-            // remove all non alphabetic characters from the last name
-            String lastname = StringUtils.stripNonAlphanumericCharacters(user.getLastname());
-
-            String nameLastName = name + "-" + lastname;
-
-            // limit {name}-{lastName} combination to 40 characters
-            if (nameLastName.length() > 40) {
-                nameLastName = nameLastName.substring(0, 40);
-            }
-
-            // if profile URL is already occupied, try 10 more time with a different profile URL
-            int retryTimes = 0;
-            long suffix = userId;
-
-            while (retryTimes < 10) {
-                String newProfileUrl = null;
-                try {
-                    newProfileUrl = nameLastName + "-" + idEncoder.encodeId(suffix);
-                    studentProfileManager.createProfileSettings(user, newProfileUrl, true, session);
-                    break;
-                } catch (DataIntegrityViolationException e) {
-                    logger.debug("Error saving ProfileSettings for the user " + userId + ", the profile URL is already taken: " + newProfileUrl, e);
-                }
-
-                // as a new suffix use a generated long between 10000 and 100000
-                suffix = 10000 + (int) (new Random().nextFloat() * (100000 - 1));
-                retryTimes++;
-            }
-
-            if (retryTimes == 10) {
-                logger.error("Error saving ProfileSettings for the user " + userId + ", the original profile URL and 10 variations of the same are already occupied.");
-            }
+            studentProfileManager.generateProfileSettings(userId, true, session);
 
             transaction.commit();
         } catch (Exception e) {

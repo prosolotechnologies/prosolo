@@ -20,6 +20,7 @@ import org.prosolo.services.common.data.SortingOption;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.SocialNetworksManager;
+import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.services.user.StudentProfileManager;
 import org.prosolo.services.user.UserManager;
 import org.prosolo.services.user.data.UserData;
@@ -32,6 +33,7 @@ import org.prosolo.services.user.data.profile.factory.CredentialProfileDataFacto
 import org.prosolo.services.user.data.profile.factory.CredentialProfileOptionsDataFactory;
 import org.prosolo.services.user.data.profile.factory.GradeDataFactory;
 import org.prosolo.services.user.data.profile.grade.GradeData;
+import org.prosolo.util.StringUtils;
 import org.prosolo.web.profile.data.UserSocialNetworksData;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -41,6 +43,7 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 /**
@@ -58,6 +61,7 @@ public class StudentProfileManagerImpl extends AbstractManagerImpl implements St
     @Inject private Competence1Manager competenceManager;
     @Inject private AssessmentManager assessmentManager;
     @Inject private GradeDataFactory gradeDataFactory;
+    @Inject private UrlIdEncoder idEncoder;
 
     @Override
     @Transactional
@@ -637,7 +641,54 @@ public class StudentProfileManagerImpl extends AbstractManagerImpl implements St
 
     @Override
     @Transactional(readOnly = false)
-    public ProfileSettingsData createProfileSettings(User user, String customProfileUrl, boolean summarySidebarEnabled, Session session) {
+    public ProfileSettingsData generateProfileSettings(long userId, boolean summarySidebarEnabled, Session session) {
+        User user = (User) session.get(User.class, userId);
+
+        String nameLastName = generateCustomProfileURLPrefix(user.getName(), user.getLastname());
+
+        // if profile URL is already occupied, try 10 more time with a different profile URL
+        int retryTimes = 0;
+        long suffix = userId;
+
+        while (retryTimes < 10) {
+            String newProfileUrl = null;
+            try {
+                newProfileUrl = nameLastName + "-" + idEncoder.encodeId(suffix);
+                return saveProfileSettings(user, newProfileUrl, true, session);
+            } catch (DataIntegrityViolationException e) {
+                logger.debug("Error saving ProfileSettings for the user " + userId + ", the profile URL is already taken: " + newProfileUrl, e);
+            }
+
+            // as a new suffix use a generated long between 10000 and 100000
+            suffix = 10000 + (int) (new Random().nextFloat() * (100000 - 1));
+
+            retryTimes++;
+        }
+
+        if (retryTimes == 10) {
+            logger.error("Error saving ProfileSettings for the user " + userId + ", the original profile URL and 10 variations of the same are already occupied.");
+        }
+
+        return null;
+    }
+
+    public static String generateCustomProfileURLPrefix(String name, String lastname) {
+        // remove all non alphabetic characters from the name
+        String strippedName = StringUtils.stripNonAlphanumericCharacters(name);
+
+        // remove all non alphabetic characters from the last name
+        String strippedLastname = StringUtils.stripNonAlphanumericCharacters(lastname);
+
+        String nameLastName = strippedName + "-" + strippedLastname;
+
+        // limit {name}-{lastName} combination to 40 characters
+        if (nameLastName.length() > 40) {
+            nameLastName = nameLastName.substring(0, 40);
+        }
+        return nameLastName;
+    }
+
+    private ProfileSettingsData saveProfileSettings(User user, String customProfileUrl, boolean summarySidebarEnabled, Session session) {
         ProfileSettings profileSettings = new ProfileSettings();
         profileSettings.setCustomProfileUrl(customProfileUrl);
         profileSettings.setSummarySidebarEnabled(summarySidebarEnabled);
