@@ -8,9 +8,9 @@ import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.search.util.credential.InstructorSortOption;
 import org.prosolo.services.nodes.CredentialInstructorManager;
 import org.prosolo.services.nodes.CredentialManager;
+import org.prosolo.services.nodes.data.instructor.InstructorData;
 import org.prosolo.services.user.data.StudentData;
 import org.prosolo.services.user.data.UserData;
-import org.prosolo.services.nodes.data.instructor.InstructorData;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
@@ -89,12 +89,8 @@ public class AssignStudentToInstructorDialogBean {
 
             if (instructor == null
                     || instructor.getInstructorId() != ins.getInstructorId()) {
-                long formerInstructoruserId = instructor != null
-                        ? instructor.getUser().getId()
-                        : 0;
                 credInstructorManager.assignStudentToInstructor(studentToAssignInstructor.getId(),
-                        ins.getInstructorId(), credentialId, formerInstructoruserId,
-                        loggedUserBean.getUserContext(ctx));
+                        ins.getInstructorId(), credentialId, loggedUserBean.getUserContext(ctx));
                 if (instructor == null) {
                     lastAction = LastAction.ASSIGNED;
                 } else {

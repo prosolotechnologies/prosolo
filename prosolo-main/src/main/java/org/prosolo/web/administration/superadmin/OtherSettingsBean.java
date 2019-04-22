@@ -4,12 +4,8 @@ import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.observations.Suggestion;
 import org.prosolo.common.domainmodel.observations.Symptom;
-import org.prosolo.services.migration.CommonCustomMigrationService;
-import org.prosolo.services.migration.DemoCustomMigrationService;
-import org.prosolo.services.migration.UTACustomMigrationService;
 import org.prosolo.services.studentProfile.observations.SuggestionManager;
 import org.prosolo.services.studentProfile.observations.SymptomManager;
-import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.manage.students.data.observantions.SuggestionData;
 import org.prosolo.web.manage.students.data.observantions.SymptomData;
 import org.prosolo.web.util.page.PageUtil;
@@ -39,15 +35,7 @@ public class OtherSettingsBean implements Serializable {
 	private SymptomManager symptomManager;
 	@Inject
 	private SuggestionManager suggestionManager;
-	@Inject
-	private UTACustomMigrationService utaCustomMigrationService;
-	@Inject
-	private LoggedUserBean loggedUser;
-	@Inject
-	private DemoCustomMigrationService demoCustomMigrationService;
-	@Inject
-	private CommonCustomMigrationService commonCustomMigrationService;
-	
+
 	private List<SymptomData> symptoms;
 	private List<SuggestionData> suggestions;
 	

@@ -11,6 +11,7 @@ import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.annotation.Tag;
+import org.prosolo.common.domainmodel.assessment.AssessmentStatus;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.assessment.AssessorAssignmentMethod;
 import org.prosolo.common.domainmodel.credential.*;
@@ -29,6 +30,7 @@ import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.search.util.credential.CredentialDeliverySortOption;
 import org.prosolo.search.util.credential.CredentialMembersSearchFilter;
 import org.prosolo.search.util.credential.CredentialSearchFilterManager;
+import org.prosolo.search.util.credential.CredentialStudentsInstructorFilter;
 import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.assessment.RubricManager;
@@ -49,11 +51,11 @@ import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.credential.*;
 import org.prosolo.services.nodes.data.instructor.StudentAssignData;
-import org.prosolo.services.nodes.data.instructor.StudentInstructorPair;
 import org.prosolo.services.nodes.data.resourceAccess.*;
 import org.prosolo.services.nodes.factory.*;
 import org.prosolo.services.nodes.observers.learningResources.CredentialChangeTracker;
 import org.prosolo.services.user.UserGroupManager;
+import org.prosolo.services.user.data.StudentAssessmentInfo;
 import org.prosolo.services.user.data.StudentData;
 import org.prosolo.services.user.data.UserData;
 import org.prosolo.services.user.data.UserLearningProgress;
@@ -65,6 +67,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
+import java.math.BigInteger;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -441,9 +444,6 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				Set<Tag> hashtags = credentialLoadConfig.isLoadTags() ? res.getCredential().getHashtags() : null;
 				credData = credentialFactory.getCredentialData(
 						res, creator, student, aConfig, tags, hashtags, false);
-				if (credentialLoadConfig.isLoadAssessmentCount()) {
-					credData.setNumberOfAssessments(assessmentManager.getNumberOfApprovedAssessmentsForUserCredential(res.getId()));
-				}
 				if (credData != null && credentialLoadConfig.isLoadCompetences()) {
 					List<CompetenceData1> targetCompData = compManager
 							.getCompetencesForCredential(credentialId, userId, credentialLoadConfig.getCompetenceLoadConfig());
@@ -451,7 +451,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					if (credentialLoadConfig.isLoadAssessmentConfig()) {
 						for (AssessmentTypeConfig conf : credData.getAssessmentTypes()) {
 							if (conf.isEnabled()) {
-								conf.setGradeSummary(assessmentManager.getCredentialAssessmentsGradeSummary(credentialId, userId, conf.getType()));
+								conf.setGradeSummary(assessmentManager.getActiveCredentialAssessmentsGradeSummary(credentialId, userId, conf.getType()));
 							}
 						}
 					}
@@ -989,27 +989,15 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			result.appendEvent(eventFactory.generateEventData(
 					EventType.ENROLL_COURSE, context, cred, student, null, null));
 
-			long instructorId = 0;
-
 			if (cred.getAssessorAssignmentMethod() != null &&
 					cred.getAssessorAssignmentMethod().equals(AssessorAssignmentMethod.AUTOMATIC)) {
-				List<TargetCredential1> targetCredIds = new ArrayList<>();
-				targetCredIds.add(targetCred);
 				Result<StudentAssignData> res = credInstructorManager.assignStudentsToInstructorAutomatically(
-						credentialId, targetCredIds, 0, false, context);
+						credentialId, List.of(targetCred), 0, context);
 				result.appendEvents(res.getEventQueue());
-				List<StudentInstructorPair> assigned = res.getResult().getAssigned();
-				if (assigned.size() == 1) {
-					StudentInstructorPair pair = assigned.get(0);
-					//we need user id, not instructor id
-					instructorId = pair.getInstructor().getUser().getId();
-				}
 			}
 
-			//create default assessment for user
-			result.appendEvents(assessmentManager.createInstructorAssessmentAndGetEvents(targetCred, instructorId, context).getEventQueue());
 			//create self assessment if enabled
-			 if (cred.getAssessmentConfig()
+			if (cred.getAssessmentConfig()
 					.stream()
 					.filter(config -> config.getAssessmentType() == AssessmentType.SELF_ASSESSMENT)
 					.findFirst().get()
@@ -1025,8 +1013,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 			return result;
 		} catch (Exception e) {
-			logger.error(e);
-			e.printStackTrace();
+			logger.error("Error", e);
 			throw new DbConnectionException("Error enrolling in a credential");
 		}
 	}
@@ -1664,22 +1651,18 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@SuppressWarnings({"unchecked"})
 	@Override
 	@Transactional(readOnly = true)
-	public List<TargetCredentialData> getAllCredentials(long studentId) throws DbConnectionException {
-		return getTargetCredentialsData(studentId, false, false, UserLearningProgress.ANY);
+	public List<TargetCredentialData> getAllCredentials(long userid) throws DbConnectionException {
+		return getTargetCredentialsData(userid, false, UserLearningProgress.ANY);
 	}
 
-	private List<TargetCredentialData> getTargetCredentialsData(long studentId, boolean sortByCategory, boolean loadNumberOfAssessments, UserLearningProgress progress)
+	private List<TargetCredentialData> getTargetCredentialsData(long userId, boolean sortByCategory, UserLearningProgress progress)
 			throws DbConnectionException {
 		try {
 			List<TargetCredentialData> resultList = new ArrayList<>();
-			List<TargetCredential1> result = getTargetCredentials(studentId, sortByCategory, loadNumberOfAssessments, progress);
+			List<TargetCredential1> result = getTargetCredentials(userId, sortByCategory, progress);
 
 			for (TargetCredential1 targetCredential1 : result) {
-				int numberOfAssessments = 0;
-				if (loadNumberOfAssessments) {
-					numberOfAssessments = assessmentManager.getNumberOfApprovedAssessmentsForUserCredential(targetCredential1.getId());
-				}
-				TargetCredentialData targetCredentialData = new TargetCredentialData(targetCredential1, sortByCategory ? targetCredential1.getCredential().getCategory() : null, numberOfAssessments);
+				TargetCredentialData targetCredentialData = new TargetCredentialData(targetCredential1, sortByCategory ? targetCredential1.getCredential().getCategory() : null);
 				resultList.add(targetCredentialData);
 			}
 
@@ -1701,7 +1684,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 			switch (accessMode) {
 				case MANAGER:
-					result = getTargetCredentials(studentId, false, false, UserLearningProgress.ANY);
+					result = getTargetCredentials(studentId, false, UserLearningProgress.ANY);
 					break;
 				case INSTRUCTOR:
 					String query =
@@ -1782,7 +1765,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 
-	private List<TargetCredential1> getTargetCredentials(long userId, boolean sortByCategory, boolean loadNumberOfAssessments, UserLearningProgress progress)
+	private List<TargetCredential1> getTargetCredentials(long userId, boolean sortByCategory, UserLearningProgress progress)
 			throws DbConnectionException {
 		try {
 			String query =
@@ -2238,47 +2221,53 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@SuppressWarnings("unchecked")
 	@Override
 	@Transactional(readOnly = true)
-	public List<StudentData> getCredentialStudentsData(long credId, int limit)
+	public List<StudentData> getCredentialStudentsData(long credId, CredentialStudentsInstructorFilter instructorFilter, int limit)
 			throws DbConnectionException {
 		try {
 			String query =
-					"SELECT cred, case when a IS NOT NULL then a.assessorNotified else false end, case when a IS NOT NULL then a.id else 0 end " +
+					"SELECT cred " +
 					"FROM TargetCredential1 cred " +
-					"INNER JOIN fetch cred.user " +
+					"INNER JOIN fetch cred.user student " +
 					"LEFT JOIN fetch cred.instructor inst " +
-					"LEFT JOIN fetch inst.user " +
-					"LEFT JOIN cred.assessments a " +
-						"WITH a.type = :instructorAssessment " +
-					"WHERE cred.credential.id = :credId " +
-					"ORDER BY cred.dateStarted DESC";
+					"LEFT JOIN fetch inst.user instUser " +
+					"WHERE cred.credential.id = :credId ";
+			if (instructorFilter.getFilter() != CredentialStudentsInstructorFilter.SearchFilter.ALL) {
+				switch (instructorFilter.getFilter()) {
+					case INSTRUCTOR:
+						query += "AND instUser.id = :instructorUserId ";
+						break;
+					case NO_INSTRUCTOR:
+						query += "AND inst IS NULL ";
+						break;
+				}
+			}
+			query += "ORDER BY student.lastname, student.name";
 
-			List<Object[]> res = persistence.currentManager()
+			Query q = persistence.currentManager()
 					.createQuery(query)
 					.setLong("credId", credId)
-					.setString("instructorAssessment", AssessmentType.INSTRUCTOR_ASSESSMENT.name())
-					.setMaxResults(limit)
-					.list();
-
-			if (res != null) {
-				List<StudentData> data = new ArrayList<>();
-				for (Object[] row : res) {
-					TargetCredential1 tc = (TargetCredential1) row[0];
-					StudentData sd = new StudentData(tc.getUser());
-					CredentialInstructor ci = tc.getInstructor();
-					if (ci != null) {
-						sd.setInstructor(credInstructorFactory.getInstructorData(
-								tc.getInstructor(), tc.getInstructor().getUser(),
-								0, false));
-					}
-					sd.setProgress(tc.getProgress());
-					sd.setAssessmentId((long) row[2]);
-					sd.setSentAssessmentNotification((boolean) row[1]);
-					data.add(sd);
-				}
-				return data;
+					.setMaxResults(limit);
+			if (instructorFilter.getFilter() == CredentialStudentsInstructorFilter.SearchFilter.INSTRUCTOR) {
+				q.setLong("instructorUserId", instructorFilter.getInstructorId());
 			}
 
-			return null;
+			List<TargetCredential1> res = (List<TargetCredential1>) q.list();
+
+			List<StudentData> data = new ArrayList<>();
+			for (TargetCredential1 tc : res) {
+				StudentData sd = new StudentData(tc.getUser());
+				CredentialInstructor ci = tc.getInstructor();
+				if (ci != null) {
+					sd.setInstructor(credInstructorFactory.getInstructorData(
+							tc.getInstructor(), tc.getInstructor().getUser(),
+							0, false));
+					StudentAssessmentInfo studentAssessmentInfo = assessmentManager.getStudentAssessmentInfoForActiveInstructorCredentialAssessment(credId, sd.getUser().getId());
+					sd.setStudentAssessmentInfo(studentAssessmentInfo);
+				}
+				sd.setProgress(tc.getProgress());
+				data.add(sd);
+			}
+			return data;
 		} catch (Exception e) {
 			logger.error("Error", e);
 			throw new DbConnectionException("Error retrieving credential members");
@@ -2313,31 +2302,52 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 	@Override
 	@Transactional(readOnly = true)
-	public CredentialMembersSearchFilter[] getFiltersWithNumberOfStudentsBelongingToEachCategory(long credId)
+	public CredentialMembersSearchFilter[] getFiltersWithNumberOfStudentsBelongingToEachCategory(long credId, CredentialStudentsInstructorFilter instructorFilter)
 			throws DbConnectionException {
 		try {
-			String query = "SELECT COUNT(cred.id), COUNT(case cred.progress when 100 then 1 else null end), COUNT(case when a.assessorNotified IS TRUE then 1 else null end), COUNT(case when a.assessed IS TRUE then 1 else null end) " +
-					"FROM TargetCredential1 cred " +
-					"LEFT JOIN cred.assessments a " +
-					"WITH a.type = :instructorAssessment " +
-					"WHERE cred.credential.id = :credId";
+			String query = "SELECT COUNT(cred.id), COUNT(case cred.progress when 100 then 1 else null end), COUNT(case when a.assessor_notified IS TRUE then 1 else null end), COUNT(case when a.assessed IS TRUE then 1 else null end) " +
+					"FROM target_credential1 cred " +
+					"LEFT JOIN credential_instructor ci " +
+					"ON ci.id = cred.instructor " +
+					"LEFT JOIN credential_assessment a " +
+					"ON a.target_credential = cred.id " +
+					"AND a.type = :instructorAssessment " +
+					"AND a.assessor = ci.user " +
+					"AND (a.status = :requestedStatus OR a.status = :pendingStatus OR a.status = :submittedStatus) " +
+					"WHERE cred.credential = :credId ";
+			if (instructorFilter.getFilter() != CredentialStudentsInstructorFilter.SearchFilter.ALL) {
+				switch (instructorFilter.getFilter()) {
+					case INSTRUCTOR:
+						query += "AND ci.user = :instructorUserId";
+						break;
+					case NO_INSTRUCTOR:
+						query += "AND ci IS NULL";
+						break;
+				}
+			}
 
-			Object[] res = (Object[]) persistence.currentManager()
-					.createQuery(query)
+			Query q = persistence.currentManager()
+					.createSQLQuery(query)
 					.setLong("credId", credId)
-					.setString("instructorAssessment", AssessmentType.SELF_ASSESSMENT.name())
-					.uniqueResult();
+					.setString("instructorAssessment", AssessmentType.INSTRUCTOR_ASSESSMENT.name())
+					.setString("requestedStatus", AssessmentStatus.REQUESTED.name())
+					.setString("pendingStatus", AssessmentStatus.PENDING.name())
+					.setString("submittedStatus", AssessmentStatus.SUBMITTED.name());
+			if (instructorFilter.getFilter() == CredentialStudentsInstructorFilter.SearchFilter.INSTRUCTOR) {
+				q.setLong("instructorUserId", instructorFilter.getInstructorId());
+			}
+			Object[] res = (Object[]) q.uniqueResult();
 
 			if (res != null) {
-				long all = (long) res[0];
+				long all = ((BigInteger) res[0]).longValue();
 				CredentialMembersSearchFilter allFilter = new CredentialMembersSearchFilter(
 						CredentialMembersSearchFilter.SearchFilter.All, all);
-				long completed = (long) res[1];
+				long completed = ((BigInteger) res[1]).longValue();
 				CredentialMembersSearchFilter completedFilter = new CredentialMembersSearchFilter(
 						CredentialMembersSearchFilter.SearchFilter.Completed, completed);
 				CredentialMembersSearchFilter assessmentNotificationsFilter = new CredentialMembersSearchFilter(
-						CredentialMembersSearchFilter.SearchFilter.AssessorNotified, (long) res[2]);
-				long numberOfGradedStudents = (long) res[3];
+						CredentialMembersSearchFilter.SearchFilter.AssessorNotified, ((BigInteger) res[2]).longValue());
+				long numberOfGradedStudents = ((BigInteger) res[3]).longValue();
 				CredentialMembersSearchFilter gradedFilter = new CredentialMembersSearchFilter(
 						CredentialMembersSearchFilter.SearchFilter.Graded, numberOfGradedStudents);
 				CredentialMembersSearchFilter nongradedFilter = new CredentialMembersSearchFilter(
@@ -2348,8 +2358,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 			return null;
 		} catch (Exception e) {
-			logger.error(e);
-			e.printStackTrace();
+			logger.error("Error", e);
 			throw new DbConnectionException("Error retrieving filters");
 		}
 	}

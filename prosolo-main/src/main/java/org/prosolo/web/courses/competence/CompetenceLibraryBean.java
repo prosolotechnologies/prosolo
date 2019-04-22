@@ -141,7 +141,7 @@ public class CompetenceLibraryBean implements Serializable, Paginable {
 	
 	public void enrollInCompetence(CompetenceData1 comp) {
 		try {
-			compManager.enrollInCompetence(comp.getCompetenceId(), loggedUserBean.getUserId(), loggedUserBean.getUserContext());
+			compManager.enrollInCompetence(comp.getCredentialId(), comp.getCompetenceId(), loggedUserBean.getUserId(), loggedUserBean.getUserContext());
 
 			if (comp.getCredentialId() > 0) {
 				PageUtil.redirect("/credentials/" + idEncoder.encodeId(comp.getCredentialId()) + "/" + idEncoder.encodeId(comp.getCompetenceId()) + "?justEnrolled=true");

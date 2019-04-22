@@ -11,7 +11,7 @@ import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.assessment.data.ActivityAssessmentData;
 import org.prosolo.services.assessment.data.AssessmentDiscussionMessageData;
-import org.prosolo.services.assessment.data.CompetenceAssessmentData;
+import org.prosolo.services.assessment.data.CompetenceAssessmentDataFull;
 import org.prosolo.services.assessment.data.CompetenceAssessmentsSummaryData;
 import org.prosolo.services.assessment.data.grading.GradeData;
 import org.prosolo.services.nodes.CredentialManager;
@@ -22,7 +22,6 @@ import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.prosolo.web.util.pagination.Paginable;
 import org.prosolo.web.util.pagination.PaginationData;
@@ -33,8 +32,6 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import java.io.Serializable;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -70,8 +67,6 @@ public class CredentialCompetenceAssessmentsBeanManager implements AssessmentCom
 	
 	private ResourceAccessData access;
 
-	private DateFormat dateFormat = new SimpleDateFormat("MMMM dd, yyyy");
-
 	private LearningResourceType currentResType;
 
 	private SelectableAssessmentFilter[] filters;
@@ -106,7 +101,7 @@ public class CredentialCompetenceAssessmentsBeanManager implements AssessmentCom
 					assessmentsSummary = assessmentManager
 							.getCompetenceAssessmentsDataForInstructorCredentialAssessment(
 									decodedCredId, decodedCompId, loggedUserBean.getUserId(), !access.isCanEdit(),
-									dateFormat, getSelectedFilters(), paginationData.getLimit(),
+									getSelectedFilters(), paginationData.getLimit(),
 									(paginationData.getPage() - 1) * paginationData.getLimit());
 
 					this.paginationData.update((int) assessmentsSummary.getAssessments().getHitsNumber());
@@ -140,7 +135,7 @@ public class CredentialCompetenceAssessmentsBeanManager implements AssessmentCom
 		credentialIdData = credManager.getCredentialIdData(decodedCredId, null);
 	}
 
-	private boolean isCurrentUserAssessor(CompetenceAssessmentData compAssessment) {
+	private boolean isCurrentUserAssessor(CompetenceAssessmentDataFull compAssessment) {
 		if (compAssessment == null) {
 			return false;
 		} else {
@@ -154,18 +149,18 @@ public class CredentialCompetenceAssessmentsBeanManager implements AssessmentCom
 	 *
 	 * @return
 	 */
-	public boolean isUserAssessorInCurrentContext(CompetenceAssessmentData compAssessment) {
+	public boolean isUserAssessorInCurrentContext(CompetenceAssessmentDataFull compAssessment) {
 		boolean manageSection = PageUtil.isInManageSection();
 		return isCurrentUserAssessor(compAssessment)
 				&& ((manageSection && compAssessment.getType() == AssessmentType.INSTRUCTOR_ASSESSMENT)
 				|| (!manageSection && (compAssessment.getType() == AssessmentType.SELF_ASSESSMENT || compAssessment.getType() == AssessmentType.PEER_ASSESSMENT)));
 	}
 
-	private boolean isCurrentUserAssessedStudent(CompetenceAssessmentData competenceAssessment) {
+	private boolean isCurrentUserAssessedStudent(CompetenceAssessmentDataFull competenceAssessment) {
 		return competenceAssessment != null && loggedUserBean.getUserId() == competenceAssessment.getStudentId();
 	}
 
-	public boolean isUserAssessedStudentInCurrentContext(CompetenceAssessmentData competenceAssessment) {
+	public boolean isUserAssessedStudentInCurrentContext(CompetenceAssessmentDataFull competenceAssessment) {
 		return isCurrentUserAssessedStudent(competenceAssessment) && !PageUtil.isInManageSection();
 	}
 
@@ -311,7 +306,7 @@ public class CredentialCompetenceAssessmentsBeanManager implements AssessmentCom
 
 	//prepare grading
 
-	public void prepareLearningResourceAssessmentForGrading(CompetenceAssessmentData assessment) {
+	public void prepareLearningResourceAssessmentForGrading(CompetenceAssessmentDataFull assessment) {
 		competenceAssessmentBean.prepareLearningResourceAssessmentForGrading(assessment);
 		currentResType = LearningResourceType.COMPETENCE;
 	}
@@ -323,7 +318,7 @@ public class CredentialCompetenceAssessmentsBeanManager implements AssessmentCom
 
 	//prepare grading end
 
-	public void prepareLearningResourceAssessmentForApproving(CompetenceAssessmentData assessment) {
+	public void prepareLearningResourceAssessmentForApproving(CompetenceAssessmentDataFull assessment) {
 		competenceAssessmentBean.prepareLearningResourceAssessmentForApproving(assessment);
 		currentResType = LearningResourceType.COMPETENCE;
 	}
@@ -341,7 +336,7 @@ public class CredentialCompetenceAssessmentsBeanManager implements AssessmentCom
 		currentResType = LearningResourceType.ACTIVITY;
 	}
 
-	public void prepareLearningResourceAssessmentForCommenting(CompetenceAssessmentData assessment) {
+	public void prepareLearningResourceAssessmentForCommenting(CompetenceAssessmentDataFull assessment) {
 		competenceAssessmentBean.prepareLearningResourceAssessmentForCommenting(assessment);
 		currentResType = LearningResourceType.COMPETENCE;
 	}
@@ -353,7 +348,7 @@ public class CredentialCompetenceAssessmentsBeanManager implements AssessmentCom
 			List<org.prosolo.services.assessment.data.AssessmentFilter> selectedFilters = getSelectedFilters();
 			//if none of the filters is selected, there should be no assessments displayed
 			if (selectedFilters.isEmpty()) {
-				PaginatedResult<CompetenceAssessmentData> emptyRes = new PaginatedResult<>();
+				PaginatedResult<CompetenceAssessmentDataFull> emptyRes = new PaginatedResult<>();
 				assessmentsSummary.setAssessments(emptyRes);
 				this.paginationData.update(0);
 			} else {
@@ -363,7 +358,7 @@ public class CredentialCompetenceAssessmentsBeanManager implements AssessmentCom
 				assessmentsSummary.setAssessments(
 						assessmentManager.getPaginatedStudentsCompetenceAssessments(
 								decodedCredId, decodedCompId, loggedUserBean.getUserId(), !access.isCanEdit(),
-								getSelectedFilters(), paginationData.getLimit(), (paginationData.getPage() - 1) * paginationData.getLimit(), dateFormat));
+								getSelectedFilters(), paginationData.getLimit(), (paginationData.getPage() - 1) * paginationData.getLimit()));
 				this.paginationData.update((int) assessmentsSummary.getAssessments().getHitsNumber());
 			}
 		} catch(Exception e) {
@@ -415,9 +410,9 @@ public class CredentialCompetenceAssessmentsBeanManager implements AssessmentCom
 	}
 
 	private Optional<ActivityAssessmentData> getActivityAssessmentByEncodedId(String encodedActivityDiscussionId) {
-		List<CompetenceAssessmentData> competenceAssessmentData = assessmentsSummary.getAssessments().getFoundNodes();
+		List<CompetenceAssessmentDataFull> competenceAssessmentData = assessmentsSummary.getAssessments().getFoundNodes();
 		if (CollectionUtils.isNotEmpty(competenceAssessmentData)) {
-			for (CompetenceAssessmentData comp : competenceAssessmentData) {
+			for (CompetenceAssessmentDataFull comp : competenceAssessmentData) {
 				if (comp.getActivityAssessmentData() != null) {
 					for (ActivityAssessmentData act : comp.getActivityAssessmentData()) {
 						if (encodedActivityDiscussionId.equals(act.getEncodedActivityAssessmentId())) {
@@ -437,16 +432,16 @@ public class CredentialCompetenceAssessmentsBeanManager implements AssessmentCom
 			long assessmentId = idEncoder.decodeId(encodedAssessmentId);
 			assessmentManager.markCompetenceAssessmentDiscussionAsSeen(loggedUserBean.getUserId(),
 					assessmentId);
-			Optional<CompetenceAssessmentData> compAssessment = getCompetenceAssessmentById(
+			Optional<CompetenceAssessmentDataFull> compAssessment = getCompetenceAssessmentById(
 					assessmentId);
 			compAssessment.ifPresent(data -> data.setAllRead(true));
 		}
 	}
 
-	private Optional<CompetenceAssessmentData> getCompetenceAssessmentById(long assessmentId) {
-		List<CompetenceAssessmentData> competenceAssessmentData = assessmentsSummary.getAssessments().getFoundNodes();
+	private Optional<CompetenceAssessmentDataFull> getCompetenceAssessmentById(long assessmentId) {
+		List<CompetenceAssessmentDataFull> competenceAssessmentData = assessmentsSummary.getAssessments().getFoundNodes();
 		if (CollectionUtils.isNotEmpty(competenceAssessmentData)) {
-			for (CompetenceAssessmentData ca : competenceAssessmentData) {
+			for (CompetenceAssessmentDataFull ca : competenceAssessmentData) {
 				if (assessmentId == ca.getCompetenceAssessmentId()) {
 					return Optional.of(ca);
 				}

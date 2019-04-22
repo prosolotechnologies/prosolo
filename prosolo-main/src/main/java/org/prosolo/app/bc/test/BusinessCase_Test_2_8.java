@@ -58,7 +58,7 @@ public class BusinessCase_Test_2_8 extends BaseBusinessCase5 {
         ///////////////////////////
         List<CompetenceData1> credential2Delivery1Competences = ServiceLocator.getInstance().getService(Competence1Manager.class)
                 .getCompetencesForCredential(credential2Delivery1.getId(), userGeorgeYoung.getId(), new CompetenceLoadConfig.CompetenceLoadConfigBuilder().create());
-        TargetCompetence1 credential2Delivery1Comp1Target = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(credential2Delivery1Competences.get(0).getCompetenceId(), userGeorgeYoung.getId(), createUserContext(userGeorgeYoung)));
+        TargetCompetence1 credential2Delivery1Comp1Target = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(credential2Delivery1.getId(), credential2Delivery1Competences.get(0).getCompetenceId(), userGeorgeYoung.getId(), createUserContext(userGeorgeYoung)));
         LearningEvidenceData ev1 = addNewEvidenceAndAttachToCompetence(
                 events,
                 LearningEvidenceType.LINK,
@@ -73,16 +73,16 @@ public class BusinessCase_Test_2_8 extends BaseBusinessCase5 {
 
         List<CompetenceData1> credential6Delivery1Competences = ServiceLocator.getInstance().getService(Competence1Manager.class)
                 .getCompetencesForCredential(credential6Delivery1.getId(), userGeorgeYoung.getId(), new CompetenceLoadConfig.CompetenceLoadConfigBuilder().create());
-        TargetCompetence1 credential6Delivery1Comp1Target = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(credential6Delivery1Competences.get(0).getCompetenceId(), userGeorgeYoung.getId(), createUserContext(userGeorgeYoung)));
+        TargetCompetence1 credential6Delivery1Comp1Target = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(credential6Delivery1.getId(), credential6Delivery1Competences.get(0).getCompetenceId(), userGeorgeYoung.getId(), createUserContext(userGeorgeYoung)));
         attachExistingEvidenceToCompetence(ev1.getId(), credential6Delivery1Comp1Target.getId(), "Includes teaching strategies that have been designed and implemented based on the identified learning strengths and needs of students from diverse linguistic backgrounds.");
         markCompetencyAsCompleted(events, credential6Delivery1Comp1Target.getId(), userGeorgeYoung);
-        TargetCompetence1 credential6Delivery1Comp2Target = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(credential6Delivery1Competences.get(1).getCompetenceId(), userGeorgeYoung.getId(), createUserContext(userGeorgeYoung)));
+        TargetCompetence1 credential6Delivery1Comp2Target = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(credential6Delivery1.getId(), credential6Delivery1Competences.get(1).getCompetenceId(), userGeorgeYoung.getId(), createUserContext(userGeorgeYoung)));
         attachExistingEvidenceToCompetence(ev1.getId(), credential6Delivery1Comp2Target.getId(), "Includes teaching strategies that have been designed and implemented based on the identified learning strengths and needs of students from diverse linguistic backgrounds.");
         markCompetencyAsCompleted(events, credential6Delivery1Comp2Target.getId(), userGeorgeYoung);
-        TargetCompetence1 credential6Delivery1Comp3Target = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(credential6Delivery1Competences.get(2).getCompetenceId(), userGeorgeYoung.getId(), createUserContext(userGeorgeYoung)));
+        TargetCompetence1 credential6Delivery1Comp3Target = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(credential6Delivery1.getId(), credential6Delivery1Competences.get(2).getCompetenceId(), userGeorgeYoung.getId(), createUserContext(userGeorgeYoung)));
         attachExistingEvidenceToCompetence(ev1.getId(), credential6Delivery1Comp3Target.getId(), "Includes teaching strategies that have been designed and implemented based on the identified learning strengths and needs of students from diverse linguistic backgrounds.");
         markCompetencyAsCompleted(events, credential6Delivery1Comp3Target.getId(), userGeorgeYoung);
-        TargetCompetence1 credential6Delivery1Comp4Target = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(credential6Delivery1Competences.get(3).getCompetenceId(), userGeorgeYoung.getId(), createUserContext(userGeorgeYoung)));
+        TargetCompetence1 credential6Delivery1Comp4Target = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(credential6Delivery1.getId(), credential6Delivery1Competences.get(3).getCompetenceId(), userGeorgeYoung.getId(), createUserContext(userGeorgeYoung)));
         attachExistingEvidenceToCompetence(ev1.getId(), credential6Delivery1Comp4Target.getId(), "Includes teaching strategies that have been designed and implemented based on the identified learning strengths and needs of students from diverse linguistic backgrounds.");
         markCompetencyAsCompleted(events, credential6Delivery1Comp4Target.getId(), userGeorgeYoung);
         ///////////////////////////
@@ -146,9 +146,10 @@ public class BusinessCase_Test_2_8 extends BaseBusinessCase5 {
                 "http://www.slideshare.net/dgasevic/network-modularity-and-community-identification/1");
         extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class)
                         .publishCompetenceIfNotPublished(comp1.getId(), createUserContext(userNickPowell)));
-        TargetCompetence1 independentComp1Target = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(comp1.getId(), userGeorgeYoung.getId(), createUserContext(userGeorgeYoung)));
-        List<ActivityData> independentComp1TargetActivities = ServiceLocator.getInstance().getService(Activity1Manager.class).getTargetActivitiesData(independentComp1Target.getId());
-        completeActivity(events, independentComp1Target.getId(), independentComp1TargetActivities.get(0).getActivityId(), userGeorgeYoung);
+        //TODO I commmented out the lines below because we changed the rule and user can't learn competency outside credential
+        //TargetCompetence1 independentComp1Target = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(comp1.getId(), userGeorgeYoung.getId(), createUserContext(userGeorgeYoung)));
+//        List<ActivityData> independentComp1TargetActivities = ServiceLocator.getInstance().getService(Activity1Manager.class).getTargetActivitiesData(independentComp1Target.getId());
+//        completeActivity(events, independentComp1Target.getId(), independentComp1TargetActivities.get(0).getActivityId(), userGeorgeYoung);
 
         Competence1 comp2 = createCompetence(events,
                     userNickPowell,

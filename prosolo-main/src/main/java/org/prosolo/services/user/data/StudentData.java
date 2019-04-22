@@ -12,11 +12,10 @@ public class StudentData {
 	private InstructorData instructor;
 	private int progress;
 	private boolean assigned;
-	private long assessmentId;
 	private boolean enrolled;
 	private Date dateEnrolled;
 	private Date dateCompleted;
-	private boolean sentAssessmentNotification;
+	private StudentAssessmentInfo studentAssessmentInfo = new StudentAssessmentInfo();
 	
 	public StudentData() {
 
@@ -72,11 +71,7 @@ public class StudentData {
 	}
 
 	public long getAssessmentId() {
-		return assessmentId;
-	}
-
-	public void setAssessmentId(long assessmentId) {
-		this.assessmentId = assessmentId;
+		return studentAssessmentInfo.getAssessmentId();
 	}
 
 	public boolean isEnrolled() {
@@ -112,10 +107,14 @@ public class StudentData {
 	}
 
 	public boolean isSentAssessmentNotification() {
-		return sentAssessmentNotification;
+		return studentAssessmentInfo.isSentAssessmentNotification();
 	}
 
-	public void setSentAssessmentNotification(boolean sentAssessmentNotification) {
-		this.sentAssessmentNotification = sentAssessmentNotification;
+	public StudentAssessmentInfo getStudentAssessmentInfo() {
+		return studentAssessmentInfo;
+	}
+
+	public void setStudentAssessmentInfo(StudentAssessmentInfo studentAssessmentInfo) {
+		this.studentAssessmentInfo = studentAssessmentInfo;
 	}
 }

@@ -361,9 +361,8 @@ public class StudentProfileManagerImpl extends AbstractManagerImpl implements St
             TargetCredential1 targetCredential = (TargetCredential1) persistence.currentManager().load(TargetCredential1.class, targetCredentialId);
             Optional<CredentialProfileConfig> credProfileConfigOpt = getCredentialProfileConfig(targetCredentialId, false);
             List<CredentialAssessment> credentialAssessments = assessmentManager
-                    .getCredentialAssessments(
+                    .getSubmittedCredentialAssessments(
                             targetCredentialId,
-                            true,
                             SortOrder.<AssessmentSortOrder>builder()
                                     .addOrder(AssessmentSortOrder.ASSESSMENT_TYPE, SortingOption.ASC)
                                     .addOrder(AssessmentSortOrder.LAST_ASSESSMENT_DATE, SortingOption.ASC).build());
@@ -378,11 +377,9 @@ public class StudentProfileManagerImpl extends AbstractManagerImpl implements St
                 Optional<CompetenceProfileConfig> competenceProfileConfig = credProfileConfigOpt.isPresent()
                         ? credProfileConfigOpt.get().getCompetenceProfileConfigs().stream().filter(conf -> conf.getTargetCompetence().getId() == tc.getId()).findFirst()
                         : Optional.empty();
-                List<CompetenceAssessment> competenceAssessments = assessmentManager.getIndependentAndCompetenceAssessmentsBelongingToCredential(
+                List<CompetenceAssessment> competenceAssessments = assessmentManager.getSubmittedCompetenceAssessments(
                         targetCredentialId,
                         tc.getCompetence().getId(),
-                        tc.getUser().getId(),
-                        true,
                         SortOrder.<AssessmentSortOrder>builder().addOrder(
                             AssessmentSortOrder.LAST_ASSESSMENT_DATE,
                             SortingOption.ASC).build());

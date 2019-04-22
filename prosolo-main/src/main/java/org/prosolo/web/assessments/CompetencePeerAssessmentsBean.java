@@ -10,7 +10,6 @@ import org.prosolo.services.assessment.data.AssessmentTypeConfig;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
-import org.prosolo.web.assessments.util.AssessmentDisplayMode;
 import org.prosolo.web.assessments.util.AssessmentUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.prosolo.web.util.pagination.Paginable;
@@ -88,12 +87,11 @@ public abstract class CompetencePeerAssessmentsBean implements Paginable, Serial
 
 	abstract void loadAdditionalData();
 	abstract boolean isUserAllowedToAccess();
-	abstract AssessmentDisplayMode getAssessmentDisplayMode();
 	abstract long getStudentId();
 
 	private void getAssessmentsFromDB() {
 		PaginatedResult<AssessmentData> res = assessmentManager.getPaginatedCompetencePeerAssessmentsForStudent(
-				decodedCompId, getStudentId(), shouldLoadOnlyApprovedAssessments(), new SimpleDateFormat("MMMM dd, yyyy"),
+				decodedCredId, decodedCompId, getStudentId(), shouldLoadOnlyApprovedAssessments(), new SimpleDateFormat("MMMM dd, yyyy"),
 				(paginationData.getPage() - 1) * paginationData.getLimit(), paginationData.getLimit());
 		paginationData.update((int) res.getHitsNumber());
 		assessments = res.getFoundNodes();
@@ -178,6 +176,10 @@ public abstract class CompetencePeerAssessmentsBean implements Paginable, Serial
 
 	public long getDecodedCompId() {
 		return decodedCompId;
+	}
+
+	public long getDecodedCredId() {
+		return decodedCredId;
 	}
 
 	public UrlIdEncoder getIdEncoder() {

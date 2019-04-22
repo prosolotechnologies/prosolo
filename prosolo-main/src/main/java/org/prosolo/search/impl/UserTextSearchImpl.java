@@ -43,6 +43,7 @@ import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.data.instructor.InstructorData;
 import org.prosolo.services.user.UserManager;
+import org.prosolo.services.user.data.StudentAssessmentInfo;
 import org.prosolo.services.user.data.StudentData;
 import org.prosolo.services.user.data.UserData;
 import org.springframework.stereotype.Service;
@@ -76,7 +77,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 	@Override
 	public PaginatedResult<UserData> searchUsers(
 			long orgId, String searchString, int page, int limit, boolean loadOneMore,
-			Collection<Long> excludeUserIds) {
+			Collection<Long> includeUserIds, Collection<Long> excludeUserIds) {
 		
 		PaginatedResult<UserData> response = new PaginatedResult<>();
 		
@@ -90,12 +91,20 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 					.field("name").field("lastname");
 			
 			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
-			bQueryBuilder.should(qb);
+			bQueryBuilder.filter(qb);
 
 			if (orgId > 0) {
 				bQueryBuilder.mustNot(termQuery("system", true));
 			}
-			
+
+			if (includeUserIds != null) {
+				BoolQueryBuilder includeUsersQueryBuilder = QueryBuilders.boolQuery();
+				for (Long userId : includeUserIds) {
+					includeUsersQueryBuilder.should(termQuery("id", userId));
+				}
+				bQueryBuilder.filter(includeUsersQueryBuilder);
+			}
+
 			if (excludeUserIds != null) {
 				for (Long exUserId : excludeUserIds) {
 					bQueryBuilder.mustNot(termQuery("id", exUserId));
@@ -462,11 +471,13 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 									student.setProgress(Integer.parseInt(
 											credential.get("progress").toString()));
 									Optional<Long> credAssessmentId = assessmentManager
-											.getInstructorCredentialAssessmentId(credId, user.getId());
+											.getActiveInstructorCredentialAssessmentId(credId, user.getId());
 									if (credAssessmentId.isPresent()) {
-										student.setAssessmentId(credAssessmentId.get());
+										student.setStudentAssessmentInfo(
+												new StudentAssessmentInfo(
+														credAssessmentId.get(),
+														Boolean.parseBoolean(credential.get("assessorNotified").toString())));
 									}
-									student.setSentAssessmentNotification(Boolean.parseBoolean(credential.get("assessorNotified").toString()));
 //									@SuppressWarnings("unchecked")
 //									Map<String, Object> profile = (Map<String, Object>) course.get("profile");
 //								    if(profile != null && !profile.isEmpty()) {

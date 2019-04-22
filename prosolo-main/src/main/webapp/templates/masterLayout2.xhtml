@@ -86,7 +86,6 @@
 									or util:getPagePath(view.viewId)  == 'credential-self-assessment'
 									or util:getPagePath(view.viewId)  == 'credential-peer-assessments'
 									or util:getPagePath(view.viewId)  == 'credential-assessment'
-									or util:getPagePath(view.viewId)  == 'competence-instructor-assessments'
 									or util:getPagePath(view.viewId)  == 'competence-instructor-assessment'
 									or util:getPagePath(view.viewId)  == 'competence-self-assessment'
 									or util:getPagePath(view.viewId)  == 'competence-peer-assessments'
@@ -194,7 +193,11 @@
 							</h:panelGroup>
 						</div>
 					</div>
-
+					<h:panelGroup id="panelHeaderNumberOfTokens">
+						<ui:fragment rendered="#{assessmentTokenSessionBean.assessmentTokensEnabled}">
+							<h:link styleClass="iconTokens" outcome="/my-assessments-credentials">#{assessmentTokenSessionBean.numberOfTokensAvailable}</h:link>
+						</ui:fragment>
+					</h:panelGroup>
 					<h:form id="userMenuForm">
 						<div class="dropdown userMenu">
 							<a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
@@ -206,6 +209,11 @@
 							</a>
 
 							<ul class="dropdown-menu dropdown-menu-right bullet pull-right" aria-labelledby="dropdownMenu1">
+								<li>
+									<h:link value="My Assessments"
+											onclick="sendLogPageNavigation('my-assessments-credentials','mainmenu');"
+											outcome="/my-assessments-credentials" />
+								</li>
 								<li>
 									<h:link value="Profile"
 										onclick="sendLogPageNavigation('profile','mainmenu');"

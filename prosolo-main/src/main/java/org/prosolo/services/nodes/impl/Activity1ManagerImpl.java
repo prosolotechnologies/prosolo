@@ -4,6 +4,7 @@ import org.hibernate.LockOptions;
 import org.hibernate.Query;
 import org.prosolo.bigdata.common.exceptions.*;
 import org.prosolo.common.domainmodel.annotation.Tag;
+import org.prosolo.common.domainmodel.assessment.AssessmentStatus;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
 import org.prosolo.common.domainmodel.credential.*;
@@ -1319,10 +1320,8 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 						"LEFT JOIN (activity_assessment ad " +
 						"INNER JOIN competence_assessment compAssessment " +
 						"ON compAssessment.id = ad.competence_assessment " +
-						"INNER JOIN credential_competence_assessment cca " +
-						"ON cca.competence_assessment = compAssessment.id " +
 						"INNER JOIN credential_assessment credAssessment " +
-						"ON credAssessment.id = cca.credential_assessment " +
+						"ON credAssessment.id = compAssessment.credential_assessment " +
 						"INNER JOIN target_credential1 tCred " +
 						"ON tCred.id = credAssessment.target_credential " +
 						"AND tCred.credential = :credId) " +
@@ -1330,6 +1329,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 						// following condition ensures that assessment for the right student is joined
 						"AND compAssessment.student = targetComp.user " +
 						"AND ad.type = :instructorAssessment " +
+						"AND (compAssessment.status = :pending OR compAssessment.status = :submitted) " +
 						"LEFT JOIN activity_discussion_participant p " +
 						"ON ad.id = p.activity_discussion AND p.participant = targetComp.user " +
 						"LEFT JOIN activity_discussion_message msg " +
@@ -1363,7 +1363,9 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 					.setLong("actId", actId)
 					.setLong("credId", credId)
 					.setString("resType", CommentedResourceType.ActivityResult.name())
-					.setString("instructorAssessment", AssessmentType.INSTRUCTOR_ASSESSMENT.name());
+					.setString("instructorAssessment", AssessmentType.INSTRUCTOR_ASSESSMENT.name())
+					.setString("pending", AssessmentStatus.PENDING.name())
+					.setString("submitted", AssessmentStatus.SUBMITTED.name());
 
 			if (targetActivityId > 0) {
 				q.setLong("tActId", targetActivityId);
@@ -1441,7 +1443,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 							rubricGradeSummary.get(ad.getActivityAssessmentId())));
 
 					//load additional assessment data
-					AssessmentBasicData abd = assessmentManager.getInstructorAssessmentBasicData(credId,
+					AssessmentBasicData abd = assessmentManager.getActiveInstructorAssessmentBasicData(credId,
 							compId, 0, ard.getUser().getId());
 					if (abd != null) {
 						ad.setCompAssessmentId(abd.getCompetenceAssessmentId());
@@ -1449,7 +1451,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 						ad.setAssessorId(abd.getAssessorId());
 						//we need info whether competency assessment is approved
 						CompetenceAssessment competenceAssessment = (CompetenceAssessment) persistence.currentManager().load(CompetenceAssessment.class, abd.getCompetenceAssessmentId());
-						CompetenceAssessmentData cad = new CompetenceAssessmentData();
+						CompetenceAssessmentDataFull cad = new CompetenceAssessmentDataFull();
 						cad.setApproved(competenceAssessment.isApproved());
 						ad.setCompAssessment(cad);
 					}

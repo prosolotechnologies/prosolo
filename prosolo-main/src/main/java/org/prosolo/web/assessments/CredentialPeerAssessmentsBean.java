@@ -9,7 +9,6 @@ import org.prosolo.services.assessment.data.AssessmentData;
 import org.prosolo.services.assessment.data.AssessmentTypeConfig;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
-import org.prosolo.web.assessments.util.AssessmentDisplayMode;
 import org.prosolo.web.assessments.util.AssessmentUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.prosolo.web.util.pagination.Paginable;
@@ -107,7 +106,6 @@ public abstract class CredentialPeerAssessmentsBean implements Paginable, Serial
 		}
 	}
 
-	protected abstract AssessmentDisplayMode getAssessmentDisplayMode();
 	protected abstract long getStudentId();
 
 	public String getCredentialTitle() {

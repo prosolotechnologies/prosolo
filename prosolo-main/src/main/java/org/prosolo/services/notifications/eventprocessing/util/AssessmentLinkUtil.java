@@ -28,26 +28,18 @@ public class AssessmentLinkUtil {
             UrlIdEncoder idEncoder,
             Session session,
             PageSection section) {
-        long credAssessmentId = 0;
-        if (credId > 0) {
-            credAssessmentId = getCredentialAssessmentId(context, credId, compAssessmentId, assessmentManager, session);
-        }
-
+        long credAssessmentId = getCredentialAssessmentId(context, compAssessmentId, assessmentManager, session);
         return getAssessmentNotificationLink(credId, credAssessmentId, compId, compAssessmentId, assessmentType, idEncoder, section);
     }
 
-    public static long getCredentialAssessmentId(Context ctx, long credentialId, long compAssessmentId,
+    public static long getCredentialAssessmentId(Context ctx, long compAssessmentId,
                                                  AssessmentManager assessmentManager, Session session) {
-        if (credentialId > 0) {
-            long credAssessmentId = Context.getIdFromSubContextWithName(ctx, ContextName.CREDENTIAL_ASSESSMENT);
-            if (credAssessmentId <= 0) {
-                credAssessmentId = assessmentManager
-                        .getCredentialAssessmentIdForCompetenceAssessment(credentialId, compAssessmentId, session);
-            }
-            return credAssessmentId;
+        long credAssessmentId = Context.getIdFromSubContextWithName(ctx, ContextName.CREDENTIAL_ASSESSMENT);
+        if (credAssessmentId <= 0) {
+            credAssessmentId = assessmentManager
+                    .getCredentialAssessmentIdForCompetenceAssessment(compAssessmentId, session);
         }
-        return 0;
-
+        return credAssessmentId;
     }
 
     public static String getAssessmentNotificationLink(
@@ -82,6 +74,28 @@ public class AssessmentLinkUtil {
                         ? "peer/" + encodedCompAssessmentId
                         : (assessmentType == AssessmentType.INSTRUCTOR_ASSESSMENT
                             ? "instructor/" + encodedCompAssessmentId : "self"));
+        }
+
+        logger.debug("Assessment notification link can't be created");
+        return null;
+    }
+
+    public static String getCompetenceAssessmentNotificationLinkForStudent(
+            long credId,
+            long compId,
+            long compAssessmentId,
+            AssessmentType assessmentType,
+            UrlIdEncoder idEncoder) {
+        if (credId > 0 && compId > 0 && compAssessmentId > 0) {
+            String encodedCompAssessmentId = idEncoder.encodeId(compAssessmentId);
+            return "/competences/" +
+                    idEncoder.encodeId(compId) +
+                    "/assessments/" +
+                    (assessmentType == AssessmentType.PEER_ASSESSMENT
+                            ? "peer/" + encodedCompAssessmentId
+                            : (assessmentType == AssessmentType.INSTRUCTOR_ASSESSMENT
+                            ? "instructor/" + encodedCompAssessmentId : "self")) +
+                    "?credId=" + idEncoder.encodeId(credId);
         }
 
         logger.debug("Assessment notification link can't be created");

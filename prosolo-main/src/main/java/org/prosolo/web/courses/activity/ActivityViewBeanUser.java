@@ -230,7 +230,7 @@ public class ActivityViewBeanUser implements Serializable {
 			lcd.setPage(FacesContext.getCurrentInstance().getViewRoot().getViewId());
 			lcd.setLearningContext(PageUtil.getPostParameter("context"));
 			lcd.setService(PageUtil.getPostParameter("service"));
-			compManager.enrollInCompetence(decodedCompId, loggedUser.getUserId(), loggedUser.getUserContext(lcd));
+			compManager.enrollInCompetence(decodedCredId, decodedCompId, loggedUser.getUserId(), loggedUser.getUserContext(lcd));
 			//initializeActivityData();
 
 			if (decodedCredId > 0) {

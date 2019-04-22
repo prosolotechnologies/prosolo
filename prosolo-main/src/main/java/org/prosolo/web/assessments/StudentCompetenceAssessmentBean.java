@@ -4,6 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
+import org.prosolo.common.domainmodel.assessment.AssessmentStatus;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.credential.BlindAssessmentMode;
 import org.prosolo.common.event.context.data.UserContextData;
@@ -11,22 +12,22 @@ import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.assessment.RubricManager;
 import org.prosolo.services.assessment.data.ActivityAssessmentData;
 import org.prosolo.services.assessment.data.AssessmentDiscussionMessageData;
-import org.prosolo.services.assessment.data.AssessmentTypeConfig;
-import org.prosolo.services.assessment.data.CompetenceAssessmentData;
+import org.prosolo.services.assessment.data.CompetenceAssessmentDataFull;
 import org.prosolo.services.assessment.data.grading.GradeData;
 import org.prosolo.services.assessment.data.grading.RubricCriteriaGradeData;
 import org.prosolo.services.nodes.data.LearningResourceType;
 import org.prosolo.services.user.data.UserBasicData;
 import org.prosolo.services.user.data.UserData;
-import org.prosolo.web.assessments.util.AssessmentDisplayMode;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import javax.faces.bean.ManagedBean;
+import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -60,11 +61,6 @@ public class StudentCompetenceAssessmentBean extends CompetenceAssessmentBean im
 	@Override
 	boolean canAccessPostLoad() {
 		return isUserAssessedStudentInCurrentContext() || isUserAssessorInCurrentContext();
-	}
-
-	@Override
-	AssessmentDisplayMode getDisplayMode() {
-		return AssessmentDisplayMode.FULL;
 	}
 
 	public void markActivityAssessmentDiscussionRead() {
@@ -110,12 +106,39 @@ public class StudentCompetenceAssessmentBean extends CompetenceAssessmentBean im
 		try {
 			getAssessmentManager().approveCompetence(getCompetenceAssessmentData().getCompetenceAssessmentId(), loggedUserBean.getUserContext());
 			getCompetenceAssessmentData().setApproved(true);
+			getCompetenceAssessmentData().setStatus(AssessmentStatus.SUBMITTED);
 			getCompetenceAssessmentData().setAssessorNotified(false);
 
 			PageUtil.fireSuccessfulInfoMessage(ResourceBundleUtil.getMessage("label.competence") + " assessment is submitted");
 		} catch (Exception e) {
 			logger.error("Error submitting the assessment", e);
 			PageUtil.fireErrorMessage("Error submitting the " + ResourceBundleUtil.getMessage("label.competence").toLowerCase() + " assessment");
+		}
+	}
+
+	public void acceptAssessmentRequest() {
+		try {
+			getAssessmentManager().acceptCompetenceAssessmentRequest(getCompetenceAssessmentData().getCompetenceAssessmentId(), loggedUserBean.getUserContext());
+			PageUtil.fireSuccessfulInfoMessageAcrossPages("Assessment request has been successfully accepted");
+			PageUtil.redirect(getRefreshUrl());
+		} catch (Exception e) {
+			logger.error("error", e);
+			PageUtil.fireErrorMessage("Error accepting assessment request");
+		}
+	}
+
+	private String getRefreshUrl() {
+		return "/competences/" + getCompetenceId() + "/assessments/peer/" + getCompetenceAssessmentId() + "?credId=" + getCredId();
+	}
+
+	public void declineAssessmentRequest() {
+		try {
+			getAssessmentManager().declineCompetenceAssessmentRequest(getCompetenceAssessmentData().getCompetenceAssessmentId(), loggedUserBean.getUserContext());
+			PageUtil.fireSuccessfulInfoMessageAcrossPages("Assessment request has been successfully declined");
+			PageUtil.redirect(getRefreshUrl());
+		} catch (Exception e) {
+			logger.error("error", e);
+			PageUtil.fireErrorMessage("Error declining assessment request");
 		}
 	}
 
@@ -133,7 +156,7 @@ public class StudentCompetenceAssessmentBean extends CompetenceAssessmentBean im
 	}
 
 	//prepare for grading
-	public void prepareLearningResourceAssessmentForGrading(CompetenceAssessmentData assessment) {
+	public void prepareLearningResourceAssessmentForGrading(CompetenceAssessmentDataFull assessment) {
 		setCompetenceAssessmentData(assessment);
 		initializeGradeData();
 		this.currentResType = LearningResourceType.COMPETENCE;
@@ -155,7 +178,7 @@ public class StudentCompetenceAssessmentBean extends CompetenceAssessmentBean im
 	}
 
 	//prepare for commenting
-	public void prepareLearningResourceAssessmentForCommenting(CompetenceAssessmentData assessment) {
+	public void prepareLearningResourceAssessmentForCommenting(CompetenceAssessmentDataFull assessment) {
 		try {
 			if (!assessment.isMessagesInitialized()) {
 				assessment.populateDiscussionMessages(getAssessmentManager()
@@ -171,7 +194,7 @@ public class StudentCompetenceAssessmentBean extends CompetenceAssessmentBean im
 		}
 	}
 
-	public void prepareLearningResourceAssessmentForApproving(CompetenceAssessmentData assessment) {
+	public void prepareLearningResourceAssessmentForApproving(CompetenceAssessmentDataFull assessment) {
 		try {
 			setCompetenceAssessmentData(assessment);
 			currentResType = LearningResourceType.COMPETENCE;
@@ -424,7 +447,7 @@ public class StudentCompetenceAssessmentBean extends CompetenceAssessmentBean im
 		initAskForAssessment(getCompetenceAssessmentData());
 	}
 
-	public void initAskForAssessment(CompetenceAssessmentData compAssessment) {
+	public void initAskForAssessment(CompetenceAssessmentDataFull compAssessment) {
 		UserData assessor = null;
 		if (compAssessment.getAssessorId() > 0) {
 			assessor = new UserData();
@@ -446,6 +469,7 @@ public class StudentCompetenceAssessmentBean extends CompetenceAssessmentBean im
 			boolean success = askForAssessmentBean.submitAssessmentRequestAndReturnStatus();
 			if (success) {
 				getCompetenceAssessmentData().setAssessorNotified(true);
+				getCompetenceAssessmentData().setLastAskedForAssessment(new Date().getTime());
 			}
 		} catch (Exception e) {
 			logger.error("Error", e);

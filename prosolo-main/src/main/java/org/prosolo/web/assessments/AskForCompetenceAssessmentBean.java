@@ -10,8 +10,12 @@ import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.LearningResourceType;
+import org.prosolo.services.user.UserManager;
+import org.prosolo.services.user.data.UserAssessmentTokenExtendedData;
 import org.prosolo.services.user.data.UserData;
 import org.prosolo.services.nodes.data.assessments.AssessmentNotificationData;
+import org.prosolo.web.AssessmentTokenSessionBean;
+import org.prosolo.web.LoggedUserBean;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -19,7 +23,9 @@ import javax.faces.bean.ManagedBean;
 import javax.inject.Inject;
 import java.io.Serializable;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * @author stefanvuckovic
@@ -38,20 +44,36 @@ public class AskForCompetenceAssessmentBean extends AskForAssessmentBean impleme
 
     @Inject private Competence1Manager compManager;
     @Inject private CredentialManager credManager;
+    @Inject private UserManager userManager;
+    @Inject private LoggedUserBean loggedUserBean;
 
     private long credentialId;
     private boolean studentCanChooseInstructor;
 
     public void init(long credentialId, long competenceId, long targetCompId, AssessmentType assessmentType, BlindAssessmentMode blindAssessmentMode) {
-        this.credentialId = credentialId;
-        init(competenceId, targetCompId, assessmentType, blindAssessmentMode);
-        initStudentCanChooseInstructorFlag();
+        init(credentialId, competenceId, targetCompId, assessmentType, null, blindAssessmentMode);
     }
 
     public void init(long credentialId, long competenceId, long targetCompId, AssessmentType assessmentType, UserData assessor, BlindAssessmentMode blindAssessmentMode) {
-        this.credentialId = credentialId;
-        init(competenceId, targetCompId, assessmentType, assessor, blindAssessmentMode);
+        initInitialData(credentialId, competenceId, targetCompId, assessmentType, blindAssessmentMode);
+        initOtherCommonData(assessor);
         initStudentCanChooseInstructorFlag();
+    }
+
+    /**
+     * Initializes all initial data that must be initialized before any other
+     * logic or initialization takes place
+     *
+     * @param credentialId
+     * @param competenceId
+     * @param targetCompId
+     * @param assessmentType
+     * @param blindAssessmentMode
+     */
+    private void initInitialData(long credentialId, long competenceId, long targetCompId, AssessmentType assessmentType, BlindAssessmentMode blindAssessmentMode) {
+        initCommonInitialData(competenceId, targetCompId, assessmentType, blindAssessmentMode);
+        this.credentialId = credentialId;
+        assessmentRequestData.setCredentialId(credentialId);
     }
 
     private void initStudentCanChooseInstructorFlag() {
@@ -66,7 +88,7 @@ public class AskForCompetenceAssessmentBean extends AskForAssessmentBean impleme
 
     @Override
     public void initInstructorAssessmentAssessor() {
-        Optional<UserData> assessor = assessmentManager.getInstructorCompetenceAssessmentAssessor(credentialId, getResourceId(), loggedUser.getUserId());
+        Optional<UserData> assessor = assessmentManager.getActiveInstructorCompetenceAssessmentAssessor(credentialId, getResourceId(), loggedUser.getUserId());
         assessor.ifPresent(a -> {
             getAssessmentRequestData().setAssessorId(a.getId());
             getAssessmentRequestData().setAssessorFullName(a.getFullName());
@@ -82,11 +104,11 @@ public class AskForCompetenceAssessmentBean extends AskForAssessmentBean impleme
             try {
                 if (existingPeerAssessors == null) {
                     existingPeerAssessors = new HashSet<>(assessmentManager
-                            .getPeerAssessorIdsForUserAndCompetence(resourceId, loggedUser.getUserId()));
+                            .getPeerAssessorIdsForCompetence(credentialId, resourceId, loggedUser.getUserId()));
                 }
 
-                PaginatedResult<UserData> result = userTextSearch.searchUsersLearningCompetence(
-                        loggedUser.getOrganizationId(), peerSearchTerm, 3, resourceId, usersToExcludeFromPeerSearch);
+                PaginatedResult<UserData> result = userTextSearch.searchUsers(
+                        loggedUser.getOrganizationId(), peerSearchTerm, 0, 3, false, assessorPoolUserIds, usersToExcludeFromPeerSearch);
                 peersForAssessment = result.getFoundNodes();
             } catch (Exception e) {
                 logger.error(e);
@@ -94,9 +116,14 @@ public class AskForCompetenceAssessmentBean extends AskForAssessmentBean impleme
         }
     }
 
+
     @Override
-    public UserData getRandomPeerForAssessor() {
-        return compManager.chooseRandomPeer(resourceId, loggedUser.getUserId());
+    public UserData getPeerAssessorFromAssessorPool() {
+        return assessmentManager.getPeerFromAvailableAssessorsPoolForCompetenceAssessment(
+                assessmentRequestData.getCredentialId(),
+                assessmentRequestData.getResourceId(),
+                loggedUserBean.getUserId(),
+                getUserAssessmentTokenData().isAssessmentTokensEnabled());
     }
 
     @Override
@@ -110,7 +137,7 @@ public class AskForCompetenceAssessmentBean extends AskForAssessmentBean impleme
     }
 
     @Override
-    protected void notifyAssessorToAssessResource() {
+    protected void notifyAssessorToAssessResource() throws IllegalDataStateException {
         assessmentManager.notifyAssessorToAssessCompetence(
                 AssessmentNotificationData.of(
                         credentialId,
@@ -125,6 +152,29 @@ public class AskForCompetenceAssessmentBean extends AskForAssessmentBean impleme
     protected boolean shouldStudentBeRemindedToSubmitEvidenceSummary() {
         //student should be reminded if competency is evidence based
         return compManager.getCompetenceLearningPathType(resourceId) == LearningPathType.EVIDENCE;
+    }
+
+    @Override
+    protected boolean isThereUnassignedAssessmentForThisUser() {
+        return assessmentManager.isThereExistingUnasignedPeerCompetencyAssessment(assessmentRequestData.getCredentialId(), assessmentRequestData.getResourceId(), loggedUserBean.getUserId());
+    }
+
+    @Override
+    protected List<Long> loadAssessorPoolUserIds() {
+        return assessmentManager.getUserIdsFromCompetenceAssessorPool(assessmentRequestData.getCredentialId(), assessmentRequestData.getResourceId(), loggedUserBean.getUserId());
+    }
+
+    @Override
+    protected UserAssessmentTokenExtendedData loadUserAssessmentTokenDataAndRefreshInSession() {
+        UserAssessmentTokenExtendedData userAssessmentTokenExtendedData = userManager.getUserAssessmentTokenExtendedData(loggedUserBean.getUserId());
+        assessmentTokenSessionBean.refreshData(userAssessmentTokenExtendedData);
+        return userAssessmentTokenExtendedData;
+    }
+
+    @Override
+    protected Set<Long> getExistingPeerAssessors() {
+        return new HashSet<>(assessmentManager
+                .getPeerAssessorIdsForCompetence(credentialId, resourceId, loggedUser.getUserId()));
     }
 
     public long getCredentialId() {

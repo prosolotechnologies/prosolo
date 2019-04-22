@@ -2,26 +2,19 @@ package org.prosolo.services.authentication.impl;
 
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
-import org.prosolo.common.domainmodel.interfacesettings.FilterType;
 import org.prosolo.common.domainmodel.interfacesettings.UserSettings;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.ImageFormat;
 import org.prosolo.core.spring.security.authentication.sessiondata.ProsoloUserDetails;
-import org.prosolo.services.activityWall.filters.Filter;
 import org.prosolo.services.authentication.UserAuthenticationService;
 import org.prosolo.services.interfaceSettings.InterfaceSettingsManager;
-import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
 import org.prosolo.services.logging.AccessResolver;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.web.util.AvatarUtils;
-import org.springframework.context.MessageSource;
-import org.springframework.context.MessageSourceAware;
-import org.springframework.context.support.MessageSourceAccessor;
+import org.prosolo.web.util.ResourceBundleUtil;
 import org.springframework.security.authentication.LockedException;
-import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,9 +46,12 @@ public class UserAuthenticationServiceImpl implements UserAuthenticationService 
 
     @Override
     @Transactional
-    public ProsoloUserDetails authenticateUser(User user) throws UsernameNotFoundException, DbConnectionException {
+    public ProsoloUserDetails authenticateUser(User user) throws UsernameNotFoundException, LockedException, DbConnectionException {
         if (user == null) {
             throw new UsernameNotFoundException("There is no user with this email");
+        }
+        if (user.isDeleted()) {
+            throw new LockedException(ResourceBundleUtil.getSpringMessage("AbstractUserDetailsAuthenticationProvider.locked"));
         }
         try {
             //load other user data needed for principal object

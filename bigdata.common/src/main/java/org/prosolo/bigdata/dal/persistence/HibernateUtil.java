@@ -93,6 +93,7 @@ public class HibernateUtil {
 		properties.setProperty("hibernate.cache.use_query_cache", CommonSettings.getInstance().config.hibernateConfig.cache.useQueryCache);
 		properties.setProperty("hibernate.cache.use_structured_entries", CommonSettings.getInstance().config.hibernateConfig.cache.useStructuredEntries);
 		properties.setProperty("hibernate.cache.region.factory_class", CommonSettings.getInstance().config.hibernateConfig.cache.regionFactoryClass);
+		//properties.setProperty("hibernate.default_catalog", CommonSettings.getInstance().config.mysqlConfig.database);
 		return properties;
 	}
 

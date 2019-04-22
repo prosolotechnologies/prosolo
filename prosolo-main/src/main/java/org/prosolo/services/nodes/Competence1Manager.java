@@ -22,7 +22,6 @@ import org.prosolo.services.nodes.data.ResourceCreator;
 import org.prosolo.services.nodes.data.ResourceVisibilityMember;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.resourceAccess.*;
-import org.prosolo.services.user.data.UserData;
 import org.w3c.dom.events.EventException;
 
 import java.util.List;
@@ -294,10 +293,10 @@ public interface Competence1Manager {
 	List<TargetCompetence1> getTargetCompetencesForCompetence(long compId, 
 			boolean justUncompleted) throws DbConnectionException;
 
-	TargetCompetence1 enrollInCompetence(long compId, long userId, UserContextData context)
+	TargetCompetence1 enrollInCompetence(long credId, long compId, long userId, UserContextData context)
 			throws DbConnectionException;
 
-	Result<TargetCompetence1> enrollInCompetenceAndGetEvents(long compId, long userId, UserContextData context)
+	Result<TargetCompetence1> enrollInCompetenceAndGetEvents(long credId, long compId, long userId, UserContextData context)
 			throws DbConnectionException;
 	
 	long countNumberOfStudentsLearningCompetence(long compId) throws DbConnectionException;
@@ -384,8 +383,6 @@ public interface Competence1Manager {
 
 	EventQueue updateCompetenceLearningStage(Competence1 competence, LearningStage stage, UserContextData context) throws DbConnectionException;
 
-	UserData chooseRandomPeer(long compId, long userId) throws DbConnectionException;
-
 	/**
 	 * Returns full target competence data when id of a target competence is not
 	 * known.
@@ -421,7 +418,7 @@ public interface Competence1Manager {
 	boolean isUserEnrolled(long compId, long userId) throws DbConnectionException;
 
 	CompetenceData1 getTargetCompetenceOrCompetenceData(
-			long compId, long studentId, boolean loadAssessmentConfig, boolean loadLearningPathContent,
+			long credId, long compId, long studentId, boolean loadAssessmentConfig, boolean loadLearningPathContent,
 			boolean loadCreator, boolean loadTags) throws DbConnectionException;
 
 	List<AssessmentTypeConfig> getCompetenceAssessmentTypesConfig(long compId) throws DbConnectionException;

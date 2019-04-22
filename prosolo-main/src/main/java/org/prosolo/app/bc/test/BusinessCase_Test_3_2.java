@@ -33,10 +33,10 @@ public class BusinessCase_Test_3_2 extends BusinessCase_Test_3 {
         // enroll in competencies from credentialWithActivities1Delivery1
         ///////////////////////////////////////////
         List<CompetenceData1> competenciesUserHelenCampbell = ServiceLocator.getInstance().getService(Competence1Manager.class).getCompetencesForCredential(credentialWithActivities1Delivery1.getId(), userHelenCampbell.getId(), new CompetenceLoadConfig.CompetenceLoadConfigBuilder().create());
-        TargetCompetence1 comp1UserHelenCampbell = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(competenciesUserHelenCampbell.get(0).getCompetenceId(), userHelenCampbell.getId(), createUserContext(userHelenCampbell)));
+        TargetCompetence1 comp1UserHelenCampbell = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(credentialWithActivities1Delivery1.getId(), competenciesUserHelenCampbell.get(0).getCompetenceId(), userHelenCampbell.getId(), createUserContext(userHelenCampbell)));
 
         List<CompetenceData1> competenciesUserGeorgeYoung = ServiceLocator.getInstance().getService(Competence1Manager.class).getCompetencesForCredential(credentialWithActivities1Delivery1.getId(), userGeorgeYoung.getId(), new CompetenceLoadConfig.CompetenceLoadConfigBuilder().create());
-        TargetCompetence1 comp1UserGeorgeYoung = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(competenciesUserGeorgeYoung.get(0).getCompetenceId(), userGeorgeYoung.getId(), createUserContext(userGeorgeYoung)));
+        TargetCompetence1 comp1UserGeorgeYoung = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(credentialWithActivities1Delivery1.getId(), competenciesUserGeorgeYoung.get(0).getCompetenceId(), userGeorgeYoung.getId(), createUserContext(userGeorgeYoung)));
 
 
         ///////////////////////////////////////////

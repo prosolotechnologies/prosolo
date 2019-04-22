@@ -34,6 +34,7 @@ import org.prosolo.services.assessment.config.AssessmentLoadConfig;
 import org.prosolo.services.assessment.data.AssessmentDataFull;
 import org.prosolo.services.assessment.data.AssessmentTypeConfig;
 import org.prosolo.services.assessment.data.CompetenceAssessmentData;
+import org.prosolo.services.assessment.data.CompetenceAssessmentDataFull;
 import org.prosolo.services.assessment.data.grading.*;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventFactory;
@@ -48,9 +49,7 @@ import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPrev
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.credential.CredentialData;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceData;
-import org.prosolo.services.nodes.data.organization.CredentialCategoryData;
-import org.prosolo.services.nodes.data.organization.LearningStageData;
-import org.prosolo.services.nodes.data.organization.OrganizationData;
+import org.prosolo.services.nodes.data.organization.*;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.RestrictedAccessResult;
 import org.prosolo.services.nodes.data.rubrics.RubricCriterionData;
@@ -242,7 +241,7 @@ public abstract class BaseBusinessCase {
     }
 
     private Organization createOrganization(EventQueue events) {
-        OrganizationData orgData = new OrganizationData();
+        OrganizationBasicData orgData = new OrganizationBasicData();
         orgData.setTitle("Desert Winds University");
         orgData.setAdmins(List.of(new UserData(userNickPowell)));
 
@@ -426,9 +425,9 @@ public abstract class BaseBusinessCase {
         return extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(LearningEvidenceManager.class).postEvidenceAndGetEvents(
                 evidence1Data, createUserContext(user)));
     }
-    protected void enrollToCompetencies(EventQueue events, List<CompetenceData1> competences, User user) {
+    protected void enrollToCompetencies(EventQueue events, long deliveryId, List<CompetenceData1> competences, User user) {
         for (CompetenceData1 cd : competences) {
-            extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(cd.getCompetenceId(), user.getId(), createUserContext(user)));
+            extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(deliveryId, cd.getCompetenceId(), user.getId(), createUserContext(user)));
         }
     }
 
@@ -506,8 +505,7 @@ public abstract class BaseBusinessCase {
     }
 
     protected void createLearningStages(EventQueue events, String... stages) {
-        OrganizationData orgData = new OrganizationData();
-        orgData.setId(organization.getId());
+        OrganizationLearningStageData orgData = new OrganizationLearningStageData();
         orgData.setLearningInStagesEnabled(true);
         int order = 1;
         for (String stage : stages) {
@@ -518,13 +516,12 @@ public abstract class BaseBusinessCase {
             orgData.addLearningStage(stageData);
         }
 
-        events.appendEvents(ServiceLocator.getInstance().getService(OrganizationManager.class)
-               .updateOrganizationLearningStages(organization.getId(), orgData, UserContextData.empty()));
+        extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(OrganizationManager.class)
+               .updateOrganizationLearningStagesAndGetEvents(organization.getId(), orgData, UserContextData.empty()));
     }
 
     protected void createCredentialCategories(EventQueue events, String... categories) {
-        OrganizationData orgData = new OrganizationData();
-        orgData.setId(organization.getId());
+        OrganizationCategoryData orgData = new OrganizationCategoryData();
         for (String category : categories) {
             CredentialCategoryData categoryData = new CredentialCategoryData(false);
             categoryData.setTitle(category);
@@ -560,8 +557,8 @@ public abstract class BaseBusinessCase {
         extractResultAndAddEvents(events, credManager.updateCredentialData(credentialData, createUserContext(user)));
     }
 
-    protected CompetenceAssessment askPeerForCompetenceAssessment(EventQueue events, long compId, User student, long peerId) throws Exception {
-        return extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(AssessmentManager.class).requestCompetenceAssessmentAndGetEvents(compId, student.getId(), peerId, createUserContext(student)));
+    protected CompetenceAssessment askPeerForCompetenceAssessment(EventQueue events, long deliveryId, long compId, User student, long peerId) throws Exception {
+        return extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(AssessmentManager.class).requestCompetenceAssessmentAndGetEvents(deliveryId, compId, student.getId(), peerId, 0, createUserContext(student)));
     }
 
     protected void updateCompetenceBlindAssessmentMode(EventQueue events, long compId, BlindAssessmentMode blindAssessmentMode, User userEditor) throws Exception {
@@ -577,7 +574,7 @@ public abstract class BaseBusinessCase {
     protected AssessmentDataFull getCredentialAssessmentData(long credentialAssessmentId, long actorId, AssessmentType assessmentType) {
         AssessmentDataFull credentialAssessmentData = ServiceLocator.getInstance().getService(AssessmentManager.class)
                 .getFullAssessmentDataForAssessmentType(credentialAssessmentId,
-                        actorId, assessmentType, new SimpleDateFormat("MMMM dd, yyyy"), AssessmentLoadConfig.of(true, true, true));
+                        actorId, assessmentType, AssessmentLoadConfig.of(true, true, true));
         if (credentialAssessmentData.getGradeData().getGradingMode() == org.prosolo.services.assessment.data.grading.GradingMode.MANUAL_RUBRIC) {
             ((RubricGradeData) credentialAssessmentData.getGradeData()).setRubricCriteria(
                     ServiceLocator.getInstance().getService(RubricManager.class).getRubricDataForCredential(
@@ -585,7 +582,7 @@ public abstract class BaseBusinessCase {
                             credentialAssessmentData.getCredAssessmentId(),
                             true));
         }
-        for (CompetenceAssessmentData competenceAssessmentData : credentialAssessmentData.getCompetenceAssessmentData()) {
+        for (CompetenceAssessmentDataFull competenceAssessmentData : credentialAssessmentData.getCompetenceAssessmentData()) {
             if (competenceAssessmentData.getGradeData().getGradingMode() == org.prosolo.services.assessment.data.grading.GradingMode.MANUAL_RUBRIC) {
                 ((RubricGradeData) competenceAssessmentData.getGradeData()).setRubricCriteria(
                         ServiceLocator.getInstance().getService(RubricManager.class).getRubricDataForCompetence(
@@ -608,9 +605,9 @@ public abstract class BaseBusinessCase {
                 .updateGradeForCredentialAssessmentAndGetEvents(credentialAssessmentData.getCredAssessmentId(), credentialAssessmentData.getGradeData(), createUserContext(actor)));
     }
 
-    protected CompetenceAssessmentData getCompetenceAssessmentData(long compAssessmentId, long actorId, AssessmentType assessmentType) {
-        CompetenceAssessmentData competenceAssessmentData = ServiceLocator.getInstance().getService(AssessmentManager.class).getCompetenceAssessmentData(
-                compAssessmentId, actorId, assessmentType, AssessmentLoadConfig.of(true, true, true) ,new SimpleDateFormat("MMMM dd, yyyy"));
+    protected CompetenceAssessmentDataFull getCompetenceAssessmentData(long compAssessmentId, long actorId, AssessmentType assessmentType) {
+        CompetenceAssessmentDataFull competenceAssessmentData = ServiceLocator.getInstance().getService(AssessmentManager.class).getCompetenceAssessmentData(
+                compAssessmentId, actorId, assessmentType, AssessmentLoadConfig.of(true, true, true));
         //init grade data
         if (competenceAssessmentData.getGradeData().getGradingMode() == org.prosolo.services.assessment.data.grading.GradingMode.MANUAL_RUBRIC) {
             ((RubricGradeData) competenceAssessmentData.getGradeData()).setRubricCriteria(
@@ -623,11 +620,11 @@ public abstract class BaseBusinessCase {
     }
 
     protected void gradeCompetenceAssessmentByRubric(EventQueue events, long competenceAssessmentId, AssessmentType assessmentType, User actor, int... lvls) throws Exception {
-        CompetenceAssessmentData competenceAssessmentData = getCompetenceAssessmentData(competenceAssessmentId, actor.getId(), assessmentType);
+        CompetenceAssessmentDataFull competenceAssessmentData = getCompetenceAssessmentData(competenceAssessmentId, actor.getId(), assessmentType);
         gradeCompetenceAssessmentByRubric(events, competenceAssessmentData, actor, lvls);
     }
 
-    protected void gradeCompetenceAssessmentByRubric(EventQueue events, CompetenceAssessmentData competenceAssessmentData, User actor, int... lvls) throws Exception {
+    protected void gradeCompetenceAssessmentByRubric(EventQueue events, CompetenceAssessmentDataFull competenceAssessmentData, User actor, int... lvls) throws Exception {
         gradeByRubric(competenceAssessmentData.getGradeData(), lvls);
         extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(AssessmentManager.class)
                 .updateGradeForCompetenceAssessmentAndGetEvents(competenceAssessmentData.getCompetenceAssessmentId(), competenceAssessmentData.getGradeData(), createUserContext(actor)));
