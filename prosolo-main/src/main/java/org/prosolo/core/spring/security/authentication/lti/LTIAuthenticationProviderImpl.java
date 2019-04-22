@@ -17,7 +17,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
 
@@ -41,7 +40,6 @@ public class LTIAuthenticationProviderImpl implements LTIAuthenticationProvider 
     @Inject private UserDetailsService userDetailsService;
 
     @Override
-    @Transactional
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         LTIAuthenticationToken.LTIPreauthenticationToken token = ((LTIAuthenticationToken) authentication).getPreauthenticationToken();
         if (token == null || token.getLaunchMessage() == null || token.getLtiTool() == null) {

@@ -119,10 +119,10 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 
 			if (loadOnlyCommentsFromUsersLearningSameDeliveries) {
 				if (!deliveries.isEmpty()) {
-					query.append("AND (user.id = :userId OR EXISTS " +
+					query.append("AND (user.id = :userId OR comment.managerComment IS TRUE OR EXISTS " +
 							"(from TargetCredential1 cred WHERE cred.user.id = user.id AND cred.credential.id IN (:credentials))) ");
 				} else {
-					query.append("AND user.id = :userId ");
+					query.append("AND user.id = :userId OR comment.managerComment IS TRUE ");
 				}
 			}
 			
@@ -225,10 +225,10 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 
 			if (loadOnlyCommentsFromUsersLearningSameDeliveries) {
 				if (!deliveries.isEmpty()) {
-					query.append("AND (user.id = :userId OR EXISTS " +
+					query.append("AND (user.id = :userId OR comment.managerComment IS TRUE OR EXISTS " +
 					"(from TargetCredential1 cred WHERE cred.user.id = user.id AND cred.credential.id IN (:credentials))) ");
 				} else {
-					query.append("AND user.id = :userId ");
+					query.append("AND user.id = :userId OR comment.managerComment IS TRUE ");
 				}
 			}
 			
@@ -461,17 +461,19 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 			comment.setResourceType(resource);
 			comment.setInstructor(data.isInstructor());
 			comment.setManagerComment(data.isManagerComment());
-			//comment.setDateCreated(data.getDateCreated());
 			comment.setPostDate(data.getDateCreated());
-			User user = (User) persistence.currentManager().load(User.class, context.getActorId());
+
+			User user = new User();
+			user.setId(context.getActorId());
 			comment.setUser(user);
-			if(data.getParent() != null) {
-				Comment1 parent = (Comment1) persistence.currentManager().load(Comment1.class,
-						data.getParent().getCommentId());
+
+			if (data.getParent() != null) {
+				Comment1 parent = new Comment1();
+				parent.setId(data.getParent().getCommentId());
 				comment.setParentComment(parent);
 			}
 
-			saveEntity(comment);
+			comment = saveEntity(comment);
 
 			BaseEntity target = null;
 			switch(resource) {

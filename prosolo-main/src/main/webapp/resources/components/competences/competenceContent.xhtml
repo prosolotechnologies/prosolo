@@ -157,7 +157,7 @@
 											<td>
 												<utilcomp:convertTimeOutput
 														millis="#{ev.dateCreated}"
-														format="MMM DD, YYYY" />
+														format="rel" />
 											</td>
 										</tr>
 									</table>
@@ -241,7 +241,7 @@
 													value="Ask"
 													action="#{cc.attrs.bean.initAskForAssessment('PEER_ASSESSMENT')}"
 													update="formAskForAssessment:askForAssessment:askForAssessmentPanel"
-													oncomplete="$('#askAssessment').modal('show');">
+													oncomplete="$('#askAssessmentPeer').modal('show');">
 											</p:commandLink>
 											<div class="assessmentsStar #{styleUtilBean.getGradeStarClass(cc.attrs.bean.competenceData.getGradeSummary('PEER_ASSESSMENT'))}">
 												<div class="star #{styleUtilBean.getEmptyStarClass(cc.attrs.bean.competenceData.getGradeSummary('PEER_ASSESSMENT'))}"></div>
@@ -257,7 +257,7 @@
 												value="Ask"
 												action="#{cc.attrs.bean.initAskForAssessment('INSTRUCTOR_ASSESSMENT')}"
 												update="formAskForAssessment:askForAssessment:askForAssessmentPanel"
-												oncomplete="$('#askAssessment').modal('show');">
+												oncomplete="$('#askAssessmentPeer').modal('show');">
 										</p:commandLink>
 										<div class="assessmentsStar #{styleUtilBean.getGradeStarClass(cc.attrs.bean.competenceData.getGradeSummary('INSTRUCTOR_ASSESSMENT'))}">
 											<div class="star #{styleUtilBean.getEmptyStarClass(cc.attrs.bean.competenceData.getGradeSummary('INSTRUCTOR_ASSESSMENT'))}"></div>

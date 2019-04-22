@@ -193,9 +193,11 @@
 							</h:panelGroup>
 						</div>
 					</div>
-					<ui:fragment rendered="#{assessmentTokenSessionBean.assessmentTokensEnabled}">
-						<h:link styleClass="iconTokens" outcome="/my-assessments-credentials">#{assessmentTokenSessionBean.numberOfTokensAvailable}</h:link>
-					</ui:fragment>
+					<h:panelGroup id="panelHeaderNumberOfTokens">
+						<ui:fragment rendered="#{assessmentTokenSessionBean.assessmentTokensEnabled}">
+							<h:link styleClass="iconTokens" outcome="/my-assessments-credentials">#{assessmentTokenSessionBean.numberOfTokensAvailable}</h:link>
+						</ui:fragment>
+					</h:panelGroup>
 					<h:form id="userMenuForm">
 						<div class="dropdown userMenu">
 							<a data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">

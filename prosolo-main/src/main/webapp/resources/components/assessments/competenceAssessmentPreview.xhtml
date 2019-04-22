@@ -16,7 +16,8 @@
 	</composite:interface>
 
 	<composite:implementation>
-		<h:panelGroup id="panelCompetenceAssessmentPreview">
+
+        <h:panelGroup id="panelCompetenceAssessmentPreview">
             <script>
                 function hideConfirmDialog(dialogId) {
                     $('#' + dialogId).modal('hide');
@@ -73,7 +74,25 @@
             <p:growl id="growlMain" showDetail="true" globalOnly="true"/>
 
             <div class="whiteBar">
-
+                <div class="container">
+                    <div class="whiteBarContent">
+                        <div class="whiteBarLeft">
+                            <ui:fragment rendered="#{competenceAssessmentBean.isUserAssessorInCurrentContext() and competenceAssessmentBean.competenceAssessmentData.status eq 'REQUESTED'}">
+                                <p:commandLink
+                                        styleClass="btn btn-green btn-sm item"
+                                        process="@this"
+                                        action="#{competenceAssessmentBean.acceptAssessmentRequest()}"
+                                        update=":#{cc.clientId}:growlMain">
+                                    Start Assessment
+                                    <f:param name="page" value="#{facesContext.viewRoot.viewId}"/>
+                                    <f:param name="learningContext" value="#{util:addSubContext(cc.attrs.learningContext, 'name:COMPETENCE|id:'.concat(competenceAssessmentBean.competenceAssessmentData.competenceId).concat('|context:/name:COMPETENCE_ASSESSMENT|id:').concat(competenceAssessmentBean.competenceAssessmentData.competenceAssessmentId).concat('/'))}"/>
+                                </p:commandLink>
+                                <a href="#" class="btn btn-default btn-sm item" data-toggle="modal" data-target="#declineAssessment">Decline Request</a>
+                            </ui:fragment>
+                        </div>
+                        <div class="whiteBarRight"></div>
+                    </div>
+                </div>
             </div>
 
             <div class="container">
@@ -298,7 +317,7 @@
                                             value="Ask for #{msg['label.assessment.type.'.concat(competenceAssessmentBean.competenceAssessmentData.type)]}"
                                             action="#{competenceAssessmentBean.initAskForAssessment()}"
                                             update="formAskForAssessment:askForAssessment:askForAssessmentPanel"
-                                            oncomplete="$('#askAssessment').modal('show');">
+                                            oncomplete="$('#askAssessmentPeer').modal('show');">
                                     </p:commandLink>
                                 </c:if>
                             </h:panelGroup>
@@ -382,5 +401,33 @@
 				/>
 			</h:panelGroup>
 		</c:if>
+
+        <c:if test="#{competenceAssessmentBean.isUserAssessorInCurrentContext() and competenceAssessmentBean.competenceAssessmentData.status eq 'REQUESTED'}">
+            <div class="modal fade" id="declineAssessment" tabindex="-1" role="dialog" aria-labelledby="declineAssessmentModalTitle">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+                            <h2 class="modal-title" id="declineAssessmentModalTitle">Decline assessment request?</h2>
+                        </div>
+                        <div class="modal-body">
+                            <p>Are you sure you want to decline this assessment request?</p>
+                        </div>
+                        <div class="modal-footer">
+                            <p:commandLink
+                                    styleClass="btn btn-red"
+                                    process="@this"
+                                    action="#{competenceAssessmentBean.declineAssessmentRequest()}"
+                                    update=":#{cc.clientId}:growlMain">
+                                Decline
+                                <f:param name="page" value="#{facesContext.viewRoot.viewId}"/>
+                                <f:param name="learningContext" value="#{util:addSubContext(cc.attrs.learningContext, 'name:COMPETENCE|id:'.concat(competenceAssessmentBean.competenceAssessmentData.competenceId).concat('|context:/name:COMPETENCE_ASSESSMENT|id:').concat(competenceAssessmentBean.competenceAssessmentData.competenceAssessmentId).concat('/'))}"/>
+                            </p:commandLink>
+                            <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </c:if>
 	</composite:implementation>
 </ui:component>

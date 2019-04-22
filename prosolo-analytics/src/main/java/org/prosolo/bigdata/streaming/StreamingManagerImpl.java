@@ -8,57 +8,57 @@ import org.prosolo.common.config.CommonSettings;
 
 /**
  * @author Zoran Jeremic Apr 3, 2015
- *
  */
 
 public class StreamingManagerImpl {
-	private final static Logger logger = Logger
-			.getLogger(StreamingManagerImpl.class);
+    private final static Logger logger = Logger
+            .getLogger(StreamingManagerImpl.class);
 
-	public void initializeStreaming() {
-		logger.info("Initialize streaming");
-		// boolean format = true;
-		//CassandraDDLManagerImpl client = new CassandraDDLManagerImpl();
-		String dbName = Settings.getInstance().config.dbConfig.dbServerConfig.dbName
-				+ CommonSettings.getInstance().config.getNamespaceSufix();
-		CassandraDDLManagerImpl.getInstance().checkIfTablesExistsAndCreate(dbName);
+    public void initializeStreaming() {
+        logger.info("Initialize streaming started");
 
-		StreamConsumerManager.getInstance().getEventDispatcher()
-				.registerObserver(new LogEventsPersisterObserver());
-		StreamConsumerManager.getInstance().getEventDispatcher()
-				.registerObserver(new AnalyticalEventsObserver());
+        String dbName = Settings.getInstance().config.dbConfig.dbServerConfig.dbName
+                + CommonSettings.getInstance().config.getNamespaceSufix();
+        CassandraDDLManagerImpl.getInstance().checkIfTablesExistsAndCreate(dbName);
+        logger.info("Initialize streaming cassandra finished");
+        StreamConsumerManager.getInstance().getEventDispatcher()
+                .registerObserver(new LogEventsPersisterObserver());
+        StreamConsumerManager.getInstance().getEventDispatcher()
+                .registerObserver(new AnalyticalEventsObserver());
 
-		StreamConsumerManager.getInstance().getEventDispatcher()
-		.registerObserver(new UserProfileRelatedActivitiesObserver());
-		
-		//register SessionTermination observer
-		StreamConsumerManager.getInstance().getEventDispatcher()
-		.registerObserver(new UserSessionObserver());
-		
-		//register student assign event observer
-		StreamConsumerManager.getInstance().getEventDispatcher()
-			.registerObserver(new StudentAssignObserver());
+        StreamConsumerManager.getInstance().getEventDispatcher()
+                .registerObserver(new UserProfileRelatedActivitiesObserver());
 
-		//register user preferences observer
-		StreamConsumerManager.getInstance().getEventDispatcher()
-				.registerObserver(new UserPreferencesObserver());
+        //register SessionTermination observer
+        StreamConsumerManager.getInstance().getEventDispatcher()
+                .registerObserver(new UserSessionObserver());
 
-		//register user enrollment observer for tracking new users and providing recommendations
-		StreamConsumerManager.getInstance().getEventDispatcher()
-				.registerObserver(new UserEnrollmentObserver());
-		
-		//register observer that schedules credential publishing
-		StreamConsumerManager.getInstance().getEventDispatcher()
-		.registerObserver(new ScheduledResourceVisibilityUpdateObserver());
+        //register student assign event observer
+        StreamConsumerManager.getInstance().getEventDispatcher()
+                .registerObserver(new StudentAssignObserver());
 
-		// Start streaming from Moodle/Kafka
-		StreamConsumerManager.getInstance().startTopicStreaming(Topic.LOGS, 1);
-		StreamConsumerManager.getInstance().startTopicStreaming(
-				Topic.ANALYTICS, 1);
+        //register user preferences observer
+        StreamConsumerManager.getInstance().getEventDispatcher()
+                .registerObserver(new UserPreferencesObserver());
 
-	}
-	public void stopStreamingTopics(){
-		StreamConsumerManager.getInstance().stopStreaming(Topic.LOGS);
-		StreamConsumerManager.getInstance().stopStreaming(Topic.ANALYTICS);
-	}
+        //register user enrollment observer for tracking new users and providing recommendations
+        StreamConsumerManager.getInstance().getEventDispatcher()
+                .registerObserver(new UserEnrollmentObserver());
+
+        //register observer that schedules credential publishing
+        StreamConsumerManager.getInstance().getEventDispatcher()
+                .registerObserver(new ScheduledResourceVisibilityUpdateObserver());
+        logger.info("Initialize streaming observers");
+        // Start streaming from Moodle/Kafka
+        StreamConsumerManager.getInstance().startTopicStreaming(Topic.LOGS, 1);
+        StreamConsumerManager.getInstance().startTopicStreaming(
+                Topic.ANALYTICS, 1);
+        logger.info("Initialize streaming finished");
+
+    }
+
+    public void stopStreamingTopics() {
+        StreamConsumerManager.getInstance().stopStreaming(Topic.LOGS);
+        StreamConsumerManager.getInstance().stopStreaming(Topic.ANALYTICS);
+    }
 }

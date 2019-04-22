@@ -545,7 +545,7 @@
 									value="Ask for #{msg['label.assessment.type.'.concat(cc.attrs.bean.fullAssessmentData.type)]}"
 									action="#{cc.attrs.bean.initAskForAssessment()}"
 									update="formAskForAssessment:askForAssessment:askForAssessmentPanel"
-									oncomplete="$('#askAssessment').modal('show');">
+									oncomplete="$('#askAssessmentPeer').modal('show');">
 							</p:commandLink>
 						</c:if>
 						<c:if test="#{cc.attrs.bean.fullAssessmentData.type eq 'INSTRUCTOR_ASSESSMENT' and cc.attrs.bean.isUserAssessorInCurrentContext() and cc.attrs.bean.fullAssessmentData.assessorId eq cc.attrs.bean.fullAssessmentData.instructorUserId}">

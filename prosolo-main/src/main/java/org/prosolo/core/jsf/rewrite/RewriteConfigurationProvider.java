@@ -44,9 +44,9 @@ public class RewriteConfigurationProvider extends HttpConfigurationProvider {
 				.addRule(Join.path("/learn/{id}").to("/learn.xhtml"))
 				.addRule(Join.path("/learn").to("/learn.xhtml"))
 				.addRule(Join.path("/plan").to("/plan.xhtml"))
-				.addRule(Join.path("/profile/{id}").to("/profile.xhtml"))
 				.addRule(Join.path("/profile").to("/profile.xhtml"))
 				.addRule(Join.path("/profile/{studentId}/evidence/{competenceEvidenceId}").to("/student-profile-evidence.xhtml"))
+				.addRule(Join.path("/profile/{id}").to("/profile.xhtml"))
 				.addRule(Join.path("/credentials/{id}").to("/credential.xhtml"))
 				.addRule(Join.path("/credentials/{id}/preview").to("/public-credential.xhtml"))
 				.addRule(Join.path("/credentials/{id}/announcements/{announcementId}").to("/announcement.xhtml"))
@@ -92,11 +92,11 @@ public class RewriteConfigurationProvider extends HttpConfigurationProvider {
 				.addRule(Join.path("/posts/{id}").to("/wall-post-view.xhtml"))
 				.addRule(Join.path("/groups/{id}/join").to("/groups-join.xhtml"))
 				.addRule(Join.path("/assessments/my/credential").to("/my-assessments-credentials.xhtml"))
+				.addRule(Join.path("/assessments/my/competence").to("/my-assessments-competences.xhtml"))
 
 				.addRule(Join.path("/manage/notfound").to("/manage/404.xhtml"))
 				.addRule(Join.path("/manage/accessDenied").to("/manage/accessDenied.xhtml"))
 				.addRule(Join.path("/manage").to("/manage/library.xhtml"))
-				.addRule(Join.path("/manage/").to("/manage/library.xhtml"))
 				.addRule(Join.path("/manage/rubrics").to("/manage/rubricLibrary.xhtml"))
 				.addRule(Join.path("/manage/rubrics/{id}/settings").to("/manage/rubricEdit.xhtml"))
 				.addRule(Join.path("/manage/rubrics/{id}/privacy").to("/manage/rubric-privacy.xhtml"))
@@ -189,7 +189,6 @@ public class RewriteConfigurationProvider extends HttpConfigurationProvider {
 				.addRule(Join.path("/admin/settings/password").to("/admin/settings/password.xhtml"))
 				.addRule(Join.path("/admin/settings").to("/admin/settings.xhtml"))
 				.addRule(Join.path("/admin/settings_old").to("/admin/settings_old.xhtml"))
-//				.addRule(Join.path("/admin/messages").to("/admin/messages.xhtml"))
 				.addRule(Join.path("/admin/other").to("/admin/other.xhtml"));
 	}
 }

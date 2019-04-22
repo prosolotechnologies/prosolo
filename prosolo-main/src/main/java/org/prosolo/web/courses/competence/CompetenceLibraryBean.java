@@ -11,8 +11,8 @@ import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.search.CompetenceTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
+import org.prosolo.search.util.credential.CompetenceLibrarySearchFilter;
 import org.prosolo.search.util.credential.CompetenceSearchConfig;
-import org.prosolo.search.util.credential.LearningResourceSearchFilter;
 import org.prosolo.services.logging.ComponentName;
 import org.prosolo.services.logging.LoggingService;
 import org.prosolo.services.nodes.Competence1Manager;
@@ -32,7 +32,10 @@ import org.springframework.stereotype.Component;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Component("competenceLibraryBean")
 @Scope("view")
@@ -53,9 +56,9 @@ public class CompetenceLibraryBean implements Serializable, Paginable {
 	@Getter @Setter
 	private List<CompetenceData1> competences;
 	@Getter @Setter
-	private LearningResourceSearchFilter searchFilter = LearningResourceSearchFilter.ALL;
+	private CompetenceLibrarySearchFilter searchFilter = CompetenceLibrarySearchFilter.ALL_COMPETENCES;
 	@Getter
-	private LearningResourceSearchFilter[] searchFilters;
+	private CompetenceLibrarySearchFilter[] searchFilters;
 
 	//search
 	@Getter @Setter
@@ -69,10 +72,7 @@ public class CompetenceLibraryBean implements Serializable, Paginable {
 			true, true, false, true, LearningResourceType.USER_CREATED);
 
 	public void init() {
-		searchFilters = Arrays.stream(LearningResourceSearchFilter.values()).filter(
-				f -> f != LearningResourceSearchFilter.BY_STUDENTS &&
-					 f != LearningResourceSearchFilter.YOUR_CREDENTIALS)
-				.toArray(LearningResourceSearchFilter[]::new);
+		searchFilters = CompetenceLibrarySearchFilter.values();
 
 		try {
 			Long userRoleId = roleManager.getRoleIdByName(SystemRoleNames.USER);
@@ -120,7 +120,7 @@ public class CompetenceLibraryBean implements Serializable, Paginable {
 		competences = response.getFoundNodes();
 	}
 	
-	public void applySearchFilter(LearningResourceSearchFilter filter) {
+	public void applySearchFilter(CompetenceLibrarySearchFilter filter) {
 		this.searchFilter = filter;
 		paginationData.setPage(1);
 		searchCompetences(true);

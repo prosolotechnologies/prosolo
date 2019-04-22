@@ -46,7 +46,6 @@ import org.prosolo.services.nodes.factory.CompetenceDataFactory;
 import org.prosolo.services.nodes.factory.UserDataFactory;
 import org.prosolo.services.nodes.observers.learningResources.CompetenceChangeTracker;
 import org.prosolo.services.user.UserGroupManager;
-import org.prosolo.services.user.data.UserData;
 import org.prosolo.services.util.roles.SystemRoleNames;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -498,17 +497,15 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 				}
 			}
 
-			Competence1 updatedComp = resourceFactory.updateCompetence(data, context.getActorId());
-
-			fireCompEditEvent(data, updatedComp, context);
-			
+			Result<Competence1> updatedComp = resourceFactory.updateCompetence(data, context);
+			eventFactory.generateEvents(updatedComp.getEventQueue());
 			/* 
 			 * flushing to force lock timeout exception so it can be caught here.
 			 * It is rethrown as StaleDataException.
 			 */
 			persistence.currentManager().flush();
 		    
-			return updatedComp;
+			return updatedComp.getResult();
 		} catch(StaleDataException|IllegalDataStateException e) {
 			logger.error(e);
 			//cee.printStackTrace();
@@ -524,7 +521,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		}
 	}
 
-	private void fireCompEditEvent(CompetenceData1 data, Competence1 updatedComp,
+	private EventData fireCompEditEvent(CompetenceData1 data, Competence1 updatedComp,
 								   UserContextData context) {
 		Map<String, String> params = new HashMap<>();
 		CompetenceChangeTracker changeTracker = new CompetenceChangeTracker(data.isPublished(),
@@ -534,12 +531,12 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		String jsonChangeTracker = gson.toJson(changeTracker);
 		params.put("changes", jsonChangeTracker);
 
-		eventFactory.generateEvent(EventType.Edit, context, updatedComp,null, null, params);
+		return eventFactory.generateEventData(EventType.Edit, context, updatedComp,null, null, params);
 	}
 
 	@Override
 	@Transactional(readOnly = false, rollbackFor = Exception.class)
-	public Competence1 updateCompetenceData(CompetenceData1 data, long userId) throws StaleDataException,
+	public Result<Competence1> updateCompetenceData(CompetenceData1 data, UserContextData context) throws StaleDataException,
 		IllegalDataStateException {
 		Competence1 compToUpdate = (Competence1) persistence.currentManager()
 				.load(Competence1.class, data.getCompetenceId(), LockOptions.UPGRADE);
@@ -642,8 +639,12 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 
 			setAssessmentRelatedData(compToUpdate, data, data.getAssessmentSettings().isRubricChanged());
     	}
-	    
-	    return compToUpdate;
+
+
+	    Result<Competence1> result = new Result<>();
+    	result.appendEvent(fireCompEditEvent(data, compToUpdate, context));
+    	result.setResult(compToUpdate);
+	    return result;
 	}
 
 	private void updateCredDuration(long compId, long newDuration, long oldDuration) {
@@ -2212,7 +2213,24 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		}
 		q.executeUpdate();
 	}
-	
+
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public Result<Void> publishCompetenceIfNotPublished(long competenceId, UserContextData context)
+			throws DbConnectionException, IllegalDataStateException {
+		try {
+			return publishCompetenceIfNotPublished(
+					(Competence1) persistence.currentManager().load(Competence1.class, competenceId),
+					context);
+		} catch (DbConnectionException|IllegalDataStateException e) {
+			logger.error("Error", e);
+			throw e;
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error publishing competency");
+		}
+	}
+
 	@Override
 	@Transactional(rollbackFor = Exception.class)
 	public Result<Void> publishCompetenceIfNotPublished(Competence1 comp, UserContextData context)
@@ -2479,42 +2497,6 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		} catch (Exception e) {
 			logger.error("Error", e);
 			throw new DbConnectionException("Error loading competence learning path type");
-		}
-	}
-
-	@Override
-	@Transactional(readOnly = true)
-	public UserData chooseRandomPeer(long compId, long userId) throws DbConnectionException {
-		try {
-			String query =
-					"SELECT user " +
-					"FROM TargetCompetence1 tComp " +
-					"INNER JOIN tComp.user user " +
-					"WHERE tComp.competence.id = :compId " +
-					"AND user.id != :userId " +
-					"AND user.id NOT IN ( " +
-						"SELECT assessment.assessor.id " +
-						"FROM CompetenceAssessment assessment " +
-						"WHERE assessment.student.id = :userId " +
-						"AND assessment.competence.id = :compId " +
-						"AND assessment.assessor IS NOT NULL " + // can be NULL in default assessments when instructor is not set
-						"AND assessment.type = :aType " +
-					") " +
-					"ORDER BY RAND()";
-
-			@SuppressWarnings("unchecked")
-			User res = (User) persistence.currentManager()
-					.createQuery(query)
-					.setLong("compId", compId)
-					.setLong("userId", userId)
-					.setString("aType", AssessmentType.PEER_ASSESSMENT.name())
-					.setMaxResults(1)
-					.uniqueResult();
-
-			return res != null ? new UserData(res) : null;
-		} catch (Exception e) {
-			logger.error("Error", e);
-			throw new DbConnectionException("Error retrieving random peer");
 		}
 	}
 

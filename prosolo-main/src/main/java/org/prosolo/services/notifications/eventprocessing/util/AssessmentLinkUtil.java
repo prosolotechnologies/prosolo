@@ -79,4 +79,26 @@ public class AssessmentLinkUtil {
         logger.debug("Assessment notification link can't be created");
         return null;
     }
+
+    public static String getCompetenceAssessmentNotificationLinkForStudent(
+            long credId,
+            long compId,
+            long compAssessmentId,
+            AssessmentType assessmentType,
+            UrlIdEncoder idEncoder) {
+        if (credId > 0 && compId > 0 && compAssessmentId > 0) {
+            String encodedCompAssessmentId = idEncoder.encodeId(compAssessmentId);
+            return "/competences/" +
+                    idEncoder.encodeId(compId) +
+                    "/assessments/" +
+                    (assessmentType == AssessmentType.PEER_ASSESSMENT
+                            ? "peer/" + encodedCompAssessmentId
+                            : (assessmentType == AssessmentType.INSTRUCTOR_ASSESSMENT
+                            ? "instructor/" + encodedCompAssessmentId : "self")) +
+                    "?credId=" + idEncoder.encodeId(credId);
+        }
+
+        logger.debug("Assessment notification link can't be created");
+        return null;
+    }
 }

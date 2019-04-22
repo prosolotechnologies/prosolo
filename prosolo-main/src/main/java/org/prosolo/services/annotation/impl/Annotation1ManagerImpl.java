@@ -69,13 +69,15 @@ public class Annotation1ManagerImpl extends AbstractManagerImpl implements Annot
 			String query = "DELETE FROM Annotation1 annotation " +
 						   "WHERE annotation.annotatedResourceId = :resourceId " +
 						   "AND annotation.annotatedResource = :resource " +
-						   "AND annotation.annotationType = :annotationType";
+						   "AND annotation.annotationType = :annotationType " +
+						   "AND annotation.maker.id = :userId";
 			
 			int affected = persistence.currentManager()
 				.createQuery(query)
 				.setLong("resourceId", resourceId)
 				.setParameter("resource", resource)
 				.setParameter("annotationType", annotationType)
+				.setLong("userId", userId)
 				.executeUpdate();
 			
 			logger.info("Deleted annotations number: " + affected);

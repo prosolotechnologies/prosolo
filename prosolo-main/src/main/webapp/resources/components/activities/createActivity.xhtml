@@ -332,29 +332,30 @@
 		                    </div>
 		                    
 		                    <div class="modal-body alignLeft">
-		                        <h:inputText id="inputFileTitle"
-									autocomplete="off"
-		                        	placeholder="File title..."
-									value="#{activityEditBean.resLinkToAdd.linkName}">
-		                        </h:inputText>
+								<h:inputText id="inputFileTitle"
+											 autocomplete="off"
+											 placeholder="File title..."
+											 value="#{activityEditBean.resLinkToAdd.linkName}"/>
 
 								<ui:fragment rendered="#{activityEditBean.resLinkToAdd.linkNameInvalid}">
 									<small class="redText bottom5 topMinus20 displayBlock">File title must be entered</small>
 								</ui:fragment>
 		                        
 		                        <div class="chooseFileBox">
-		                        	<utilcomp:simpleFileUpload
-		                        		id="simpleFileUpload"
-					            		fileUploadListenerMethodName="handleFileUpload"
-					            		fileUploadListenerMethod="#{activityEditBean.handleFileUpload}"
-					            		toUpdate=":#{cc.clientId}:formModalUploadFile:panelFileName"
-					            		uploadButtonStyle="btn btn-green btn-sm"
-										oncomplete="$('#createActivity\\:formModalUploadFile\\:fileUploadMessagePanel').hide();"
-		                        	/>
+									<utilcomp:simpleFileUpload id="resourceFileUpload"
+															   fileUploadListenerMethodName="handleFileUpload"
+															   fileUploadListenerMethod="#{activityEditBean.handleFileUpload}"
+															   toUpdate=":#{cc.clientId}:formModalUploadFile:panelFileName"
+															   uploadButtonStyle="btn btn-green btn-sm"
+															   oncomplete="$('#createActivity\\:formModalUploadFile\\:fileUploadMessagePanel').hide();"
+															   fileSizeValidationMessageContainer="#resourceFileUploadValidation"/>
+
 		                            <h:panelGroup id="panelFileName">
 		                            	#{activityEditBean.resLinkToAdd.fetchedTitle}
 		                            </h:panelGroup>
 		                        </div>
+
+								<small id="resourceFileUploadValidation" class="redText topMinus10 displayBlock"></small>
 
 								<h:panelGroup  id="fileUploadMessagePanel" rendered="#{activityEditBean.resLinkToAdd.urlInvalid}">
 									<small class="redText bottom5 topMinus20 displayBlock">File must be uploaded</small>
@@ -437,8 +438,6 @@
 			            			oncomplete="hideLoader('#loaderContainerUrlTitle');"
 		                        	update="inputUrlTitle">
 		                        </p:remoteCommand>
-
-
 		                    </div>
 		                    
 		                    <div class="modal-footer alignLeft">
@@ -479,18 +478,20 @@
 								</ui:fragment>
 		                        
 		                        <div class="chooseFileBox">
-		                        	<utilcomp:simpleFileUpload
-		                        		id="simpleFileUploadCaptions"
-					            		fileUploadListenerMethodName="handleFileUpload"
-					            		fileUploadListenerMethod="#{activityEditBean.handleFileUpload}"
-					            		toUpdate=":#{cc.clientId}:formModalUploadCaption:panelFileName"
-					            		uploadButtonStyle="btn btn-green btn-sm"
-										oncomplete="$('#createActivity\\:formModalUploadCaption\\:subtitleUploadMessagePanel').hide();"
-		                        	/>
+									<utilcomp:simpleFileUpload id="captionsFileUpload"
+															   fileUploadListenerMethodName="handleFileUpload"
+															   fileUploadListenerMethod="#{activityEditBean.handleFileUpload}"
+															   toUpdate=":#{cc.clientId}:formModalUploadCaption:panelFileName"
+															   uploadButtonStyle="btn btn-green btn-sm"
+															   oncomplete="$('#createActivity\\:formModalUploadCaption\\:subtitleUploadMessagePanel').hide();"
+															   fileSizeValidationMessageContainer="#captionsFileUploadValidation"/>
+
 		                            <h:panelGroup id="panelFileName">
 		                            	#{activityEditBean.resLinkToAdd.fetchedTitle}
 		                            </h:panelGroup>
 		                        </div>
+
+								<small id="captionsFileUploadValidation" class="redText topMinus10 displayBlock"></small>
 
 								<ui:fragment rendered="#{activityEditBean.resLinkToAdd.urlInvalid}">
 									  <h:panelGroup id="subtitleUploadMessagePanel" rendered="#{empty activityEditBean.resLinkToAdd.url}">

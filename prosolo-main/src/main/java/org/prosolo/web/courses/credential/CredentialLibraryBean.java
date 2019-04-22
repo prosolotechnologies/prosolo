@@ -87,7 +87,7 @@ public class CredentialLibraryBean implements Serializable, Paginable {
 	private void initCategoryFilters() {
 		filterCategories = orgManager.getUsedOrganizationCredentialCategoriesData(loggedUserBean.getOrganizationId());
 		//add 'All' category and define it as default (initially selected)
-		filterCategory = new CredentialCategoryData(0, "All", false);
+		filterCategory = new CredentialCategoryData(0, "All categories", false);
 		filterCategories.add(0, filterCategory);
 	}
 

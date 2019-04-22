@@ -2,14 +2,7 @@ package org.prosolo.services.assessment.data;
 
 import org.prosolo.common.domainmodel.assessment.AssessmentStatus;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
-import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
 import org.prosolo.common.domainmodel.credential.BlindAssessmentMode;
-import org.prosolo.common.util.ImageFormat;
-import org.prosolo.common.util.date.DateUtil;
-import org.prosolo.services.urlencoding.UrlIdEncoder;
-import org.prosolo.web.util.AvatarUtils;
-
-import java.text.DateFormat;
 
 public class AssessmentData {
 
@@ -19,9 +12,10 @@ public class AssessmentData {
 	private String assessorFullName;
 	private String assessorAvatarUrl;
 	private long assessorId;
+	private long credentialId;
 	private long dateRequested;
 	private long dateQuit;
-	private String title;
+	private String credentialTitle;
 	private boolean approved;
 	private long dateSubmitted;
 	private long assessmentId;
@@ -33,29 +27,30 @@ public class AssessmentData {
 	private BlindAssessmentMode blindAssessmentMode = BlindAssessmentMode.OFF;
 	private AssessmentStatus status;
 
-	public static AssessmentData fromAssessment(CredentialAssessment assessment, UrlIdEncoder encoder, DateFormat dateFormat) {
-		AssessmentData data = new AssessmentData();
-		data.setStatus(assessment.getStatus());
-		data.setStudentFullName(assessment.getStudent().getName()+" "+assessment.getStudent().getLastname());
-		data.setStudentAvatarUrl(AvatarUtils.getAvatarUrlInFormat(assessment.getStudent(), ImageFormat.size120x120));
-		data.setStudentId(assessment.getStudent().getId());
-		if (assessment.getAssessor() != null) {
-			data.setAssessorFullName(assessment.getAssessor().getName()+" "+assessment.getAssessor().getLastname());
-			data.setAssessorAvatarUrl(AvatarUtils.getAvatarUrlInFormat(assessment.getAssessor(), ImageFormat.size120x120));
-			data.setAssessorId(assessment.getAssessor().getId());
-		}
-		data.setDateRequested(DateUtil.getMillisFromDate(assessment.getDateCreated()));
-
-		data.setDateQuit(DateUtil.getMillisFromDate(assessment.getQuitDate()));
-		data.setTitle(assessment.getTargetCredential().getCredential().getTitle());
-		data.setApproved(assessment.isApproved());
-		data.setDateSubmitted(DateUtil.getMillisFromDate(assessment.getDateApproved()));
-		data.setEncodedAssessmentId(encoder.encodeId(assessment.getId()));
-		data.setEncodedCredentialId(encoder.encodeId(assessment.getTargetCredential().getCredential().getId()));
-		data.setInitials(getInitialsFromName(data.getStudentFullName()));
-		data.setBlindAssessmentMode(assessment.getBlindAssessmentMode());
-		return data;
-	}
+//	public static AssessmentData fromAssessment(CredentialAssessment assessment, UrlIdEncoder encoder, DateFormat dateFormat) {
+//		AssessmentData data = new AssessmentData();
+//		data.setStatus(assessment.getStatus());
+//		data.setStudentFullName(assessment.getStudent().getName()+" "+assessment.getStudent().getLastname());
+//		data.setStudentAvatarUrl(AvatarUtils.getAvatarUrlInFormat(assessment.getStudent(), ImageFormat.size120x120));
+//		data.setStudentId(assessment.getStudent().getId());
+//		if (assessment.getAssessor() != null) {
+//			data.setAssessorFullName(assessment.getAssessor().getName()+" "+assessment.getAssessor().getLastname());
+//			data.setAssessorAvatarUrl(AvatarUtils.getAvatarUrlInFormat(assessment.getAssessor(), ImageFormat.size120x120));
+//			data.setAssessorId(assessment.getAssessor().getId());
+//		}
+//		data.setDateRequested(DateUtil.getMillisFromDate(assessment.getDateCreated()));
+//
+//		data.setDateQuit(DateUtil.getMillisFromDate(assessment.getQuitDate()));
+//		data.setCredentialTitle(assessment.getTargetCredential().getCredential().getCredentialTitle());
+//		data.setApproved(assessment.isApproved());
+//		data.setDateSubmitted(DateUtil.getMillisFromDate(assessment.getDateApproved()));
+//		data.setEncodedAssessmentId(encoder.encodeId(assessment.getId()));
+//		data.setEncodedCredentialId(encoder.encodeId(assessment.getTargetCredential().getCredential().getId()));
+//		data.setCredentialId(assessment.getTargetCredential().getCredential().getId());
+//		data.setInitials(getInitialsFromName(data.getStudentFullName()));
+//		data.setBlindAssessmentMode(assessment.getBlindAssessmentMode());
+//		return data;
+//	}
 
 	public String getStudentFullName() {
 		return studentFullName;
@@ -97,12 +92,12 @@ public class AssessmentData {
 		this.dateQuit = dateQuit;
 	}
 
-	public String getTitle() {
-		return title;
+	public String getCredentialTitle() {
+		return credentialTitle;
 	}
 
-	public void setTitle(String title) {
-		this.title = title;
+	public void setCredentialTitle(String credentialTitle) {
+		this.credentialTitle = credentialTitle;
 	}
 
 	public boolean isApproved() {
@@ -221,5 +216,13 @@ public class AssessmentData {
 
 	public void setDateSubmitted(long dateSubmitted) {
 		this.dateSubmitted = dateSubmitted;
+	}
+
+	public long getCredentialId() {
+		return credentialId;
+	}
+
+	public void setCredentialId(long credentialId) {
+		this.credentialId = credentialId;
 	}
 }

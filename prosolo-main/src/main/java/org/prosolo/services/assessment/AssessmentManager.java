@@ -13,6 +13,7 @@ import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.assessment.config.AssessmentLoadConfig;
 import org.prosolo.services.assessment.data.*;
+import org.prosolo.services.assessment.data.filter.AssessmentStatusFilter;
 import org.prosolo.services.assessment.data.grading.AssessmentGradeSummary;
 import org.prosolo.services.assessment.data.grading.GradeData;
 import org.prosolo.services.assessment.data.grading.RubricAssessmentGradeSummary;
@@ -251,7 +252,7 @@ public interface AssessmentManager {
 	long requestCompetenceAssessment(AssessmentRequestData assessmentRequestData, UserContextData context)
 			throws DbConnectionException, IllegalDataStateException;
 
-	Result<CompetenceAssessment> requestCompetenceAssessmentAndGetEvents(long credentialId, long competenceId, long studentId, long assessorId, UserContextData context) throws DbConnectionException, IllegalDataStateException;
+	Result<CompetenceAssessment> requestCompetenceAssessmentAndGetEvents(long credentialId, long competenceId, long studentId, long assessorId, int numberOfTokensForAssessmentRequest, UserContextData context) throws DbConnectionException, IllegalDataStateException;
 
 	Result<CompetenceAssessment> createSelfCompetenceAssessmentAndGetEvents(long credentialId, long competenceId, long studentId, UserContextData context) throws DbConnectionException, IllegalDataStateException;
 
@@ -273,8 +274,8 @@ public interface AssessmentManager {
 	 */
 	 Result<CompetenceAssessment> getOrCreateCompetenceAssessmentAndGetEvents(
 	         long targetCredentialId, CompetenceData1 comp, long studentId, long assessorId, AssessmentType type,
-             AssessmentStatus status, BlindAssessmentMode blindAssessmentMode, Optional<CredentialAssessment> credentialAssessment,
-             UserContextData context) throws DbConnectionException;
+             AssessmentStatus status, BlindAssessmentMode blindAssessmentMode, int numberOfTokensForAssessmentRequest,
+			 Optional<CredentialAssessment> credentialAssessment, UserContextData context) throws DbConnectionException, IllegalDataStateException;
 
 	/**
 	 * Updates grade and returns populated GradeData object.
@@ -348,7 +349,7 @@ public interface AssessmentManager {
 
 	long getCredentialAssessmentIdForCompetenceAssessment(long compAssessmentId, Session session) throws DbConnectionException;
 
-	PaginatedResult<CompetenceAssessmentData> getPaginatedStudentsCompetenceAssessments(
+	PaginatedResult<CompetenceAssessmentDataFull> getPaginatedStudentsCompetenceAssessments(
 			long credId, long compId, long userId, boolean countOnlyAssessmentsWhereUserIsAssessor,
 			List<AssessmentFilter> filters, int limit, int offset) throws DbConnectionException;
 
@@ -356,11 +357,11 @@ public interface AssessmentManager {
 			long credId, long compId, long userId, boolean countOnlyAssessmentsWhereUserIsAssessor, List<AssessmentFilter> filters, int limit, int offset)
 			throws DbConnectionException, ResourceNotFoundException;
 
-	Optional<CompetenceAssessmentData> getInstructorCompetenceAssessmentForStudent(long credId, long compId, long studentId) throws DbConnectionException;
+	Optional<CompetenceAssessmentDataFull> getInstructorCompetenceAssessmentForStudent(long credId, long compId, long studentId) throws DbConnectionException;
 
 	Optional<Long> getSelfCompetenceAssessmentId(long credId, long compId, long studentId) throws DbConnectionException;
 
-	CompetenceAssessmentData getCompetenceAssessmentData(long competenceAssessmentId, long userId, AssessmentType assessmentType, AssessmentLoadConfig loadConfig)
+	CompetenceAssessmentDataFull getCompetenceAssessmentData(long competenceAssessmentId, long userId, AssessmentType assessmentType, AssessmentLoadConfig loadConfig)
 			throws DbConnectionException;
 
 	PaginatedResult<AssessmentData> getPaginatedCredentialPeerAssessmentsForStudent(
@@ -436,4 +437,125 @@ public interface AssessmentManager {
 	void declineCredentialAssessmentIfActive(long credentialId, long studentId, long assessorId, AssessmentType assessmentType);
 
 	StudentAssessmentInfo getStudentAssessmentInfoForActiveInstructorCredentialAssessment(long credId, long studentId);
+
+	/**
+	 * Returns true if there is an existing peer competency assessment in Requested status with no assessor assigned and
+	 * for given student, credential and competency ids.
+	 *
+	 * @param credentialId
+	 * @param competenceId
+	 * @param studentId
+	 * @return
+	 *
+	 * @throws DbConnectionException
+	 */
+	boolean isThereExistingUnasignedPeerCompetencyAssessment(long credentialId, long competenceId, long studentId);
+
+	/**
+	 * Retrieves peer from the pool of available peer assessors for given credential, competence and student.
+	 *
+	 * Members of the assessor pool are users meeting the criteria as specified in {@link #getUserIdsFromCompetenceAssessorPool(long, long, long)}.
+	 *
+	 * Criteria for choosing the peer to be returned:
+	 * - If {@code orderByTokens} is true, all assessors from the pool are sorted ascending by the number of tokens owned and the assessor with the least tokens is chosen.
+	 * - If there is more than one assessor with the same number of tokens (or {@code orderByTokens} is false), they are sorted ascending by the total number of peer assessments given (in the particular competence) and the assessor with the lowest number of assessments given is chosen.
+	 * - If there is more than one assessor with the same number of assessments given, they are sorted by the date of enrollment to the competence. The assessor who has enrolled earlier is chosen.
+	 *
+	 * @param credId
+	 * @param compId
+	 * @param userId
+	 * @param orderByTokens
+	 * @return
+	 */
+	UserData getPeerFromAvailableAssessorsPoolForCompetenceAssessment(long credId, long compId, long userId, boolean orderByTokens);
+
+	/**
+	 * Returns list of user ids for all users in competence assessor pool.
+	 * Members of the Assessor Pool are users who have:
+	 * - Started the competence
+	 * - Started the credential
+	 * - Turned the Assessment Availability status ON
+	 * - not already given assessment for the same student (assessment in Requested, Pending or Submitted status) and for the same competence and credential
+	 * - not declined (request declined, expired, quit assessment) assessment in the last 30 days
+	 *
+	 * @param credId
+	 * @param compId
+	 * @param studentId
+	 * @return
+	 *
+	 * @throws DbConnectionException
+	 */
+	List<Long> getUserIdsFromCompetenceAssessorPool(long credId, long compId, long studentId);
+
+	/**
+	 *
+	 * @param assessorId
+	 * @param filter
+	 * @param offset
+	 * @param limit
+	 * @return
+	 *
+	 * @throws DbConnectionException
+	 */
+	PaginatedResult<AssessmentData> getPaginatedCredentialPeerAssessmentsForAssessor(
+			long assessorId, AssessmentStatusFilter filter, int offset, int limit);
+
+	/**
+	 *
+	 * @param assessorId
+	 * @param filter
+	 * @param offset
+	 * @param limit
+	 * @return
+	 *
+	 * @throws DbConnectionException
+	 */
+	PaginatedResult<CompetenceAssessmentData> getPaginatedCompetencePeerAssessmentsForAssessor(
+			long assessorId, AssessmentStatusFilter filter, int offset, int limit);
+
+	/**
+	 * Sets the assessments status to PENDING and initializes assessment - creates activity assessments
+	 * if activity based competency. Also, this method returns events to be generated.
+	 *
+	 * @param compAssessmentId
+	 * @param context
+	 * @return
+	 * @throws IllegalDataStateException
+	 * @throws DbConnectionException
+	 */
+	Result<Void> acceptCompetenceAssessmentRequestAndGetEvents(long compAssessmentId, UserContextData context) throws IllegalDataStateException;
+
+	/**
+	 * Sets the assessments status to PENDING, initializes assessment (creates activity assessments
+	 * if activity based competency) and generates events.
+	 *
+	 * @param compAssessmentId
+	 * @param context
+	 * @throws IllegalDataStateException
+	 * @throws DbConnectionException
+	 */
+	void acceptCompetenceAssessmentRequest(long compAssessmentId, UserContextData context) throws IllegalDataStateException;
+
+	/**
+	 * Declines the assessment request, returns spent tokens to the student (if assessment tokens enabled) and
+	 * returns events to be generated.
+	 *
+	 * @param compAssessmentId
+	 * @param context
+	 * @return
+	 * @throws IllegalDataStateException
+	 * @throws DbConnectionException
+	 */
+	Result<Void> declineCompetenceAssessmentRequestAndGetEvents(long compAssessmentId, UserContextData context) throws IllegalDataStateException;
+
+	/**
+	 * Declines the assessment request, returns spent tokens to the student (if assessment tokens enabled) and
+	 * generates appropriate events.
+	 *
+	 * @param compAssessmentId
+	 * @param context
+	 * @throws IllegalDataStateException
+	 * @throws DbConnectionException
+	 */
+	void declineCompetenceAssessmentRequest(long compAssessmentId, UserContextData context) throws IllegalDataStateException;
 }

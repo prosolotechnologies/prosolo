@@ -25,6 +25,7 @@
 		<script src="#{request.contextPath}/resources/javascript2/search.js"></script>
 		<script src="#{request.contextPath}/resources/javascript2/tinymce/tinymce.min.js"></script>
 		<script src="#{request.contextPath}/resources/javascript2/prosolo.tinymce.js"></script>
+		<h:outputScript library="javascript2" name="autosize.min.js" />
 
 		<c:if test="#{cc.attrs.allowEvidenceTypeChangeForExistingEvidence or submitEvidenceBean.evidence.id eq 0}">
 			<div class="whiteBox">
@@ -93,18 +94,21 @@
 						<p:focus/>
 						<p:growl globalOnly="true" showDetail="true" />
 
-						<h:inputText id="inputTitle"
+						<label>Evidence Title:</label>
+
+						<h:inputText id="inputFileEvidenceTitle"
 									 label="Title"
 									 value="#{submitEvidenceBean.evidence.title}"
-									 placeholder="Evidence title"
 									 required="true"
 									 requiredMessage="Title is required"
 									 autocomplete="off">
 							<f:validateLength maximum="500"/>
 						</h:inputText>
-						<small class="redText bottom30 topMinus30 displayBlock"><h:message for="inputTitle"></h:message></small>
+						<small class="redText bottom30 topMinus30 displayBlock"><h:message for="inputFileEvidenceTitle"></h:message></small>
 
-						<h:inputTextarea id="textareaEvidenceText"
+						<label>Description:</label>
+
+						<h:inputTextarea id="textareaFileEvidenceDesc"
 										 label="Description"
 										 placeholder="Short description here"
 										 value="#{submitEvidenceBean.evidence.text}"
@@ -114,23 +118,26 @@
 						</h:inputTextarea>
 
 						<script>
-                            initTinyMCE('#' + escapeColons('#{cc.clientId}') + '\\:formFileEvidence\\:textareaEvidenceText');
+                            initTinyMCE('#' + escapeColons('#{cc.clientId}') + '\\:formFileEvidence\\:textareaFileEvidenceDesc');
 						</script>
 
-						<small class="redText bottom30 displayBlock"><h:message for="textareaEvidenceText"></h:message></small>
+						<small class="redText bottom30 displayBlock"><h:message for="textareaFileEvidenceDesc"></h:message></small>
 
 						<h:panelGroup id="panelUploadEvidence">
 							<ui:fragment rendered="#{empty submitEvidenceBean.evidence.url}">
-								<utilcomp:fileUpload
-										uploadFileInfo="Upload File"
-										fileUploadListenerMethodName="handleFileUpload"
-										fileUploadListenerMethod="#{submitEvidenceBean.handleFileUpload}"
-										disabled="false"
-										toUpdate=":#{cc.clientId}:formFileEvidence:panelUploadEvidence"
-								/>
+								<utilcomp:fileUpload id="evidenceFileUpload"
+													 uploadFileInfo="Upload File"
+													 fileUploadListenerMethodName="handleFileUpload"
+													 fileUploadListenerMethod="#{submitEvidenceBean.handleFileUpload}"
+													 disabled="false"
+													 toUpdate=":#{cc.clientId}:formFileEvidence:panelUploadEvidence"
+													 fileSizeValidationMessageContainer="#evidenceFileUploadValidationError"/>
 							</ui:fragment>
+
+							<small id="evidenceFileUploadValidationError" class="redText bottom10 displayBlock">&#160;</small>
+
 							<ui:fragment rendered="#{not empty submitEvidenceBean.evidence.url}">
-								<div class="whiteBox evidenceBox evidenceBoxSmall">
+								<div class="whiteBox evidenceBox evidenceBoxSmall topMinus30">
 									<div class="evidenceTop">
 										<div class="evidenceTopLeft #{styleUtilBean.getEvidenceFileTypeIcon(submitEvidenceBean.evidence.url)}">
 											<div class="icon iconType"></div>
@@ -159,36 +166,41 @@
 							</ui:fragment>
 						</h:panelGroup>
 
-						<h:inputText styleClass="tagsInputEvidence"
-									 id="inputKeywords"
+						<label>Keywords (optional):</label>
+
+						<h:inputText id="inputFileEvidenceKeywords"
+									 styleClass="tagsInputEvidence"
 									 value="#{submitEvidenceBean.evidence.tagsString}"
-									 placeholder="Keywords - Type and press 'Enter'"
+									 placeholder="Type and press 'Enter'"
 									 pt:data-role="tagsinput"
 									 autocomplete="off" />
 						<script>$('.tagsInputEvidence').tagsinput();</script>
 
 						<c:if test="#{cc.attrs.addEvidenceToCompetence}">
-							<h:inputText id="inputRelationToCompetence"
-										 label="Relation to #{msg['label.competence'].toLowerCase()} field"
-										 value="#{submitEvidenceBean.evidence.relationToCompetence}"
-										 required="true"
-										 requiredMessage="Relation to #{msg['label.competence'].toLowerCase()} is required"
-										 placeholder="How does this evidence show that you have met the requirements of the #{msg['label.competence'].toLowerCase()}?"
-										 h:autocomplete="off">
+							<label>Relation:</label>
+
+							<h:inputTextarea id="inputFileEvidenceRelationToComp"
+											 label="Relation to #{msg['label.competence'].toLowerCase()} field"
+											 value="#{submitEvidenceBean.evidence.relationToCompetence}"
+											 required="true"
+											 requiredMessage="Relation to #{msg['label.competence'].toLowerCase()} is required"
+											 placeholder="How does this evidence show that you have met the requirements of the #{msg['label.competence'].toLowerCase()}?">
 									<f:validateLength maximum="2000"/>
-							</h:inputText>
-							<small class="redText bottom30 topMinus30 displayBlock"><h:message for="inputRelationToCompetence"/></small>
+							</h:inputTextarea>
+							<small class="redText bottom30 topMinus30 displayBlock"><h:message for="inputFileEvidenceRelationToComp"/></small>
+							<script>
+								autosize($(escapeColons('##{cc.clientId}:formFileEvidence:inputFileEvidenceRelationToComp')));
+							</script>
 						</c:if>
 
 						<div class="lastRow">
 							<utilcomp:singleClickLink styleClass="btn btn-green"
 										   value="#{cc.attrs.submitButtonText}"
 										   action="#{cc.attrs.bean.postFileEvidence()}"
-										   onclick="copyTextFromTinyMCEToTextarea('#' + escapeColons('#{cc.clientId}') + '\\:formFileEvidence\\:textareaEvidenceText');"
+										   onclick="copyTextFromTinyMCEToTextarea('#' + escapeColons('#{cc.clientId}') + '\\:formFileEvidence\\:textareaFileEvidenceDesc');"
 										   update="#{cc.attrs.update} :#{cc.clientId}:formFileEvidence">
 								<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
 								<f:param name="learningContext" value="#{cc.attrs.learningContext}" />
-								<f:param name="evidenceTitleInputId" value="#{cc.clientId}:formFileEvidence:inputTitle" />
 							</utilcomp:singleClickLink>
 							<ui:fragment rendered="#{cc.attrs.displayCancelButton}">
 								<a href="javascript:history.back();" class="btn btn-green-stroke">Cancel</a>
@@ -203,18 +215,21 @@
 						<p:focus/>
 						<p:growl globalOnly="true" showDetail="true" />
 
-						<h:inputText id="inputTitle"
+						<label>Evidence Title:</label>
+
+						<h:inputText id="inputURLEvidenceTitle"
 									 label="Title"
 									 value="#{submitEvidenceBean.evidence.title}"
-									 placeholder="Evidence title"
 									 required="true"
 									 requiredMessage="Title is required"
 									 autocomplete="off">
 							<f:validateLength maximum="500"/>
 						</h:inputText>
-						<small class="redText bottom30 topMinus30 displayBlock"><h:message for="inputTitle"></h:message></small>
+						<small class="redText bottom30 topMinus30 displayBlock"><h:message for="inputURLEvidenceTitle"></h:message></small>
 
-						<h:inputTextarea id="textareaEvidenceText"
+						<label>Description:</label>
+
+						<h:inputTextarea id="textareaURLEvidenceDesc"
 										 label="Description"
 										 placeholder="Short description here"
 										 value="#{submitEvidenceBean.evidence.text}"
@@ -223,10 +238,12 @@
 								<f:validateLength maximum="90000"/>
 						</h:inputTextarea>
 						<script>
-                            initTinyMCE('#' + escapeColons('#{cc.clientId}') + '\\:formUrlEvidence\\:textareaEvidenceText');
+                            initTinyMCE('#' + escapeColons('#{cc.clientId}') + '\\:formUrlEvidence\\:textareaURLEvidenceDesc');
 						</script>
 
-						<small class="redText bottom30 displayBlock"><h:message for="textareaEvidenceText"></h:message></small>
+						<small class="redText bottom30 displayBlock"><h:message for="textareaURLEvidenceDesc"></h:message></small>
+
+						<label>URL:</label>
 
 						<h:inputText id="inputUrl"
 									 label="URL"
@@ -241,32 +258,38 @@
 						</h:inputText>
 						<small class="redText bottom30 topMinus30 displayBlock"><h:message for="inputUrl" /></small>
 
+						<label>Keywords (optional):</label>
+
 						<h:inputText styleClass="tagsInputEvidence"
-									 id="inputKeywords"
+									 id="inputURLEvidenceKeywords"
 									 value="#{submitEvidenceBean.evidence.tagsString}"
-									 placeholder="Keywords - Type and press 'Enter'"
+									 placeholder="Type and press 'Enter'"
 									 pt:data-role="tagsinput"
 									 autocomplete="off" />
 						<script>$('.tagsInputEvidence').tagsinput();</script>
 
 						<c:if test="#{cc.attrs.addEvidenceToCompetence}">
-							<h:inputText id="inputRelationToCompetence"
-										 label="Relation to #{msg['label.competence'].toLowerCase()} field"
-										 value="#{submitEvidenceBean.evidence.relationToCompetence}"
-										 required="true"
-										 requiredMessage="Relation to #{msg['label.competence'].toLowerCase()} is required"
-										 placeholder="How does this evidence show that you have met the requirements of the #{msg['label.competence'].toLowerCase()}?"
-										 autocomplete="off">
-									<f:validateLength maximum="2000"/>
-							</h:inputText>
-							<small class="redText bottom30 topMinus30 displayBlock"><h:message for="inputRelationToCompetence"/></small>
+							<label>Relation:</label>
+
+							<h:inputTextarea id="inputURLEvidenceRelationToComp"
+											 label="Relation to #{msg['label.competence'].toLowerCase()} field"
+											 value="#{submitEvidenceBean.evidence.relationToCompetence}"
+											 required="true"
+											 requiredMessage="Relation to #{msg['label.competence'].toLowerCase()} is required"
+											 placeholder="How does this evidence show that you have met the requirements of the #{msg['label.competence'].toLowerCase()}?">
+								<f:validateLength maximum="2000"/>
+							</h:inputTextarea>
+							<small class="redText bottom30 topMinus30 displayBlock"><h:message for="inputURLEvidenceRelationToComp"/></small>
+							<script>
+								autosize($(escapeColons('##{cc.clientId}:formUrlEvidence:inputURLEvidenceRelationToComp')));
+							</script>
 						</c:if>
 
 						<div class="lastRow">
 							<utilcomp:singleClickLink styleClass="btn btn-green"
 										   value="#{cc.attrs.submitButtonText}"
 										   action="#{cc.attrs.bean.postUrlEvidence()}"
-										   onclick="copyTextFromTinyMCEToTextarea('#' + escapeColons('#{cc.clientId}') + '\\:formUrlEvidence\\:textareaEvidenceText');"
+										   onclick="copyTextFromTinyMCEToTextarea('#' + escapeColons('#{cc.clientId}') + '\\:formUrlEvidence\\:textareaURLEvidenceDesc');"
 										   update="#{cc.attrs.update} :#{cc.clientId}:formUrlEvidence">
 								<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
 								<f:param name="learningContext" value="#{cc.attrs.learningContext}" />
@@ -284,61 +307,69 @@
 						<p:focus/>
 						<p:growl globalOnly="true" showDetail="true" />
 
-						<h:inputText id="inputTitle"
+						<label>Evidence Title:</label>
+
+						<h:inputText id="inputTextualEvidenceTitle"
 									 label="Title"
 									 value="#{submitEvidenceBean.evidence.title}"
-									 placeholder="Evidence title"
 									 required="true"
-									 requiredMessage="Evidence title is required"
+									 requiredMessage="Title is required"
 									 autocomplete="off">
 								<f:validateLength maximum="500"/>
 						</h:inputText>
-						<small class="redText bottom30 topMinus30 displayBlock"><h:message for="inputTitle"></h:message></small>
+						<small class="redText bottom30 topMinus30 displayBlock"><h:message for="inputTextualEvidenceTitle"></h:message></small>
 
-						<h:inputTextarea id="textareaEvidenceText"
+						<label>Description:</label>
+
+						<h:inputTextarea id="textareaTextualEvidenceDesc"
 										 label="Description"
-										 placeholder="Short description here"
+										 placeholder="Detailed description here"
 										 value="#{submitEvidenceBean.evidence.text}"
 										 required="true"
 										 requiredMessage="Description is required">
 								<f:validateLength maximum="90000"/>
 						</h:inputTextarea>
 						<script>
-                            initTinyMCE('#' + escapeColons('#{cc.clientId}') + '\\:formTextEvidence\\:textareaEvidenceText');
+                            initTinyMCE('#' + escapeColons('#{cc.clientId}') + '\\:formTextEvidence\\:textareaTextualEvidenceDesc');
 						</script>
 
-						<small class="redText bottom30 displayBlock"><h:message for="textareaEvidenceText"></h:message></small>
+						<small class="redText bottom30 displayBlock"><h:message for="textareaTextualEvidenceDesc"></h:message></small>
+
+						<label>Keywords (optional):</label>
 
 						<h:inputText styleClass="tagsInputEvidence"
-									 id="inputKeywords"
+									 id="inputTextualEvidenceKeywords"
 									 value="#{submitEvidenceBean.evidence.tagsString}"
-									 placeholder="Keywords - Type and press 'Enter'"
+									 placeholder="Type and press 'Enter'"
 									 pt:data-role="tagsinput"
 									 autocomplete="off" />
 						<script>$('.tagsInputEvidence').tagsinput();</script>
 
 						<c:if test="#{cc.attrs.addEvidenceToCompetence}">
-							<h:inputText id="inputRelationToCompetence"
-										 label="Relation to #{msg['label.competence'].toLowerCase()} field"
-										 value="#{submitEvidenceBean.evidence.relationToCompetence}"
-										 placeholder="How does this evidence show that you have met the requirements of the #{msg['label.competence'].toLowerCase()}?"
-										 required="true"
-										 requiredMessage="Relation to #{msg['label.competence'].toLowerCase()} is required"
-										 autocomplete="off">
-									<f:validateLength maximum="2000"/>
-							</h:inputText>
-							<small class="redText bottom30 topMinus30 displayBlock"><h:message for="inputRelationToCompetence"/></small>
+							<label>Relation:</label>
+
+							<h:inputTextarea id="inputTextualEvidenceRelationToComp"
+											 label="Relation to #{msg['label.competence'].toLowerCase()} field"
+											 value="#{submitEvidenceBean.evidence.relationToCompetence}"
+											 required="true"
+											 requiredMessage="Relation to #{msg['label.competence'].toLowerCase()} is required"
+											 placeholder="How does this evidence show that you have met the requirements of the #{msg['label.competence'].toLowerCase()}?">
+								<f:validateLength maximum="2000"/>
+							</h:inputTextarea>
+							<small class="redText bottom30 topMinus30 displayBlock"><h:message for="inputTextualEvidenceRelationToComp"/></small>
+							<script>
+								autosize($(escapeColons('##{cc.clientId}:formTextEvidence:inputTextualEvidenceRelationToComp')));
+							</script>
 						</c:if>
 
 						<div class="lastRow">
 							<utilcomp:singleClickLink styleClass="btn btn-green"
 										   value="#{cc.attrs.submitButtonText}"
 										   action="#{cc.attrs.bean.postTextEvidence()}"
-										   onclick="copyTextFromTinyMCEToTextarea('#' + escapeColons('#{cc.clientId}') + '\\:formTextEvidence\\:textareaEvidenceText');"
+										   onclick="copyTextFromTinyMCEToTextarea('#' + escapeColons('#{cc.clientId}') + '\\:formTextEvidence\\:textareaTextualEvidenceDesc');"
 										   update="#{cc.attrs.update} :#{cc.clientId}:formTextEvidence">
 								<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
 								<f:param name="learningContext" value="#{cc.attrs.learningContext}" />
-								<f:param name="evidenceTitleInputId" value="#{cc.clientId}:formTextEvidence:inputTitle" />
 							</utilcomp:singleClickLink>
 							<ui:fragment rendered="#{cc.attrs.displayCancelButton}">
 								<a href="javascript:history.back();" class="btn btn-green-stroke">Cancel</a>
@@ -425,7 +456,7 @@
 									</div>
 								</div>
 								<div class="modal-body alignLeft">
-									<h:inputTextarea id="inputRelToCompetence"
+									<h:inputTextarea id="inputModalRelationToComp"
 													 label="Relation to #{msg['label.competence'].toLowerCase()} field"
 													 value="#{submitEvidenceBean.evidence.relationToCompetence}"
 													 required="true"
@@ -434,15 +465,17 @@
 													 autocomplete="off">
 											<f:validateLength maximum="2000"/>
 									</h:inputTextarea>
-									<small class="redText bottom30 displayBlock"><h:message id="msgInputRelToCompetence" for="inputRelToCompetence"/></small>
+									<small class="redText bottom30 displayBlock"><h:message id="msgInputModalRelationToComp" for="inputModalRelationToComp"/></small>
+									<script>
+										autosize($(escapeColons('##{cc.clientId}:formAddExistingEvidence:inputModalRelationToComp')));
+									</script>
 								</div>
 								<div class="modal-footer alignLeft">
 									<utilcomp:singleClickLink styleClass="btn btn-green"
 															  value="Add"
 															  action="#{cc.attrs.bean.postEvidence()}"
-															  update="#{cc.attrs.update} :#{cc.clientId}:panelExistingEvidence :#{cc.clientId}:formAddExistingEvidence:msgInputRelToCompetence"
-															  oncomplete="if (args &amp;&amp; !args.validationFailed) { $('#whyAddEvidence').modal('hide') }">
-									</utilcomp:singleClickLink>
+															  update="#{cc.attrs.update} :#{cc.clientId}:panelExistingEvidence :#{cc.clientId}:formAddExistingEvidence:msgInputModalRelationToComp"
+															  oncomplete="if (args &amp;&amp; !args.validationFailed) { $('#whyAddEvidence').modal('hide') }"/>
 								</div>
 							</h:panelGroup>
 						</div>

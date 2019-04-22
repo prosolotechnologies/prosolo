@@ -19,16 +19,15 @@ import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.elasticsearch.ElasticSearchConnector;
 import org.prosolo.common.util.ElasticsearchUtil;
 import org.prosolo.search.CompetenceTextSearch;
+import org.prosolo.search.data.SortingOption;
 import org.prosolo.search.util.competences.CompetenceSearchFilter;
+import org.prosolo.search.util.credential.CompetenceLibrarySearchFilter;
 import org.prosolo.search.util.credential.CompetenceSearchConfig;
-import org.prosolo.search.util.credential.LearningResourceSearchFilter;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
-import org.prosolo.services.indexing.ESIndexer;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.factory.CompetenceDataFactory;
-import org.prosolo.search.data.SortingOption;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -169,7 +168,7 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 	@Override
 	public PaginatedResult<CompetenceData1> searchCompetences(
 			long organizationId, String searchTerm, int page, int limit, long userId,
-			List<Long> unitIds, LearningResourceSearchFilter filter, CompetenceSearchConfig config) {
+			List<Long> unitIds, CompetenceLibrarySearchFilter filter, CompetenceSearchConfig config) {
 		PaginatedResult<CompetenceData1> response = new PaginatedResult<>();
 		try {
 			int start = 0;
@@ -190,31 +189,31 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 			//bQueryBuilder.minimumNumberShouldMatch(1);
 			
 			switch(filter) {
-				case ALL:
+				case ALL_COMPETENCES:
 					break;
 				case BOOKMARKS:
 					bQueryBuilder.filter(termQuery("bookmarkedBy.id", userId));
 					break;
-				case FROM_CREATOR:
-					bQueryBuilder.filter(termQuery("creatorId", userId));
-					//this filter returns competencies created by student with userId but only if
-					bQueryBuilder.filter(termQuery("type",
-							LearningResourceType.USER_CREATED.toString()));
-					break;
-				case BY_OTHER_STUDENTS:
-					bQueryBuilder.mustNot(termQuery("creatorId", userId));
-					bQueryBuilder.filter(termQuery("type",
-							LearningResourceType.USER_CREATED.toString()));
-					break;
-				case UNIVERSITY:
-					bQueryBuilder.filter(termQuery("type", 
-							LearningResourceType.UNIVERSITY_CREATED.toString()));
-					break;
-				case BY_STUDENTS:
-					//bQueryBuilder.mustNot(termQuery("creatorId", userId));
-					bQueryBuilder.filter(termQuery("type", 
-							LearningResourceType.USER_CREATED.toString()));
-					break;
+//				case FROM_CREATOR:
+//					bQueryBuilder.filter(termQuery("creatorId", userId));
+//					//this filter returns competencies created by student with userId but only if
+//					bQueryBuilder.filter(termQuery("type",
+//							LearningResourceType.USER_CREATED.toString()));
+//					break;
+//				case BY_OTHER_STUDENTS:
+//					bQueryBuilder.mustNot(termQuery("creatorId", userId));
+//					bQueryBuilder.filter(termQuery("type",
+//							LearningResourceType.USER_CREATED.toString()));
+//					break;
+//				case UNIVERSITY:
+//					bQueryBuilder.filter(termQuery("type",
+//							LearningResourceType.UNIVERSITY_CREATED.toString()));
+//					break;
+//				case BY_STUDENTS:
+//					//bQueryBuilder.mustNot(termQuery("creatorId", userId));
+//					bQueryBuilder.filter(termQuery("type",
+//							LearningResourceType.USER_CREATED.toString()));
+//					break;
 				case ENROLLED:
 					bQueryBuilder.filter(termQuery("students.id", userId));
 					break;

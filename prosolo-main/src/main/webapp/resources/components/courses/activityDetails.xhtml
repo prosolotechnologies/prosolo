@@ -234,16 +234,18 @@
 	            		<h2>Submit Response</h2>
 	            		<c:if test="#{cc.attrs.activity.resultData.resultType eq 'FILE_UPLOAD'}">
 	            			<h:form id="formUpload" enctype="multipart/form-data">
-				            	<utilcomp:fileUpload
-				            		uploadFileInfo="Upload Response"
-				            		fileUploadListenerMethodName="handleFileUpload"
-				            		fileUploadListenerMethod="#{cc.attrs.bean.handleFileUpload}"
-				            		toUpdate=":#{cc.clientId}:panelUploadAssignment #{cc.attrs.updateProgress} :#{cc.clientId}:growlDetails"
-				            		learningContext="#{cc.attrs.learningContext}"
-				            		disabled="#{!(cc.attrs.bean.nextToLearn or !cc.attrs.bean.mandatoryOrder)}"
-				            		disabledReason="In order to submit a response for this activity, previous tasks need to be completed."
-				            	/> 
-			            	</h:form>
+								<utilcomp:fileUpload id="activityResultFileUpload"
+													 uploadFileInfo="Upload Response"
+													 fileUploadListenerMethodName="handleFileUpload"
+													 fileUploadListenerMethod="#{cc.attrs.bean.handleFileUpload}"
+													 toUpdate=":#{cc.clientId}:panelUploadAssignment #{cc.attrs.updateProgress} :#{cc.clientId}:growlDetails"
+													 learningContext="#{cc.attrs.learningContext}"
+													 disabled="#{!(cc.attrs.bean.nextToLearn or !cc.attrs.bean.mandatoryOrder)}"
+													 disabledReason="In order to submit a response for this activity, previous tasks need to be completed."
+													 fileSizeValidationMessageContainer="#activityResultFileUploadValidation"/>
+
+								<small id="activityResultFileUploadValidation" class="redText bottom10 displayBlock">&#160;</small>
+							</h:form>
 	            		</c:if>
 	            		<c:if test="#{cc.attrs.activity.resultData.resultType eq 'TEXT'}">
 	            			<script src="#{request.contextPath}/resources/javascript2/tinymce/tinymce.min.js"></script>
@@ -319,22 +321,31 @@
                             <small>Note: Current response will be over-written!</small></p>
                         </div>
                         <div class="modal-footer">
-                        	<utilcomp:simpleFileUpload
-                        		id="simpleFileUpload"
-			            		fileUploadListenerMethodName="handleFileUpload"
-			            		fileUploadListenerMethod="#{cc.attrs.bean.handleFileUpload}"
-			            		toUpdate=":#{cc.clientId}:panelUploadAssignment :#{cc.clientId}:growlDetails"
-			            		uploadButtonStyle="btn btn-green"
-			            		chooseFileLabel="Upload New Response"
-			            		learningContext="#{cc.attrs.learningContext}"
-			            		service="name:upload_result_dialog"
-			            		oncomplete="$('#newRes').modal('hide');"
-                        	/>
+							<utilcomp:simpleFileUpload id="updateActivityResult"
+													   fileUploadListenerMethodName="handleFileUpload"
+													   fileUploadListenerMethod="#{cc.attrs.bean.handleFileUpload}"
+													   toUpdate=":#{cc.clientId}:panelUploadAssignment :#{cc.clientId}:growlDetails"
+													   uploadButtonStyle="btn btn-green"
+													   chooseFileLabel="Upload New Response"
+													   learningContext="#{cc.attrs.learningContext}"
+													   service="name:upload_result_dialog"
+													   oncomplete="$('#newRes').modal('hide');"
+													   fileSizeValidationMessageContainer="#updateActivityResultFileUploadValidation"/>
+
                             <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
-                        </div>
+							<small id="updateActivityResultFileUploadValidation" class="redText displayBlock"></small>
+						</div>
                     </div>
                 </div>
             </div>
+
+			<script>
+				$(function () {
+					$('#newRes').on('hidden.bs.modal', function() {
+						$('#updateActivityResultFileUploadValidation').html('');
+					});
+				})
+			</script>
         </h:form> 
 		            	
 	</composite:implementation>

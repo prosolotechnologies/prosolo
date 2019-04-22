@@ -14,6 +14,7 @@ import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.user.data.UserAssessmentTokenData;
+import org.prosolo.services.user.data.UserAssessmentTokenExtendedData;
 import org.prosolo.services.user.data.UserCreationData;
 import org.prosolo.services.user.data.UserData;
 
@@ -214,6 +215,15 @@ public interface UserManager extends AbstractManager {
 	 * @throws DbConnectionException
 	 */
 	UserAssessmentTokenData getUserAssessmentTokenData(long userId);
+
+	/**
+	 *
+	 * @param userId
+	 * @return
+	 *
+	 * @throws DbConnectionException
+	 */
+	UserAssessmentTokenExtendedData getUserAssessmentTokenExtendedData(long userId);
 
 	/**
 	 *

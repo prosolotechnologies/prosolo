@@ -22,7 +22,6 @@ import org.prosolo.services.nodes.data.ResourceCreator;
 import org.prosolo.services.nodes.data.ResourceVisibilityMember;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.resourceAccess.*;
-import org.prosolo.services.user.data.UserData;
 import org.w3c.dom.events.EventException;
 
 import java.util.List;
@@ -70,12 +69,12 @@ public interface Competence1Manager {
 	 * exclusive lock on a competence being updated
 	 * 
 	 * @param data
-	 * @param userId
+	 * @param context
 	 * @return
 	 * @throws StaleDataException
 	 * @throws IllegalDataStateException
 	 */
-	Competence1 updateCompetenceData(CompetenceData1 data, long userId) throws StaleDataException, 
+	Result<Competence1> updateCompetenceData(CompetenceData1 data, UserContextData context) throws StaleDataException,
 			IllegalDataStateException;
 
 	List<CompetenceData1> getCompetencesForCredential(long credId, long userId, CompetenceLoadConfig compLoadConfig) throws DbConnectionException;
@@ -346,7 +345,10 @@ public interface Competence1Manager {
 	
 	EventQueue updateCompetenceProgress(long targetCompId, UserContextData context)
 			throws DbConnectionException;
-	
+
+	Result<Void> publishCompetenceIfNotPublished(long competenceId, UserContextData context)
+			throws DbConnectionException, IllegalDataStateException;
+
 	Result<Void> publishCompetenceIfNotPublished(Competence1 comp, UserContextData context)
 			throws DbConnectionException, IllegalDataStateException;
 
@@ -378,8 +380,6 @@ public interface Competence1Manager {
 	LearningPathType getCompetenceLearningPathType(long compId) throws DbConnectionException;
 
 	EventQueue updateCompetenceLearningStage(Competence1 competence, LearningStage stage, UserContextData context) throws DbConnectionException;
-
-	UserData chooseRandomPeer(long compId, long userId) throws DbConnectionException;
 
 	/**
 	 * Returns full target competence data when id of a target competence is not

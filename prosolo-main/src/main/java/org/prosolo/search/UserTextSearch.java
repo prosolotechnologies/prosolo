@@ -25,7 +25,7 @@ public interface UserTextSearch extends AbstractManager {
 
 	PaginatedResult<UserData> searchUsers(long orgId, String searchString,
 										  int page, int limit, boolean loadOneMore,
-										  Collection<Long> excludeUserIds);
+										  Collection<Long> includeUserIds, Collection<Long> excludeUserIds);
 	
 	/**
 	 * Returns list of students currently learning credential specified by {@code credId}.

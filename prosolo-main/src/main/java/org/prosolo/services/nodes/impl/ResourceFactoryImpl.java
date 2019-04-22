@@ -173,9 +173,9 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 
     @Override
     @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
-    public Competence1 updateCompetence(CompetenceData1 data, long userId) throws StaleDataException,
+    public Result<Competence1> updateCompetence(CompetenceData1 data, UserContextData context) throws StaleDataException,
             IllegalDataStateException {
-        return competenceManager.updateCompetenceData(data, userId);
+        return competenceManager.updateCompetenceData(data, context);
     }
 
     @Override

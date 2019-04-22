@@ -40,6 +40,12 @@
                     compId="#{util:decodeId(param.compId)}"
             />
         </c:if>
+        <c:if test="#{competenceAssessmentBean.isUserAssessorInCurrentContext()}">
+            <assessments:myAssessmentsNavLinks
+                    resource="COMPETENCE"
+                    activeLinkClickable="true"
+            />
+        </c:if>
     </ui:define>
     <ui:define name="content">
         <assessments:competenceAssessmentPreview

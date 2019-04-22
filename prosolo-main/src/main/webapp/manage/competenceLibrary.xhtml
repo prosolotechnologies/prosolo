@@ -40,7 +40,7 @@
 	        <div class="container">
 	            <div class="whiteBarContent">
 	                <div class="whiteBarLeft">
-	                	<h:form id="formSearch">
+	                	<h:form id="formSearch" onsubmit="return false;">
 		                    <div class="searchBox">
 		                    	<p:remoteCommand 
 		                    		name="execSearchCompetences" 
@@ -48,16 +48,16 @@
 									update=":panelCompetences :pagination"
 									action="#{competenceLibraryBeanManager.resetAndSearch()}">
 								</p:remoteCommand>
-									
+
 								<h:inputText id="inputCompName"
-									type="search"
-									styleClass="competencesSearchField"
-									placeholder="Search #{msg['label.competence.plural'].toLowerCase()}"
-									value="#{competenceLibraryBeanManager.searchTerm}"
-									onclick="$(this).select();"
-									onkeyup="searchListener(execSearchCompetences);">
-								</h:inputText>              
-		                    </div>
+											 autocomplete="off"
+											 type="search"
+											 styleClass="competencesSearchField"
+											 placeholder="Search #{msg['label.competence.plural'].toLowerCase()}"
+											 value="#{competenceLibraryBeanManager.searchTerm}"
+											 onclick="$(this).select();"
+											 onkeyup="searchListener(execSearchCompetences);" />
+							</div>
 		                </h:form>
 	                </div>
 	                <div class="whiteBarRight">

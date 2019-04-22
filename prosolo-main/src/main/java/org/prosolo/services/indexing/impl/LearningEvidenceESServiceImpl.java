@@ -35,6 +35,7 @@ public class LearningEvidenceESServiceImpl extends AbstractESIndexerImpl impleme
             builder.field("userId", evidence.getUser().getId());
             builder.field("name", evidence.getTitle());
             builder.field("type", evidence.getType());
+            builder.field("url", evidence.getUrl());
             builder.field("dateCreated", ElasticsearchUtil.getDateStringRepresentation(evidence.getDateCreated()));
             builder.startArray("tags");
             Set<Tag> tags = evidence.getTags();
