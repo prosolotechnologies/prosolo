@@ -47,23 +47,26 @@ public class V24__20190422_unisa_create_profile_settings extends BaseMigration {
                 StringBuffer insertQueryBuffer = new StringBuffer();
 
                 insertQueryBuffer.append(
-                        "INSERT INTO profile_settings (custom_profile_url, summary_sidebar_enabled, user) VALUES ");
+                        "INSERT INTO profile_settings (id, custom_profile_url, summary_sidebar_enabled, user) VALUES ");
 
                 boolean firstRecord = true;
 
                 // for each user, add an entry to the profile_settings table
+                int id = 1;
+
                 for (String[] user : userData) {
                     if (!firstRecord)
                         insertQueryBuffer.append(", ");
 
-                    long id = Long.parseLong(user[0]);
+                    long userId = Long.parseLong(user[0]);
 
                     // supposing here that this will be a unique customProfileURL and not retrying with other variants of the URL
-                    String customProfileURL = StudentProfileManagerImpl.generateCustomProfileURLPrefix(user[1], user[2]) + urlIdEncoder.encodeId(id);
+                    String customProfileURL = StudentProfileManagerImpl.generateCustomProfileURLPrefix(user[1], user[2])+"-"+urlIdEncoder.encodeId(userId);
 
-                    insertQueryBuffer.append("('"+customProfileURL+"','T', "+id+")");
+                    insertQueryBuffer.append("("+id+",'"+customProfileURL+"','T', "+userId+")");
 
                     firstRecord = false;
+                    id++;
                 }
                 insertQueryBuffer.append(";");
 
