@@ -60,9 +60,7 @@
 									</div>
 								</div>
 							</div>
-							<div class="alert alert-warning" role="alert">
-								After submitting the assessment, the grade cannot be updated.
-							</div>
+
 							<ui:fragment rendered="#{cc.attrs.resource eq 'CREDENTIAL'}">
 								<div class="alert alert-warning" role="alert">
 									Please add the assessment summary.
@@ -93,6 +91,13 @@
 									</h:panelGroup>
 								</div>
 							</ui:fragment>
+
+							<div class="modal-body alignLeft">
+								<p class="top30">
+									Are you sure you want to submit the assessment? After submitting the assessment, the grade cannot be updated.
+								</p>
+							</div>
+
 							<div class="modal-footer alignLeft">
 								<utilcomp:singleClickLink styleClass="btn btn-green"
 														  value="Submit"
@@ -102,6 +107,8 @@
 									<f:param name="page" value="#{facesContext.viewRoot.viewId}"/>
 									<f:param name="learningContext" value="#{cc.attrs.learningContext}"/>
 								</utilcomp:singleClickLink>
+
+								<a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
 							</div>
 						</div>
 					</div>

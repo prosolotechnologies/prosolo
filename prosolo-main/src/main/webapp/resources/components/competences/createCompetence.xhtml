@@ -317,11 +317,12 @@
 								<h2>Publish</h2>
 
 								<ui:fragment rendered="#{competenceEditBean.competenceData.competenceId gt 0}">
-									<h:link
+									<h:link id="compPreview"
 											target="_blank"
 											outcome="competence"
 											value="Preview"
 											class="linkPreview">
+										<f:param name="credId" value="#{competenceEditBean.credId}" />
 										<f:param name="compId" value="#{util:encodeId(competenceEditBean.competenceData.competenceId)}" />
 									</h:link>
 								</ui:fragment>
@@ -340,11 +341,11 @@
 
             					<ui:fragment>
 									<h:selectOneMenu disabled="#{not competenceEditBean.competenceData.canUnpublish}"
-										id="selectStatus" styleClass="selectpicker"
-										value="#{competenceEditBean.competenceData.status}"
-										onchange="onStatusChange();">
+													 id="selectStatus" styleClass="selectpicker"
+													 value="#{competenceEditBean.competenceData.status}"
+													 onchange="onStatusChange();">
 										<f:selectItems value="#{competenceEditBean.compStatusArray}" var="status"
-											itemValue="#{status}" itemLabel="#{status.label}" />
+													   itemValue="#{status}" itemLabel="#{status.label}"/>
 									</h:selectOneMenu>
 									<script>
 										$('.selectpicker').selectpicker('refresh');
@@ -354,12 +355,12 @@
 							<div class="publishRow">
 
 								<p:commandLink id="btnSaveChanges"
-									styleClass="btn btn-green"
-									onclick="copyTextFromTinyMCEToTextarea('#createCompetence\\:formMain\\:description'); if(shouldOpenCanNotPublishModal()){$('#activityNotFoundModal').modal('show'); return false;} if(shouldOpenPublishModal()){$('#publishModal').modal('show');return false;}"
-									action="#{competenceEditBean.save}"
-									update=":#{cc.clientId}:formMain #{cc.attrs.toUpdate} :#{cc.clientId}:archiveDialog :#{cc.clientId}:restoreDialog :#{cc.clientId}:duplicateDialog"
-								    oncomplete="if (!args || args.validationFailed) { determineVisibilityBasedOnGradingMode('COMPETENCE');}">
-										Save changes
+											   styleClass="btn btn-green"
+											   onclick="copyTextFromTinyMCEToTextarea('#createCompetence\\:formMain\\:description'); if(shouldOpenCanNotPublishModal()){$('#activityNotFoundModal').modal('show'); return false;} if(shouldOpenPublishModal()){$('#publishModal').modal('show');return false;}"
+											   action="#{competenceEditBean.save}"
+											   update=":#{cc.clientId}:formMain #{cc.attrs.toUpdate} :#{cc.clientId}:archiveDialog :#{cc.clientId}:restoreDialog :#{cc.clientId}:duplicateDialog"
+											   oncomplete="if (!args || args.validationFailed) { determineVisibilityBasedOnGradingMode('COMPETENCE');}">
+									Save changes
 								</p:commandLink>
 								#{cc.attrs.activities}
 								<ui:fragment rendered="#{competenceEditBean.competenceData.competenceId > 0}">

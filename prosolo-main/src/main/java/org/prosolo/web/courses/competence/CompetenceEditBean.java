@@ -18,7 +18,6 @@ import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.PublishedStatus;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
-import org.prosolo.services.nodes.data.credential.CredentialData;
 import org.prosolo.services.nodes.data.credential.CredentialIdData;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
@@ -53,15 +52,12 @@ public class CompetenceEditBean extends CompoundLearningResourceAssessmentSettin
 	@Inject private CredentialManager credManager;
 	@Inject private UrlIdEncoder idEncoder;
 	@Inject private ContextJsonParserService contextParser;
-	@Inject private CompetenceUserPrivilegeBean visibilityBean;
 	@Inject private UnitManager unitManager;
 
 	private String id;
 	private String credId;
 	private long decodedId;
 	private long decodedCredId;
-	
-	private boolean addToCredential;
 	
 	private CompetenceData1 competenceData;
 	private ResourceAccessData access;
@@ -90,11 +86,9 @@ public class CompetenceEditBean extends CompoundLearningResourceAssessmentSettin
 			initializeValues();
 			blindAssessmentModes = BlindAssessmentMode.values();
 			decodedCredId = idEncoder.decodeId(credId);
+
 			if (id == null) {
 				competenceData = new CompetenceData1(false);
-				if(decodedCredId > 0) {
-					addToCredential = true;
-				}
 				competenceData.setAssessmentTypes(getAssessmentTypes());
 			} else {
 				decodedId = idEncoder.decodeId(id);
@@ -102,6 +96,7 @@ public class CompetenceEditBean extends CompoundLearningResourceAssessmentSettin
 				loadCompetenceData(decodedCredId, decodedId);
 			}
 			setContext();
+
 			if (decodedCredId > 0) {
 				Optional<CredentialIdData> res = competenceData.getCredentialsWithIncludedCompetence()
 						.stream().filter(id -> id.getId() == decodedCredId).findFirst();
@@ -203,10 +198,8 @@ public class CompetenceEditBean extends CompoundLearningResourceAssessmentSettin
 				
 				logger.info("Loaded competence data for competence with id "+ id);
 			}
-		} catch(ResourceNotFoundException rnfe) {
-			competenceData = new CompetenceData1(false);
-			PageUtil.fireErrorMessage(ResourceBundleUtil.getMessage("label.competence") + " can not be found");
-			logger.info(rnfe);
+		} catch (ResourceNotFoundException rnfe) {
+			PageUtil.notFound();
 		}
 	}
 
@@ -241,50 +234,25 @@ public class CompetenceEditBean extends CompoundLearningResourceAssessmentSettin
 	 * ACTIONS
 	 */
 	
-//	public void preview() {
-//		saveCompetenceData(true);
-//	}
-	
 	public void saveAndNavigateToCreateActivity() {
 		// if someone wants to edit activity, he certainly didn't mean to publish the competence at that point. Thus,
 		// we will manually set field 'published 'to false
 		competenceData.setPublished(false);
 		boolean saved = saveCompetenceData(false);
-		if (saved) {
-			StringBuilder builder = new StringBuilder();
-			/*
-			 * this will not work if there are multiple levels of directories in current view path
-			 * example: /credentials/credential-create will return /credentials as a section but this
-			 * may not be what we really want.
-			 */
-			builder.append(PageUtil.getSectionForView().getPrefix()
-					+ "/competences/" + id + "/newActivity");
 
-			if (credId != null && !credId.isEmpty()) {
-				builder.append("?credId=" + credId);
-			}
-			PageUtil.redirect(builder.toString());
+		if (saved) {
+			PageUtil.redirect("/manage/credentials/" + credId + "/competences/" + id + "/activities/new");
 		}
 	}
 	
 	public void save() {
 		boolean isCreateUseCase = competenceData.getCompetenceId() == 0;
 		boolean saved = saveCompetenceData(!isCreateUseCase);
+
 		if (saved && isCreateUseCase) {
 			PageUtil.keepFiredMessagesAcrossPages();
-			if (addToCredential) {
-				/*
-				 * this will not work if there are multiple levels of directories in current view path
-				 * example: /credentials/credential-create will return /credentials as a section but this
-				 * may not be what we really want.
-				 */
-				PageUtil.redirect(PageUtil.getSectionForView().getPrefix() +
-						"/credentials/" + credId + "/edit?tab=competences");
-			} else {
-				//when competence is saved for the first time redirect to edit page
-				PageUtil.redirect(PageUtil.getSectionForView().getPrefix() +
-						"/competences/" + id + "/edit");
-			}
+
+			PageUtil.redirect("/manage/credentials/" + credId + "/edit?tab=competences");
 		}
 	}
 	
@@ -312,9 +280,8 @@ public class CompetenceEditBean extends CompoundLearningResourceAssessmentSettin
 
 				PageUtil.fireSuccessfulInfoMessage("Changes are saved");
 			} else {
-				long credentialId = addToCredential ? decodedCredId : 0;
-				Competence1 comp = compManager.saveNewCompetence(competenceData, credentialId,
-						loggedUser.getUserContext(lcd));
+				long credentialId = decodedCredId;
+				Competence1 comp = compManager.saveNewCompetence(competenceData, credentialId, loggedUser.getUserContext(lcd));
 				competenceData.setCompetenceId(comp.getId());
 				decodedId = competenceData.getCompetenceId();
 				id = idEncoder.encodeId(decodedId);
@@ -401,40 +368,12 @@ public class CompetenceEditBean extends CompoundLearningResourceAssessmentSettin
 		try {
 			long compId = compManager.duplicateCompetence(decodedId, loggedUser.getUserContext());
 
-			PageUtil.redirect("/manage/competences/" + idEncoder.encodeId(compId) + "/edit");
+			PageUtil.redirect("/manage/credentials/" + credId + "/competences/" + idEncoder.encodeId(compId) + "/edit");
 		} catch(DbConnectionException e) {
 			logger.error(e);
 			PageUtil.fireErrorMessage("Error duplicating the " + ResourceBundleUtil.getMessage("label.competence").toLowerCase());
 		}
 	}
-	
-//	public void addActivity(BasicActivityData actData) {
-//		List<BasicActivityData> activities = competenceData.getActivities();
-//		BasicActivityData removedAct = getActivityIfPreviouslyRemoved(actData);
-//		BasicActivityData actToEdit = removedAct != null ? removedAct : actData;
-//		actToEdit.setOrder(activities.size() + 1);
-//		activities.add(actToEdit);
-//		if(removedAct != null) {
-//			removedAct.statusBackFromRemovedTransition();
-//		} else {
-//			actData.startObservingChanges();
-//		}
-//		activitiesToExcludeFromSearch.add(actToEdit.getActivityId());
-//		currentNumberOfActvities ++;
-//		activitySearchResults = new ArrayList<>();
-//	}
-	
-//	private BasicActivityData getActivityIfPreviouslyRemoved(BasicActivityData actData) {
-//		Iterator<BasicActivityData> iter = activitiesToRemove.iterator();
-//		while(iter.hasNext()) {
-//			BasicActivityData bad = iter.next();
-//			if(bad.getId() == actData.getId()) {
-//				iter.remove();
-//				return bad;
-//			}
-//		}
-//		return null;
-//	}
 	
 	public void moveDown(int index) {
 		moveActivity(index, index + 1);

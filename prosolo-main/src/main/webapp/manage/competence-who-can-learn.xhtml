@@ -30,7 +30,7 @@
 	 <ui:define name="navLinks">
          <mngComp:competenceHeaderNavLinks
                  id="headerNavLinks"
-                 compId="#{competenceUserPrivilegeBean.compId}"
+                 compId="#{competenceUserPrivilegeBean.decodedCompId}"
                  encodedCredId="#{competenceUserPrivilegeBean.credId}"
          />
 	</ui:define>
@@ -100,7 +100,7 @@
                                     bean="#{competenceUserPrivilegeBean}"
                                     process=":formMain:checkVisibleAll"
                                     toUpdate=":growlMain"
-                                    learningContext="name:COMPETENCE|id:#{competenceUserPrivilegeBean.compId}"
+                                    learningContext="name:COMPETENCE|id:#{competenceUserPrivilegeBean.decodedCompId}"
                             />
                         </h:form>
                     </div>

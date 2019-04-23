@@ -147,7 +147,7 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 						/*
 						 * access rights are already checked when querying ES, so we don't need to do that again
 						 */
-						CompetenceData1 res = compManager.getCompetenceData(0, id, false, false, false, false, false);
+						CompetenceData1 res = compManager.getCompetenceData(id, false, false, false, false, false);
 						
 						if (res != null) {
 							response.addFoundNode(res);

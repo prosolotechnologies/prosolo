@@ -1748,7 +1748,8 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		try {
 			Result<Void> result = new Result();
 			CompetenceAssessment competenceAssessment = (CompetenceAssessment) persistence.currentManager().load(CompetenceAssessment.class, competenceAssessmentId);
-            if (competenceAssessment.getStatus() != AssessmentStatus.SUBMITTED) {
+
+			if (competenceAssessment.getStatus() != AssessmentStatus.SUBMITTED) {
 				if (competenceAssessment.getStatus() != AssessmentStatus.PENDING) {
 					throw new IllegalDataStateException("Only pending assessment can be approved. This assessment has status: " + competenceAssessment.getStatus());
 				}
@@ -1761,9 +1762,11 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 				competenceAssessment.setApproved(true);
 				competenceAssessment.setDateApproved(new Date());
 				competenceAssessment.setAssessorNotified(false);
+
 				//if instructor assessment, mark approved competence as completed if not already
 				if (competenceAssessment.getType() == AssessmentType.INSTRUCTOR_ASSESSMENT) {
 					TargetCompetence1 tc = compManager.getTargetCompetence(competenceAssessment.getCompetence().getId(), competenceAssessment.getStudent().getId());
+
 					if (tc.getProgress() < 100) {
 						result.appendEvents(compManager.completeCompetenceAndGetEvents(tc.getId(), context).getEventQueue());
 					}
@@ -3527,14 +3530,15 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 	public Optional<Long> getSelfCompetenceAssessmentId(long credId, long compId, long studentId)
 			throws DbConnectionException {
 		try {
-			String query = "SELECT ca.id " +
+			String query =
+					"SELECT ca.id " +
 					"FROM CompetenceAssessment ca " +
 					"INNER JOIN ca.competence comp " +
 					"INNER JOIN ca.targetCredential tc " +
 					"WHERE comp.id = :compId " +
-					"AND ca.student.id = :studentId " +
-					"AND ca.type = :type " +
-					"AND tc.credential.id = :credId";
+						"AND ca.student.id = :studentId " +
+						"AND ca.type = :type " +
+						"AND tc.credential.id = :credId";
 
 			Long id = (Long) persistence.currentManager()
 					.createQuery(query)

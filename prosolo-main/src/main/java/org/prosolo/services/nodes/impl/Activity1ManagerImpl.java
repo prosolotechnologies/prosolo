@@ -493,43 +493,10 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			throw new DbConnectionException("Error loading activity data");
 		}
 	}
-
-	/**
-	 * Checks if activity specified with {@code actId} id is part of a credential with {@code credId} id
-	 * and if not throws {@link ResourceNotFoundException}.
-	 *
-	 * @param credId
-	 * @param actId
-	 * @throws ResourceNotFoundException
-	 */
-	private void checkIfActivityIsPartOfACredential(long credId, long actId)
-			throws ResourceNotFoundException {
-		if(credId > 0) {
-			String query1 =
-					"SELECT COUNT(compAct.id) " +
-					"FROM CompetenceActivity1 compAct " +
-					"INNER JOIN compAct.competence comp " +
-					"INNER JOIN comp.credentialCompetences credComp " +
-					"WITH credComp.credential.id = :credId " +
-					"WHERE compAct.activity.id = :actId";
-
-			@SuppressWarnings("unchecked")
-			Long no = (Long) persistence.currentManager()
-					.createQuery(query1)
-					.setLong("credId", credId)
-					.setLong("actId", actId)
-					.uniqueResult();
-
-			if (no == 0) {
-				throw new ResourceNotFoundException();
-			}
-		}
-	}
 	
 	private CompetenceActivity1 getCompetenceActivity(long credId, long competenceId, long activityId, 
 			boolean loadLinks, boolean loadTags, boolean loadCompetence) {
 		try {
-			compManager.checkIfCompetenceIsPartOfACredential(credId, competenceId);
 			/*
 			 * we need to make sure that activity is bound to competence with passed id
 			 */
@@ -941,8 +908,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 					throws DbConnectionException, ResourceNotFoundException {
 		CompetenceData1 compData;
 		try {
-			compData = getTargetCompetenceActivitiesWithSpecifiedActivityInFocus(credId, 
-					compId, actId, userId, isManager);
+			compData = getTargetCompetenceActivitiesWithSpecifiedActivityInFocus(compId, actId, userId, isManager);
 			if (compData == null) {
 				return getCompetenceActivitiesWithSpecifiedActivityInFocus(credId, compId, actId);
 			}
@@ -959,7 +925,6 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	
 	/**
 	 * 
-	 * @param credId
 	 * @param compId
 	 * @param actId
 	 * @param userId
@@ -967,13 +932,11 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	 * @return
 	 * @throws DbConnectionException
 	 */
-	private CompetenceData1 getTargetCompetenceActivitiesWithSpecifiedActivityInFocus(
-			long credId, long compId, long actId, long userId, boolean isManager) 
+	private CompetenceData1 getTargetCompetenceActivitiesWithSpecifiedActivityInFocus(long compId, long actId, long userId, boolean isManager)
 					throws DbConnectionException {
 		CompetenceData1 compData;
 		try {			
-			ActivityData activityWithDetails = getTargetActivityData(credId, compId, actId, userId, 
-					true, true, isManager);
+			ActivityData activityWithDetails = getTargetActivityData(compId, actId, userId, true, true, isManager);
 
 			if (activityWithDetails != null) {
 				compData = new CompetenceData1(false);
@@ -992,31 +955,28 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	}
 	
 	/**
-	 * Returns full target activity data when id of a target activity is not known.
-	 * @param credId
-	 * @param compId
-	 * @param actId
-	 * @param userId
-	 * @param loadResourceLinks
+	 * Returns full target activity data when id of a target activity is unknown.
+	 *
+	 * @param compId credential id
+	 * @param actId activity id
+	 * @param userId user id
+	 * @param loadResourceLinks whether to load links
+	 * @param loadTags whether to load tags
 	 * @param isManager did request come from manage section
-	 * @return
+	 * @return activity data
 	 * @throws DbConnectionException
 	 */
-	private ActivityData getTargetActivityData(long credId, long compId, long actId, long userId,
+	private ActivityData getTargetActivityData(long compId, long actId, long userId,
 			boolean loadResourceLinks, boolean loadTags, boolean isManager)
 			throws DbConnectionException, ResourceNotFoundException {
 		try {	
-			/*
-			 * check if competence is part of a credential
-			 */
-			compManager.checkIfCompetenceIsPartOfACredential(credId, compId);
-			
-			StringBuilder query = new StringBuilder("SELECT targetAct " +
-					   "FROM TargetActivity1 targetAct " +
-					   "INNER JOIN fetch targetAct.activity act " +
-					   "INNER JOIN targetAct.targetCompetence targetComp " +
-					   		"WITH targetComp.competence.id = :compId " +
-					   		"AND targetComp.user.id = :userId ");
+			StringBuilder query = new StringBuilder(
+							"SELECT targetAct " +
+							"FROM TargetActivity1 targetAct " +
+							"INNER JOIN fetch targetAct.activity act " +
+							"INNER JOIN targetAct.targetCompetence targetComp " +
+					   			"WITH targetComp.competence.id = :compId " +
+					   			"AND targetComp.user.id = :userId ");
 			if (loadResourceLinks) {
 				query.append("LEFT JOIN fetch act.links link " + 
 							 "LEFT JOIN fetch act.files files ");
@@ -1152,9 +1112,8 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			long credId, long compId, long actId, long userId, boolean isManager) 
 					throws DbConnectionException, ResourceNotFoundException, AccessDeniedException {
 		CompetenceData1 compData = null;
-		try {			
-			ActivityData activityWithDetails = getTargetActivityData(credId, compId, actId, 
-					userId, false, false, isManager);
+		try {
+			ActivityData activityWithDetails = getTargetActivityData(compId, actId, userId, false, false, isManager);
 			
 			if (activityWithDetails != null) {
 				//if it is not allowed for students to see other students responses throw AccessDeniedException
@@ -1506,9 +1465,6 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	public ActivityAssessmentsSummaryData getActivityAssessmentDataForDefaultCredentialAssessment(long credId, long actId, long targetActivityId, boolean isInstructor, boolean loadDataOnlyForStudentsWhereGivenUserIsInstructor, long userId)
 			throws DbConnectionException, ResourceNotFoundException {
 		try {
-			//check if activity is part of a credential
-			checkIfActivityIsPartOfACredential(credId, actId);
-
 			Activity1 activity = (Activity1) persistence.currentManager().get(Activity1.class, actId);
 
 			ActivityAssessmentsSummaryData summary = assessmentDataFactory.getActivityAssessmentsSummaryData(activity, 0L, 0L);
@@ -1531,9 +1487,6 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 																									  long userId, boolean paginate, int page, int limit)
 					throws DbConnectionException, ResourceNotFoundException {
 		try {
-			//check if activity is part of a credential
-			checkIfActivityIsPartOfACredential(credId, actId);
-
 			Activity1 activity = (Activity1) persistence.currentManager().get(Activity1.class, actId);
 
 			//load only data for instructors students if user does not have Edit privilege
@@ -2056,4 +2009,49 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		}
 	}
 
+	@Override
+	public void checkIfActivityAndCompetenceArePartOfCredential(long credId, long compId, long actId) throws ResourceNotFoundException {
+		String query1 =
+				"SELECT COUNT(compAct.id) " +
+				"FROM CompetenceActivity1 compAct " +
+				"INNER JOIN compAct.competence comp " +
+				"INNER JOIN comp.credentialCompetences credComp " +
+				"WITH credComp.credential.id = :credId " +
+				"WHERE compAct.activity.id = :actId " +
+						"AND comp.id = :compId";
+
+		@SuppressWarnings("unchecked")
+		Long no = (Long) persistence.currentManager()
+				.createQuery(query1)
+				.setLong("credId", credId)
+				.setLong("compId", compId)
+				.setLong("actId", actId)
+				.uniqueResult();
+
+		if (no == 0) {
+			throw new ResourceNotFoundException();
+		}
+	}
+
+	@Override
+	public void checkIfActivityIsPartOfACredential(long credId, long actId)	throws ResourceNotFoundException {
+		String query1 =
+				"SELECT COUNT(compAct.id) " +
+				"FROM CompetenceActivity1 compAct " +
+				"INNER JOIN compAct.competence comp " +
+				"INNER JOIN comp.credentialCompetences credComp " +
+				"WITH credComp.credential.id = :credId " +
+				"WHERE compAct.activity.id = :actId";
+
+		@SuppressWarnings("unchecked")
+		Long no = (Long) persistence.currentManager()
+				.createQuery(query1)
+				.setLong("credId", credId)
+				.setLong("actId", actId)
+				.uniqueResult();
+
+		if (no == 0) {
+			throw new ResourceNotFoundException();
+		}
+	}
 }

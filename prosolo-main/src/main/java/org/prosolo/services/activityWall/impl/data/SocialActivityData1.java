@@ -6,7 +6,7 @@ import java.util.List;
 
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.interaction.data.CommentsData;
-import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview1;
+import org.prosolo.services.nodes.data.statusWall.AttachmentPreview;
 import org.prosolo.services.user.data.UserData;
 
 public class SocialActivityData1 implements Serializable {
@@ -26,7 +26,7 @@ public class SocialActivityData1 implements Serializable {
 	private String relationToTarget;
 	private ObjectData target;
 	private String text;
-	private AttachmentPreview1 attachmentPreview;
+	private AttachmentPreview attachmentPreview;
 	
 	private SocialActivityData1 originalSocialActivity;
 	
@@ -43,7 +43,7 @@ public class SocialActivityData1 implements Serializable {
 	private String mentionedUsersInComment;
 	
 	public SocialActivityData1() {
-		attachmentPreview = new AttachmentPreview1();
+		attachmentPreview = new AttachmentPreview();
 	}
 
 	public long getPostDateTime() {
@@ -130,11 +130,11 @@ public class SocialActivityData1 implements Serializable {
 		this.shared = shared;
 	}
 	
-	public AttachmentPreview1 getAttachmentPreview() {
+	public AttachmentPreview getAttachmentPreview() {
 		return attachmentPreview;
 	}
 	
-	public void setAttachmentPreview(AttachmentPreview1 attachmentPreview) {
+	public void setAttachmentPreview(AttachmentPreview attachmentPreview) {
 		this.attachmentPreview = attachmentPreview;
 	}
 	
