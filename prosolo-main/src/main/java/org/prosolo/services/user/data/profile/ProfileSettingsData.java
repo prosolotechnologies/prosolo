@@ -8,7 +8,7 @@ import org.prosolo.services.common.observable.StandardObservable;
 /**
  * @author Nikola Milikic
  * @date 2019-04-08
- * @since 1.3.1
+ * @since 1.3.2
  */
 
 public class ProfileSettingsData extends StandardObservable {

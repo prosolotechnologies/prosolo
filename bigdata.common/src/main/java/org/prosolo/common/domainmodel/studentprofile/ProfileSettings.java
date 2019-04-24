@@ -10,7 +10,7 @@ import javax.persistence.*;
  *
  * @author Nikola Milikic
  * @date 2019-04-09
- * @since 1.3.1
+ * @since 1.3.2
  */
 @Entity
 //unique constraint added from the script

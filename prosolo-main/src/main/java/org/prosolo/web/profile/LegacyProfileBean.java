@@ -17,13 +17,13 @@ import javax.inject.Inject;
 import java.util.Optional;
 
 /**
- * This class serves the old profile page (profile.xhtml) that enables legacy profile paths
+ * This class serves the old profile page (profile-legacy.xhtml) that enables legacy profile paths
  * {domain}/profile/{encodedUserId}. The purpose of this bean is to redirect to the new profile page that is in the
  * format: {domain}/p/{customProfilePath}
  *
  * @author Nikola Milikic
  * @date 2019-04-11
- * @since 1.3.1
+ * @since 1.3.2
  */
 @ManagedBean(name = "legacyProfileBean")
 @Component("legacyProfileBean")
@@ -63,6 +63,5 @@ public class LegacyProfileBean {
 		}
 		PageUtil.notFound();
 	}
-
 
 }

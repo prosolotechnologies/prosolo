@@ -216,9 +216,9 @@
 								</li>
 								<li>
 									<h:link value="Profile"
-										onclick="sendLogPageNavigation('profile','mainmenu');"
-										outcome="/profile">
-										<f:param name="id" value="#{util:encodeId(loggeduser.userId)}" />
+										onclick="sendLogPageNavigation('profile-legacy','mainmenu');"
+										outcome="/profile-legacy">
+										<f:param name="studentId" value="#{util:encodeId(loggeduser.userId)}" />
 									</h:link>
 								</li>
 								<li>

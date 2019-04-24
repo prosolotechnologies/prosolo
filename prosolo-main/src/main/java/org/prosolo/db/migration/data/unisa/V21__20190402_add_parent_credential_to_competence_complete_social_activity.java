@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * @author Nikola Milikic
  * @date 2019-04-02
- * @since 1.3.1
+ * @since 1.3.2
  */
 public class V21__20190402_add_parent_credential_to_competence_complete_social_activity extends BaseMigration {
 

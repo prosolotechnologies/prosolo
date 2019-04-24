@@ -21,7 +21,7 @@ import java.util.Random;
 /**
  * @author Nikola Milikic
  * @date 2019-04-09
- * @since 1.3.1
+ * @since 1.3.2
  */
 @Service("org.prosolo.services.user.ProfileSettingsObserver")
 public class ProfileSettingsObserver extends EventObserver {
