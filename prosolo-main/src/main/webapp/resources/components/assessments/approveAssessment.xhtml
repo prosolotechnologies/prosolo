@@ -60,8 +60,10 @@
 									</div>
 								</div>
 							</div>
-							<div class="alert alert-warning" role="alert">
-								After submitting the assessment, the grade cannot be updated.
+							<div class="modal-body alignLeft top30">
+								<p>
+									Are you sure you want to submit the assessment? After submission, the assessment cannot be updated.
+								</p>
 							</div>
 							<ui:fragment rendered="#{cc.attrs.resource eq 'CREDENTIAL'}">
 								<div class="alert alert-warning" role="alert">
@@ -70,8 +72,7 @@
 								<div class="modal-body alignLeft">
 									<h:inputTextarea
 											placeholder="Type a summary that will be displayed on student's profile..."
-											value="#{cc.attrs.assessmentReviewField}"
-									/>
+											value="#{cc.attrs.assessmentReviewField}" />
 									<h:panelGroup id="panelCredentialResult">
 										<h:panelGroup layout="block" styleClass="resultLine" rendered="#{cc.attrs.gradeData.gradingMode eq 'NONGRADED' or cc.attrs.gradeData.pointBasedGrading}">
 											Result:
