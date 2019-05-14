@@ -137,6 +137,9 @@ public class NotificationEventProcessorFactory {
 			case ASSESSOR_ASSIGNED_TO_ASSESSMENT:
 				return new AssessorAssignedToExistingCompetenceAssessmenEventProcessor(event, session, notificationManager, notificationsSettingsManager, idEncoder,
 						contextJsonParserService);
+			case ASSESSMENT_REQUEST_EXPIRED:
+				return new CompetenceAssessmentRequestExpiredNotificationEventProcessor(event, session, notificationManager, notificationsSettingsManager, idEncoder,
+						contextJsonParserService);
 			default:
 				return null;
 		}
