@@ -7,14 +7,14 @@ import org.prosolo.common.domainmodel.credential.GradingMode;
 import org.prosolo.common.domainmodel.credential.TargetActivity1;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
+import org.prosolo.common.event.Event;
+import org.prosolo.common.event.EventObserver;
 import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.core.db.hibernate.HibernateUtil;
-import org.prosolo.services.data.Result;
-import org.prosolo.services.event.Event;
-import org.prosolo.services.event.EventFactory;
-import org.prosolo.services.event.EventObserver;
 import org.prosolo.services.assessment.AssessmentManager;
+import org.prosolo.services.data.Result;
+import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.services.nodes.impl.util.activity.ActivityExternalAutogradeVisitor;
 import org.springframework.stereotype.Service;
@@ -45,7 +45,7 @@ public class ActivityAssessmentAutogradeObserver extends EventObserver {
 		};
 	}
 
-	public void handleEvent(Event event) {		
+	public void handleEvent(Event event) {
 		Session session = (Session) defaultManager.getPersistence().openSession();
 		Transaction transaction = null;
 
@@ -75,7 +75,7 @@ public class ActivityAssessmentAutogradeObserver extends EventObserver {
 		}
 
 		if (result != null) {
-			eventFactory.generateEvents(result.getEventQueue(), event.getObserversToExclude());
+			eventFactory.generateAndPublishEvents(result.getEventQueue(), event.getObserversToExclude());
 		}
 	}
 

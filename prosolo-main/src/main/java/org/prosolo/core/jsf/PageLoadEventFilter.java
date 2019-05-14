@@ -97,7 +97,7 @@ public class PageLoadEventFilter implements Filter {
 			Map<String, String> params = new HashMap<>();
 			params.put("uri", uri);
 			params.put("pretty_uri", (String) request.getAttribute("javax.servlet.forward.request_uri"));
-			eventFactory.generateEvent(
+			eventFactory.generateAndPublishEvent(
 					EventType.PAGE_OPENED, UserContextData.of(userId, organizationId, sessionId, ipAddress, new PageContextData(uri, null, null)),
 					null, null, null, params);
 		}

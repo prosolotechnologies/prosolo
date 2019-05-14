@@ -23,6 +23,8 @@ import org.prosolo.common.domainmodel.rubric.Rubric;
 import org.prosolo.common.domainmodel.rubric.RubricType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
+import org.prosolo.common.event.EventData;
+import org.prosolo.common.event.EventQueue;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.common.util.string.StringUtil;
@@ -39,9 +41,7 @@ import org.prosolo.services.common.data.LazyInitCollection;
 import org.prosolo.services.common.data.SortOrder;
 import org.prosolo.services.common.data.SortingOption;
 import org.prosolo.services.data.Result;
-import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventFactory;
-import org.prosolo.services.event.EventQueue;
 import org.prosolo.services.feeds.FeedSourceManager;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.*;
@@ -125,7 +125,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			throws DbConnectionException {
 		//self-invocation
 		Result<Credential1> res = self.saveNewCredentialAndGetEvents(data, context);
-		eventFactory.generateEvents(res.getEventQueue());
+		eventFactory.generateAndPublishEvents(res.getEventQueue());
 		return res.getResult();
 	}
 
@@ -259,7 +259,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			throws DbConnectionException, StaleDataException, DataIntegrityViolationException {
 		//self invocation so spring can intercept the call and start transaction
 		Result<Void> res = self.deleteDeliveryAndGetEvents(deliveryId, context);
-		eventFactory.generateEvents(res.getEventQueue());
+		eventFactory.generateAndPublishEvents(res.getEventQueue());
 	}
 
 	@Override
@@ -642,7 +642,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			Result<Credential1> res = resourceFactory.updateCredential(data, context);
 			Credential1 cred = res.getResult();
 
-			eventFactory.generateEvents(res.getEventQueue());
+			eventFactory.generateAndPublishEvents(res.getEventQueue());
 			/* 
 			 * flushing to force lock timeout exception so it can be caught here.
 			 * It is rethrown as StaleDataException.
@@ -965,7 +965,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		Result<Void> res = self.enrollInCredentialAndGetEvents(credentialId, context.getActorId(),
 				0, context);
 
-		eventFactory.generateEvents(res.getEventQueue());
+		eventFactory.generateAndPublishEvents(res.getEventQueue());
 	}
 
 	@Override
@@ -1030,7 +1030,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 							credId, userId, instructorId, context).getEventQueue());
 				}
 
-				eventFactory.generateEvents(events);
+				eventFactory.generateAndPublishEvents(events);
 			} catch (Exception e) {
 				throw new DbConnectionException("Error enrolling students in a credential");
 			}
@@ -1327,7 +1327,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	public void bookmarkCredential(long credId, UserContextData context)
 			throws DbConnectionException {
 		Result<Void> res = self.bookmarkCredentialAndGetEvents(credId, context);
-		eventFactory.generateEvents(res.getEventQueue());
+		eventFactory.generateAndPublishEvents(res.getEventQueue());
 	}
 
 	@Override
@@ -1361,7 +1361,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	public void deleteCredentialBookmark(long credId, UserContextData context)
 			throws DbConnectionException {
 		Result<Void> res = self.deleteCredentialBookmarkAndGetEvents(credId, context);
-		eventFactory.generateEvents(res.getEventQueue());
+		eventFactory.generateAndPublishEvents(res.getEventQueue());
 	}
 
 	@Override
@@ -2679,7 +2679,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			EventQueue events =
 					self.updateCredentialVisibilityAndGetEvents(credId, groups, users, visibleToAll,
 							visibleToAllChanged, context);
-			eventFactory.generateEvents(events);
+			eventFactory.generateAndPublishEvents(events);
 		} catch (DbConnectionException e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -2690,8 +2690,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@Override
 	@Transactional(readOnly = false)
 	public EventQueue updateCredentialVisibilityAndGetEvents(long credId, List<ResourceVisibilityMember> groups,
-																  List<ResourceVisibilityMember> users, boolean visibleToAll, boolean visibleToAllChanged,
-																  UserContextData context) throws DbConnectionException {
+															 List<ResourceVisibilityMember> users, boolean visibleToAll, boolean visibleToAllChanged,
+															 UserContextData context) throws DbConnectionException {
 		try {
 			EventQueue events = EventQueue.newEventQueue();
 			if (visibleToAllChanged) {
@@ -2916,7 +2916,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	public void archiveCredential(long credId, UserContextData context)
 			throws DbConnectionException {
 		Result<Void> res = self.archiveCredentialAndGetEvents(credId, context);
-		eventFactory.generateEvents(res.getEventQueue());
+		eventFactory.generateAndPublishEvents(res.getEventQueue());
 	}
 
 	@Override
@@ -2944,7 +2944,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	public void restoreArchivedCredential(long credId, UserContextData context)
 			throws DbConnectionException {
 		Result<Void> res = self.restoreArchivedCredentialAndGetEvents(credId, context);
-		eventFactory.generateEvents(res.getEventQueue());
+		eventFactory.generateAndPublishEvents(res.getEventQueue());
 	}
 
 	@Override
@@ -3142,7 +3142,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 												UserContextData context) throws DbConnectionException, IllegalDataStateException {
 		Result<Credential1> res = self.createCredentialDeliveryAndGetEvents(
 				credentialId, DateUtil.getDateFromMillis(start), DateUtil.getDateFromMillis(end), context);
-		eventFactory.generateEvents(res.getEventQueue());
+		eventFactory.generateAndPublishEvents(res.getEventQueue());
 		return res.getResult();
 	}
 
@@ -3460,7 +3460,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@Override
 	//nt
 	public void changeOwner(long credId, long newOwnerId, UserContextData context) throws DbConnectionException {
-		eventFactory.generateEvents(self.changeOwnerAndGetEvents(credId, newOwnerId, context).getEventQueue());
+		eventFactory.generateAndPublishEvents(self.changeOwnerAndGetEvents(credId, newOwnerId, context).getEventQueue());
 	}
 
 	@Override
@@ -3698,7 +3698,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	public void updateDeliveryStartAndEnd(CredentialData deliveryData, UserContextData context)
 			throws StaleDataException, IllegalDataStateException, DbConnectionException {
 		Result<Void> res = self.updateDeliveryStartAndEndAndGetEvents(deliveryData, context);
-		eventFactory.generateEvents(res.getEventQueue());
+		eventFactory.generateAndPublishEvents(res.getEventQueue());
 	}
 
 	@Override
@@ -3854,7 +3854,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	//nt
 	public long createCredentialInLearningStage(long basedOnCredentialId, long learningStageId, boolean copyCompetences, UserContextData context) throws DbConnectionException {
 		Result<Credential1> res = self.createCredentialInLearningStageAndGetEvents(basedOnCredentialId, learningStageId, copyCompetences, context);
-		eventFactory.generateEvents(res.getEventQueue());
+		eventFactory.generateAndPublishEvents(res.getEventQueue());
 		return res.getResult().getId();
 	}
 

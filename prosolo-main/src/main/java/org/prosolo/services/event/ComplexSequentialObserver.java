@@ -1,11 +1,13 @@
 package org.prosolo.services.event;
 
+import org.prosolo.common.domainmodel.events.EventType;
+import org.prosolo.common.domainmodel.general.BaseEntity;
+import org.prosolo.common.event.Event;
+import org.prosolo.common.event.EventObserver;
+
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-
-import org.prosolo.common.domainmodel.events.EventType;
-import org.prosolo.common.domainmodel.general.BaseEntity;
 
 /**
  * This observer can be used when there is a need for two or more observers to execute sequentially.

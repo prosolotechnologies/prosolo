@@ -239,7 +239,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 				roles,
 				isSystem);
 
-		eventFactory.generateEvents(res.getEventQueue());
+		eventFactory.generateAndPublishEvents(res.getEventQueue());
 
 		return res.getResult();
 	}
@@ -261,7 +261,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 				roles,
 				isSystem);
 
-		eventFactory.generateEvents(res.getEventQueue());
+		eventFactory.generateAndPublishEvents(res.getEventQueue());
 
 		return res.getResult();
 	}
@@ -513,7 +513,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 		Result<User> result = self.updateUserAndGetEvents(userId, name, lastName, email, emailVerified,
 				changePassword, password, position, newRoleList, allRoles, context);
 
-		eventFactory.generateEvents(result.getEventQueue());
+		eventFactory.generateAndPublishEvents(result.getEventQueue());
 
 		return result.getResult();
 	}
@@ -683,7 +683,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	public void deleteUser(long oldCreatorId, long newCreatorId, UserContextData context)
 			throws DbConnectionException {
 		Result<Void> result = self.deleteUserAndGetEvents(oldCreatorId, newCreatorId, context);
-		eventFactory.generateEvents(result.getEventQueue());
+		eventFactory.generateAndPublishEvents(result.getEventQueue());
 	}
 
 	@Override
@@ -1005,7 +1005,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 				userGroupId, context);
 
 		if (res.getResult() != null) {
-			eventFactory.generateEvents(res.getEventQueue());
+			eventFactory.generateAndPublishEvents(res.getEventQueue());
 			return res.getResult().getUser();
 		}
 		return null;
@@ -1269,7 +1269,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	public void saveAccountChanges(UserData accountData, UserContextData contextData)
 			throws DbConnectionException, ResourceCouldNotBeLoadedException {
 		Result<Void> result = self.saveAccountChangesAndGetEvents(accountData,contextData);
-		eventFactory.generateEvents(result.getEventQueue());
+		eventFactory.generateAndPublishEvents(result.getEventQueue());
 	}
 
 	@Override

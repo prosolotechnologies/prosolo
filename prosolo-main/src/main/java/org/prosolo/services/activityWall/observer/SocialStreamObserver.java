@@ -1,8 +1,5 @@
 package org.prosolo.services.activityWall.observer;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.log4j.Logger;
 import org.hibernate.FlushMode;
 import org.hibernate.Session;
@@ -12,13 +9,16 @@ import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.organization.Unit;
+import org.prosolo.common.event.Event;
+import org.prosolo.common.event.EventObserver;
 import org.prosolo.core.db.hibernate.HibernateUtil;
 import org.prosolo.services.activityWall.observer.factory.SocialActivityFactory;
-import org.prosolo.services.event.Event;
-import org.prosolo.services.event.EventObserver;
 import org.prosolo.services.nodes.DefaultManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service("org.prosolo.services.activitywall.SocialStreamObserver")
 public class SocialStreamObserver extends EventObserver {

@@ -3,16 +3,15 @@ package org.prosolo.services.activityWall.observer.factory.impl;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
-import org.prosolo.common.domainmodel.activitywall.SocialActivity1;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.organization.Unit;
+import org.prosolo.common.event.Event;
 import org.prosolo.services.activityWall.SocialActivityManager;
 import org.prosolo.services.activityWall.observer.factory.SocialActivityFactory;
 import org.prosolo.services.activityWall.observer.processor.*;
-import org.prosolo.services.event.Event;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.springframework.stereotype.Service;
 

@@ -5,9 +5,9 @@ import org.hibernate.Session;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.user.notifications.NotificationType;
 import org.prosolo.common.domainmodel.user.notifications.ResourceType;
+import org.prosolo.common.event.Event;
 import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.assessment.data.AssessmentBasicData;
-import org.prosolo.services.event.Event;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
@@ -28,8 +28,8 @@ public abstract class AssessmentCommentEventProcessor extends AssessmentNotifica
 	protected Competence1Manager competenceManager;
 
 	public AssessmentCommentEventProcessor(Event event, Session session, NotificationManager notificationManager,
-			NotificationsSettingsManager notificationsSettingsManager, UrlIdEncoder idEncoder,
-			AssessmentManager assessmentManager, CredentialManager credentialManager, Competence1Manager competenceManager) {
+										   NotificationsSettingsManager notificationsSettingsManager, UrlIdEncoder idEncoder,
+										   AssessmentManager assessmentManager, CredentialManager credentialManager, Competence1Manager competenceManager) {
 		super(event, session, notificationManager, notificationsSettingsManager, idEncoder);
 		this.assessmentManager = assessmentManager;
 		this.credentialManager = credentialManager;

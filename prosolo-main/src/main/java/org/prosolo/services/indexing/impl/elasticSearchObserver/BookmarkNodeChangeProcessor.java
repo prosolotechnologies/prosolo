@@ -4,7 +4,7 @@ import org.hibernate.Session;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.general.BaseEntity;
-import org.prosolo.services.event.Event;
+import org.prosolo.common.event.Event;
 import org.prosolo.services.indexing.CompetenceESService;
 import org.prosolo.services.indexing.CredentialESService;
 
@@ -16,8 +16,8 @@ public class BookmarkNodeChangeProcessor implements NodeChangeProcessor {
 	private Session session;
 	
 	
-	public BookmarkNodeChangeProcessor(Event event, CredentialESService credentialESService, 
-			CompetenceESService compESSerivce, Session session) {
+	public BookmarkNodeChangeProcessor(Event event, CredentialESService credentialESService,
+									   CompetenceESService compESSerivce, Session session) {
 		this.event = event;
 		this.credentialESService = credentialESService;
 		this.compESService = compESSerivce;

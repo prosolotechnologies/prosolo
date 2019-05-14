@@ -53,7 +53,7 @@ public class LearningEvidenceManagerImpl extends AbstractManagerImpl implements 
     //nt
     public LearningEvidenceData postEvidenceAndAttachItToCompetence(long targetCompId, LearningEvidenceData evidence, UserContextData context) throws DbConnectionException, ConstraintViolationException, DataIntegrityViolationException {
         Result<LearningEvidenceData> res = self.postEvidenceAttachItToCompetenceAndGetEvents(targetCompId, evidence, context);
-        eventFactory.generateEvents(res.getEventQueue());
+        eventFactory.generateAndPublishEvents(res.getEventQueue());
         return res.getResult();
     }
 
@@ -88,7 +88,7 @@ public class LearningEvidenceManagerImpl extends AbstractManagerImpl implements 
     //nt
     public long postEvidence(LearningEvidenceData evidence, UserContextData context) throws DbConnectionException, ConstraintViolationException, DataIntegrityViolationException {
         Result<LearningEvidence> res = self.postEvidenceAndGetEvents(evidence, context);
-        eventFactory.generateEvents(res.getEventQueue());
+        eventFactory.generateAndPublishEvents(res.getEventQueue());
         return res.getResult().getId();
     }
 
@@ -368,7 +368,7 @@ public class LearningEvidenceManagerImpl extends AbstractManagerImpl implements 
     @Override
     //nt
     public void deleteLearningEvidence(long evidenceId, UserContextData context) throws DbConnectionException {
-        eventFactory.generateEvents(self.deleteLearningEvidenceAndGetEvents(evidenceId, context).getEventQueue());
+        eventFactory.generateAndPublishEvents(self.deleteLearningEvidenceAndGetEvents(evidenceId, context).getEventQueue());
     }
 
     @Override
@@ -408,7 +408,7 @@ public class LearningEvidenceManagerImpl extends AbstractManagerImpl implements 
     //nt
     public void updateEvidence(LearningEvidenceData evidence, UserContextData context) throws DbConnectionException, ConstraintViolationException, DataIntegrityViolationException {
         Result<LearningEvidence> res = self.updateEvidenceAndGetEvents(evidence, context);
-        eventFactory.generateEvents(res.getEventQueue());
+        eventFactory.generateAndPublishEvents(res.getEventQueue());
     }
 
     @Override

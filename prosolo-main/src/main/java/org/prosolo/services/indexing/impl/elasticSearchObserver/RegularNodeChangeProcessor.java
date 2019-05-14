@@ -1,7 +1,7 @@
 package org.prosolo.services.indexing.impl.elasticSearchObserver;
 
 import org.prosolo.common.domainmodel.general.BaseEntity;
-import org.prosolo.services.event.Event;
+import org.prosolo.common.event.Event;
 import org.prosolo.services.indexing.NodeEntityESService;
 
 public class RegularNodeChangeProcessor implements NodeChangeProcessor {

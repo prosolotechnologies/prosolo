@@ -130,7 +130,7 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 		parameters.put("objectType", "page");
 		parameters.put("link", link);
 
-		eventFactory.generateEvent(EventType.NAVIGATE, context, null, null,null, parameters);
+		eventFactory.generateAndPublishEvent(EventType.NAVIGATE, context, null, null,null, parameters);
 	}
 	
 	@Override
@@ -143,7 +143,7 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 		parameters.put("objectType", "email");
 		parameters.put("link", link);
 		
-		eventFactory.generateEvent(EventType.NAVIGATE, context, null, null, null, parameters);
+		eventFactory.generateAndPublishEvent(EventType.NAVIGATE, context, null, null, null, parameters);
 	}
 
 	@Override

@@ -1,15 +1,15 @@
 package org.prosolo.services.activityWall.observer.processor;
 
-import java.util.Date;
-
 import org.hibernate.Session;
 import org.prosolo.common.domainmodel.activitywall.CompetenceCompleteSocialActivity;
 import org.prosolo.common.domainmodel.activitywall.SocialActivity1;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.event.Event;
 import org.prosolo.services.activityWall.SocialActivityManager;
-import org.prosolo.services.event.Event;
+
+import java.util.Date;
 
 public class CompetenceObjectSocialActivityProcessor extends SocialActivityProcessor {
 

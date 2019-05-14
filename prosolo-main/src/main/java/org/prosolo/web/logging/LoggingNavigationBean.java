@@ -138,7 +138,7 @@ public class LoggingNavigationBean implements Serializable {
 	public void submitServiceUse(){
 		Map<String, String> params = convertToMap(parameters);
 		params.put("objectType", component);
-		eventFactory.generateEvent(EventType.SERVICEUSE, loggedUser.getUserContext(), null, null,
+		eventFactory.generateAndPublishEvent(EventType.SERVICEUSE, loggedUser.getUserContext(), null, null,
 				null, params);
 		//loggingService.logServiceUse(loggedUser.getUser(), component, parameters, getIpAddress());
 	}

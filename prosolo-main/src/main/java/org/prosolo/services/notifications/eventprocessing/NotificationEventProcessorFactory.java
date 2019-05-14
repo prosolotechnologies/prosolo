@@ -7,9 +7,9 @@ import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
 import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
 import org.prosolo.common.domainmodel.comment.Comment1;
 import org.prosolo.common.domainmodel.general.BaseEntity;
+import org.prosolo.common.event.Event;
 import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.context.ContextJsonParserService;
-import org.prosolo.services.event.Event;
 import org.prosolo.services.interaction.CommentManager;
 import org.prosolo.services.interaction.FollowResourceManager;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
@@ -97,7 +97,7 @@ public class NotificationEventProcessorFactory {
 							notificationsSettingsManager, idEncoder, credentialManager);
 				} else if (event.getObject() instanceof CompetenceAssessment) {
 					return new CompetenceAssessmentApprovedEventProcessor(event, session, notificationManager,
-							notificationsSettingsManager, idEncoder, assessmentManager, contextJsonParserService, credentialManager, competenceManager);
+							notificationsSettingsManager, idEncoder, assessmentManager, contextJsonParserService);
 				}
 				break;
 			case AssessmentRequested:
@@ -106,7 +106,7 @@ public class NotificationEventProcessorFactory {
 							notificationsSettingsManager, idEncoder, credentialManager);
 				} else if (event.getObject() instanceof CompetenceAssessment) {
 					return new CompetenceAssessmentRequestEventProcessor(event, session, notificationManager,
-							notificationsSettingsManager, idEncoder, contextJsonParserService, assessmentManager, credentialManager, competenceManager);
+							notificationsSettingsManager, idEncoder, contextJsonParserService, assessmentManager);
 				}
 				break;
 			case AnnouncementPublished:
@@ -127,13 +127,16 @@ public class NotificationEventProcessorFactory {
 				break;
 			case ASSESSMENT_REQUEST_ACCEPTED:
 				return new CompetenceAssessmentRequestAcceptEventProcessor(event, session, notificationManager, notificationsSettingsManager, idEncoder,
-						contextJsonParserService, credentialManager, competenceManager);
+						contextJsonParserService);
 			case ASSESSMENT_REQUEST_DECLINED:
 				return new CompetenceAssessmentRequestDeclineEventProcessor(event, session, notificationManager, notificationsSettingsManager, idEncoder,
-						contextJsonParserService, credentialManager, competenceManager);
+						contextJsonParserService);
 			case ASSESSOR_WITHDREW_FROM_ASSESSMENT:
 				return new CompetenceAssessmentWithdrawEventProcessor(event, session, notificationManager, notificationsSettingsManager, idEncoder,
-						contextJsonParserService, credentialManager, competenceManager);
+						contextJsonParserService);
+			case ASSESSOR_ASSIGNED_TO_ASSESSMENT:
+				return new AssessorAssignedToExistingCompetenceAssessmenEventProcessor(event, session, notificationManager, notificationsSettingsManager, idEncoder,
+						contextJsonParserService);
 			default:
 				return null;
 		}

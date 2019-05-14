@@ -7,7 +7,7 @@ import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
 import org.prosolo.common.domainmodel.credential.BlindAssessmentMode;
 import org.prosolo.common.domainmodel.user.notifications.NotificationType;
 import org.prosolo.common.domainmodel.user.notifications.ResourceType;
-import org.prosolo.services.event.Event;
+import org.prosolo.common.event.Event;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.notifications.NotificationManager;
@@ -28,7 +28,7 @@ public class CredentialAssessmentApprovedEventProcessor extends AssessmentNotifi
 	private CredentialAssessment credentialAssessment;
 
 	public CredentialAssessmentApprovedEventProcessor(Event event, Session session, NotificationManager notificationManager,
-											NotificationsSettingsManager notificationsSettingsManager, UrlIdEncoder idEncoder, CredentialManager credentialManager) {
+													  NotificationsSettingsManager notificationsSettingsManager, UrlIdEncoder idEncoder, CredentialManager credentialManager) {
 		super(event, session, notificationManager, notificationsSettingsManager, idEncoder);
 		this.credentialManager = credentialManager;
 		credentialAssessment = (CredentialAssessment) session.load(CredentialAssessment.class, event.getObject().getId());

@@ -1,4 +1,4 @@
-package org.prosolo.services.event;
+package org.prosolo.common.event;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -47,5 +47,9 @@ public class EventQueue {
 
     public List<EventData> getEvents() {
         return Collections.unmodifiableList(events);
+    }
+
+    public boolean isEmpty() {
+        return events.isEmpty();
     }
 }

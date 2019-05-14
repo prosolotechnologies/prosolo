@@ -213,8 +213,13 @@ public class AnalyticalEventDBManagerImpl extends SimpleCassandraClientImpl
 			Long receiverid=data.get("receiver").getAsJsonObject().get("id").getAsLong();
 			String receiverfullname=data.get("receiver").getAsJsonObject().get("fullName").getAsString();
 			String email=data.get("email").getAsString();
-			Long 	actorid=data.get("actor").getAsJsonObject().get("id").getAsLong();
-			String actorfullname=data.get("actor").getAsJsonObject().get("fullName").getAsString();
+			Long actorId = 0L;
+			String actorfullname = "";
+            JsonElement actor = data.get("actor");
+            if (actor != null) {
+                actorId = actor.getAsJsonObject().get("id").getAsLong();
+                actorfullname = actor.getAsJsonObject().get("fullName").getAsString();
+            }
 			String objecttype="";
 			String objecttitle="";
 			int objectid=0;
@@ -238,7 +243,7 @@ public class AnalyticalEventDBManagerImpl extends SimpleCassandraClientImpl
 			boundStatement.setLong(3,receiverid);
 			boundStatement.setString(4,receiverfullname);
 			boundStatement.setString(5,email);
-			boundStatement.setLong(6,actorid);
+			boundStatement.setLong(6,actorId);
 			boundStatement.setString(7,actorfullname);
 			boundStatement.setString(8,objecttype);
 			boundStatement.setString(9,objecttitle);
