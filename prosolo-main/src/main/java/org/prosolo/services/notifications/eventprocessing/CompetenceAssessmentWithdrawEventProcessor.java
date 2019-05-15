@@ -10,15 +10,15 @@ import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.notifications.NotificationManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 
-public class CompetenceAssessmentRequestAcceptEventProcessor extends CompetenceAssessmentStatusChangeByAssessorEventProcessor {
+public class CompetenceAssessmentWithdrawEventProcessor extends CompetenceAssessmentStatusChangeByAssessorEventProcessor {
 
-	public CompetenceAssessmentRequestAcceptEventProcessor(Event event, Session session, NotificationManager notificationManager, NotificationsSettingsManager notificationsSettingsManager, UrlIdEncoder idEncoder, ContextJsonParserService ctxJsonParserService, CredentialManager credentialManager, Competence1Manager competenceManager) {
+	public CompetenceAssessmentWithdrawEventProcessor(Event event, Session session, NotificationManager notificationManager, NotificationsSettingsManager notificationsSettingsManager, UrlIdEncoder idEncoder, ContextJsonParserService ctxJsonParserService, CredentialManager credentialManager, Competence1Manager competenceManager) {
 		super(event, session, notificationManager, notificationsSettingsManager, idEncoder, ctxJsonParserService, credentialManager, competenceManager);
 	}
 
 	@Override
 	NotificationType getNotificationType() {
-		return NotificationType.ASSESSMENT_REQUEST_ACCEPTED;
+		return NotificationType.ASSESSOR_WITHDREW_FROM_ASSESSMENT;
 	}
 
 }

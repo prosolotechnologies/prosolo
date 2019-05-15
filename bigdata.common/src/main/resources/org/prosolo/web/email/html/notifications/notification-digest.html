@@ -261,7 +261,7 @@
                                                         {{/hasFollowers}}
                                                         {{#hasAnnouncements}}
                                                         <br />
-                                                        You have <strong>{{announcementsCount}} new announcement(s)</strong>
+                                                        You have <strong>{{announcementsCount}} new announcement(s)</strong>:
                                                         <br/>
                                                         <table border="0" cellpadding="0" cellspacing="0">
                                                             {{#announcements}}
@@ -307,7 +307,7 @@
                                                         {{/hasComments}}
                                                         {{#hasAssessmentsApproved}}
                                                         <br />
-                                                        You have <strong>{{assessmentsApprovedCount}} new assessment(s) approved</strong>
+                                                        You have <strong>{{assessmentsApprovedCount}} new assessment(s) submitted</strong>:
 
                                                         <br/>
                                                         <table border="0" cellpadding="0" cellspacing="0">
@@ -321,7 +321,7 @@
                                                             {{#hasMoreAssessmentsApproved}}
                                                             <tr>
                                                                 <td valign="top" style="padding-top:10px;">
-                                                                    <a href="{{notificationsLink}}?filters=assessment_approved">View all Assessments approved</a>
+                                                                    <a href="{{notificationsLink}}?filters=assessment_approved">View all submitted assessments</a>
                                                                 </td>
                                                             </tr>
                                                             {{/hasMoreAssessmentsApproved}}
@@ -352,7 +352,7 @@
                                                         {{/hasAssessmentsComments}}
                                                         {{#hasAssessmentsRequest}}
                                                         <br />
-                                                        You have <strong>{{assessmentsRequestsCount}} new assessment request(s)</strong>
+                                                        You have <strong>{{assessmentsRequestsCount}} new assessment request(s)</strong>:
 
                                                         <br />
                                                         <table border="0" cellpadding="0" cellspacing="0">
@@ -366,7 +366,7 @@
                                                             {{#hasMoreAssessmentsRequests}}
                                                             <tr>
                                                                 <td valign="top" style="padding-top:10px;">
-                                                                    <a href="{{notificationsLink}}?filters=assessment_requested">View all requests</a>
+                                                                    <a href="{{notificationsLink}}?filters=assessment_requested">View all assessment requests</a>
                                                                 </td>
                                                             </tr>
                                                             {{/hasMoreAssessmentsRequests}}
@@ -376,7 +376,7 @@
                                                         {{/hasAssessmentsRequest}}
                                                         {{#hasAcceptedAssessmentRequests}}
                                                         <br />
-                                                        You have <strong>{{acceptedAssessmentRequestsCount}} new accepted assessment request(s)</strong>
+                                                        You have <strong>{{acceptedAssessmentRequestsCount}} new assessment request(s) of yours accepted</strong>:
 
                                                         <br />
                                                         <table border="0" cellpadding="0" cellspacing="0">
@@ -390,7 +390,7 @@
                                                             {{#hasMoreAcceptedAssessmentRequests}}
                                                             <tr>
                                                                 <td valign="top" style="padding-top:10px;">
-                                                                    <a href="{{notificationsLink}}?filters=assessment_request_accepted">View all accepted requests</a>
+                                                                    <a href="{{notificationsLink}}?filters=assessment_request_accepted">View all accepted assessment requests</a>
                                                                 </td>
                                                             </tr>
                                                             {{/hasMoreAcceptedAssessmentRequests}}
@@ -400,7 +400,7 @@
                                                         {{/hasAcceptedAssessmentRequests}}
                                                         {{#hasDeclinedAssessmentRequests}}
                                                         <br />
-                                                        You have <strong>{{declinedAssessmentRequestsCount}} new declined assessment request(s)</strong>
+                                                        You have <strong>{{declinedAssessmentRequestsCount}} new assessment request(s) of yours declined</strong>:
 
                                                         <br />
                                                         <table border="0" cellpadding="0" cellspacing="0">
@@ -414,7 +414,7 @@
                                                             {{#hasMoreDeclinedAssessmentRequests}}
                                                             <tr>
                                                                 <td valign="top" style="padding-top:10px;">
-                                                                    <a href="{{notificationsLink}}?filters=assessment_request_declined">View all declined requests</a>
+                                                                    <a href="{{notificationsLink}}?filters=assessment_request_declined">View all declined assessment requests</a>
                                                                 </td>
                                                             </tr>
                                                             {{/hasMoreDeclinedAssessmentRequests}}
@@ -422,9 +422,34 @@
                                                         <br />
 
                                                         {{/hasDeclinedAssessmentRequests}}
+                                                        {{#hasWithdrawnAssessments}}
+                                                        <br />
+
+                                                        You have <strong>{{withdrawnAssessmentsCount}} assessment(s) of yours withdrawn by assessor</strong>:
+
+                                                        <br />
+                                                        <table border="0" cellpadding="0" cellspacing="0">
+                                                            {{#withdrawnAssessments}}
+                                                            <tr>
+                                                                <td valign="top">
+                                                                    {{actorFullName}} {{predicate}} <a href="{{link}}">{{objectTitle}}</a>
+                                                                </td>
+                                                            </tr>
+                                                            {{/withdrawnAssessments}}
+                                                            {{#hasMoreWithdrawnAssessments}}
+                                                            <tr>
+                                                                <td valign="top" style="padding-top:10px;">
+                                                                    <a href="{{notificationsLink}}?filters=assessor_withdrew_from_assessment">View all withdrawn assessments</a>
+                                                                </td>
+                                                            </tr>
+                                                            {{/hasMoreWithdrawnAssessments}}
+                                                        </table>
+                                                        <br />
+
+                                                        {{/hasWithdrawnAssessments}}
                                                         {{#hasGradeAdded}}
                                                         <br />
-                                                        You have <strong>{{gradeAddedCount}} new assessments(s) received</strong>
+                                                        You have <strong>{{gradeAddedCount}} new assessments(s) updated</strong>:
 
                                                         <br />
                                                         <table border="0" cellpadding="0" cellspacing="0">
@@ -438,7 +463,7 @@
                                                             {{#hasMoreGradesAdded}}
                                                             <tr>
                                                                 <td valign="top" style="padding-top:10px;">
-                                                                    <a href="{{notificationsLink}}?filters=gradeadded">View all assessments</a>
+                                                                    <a href="{{notificationsLink}}?filters=gradeadded">View all updated assessments</a>
                                                                 </td>
                                                             </tr>
                                                             {{/hasMoreGradesAdded}}
@@ -448,7 +473,9 @@
                                                         {{/hasGradeAdded}}
                                                         {{#hasCommentLiked}}
                                                         <br />
-                                                        You have <strong>{{commentLikeCount}} comment(s) liked</strong>
+
+                                                        You have <strong>{{commentLikeCount}} comment(s) liked</strong>:
+
                                                         <table border="0" cellpadding="0" cellspacing="0">
                                                             {{#commentLikes}}
                                                             <tr>
@@ -471,7 +498,8 @@
                                                         {{/hasCommentLiked}}
                                                         {{#hasSocialActivityLiked}}
                                                         <br />
-                                                        You have <strong>{{socialActivityLikeCount}} social activity(s) added</strong>
+                                                        You have <strong>{{socialActivityLikeCount}} new post likes</strong>:
+
                                                         <table border="0" cellpadding="0" cellspacing="0">
                                                             {{#socialActivityLikes}}
                                                             <tr>
@@ -483,7 +511,7 @@
                                                             {{#hasMoreSocialActivitiesLikes}}
                                                             <tr>
                                                                 <td valign="top" style="padding-top:10px;">
-                                                                    <a href="{{notificationsLink}}?filters=social_activity_like">View all social activities likes</a>
+                                                                    <a href="{{notificationsLink}}?filters=social_activity_like">View all post likes</a>
                                                                 </td>
                                                             </tr>
                                                             {{/hasMoreSocialActivitiesLikes}}

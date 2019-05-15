@@ -19,49 +19,15 @@ import org.prosolo.web.util.page.PageSection;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CompetenceAssessmentRequestDeclineEventProcessor extends CompetenceAssessmentNotificationEventProcessor {
+public class CompetenceAssessmentRequestDeclineEventProcessor extends CompetenceAssessmentStatusChangeByAssessorEventProcessor {
 
-	@SuppressWarnings("unused")
-	private static Logger logger = Logger.getLogger(CompetenceAssessmentRequestDeclineEventProcessor.class);
-
-	public CompetenceAssessmentRequestDeclineEventProcessor(Event event, Session session, NotificationManager notificationManager,
-                                                            NotificationsSettingsManager notificationsSettingsManager, UrlIdEncoder idEncoder,
-                                                            ContextJsonParserService ctxJsonParserService,
-                                                            CredentialManager credentialManager, Competence1Manager competenceManager) {
+	public CompetenceAssessmentRequestDeclineEventProcessor(Event event, Session session, NotificationManager notificationManager, NotificationsSettingsManager notificationsSettingsManager, UrlIdEncoder idEncoder, ContextJsonParserService ctxJsonParserService, CredentialManager credentialManager, Competence1Manager competenceManager) {
 		super(event, session, notificationManager, notificationsSettingsManager, idEncoder, ctxJsonParserService, credentialManager, competenceManager);
-	}
-
-	@Override
-	boolean isConditionMet(long sender, long receiver) {
-		return true;
-	}
-
-	@Override
-	List<NotificationReceiverData> getReceiversData() {
-		List<NotificationReceiverData> receivers = new ArrayList<>();
-		receivers.add(new NotificationReceiverData(getStudentId(), getNotificationLink(),
-				false, PageSection.STUDENT));
-		return receivers;
 	}
 
 	@Override
 	NotificationType getNotificationType() {
 		return NotificationType.ASSESSMENT_REQUEST_DECLINED;
-	}
-
-	@Override
-	ResourceType getObjectType() {
-		return ResourceType.Competence;
-	}
-
-	@Override
-	long getObjectId() {
-		return getAssessment().getCompetence().getId();
-	}
-
-	private String getNotificationLink() {
-		return AssessmentLinkUtil.getCompetenceAssessmentNotificationLinkForStudent(
-				getCredentialId(), getAssessment().getCompetence().getId(), getAssessment().getId(), getAssessment().getType(), idEncoder);
 	}
 
 }

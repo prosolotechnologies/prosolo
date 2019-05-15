@@ -134,6 +134,9 @@ public class NotificationEventProcessorFactory {
 			case ASSESSMENT_REQUEST_DECLINED:
 				return new CompetenceAssessmentRequestDeclineEventProcessor(event, session, notificationManager, notificationsSettingsManager, idEncoder,
 						contextJsonParserService, credentialManager, competenceManager);
+			case ASSESSOR_WITHDREW_FROM_ASSESSMENT:
+				return new CompetenceAssessmentWithdrawEventProcessor(event, session, notificationManager, notificationsSettingsManager, idEncoder,
+						contextJsonParserService, credentialManager, competenceManager);
 			default:
 				return null;
 		}

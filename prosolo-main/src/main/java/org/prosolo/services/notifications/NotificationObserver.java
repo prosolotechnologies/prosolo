@@ -66,7 +66,8 @@ public class NotificationObserver extends EventObserver {
 				EventType.AnnouncementPublished,
 				EventType.GRADE_ADDED,
 				EventType.ASSESSMENT_REQUEST_ACCEPTED,
-				EventType.ASSESSMENT_REQUEST_DECLINED
+				EventType.ASSESSMENT_REQUEST_DECLINED,
+				EventType.ASSESSOR_WITHDREW_FROM_ASSESSMENT
 		};
 	}
 
@@ -117,7 +118,7 @@ public class NotificationObserver extends EventObserver {
 										getOrCreateUserSettings(notification.getReceiver().getId(), session);
 								Locale locale = getLocale(userSettings);
 								/*
-								 * get all notification data in one query insted of issuing session.update
+								 * get all notification data in one query instead of issuing session.update
 								 * for sender and receiver - all in order to avoid lazy initialization exception
 								 */
 								NotificationData notificationData = notificationManager
