@@ -242,7 +242,7 @@
 						</div>
 
 						<div class="modal-footer alignLeft">
-							<p:commandLink
+							<utilcomp:singleClickLink
 									rendered="#{cc.attrs.bean.isValidRequest()}"
 									process="@this"
 									onclick="showLoaderNextToElem(this, '#{request.contextPath}')"
@@ -254,7 +254,7 @@
 								<f:param name="learningContext" value="#{cc.attrs.learningContext}"></f:param>
 								<f:param name="service" value="name:ask_for_assessment_dialog"></f:param>
 								Submit
-							</p:commandLink>
+							</utilcomp:singleClickLink>
 							<a href="#" class="btn btn-default" data-dismiss="modal">Close</a>
 						</div>
 					</h:panelGroup>
