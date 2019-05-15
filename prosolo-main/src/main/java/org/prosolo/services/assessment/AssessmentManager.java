@@ -558,4 +558,27 @@ public interface AssessmentManager {
 	 * @throws DbConnectionException
 	 */
 	void declineCompetenceAssessmentRequest(long compAssessmentId, UserContextData context) throws IllegalDataStateException;
+
+	/**
+	 * Declines pending competency assessment, returns spent tokens to the students (if assessment tokens enabled)
+	 * and returns events to be generated
+	 *
+	 * @param compAssessmentId
+	 * @param context
+	 * @return
+	 * @throws IllegalDataStateException
+	 * @throws DbConnectionException
+	 */
+	Result<Void> declinePendingCompetenceAssessmentAndGetEvents(long compAssessmentId, UserContextData context) throws IllegalDataStateException;
+
+	/**
+	 * Declines pending competency assessment, returns spent tokens to the students (if assessment tokens enabled)
+	 * and generates appropriate events
+	 *
+	 * @param compAssessmentId
+	 * @param context
+	 * @throws IllegalDataStateException
+	 * @throws DbConnectionException
+	 */
+	void declinePendingCompetenceAssessment(long compAssessmentId, UserContextData context) throws IllegalDataStateException;
 }

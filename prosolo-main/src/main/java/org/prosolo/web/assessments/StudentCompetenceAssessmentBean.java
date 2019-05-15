@@ -142,6 +142,17 @@ public class StudentCompetenceAssessmentBean extends CompetenceAssessmentBean im
 		}
 	}
 
+	public void withdrawFromAssessment() {
+		try {
+			getAssessmentManager().declinePendingCompetenceAssessment(getCompetenceAssessmentData().getCompetenceAssessmentId(), loggedUserBean.getUserContext());
+			PageUtil.fireSuccessfulInfoMessageAcrossPages("You have withdrawn from the assessment");
+			PageUtil.redirect(getRefreshUrl());
+		} catch (Exception e) {
+			logger.error("error", e);
+			PageUtil.fireErrorMessage("Error withdrawing from the assessment");
+		}
+	}
+
 	@Override
 	public GradeData getGradeData() {
 		return getCompetenceAssessmentData() != null ? getCompetenceAssessmentData().getGradeData() : null;
