@@ -284,23 +284,25 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 				roles,
 				isSystem);
 
-		//send email to new user for password recovery
-		sendNewPassword(res.getResult());
+		if (CommonSettings.getInstance().config.emailNotifier.activated) {
+			//send email to new user for password recovery
+			try {
+				sendNewPassword(res.getResult());
+			} catch (Exception e) {
+				logger.error("error sending the password reset email", e);
+				//don't throw exception since we don't want to rollback the transaction just because email could not be sent.
+			}
+		}
 		return res;
 	}
 
 	private void sendNewPassword(User user) {
-		try {
-			boolean resetLinkSent = passwordResetManager.initiatePasswordReset(user, user.getEmail(),
-					CommonSettings.getInstance().config.appConfig.domain + "recovery", persistence.currentManager());
-			if (resetLinkSent) {
-				logger.info("Password instructions have been sent");
-			} else {
-				logger.error("Error sending password instruction");
-			}
-		} catch (Exception e) {
-			logger.error("Error", e);
-			throw new DbConnectionException("Error sending the password to the new user");
+		boolean resetLinkSent = passwordResetManager.initiatePasswordReset(user, user.getEmail(),
+				CommonSettings.getInstance().config.appConfig.domain + "recovery", persistence.currentManager());
+		if (resetLinkSent) {
+			logger.info("Password instructions have been sent");
+		} else {
+			logger.error("Error sending password instruction");
 		}
 	}
 
