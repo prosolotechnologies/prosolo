@@ -54,6 +54,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
+import java.math.BigInteger;
 import java.util.*;
 
 @Service("org.prosolo.services.nodes.Competence1Manager")
@@ -2103,7 +2104,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 
 		try {
 			String query =
-				"SELECT credComp.credential, comp.id, act.id, tAct.completed " +
+				"SELECT credComp.credential, comp.id as compId, act.id as actId, tAct.completed " +
 				"FROM target_activity1 tAct " +
 				"INNER JOIN target_competence1 tComp ON tAct.target_competence = tComp.id " +
 				"INNER JOIN competence1 comp ON tComp.competence = comp.id " +
@@ -2138,7 +2139,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 				long nextActToLearnInACompetenceId = 0;
 
 				for (Object[] obj : res) {
-					long actId = (long) obj[2];
+					long actId = ((BigInteger) obj[2]).longValue();
 					boolean actCompleted = (boolean) obj[3];
 
 					int progress = actCompleted ? 100 : 0;
@@ -2153,8 +2154,8 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 				updateCompetenceProgress(targetCompId, finalCompProgress, nextActToLearnInACompetenceId);
 
 				// generate appropriate events
-				long credId = (long) res.get(0)[0];
-				long compId = (long) res.get(0)[1];
+				long credId = ((BigInteger) res.get(0)[0]).longValue();
+				long compId = ((BigInteger) res.get(0)[1]).longValue();
 
 				TargetCompetence1 tComp = new TargetCompetence1();
 				tComp.setId(targetCompId);
