@@ -26,8 +26,8 @@
 			<ol class="breadcrumb">
 				<ui:fragment rendered="#{profileCompetenceAssessmentBean.blindAssessmentMode eq 'OFF'}">
 					<li>
-						<h:link value="#{util:shortenAndAddDots(profileCompetenceAssessmentBean.competenceAssessmentData.studentFullName)}" outcome="profile">
-							<f:param name="id" value="#{util:encodeId(profileCompetenceAssessmentBean.competenceAssessmentData.studentId)}"/>
+						<h:link value="#{util:shortenAndAddDots(profileCompetenceAssessmentBean.competenceAssessmentData.studentFullName)}" outcome="/profile-legacy">
+							<f:param name="studentId" value="#{util:encodeId(profileCompetenceAssessmentBean.competenceAssessmentData.studentId)}"/>
 						</h:link>
 					</li>
 				</ui:fragment>

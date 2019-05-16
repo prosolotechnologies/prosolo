@@ -120,8 +120,10 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers("/elb_ping").permitAll()
 				.antMatchers("/terms").permitAll()
 				.antMatchers("/profile").hasAuthority("BASIC.USER.ACCESS")
-				.antMatchers("/profile/*").permitAll()
-				.antMatchers("/profile/*/evidence/*").permitAll()
+				.antMatchers("/profile/*").permitAll()	// legacy profile page
+				.antMatchers("/profile/*/evidence/*").permitAll()	// legacy profile evidence page
+				.antMatchers("/p/*").permitAll()
+				.antMatchers("/p/*/evidence/*").permitAll()
 				.antMatchers("/maintenance").permitAll()
 				.antMatchers("/digest").permitAll()
 				.antMatchers("/login").permitAll()

@@ -17,20 +17,17 @@
 		<div class="sharedPostBox">
 	        <div class="wallPostHead">
 	            <div class="user32">
-	                <h:link outcome="/profile">
+	                <h:link outcome="/profile-legacy">
 	                	<utilcomp:userAvatar
 							avatar="#{cc.attrs.socialActivity.actor.avatarUrl}"
-							fullName="#{cc.attrs.socialActivity.actor.fullName}"	
-							width="32"
-							height="32"
-			   	 		/>    
-			   	 		<f:param name="id" value="#{util:encodeId(cc.attrs.socialActivity.actor.id)}"></f:param>
+							fullName="#{cc.attrs.socialActivity.actor.fullName}"/>
+			   	 		<f:param name="studentId" value="#{util:encodeId(cc.attrs.socialActivity.actor.id)}"></f:param>
 	                </h:link>
 	                <h3>
-	                		<h:link outcome="/profile">
-	                			#{cc.attrs.socialActivity.actor.fullName}
-	                			<f:param name="id" value="#{util:encodeId(cc.attrs.socialActivity.actor.id)}"></f:param>
-	                		</h:link>
+                        <h:link outcome="/profile-legacy">
+                            #{cc.attrs.socialActivity.actor.fullName}
+                            <f:param name="studentId" value="#{util:encodeId(cc.attrs.socialActivity.actor.id)}"></f:param>
+                        </h:link>
 	                </h3>
 	            </div>
 	            <div class="wallPostHeadRight">

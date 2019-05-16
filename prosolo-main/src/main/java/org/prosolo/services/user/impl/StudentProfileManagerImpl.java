@@ -2,6 +2,7 @@ package org.prosolo.services.user.impl;
 
 import org.hibernate.LockOptions;
 import org.hibernate.Query;
+import org.hibernate.Session;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
@@ -19,6 +20,7 @@ import org.prosolo.services.common.data.SortingOption;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.SocialNetworksManager;
+import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.services.user.StudentProfileManager;
 import org.prosolo.services.user.UserManager;
 import org.prosolo.services.user.data.UserData;
@@ -31,7 +33,9 @@ import org.prosolo.services.user.data.profile.factory.CredentialProfileDataFacto
 import org.prosolo.services.user.data.profile.factory.CredentialProfileOptionsDataFactory;
 import org.prosolo.services.user.data.profile.factory.GradeDataFactory;
 import org.prosolo.services.user.data.profile.grade.GradeData;
+import org.prosolo.util.StringUtils;
 import org.prosolo.web.profile.data.UserSocialNetworksData;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,6 +43,7 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 /**
@@ -56,16 +61,22 @@ public class StudentProfileManagerImpl extends AbstractManagerImpl implements St
     @Inject private Competence1Manager competenceManager;
     @Inject private AssessmentManager assessmentManager;
     @Inject private GradeDataFactory gradeDataFactory;
+    @Inject private UrlIdEncoder idEncoder;
 
     @Override
-    public Optional<StudentProfileData> getStudentProfileData(long userId) {
+    @Transactional
+    public Optional<StudentProfileData> getStudentProfileData(String customProfileUrl) {
         try {
-            UserData userData = userManager.getUserData(userId);
-            if (userData == null) {
-                return Optional.empty();
-            } else {
+            Optional<ProfileSettingsData> profileSettingsData = getProfileSettingsData(customProfileUrl);
+
+            if (profileSettingsData.isPresent()) {
+                long userId = profileSettingsData.get().getUserId();
+
+                UserData userData = userManager.getUserData(userId);
                 UserSocialNetworksData userSocialNetworkData = socialNetworksManager.getUserSocialNetworkData(userId);
-                return Optional.of(new StudentProfileData(userData, userSocialNetworkData, getProfileLearningData(userId)));
+                return Optional.of(new StudentProfileData(userData, userSocialNetworkData, getProfileLearningData(userId), profileSettingsData.get()));
+            } else {
+                return Optional.empty();
             }
         } catch (DbConnectionException e) {
             logger.error("error", e);
@@ -87,9 +98,10 @@ public class StudentProfileManagerImpl extends AbstractManagerImpl implements St
     private ProfileSummaryData getProfileSummaryData(long userId) {
         try {
             String query =
-                    "SELECT type(conf), count(conf.id) FROM StudentProfileConfig conf " +
-                            "WHERE conf.student.id = :userId " +
-                            "GROUP BY type(conf)";
+                    "SELECT type(conf), count(conf.id) " +
+                    "FROM StudentProfileConfig conf " +
+                    "WHERE conf.student.id = :userId " +
+                    "GROUP BY type(conf)";
             List<Object[]> counts = (List<Object[]>) persistence.currentManager()
                     .createQuery(query)
                     .setLong("userId", userId)
@@ -232,6 +244,22 @@ public class StudentProfileManagerImpl extends AbstractManagerImpl implements St
         } catch (Exception e) {
             logger.error("error", e);
             throw new DbConnectionException("Error loading competency assessments profile data");
+        }
+    }
+
+    @Override
+    @Transactional
+    public void updateProfileSettings(ProfileSettingsData profileSettings) {
+        try {
+            ProfileSettings user = loadResource(ProfileSettings.class, profileSettings.getId());
+            user.setSummarySidebarEnabled(profileSettings.isSummarySidebarEnabled());
+            user.setCustomProfileUrl(profileSettings.getCustomProfileUrl());
+        } catch (DataIntegrityViolationException e) {
+            logger.error("Error", e);
+            throw e;
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error saving profile settings with id " + profileSettings.getId());
         }
     }
 
@@ -566,6 +594,108 @@ public class StudentProfileManagerImpl extends AbstractManagerImpl implements St
                 .setLong("compAssessmentId", compAssessmentId)
                 .uniqueResult();
         return Optional.ofNullable(res);
+    }
+
+
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<ProfileSettingsData> getProfileSettingsData(String customProfileUrl) {
+        String q =
+                "SELECT profileSettings " +
+                "FROM ProfileSettings profileSettings " +
+                "LEFT JOIN FETCH profileSettings.user user " +
+                "WHERE profileSettings.customProfileUrl = :customProfileUrl";
+
+        ProfileSettings res = (ProfileSettings) persistence.currentManager()
+                .createQuery(q)
+                .setString("customProfileUrl", customProfileUrl)
+                .uniqueResult();
+
+        if (res != null) {
+            return Optional.of(new ProfileSettingsData(res));
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<ProfileSettingsData> getProfileSettingsData(long userId) {
+        String q =
+                "SELECT profileSettings " +
+                "FROM ProfileSettings profileSettings " +
+                "LEFT JOIN profileSettings.user user " +
+                "WHERE user.id = :userId";
+
+        ProfileSettings res = (ProfileSettings) persistence.currentManager()
+                .createQuery(q)
+                .setLong("userId", userId)
+                .uniqueResult();
+
+        if (res != null) {
+            return Optional.of(new ProfileSettingsData(res));
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = false)
+    public ProfileSettingsData generateProfileSettings(long userId, boolean summarySidebarEnabled, Session session) {
+        User user = (User) session.get(User.class, userId);
+
+        String nameLastName = generateCustomProfileURLPrefix(user.getName(), user.getLastname());
+
+        // if profile URL is already occupied, try 10 more time with a different profile URL
+        int retryTimes = 0;
+        long suffix = userId;
+
+        while (retryTimes < 10) {
+            String newProfileUrl = null;
+            try {
+                newProfileUrl = nameLastName + "-" + idEncoder.encodeId(suffix);
+                return saveProfileSettings(user, newProfileUrl, true, session);
+            } catch (DataIntegrityViolationException e) {
+                logger.debug("Error saving ProfileSettings for the user " + userId + ", the profile URL is already taken: " + newProfileUrl, e);
+            }
+
+            // as a new suffix use a generated long between 10000 and 100000
+            suffix = 10000 + (int) (new Random().nextFloat() * (100000 - 1));
+
+            retryTimes++;
+        }
+
+        if (retryTimes == 10) {
+            logger.error("Error saving ProfileSettings for the user " + userId + ", the original profile URL and 10 variations of the same are already occupied.");
+        }
+
+        return null;
+    }
+
+    public static String generateCustomProfileURLPrefix(String name, String lastname) {
+        // remove all non alphabetic characters from the name
+        String strippedName = StringUtils.stripNonAlphanumericCharacters(name);
+
+        // remove all non alphabetic characters from the last name
+        String strippedLastname = StringUtils.stripNonAlphanumericCharacters(lastname);
+
+        String nameLastName = strippedName + "-" + strippedLastname;
+
+        // limit {name}-{lastName} combination to 40 characters
+        if (nameLastName.length() > 40) {
+            nameLastName = nameLastName.substring(0, 40);
+        }
+        return nameLastName;
+    }
+
+    private ProfileSettingsData saveProfileSettings(User user, String customProfileUrl, boolean summarySidebarEnabled, Session session) {
+        ProfileSettings profileSettings = new ProfileSettings();
+        profileSettings.setCustomProfileUrl(customProfileUrl);
+        profileSettings.setSummarySidebarEnabled(summarySidebarEnabled);
+        profileSettings.setUser(user);
+        session.save(profileSettings);
+
+        return new ProfileSettingsData(profileSettings);
     }
 
 }
