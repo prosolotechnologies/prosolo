@@ -2,6 +2,7 @@ package org.prosolo.services.context.impl;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.prosolo.common.event.context.*;
 import org.prosolo.common.web.ApplicationPage;
@@ -66,6 +67,8 @@ public class ContextJsonParserServiceImpl implements ContextJsonParserService {
 	}
 	
 	private Context parseContext(String context, Gson gson) {
+		context = StringUtils.deleteWhitespace(context);
+
 		Context c = null;
 		if(context != null && !context.isEmpty()) {
 			Map<String, Object> ctx = parseString(context, "context");

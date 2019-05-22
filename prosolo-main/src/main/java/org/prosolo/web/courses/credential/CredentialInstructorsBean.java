@@ -85,8 +85,8 @@ public class CredentialInstructorsBean implements Serializable, Paginable {
     @Getter @Setter
     private int page;
     @Getter
-    private PaginationData paginationData = new PaginationData(2);
-
+    private PaginationData paginationData = new PaginationData();
+    @Getter
     private InstructorData instructorForRemoval;
     @Getter @Setter
     private boolean reassignAutomatically = true;
@@ -192,9 +192,8 @@ public class CredentialInstructorsBean implements Serializable, Paginable {
 
     public void addInstructorToCredential(UserData user) {
         try {
-            String page = PageUtil.getPostParameter("page");
-            String service = PageUtil.getPostParameter("service");
-            PageContextData ctx = new PageContextData(page, context, service);
+            PageContextData ctx = new PageContextData(PageUtil.getPage(), PageUtil.getPostParameter("learningContext"), null);
+
             credInstructorManager.addInstructorToCredential(decodedId, user.getId(), 0, loggedUserBean.getUserContext(ctx));
 
             // update cache
