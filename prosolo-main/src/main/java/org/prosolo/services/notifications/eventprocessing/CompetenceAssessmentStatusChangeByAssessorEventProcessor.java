@@ -2,9 +2,7 @@ package org.prosolo.services.notifications.eventprocessing;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
-import org.prosolo.common.domainmodel.user.notifications.NotificationType;
 import org.prosolo.common.domainmodel.user.notifications.ResourceType;
-import org.prosolo.services.context.ContextJsonParserService;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
 import org.prosolo.services.nodes.Competence1Manager;
@@ -25,9 +23,8 @@ public abstract class CompetenceAssessmentStatusChangeByAssessorEventProcessor e
 
 	public CompetenceAssessmentStatusChangeByAssessorEventProcessor(Event event, Session session, NotificationManager notificationManager,
                                                                     NotificationsSettingsManager notificationsSettingsManager, UrlIdEncoder idEncoder,
-                                                                    ContextJsonParserService ctxJsonParserService,
                                                                     CredentialManager credentialManager, Competence1Manager competenceManager) {
-		super(event, session, notificationManager, notificationsSettingsManager, idEncoder, ctxJsonParserService, credentialManager, competenceManager);
+		super(event, session, notificationManager, notificationsSettingsManager, idEncoder, credentialManager, competenceManager);
 	}
 
 	@Override

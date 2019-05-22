@@ -5,12 +5,10 @@ import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.web.ApplicationPage;
-import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.core.spring.security.authentication.sessiondata.ProsoloUserDetails;
 import org.prosolo.services.authentication.AuthenticatedUserService;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.nodes.impl.Competence1ManagerImpl;
-import org.prosolo.web.ApplicationPagesBean;
 import org.prosolo.web.services.RequestParameterResolver;
 import org.springframework.stereotype.Component;
 
@@ -62,8 +60,7 @@ public class PageLoadEventFilter implements Filter {
 			if (requestURI.startsWith(contextPath)) {
 				uri = uri.substring(uri.indexOf(contextPath) + contextPath.length());
 			}
-			ApplicationPagesBean applicationPagesBean = ServiceLocator.getInstance().getService(ApplicationPagesBean.class);
-			ApplicationPage page = applicationPagesBean.getPageForURI(uri);
+			ApplicationPage page = ApplicationPage.getPageForURI(uri);
 			
 			long userId = 0;
 			long organizationId = 0;

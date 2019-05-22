@@ -5,7 +5,6 @@ import org.hibernate.Session;
 import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
 import org.prosolo.common.domainmodel.credential.BlindAssessmentMode;
 import org.prosolo.common.event.context.Context;
-import org.prosolo.common.event.context.ContextName;
 import org.prosolo.services.context.ContextJsonParserService;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
@@ -27,12 +26,12 @@ public abstract class CompetenceAssessmentNotificationEventProcessor extends Ass
 
 	public CompetenceAssessmentNotificationEventProcessor(Event event, Session session, NotificationManager notificationManager,
                                                           NotificationsSettingsManager notificationsSettingsManager, UrlIdEncoder idEncoder,
-                                                          ContextJsonParserService ctxJsonParserService, CredentialManager credentialManager, Competence1Manager competenceManager) {
+                                                          CredentialManager credentialManager, Competence1Manager competenceManager) {
 		super(event, session, notificationManager, notificationsSettingsManager, idEncoder);
 		this.credentialManager = credentialManager;
 		this.competenceManager = competenceManager;
 		assessment = (CompetenceAssessment) session.load(CompetenceAssessment.class, event.getObject().getId());
-		context = ctxJsonParserService.parseContext(event.getContext());
+		context = ContextJsonParserService.parseContext(event.getContext());
 		credentialId = assessment.getTargetCredential().getCredential().getId();
 	}
 

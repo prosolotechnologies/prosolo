@@ -65,7 +65,6 @@ public class ActivityEditBean extends LearningResourceAssessmentSettingsBean imp
 	@Inject private UploadManager uploadManager;
 	@Inject private HTMLParser htmlParser;
 	@Inject private CredentialManager credManager;
-	@Inject private ContextJsonParserService contextParser;
 	@Inject private UnitManager unitManager;
 
 	@Getter @Setter	private String id;
@@ -172,10 +171,10 @@ public class ActivityEditBean extends LearningResourceAssessmentSettingsBean imp
 			context = "name:CREDENTIAL|id:" + decodedCredId;
 		}
 		if(decodedCompId > 0) {
-			context = contextParser.addSubContext(context, "name:COMPETENCE|id:" + decodedCompId);
+			context = ContextJsonParserService.addSubContext(context, "name:COMPETENCE|id:" + decodedCompId);
 		}
 		if(decodedId > 0) {
-			context = contextParser.addSubContext(context, "name:ACTIVITY|id:" + decodedId);
+			context = ContextJsonParserService.addSubContext(context, "name:ACTIVITY|id:" + decodedId);
 		}
 	}
 	
@@ -387,7 +386,7 @@ public class ActivityEditBean extends LearningResourceAssessmentSettingsBean imp
 			String learningContext = context;
 			
 			if (lContext != null && !lContext.isEmpty()) {
-				learningContext = contextParser.addSubContext(context, lContext);
+				learningContext = ContextJsonParserService.addSubContext(context, lContext);
 			}
 			
 			PageContextData lcd = new PageContextData(page, learningContext, service);
