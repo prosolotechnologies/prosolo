@@ -1,38 +1,17 @@
 package org.prosolo.common.event.context.data;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class PageContextData {
 
 	private String page;
 	private String learningContext;
 	private String service;
-	
-	public PageContextData() {
-
-	}
-	
-	public PageContextData(String page, String learningContext, String service) {
-		this.page = page;
-		this.learningContext = learningContext;
-		this.service = service;
-	}
-	
-	public String getPage() {
-		return page;
-	}
-	public void setPage(String page) {
-		this.page = page;
-	}
-	public String getLearningContext() {
-		return learningContext;
-	}
-	public void setLearningContext(String learningContext) {
-		this.learningContext = learningContext;
-	}
-	public String getService() {
-		return service;
-	}
-	public void setService(String service) {
-		this.service = service;
-	}
 	
 }

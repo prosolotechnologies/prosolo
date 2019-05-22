@@ -78,10 +78,9 @@ public class ContextJsonParserServiceImpl implements ContextJsonParserService {
 	}
 	
 	private void addObjectTypeInfoForContext(LearningContextInfo lci) {
-		if((lci.getObjectType() == null || lci.getObjectType().isEmpty()) &&
-				lci.getName() != null && lci.getName().getObjectType() != null &&
-				!lci.getName().getObjectType().isEmpty()) {
-			lci.setObjectType(lci.getName().getObjectType());
+		if((lci.getObjectType() == null) &&
+				lci.getName() != null && lci.getName().getObjectType() != null && lci.getName().getObjectType() != null) {
+			lci.setObjectType(lci.getName().getObjectType().getSimpleName());
 		}
 		
 		if(lci instanceof Context) {

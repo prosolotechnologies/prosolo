@@ -48,8 +48,7 @@ public interface UserTextSearch extends AbstractManager {
 			InstructorSortOption sortOption, List<Long> excludedIds);
 
 	PaginatedResult<UserData> searchUsersWithInstructorRole (long orgId, String searchTerm,
-															 long credId, long roleId, List<Long> unitIds,
-															 List<Long> excludedUserIds);
+															 long credId, long roleId, List<Long> unitIds);
 	
 	PaginatedResult<StudentData> searchUnassignedAndStudentsAssignedToInstructor(
 			long orgId, String searchTerm, long credId, long instructorId, StudentAssignSearchFilter.SearchFilter filter,
