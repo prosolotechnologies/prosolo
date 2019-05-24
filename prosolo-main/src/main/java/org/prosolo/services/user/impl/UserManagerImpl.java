@@ -341,7 +341,10 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 			user.setVerificationKey(UUID.randomUUID().toString().replace("-", ""));
 
 			if (organizationId > 0) {
-				user.setOrganization((Organization) persistence.currentManager().load(Organization.class, organizationId));
+				Organization org = (Organization) persistence.currentManager().load(Organization.class, organizationId);
+				user.setOrganization(org);
+				//setting initial number of tokens no matter if tokens are enabled at the moment
+				user.setNumberOfTokens(org.getInitialNumberOfTokensGiven());
 			}
 
 			if (password != null) {
