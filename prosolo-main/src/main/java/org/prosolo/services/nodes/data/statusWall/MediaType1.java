@@ -1,4 +1,4 @@
-package org.prosolo.services.nodes.data.activity.attachmentPreview;
+package org.prosolo.services.nodes.data.statusWall;
 
 public enum MediaType1 {
 	Youtube,

@@ -1,5 +1,8 @@
 package org.prosolo.web.learningevidence;
 
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.LearningEvidenceManager;
@@ -9,6 +12,8 @@ import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
+import org.prosolo.services.user.StudentProfileManager;
+import org.prosolo.services.user.data.profile.ProfileSettingsData;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
@@ -17,6 +22,7 @@ import org.springframework.stereotype.Component;
 import javax.faces.bean.ManagedBean;
 import javax.inject.Inject;
 import java.io.Serializable;
+import java.util.Optional;
 
 /**
  * Page that displays information about a piece of evidence for the given ID of an CompetenceEvidence instance and of a given user.
@@ -36,12 +42,15 @@ public class StudentProfileEvidenceBean implements Serializable {
     private static Logger logger = Logger.getLogger(StudentProfileEvidenceBean.class);
 
     @Inject private LearningEvidenceManager learningEvidenceManager;
+    @Inject private StudentProfileManager studentProfileManager;
     @Inject private LoggedUserBean loggedUserBean;
     @Inject private UrlIdEncoder idEncoder;
 
-    private String studentId;
+    @Getter @Setter
+    private String customProfileUrl;
+    @Getter @Setter
     private String competenceEvidenceId;
-
+    @Getter
     private LearningEvidenceData evidence;
 
     public void initManager() {
@@ -54,10 +63,9 @@ public class StudentProfileEvidenceBean implements Serializable {
 
     private void init(AccessMode accessMode) {
         try {
-            long decodedStudentId = idEncoder.decodeId(studentId);
             long decodedCompEvidenceId = idEncoder.decodeId(competenceEvidenceId);
 
-            if (decodedStudentId > 0 && decodedCompEvidenceId > 0) {
+            if (!StringUtils.isBlank(customProfileUrl) && decodedCompEvidenceId > 0) {
                 evidence = learningEvidenceManager.getCompetenceEvidenceData(
                         decodedCompEvidenceId,
                         LearningEvidenceLoadConfig.builder().loadTags(true).loadCompetenceTitle(true).loadUserName(true).build());
@@ -65,8 +73,10 @@ public class StudentProfileEvidenceBean implements Serializable {
                 if (evidence == null) {
                     PageUtil.notFound();
                 } else {
-                    if (evidence.getUserId() != decodedStudentId) {
-                        //if a piece of evidence is not belonging to the user with ID passed in the URL, show Page Not Found page.
+                    Optional<ProfileSettingsData> profileSettingsData = studentProfileManager.getProfileSettingsData(customProfileUrl);
+
+                    if (profileSettingsData.isPresent() && evidence.getUserId() != profileSettingsData.get().getUserId()) {
+                        //if a piece of evidence does not belong to the user whoce customProfileURL is passed in the URL, show the Page Not Found page.
                         PageUtil.notFound();
                         return;
                     }
@@ -92,27 +102,4 @@ public class StudentProfileEvidenceBean implements Serializable {
         }
     }
 
-
-    /*
-    GETTERS AND SETTERS
-     */
-    public LearningEvidenceData getEvidence() {
-        return evidence;
-    }
-
-    public String getCompetenceEvidenceId() {
-        return competenceEvidenceId;
-    }
-
-    public void setCompetenceEvidenceId(String competenceEvidenceId) {
-        this.competenceEvidenceId = competenceEvidenceId;
-    }
-
-    public String getStudentId() {
-        return studentId;
-    }
-
-    public void setStudentId(String studentId) {
-        this.studentId = studentId;
-    }
 }

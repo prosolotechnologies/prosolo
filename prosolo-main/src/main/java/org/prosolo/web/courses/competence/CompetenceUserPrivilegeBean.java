@@ -47,7 +47,7 @@ public class CompetenceUserPrivilegeBean implements Serializable {
 	@Inject private UnitManager unitManager;
 
 	private String competenceId;
-	private long compId;
+	private long decodedCompId;
 	private String credId;
 	private long decodedCredId;
 	private long creatorId;
@@ -83,34 +83,38 @@ public class CompetenceUserPrivilegeBean implements Serializable {
 	}
 
 	private void init() {
-		compId = idEncoder.decodeId(competenceId);
+		decodedCompId = idEncoder.decodeId(competenceId);
 		decodedCredId = idEncoder.decodeId(credId);
-		if (compId > 0) {
+
+		if (decodedCompId > 0 && decodedCredId > 0) {
 			try {
+				// check if credential and competency are connected
+				compManager.checkIfCompetenceIsPartOfACredential(decodedCredId, decodedCompId);
+
 				ResourceAccessRequirements req = ResourceAccessRequirements.of(AccessMode.MANAGER)
 						.addPrivilege(UserGroupPrivilege.Edit);
-				ResourceAccessData access = compManager.getResourceAccessData(compId, loggedUserBean.getUserId(), req);
-				if (decodedCredId > 0){
-					this.credentialIdData = credManager.getCredentialIdData(decodedCredId, null);
-				}
+				ResourceAccessData access = compManager.getResourceAccessData(decodedCompId, loggedUserBean.getUserId(), req);
+
 				if (!access.isCanAccess()) {
 					PageUtil.accessDenied();
 				} else {
-					competenceTitle = compManager.getCompetenceTitle(compId);
+					this.credentialIdData = credManager.getCredentialIdData(decodedCredId, null);
+					competenceTitle = compManager.getCompetenceTitle(decodedCompId);
+
 					if (competenceTitle != null) {
 						if (privilege == UserGroupPrivilege.Edit) {
-							this.creatorId = compManager.getCompetenceCreator(compId).getId();
+							this.creatorId = compManager.getCompetenceCreator(decodedCompId).getId();
 							resVisibilityUtil.initializeValuesForEditPrivilege();
 						} else {
-							resVisibilityUtil.initializeValuesForLearnPrivilege(compManager.isVisibleToAll(compId));
+							resVisibilityUtil.initializeValuesForLearnPrivilege(compManager.isVisibleToAll(decodedCompId));
 						}
 
 						roleId = roleManager.getRoleIdByName(
 								privilege == UserGroupPrivilege.Edit ? SystemRoleNames.MANAGER : SystemRoleNames.USER);
 
-						unitIds = unitManager.getAllUnitIdsCompetenceIsConnectedTo(compId);
+						unitIds = unitManager.getAllUnitIdsCompetenceIsConnectedTo(decodedCompId);
 
-						logger.info("Manage visibility for competency with id " + compId);
+						logger.info("Manage visibility for competency with id " + decodedCompId);
 
 						loadData();
 					} else {
@@ -129,9 +133,9 @@ public class CompetenceUserPrivilegeBean implements Serializable {
 	private void loadData() {
 		//only Learn privilege can be added to user groups
 		if (privilege == UserGroupPrivilege.Learn) {
-			setExistingGroups(userGroupManager.getCompetenceVisibilityGroups(compId, privilege));
+			setExistingGroups(userGroupManager.getCompetenceVisibilityGroups(decodedCompId, privilege));
 		}
-		setExistingUsers(userGroupManager.getCompetenceVisibilityUsers(compId, privilege));
+		setExistingUsers(userGroupManager.getCompetenceVisibilityUsers(decodedCompId, privilege));
 		for (ResourceVisibilityMember rvm : getExistingUsers()) {
 			getUsersToExclude().add(rvm.getUserId());
 		}
@@ -148,7 +152,7 @@ public class CompetenceUserPrivilegeBean implements Serializable {
 		PaginatedResult<ResourceVisibilityMember> res = null;
 		//for now we do not consider editing privileges for competence from user section
 //		if(manageSection) {
-//			res = userGroupTextSearch.searchCompetenceUsersAndGroups(compId, searchTerm, getLimit(),
+//			res = userGroupTextSearch.searchCompetenceUsersAndGroups(decodedCompId, searchTerm, getLimit(),
 //					getUsersToExclude(), getGroupsToExclude());
 //		} else {
 //			res = userGroupTextSearch.searchVisibilityUsers(searchTerm, getLimit(), getUsersToExclude());
@@ -177,7 +181,7 @@ public class CompetenceUserPrivilegeBean implements Serializable {
 	public void saveVisibilityMembersData() {
 		boolean saved = false;
 		try {
-			compManager.updateCompetenceVisibility(compId, getExistingGroups(), getExistingUsers(),
+			compManager.updateCompetenceVisibility(decodedCompId, getExistingGroups(), getExistingUsers(),
 					isVisibleToEveryone(), isVisibleToEveryoneChanged(), loggedUserBean.getUserContext());
 			PageUtil.fireSuccessfulInfoMessage("Changes have been saved");
 			saved = true;
@@ -202,7 +206,7 @@ public class CompetenceUserPrivilegeBean implements Serializable {
 
 	public void makeOwner() {
 		try {
-			compManager.changeOwner(compId, newOwnerId, loggedUserBean.getUserContext());
+			compManager.changeOwner(decodedCompId, newOwnerId, loggedUserBean.getUserContext());
 			creatorId = newOwnerId;
 			PageUtil.fireSuccessfulInfoMessage("Owner has been changed");
 		} catch (DbConnectionException e) {
@@ -275,8 +279,8 @@ public class CompetenceUserPrivilegeBean implements Serializable {
 		return competenceTitle;
 	}
 
-	public long getCompId() {
-		return compId;
+	public long getDecodedCompId() {
+		return decodedCompId;
 	}
 
 	public String getCompetenceId() {

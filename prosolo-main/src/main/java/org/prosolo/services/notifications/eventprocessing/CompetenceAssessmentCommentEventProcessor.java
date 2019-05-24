@@ -26,7 +26,6 @@ public class CompetenceAssessmentCommentEventProcessor extends AssessmentComment
 
 	private static Logger logger = Logger.getLogger(CompetenceAssessmentCommentEventProcessor.class);
 
-	private ContextJsonParserService ctxJsonParser;
 	private long credentialId;
 	private long credentialAssessmentId;
 	private CompetenceAssessment compAssessment;
@@ -34,11 +33,9 @@ public class CompetenceAssessmentCommentEventProcessor extends AssessmentComment
 
 	public CompetenceAssessmentCommentEventProcessor(Event event, Session session, NotificationManager notificationManager,
 													 NotificationsSettingsManager notificationsSettingsManager, UrlIdEncoder idEncoder,
-													 AssessmentManager assessmentManager, CredentialManager credentialManager, Competence1Manager competenceManager,
-													 ContextJsonParserService ctxJsonParser) {
+													 AssessmentManager assessmentManager, CredentialManager credentialManager, Competence1Manager competenceManager) {
 		super(event, session, notificationManager, notificationsSettingsManager, idEncoder, assessmentManager, credentialManager, competenceManager);
-		this.ctxJsonParser = ctxJsonParser;
-		Context context = this.ctxJsonParser.parseContext(event.getContext());
+		Context context = ContextJsonParserService.parseContext(event.getContext());
 		credentialId = Context.getIdFromSubContextWithName(context, ContextName.CREDENTIAL);
 		compAssessment = (CompetenceAssessment) session.load(CompetenceAssessment.class, event.getTarget().getId());
 		credentialAssessmentId = AssessmentLinkUtil.getCredentialAssessmentId(

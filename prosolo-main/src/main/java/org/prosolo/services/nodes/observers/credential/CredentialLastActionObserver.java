@@ -23,7 +23,6 @@ public class CredentialLastActionObserver extends EventObserver {
 
 	private static Logger logger = Logger.getLogger(CredentialLastActionObserver.class.getName());
 	
-	@Inject private ContextJsonParserService contextJsonParserService;
 	@Inject private CredentialManager credManager;
 	@Inject private DefaultManager defaultManager;
 
@@ -47,7 +46,7 @@ public class CredentialLastActionObserver extends EventObserver {
 	public void handleEvent(Event event) {
 		logger.info("CredentialLastActionObserver started");
 		String lContext = event.getContext();
-		Context ctx = contextJsonParserService.parseContext(lContext);
+		Context ctx = ContextJsonParserService.parseContext(lContext);
 		long credId = Context.getIdFromSubContextWithName(ctx, ContextName.CREDENTIAL);
 		Session session = null;
 		Transaction transaction = null;

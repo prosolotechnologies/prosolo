@@ -32,9 +32,9 @@ public abstract class CommentEventProcessor extends SimpleNotificationEventProce
 	public CommentEventProcessor(Event event, Session session,
 								 NotificationManager notificationManager,
 								 NotificationsSettingsManager notificationsSettingsManager, Activity1Manager activityManager,
-								 UrlIdEncoder idEncoder, ContextJsonParserService contextJsonParserService) {
+								 UrlIdEncoder idEncoder) {
 		super(event, session, notificationManager, notificationsSettingsManager, idEncoder);
-		context = contextJsonParserService.parseContext(event.getContext());
+		context = ContextJsonParserService.parseContext(event.getContext());
 		setResource();
 		setCommentedResourceType();
 		this.activityManager = activityManager;

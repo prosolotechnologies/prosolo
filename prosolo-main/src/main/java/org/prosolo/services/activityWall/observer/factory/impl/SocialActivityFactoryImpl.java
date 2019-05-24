@@ -74,8 +74,8 @@ public class SocialActivityFactoryImpl extends AbstractManagerImpl implements So
 		if (processor != null) {
 			try {
 				processor.createOrDeleteSocialActivity();
-			} catch(DbConnectionException e) {
-				logger.error(e);
+			} catch (Exception e) {	// catch both DBConnectionException and RuntimeException
+				logger.error("Error", e);
 			}
 		}
 	}

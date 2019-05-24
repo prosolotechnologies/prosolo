@@ -48,7 +48,7 @@ public class CompetenceStudentsBean implements Serializable, Paginable {
 
 	// PARAMETERS
 	private String id;
-	private long decodedId;
+	private long decodedCompId;
 	private String credId;
 	private long decodedCredId;
 
@@ -77,20 +77,23 @@ public class CompetenceStudentsBean implements Serializable, Paginable {
 		}
 		searchFilter = new CompetenceStudentsSearchFilter(CompetenceStudentsSearchFilterValue.ALL, 0);
 		//searchFilters = InstructorAssignFilterValue.values();
-		decodedId = idEncoder.decodeId(id);
+		decodedCompId = idEncoder.decodeId(id);
 		decodedCredId = idEncoder.decodeId(credId);
-		if (decodedId > 0) {
-			//context = "name:COMPETENCE|id:" + decodedId + "|context:/name:STUDENTS/";
+
+		if (decodedCompId > 0 && decodedCredId > 0) {
+			// check if credential and competency are connected
+			compManager.checkIfCompetenceIsPartOfACredential(decodedCredId, decodedCompId);
+
 			try {
 				String title = compManager.getCompetenceTitleForCompetenceWithType(
-						decodedId, LearningResourceType.UNIVERSITY_CREATED);
-				if (decodedCredId > 0){
-					this.credentialIdData = credManager.getCredentialIdData(decodedCredId, null);
-				}
+						decodedCompId, LearningResourceType.UNIVERSITY_CREATED);
+				this.credentialIdData = credManager.getCredentialIdData(decodedCredId, null);
+
 				if (title != null) {
 					ResourceAccessRequirements req = ResourceAccessRequirements.of(AccessMode.MANAGER)
 						.addPrivilege(UserGroupPrivilege.Edit);
-					access = compManager.getResourceAccessData(decodedId, loggedUserBean.getUserId(), req);
+					access = compManager.getResourceAccessData(decodedCompId, loggedUserBean.getUserId(), req);
+
 					if (!access.isCanAccess()) {
 						PageUtil.accessDenied();
 					} else {
@@ -130,8 +133,8 @@ public class CompetenceStudentsBean implements Serializable, Paginable {
 		TextSearchFilteredResponse<StudentData, CompetenceStudentsSearchFilterValue> searchResponse = 
 				userTextSearch.searchCompetenceStudents(
 					loggedUserBean.getOrganizationId(),
-					searchTerm, 
-					decodedId, 
+					searchTerm,
+						decodedCompId,
 					searchFilter.getFilter(), 
 					sortOption, 
 					paginationData.getPage() - 1, 
@@ -199,8 +202,8 @@ public class CompetenceStudentsBean implements Serializable, Paginable {
 		return paginationData;
 	}
 
-	public long getDecodedId() {
-		return decodedId;
+	public long getDecodedCompId() {
+		return decodedCompId;
 	}
 
 	public List<StudentData> getStudents() {

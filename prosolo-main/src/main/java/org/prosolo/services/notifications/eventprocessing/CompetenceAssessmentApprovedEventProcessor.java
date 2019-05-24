@@ -6,7 +6,6 @@ import org.prosolo.common.domainmodel.user.notifications.NotificationType;
 import org.prosolo.common.domainmodel.user.notifications.ResourceType;
 import org.prosolo.common.event.Event;
 import org.prosolo.services.assessment.AssessmentManager;
-import org.prosolo.services.context.ContextJsonParserService;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
 import org.prosolo.services.notifications.NotificationManager;
 import org.prosolo.services.notifications.eventprocessing.data.NotificationReceiverData;
@@ -25,8 +24,8 @@ public class CompetenceAssessmentApprovedEventProcessor extends CompetenceAssess
 
 	public CompetenceAssessmentApprovedEventProcessor(Event event, Session session, NotificationManager notificationManager,
 													  NotificationsSettingsManager notificationsSettingsManager, UrlIdEncoder idEncoder,
-													  AssessmentManager assessmentManager, ContextJsonParserService contextJsonParserService) {
-		super(event, event.getObject().getId(), session, notificationManager, notificationsSettingsManager, idEncoder, contextJsonParserService);
+													  AssessmentManager assessmentManager) {
+		super(event, event.getObject().getId(), session, notificationManager, notificationsSettingsManager, idEncoder);
 		this.assessmentManager = assessmentManager;
 	}
 

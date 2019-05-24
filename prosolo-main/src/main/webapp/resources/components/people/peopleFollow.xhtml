@@ -83,16 +83,16 @@
 						<ui:repeat var="user" value="#{cc.attrs.bean.users}">
 							<li>
 								<div class="peopleListLeft">
-									<h:link outcome="/profile">
+									<h:link outcome="/profile-legacy">
 										<utilcomp:userAvatar avatar="#{user.avatarUrl}"
 															 fullName="#{user.commaSeparatedFullName}" width="64" height="64" />
-										<f:param name="id" value="#{util:encodeId(user.id)}" />
+										<f:param name="studentId" value="#{util:encodeId(user.id)}" />
 									</h:link>
 									<div>
 										<h2>
-											<h:link outcome="/profile">
+											<h:link outcome="/profile-legacy">
 												#{user.commaSeparatedFullName}
-												<f:param name="id" value="#{util:encodeId(user.id)}"></f:param>
+												<f:param name="studentId" value="#{util:encodeId(user.id)}"></f:param>
 											</h:link>
 										</h2>
 										<span>#{user.position}</span>

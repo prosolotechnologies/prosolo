@@ -35,14 +35,14 @@ import java.util.Map;
  * @author "Nikola Milikic"
  * 
  */
-@ManagedBean(name = "profileSettings")
-@Component("profileSettings")
+@ManagedBean(name = "personalInfoSettingsBean")
+@Component("personalInfoSettingsBean")
 @Scope("view")
-public class ProfileSettingsBean implements Serializable {
+public class PersonalInfoSettingsBean implements Serializable {
 
 	private static final long serialVersionUID = 1649841825780113183L;
 
-	protected static Logger logger = Logger.getLogger(ProfileSettingsBean.class);
+	protected static Logger logger = Logger.getLogger(PersonalInfoSettingsBean.class);
 
 	@Inject
 	private LoggedUserBean loggedUser;
