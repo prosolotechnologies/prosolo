@@ -167,7 +167,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					cac.setEnabled(atc.isEnabled());
 					cac.setBlindAssessmentMode(atc.getBlindAssessmentMode());
 					saveEntity(cac);
-				}
+                    cred.getAssessmentConfig().add(cac);
+                }
 			}
 
 			if (data.getCompetences() != null) {
@@ -3952,6 +3953,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				credAssessmentConf.setAssessmentType(cac.getAssessmentType());
 				credAssessmentConf.setEnabled(cac.isEnabled());
 				saveEntity(credAssessmentConf);
+				cred.getAssessmentConfig().add(credAssessmentConf);
 			}
 
 			return cred;

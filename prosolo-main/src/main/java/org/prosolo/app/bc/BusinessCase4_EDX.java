@@ -59,12 +59,13 @@ import java.util.*;
  * @since 0.5
  */
 @Service
-public class BusinessCase4_EDX {
+public class BusinessCase4_EDX implements BusinessCase {
 
     private static Logger logger = Logger.getLogger(BusinessCase4_EDX.class.getName());
 
 	private SimpleDateFormat dateFormatter = new SimpleDateFormat("dd.MM.yyyy. HH:mm");
 
+	@Override
 	public void initRepository() {
         logger.info("BusinessCaseTest - initRepository() with BC 4");
 

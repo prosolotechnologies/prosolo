@@ -148,6 +148,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 					cac.setEnabled(atc.isEnabled());
 					cac.setBlindAssessmentMode(atc.getBlindAssessmentMode());
 					saveEntity(cac);
+					comp.getAssessmentConfig().add(cac);
 				}
 			}
 
@@ -1914,6 +1915,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			compAssessmentConfig.setAssessmentType(cac.getAssessmentType());
 			compAssessmentConfig.setEnabled(cac.isEnabled());
 			saveEntity(compAssessmentConfig);
+			competence.getAssessmentConfig().add(compAssessmentConfig);
 		}
 		/*
 		if this line is put before saveEntity and there is an exception thrown so competence can't be saved, hibernate would still issue

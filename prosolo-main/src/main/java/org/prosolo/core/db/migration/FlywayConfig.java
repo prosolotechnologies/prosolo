@@ -39,7 +39,7 @@ public class FlywayConfig {
                 .locations(migrations.toArray(new String[0]));
         if (!formatDb) {
             /*
-            only if formatDB is false baseline is used, if databse is empty (formatDB is true)
+            only if formatDB is false baseline is used, if database is empty (formatDB is true)
             there is no need to use baseline
              */
             /*

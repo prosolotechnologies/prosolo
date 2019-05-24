@@ -36,6 +36,7 @@ import org.prosolo.services.assessment.data.AssessmentTypeConfig;
 import org.prosolo.services.assessment.data.CompetenceAssessmentDataFull;
 import org.prosolo.services.assessment.data.grading.*;
 import org.prosolo.services.data.Result;
+import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.event.EventQueue;
 import org.prosolo.services.htmlparser.LinkParser;
@@ -67,13 +68,14 @@ import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author stefanvuckovic
  * @date 2019-01-15
  * @since 1.3.0
  */
-public abstract class BaseBusinessCase {
+public abstract class BaseBusinessCase implements BusinessCase {
 
     //organization
     protected Organization organization;
@@ -110,6 +112,7 @@ public abstract class BaseBusinessCase {
     protected User userAnnaHallowell;
     protected User userErikaAmes;
 
+    @Override
     public void initRepository() {
         try {
             getLogger().info(getBusinessCaseInitLog());
@@ -131,7 +134,21 @@ public abstract class BaseBusinessCase {
             createAdditionalData(events);
 
             // fire all events
-            ServiceLocator.getInstance().getService(EventFactory.class).generateEvents(events, new Class[]{NodeChangeObserver.class});
+            /*
+            TODO hack - since there is a race between observer that creates profile settings
+            data based on Registered event and notification observer that creates follow user notification,
+            Registered events are separated and fired before other events.
+             */
+            Map<Boolean, List<EventData>> eventsMap = events.getEvents().stream().collect(Collectors.partitioningBy(ev -> ev.getEventType() == EventType.Registered));
+            EventQueue eventQueue1 = EventQueue.newEventQueue();
+            eventQueue1.appendEvents(eventsMap.get(true));
+            ServiceLocator.getInstance().getService(EventFactory.class).generateEvents(eventQueue1, new Class[]{NodeChangeObserver.class});
+
+            Thread.sleep(2000);
+
+            EventQueue eventQueue2 = EventQueue.newEventQueue();
+            eventQueue2.appendEvents(eventsMap.get(false));
+            ServiceLocator.getInstance().getService(EventFactory.class).generateEvents(eventQueue2, new Class[]{NodeChangeObserver.class});
 
             getLogger().info("Reindexing all indices since we know some observers have failed");
             ServiceLocator.getInstance().getService(BulkDataAdministrationService.class).deleteAndReindexDBESIndexes();
@@ -592,12 +609,12 @@ public abstract class BaseBusinessCase {
         return credentialAssessmentData;
     }
 
-    protected void gradeCredentialAssessmentByRubric(EventQueue events, long credentialAssessmentId, AssessmentType assessmentType, User actor, int... lvls) throws Exception {
+    protected void gradeCredentialAssessmentByRubric(EventQueue events, long credentialAssessmentId, AssessmentType assessmentType, User actor, long... lvls) throws Exception {
         AssessmentDataFull credAssessmentData = getCredentialAssessmentData(credentialAssessmentId, actor.getId(), assessmentType);
         gradeCredentialAssessmentByRubric(events, credAssessmentData, actor, lvls);
     }
 
-    protected void gradeCredentialAssessmentByRubric(EventQueue events, AssessmentDataFull credentialAssessmentData, User actor, int... lvls) throws Exception {
+    protected void gradeCredentialAssessmentByRubric(EventQueue events, AssessmentDataFull credentialAssessmentData, User actor, long... lvls) throws Exception {
         gradeByRubric(credentialAssessmentData.getGradeData(), lvls);
         extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(AssessmentManager.class)
                 .updateGradeForCredentialAssessmentAndGetEvents(credentialAssessmentData.getCredAssessmentId(), credentialAssessmentData.getGradeData(), createUserContext(actor)));
@@ -617,18 +634,18 @@ public abstract class BaseBusinessCase {
         return competenceAssessmentData;
     }
 
-    protected void gradeCompetenceAssessmentByRubric(EventQueue events, long competenceAssessmentId, AssessmentType assessmentType, User actor, int... lvls) throws Exception {
+    protected void gradeCompetenceAssessmentByRubric(EventQueue events, long competenceAssessmentId, AssessmentType assessmentType, User actor, long... lvls) throws Exception {
         CompetenceAssessmentDataFull competenceAssessmentData = getCompetenceAssessmentData(competenceAssessmentId, actor.getId(), assessmentType);
         gradeCompetenceAssessmentByRubric(events, competenceAssessmentData, actor, lvls);
     }
 
-    protected void gradeCompetenceAssessmentByRubric(EventQueue events, CompetenceAssessmentDataFull competenceAssessmentData, User actor, int... lvls) throws Exception {
+    protected void gradeCompetenceAssessmentByRubric(EventQueue events, CompetenceAssessmentDataFull competenceAssessmentData, User actor, long... lvls) throws Exception {
         gradeByRubric(competenceAssessmentData.getGradeData(), lvls);
         extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(AssessmentManager.class)
                 .updateGradeForCompetenceAssessmentAndGetEvents(competenceAssessmentData.getCompetenceAssessmentId(), competenceAssessmentData.getGradeData(), createUserContext(actor)));
     }
 
-    protected void gradeByRubric(GradeData gradeData, int... lvls) {
+    protected void gradeByRubric(GradeData gradeData, long... lvls) {
         if (gradeData.getGradingMode() == org.prosolo.services.assessment.data.grading.GradingMode.MANUAL_RUBRIC) {
             RubricGradeData<? extends RubricCriteriaGradeData<? extends RubricCriterionGradeData>> rubricGradeData = (RubricGradeData) gradeData;
             List<? extends RubricCriterionGradeData> criteria = rubricGradeData.getRubricCriteria().getCriteria();

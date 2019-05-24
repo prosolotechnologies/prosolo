@@ -1,0 +1,137 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+				xmlns:h="http://java.sun.com/jsf/html"
+				xmlns:f="http://java.sun.com/jsf/core"
+				xmlns:ui="http://java.sun.com/jsf/facelets"
+				xmlns:p="http://primefaces.org/ui"
+				template="templates/masterLayout2.xhtml"
+				xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+
+	<utilcomp:messagesBundle var="msg" />
+
+	<ui:define name="windowTitle" >
+		Data init - ProSolo
+	</ui:define>
+
+	<ui:define name="metadata">
+		<f:metadata>
+			<f:viewAction action="#{initDataBean.init()}" />
+		</f:metadata>
+	</ui:define>
+
+	<ui:define name="navLinks">
+
+	</ui:define>
+
+	<ui:define name="resourceTitle">
+		<h1>
+			<h:outputText value="Init Data" />
+		</h1>
+	</ui:define>
+
+	<ui:define name="content">
+		<div class="whiteBar">
+			<div class="container">
+				<div class="whiteBarContent">
+					<div class="whiteBarLeft">
+						<div class="searchBox">
+							<input id="textSearchBC"
+								   placeholder="Search.."
+								   autofocus="true"
+								   autocomplete="off"
+								   type="search"/>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="container">
+			<div class="row">
+
+				<p:growl id="growlMain" showDetail="true" globalOnly="true"></p:growl>
+				<div class="col-md-12">
+					<ui:fragment rendered="#{empty initDataBean.bcs}">
+						<div class="noContentMessage">
+							<p>
+								No business cases.
+							</p>
+						</div>
+					</ui:fragment>
+					<ui:fragment rendered="#{not empty initDataBean.bcs}">
+						<ul id="listBC" class="whiteBox adminUnitsList">
+							<ui:repeat value="#{initDataBean.bcs}" var="bc">
+								<li>
+									<div class="liContent">
+										<div class="adminUnitsListLeft">
+											<h2 class="searchable">
+												#{msg['label.enum.InitData.'.concat(bc.name()).concat('.title')]}
+											</h2>
+											<span class="searchable">#{msg['label.enum.InitData.'.concat(bc.name()).concat('.desc')]}</span>
+										</div>
+										<div class="adminUnitsListRight">
+											<p:commandLink  styleClass="btn btn-sm btn-green-stroke" value="Init"
+															process="@this"
+															action="#{initDataBean.setBC(bc)}"
+															oncomplete="$('#applyBCModal').modal('show')">
+											</p:commandLink>
+										</div>
+									</div>
+								</li>
+							</ui:repeat>
+						</ul>
+					</ui:fragment>
+				</div>
+			</div>
+		</div>
+
+		<script>
+			$(document).ready(function(){
+				$("#textSearchBC").on("keyup", function() {
+					var input = $(this).val().toLowerCase();
+					$("#listBC li").each(function() {
+						var el = $(this);
+						var match = false;
+						el.find('.searchable').each(function() {
+							match = $(this).text().toLowerCase().indexOf(input) > -1;
+							if (match) {
+								//skip other elements iteration
+								return false;
+							}
+						});
+						el.toggle(match);
+					});
+				});
+			});
+		</script>
+
+		<div class="modal fade" id="applyBCModal" tabindex="-1" role="dialog" aria-labelledby="applyBCModalTitle">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+						<h2 class="modal-title" id="applyBCModalTitle">Reinitialize database data?</h2>
+					</div>
+					<div class="modal-body">
+						<p>Are you sure you want to reinitialize database data?
+						<br/><br/>
+							<small>Note: Action can NOT be undone!</small></p>
+					</div>
+					<div class="modal-footer">
+						<utilcomp:singleClickLink
+								styleClass="btn btn-green"
+								process="@this"
+								onclick="showLoaderNextToElem(this, '#{request.contextPath}')"
+								action="#{initDataBean.applyBc()}"
+								update=":growlMain"
+								oncomplete="hideLoaderForElem(this.source); $('#applyBCModal').modal('hide')">
+							Submit
+						</utilcomp:singleClickLink>
+						<a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+					</div>
+				</div>
+			</div>
+		</div>
+
+	</ui:define>
+
+</ui:composition>

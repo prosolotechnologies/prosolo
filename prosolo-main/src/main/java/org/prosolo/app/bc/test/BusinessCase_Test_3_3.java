@@ -152,7 +152,7 @@ public class BusinessCase_Test_3_3 extends BusinessCase_Test_3 {
         extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Activity1Manager.class).completeActivityAndGetEvents(
                 credentialWithActivities1Delivery1ActivitiesHelen.get(0).getTargetActivityId(),
                 credentialWithActivities1Delivery1Competency1Helen.getId(),
-                createUserContext(userRichardAnderson)));
+                createUserContext(userHelenCampbell)));
 
         //////////////////////////////////////
         // Complete competencies
@@ -180,21 +180,21 @@ public class BusinessCase_Test_3_3 extends BusinessCase_Test_3 {
         long credential1Delivery1HelenCampbellInstructorAssessmentId = ServiceLocator.getInstance().getService(AssessmentManager.class)
                 .getActiveInstructorCredentialAssessmentId(credential1Delivery1.getId(), userHelenCampbell.getId()).get();
         AssessmentDataFull instructorCredentialAssessmentData = getCredentialAssessmentData(credential1Delivery1HelenCampbellInstructorAssessmentId, userAnnaHallowell.getId(), AssessmentType.INSTRUCTOR_ASSESSMENT);
-        gradeCredentialAssessmentByRubric(events, instructorCredentialAssessmentData, userAnnaHallowell, 3);
+        gradeCredentialAssessmentByRubric(events, instructorCredentialAssessmentData, userAnnaHallowell, rubricData.getLevels().get(2).getId());
         for (CompetenceAssessmentDataFull competenceAssessmentData : instructorCredentialAssessmentData.getCompetenceAssessmentData()) {
-            int lvl = 0;
+            long lvl = 0;
             if (competenceAssessmentData.getTargetCompetenceId() == credential1Delivery1Comp1TargetHelen.getId()) {
-                lvl = 2;
+                lvl = rubricData.getLevels().get(1).getId();
             } else if (competenceAssessmentData.getTargetCompetenceId() == credential1Delivery1Comp2TargetHelen.getId()) {
-                lvl = 4;
+                lvl = rubricData.getLevels().get(3).getId();
             } else if (competenceAssessmentData.getTargetCompetenceId() == credential1Delivery1Comp3TargetHelen.getId()) {
-                lvl = 2;
+                lvl = rubricData.getLevels().get(1).getId();
             } else if (competenceAssessmentData.getTargetCompetenceId() == credential1Delivery1Comp4TargetHelen.getId()) {
-                lvl = 1;
+                lvl = rubricData.getLevels().get(0).getId();
             } else if (competenceAssessmentData.getTargetCompetenceId() == credential1Delivery1Comp5TargetHelen.getId()) {
-                lvl = 4;
+                lvl = rubricData.getLevels().get(3).getId();
             } else if (competenceAssessmentData.getTargetCompetenceId() == credential1Delivery1Comp6TargetHelen.getId()) {
-                lvl = 3;
+                lvl = rubricData.getLevels().get(2).getId();
             }
             gradeCompetenceAssessmentByRubric(events, competenceAssessmentData, userAnnaHallowell, lvl);
         }

@@ -32,8 +32,6 @@ public interface ResourceFactory extends AbstractManager {
 
     Role createNewRole(String name, String description, boolean systemDefined);
 
-    AnonUser createAnonUser(String nickname, String name, String avatarUrl, String profileUrl, ServiceType twitter);
-
     SimpleOutcome createSimpleOutcome(int resultValue, long targetActId, Session session);
     
     String getLinkForObjectType(String simpleClassName, long id, String linkField) 
@@ -46,11 +44,6 @@ public interface ResourceFactory extends AbstractManager {
 
 	Activity1 updateActivity(org.prosolo.services.nodes.data.ActivityData data) 
 			throws DbConnectionException, StaleDataException, IllegalDataStateException;
-	
-	User updateUserAvatar(User user, InputStream imageInputStream, String avatarFilename);
-	
-	PostSocialActivity1 createNewPost(long userId, String text, RichContent1 richContent) 
-			throws DbConnectionException;
 	
 	PostSocialActivity1 updatePost(long postId, String newText) throws DbConnectionException;
 	

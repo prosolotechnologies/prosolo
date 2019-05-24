@@ -91,7 +91,8 @@ public enum ApplicationPage {
 	ADMIN_CREDENTIAL("/admin/credential.xhtml"),
 	ADMIN_CREDENTIAL_WHO_CAN_LEARN("/admin/credential-who-can-learn.xhtml"),
 	ADMIN_COMPETENCE("/admin/competence.xhtml"),
-	ADMIN_ACTIVITY("/admin/activity.xhtml");
+	ADMIN_ACTIVITY("/admin/activity.xhtml"),
+	ADMIN_DATA_INIT("/admin/data-init.xhtml");
 
     private String uri; 
     

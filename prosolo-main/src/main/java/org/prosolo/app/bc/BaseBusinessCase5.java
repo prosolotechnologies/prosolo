@@ -1,7 +1,9 @@
 package org.prosolo.app.bc;
 
 import org.apache.commons.lang3.time.DateUtils;
+import org.hibernate.FlushMode;
 import org.hibernate.Session;
+import org.hibernate.Transaction;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.OperationForbiddenException;
 import org.prosolo.common.domainmodel.activitywall.PostSocialActivity1;
@@ -424,12 +426,15 @@ public abstract class BaseBusinessCase5 extends BaseBusinessCase {
 
         // explicitly generate welcome post social activity at this point to have the earliest timestamp
         Session session1 = (Session) ServiceLocator.getInstance().getService(DefaultManager.class).getPersistence().openSession();
+        Transaction transaction = null;
         try {
+            transaction = session1.beginTransaction();
             ServiceLocator.getInstance().getService(SocialActivityManager.class).saveUnitWelcomePostSocialActivityIfNotExists(unitSchoolOfEducation.getId(), session1);
             ServiceLocator.getInstance().getService(SocialActivityManager.class).saveUnitWelcomePostSocialActivityIfNotExists(unitOfNursingAndMidwifery.getId(), session1);
+            transaction.commit();
         } catch (Exception e) {
-            e.printStackTrace();
             getLogger().error("Error", e);
+            transaction.rollback();
         } finally {
             HibernateUtil.close(session1);
         }

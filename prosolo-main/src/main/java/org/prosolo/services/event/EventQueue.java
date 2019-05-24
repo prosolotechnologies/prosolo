@@ -36,6 +36,10 @@ public class EventQueue {
         events.add(event);
     }
 
+    public void appendEvents(List<EventData> events) {
+        this.events.addAll(events);
+    }
+
     /**
      * Adds all events from the passed queue to the end of the queue
      *

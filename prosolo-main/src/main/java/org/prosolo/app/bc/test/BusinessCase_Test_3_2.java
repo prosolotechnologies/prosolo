@@ -28,7 +28,8 @@ public class BusinessCase_Test_3_2 extends BusinessCase_Test_3 {
         ////////////////////////////////
         enrollToDelivery(events, credential1Delivery1, userHelenCampbell);
         enrollToDelivery(events, credential1Delivery1, userGeorgeYoung);
-        
+        enrollToDelivery(events, credentialWithActivities1Delivery1, userHelenCampbell);
+        enrollToDelivery(events, credentialWithActivities1Delivery1, userGeorgeYoung);
         ///////////////////////////////////////////
         // enroll in competencies from credentialWithActivities1Delivery1
         ///////////////////////////////////////////
