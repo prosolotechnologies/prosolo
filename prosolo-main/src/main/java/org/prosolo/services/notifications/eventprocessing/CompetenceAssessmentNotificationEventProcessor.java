@@ -21,11 +21,10 @@ public abstract class CompetenceAssessmentNotificationEventProcessor extends Ass
 	private Context context;
 
 	public CompetenceAssessmentNotificationEventProcessor(Event event, long competenceAssessmentId, Session session, NotificationManager notificationManager,
-														  NotificationsSettingsManager notificationsSettingsManager, UrlIdEncoder idEncoder,
-														  ContextJsonParserService ctxJsonParserService) {
+														  NotificationsSettingsManager notificationsSettingsManager, UrlIdEncoder idEncoder) {
 		super(event, session, notificationManager, notificationsSettingsManager, idEncoder);
 		assessment = (CompetenceAssessment) session.load(CompetenceAssessment.class, competenceAssessmentId);
-		context = ctxJsonParserService.parseContext(event.getContext());
+		context = ContextJsonParserService.parseContext(event.getContext());
 		credentialId = assessment.getTargetCredential().getCredential().getId();
 	}
 

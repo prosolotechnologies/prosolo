@@ -264,6 +264,7 @@
 							studentId="#{cc.attrs.competenceAssessment.studentId}"
 							canViewEvidence="#{cc.attrs.competenceAssessment.assessmentActive and (cc.attrs.currentUserAssessedStudent or cc.attrs.currentUserAssessor)}"
 							showMessageWhyUserCantViewEvidence="#{cc.attrs.competenceAssessment.assessmentActive}"
+							role="#{cc.attrs.role}"
 					/>
 				</ui:fragment>
 			</article>

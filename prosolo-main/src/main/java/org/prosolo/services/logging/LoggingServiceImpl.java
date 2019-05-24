@@ -55,8 +55,6 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 	@Inject 
 	private LogsDataManager logsDataManager;
 	@Inject
-	private ContextJsonParserService contextJsonParserService;
-	@Inject
 	private EventFactory eventFactory;
 	@Inject @Qualifier("taskExecutor")
 	private ThreadPoolTaskExecutor taskExecutor;
@@ -112,7 +110,7 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 							 String targetType, Map<String, String> params, String ipAddress) throws LoggingException {
 		LearningContext learningContext = null;
 		if (context.getContext() != null) {
-			learningContext = contextJsonParserService
+			learningContext = ContextJsonParserService
 					.parseCustomContextString(context.getContext().getPage(), context.getContext().getLearningContext(),
 							context.getContext().getService());
 		}

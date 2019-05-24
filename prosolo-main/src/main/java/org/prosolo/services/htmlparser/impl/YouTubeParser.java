@@ -4,8 +4,8 @@ import org.jsoup.nodes.Document;
 import org.prosolo.common.domainmodel.content.ContentType1;
 import org.prosolo.services.htmlparser.LinkParser;
 import org.prosolo.services.media.util.LinkParserException;
-import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview1;
-import org.prosolo.services.nodes.data.activity.attachmentPreview.MediaType1;
+import org.prosolo.services.nodes.data.statusWall.AttachmentPreview;
+import org.prosolo.services.nodes.data.statusWall.MediaType1;
 import org.prosolo.services.util.url.URLUtil;
 
 import java.util.regex.Matcher;
@@ -23,11 +23,11 @@ public class YouTubeParser extends LinkParser {
     }
 
     @Override
-    public AttachmentPreview1 parse() throws LinkParserException {
+    public AttachmentPreview parse() throws LinkParserException {
         if (document.baseUri() == null) {
             return null;
         }
-        AttachmentPreview1 attachmentPreview = new AttachmentPreview1();
+        AttachmentPreview attachmentPreview = new AttachmentPreview();
         attachmentPreview.setInitialized(true);
 
         String fullUrl = document.baseUri().trim();

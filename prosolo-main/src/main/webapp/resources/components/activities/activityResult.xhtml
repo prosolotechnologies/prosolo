@@ -47,9 +47,9 @@
 							fullName="#{cc.attrs.resultData.user.fullName}" />
 						<h3>
 							<c:if test="#{cc.attrs.role eq 'USER'}">
-								<h:link outcome="/profile">
+								<h:link outcome="/profile-legacy">
 									#{cc.attrs.resultData.user.fullName}
-									<f:param name="id" value="#{util:encodeId(cc.attrs.resultData.user.id)}" />
+									<f:param name="studentId" value="#{util:encodeId(cc.attrs.resultData.user.id)}" />
 								</h:link>
 							</c:if>
 							<c:if test="#{cc.attrs.role eq 'MANAGER'}">
@@ -211,9 +211,9 @@
 							fullName="#{cc.attrs.resultData.user.fullName}" />
 						<h3>
 							<c:if test="#{cc.attrs.role eq 'USER'}">
-								<h:link outcome="/profile">
+								<h:link outcome="/profile-legacy">
 									#{cc.attrs.resultData.user.fullName}
-									<f:param name="id" value="#{util:encodeId(cc.attrs.resultData.user.id)}" />
+									<f:param name="studentId" value="#{util:encodeId(cc.attrs.resultData.user.id)}" />
 								</h:link>
 							</c:if>
 							<c:if test="#{cc.attrs.role eq 'MANAGER'}">

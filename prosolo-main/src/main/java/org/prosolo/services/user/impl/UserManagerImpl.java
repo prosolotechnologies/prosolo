@@ -284,23 +284,25 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 				roles,
 				isSystem);
 
-		//send email to new user for password recovery
-		sendNewPassword(res.getResult());
+		if (CommonSettings.getInstance().config.emailNotifier.activated) {
+			//send email to new user for password recovery
+			try {
+				sendNewPassword(res.getResult());
+			} catch (Exception e) {
+				logger.error("error sending the password reset email", e);
+				//don't throw exception since we don't want to rollback the transaction just because email could not be sent.
+			}
+		}
 		return res;
 	}
 
 	private void sendNewPassword(User user) {
-		try {
-			boolean resetLinkSent = passwordResetManager.initiatePasswordReset(user, user.getEmail(),
-					CommonSettings.getInstance().config.appConfig.domain + "recovery", persistence.currentManager());
-			if (resetLinkSent) {
-				logger.info("Password instructions have been sent");
-			} else {
-				logger.error("Error sending password instruction");
-			}
-		} catch (Exception e) {
-			logger.error("Error", e);
-			throw new DbConnectionException("Error sending the password to the new user");
+		boolean resetLinkSent = passwordResetManager.initiatePasswordReset(user, user.getEmail(),
+				CommonSettings.getInstance().config.appConfig.domain + "recovery", persistence.currentManager());
+		if (resetLinkSent) {
+			logger.info("Password instructions have been sent");
+		} else {
+			logger.error("Error sending password instruction");
 		}
 	}
 
@@ -309,72 +311,79 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	@Transactional (readOnly = false)
 	public Result<User> createNewUserAndGetEvents(long organizationId, String name, String lastname, String emailAddress, boolean emailVerified,
 			String password, String position, InputStream avatarStream,
-			String avatarFilename, List<Long> roles, boolean isSystem) throws DbConnectionException, IllegalDataStateException {
+			String avatarFilename, List<Long> roles, boolean isSystem) throws DbConnectionException {
 
 		Result<User> result = new Result<>();
 
-		if (checkIfUserExists(emailAddress)) {
-			User user = getUser(emailAddress);
-
-			// if user was deleted, revoke his account
-			if (user.isDeleted()) {
-				user.setDeleted(false);
-				saveEntity(user);
-			}
-			result.setResult(user);
-
-			return result;
-		}
-
-		emailAddress = emailAddress.toLowerCase();
-
-		User user = new User();
-		user.setName(name);
-		user.setLastname(lastname);
-
-		user.setEmail(emailAddress);
-		user.setVerified(emailVerified);
-		user.setVerificationKey(UUID.randomUUID().toString().replace("-", ""));
-
-		if (organizationId > 0) {
-			Organization org = (Organization) persistence.currentManager().load(Organization.class, organizationId);
-			user.setOrganization(org);
-			//setting initial number of tokens no matter if tokens are enabled at the moment
-			user.setNumberOfTokens(org.getInitialNumberOfTokensGiven());
-		}
-
-		if (password != null) {
-			user.setPassword(passwordEncoder.encode(password));
-			user.setPasswordLength(password.length());
-		}
-
-		user.setSystem(isSystem);
-		user.setPosition(position);
-
-		user.setUserType(UserType.REGULAR_USER);
-		if(roles == null) {
-			user.addRole(roleManager.getRoleByName(SystemRoleNames.USER));
-		} else {
-			for(Long id : roles) {
-				Role role = (Role) persistence.currentManager().load(Role.class, id);
-				user.addRole(role);
-			}
-		}
-		user = saveEntity(user);
-
 		try {
-			if (avatarStream != null) {
-				user.setAvatarUrl(avatarProcessor.storeUserAvatar(user.getId(), avatarStream, avatarFilename, true));
-				user = saveEntity(user);
+
+			if (checkIfUserExists(emailAddress)) {
+				User user = getUser(emailAddress);
+
+				// if user was deleted, revoke his account
+				if (user.isDeleted()) {
+					user.setDeleted(false);
+					saveEntity(user);
+				}
+				result.setResult(user);
+
+				return result;
 			}
-		} catch (IOException e) {
-			logger.error(e);
+
+			emailAddress = emailAddress.toLowerCase();
+
+			User user = new User();
+			user.setName(name);
+			user.setLastname(lastname);
+
+			user.setEmail(emailAddress);
+			user.setVerified(emailVerified);
+			user.setVerificationKey(UUID.randomUUID().toString().replace("-", ""));
+
+			if (organizationId > 0) {
+				Organization org = (Organization) persistence.currentManager().load(Organization.class, organizationId);
+				user.setOrganization(org);
+				//setting initial number of tokens no matter if tokens are enabled at the moment
+				user.setNumberOfTokens(org.getInitialNumberOfTokensGiven());
+			}
+
+			if (password != null) {
+				user.setPassword(passwordEncoder.encode(password));
+				user.setPasswordLength(password.length());
+			}
+
+			user.setSystem(isSystem);
+			user.setPosition(position);
+
+			user.setUserType(UserType.REGULAR_USER);
+
+			if(roles == null) {
+				user.addRole(roleManager.getRoleByName(SystemRoleNames.USER));
+			} else {
+				for(Long id : roles) {
+					Role role = (Role) persistence.currentManager().load(Role.class, id);
+					user.addRole(role);
+				}
+			}
+			user = saveEntity(user);
+
+			try {
+				if (avatarStream != null) {
+					user.setAvatarUrl(avatarProcessor.storeUserAvatar(user.getId(), avatarStream, avatarFilename, true));
+					user = saveEntity(user);
+				}
+			} catch (IOException e) {
+				logger.error(e);
+			}
+
+			result.appendEvent(eventFactory.generateEventData(
+					EventType.Registered, UserContextData.ofActor(user.getId()),null, null, null, null));
+
+			result.setResult(user);
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error saving new user account");
 		}
-
-		result.appendEvent(eventFactory.generateEventData(
-				EventType.Registered, UserContextData.ofActor(user.getId()),null, null, null, null));
-
-		result.setResult(user);
 		return result;
 	}
 
@@ -1051,79 +1060,6 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 		}
 	}
 
-	/*
-	TODO merge this with resource factory createNewUser method when we agree on exact implementation
-	and when there is time for refactoring
-	 */
-	private Result<User> createNewUser(long organizationId, String name, String lastname, String emailAddress, boolean emailVerified,
-							   String password, String position, boolean system, InputStream avatarStream,
-						       String avatarFilename, List<Long> roles, UserContextData context)
-			throws DbConnectionException {
-
-		Result<User> res = new Result<>();
-		try {
-			if (checkIfUserExists(emailAddress, false)) {
-				User user = getUser(emailAddress);
-
-				// if user was deleted, revoke his account
-				if (user.isDeleted()) {
-					user.setDeleted(false);
-					saveEntity(user);
-				}
-
-				res.setResult(user);
-				return res;
-			}
-
-			emailAddress = emailAddress.toLowerCase();
-
-			User user = new User();
-			user.setName(name);
-			user.setLastname(lastname);
-
-			user.setEmail(emailAddress);
-			user.setVerified(emailVerified);
-			user.setVerificationKey(UUID.randomUUID().toString().replace("-", ""));
-
-			if (organizationId > 0) {
-				user.setOrganization((Organization) persistence.currentManager().load(Organization.class, organizationId));
-			}
-
-			if (password != null) {
-				user.setPassword(passwordEncoder.encode(password));
-				user.setPasswordLength(password.length());
-			}
-
-			user.setSystem(system);
-			user.setPosition(position);
-
-			user.setUserType(UserType.REGULAR_USER);
-
-			if (roles != null) {
-				for (Long id : roles) {
-					Role role = (Role) persistence.currentManager().load(Role.class, id);
-					user.addRole(role);
-				}
-			}
-			user = saveEntity(user);
-
-			try {
-				if (avatarStream != null) {
-					user.setAvatarUrl(avatarProcessor.storeUserAvatar(
-							user.getId(), avatarStream, avatarFilename, true));
-				}
-			} catch (IOException e) {
-				logger.error(e);
-			}
-			res.setResult(user);
-			res.appendEvent(eventFactory.generateEventData(EventType.Registered, context, user, null, null, null));
-		} catch (Exception e) {
-			logger.error("Error", e);
-			throw new DbConnectionException("Error saving new user account");
-		}
-		return res;
-	}
-
 	/**
 	 * Creates or updates user and retrieves it with information if user account is just created.
 	 *
@@ -1158,8 +1094,8 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 				roleIds.add(roleId);
 			}
 			if (!checkIfUserExists(emailAddress)) {
-				Result<User> newUserRes = createNewUser(context.getOrganizationId(), name, lastname, emailAddress, emailVerified,
-						password, position, system, avatarStream, avatarFilename, roleIds, context);
+				Result<User> newUserRes = createNewUserAndGetEvents(context.getOrganizationId(), name, lastname, emailAddress, emailVerified,
+						password, position, avatarStream, avatarFilename, roleIds, system);
 				Result<UserCreationData> res = new Result<>();
 				res.setResult(new UserCreationData(newUserRes.getResult(), true));
 				res.appendEvents(newUserRes.getEventQueue());

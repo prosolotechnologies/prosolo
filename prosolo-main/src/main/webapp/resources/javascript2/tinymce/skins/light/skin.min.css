@@ -13,7 +13,7 @@
 .mce-btn-group:not(:first-child) { border-left: 3px solid #fff; }
 .mce-menu-item:hover { background: #eee; }
 .mce-menu-item.mce-disabled * { color: #ddd !important; }
-.mce-edit-area { border: 0 solid #ddd; border-width: 1px !important; }
+.mce-edit-area, .mce-top-part { border: 0 solid #ddd; border-width: 1px !important; }
 .mce-toolbar .mce-btn.mce-active {background-color: #dbdbdb; border-color: #ccc;}
 .mce-window {border: none;
 -webkit-box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.15);

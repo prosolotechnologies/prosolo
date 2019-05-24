@@ -113,7 +113,6 @@ public class CredentialCompetenceAssessmentsBeanManager implements AssessmentCom
 					}
 				}
 			} catch (ResourceNotFoundException rnfe) {
-				logger.error("Error", rnfe);
 				PageUtil.notFound();
 			} catch (Exception e) {
 				logger.error("Error", e);

@@ -56,27 +56,6 @@
 									rendered="#{announcementBeanStudent.credentialData.progress == 100}">
 								<div class="tagCompleted item">Completed</div>
 							</ui:fragment>
-
-							<ui:remove>
-								<h:link outcome="/assessments"
-										class="btn btn-green-stroke btn-sm item">
-									View Assessments
-									<f:param name="id" value="#{param.id}" />
-								</h:link>
-
-								<h:commandButton styleClass="btn btn-green btn-sm item"
-												 data-toggle="modal"
-												 value="Ask for Assessment"
-												 data-target="#askAssessmentPeer" onclick="$('#askAssessmentPeer').modal('show');"
-												 actionListener="#{askForAssessmentBean.init(param['id'])}">
-									<f:ajax execute="@this" />
-								</h:commandButton>
-
-								<courses:askForAssessmentModal id='askForAssessmentModal'
-															   credentialTitle="#{announcementBeanStudent.credentialData.idData.title}"
-															   role="#{cc.attrs.role}"
-															   toUpdate=":formMain:growlMain"/>
-							</ui:remove>
 						</div>
 						<div class="whiteBarRight">
 							<h:panelGroup

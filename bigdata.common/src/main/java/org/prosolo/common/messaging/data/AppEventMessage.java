@@ -9,9 +9,12 @@ import org.prosolo.common.event.EventQueue;
 import java.util.List;
 
 /**
+ * It is used for sending application generated events
+ * through messaging service (RabbitMQ)
+ *
  * @author stefanvuckovic
  * @date 2019-04-23
- * @since 1.3
+ * @since 1.3.2
  */
 @AllArgsConstructor
 @Getter

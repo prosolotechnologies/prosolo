@@ -5,11 +5,9 @@ import org.hibernate.Session;
 import org.prosolo.common.domainmodel.user.notifications.NotificationType;
 import org.prosolo.common.domainmodel.user.notifications.ResourceType;
 import org.prosolo.common.event.Event;
-import org.prosolo.services.context.ContextJsonParserService;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
 import org.prosolo.services.notifications.NotificationManager;
 import org.prosolo.services.notifications.eventprocessing.data.NotificationReceiverData;
-import org.prosolo.services.notifications.eventprocessing.data.NotificationSenderData;
 import org.prosolo.services.notifications.eventprocessing.util.AssessmentLinkUtil;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.util.page.PageSection;
@@ -28,9 +26,8 @@ public class CompetenceAssessmentRequestExpiredNotificationEventProcessor extend
 	private static Logger logger = Logger.getLogger(CompetenceAssessmentRequestExpiredNotificationEventProcessor.class);
 
 	public CompetenceAssessmentRequestExpiredNotificationEventProcessor(Event event, Session session, NotificationManager notificationManager,
-                                                                        NotificationsSettingsManager notificationsSettingsManager, UrlIdEncoder idEncoder,
-                                                                        ContextJsonParserService ctxJsonParserService) {
-		super(event, event.getObject().getId(), session, notificationManager, notificationsSettingsManager, idEncoder, ctxJsonParserService);
+                                                                        NotificationsSettingsManager notificationsSettingsManager, UrlIdEncoder idEncoder) {
+		super(event, event.getObject().getId(), session, notificationManager, notificationsSettingsManager, idEncoder);
 	}
 
 	@Override

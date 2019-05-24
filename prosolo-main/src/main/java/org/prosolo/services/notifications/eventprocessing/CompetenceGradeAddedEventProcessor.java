@@ -23,7 +23,6 @@ public class CompetenceGradeAddedEventProcessor extends GradeAddedEventProcessor
 
 	private static Logger logger = Logger.getLogger(CompetenceGradeAddedEventProcessor.class);
 
-	private ContextJsonParserService contextJsonParserService;
 	private AssessmentManager assessmentManager;
 
 	private CompetenceAssessment assessment;
@@ -32,12 +31,11 @@ public class CompetenceGradeAddedEventProcessor extends GradeAddedEventProcessor
 
 	public CompetenceGradeAddedEventProcessor(Event event, Session session, NotificationManager notificationManager,
 											  NotificationsSettingsManager notificationsSettingsManager, UrlIdEncoder idEncoder,
-											  ContextJsonParserService contextJsonParserService, AssessmentManager assessmentManager,
+											  AssessmentManager assessmentManager,
 											  CredentialManager credentialManager, Competence1Manager competenceManager) {
 		super(event, session, notificationManager, notificationsSettingsManager, idEncoder);
-		this.contextJsonParserService = contextJsonParserService;
 		this.assessmentManager = assessmentManager;
-		context = contextJsonParserService.parseContext(event.getContext());
+		context = ContextJsonParserService.parseContext(event.getContext());
 		credentialId = Context.getIdFromSubContextWithName(context, ContextName.CREDENTIAL);
 		assessment = (CompetenceAssessment) session.load(CompetenceAssessment.class, event.getObject().getId());
 	}
@@ -66,7 +64,7 @@ public class CompetenceGradeAddedEventProcessor extends GradeAddedEventProcessor
 
 	@Override
 	protected String getNotificationLink() {
-		Context context = contextJsonParserService.parseContext(event.getContext());
+		Context context = ContextJsonParserService.parseContext(event.getContext());
 		long competenceId = Context.getIdFromSubContextWithName(context, ContextName.COMPETENCE);
 		long competenceAssessmentId = Context.getIdFromSubContextWithName(context, ContextName.COMPETENCE_ASSESSMENT);
 		return AssessmentLinkUtil.getAssessmentNotificationLink(

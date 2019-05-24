@@ -4,7 +4,6 @@ import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.prosolo.common.domainmodel.user.notifications.ResourceType;
 import org.prosolo.common.event.Event;
-import org.prosolo.services.context.ContextJsonParserService;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
 import org.prosolo.services.notifications.NotificationManager;
 import org.prosolo.services.notifications.eventprocessing.data.NotificationReceiverData;
@@ -21,9 +20,8 @@ public abstract class CompetenceAssessmentStatusChangeByAssessorEventProcessor e
 	private static Logger logger = Logger.getLogger(CompetenceAssessmentStatusChangeByAssessorEventProcessor.class);
 
 	public CompetenceAssessmentStatusChangeByAssessorEventProcessor(Event event, Session session, NotificationManager notificationManager,
-																	NotificationsSettingsManager notificationsSettingsManager, UrlIdEncoder idEncoder,
-																	ContextJsonParserService ctxJsonParserService) {
-		super(event, event.getObject().getId(), session, notificationManager, notificationsSettingsManager, idEncoder, ctxJsonParserService);
+																	NotificationsSettingsManager notificationsSettingsManager, UrlIdEncoder idEncoder) {
+		super(event, event.getObject().getId(), session, notificationManager, notificationsSettingsManager, idEncoder);
 	}
 
 	@Override

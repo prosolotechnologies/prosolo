@@ -84,10 +84,7 @@ public class ActivityViewBeanUser implements Serializable {
 	private boolean mandatoryOrder;
 
 	public void init() {
-		List<String> roles = new ArrayList<>();
-		roles.add(SystemRoleNames.MANAGER);
-		roles.add(SystemRoleNames.INSTRUCTOR);
-		boolean hasManagerOrInstructorRole = roleManager.hasAnyRole(loggedUser.getUserId(), roles);
+		boolean hasManagerOrInstructorRole = roleManager.hasAnyRole(loggedUser.getUserId(), List.of(SystemRoleNames.MANAGER, SystemRoleNames.INSTRUCTOR));
 		if (hasManagerOrInstructorRole) {
 			this.roles = "Instructor";
 		} else {
@@ -96,15 +93,10 @@ public class ActivityViewBeanUser implements Serializable {
 		
 		decodedActId = idEncoder.decodeId(actId);
 		decodedCompId = idEncoder.decodeId(compId);
-		
-		initializeActivityData();
-	}
-	
-	private void initializeActivityData() {
-		if (decodedActId > 0 && decodedCompId > 0) {
-			try {
-				decodedCredId = idEncoder.decodeId(credId);
+		decodedCredId = idEncoder.decodeId(credId);
 
+		if (decodedActId > 0 && decodedCompId > 0 && decodedCredId > 0) {
+			try {
 				ResourceAccessRequirements req = ResourceAccessRequirements
 						.of(AccessMode.USER)
 						.addPrivilege(UserGroupPrivilege.Learn)
@@ -112,11 +104,19 @@ public class ActivityViewBeanUser implements Serializable {
 
 				access = compManager.getResourceAccessData(decodedCompId, loggedUser.getUserId(), req);
 
-				competenceData = activityManager
-						.getFullTargetActivityOrActivityData(decodedCredId,
+				if (!access.isCanAccess()) {
+					PageUtil.accessDenied();
+					return;
+				}
+
+				// check if credential, competency and activity are mutually connected
+				activityManager.checkIfActivityAndCompetenceArePartOfCredential(decodedCredId, decodedCompId, decodedActId);
+
+				competenceData = activityManager.getFullTargetActivityOrActivityData(decodedCredId,
 								decodedCompId, decodedActId, loggedUser.getUserId(), false);
+
 				//if user is enrolled he can always access the resource
-				if (!competenceData.getActivityToShowWithDetails().isEnrolled() && !access.isCanAccess()) {
+				if (!competenceData.getActivityToShowWithDetails().isEnrolled()) {
 					PageUtil.accessDenied();
 				} else {
 					commentsData = new CommentsData(CommentedResourceType.Activity, 
@@ -233,11 +233,7 @@ public class ActivityViewBeanUser implements Serializable {
 			compManager.enrollInCompetence(decodedCredId, decodedCompId, loggedUser.getUserId(), loggedUser.getUserContext(lcd));
 			//initializeActivityData();
 
-			if (decodedCredId > 0) {
-				PageUtil.redirect("/credentials/" + credId + "/" + compId + "/" + actId);
-			} else {
-				PageUtil.redirect("/competences/" + compId + "/" + actId);
-			}
+			PageUtil.redirect("/credentials/" + credId + "/competences/" + compId + "/activities/" + actId);
 		} catch(DbConnectionException e) {
 			logger.error("Error", e);
 			PageUtil.fireErrorMessage(e.getMessage());

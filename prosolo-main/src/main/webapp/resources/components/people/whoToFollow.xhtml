@@ -28,14 +28,15 @@
 					<ui:repeat var="user" value="#{usersToFollowBean.usersToFollow}">
 						<li>
 							<div class="user32">
-								<h:link outcome="/profile">
-									<utilcomp:userAvatar avatar="#{user.avatarUrl}" fullName="#{user.name}" width="32" height="32" />
-									<f:param name="id" value="#{util:encodeId(user.id)}" />
+								<h:link outcome="/profile-legacy">
+									<utilcomp:userAvatar avatar="#{user.avatarUrl}"
+														 fullName="#{user.name}" />
+									<f:param name="studentId" value="#{util:encodeId(user.id)}" />
 								</h:link>
 								<h3>
-									<h:link outcome="/profile">
+									<h:link outcome="/profile-legacy">
 										#{user.name}
-										<f:param name="id" value="#{util:encodeId(user.id)}" />
+										<f:param name="studentId" value="#{util:encodeId(user.id)}" />
 									</h:link>
 								</h3>
 							</div> 

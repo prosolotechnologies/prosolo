@@ -14,6 +14,13 @@ import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.messaging.impl.SessionMessageHandlerImpl;
 
+/**
+ * Message worker that handles {@link AppEventMessage}
+ *
+ * @author stefanvuckovic
+ * @date 2019-04-23
+ * @since 1.3.2
+ */
 public class AppEventMessageWorker implements MessageWorker {
 
 	private static Logger logger = Logger.getLogger(AppEventMessageWorker.class);

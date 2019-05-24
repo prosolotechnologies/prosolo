@@ -21,6 +21,13 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * DAO for credential and competency assessment entities
+ *
+ * @author stefanvuckovic
+ * @date 2019-04-23
+ * @since 1.3.2
+ */
 public class AssessmentDAOImpl implements AssessmentDAO {
 
     private static Logger logger = Logger.getLogger(AssessmentDAOImpl.class);

@@ -2,7 +2,7 @@ package org.prosolo.services.util.url;
 
 import org.prosolo.services.media.util.LinkParserException;
 import org.prosolo.services.media.util.SlideShareUtils;
-import org.prosolo.services.nodes.data.activity.attachmentPreview.MediaData;
+import org.prosolo.services.nodes.data.statusWall.MediaData;
 
 import java.net.URI;
 import java.util.regex.Matcher;
