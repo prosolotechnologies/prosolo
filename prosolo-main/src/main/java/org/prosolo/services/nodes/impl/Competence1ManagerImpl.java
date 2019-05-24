@@ -21,6 +21,8 @@ import org.prosolo.common.domainmodel.rubric.Rubric;
 import org.prosolo.common.domainmodel.rubric.RubricType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
+import org.prosolo.common.event.EventData;
+import org.prosolo.common.event.EventQueue;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.search.util.competences.CompetenceSearchFilter;
@@ -29,9 +31,7 @@ import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.assessment.RubricManager;
 import org.prosolo.services.assessment.data.AssessmentTypeConfig;
 import org.prosolo.services.data.Result;
-import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventFactory;
-import org.prosolo.services.event.EventQueue;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.config.competence.CompetenceLoadConfig;
@@ -97,7 +97,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		//self-invocation
 		Result<Competence1> res = self.saveNewCompetenceAndGetEvents(data, credentialId, context);
 
-		eventFactory.generateEvents(res.getEventQueue());
+		eventFactory.generateAndPublishEvents(res.getEventQueue());
 		return res.getResult();
 	}
 
@@ -318,7 +318,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	public TargetCompetence1 enrollInCompetence(long credId, long compId, long userId, UserContextData context)
 			throws DbConnectionException {
 		Result<TargetCompetence1> res = self.enrollInCompetenceAndGetEvents(credId, compId, userId, context);
-		eventFactory.generateEvents(res.getEventQueue());
+		eventFactory.generateAndPublishEvents(res.getEventQueue());
 		return res.getResult();
 	}
 
@@ -499,7 +499,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			}
 
 			Result<Competence1> updatedComp = resourceFactory.updateCompetence(data, context);
-			eventFactory.generateEvents(updatedComp.getEventQueue());
+			eventFactory.generateAndPublishEvents(updatedComp.getEventQueue());
 			/* 
 			 * flushing to force lock timeout exception so it can be caught here.
 			 * It is rethrown as StaleDataException.
@@ -523,7 +523,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	}
 
 	private EventData fireCompEditEvent(CompetenceData1 data, Competence1 updatedComp,
-								   UserContextData context) {
+										UserContextData context) {
 		Map<String, String> params = new HashMap<>();
 		CompetenceChangeTracker changeTracker = new CompetenceChangeTracker(data.isPublished(),
 				data.isPublishedChanged(), data.isTitleChanged(), data.isDescriptionChanged(), false,
@@ -1318,7 +1318,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			EventQueue events =
 					self.updateCompetenceVisibilityAndGetEvents(compId, groups, users, visibleToAll,
 							visibleToAllChanged, context);
-			eventFactory.generateEvents(events);
+			eventFactory.generateAndPublishEvents(events);
 		} catch (DbConnectionException e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -1461,7 +1461,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	public void bookmarkCompetence(long compId, UserContextData context)
 			throws DbConnectionException {
 		Result<Void> res = self.bookmarkCompetenceAndGetEvents(compId, context);
-		eventFactory.generateEvents(res.getEventQueue());
+		eventFactory.generateAndPublishEvents(res.getEventQueue());
 	}
 
 	@Override
@@ -1495,7 +1495,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	public void deleteCompetenceBookmark(long compId, UserContextData context)
 			throws DbConnectionException {
 		Result<Void> res = self.deleteCompetenceBookmarkAndGetEvents(compId, context);
-		eventFactory.generateEvents(res.getEventQueue());
+		eventFactory.generateAndPublishEvents(res.getEventQueue());
 	}
 	
 	@Override
@@ -1626,7 +1626,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	public void archiveCompetence(long compId, UserContextData context)
 			throws DbConnectionException {
 		Result<Void> res = self.archiveCompetenceAndGetEvents(compId, context);
-		eventFactory.generateEvents(res.getEventQueue());
+		eventFactory.generateAndPublishEvents(res.getEventQueue());
 	}
 
 	@Override
@@ -1815,7 +1815,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	public long duplicateCompetence(long compId, UserContextData context)
 			throws DbConnectionException {
 		Result<Competence1> res = self.duplicateCompetenceAndGetEvents(compId, context);
-		eventFactory.generateEvents(res.getEventQueue());
+		eventFactory.generateAndPublishEvents(res.getEventQueue());
 		return res.getResult().getId();
 	}
 
@@ -2019,7 +2019,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	public void restoreArchivedCompetence(long compId, UserContextData context)
 			throws DbConnectionException {
 		Result<Void> res = self.restoreArchivedCompetenceAndGetEvents(compId, context);
-		eventFactory.generateEvents(res.getEventQueue());
+		eventFactory.generateAndPublishEvents(res.getEventQueue());
 	}
 	
 	@Override
@@ -2387,7 +2387,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	@Override
 	//nt
 	public void changeOwner(long compId, long newOwnerId, UserContextData context) throws DbConnectionException {
-		eventFactory.generateEvents(self.changeOwnerAndGetEvents(compId, newOwnerId, context).getEventQueue());
+		eventFactory.generateAndPublishEvents(self.changeOwnerAndGetEvents(compId, newOwnerId, context).getEventQueue());
 	}
 
 	@Override
@@ -2486,7 +2486,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	//nt
 	public void completeCompetence(long targetCompetenceId, long credentialId, UserContextData context) throws DbConnectionException {
 		Result<Void> res = self.completeCompetenceAndGetEvents(targetCompetenceId, credentialId, context);
-		eventFactory.generateEvents(res.getEventQueue());
+		eventFactory.generateAndPublishEvents(res.getEventQueue());
 	}
 
 	@Override

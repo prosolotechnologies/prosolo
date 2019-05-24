@@ -31,11 +31,13 @@ public class NotificationDataFactory {
 		n.setRead(notification.isRead());
 		n.setDate(notification.getDateCreated());
 		n.setNotificationType(notification.getType());
-		UserData actor;
-		if (notification.isAnonymizedActor()) {
-			actor = getAnonymousActor(notification.getActor().getId(), notification.getNotificationActorRole());
-		} else {
-			actor = new UserData(notification.getActor());
+		UserData actor = null;
+		if (notification.getActor() != null) {
+			if (notification.isAnonymizedActor()) {
+				actor = getAnonymousActor(notification.getActor().getId(), notification.getNotificationActorRole());
+			} else {
+				actor = new UserData(notification.getActor());
+			}
 		}
 		n.setActor(actor);
 		n.setSection(notificationSectionDataFactory.getSectionData(section));
@@ -48,11 +50,27 @@ public class NotificationDataFactory {
 		n.setLink(notification.getLink());
 		n.setObjectId(notification.getObjectId());
 		n.setObjectType(notification.getObjectType());
-		n.setObjectTitle(objectTitle != null ? objectTitle : "");
+		String objTitle = null;
+		if (notification.getObjectId() > 0) {
+			if (notification.getObjectType() == ResourceType.Student) {
+				objTitle = notification.isAnonymizedActor() ? getAnonymousUserName(notification.getObjectId(), NotificationActorRole.STUDENT) : objectTitle;
+			} else {
+				objTitle = objectTitle;
+			}
+		}
+		n.setObjectTitle(objTitle != null ? objTitle : "");
 		
 		n.setTargetId(notification.getTargetId());
 		n.setTargetType(notification.getTargetType());
-		n.setTargetTitle(targetTitle != null ? targetTitle : "");
+		String tarTitle = null;
+		if (notification.getTargetId() > 0) {
+			if (n.getTargetType() == ResourceType.Student) {
+				tarTitle = notification.isAnonymizedActor() ? getAnonymousUserName(notification.getTargetId(), NotificationActorRole.STUDENT) : targetTitle;
+			} else {
+				tarTitle = targetTitle;
+			}
+		}
+		n.setTargetTitle(tarTitle != null ? tarTitle : "");
 
 		if (locale != null) {
 			n.setPredicate(getNotificationPredicate(n.getNotificationType(), n.getObjectType(),
@@ -67,6 +85,12 @@ public class NotificationDataFactory {
 
 	private UserData getAnonymousActor(long actorId, NotificationActorRole notificationActorRole) {
 		UserData user = new UserData();
+		user.setFullName(getAnonymousUserName(actorId, notificationActorRole));
+		user.setAvatarUrl(CommonSettings.getInstance().config.appConfig.domain + "resources/images2/avatar-ph.png");
+		return user;
+	}
+
+	private String getAnonymousUserName(long actorId, NotificationActorRole notificationActorRole) {
 		String anonymousName = "Anonymous ";
 		switch (notificationActorRole) {
 			case ASSESSOR:
@@ -79,9 +103,7 @@ public class NotificationDataFactory {
 				anonymousName += "User ";
 				break;
 		}
-		user.setFullName(anonymousName += idEncoder.encodeId(actorId));
-		user.setAvatarUrl(CommonSettings.getInstance().config.appConfig.domain + "resources/images2/avatar-ph.png");
-		return user;
+		return anonymousName + idEncoder.encodeId(actorId);
 	}
 
 	public String getNotificationPredicate(NotificationType notificationType, ResourceType objectType,

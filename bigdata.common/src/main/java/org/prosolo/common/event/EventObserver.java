@@ -1,12 +1,12 @@
 /**
  * 
  */
-package org.prosolo.services.event;
-
-import java.util.Collection;
+package org.prosolo.common.event;
 
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
+
+import java.util.Collection;
 
 /**
  * This interface should be implemented by class which would like to be able to

@@ -11,6 +11,7 @@ import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.event.EventQueue;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.services.annotation.Annotation1Manager;
 import org.prosolo.services.data.Result;
@@ -355,7 +356,7 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 		try {
 			Result<Void> res = self.likeCommentAndGetEvents(commentId, context);
 
-			eventFactory.generateEvents(res.getEventQueue());
+			eventFactory.generateAndPublishEvents(res.getEventQueue());
 		} catch (DbConnectionException dbe) {
 			logger.error(dbe);
 			dbe.printStackTrace();
@@ -392,10 +393,17 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 			throw new DbConnectionException("Error  saving comment like");
 		}
 	}
+
+	@Override
+	public void unlikeComment(long commentId, UserContextData context)
+			throws DbConnectionException {
+		Result<Void> res = self.unlikeCommentAndGetEvents(commentId, context);
+		eventFactory.generateAndPublishEvents(res.getEventQueue());
+	}
 	
 	@Override
 	@Transactional (readOnly = false)
-	public void unlikeComment(long commentId, UserContextData context)
+	public Result<Void> unlikeCommentAndGetEvents(long commentId, UserContextData context)
 			throws DbConnectionException {
 		try {
 			annotationManager.deleteAnnotation(context.getActorId(), commentId, AnnotatedResource.Comment,
@@ -410,11 +418,17 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 			
 			Comment1 comment = new Comment1();
 			comment.setId(commentId);
-			
-			eventFactory.generateEvent(EventType.RemoveLike, context, comment, null, null, null);
+			return Result.of(
+					EventQueue.of(
+							eventFactory.generateEventData(
+									EventType.RemoveLike,
+									context,
+									comment,
+									null,
+									null,
+									null)));
 		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
+			logger.error("error", e);
 			throw new DbConnectionException("Error saving comment like");
 		}
 	}
@@ -439,7 +453,7 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 		try {
 			Result<Comment1> res = self.saveNewCommentAndGetEvents(data, resource, context);
 
-			eventFactory.generateEvents(res.getEventQueue());
+			eventFactory.generateAndPublishEvents(res.getEventQueue());
 
 			return res.getResult();
 		} catch (DbConnectionException dbe) {
@@ -505,20 +519,34 @@ public class CommentManagerImpl extends AbstractManagerImpl implements CommentMa
 			throw new DbConnectionException("Error saving activity");
 		}
 	}
-	
+
+	@Override
+	public void updateComment(CommentData data, UserContextData context)
+			throws DbConnectionException {
+		Result<Void> res = self.updateCommentAndGetEvents(data, context);
+		eventFactory.generateAndPublishEvents(res.getEventQueue());
+	}
+
 	@Override
 	@Transactional (readOnly = false)
-	public void updateComment(CommentData data, UserContextData context)
+	public Result<Void> updateCommentAndGetEvents(CommentData data, UserContextData context)
 			throws DbConnectionException {
 		try {
 			Comment1 comment = (Comment1) persistence.currentManager().load(Comment1.class, 
 					data.getCommentId());
 			comment.setDescription(data.getComment());
-			
-			eventFactory.generateEvent(EventType.Edit, context, comment, null,null, null);
+
+			return Result.of(
+					EventQueue.of(
+							eventFactory.generateEventData(
+									EventType.Edit,
+									context,
+									comment,
+									null,
+									null,
+									null)));
 		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
+			logger.error("error", e);
 			throw new DbConnectionException("Error updating comment");
 		}
 	}

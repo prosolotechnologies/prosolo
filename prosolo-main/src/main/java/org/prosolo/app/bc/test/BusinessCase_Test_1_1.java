@@ -4,8 +4,8 @@ import org.apache.log4j.Logger;
 import org.prosolo.app.bc.BaseBusinessCase5;
 import org.prosolo.common.domainmodel.lti.LtiTool;
 import org.prosolo.common.domainmodel.lti.ResourceType;
+import org.prosolo.common.event.EventQueue;
 import org.prosolo.core.spring.ServiceLocator;
-import org.prosolo.services.event.EventQueue;
 import org.prosolo.services.lti.ToolSetManager;
 
 /**

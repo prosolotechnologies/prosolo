@@ -16,7 +16,7 @@ import java.util.concurrent.TimeoutException;
 //import org.prosolo.app.Settings;
 
 /**
-@author Zoran Jeremic Sep 7, 2014
+ @author Zoran Jeremic Sep 7, 2014
  */
 
 public class ReliableClientImpl implements ReliableClient {
@@ -28,7 +28,6 @@ public class ReliableClientImpl implements ReliableClient {
 
 	protected void waitForConnection() throws InterruptedException {
 		while (true) {
-			if (this.connection == null && this.channel == null) {
 			ConnectionFactory factory = new ConnectionFactory();
 			ArrayList<Address> addresses = new ArrayList<Address>();
 			// for (int i = 0; i < rabbitMQConfig.hosts.length; ++i) {
@@ -49,26 +48,17 @@ public class ReliableClientImpl implements ReliableClient {
 				factory.setPort(this.rabbitmqConfig.port);
 				factory.setUsername(this.rabbitmqConfig.username);
 				factory.setPassword(this.rabbitmqConfig.password);
+				factory.setRequestedHeartbeat(7);
 				this.connection = factory.newConnection();
 				this.channel = this.connection.createChannel();
-				String exchange=this.queue;
-				//String exchange=this.rabbitmqConfig.exchange;
-			//this.channel.exchangeDeclare(exchange,
-						//"direct", this.rabbitmqConfig.durableQueue);
-				this.channel.exchangeDeclare(exchange,
-						"direct");
-				// Map<String, Object> args = new HashMap<String, Object>();
-				// args.put("x-message-ttl", rabbitmqConfig.exchange);
+
 				this.channel.queueDeclare(this.queue,
 						this.rabbitmqConfig.durableQueue,
 						this.rabbitmqConfig.exclusiveQueue,
 						this.rabbitmqConfig.autodeleteQueue, null);
-				this.channel.queueBind(this.queue,
-						exchange,
-						this.rabbitmqConfig.routingKey);
-						//this.rabbitmqConfig.routingKey+" "+this.queue);
-			 	logger.debug("DECLARE CHANNEL: exchange:"+exchange+" queue:"+this.queue+" routing key:"+this.rabbitmqConfig.routingKey+" durable:"+this.rabbitmqConfig.durableQueue
-			 			 +" exclusive:"+this.rabbitmqConfig.exclusiveQueue+" autodelete:"+this.rabbitmqConfig.autodeleteQueue);
+
+				logger.debug("DECLARE CHANNEL: queue:"+this.queue+" routing key:"+this.rabbitmqConfig.routingKey+" durable:"+this.rabbitmqConfig.durableQueue
+						+" exclusive:"+this.rabbitmqConfig.exclusiveQueue+" autodelete:"+this.rabbitmqConfig.autodeleteQueue);
 				return;
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -81,7 +71,6 @@ public class ReliableClientImpl implements ReliableClient {
 				this.disconnect();
 				Thread.sleep(1000);
 			}
-			}else {}
 		}
 	}
 
@@ -102,10 +91,10 @@ public class ReliableClientImpl implements ReliableClient {
 		}
 
 		catch (IOException e) {
-			// just ignore
-			e.printStackTrace();
+			logger.error("error", e);
 		}
 	}
+
 	@Override
 	public String getQueue() {
 		return this.queue;
@@ -114,6 +103,10 @@ public class ReliableClientImpl implements ReliableClient {
 	@Override
 	public void setQueue(String queue) {
 		this.queue = CommonSettings.getInstance().config.rabbitMQConfig.queuePrefix+queue+CommonSettings.getInstance().config.getNamespaceSufix();
+	}
+
+	public boolean isConnected() {
+		return connection != null && connection.isOpen();
 	}
 
 }

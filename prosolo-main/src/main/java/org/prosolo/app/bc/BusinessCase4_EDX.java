@@ -14,6 +14,7 @@ import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.organization.Unit;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
+import org.prosolo.common.event.EventQueue;
 import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.util.date.DateUtil;
@@ -22,7 +23,6 @@ import org.prosolo.services.admin.BulkDataAdministrationService;
 import org.prosolo.services.assessment.data.AssessmentTypeConfig;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventFactory;
-import org.prosolo.services.event.EventQueue;
 import org.prosolo.services.indexing.impl.NodeChangeObserver;
 import org.prosolo.services.interaction.CommentManager;
 import org.prosolo.services.interaction.FollowResourceManager;
@@ -803,7 +803,7 @@ public class BusinessCase4_EDX {
 		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(FollowResourceManager.class).followUserAndGetEvents(userSheriLaureano.getId(),  createUserContext(userJosephGarcia)));
 		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(FollowResourceManager.class).followUserAndGetEvents(userKevinHall.getId(),  createUserContext(userAngelicaFallon)));
 
-		ServiceLocator.getInstance().getService(EventFactory.class).generateEvents(events, new Class[]{NodeChangeObserver.class});
+		ServiceLocator.getInstance().getService(EventFactory.class).generateAndPublishEvents(events, new Class[]{NodeChangeObserver.class});
 
 		try {
 			logger.info("Reindexing all indices since we know some observers have failed");

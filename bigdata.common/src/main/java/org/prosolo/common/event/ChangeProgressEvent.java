@@ -1,8 +1,8 @@
-package org.prosolo.services.event;
-
-import javax.persistence.Column;
+package org.prosolo.common.event;
 
 import org.prosolo.common.domainmodel.events.EventType;
+
+import javax.persistence.Column;
 
 //@Entity
 public class ChangeProgressEvent extends Event {

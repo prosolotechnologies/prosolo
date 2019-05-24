@@ -1,5 +1,12 @@
 package org.prosolo.common.messaging.rabbitmq.impl;
 
+import com.rabbitmq.client.AMQP.BasicProperties;
+import com.rabbitmq.client.ConfirmListener;
+import org.prosolo.common.config.CommonSettings;
+import org.prosolo.common.messaging.data.DataItem;
+import org.prosolo.common.messaging.data.DataQueue;
+import org.prosolo.common.messaging.rabbitmq.ReliableProducer;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -7,15 +14,8 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.prosolo.common.config.CommonSettings;
-import org.prosolo.common.messaging.data.DataItem;
-import org.prosolo.common.messaging.data.DataQueue;
-import org.prosolo.common.messaging.rabbitmq.ReliableProducer;
-
-import com.rabbitmq.client.AMQP.BasicProperties;
-import com.rabbitmq.client.ConfirmListener;
 /**
-@author Zoran Jeremic Apr 3, 2015
+ @author Zoran Jeremic Apr 3, 2015
  *
  */
 
@@ -113,7 +113,7 @@ public class ReliableProducerImpl  extends ReliableClientImpl implements Reliabl
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.prosolo.services.messaging.rabbitmq.impl.ReliableProducer#send(java
 	 * .lang.String)
@@ -129,7 +129,7 @@ public class ReliableProducerImpl  extends ReliableClientImpl implements Reliabl
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.prosolo.services.messaging.rabbitmq.impl.ReliableProducer#
 	 * startAsynchronousPublisher()
 	 */
@@ -141,11 +141,8 @@ public class ReliableProducerImpl  extends ReliableClientImpl implements Reliabl
 			@Override
 			public void run() {
 				try {
-					for (;;) {
-						ReliableProducerImpl.this.waitForConnection();
-						ReliableProducerImpl.this.publishFromLocalQueue();
-						ReliableProducerImpl.this.disconnect();
-					}
+					ReliableProducerImpl.this.waitForConnection();
+					ReliableProducerImpl.this.publishFromLocalQueue();
 				} catch (InterruptedException ex) {
 					// disconnect and exit
 					ReliableProducerImpl.this.disconnect();
@@ -157,7 +154,7 @@ public class ReliableProducerImpl  extends ReliableClientImpl implements Reliabl
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.prosolo.services.messaging.rabbitmq.impl.ReliableProducer#
 	 * stopAsynchronousPublisher()
 	 */
@@ -171,15 +168,7 @@ public class ReliableProducerImpl  extends ReliableClientImpl implements Reliabl
 			for (;;) {
 				synchronized (this.dataQueue) {
 					if (this.dataQueue.isEmpty()) {
-						this.dataQueue.wait(1000);
-						// if the queue stays empty for more then one second,
-						// disconnect and
-						// wait offline
-						if (this.dataQueue.isEmpty()) {
-							this.disconnect();
-							this.dataQueue.wait();
-							this.waitForConnection();
-						}
+						this.dataQueue.wait();
 					}
 				}
 				DataItem item = this.dataQueue.peek();

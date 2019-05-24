@@ -12,7 +12,8 @@ public enum ResourceType {
 	PostSocialActivity("PostSocialActivity1"), 
 	Announcement("Announcement"),
 	SocialActivity("SocialActivity1"),
-	ActivityResult("TargetActivity1");
+	ActivityResult("TargetActivity1"),
+    Student("User");
 
 	private String dbTableName;
 	

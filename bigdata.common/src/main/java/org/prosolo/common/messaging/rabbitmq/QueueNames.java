@@ -5,6 +5,6 @@ package org.prosolo.common.messaging.rabbitmq;
  */
 
 public enum QueueNames {
-	LOGS, SESSION, SYSTEM, ANALYTICS, BROADCAST
+	LOGS, SESSION, SYSTEM, ANALYTICS, BROADCAST, APP_EVENT
 }
 

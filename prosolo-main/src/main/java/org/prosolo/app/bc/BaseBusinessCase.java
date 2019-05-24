@@ -21,6 +21,7 @@ import org.prosolo.common.domainmodel.rubric.RubricType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroup;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
+import org.prosolo.common.event.EventQueue;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.core.db.hibernate.HibernateUtil;
@@ -37,7 +38,6 @@ import org.prosolo.services.assessment.data.CompetenceAssessmentDataFull;
 import org.prosolo.services.assessment.data.grading.*;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventFactory;
-import org.prosolo.services.event.EventQueue;
 import org.prosolo.services.htmlparser.LinkParser;
 import org.prosolo.services.htmlparser.LinkParserFactory;
 import org.prosolo.services.indexing.impl.NodeChangeObserver;
@@ -131,7 +131,7 @@ public abstract class BaseBusinessCase {
             createAdditionalData(events);
 
             // fire all events
-            ServiceLocator.getInstance().getService(EventFactory.class).generateEvents(events, new Class[]{NodeChangeObserver.class});
+            ServiceLocator.getInstance().getService(EventFactory.class).generateAndPublishEvents(events, new Class[]{NodeChangeObserver.class});
 
             getLogger().info("Reindexing all indices since we know some observers have failed");
             ServiceLocator.getInstance().getService(BulkDataAdministrationService.class).deleteAndReindexDBESIndexes();

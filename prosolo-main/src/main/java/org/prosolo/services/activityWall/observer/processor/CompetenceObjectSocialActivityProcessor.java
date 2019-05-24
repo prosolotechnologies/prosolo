@@ -6,11 +6,11 @@ import org.prosolo.common.domainmodel.activitywall.SocialActivity1;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.event.Event;
 import org.prosolo.common.event.context.Context;
 import org.prosolo.common.event.context.ContextName;
 import org.prosolo.services.activityWall.SocialActivityManager;
 import org.prosolo.services.context.ContextJsonParserService;
-import org.prosolo.services.event.Event;
 
 import java.util.Date;
 

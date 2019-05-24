@@ -5,6 +5,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.prosolo.common.domainmodel.events.EventType;
+import org.prosolo.common.event.Event;
+import org.prosolo.common.event.EventObserver;
 
 public class EventProcessingUtil {
 

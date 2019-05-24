@@ -74,7 +74,7 @@ public class DashboardBean implements Serializable {
 		parameters.put("hashtag", hashtag);
 		parameters.put("ip", getIpAddress());
 		//TODO what to do with organization id
-		eventFactory.generateEvent(EventType.HASHTAG_DISABLED, loggedUser.getUserContext(), null, null, null, parameters);
+		eventFactory.generateAndPublishEvent(EventType.HASHTAG_DISABLED, loggedUser.getUserContext(), null, null, null, parameters);
 	}
 
 	public void enableHashtag() {
@@ -85,7 +85,7 @@ public class DashboardBean implements Serializable {
 		parameters.put("hashtag", hashtag);
 		parameters.put("ip", getIpAddress());
 		//TODO what to do with organization id since this is admin section and admins do not have to have organizationId in session
-		eventFactory.generateEvent(EventType.HASHTAG_ENABLED, loggedUser.getUserContext(), null, null, null, parameters);
+		eventFactory.generateAndPublishEvent(EventType.HASHTAG_ENABLED, loggedUser.getUserContext(), null, null, null, parameters);
 	}
 
 }

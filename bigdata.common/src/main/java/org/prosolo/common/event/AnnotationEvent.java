@@ -1,4 +1,4 @@
-package org.prosolo.services.event;
+package org.prosolo.common.event;
 
 import org.prosolo.common.domainmodel.events.EventType;
 

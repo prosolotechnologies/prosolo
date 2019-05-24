@@ -4,12 +4,10 @@ import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
 import org.prosolo.common.domainmodel.credential.BlindAssessmentMode;
+import org.prosolo.common.event.Event;
 import org.prosolo.common.event.context.Context;
 import org.prosolo.services.context.ContextJsonParserService;
-import org.prosolo.services.event.Event;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
-import org.prosolo.services.nodes.Competence1Manager;
-import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.notifications.NotificationManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 
@@ -18,19 +16,14 @@ public abstract class CompetenceAssessmentNotificationEventProcessor extends Ass
 	@SuppressWarnings("unused")
 	private static Logger logger = Logger.getLogger(CompetenceAssessmentNotificationEventProcessor.class);
 
-	private CredentialManager credentialManager;
-	private Competence1Manager competenceManager;
 	private CompetenceAssessment assessment;
 	private long credentialId;
 	private Context context;
 
-	public CompetenceAssessmentNotificationEventProcessor(Event event, Session session, NotificationManager notificationManager,
-                                                          NotificationsSettingsManager notificationsSettingsManager, UrlIdEncoder idEncoder,
-                                                          CredentialManager credentialManager, Competence1Manager competenceManager) {
+	public CompetenceAssessmentNotificationEventProcessor(Event event, long competenceAssessmentId, Session session, NotificationManager notificationManager,
+														  NotificationsSettingsManager notificationsSettingsManager, UrlIdEncoder idEncoder) {
 		super(event, session, notificationManager, notificationsSettingsManager, idEncoder);
-		this.credentialManager = credentialManager;
-		this.competenceManager = competenceManager;
-		assessment = (CompetenceAssessment) session.load(CompetenceAssessment.class, event.getObject().getId());
+		assessment = (CompetenceAssessment) session.load(CompetenceAssessment.class, competenceAssessmentId);
 		context = ContextJsonParserService.parseContext(event.getContext());
 		credentialId = assessment.getTargetCredential().getCredential().getId();
 	}

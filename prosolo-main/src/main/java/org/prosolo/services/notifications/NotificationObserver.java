@@ -8,11 +8,11 @@ import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.interfacesettings.UserSettings;
 import org.prosolo.common.domainmodel.user.notifications.Notification1;
+import org.prosolo.common.event.Event;
+import org.prosolo.common.event.EventObserver;
 import org.prosolo.common.messaging.data.ServiceType;
 import org.prosolo.core.db.hibernate.HibernateUtil;
 import org.prosolo.services.event.CentralEventDispatcher;
-import org.prosolo.services.event.Event;
-import org.prosolo.services.event.EventObserver;
 import org.prosolo.services.interaction.AnalyticalServiceCollector;
 import org.prosolo.services.interfaceSettings.InterfaceSettingsManager;
 import org.prosolo.services.messaging.SessionMessageDistributer;
@@ -67,7 +67,8 @@ public class NotificationObserver extends EventObserver {
 				EventType.GRADE_ADDED,
 				EventType.ASSESSMENT_REQUEST_ACCEPTED,
 				EventType.ASSESSMENT_REQUEST_DECLINED,
-				EventType.ASSESSOR_WITHDREW_FROM_ASSESSMENT
+				EventType.ASSESSOR_WITHDREW_FROM_ASSESSMENT,
+				EventType.ASSESSOR_ASSIGNED_TO_ASSESSMENT
 		};
 	}
 
@@ -161,8 +162,7 @@ public class NotificationObserver extends EventObserver {
 									}
 								});
 							} catch (Exception e) {
-								logger.error(e);
-								e.printStackTrace();
+								logger.error("error", e);
 							}
 						}
 					}

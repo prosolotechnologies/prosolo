@@ -3,7 +3,7 @@ package org.prosolo.services.notifications.eventprocessing;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.prosolo.common.domainmodel.user.notifications.NotificationType;
-import org.prosolo.services.event.Event;
+import org.prosolo.common.event.Event;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
 import org.prosolo.services.notifications.NotificationManager;
 import org.prosolo.services.notifications.eventprocessing.data.NotificationReceiverData;
@@ -18,7 +18,7 @@ public abstract class GradeAddedEventProcessor extends AssessmentNotificationEve
 	private static Logger logger = Logger.getLogger(GradeAddedEventProcessor.class);
 
 	public GradeAddedEventProcessor(Event event, Session session, NotificationManager notificationManager,
-                                    NotificationsSettingsManager notificationsSettingsManager, UrlIdEncoder idEncoder) {
+									NotificationsSettingsManager notificationsSettingsManager, UrlIdEncoder idEncoder) {
 		super(event, session, notificationManager, notificationsSettingsManager, idEncoder);
 	}
 

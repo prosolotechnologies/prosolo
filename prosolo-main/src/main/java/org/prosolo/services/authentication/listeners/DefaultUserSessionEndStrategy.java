@@ -49,7 +49,7 @@ public class DefaultUserSessionEndStrategy implements UserSessionEndStrategy {
 
             Map<String, String> parameters = new HashMap<>();
             parameters.put("ip", userInfo.getIpAddress());
-            eventFactory.generateEvent(EventType.SESSIONENDED, UserContextData.of(
+            eventFactory.generateAndPublishEvent(EventType.SESSIONENDED, UserContextData.of(
                     userInfo.getUserId(), userInfo.getOrganizationId(), session.getId(), userInfo.getIpAddress(), null),
                     null, null, null, parameters);
 

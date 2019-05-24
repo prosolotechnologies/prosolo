@@ -447,6 +447,55 @@
                                                         <br />
 
                                                         {{/hasWithdrawnAssessments}}
+                                                        {{#hasAssignedAssessors}}
+                                                        <br />
+                                                        You have been assigned an assessor in <strong>{{assignedAssessorsCount}} assessment(s)</strong>
+
+                                                        <br />
+                                                        <table border="0" cellpadding="0" cellspacing="0">
+                                                            {{#assignedAssessors}}
+                                                            <tr>
+                                                                <td valign="top">
+                                                                    {{actorFullName}} {{predicate}} <a href="{{link}}">{{objectTitle}}</a>
+                                                                </td>
+                                                            </tr>
+                                                            {{/assignedAssessors}}
+                                                            {{#hasMoreAssignedAssessors}}
+                                                            <tr>
+                                                                <td valign="top" style="padding-top:10px;">
+                                                                    <a href="{{notificationsLink}}?filters=assessor_assigned_to_assessment">View all assigned assessors</a>
+                                                                </td>
+                                                            </tr>
+                                                            {{/hasMoreAssignedAssessors}}
+                                                        </table>
+                                                        <br />
+
+                                                        {{/hasAssignedAssessors}}
+                                                        {{#hasAssignedAssessments}}
+                                                        <br />
+                                                        You have been assigned as assessor in <strong>{{assignedAssessmentsCount}} assessment(s)</strong>
+
+                                                        <br />
+                                                        <table border="0" cellpadding="0" cellspacing="0">
+                                                            {{#assignedAssessments}}
+                                                            <tr>
+                                                                <td valign="top">
+                                                                    {{actorFullName}} {{predicate}} <a href="{{link}}">{{objectTitle}}</a> {{relationToTarget}} {{targetTitle}}
+                                                                </td>
+                                                            </tr>
+                                                            {{/assignedAssessments}}
+                                                            {{#hasMoreAssignedAssessments}}
+                                                            <tr>
+                                                                <td valign="top" style="padding-top:10px;">
+                                                                    <a href="{{notificationsLink}}?filters=assigned_to_assessment_as_assessor">View all assigned assessments</a>
+                                                                </td>
+                                                            </tr>
+                                                            {{/hasMoreAssignedAssessments}}
+                                                        </table>
+                                                        <br />
+
+                                                        {{/hasAssignedAssessments}}
+
                                                         {{#hasGradeAdded}}
                                                         <br />
                                                         You have <strong>{{gradeAddedCount}} new assessments(s) updated</strong>:

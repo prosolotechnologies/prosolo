@@ -13,12 +13,12 @@ import org.prosolo.common.domainmodel.learningStage.LearningStage;
 import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.event.EventQueue;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventFactory;
-import org.prosolo.services.event.EventQueue;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
@@ -70,7 +70,7 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
     public Organization createNewOrganization(OrganizationBasicData organizationBasicData, UserContextData context)
             throws DbConnectionException {
         Result<Organization> res = self.createNewOrganizationAndGetEvents(organizationBasicData, context);
-        eventFactory.generateEvents(res.getEventQueue());
+        eventFactory.generateAndPublishEvents(res.getEventQueue());
         return res.getResult();
     }
 
@@ -102,7 +102,7 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
     @Override
     public void updateOrganizationLearningStages(long orgId, OrganizationLearningStageData organizationLearningStageData, UserContextData context) {
         Result<Void> res = self.updateOrganizationLearningStagesAndGetEvents(orgId, organizationLearningStageData, context);
-        eventFactory.generateEvents(res.getEventQueue());
+        eventFactory.generateAndPublishEvents(res.getEventQueue());
     }
 
     @Override
@@ -367,7 +367,7 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
     public Organization updateOrganizationBasicInfo(long organizationId, OrganizationBasicData organization, UserContextData context)
             throws DbConnectionException {
         Result<Organization> res = self.updateOrganizationBasicInfoAndGetEvents(organizationId, organization, context);
-        eventFactory.generateEvents(res.getEventQueue());
+        eventFactory.generateAndPublishEvents(res.getEventQueue());
         return res.getResult();
     }
 
