@@ -6,18 +6,16 @@ import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.assessment.config.AssessmentLoadConfig;
 import org.prosolo.services.assessment.data.AssessmentTypeConfig;
-import org.prosolo.services.assessment.data.CompetenceAssessmentData;
+import org.prosolo.services.assessment.data.CompetenceAssessmentDataFull;
 import org.prosolo.services.assessment.data.grading.GradeData;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.LearningResourceType;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
-import org.prosolo.web.assessments.util.AssessmentDisplayMode;
 import org.prosolo.web.assessments.util.AssessmentUtil;
 import org.prosolo.web.util.page.PageUtil;
 
 import javax.inject.Inject;
-import java.text.SimpleDateFormat;
 import java.util.List;
 
 /**
@@ -42,9 +40,10 @@ public abstract class CompetenceAssessmentBean extends LearningResourceAssessmen
 	private String credId;
 	private long decodedCredId;
 
-	private CompetenceAssessmentData competenceAssessmentData;
+	private CompetenceAssessmentDataFull competenceAssessmentData;
 
 	private String credentialTitle;
+	private String competenceTitle;
 
 	private List<AssessmentTypeConfig> assessmentTypesConfig;
 
@@ -70,40 +69,46 @@ public abstract class CompetenceAssessmentBean extends LearningResourceAssessmen
 	}
 
 	public void initSelfAssessment() {
-		initAssessment(AssessmentType.SELF_ASSESSMENT);
+		initAssessment(AssessmentType.SELF_ASSESSMENT, true);
 	}
 
 	public void initPeerAssessment() {
-		initAssessment(AssessmentType.PEER_ASSESSMENT);
+		initAssessment(AssessmentType.PEER_ASSESSMENT, true);
 	}
 
 	public void initInstructorAssessment() {
-		initAssessment(AssessmentType.INSTRUCTOR_ASSESSMENT);
+		initAssessment(AssessmentType.INSTRUCTOR_ASSESSMENT, false);
 	}
 
-	public void initAssessment(AssessmentType assessmentType) {
+	public void initAssessment(AssessmentType assessmentType, boolean notFoundIfAssessmentNull) {
 		decodedCompId = idEncoder.decodeId(competenceId);
 		decodedCompAssessmentId = idEncoder.decodeId(competenceAssessmentId);
 		decodedCredId = idEncoder.decodeId(credId);
 
-		if (decodedCompId > 0 && decodedCompAssessmentId > 0) {
+		if (decodedCompId > 0 && decodedCredId > 0) {
 			try {
 				if (!canAccessPreLoad()) {
 					throw new AccessDeniedException();
 				}
 				assessmentTypesConfig = compManager.getCompetenceAssessmentTypesConfig(decodedCompId);
 				if (AssessmentUtil.isAssessmentTypeEnabled(assessmentTypesConfig, assessmentType)) {
-					competenceAssessmentData = assessmentManager.getCompetenceAssessmentData(
-							decodedCompAssessmentId, loggedUserBean.getUserId(), assessmentType, getLoadConfig(), new SimpleDateFormat("MMMM dd, yyyy"));
+					if (decodedCompAssessmentId > 0) {
+						competenceAssessmentData = assessmentManager.getCompetenceAssessmentData(
+								decodedCompAssessmentId, loggedUserBean.getUserId(), assessmentType, AssessmentLoadConfig.of(true, true, true));
+					}
 					if (competenceAssessmentData == null) {
-						PageUtil.notFound();
+						if (notFoundIfAssessmentNull) {
+							PageUtil.notFound();
+						} else {
+							credentialTitle = credManager.getCredentialTitle(decodedCredId);
+							competenceTitle = compManager.getCompetenceTitle(decodedCompId);
+						}
 					} else {
 						if (!canAccessPostLoad()) {
 							throw new AccessDeniedException();
 						}
-						if (decodedCredId > 0) {
-							credentialTitle = credManager.getCredentialTitle(decodedCredId);
-						}
+						credentialTitle = credManager.getCredentialTitle(decodedCredId);
+						competenceTitle = competenceAssessmentData.getTitle();
 					}
 				} else {
 					PageUtil.notFound("This page is no longer available");
@@ -121,18 +126,6 @@ public abstract class CompetenceAssessmentBean extends LearningResourceAssessmen
 
 	abstract boolean canAccessPreLoad();
 	abstract boolean canAccessPostLoad();
-	abstract AssessmentDisplayMode getDisplayMode();
-
-	public boolean isFullDisplayMode() {
-		return getDisplayMode() == AssessmentDisplayMode.FULL;
-	}
-
-	private AssessmentLoadConfig getLoadConfig() {
-		//assessment data should be loaded only if full display mode
-		//also assessment discussion should be loaded only if full display mode
-		boolean fullDisplay = getDisplayMode() == AssessmentDisplayMode.FULL;
-		return AssessmentLoadConfig.of(fullDisplay, fullDisplay, fullDisplay);
-	}
 
 	public boolean isPeerAssessmentEnabled() {
 		return AssessmentUtil.isPeerAssessmentEnabled(assessmentTypesConfig);
@@ -171,7 +164,7 @@ public abstract class CompetenceAssessmentBean extends LearningResourceAssessmen
 	}
 
 	public boolean isUserAllowedToSeeRubric(GradeData gradeData, LearningResourceType resType) {
-		return isFullDisplayMode() && AssessmentUtil.isUserAllowedToSeeRubric(gradeData, resType);
+		return AssessmentUtil.isUserAllowedToSeeRubric(gradeData, resType);
 	}
 
 	/*
@@ -182,11 +175,11 @@ public abstract class CompetenceAssessmentBean extends LearningResourceAssessmen
 	 * GETTERS / SETTERS
 	 */
 
-	public CompetenceAssessmentData getCompetenceAssessmentData() {
+	public CompetenceAssessmentDataFull getCompetenceAssessmentData() {
 		return competenceAssessmentData;
 	}
 
-	public void setCompetenceAssessmentData(CompetenceAssessmentData competenceAssessmentData) {
+	public void setCompetenceAssessmentData(CompetenceAssessmentDataFull competenceAssessmentData) {
 		this.competenceAssessmentData = competenceAssessmentData;
 	}
 
@@ -236,5 +229,13 @@ public abstract class CompetenceAssessmentBean extends LearningResourceAssessmen
 
 	public List<AssessmentTypeConfig> getAssessmentTypesConfig() {
 		return assessmentTypesConfig;
+	}
+
+	public String getCompetenceTitle() {
+		return competenceTitle;
+	}
+
+	public void setCompetenceTitle(String competenceTitle) {
+		this.competenceTitle = competenceTitle;
 	}
 }

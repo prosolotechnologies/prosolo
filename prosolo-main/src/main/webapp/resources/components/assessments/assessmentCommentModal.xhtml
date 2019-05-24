@@ -16,6 +16,7 @@
         <composite:attribute name="blindAssessmentMode" required="true"/>
         <composite:attribute name="toUpdate" default=""/>
         <composite:attribute name="learningContext" default=""/>
+        <composite:attribute name="readOnly" required="true" type="java.lang.Boolean"/>
     </composite:interface>
 
 
@@ -149,11 +150,13 @@
                                                             </div>
 
                                                             <div class="commentOptions">
-                                                                <a href="javascript:void(0)"
-                                                                   class="edit #{compEditComment.isValid() ? '' : 'hidden'}"
-                                                                   onclick="showEditComment($(this).parent().parent()[0]); autosize.update($(escapeColons('##{cc.clientId}:formPrivateConversation:commentList:#{status.index}:textAreaEditComment')));">
-                                                                    <span class="icon"></span>Edit
-                                                                </a>
+                                                                <ui:fragment rendered="#{not cc.attrs.readOnly}">
+                                                                    <a href="javascript:void(0)"
+                                                                       class="edit #{compEditComment.isValid() ? '' : 'hidden'}"
+                                                                       onclick="showEditComment($(this).parent().parent()[0]); autosize.update($(escapeColons('##{cc.clientId}:formPrivateConversation:commentList:#{status.index}:textAreaEditComment')));">
+                                                                        <span class="icon"></span>Edit
+                                                                    </a>
+                                                                </ui:fragment>
                                                             </div>
                                                         </ui:fragment>
                                                     </div>
@@ -163,56 +166,59 @@
                                     </ul>
                                 </ui:fragment>
                             </div>
-                            <div class="addComment">
-                                <ui:fragment rendered="#{loggeduser.userId ne cc.attrs.studentId and loggeduser.userId ne cc.attrs.assessorId}">
-                                    <utilcomp:userAvatar avatar="#{loggeduser.avatar}"
-                                                         fullName="#{loggeduser.fullName}"/>
-                                </ui:fragment>
 
-                                <ui:fragment rendered="#{loggeduser.userId eq cc.attrs.studentId or loggeduser.userId eq cc.attrs.assessorId}">
-                                    <assessment:assessmentActorAvatar
-                                            actorId="#{loggeduser.userId}"
-                                            avatarUrl="#{loggeduser.avatar}"
-                                            actorFullName="#{loggeduser.fullName}"
-                                            blindAssessmentMode="#{cc.attrs.blindAssessmentMode}"
-                                            actorType="#{loggeduser.userId eq cc.attrs.assessorId ? 'ASSESSOR' : 'STUDENT'}"
-                                    />
-                                </ui:fragment>
+                            <ui:fragment rendered="#{not cc.attrs.readOnly}">
+                                <div class="addComment">
+                                    <ui:fragment rendered="#{loggeduser.userId ne cc.attrs.studentId and loggeduser.userId ne cc.attrs.assessorId}">
+                                        <utilcomp:userAvatar avatar="#{loggeduser.avatar}"
+                                                             fullName="#{loggeduser.fullName}"/>
+                                    </ui:fragment>
 
-                                <div class="commentForm">
-                                    <h:inputTextarea id="textAreaAddNewComment"
-                                                     label="Comment"
-                                                     styleClass="contentEditableComment"
-                                                     style="width:100%;" rows="1"
-                                                     value="#{cc.attrs.bean.newCommentValue}"
-                                                     placeholder="Add Comment..."
-                                                     onkeyup="displaySubmitButtonPrivateConvModal(this)">
-                                        <f:validateLength maximum="2000"/>
-                                    </h:inputTextarea>
+                                    <ui:fragment rendered="#{loggeduser.userId eq cc.attrs.studentId or loggeduser.userId eq cc.attrs.assessorId}">
+                                        <assessment:assessmentActorAvatar
+                                                actorId="#{loggeduser.userId}"
+                                                avatarUrl="#{loggeduser.avatar}"
+                                                actorFullName="#{loggeduser.fullName}"
+                                                blindAssessmentMode="#{cc.attrs.blindAssessmentMode}"
+                                                actorType="#{loggeduser.userId eq cc.attrs.assessorId ? 'ASSESSOR' : 'STUDENT'}"
+                                        />
+                                    </ui:fragment>
 
-                                    <small class="redText displayBlock">
-                                        <h:message id="textAreaAddNewCommentValidationMessage" for="textAreaAddNewComment"></h:message>
-                                    </small>
+                                    <div class="commentForm">
+                                        <h:inputTextarea id="textAreaAddNewComment"
+                                                         label="Comment"
+                                                         styleClass="contentEditableComment"
+                                                         style="width:100%;" rows="1"
+                                                         value="#{cc.attrs.bean.newCommentValue}"
+                                                         placeholder="Add Comment..."
+                                                         onkeyup="displaySubmitButtonPrivateConvModal(this)">
+                                            <f:validateLength maximum="2000"/>
+                                        </h:inputTextarea>
 
-                                    <utilcomp:singleClickLink styleClass="btn btn-sm btn-green submitBtn hidden"
-                                                              value="Submit"
-                                                              process=":#{cc.clientId}:formPrivateConversation:textAreaAddNewComment"
-                                                              action="#{cc.attrs.bean.addCommentToAssessmentDiscussion()}"
-                                                              update=":#{cc.clientId}:formPrivateConversation:panelModalPrivateConversation #{cc.attrs.toUpdate}">
-                                        <f:param name="page" value="#{facesContext.viewRoot.viewId}"/>
-                                        <f:param name="learningContext" value="#{cc.attrs.learningContext}"/>
-                                        <f:param name="service" value="name:result_private_conversation_dialog"/>
-                                    </utilcomp:singleClickLink>
+                                        <small class="redText displayBlock">
+                                            <h:message id="textAreaAddNewCommentValidationMessage" for="textAreaAddNewComment"></h:message>
+                                        </small>
 
-                                    <script>
-                                        var validationMsg = $(escapeColons('##{cc.clientId}:formPrivateConversation:textAreaAddNewCommentValidationMessage'));
-                                        if (validationMsg.first().html() != "") {
-                                            displaySubmitButton($(escapeColons('##{cc.clientId}:formPrivateConversation:textAreaAddNewComment'))[0]);
-                                        }
-                                        autosize($(escapeColons('##{cc.clientId}:formPrivateConversation:textAreaAddNewComment')));
-                                    </script>
+                                        <utilcomp:singleClickLink styleClass="btn btn-sm btn-green submitBtn hidden"
+                                                                  value="Submit"
+                                                                  process=":#{cc.clientId}:formPrivateConversation:textAreaAddNewComment"
+                                                                  action="#{cc.attrs.bean.addCommentToAssessmentDiscussion()}"
+                                                                  update=":#{cc.clientId}:formPrivateConversation:panelModalPrivateConversation #{cc.attrs.toUpdate}">
+                                            <f:param name="page" value="#{facesContext.viewRoot.viewId}"/>
+                                            <f:param name="learningContext" value="#{cc.attrs.learningContext}"/>
+                                            <f:param name="service" value="name:result_private_conversation_dialog"/>
+                                        </utilcomp:singleClickLink>
+
+                                        <script>
+                                            var validationMsg = $(escapeColons('##{cc.clientId}:formPrivateConversation:textAreaAddNewCommentValidationMessage'));
+                                            if (validationMsg.first().html() != "") {
+                                                displaySubmitButton($(escapeColons('##{cc.clientId}:formPrivateConversation:textAreaAddNewComment'))[0]);
+                                            }
+                                            autosize($(escapeColons('##{cc.clientId}:formPrivateConversation:textAreaAddNewComment')));
+                                        </script>
+                                    </div>
                                 </div>
-                            </div>
+                            </ui:fragment>
                             <div class="clear"></div>
                         </div>
                     </h:panelGroup>

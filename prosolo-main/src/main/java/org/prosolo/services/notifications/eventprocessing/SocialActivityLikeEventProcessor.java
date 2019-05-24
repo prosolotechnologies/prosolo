@@ -1,15 +1,12 @@
 package org.prosolo.services.notifications.eventprocessing;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.prosolo.common.domainmodel.activitywall.SocialActivity1;
 import org.prosolo.common.domainmodel.user.notifications.NotificationActorRole;
 import org.prosolo.common.domainmodel.user.notifications.NotificationType;
 import org.prosolo.common.domainmodel.user.notifications.ResourceType;
-import org.prosolo.services.event.Event;
+import org.prosolo.common.event.Event;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.notifications.NotificationManager;
@@ -18,17 +15,20 @@ import org.prosolo.services.notifications.eventprocessing.data.NotificationSende
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.util.page.PageSection;
 
-public class SocialActivityLikeEventProcessor extends NotificationEventProcessor {
+import java.util.ArrayList;
+import java.util.List;
+
+public class SocialActivityLikeEventProcessor extends SimpleNotificationEventProcessor {
 
 	private static Logger logger = Logger.getLogger(SocialActivityLikeEventProcessor.class);
 
 	private SocialActivity1 socialActivity;
 	
 	public SocialActivityLikeEventProcessor(Event event, Session session,
-			NotificationManager notificationManager,
-			NotificationsSettingsManager notificationsSettingsManager,
-			Activity1Manager activityManager,
-			UrlIdEncoder idEncoder) {
+											NotificationManager notificationManager,
+											NotificationsSettingsManager notificationsSettingsManager,
+											Activity1Manager activityManager,
+											UrlIdEncoder idEncoder) {
 		super(event, session, notificationManager, notificationsSettingsManager, idEncoder);
 		setResource();
 	}
@@ -52,7 +52,12 @@ public class SocialActivityLikeEventProcessor extends NotificationEventProcessor
 
 	@Override
 	NotificationSenderData getSenderData() {
-		return new NotificationSenderData(event.getActorId(), NotificationActorRole.OTHER, false);
+		return new NotificationSenderData(event.getActorId(), NotificationActorRole.OTHER);
+	}
+
+	@Override
+	boolean isAnonymizedActor() {
+		return false;
 	}
 
 	@Override

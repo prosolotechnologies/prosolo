@@ -355,7 +355,7 @@ public class CredentialEditBean extends CompoundLearningResourceAssessmentSettin
 	public void saveAndNavigateToCreateCompetence() {
 		boolean saved = saveCredentialData(false);
 		if (saved) {
-			PageUtil.redirect("/manage/competences/new?credId=" + id);
+			PageUtil.redirect("/manage/credentials/"+id+"/competences/new");
 		}
 	}
 

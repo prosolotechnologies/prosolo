@@ -1,0 +1,14 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="#{loggeduser.getPublicTemplateForUser()}">
+
+    <ui:define name="metadata">
+        <f:metadata>
+            <f:viewParam name="studentId" value="#{legacyProfileEvidenceBean.studentId}" />
+            <f:viewParam name="competenceEvidenceId" value="#{legacyProfileEvidenceBean.competenceEvidenceId}" />
+            <f:viewAction action="#{legacyProfileEvidenceBean.init()}" />
+        </f:metadata>
+    </ui:define>
+
+</ui:composition>

@@ -61,6 +61,9 @@ public interface CommentManager {
 	
 	void unlikeComment(long commentId, UserContextData context)
 			throws DbConnectionException;
+
+	Result<Void> unlikeCommentAndGetEvents(long commentId, UserContextData context)
+			throws DbConnectionException;
 	
 	Comment1 saveNewComment(CommentData data, CommentedResourceType resource,
 			UserContextData context) throws DbConnectionException;
@@ -69,6 +72,9 @@ public interface CommentManager {
 												UserContextData context) throws DbConnectionException;
 	
 	void updateComment(CommentData data, UserContextData context)
+			throws DbConnectionException;
+
+	Result<Void> updateCommentAndGetEvents(CommentData data, UserContextData context)
 			throws DbConnectionException;
 	
 	/**

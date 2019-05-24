@@ -4,7 +4,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.prosolo.services.media.util.LinkParserException;
-import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview1;
+import org.prosolo.services.nodes.data.statusWall.AttachmentPreview;
 
 /**
  * @author Bojan Trifkovic
@@ -38,5 +38,5 @@ public abstract class LinkParser {
         return null;
     }
 
-    public abstract AttachmentPreview1 parse() throws LinkParserException;
+    public abstract AttachmentPreview parse() throws LinkParserException;
 }

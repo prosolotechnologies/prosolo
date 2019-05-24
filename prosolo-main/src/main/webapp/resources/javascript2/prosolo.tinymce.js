@@ -8,7 +8,7 @@ function initTinyMCE(textArea) {
 			selector: textArea,
             convert_urls : 0,
             font_formats: '14px/22px "prosolo_regular", "Helvetica Neue", Helvetica, Arial, sans-serif',
-			plugins: 'link media code image fullscreen paste lists',
+			plugins: 'link media code image fullscreen paste lists placeholder',
 			paste_as_text: true,
 			menubar: false,
 			statusbar: false,
@@ -17,7 +17,22 @@ function initTinyMCE(textArea) {
 	            { title: 'Heading 2', block: 'h2' },
 	            { title: 'Heading 3', block: 'h3' }
             ],
-            toolbar: 'undo redo | styleselect | bold italic | alignleft aligncenter alignright alignfull | bullist numlist |  outdent indent | link image media  | code | fullscreen'
+            toolbar: 'undo redo | styleselect | bold italic | alignleft aligncenter alignright alignfull | bullist numlist |  outdent indent | link image media  | code | fullscreen',
+			placeholder_attrs: {
+				style: {
+					position: 'absolute',
+					top:'5px',
+					left:0,
+					color: '#888',
+					padding: '1%',
+					width:'98%',
+					overflow: 'hidden',
+					'white-space': 'pre-wrap',
+					font: '400 14px/22px prosolo_regular, \'Helvetica Neue\', Helvetica, Arial, sans-serif',
+					color: '#859095',
+					opacity: '0.5'
+				}
+			}
 		});
 	}
 }

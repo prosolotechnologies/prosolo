@@ -55,7 +55,7 @@ public class SocialNetworksManagerImpl extends AbstractManagerImpl implements So
 	public SocialNetworkAccount createSocialNetworkAccount(SocialNetworkName name, String link, UserContextData contextData)
 			throws DbConnectionException {
 		Result<SocialNetworkAccount> result = self.createSocialNetworkAccountAndGetEvents(name, link, contextData);
-		eventFactory.generateEvents(result.getEventQueue());
+		eventFactory.generateAndPublishEvents(result.getEventQueue());
 		return result.getResult();
 	}
 

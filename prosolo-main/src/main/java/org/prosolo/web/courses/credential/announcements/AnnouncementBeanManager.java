@@ -129,11 +129,6 @@ public class AnnouncementBeanManager implements Serializable, Paginable {
         }
     }
 
-    public String getAssessmentIdForUser() {
-        return idEncoder.encodeId(
-                assessmentManager.getAssessmentIdForUser(loggedUser.getUserId(), credentialData.getTargetCredId()));
-    }
-
     public void setPaginationData(PaginationData paginationData) {
         this.paginationData = paginationData;
     }

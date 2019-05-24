@@ -43,7 +43,7 @@ public class LtiUserManagerImpl extends AbstractManagerImpl implements LtiUserMa
 				ltiConsumerId, userId, name, lastName, email, unitId, roleName, userGroupId, context);
 
 		if (res.getResult() != null) {
-			eventFactory.generateEvents(res.getEventQueue());
+			eventFactory.generateAndPublishEvents(res.getEventQueue());
 			return res.getResult();
 		}
 		return null;

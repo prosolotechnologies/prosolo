@@ -10,12 +10,12 @@ import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.UserGroup;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
+import org.prosolo.common.event.Event;
+import org.prosolo.common.event.EventObserver;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.core.db.hibernate.HibernateUtil;
 import org.prosolo.services.data.Result;
-import org.prosolo.services.event.Event;
 import org.prosolo.services.event.EventFactory;
-import org.prosolo.services.event.EventObserver;
 import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.services.user.UserGroupManager;
 import org.springframework.stereotype.Service;
@@ -134,7 +134,7 @@ private static Logger logger = Logger.getLogger(UserPrivilegePropagationObserver
 			HibernateUtil.close(session);
 		}
 		if(success == true && res != null) {
-			eventFactory.generateEvents(res.getEventQueue(), event.getObserversToExclude());
+			eventFactory.generateAndPublishEvents(res.getEventQueue(), event.getObserversToExclude());
 		}
 		logger.info("UserPrivilegePropagationObserver finished");
 	}

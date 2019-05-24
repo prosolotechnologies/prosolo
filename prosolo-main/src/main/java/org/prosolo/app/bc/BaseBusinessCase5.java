@@ -16,6 +16,7 @@ import org.prosolo.common.domainmodel.rubric.RubricType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroup;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
+import org.prosolo.common.event.EventQueue;
 import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.util.date.DateUtil;
@@ -23,17 +24,16 @@ import org.prosolo.core.db.hibernate.HibernateUtil;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.activityWall.SocialActivityManager;
 import org.prosolo.services.activityWall.impl.data.SocialActivityData1;
-import org.prosolo.services.event.EventQueue;
 import org.prosolo.services.interaction.CommentManager;
 import org.prosolo.services.interaction.data.CommentData;
 import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.data.ObjectStatus;
-import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview1;
-import org.prosolo.services.nodes.data.activity.attachmentPreview.MediaType1;
 import org.prosolo.services.nodes.data.organization.LearningStageData;
 import org.prosolo.services.nodes.data.rubrics.RubricCriterionData;
 import org.prosolo.services.nodes.data.rubrics.RubricData;
 import org.prosolo.services.nodes.data.rubrics.RubricLevelData;
+import org.prosolo.services.nodes.data.statusWall.AttachmentPreview;
+import org.prosolo.services.nodes.data.statusWall.MediaType1;
 import org.prosolo.services.user.UserGroupManager;
 import org.prosolo.services.user.data.UserData;
 
@@ -465,7 +465,7 @@ public abstract class BaseBusinessCase5 extends BaseBusinessCase {
         newSocialActivity.setText(text);
 
         if (attachmentUrl != null) {
-            AttachmentPreview1 uploadedFilePreview = new AttachmentPreview1();
+            AttachmentPreview uploadedFilePreview = new AttachmentPreview();
             uploadedFilePreview.setInitialized(true);
             uploadedFilePreview.setMediaType(MediaType1.File_Other);
             uploadedFilePreview.setContentType(ContentType1.FILE);

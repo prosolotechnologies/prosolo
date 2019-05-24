@@ -14,8 +14,10 @@ import org.prosolo.config.observation.ObservationConfigLoaderService;
 import org.prosolo.config.security.SecurityService;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.admin.ResourceSettingsManager;
+import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.importing.DataGenerator;
 import org.prosolo.services.indexing.ESAdministration;
+import org.prosolo.services.messaging.rabbitmq.impl.AppEventMessageWorker;
 import org.prosolo.services.messaging.rabbitmq.impl.DefaultMessageWorker;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.user.UserManager;
@@ -132,8 +134,8 @@ public class AfterContextLoader implements ServletContextListener {
 		if (CommonSettings.getInstance().config.rabbitMQConfig.distributed) {
 
 			systemConsumer = new ReliableConsumerImpl();
-			systemConsumer.setWorker(new DefaultMessageWorker());
-			systemConsumer.setQueue(QueueNames.SYSTEM.name().toLowerCase());
+			systemConsumer.setWorker(new AppEventMessageWorker(ServiceLocator.getInstance().getService(EventFactory.class)));
+			systemConsumer.setQueue(QueueNames.APP_EVENT.name().toLowerCase());
 			systemConsumer.StartAsynchronousConsumer();
 			sessionConsumer = new ReliableConsumerImpl();
 			sessionConsumer.setWorker(new DefaultMessageWorker());

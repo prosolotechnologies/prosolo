@@ -89,8 +89,6 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 	private LearningResourceAssessmentSettings assessmentSettings;
 	private List<AssessmentTypeConfig> assessmentTypes;
 
-	private int numberOfAssessments;
-
 	public CompetenceData1(boolean listenChanges) {
 		this.status = PublishedStatus.DRAFT;
 		activities = new ArrayList<>();
@@ -604,14 +602,6 @@ public class CompetenceData1 extends StandardObservable implements Serializable 
 
 	public void setAssessmentTypes(List<AssessmentTypeConfig> assessmentTypes) {
 		this.assessmentTypes = assessmentTypes;
-	}
-
-	public int getNumberOfAssessments() {
-		return numberOfAssessments;
-	}
-
-	public void setNumberOfAssessments(int numberOfAssessments) {
-		this.numberOfAssessments = numberOfAssessments;
 	}
 
 	public String getEvidenceSummary() {

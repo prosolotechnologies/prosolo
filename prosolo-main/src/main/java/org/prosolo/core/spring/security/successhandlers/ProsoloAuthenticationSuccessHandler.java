@@ -35,7 +35,7 @@ public abstract class ProsoloAuthenticationSuccessHandler extends SavedRequestAw
         ProsoloUserDetails user = (ProsoloUserDetails) authentication.getPrincipal();
         UserContextData context = UserContextData.of(user.getUserId(),
                 user.getOrganizationId(), user.getSessionId(), user.getIpAddress(), new PageContextData());
-        eventFactory.generateEvent(EventType.LOGIN, context, null, null, null, null);
+        eventFactory.generateAndPublishEvent(EventType.LOGIN, context, null, null, null, null);
         registerNewUserSession(user.getUserId(), request.getSession());
         determineSuccessTargetUrl(request, authentication);
         super.onAuthenticationSuccess(request, response, authentication);

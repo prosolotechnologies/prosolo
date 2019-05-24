@@ -4,6 +4,7 @@ import org.hibernate.LockOptions;
 import org.hibernate.Query;
 import org.prosolo.bigdata.common.exceptions.*;
 import org.prosolo.common.domainmodel.annotation.Tag;
+import org.prosolo.common.domainmodel.assessment.AssessmentStatus;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
 import org.prosolo.common.domainmodel.credential.*;
@@ -12,6 +13,7 @@ import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.rubric.Rubric;
 import org.prosolo.common.domainmodel.rubric.RubricType;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.event.EventData;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.util.ImageFormat;
 import org.prosolo.services.annotation.TagManager;
@@ -21,7 +23,6 @@ import org.prosolo.services.assessment.data.*;
 import org.prosolo.services.assessment.data.factory.AssessmentDataFactory;
 import org.prosolo.services.assessment.data.grading.RubricAssessmentGradeSummary;
 import org.prosolo.services.data.Result;
-import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.interaction.CommentManager;
@@ -34,8 +35,8 @@ import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.ResourceFactory;
-import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.data.ActivityResultType;
+import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.factory.ActivityDataFactory;
@@ -78,7 +79,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		try {
 			Result<Activity1> res = self.createActivity(data, context);
 
-			eventFactory.generateEvents(res.getEventQueue());
+			eventFactory.generateAndPublishEvents(res.getEventQueue());
 
 			return res.getResult();
 		} catch (IllegalDataStateException idse) {
@@ -234,8 +235,15 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	}
 
 	@Override
-	@Transactional(readOnly = false, rollbackFor = Exception.class)
 	public Activity1 deleteActivity(long activityId, UserContextData context) throws DbConnectionException, IllegalDataStateException {
+		Result<Activity1> res = self.deleteActivityAndGetEvents(activityId, context);
+		eventFactory.generateAndPublishEvents(res.getEventQueue());
+		return res.getResult();
+	}
+
+	@Override
+	@Transactional(readOnly = false, rollbackFor = Exception.class)
+	public Result<Activity1> deleteActivityAndGetEvents(long activityId, UserContextData context) throws DbConnectionException, IllegalDataStateException {
 		try {
 			if(activityId > 0) {
 				Activity1 act = (Activity1) persistence.currentManager().load(Activity1.class, activityId);
@@ -245,19 +253,17 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 
 				Activity1 activity = new Activity1();
 				activity.setId(activityId);
-				eventFactory.generateEvent(EventType.Delete, context, activity,
-						null, null, null);
-				
-				return act;
+				Result<Activity1> res = new Result<>();
+				res.appendEvent(eventFactory.generateEventData(EventType.Delete, context, activity, null, null, null));
+				res.setResult(act);
+				return res;
 			}
-			return null;
+			return new Result<>();
 		} catch (IllegalDataStateException idse) {
-			idse.printStackTrace();
-			logger.error(idse);
+			logger.error("error", idse);
 			throw idse;
 		} catch (Exception e) {
-			logger.error(e);
-			e.printStackTrace();
+			logger.error("error", e);
 			throw new DbConnectionException("Error deleting activity");
 		}
 	}
@@ -492,43 +498,10 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			throw new DbConnectionException("Error loading activity data");
 		}
 	}
-
-	/**
-	 * Checks if activity specified with {@code actId} id is part of a credential with {@code credId} id
-	 * and if not throws {@link ResourceNotFoundException}.
-	 *
-	 * @param credId
-	 * @param actId
-	 * @throws ResourceNotFoundException
-	 */
-	private void checkIfActivityIsPartOfACredential(long credId, long actId)
-			throws ResourceNotFoundException {
-		if(credId > 0) {
-			String query1 =
-					"SELECT COUNT(compAct.id) " +
-					"FROM CompetenceActivity1 compAct " +
-					"INNER JOIN compAct.competence comp " +
-					"INNER JOIN comp.credentialCompetences credComp " +
-					"WITH credComp.credential.id = :credId " +
-					"WHERE compAct.activity.id = :actId";
-
-			@SuppressWarnings("unchecked")
-			Long no = (Long) persistence.currentManager()
-					.createQuery(query1)
-					.setLong("credId", credId)
-					.setLong("actId", actId)
-					.uniqueResult();
-
-			if (no == 0) {
-				throw new ResourceNotFoundException();
-			}
-		}
-	}
 	
 	private CompetenceActivity1 getCompetenceActivity(long credId, long competenceId, long activityId, 
 			boolean loadLinks, boolean loadTags, boolean loadCompetence) {
 		try {
-			compManager.checkIfCompetenceIsPartOfACredential(credId, competenceId);
 			/*
 			 * we need to make sure that activity is bound to competence with passed id
 			 */
@@ -568,17 +541,26 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			throw new DbConnectionException("Error retrieving competence activity data");
 		}
 	}
+
+	@Override
+	public Activity1 updateActivity(ActivityData data, UserContextData context)
+			throws DbConnectionException, StaleDataException, IllegalDataStateException {
+		Result<Activity1> res = self.updateActivityAndGetEvents(data, context);
+		eventFactory.generateAndPublishEvents(res.getEventQueue());
+		return res.getResult();
+	}
 	
 	@Override
 	@Transactional(readOnly = false, rollbackFor = Exception.class)
-	public Activity1 updateActivity(ActivityData data, UserContextData context)
+	public Result<Activity1> updateActivityAndGetEvents(ActivityData data, UserContextData context)
 			throws DbConnectionException, StaleDataException, IllegalDataStateException {
-		Activity1 act = resourceFactory.updateActivity(data);
+		Activity1 act = updateActivityData(data);
 
-		eventFactory.generateEvent(EventType.Edit, context, act,
-				null, null, null);
-
-		return act;
+		Result<Activity1> res = new Result<>();
+		res.appendEvent(eventFactory.generateEventData(EventType.Edit, context, act,
+				null, null, null));
+		res.setResult(act);
+		return res;
 	}
 	
 	private void updateActivityType(long activityId, ActivityType activityType) {
@@ -837,8 +819,15 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	}
 
 	@Override
-	@Transactional(readOnly = false)
 	public void saveResponse(long targetActId, String path, Date postDate,
+							 ActivityResultType resType, UserContextData context) throws DbConnectionException {
+		Result<Void> res = self.saveResponseAndGetEvents(targetActId, path, postDate, resType, context);
+		eventFactory.generateAndPublishEvents(res.getEventQueue());
+	}
+
+	@Override
+	@Transactional(readOnly = false)
+	public Result<Void> saveResponseAndGetEvents(long targetActId, String path, Date postDate,
 			ActivityResultType resType, UserContextData context) throws DbConnectionException {
 		try {
 			String query = "UPDATE TargetActivity1 act SET " +
@@ -858,17 +847,25 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 
 			EventType evType = resType == ActivityResultType.FILE_UPLOAD
 					? EventType.AssignmentUploaded : EventType.Typed_Response_Posted;
-			eventFactory.generateEvent(evType, context, tAct, null, null, null);
+			Result<Void> res = new Result<>();
+			res.appendEvent(eventFactory.generateEventData(evType, context, tAct, null, null, null));
+			return res;
 		} catch (Exception e) {
-			logger.error(e);
-			e.printStackTrace();
+			logger.error("error", e);
 			throw new DbConnectionException("Error saving assignment");
 		}
 	}
 
 	@Override
-	@Transactional
 	public void updateTextResponse(long targetActId, String path, UserContextData context)
+			throws DbConnectionException {
+		Result<Void> res = self.updateTextResponseAndGetEvents(targetActId, path, context);
+		eventFactory.generateAndPublishEvents(res.getEventQueue());
+	}
+
+	@Override
+	@Transactional
+	public Result<Void> updateTextResponseAndGetEvents(long targetActId, String path, UserContextData context)
 			throws DbConnectionException {
 		try {
 			String query = "UPDATE TargetActivity1 act SET " +
@@ -883,11 +880,11 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 
 			TargetActivity1 tAct = new TargetActivity1();
 			tAct.setId(targetActId);
-
-			eventFactory.generateEvent(EventType.Typed_Response_Edit, context, tAct, null, null, null);
+			Result<Void> res = new Result<>();
+			res.appendEvent(eventFactory.generateEventData(EventType.Typed_Response_Edit, context, tAct, null, null, null));
+			return res;
 		} catch (Exception e) {
-			logger.error(e);
-			e.printStackTrace();
+			logger.error("error", e);
 			throw new DbConnectionException("Error editing response");
 		}
 	}
@@ -896,7 +893,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	public void completeActivity(long targetActId, long targetCompId, UserContextData context)
 			throws DbConnectionException {
 		Result<Void> res = self.completeActivityAndGetEvents(targetActId, targetCompId, context);
-		eventFactory.generateEvents(res.getEventQueue());
+		eventFactory.generateAndPublishEvents(res.getEventQueue());
 	}
 	
 	@Override
@@ -940,8 +937,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 					throws DbConnectionException, ResourceNotFoundException {
 		CompetenceData1 compData;
 		try {
-			compData = getTargetCompetenceActivitiesWithSpecifiedActivityInFocus(credId, 
-					compId, actId, userId, isManager);
+			compData = getTargetCompetenceActivitiesWithSpecifiedActivityInFocus(compId, actId, userId, isManager);
 			if (compData == null) {
 				return getCompetenceActivitiesWithSpecifiedActivityInFocus(credId, compId, actId);
 			}
@@ -958,7 +954,6 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	
 	/**
 	 * 
-	 * @param credId
 	 * @param compId
 	 * @param actId
 	 * @param userId
@@ -966,13 +961,11 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	 * @return
 	 * @throws DbConnectionException
 	 */
-	private CompetenceData1 getTargetCompetenceActivitiesWithSpecifiedActivityInFocus(
-			long credId, long compId, long actId, long userId, boolean isManager) 
+	private CompetenceData1 getTargetCompetenceActivitiesWithSpecifiedActivityInFocus(long compId, long actId, long userId, boolean isManager)
 					throws DbConnectionException {
 		CompetenceData1 compData;
 		try {			
-			ActivityData activityWithDetails = getTargetActivityData(credId, compId, actId, userId, 
-					true, true, isManager);
+			ActivityData activityWithDetails = getTargetActivityData(compId, actId, userId, true, true, isManager);
 
 			if (activityWithDetails != null) {
 				compData = new CompetenceData1(false);
@@ -991,31 +984,28 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	}
 	
 	/**
-	 * Returns full target activity data when id of a target activity is not known.
-	 * @param credId
-	 * @param compId
-	 * @param actId
-	 * @param userId
-	 * @param loadResourceLinks
+	 * Returns full target activity data when id of a target activity is unknown.
+	 *
+	 * @param compId credential id
+	 * @param actId activity id
+	 * @param userId user id
+	 * @param loadResourceLinks whether to load links
+	 * @param loadTags whether to load tags
 	 * @param isManager did request come from manage section
-	 * @return
+	 * @return activity data
 	 * @throws DbConnectionException
 	 */
-	private ActivityData getTargetActivityData(long credId, long compId, long actId, long userId,
+	private ActivityData getTargetActivityData(long compId, long actId, long userId,
 			boolean loadResourceLinks, boolean loadTags, boolean isManager)
 			throws DbConnectionException, ResourceNotFoundException {
 		try {	
-			/*
-			 * check if competence is part of a credential
-			 */
-			compManager.checkIfCompetenceIsPartOfACredential(credId, compId);
-			
-			StringBuilder query = new StringBuilder("SELECT targetAct " +
-					   "FROM TargetActivity1 targetAct " +
-					   "INNER JOIN fetch targetAct.activity act " +
-					   "INNER JOIN targetAct.targetCompetence targetComp " +
-					   		"WITH targetComp.competence.id = :compId " +
-					   		"AND targetComp.user.id = :userId ");
+			StringBuilder query = new StringBuilder(
+							"SELECT targetAct " +
+							"FROM TargetActivity1 targetAct " +
+							"INNER JOIN fetch targetAct.activity act " +
+							"INNER JOIN targetAct.targetCompetence targetComp " +
+					   			"WITH targetComp.competence.id = :compId " +
+					   			"AND targetComp.user.id = :userId ");
 			if (loadResourceLinks) {
 				query.append("LEFT JOIN fetch act.links link " + 
 							 "LEFT JOIN fetch act.files files ");
@@ -1052,8 +1042,15 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	}
 
 	@Override
-	@Transactional
 	public void deleteAssignment(long targetActivityId, UserContextData context)
+			throws DbConnectionException {
+		Result<Void> res = self.deleteAssignmentAndGetEvents(targetActivityId, context);
+		eventFactory.generateAndPublishEvents(res.getEventQueue());
+	}
+
+	@Override
+	@Transactional
+	public Result<Void> deleteAssignmentAndGetEvents(long targetActivityId, UserContextData context)
 			throws DbConnectionException {
 		try {
 			String query = "UPDATE TargetActivity1 act SET " +
@@ -1067,10 +1064,11 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 
 			TargetActivity1 tAct = new TargetActivity1();
 			tAct.setId(targetActivityId);
-			eventFactory.generateEvent(EventType.AssignmentRemoved, context, tAct, null, null, null);
+			Result<Void> res = new Result<>();
+			res.appendEvent(eventFactory.generateEventData(EventType.AssignmentRemoved, context, tAct, null, null, null));
+			return res;
 		} catch (Exception e) {
-			logger.error(e);
-			e.printStackTrace();
+			logger.error("error", e);
 			throw new DbConnectionException("Error removing assignment");
 		}
 	}
@@ -1151,9 +1149,8 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			long credId, long compId, long actId, long userId, boolean isManager) 
 					throws DbConnectionException, ResourceNotFoundException, AccessDeniedException {
 		CompetenceData1 compData = null;
-		try {			
-			ActivityData activityWithDetails = getTargetActivityData(credId, compId, actId, 
-					userId, false, false, isManager);
+		try {
+			ActivityData activityWithDetails = getTargetActivityData(compId, actId, userId, false, false, isManager);
 			
 			if (activityWithDetails != null) {
 				//if it is not allowed for students to see other students responses throw AccessDeniedException
@@ -1319,10 +1316,8 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 						"LEFT JOIN (activity_assessment ad " +
 						"INNER JOIN competence_assessment compAssessment " +
 						"ON compAssessment.id = ad.competence_assessment " +
-						"INNER JOIN credential_competence_assessment cca " +
-						"ON cca.competence_assessment = compAssessment.id " +
 						"INNER JOIN credential_assessment credAssessment " +
-						"ON credAssessment.id = cca.credential_assessment " +
+						"ON credAssessment.id = compAssessment.credential_assessment " +
 						"INNER JOIN target_credential1 tCred " +
 						"ON tCred.id = credAssessment.target_credential " +
 						"AND tCred.credential = :credId) " +
@@ -1330,6 +1325,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 						// following condition ensures that assessment for the right student is joined
 						"AND compAssessment.student = targetComp.user " +
 						"AND ad.type = :instructorAssessment " +
+						"AND (compAssessment.status = :pending OR compAssessment.status = :submitted) " +
 						"LEFT JOIN activity_discussion_participant p " +
 						"ON ad.id = p.activity_discussion AND p.participant = targetComp.user " +
 						"LEFT JOIN activity_discussion_message msg " +
@@ -1363,7 +1359,9 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 					.setLong("actId", actId)
 					.setLong("credId", credId)
 					.setString("resType", CommentedResourceType.ActivityResult.name())
-					.setString("instructorAssessment", AssessmentType.INSTRUCTOR_ASSESSMENT.name());
+					.setString("instructorAssessment", AssessmentType.INSTRUCTOR_ASSESSMENT.name())
+					.setString("pending", AssessmentStatus.PENDING.name())
+					.setString("submitted", AssessmentStatus.SUBMITTED.name());
 
 			if (targetActivityId > 0) {
 				q.setLong("tActId", targetActivityId);
@@ -1441,7 +1439,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 							rubricGradeSummary.get(ad.getActivityAssessmentId())));
 
 					//load additional assessment data
-					AssessmentBasicData abd = assessmentManager.getInstructorAssessmentBasicData(credId,
+					AssessmentBasicData abd = assessmentManager.getActiveInstructorAssessmentBasicData(credId,
 							compId, 0, ard.getUser().getId());
 					if (abd != null) {
 						ad.setCompAssessmentId(abd.getCompetenceAssessmentId());
@@ -1449,7 +1447,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 						ad.setAssessorId(abd.getAssessorId());
 						//we need info whether competency assessment is approved
 						CompetenceAssessment competenceAssessment = (CompetenceAssessment) persistence.currentManager().load(CompetenceAssessment.class, abd.getCompetenceAssessmentId());
-						CompetenceAssessmentData cad = new CompetenceAssessmentData();
+						CompetenceAssessmentDataFull cad = new CompetenceAssessmentDataFull();
 						cad.setApproved(competenceAssessment.isApproved());
 						ad.setCompAssessment(cad);
 					}
@@ -1504,9 +1502,6 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	public ActivityAssessmentsSummaryData getActivityAssessmentDataForDefaultCredentialAssessment(long credId, long actId, long targetActivityId, boolean isInstructor, boolean loadDataOnlyForStudentsWhereGivenUserIsInstructor, long userId)
 			throws DbConnectionException, ResourceNotFoundException {
 		try {
-			//check if activity is part of a credential
-			checkIfActivityIsPartOfACredential(credId, actId);
-
 			Activity1 activity = (Activity1) persistence.currentManager().get(Activity1.class, actId);
 
 			ActivityAssessmentsSummaryData summary = assessmentDataFactory.getActivityAssessmentsSummaryData(activity, 0L, 0L);
@@ -1529,9 +1524,6 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 																									  long userId, boolean paginate, int page, int limit)
 					throws DbConnectionException, ResourceNotFoundException {
 		try {
-			//check if activity is part of a credential
-			checkIfActivityIsPartOfACredential(credId, actId);
-
 			Activity1 activity = (Activity1) persistence.currentManager().get(Activity1.class, actId);
 
 			//load only data for instructors students if user does not have Edit privilege
@@ -2054,4 +2046,49 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		}
 	}
 
+	@Override
+	public void checkIfActivityAndCompetenceArePartOfCredential(long credId, long compId, long actId) throws ResourceNotFoundException {
+		String query1 =
+				"SELECT COUNT(compAct.id) " +
+				"FROM CompetenceActivity1 compAct " +
+				"INNER JOIN compAct.competence comp " +
+				"INNER JOIN comp.credentialCompetences credComp " +
+				"WITH credComp.credential.id = :credId " +
+				"WHERE compAct.activity.id = :actId " +
+						"AND comp.id = :compId";
+
+		@SuppressWarnings("unchecked")
+		Long no = (Long) persistence.currentManager()
+				.createQuery(query1)
+				.setLong("credId", credId)
+				.setLong("compId", compId)
+				.setLong("actId", actId)
+				.uniqueResult();
+
+		if (no == 0) {
+			throw new ResourceNotFoundException();
+		}
+	}
+
+	@Override
+	public void checkIfActivityIsPartOfACredential(long credId, long actId)	throws ResourceNotFoundException {
+		String query1 =
+				"SELECT COUNT(compAct.id) " +
+				"FROM CompetenceActivity1 compAct " +
+				"INNER JOIN compAct.competence comp " +
+				"INNER JOIN comp.credentialCompetences credComp " +
+				"WITH credComp.credential.id = :credId " +
+				"WHERE compAct.activity.id = :actId";
+
+		@SuppressWarnings("unchecked")
+		Long no = (Long) persistence.currentManager()
+				.createQuery(query1)
+				.setLong("credId", credId)
+				.setLong("actId", actId)
+				.uniqueResult();
+
+		if (no == 0) {
+			throw new ResourceNotFoundException();
+		}
+	}
 }

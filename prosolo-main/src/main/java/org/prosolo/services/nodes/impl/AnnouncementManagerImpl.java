@@ -58,7 +58,7 @@ public class AnnouncementManagerImpl extends AbstractManagerImpl implements Anno
 			throws ResourceCouldNotBeLoadedException {
 
 		Result<AnnouncementData> result = self.createAnnouncementAndGetEvents(credentialId, title, text, creatorId, mode, context);
-		eventFactory.generateEvents(result.getEventQueue());
+		eventFactory.generateAndPublishEvents(result.getEventQueue());
 		return result.getResult();
 	}
 

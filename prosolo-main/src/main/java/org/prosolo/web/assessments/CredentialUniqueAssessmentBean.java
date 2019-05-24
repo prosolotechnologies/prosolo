@@ -3,7 +3,6 @@ package org.prosolo.web.assessments;
 import org.apache.log4j.Logger;
 import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
-import org.prosolo.web.assessments.util.AssessmentDisplayMode;
 import org.prosolo.web.util.page.PageUtil;
 
 import javax.inject.Inject;
@@ -32,12 +31,12 @@ public abstract class CredentialUniqueAssessmentBean implements Serializable {
 		decodedId = idEncoder.decodeId(id);
 
 		if (decodedId > 0) {
-			Optional<Long> optAssessmentId = assessmentManager.getInstructorCredentialAssessmentId(decodedId, getUserId());
+			Optional<Long> optAssessmentId = assessmentManager.getActiveInstructorCredentialAssessmentId(decodedId, getUserId());
+			long credentialAssessmentId = 0;
 			if (optAssessmentId.isPresent()) {
-				credentialAssessmentBean.initInstructorAssessment(id, idEncoder.encodeId(optAssessmentId.get()), getAssessmentDisplayMode());
-			} else {
-				PageUtil.notFound();
+				credentialAssessmentId = optAssessmentId.get();
 			}
+			credentialAssessmentBean.initInstructorAssessment(id, idEncoder.encodeId(credentialAssessmentId));
 		} else {
 			PageUtil.notFound();
 		}
@@ -49,7 +48,7 @@ public abstract class CredentialUniqueAssessmentBean implements Serializable {
 		if (decodedId > 0) {
 			Optional<Long> optAssessmentId = assessmentManager.getSelfCredentialAssessmentId(decodedId, getUserId());
 			if (optAssessmentId.isPresent()) {
-				credentialAssessmentBean.initSelfAssessment(id, idEncoder.encodeId(optAssessmentId.get()), getAssessmentDisplayMode());
+				credentialAssessmentBean.initSelfAssessment(id, idEncoder.encodeId(optAssessmentId.get()));
 			} else {
 				PageUtil.notFound();
 			}
@@ -57,8 +56,6 @@ public abstract class CredentialUniqueAssessmentBean implements Serializable {
 			PageUtil.notFound();
 		}
 	}
-
-	protected abstract AssessmentDisplayMode getAssessmentDisplayMode();
 
 	public String getId() {
 		return id;

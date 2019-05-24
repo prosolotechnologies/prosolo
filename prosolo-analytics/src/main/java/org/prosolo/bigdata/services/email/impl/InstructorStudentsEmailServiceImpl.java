@@ -66,8 +66,8 @@ public class InstructorStudentsEmailServiceImpl implements InstructorStudentsEma
 			List<String> assigned = userDAO.getUserNames(assignedStudents);
 			List<String> unassigned = userDAO.getUserNames(unassignedStudents);
 
-			InstructorEmailGenerator generator = new InstructorEmailGenerator(instructorName,
-					courseName, assigned, unassigned);
+			InstructorEmailGenerator generator = new InstructorEmailGenerator(
+					instructorName, "standard", courseName, assigned, unassigned);
 
 
 

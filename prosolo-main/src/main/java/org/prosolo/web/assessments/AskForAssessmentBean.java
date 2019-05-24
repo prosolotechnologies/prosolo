@@ -8,8 +8,11 @@ import org.prosolo.search.UserTextSearch;
 import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.assessment.data.AssessmentRequestData;
 import org.prosolo.services.nodes.data.LearningResourceType;
-import org.prosolo.services.user.data.UserData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
+import org.prosolo.services.user.data.UserAssessmentTokenExtendedData;
+import org.prosolo.services.user.data.UserData;
+import org.prosolo.web.AssessmentTokenSessionBean;
+
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageUtil;
 import org.prosolo.web.util.pagination.PaginationData;
@@ -47,6 +50,8 @@ public abstract class AskForAssessmentBean implements Serializable {
     protected UrlIdEncoder idEncoder;
     @Inject
     protected AssessmentManager assessmentManager;
+    @Inject protected AssessmentTokenSessionBean assessmentTokenSessionBean;
+
 
     protected long resourceId;
     protected AssessmentType assessmentType;
@@ -54,49 +59,62 @@ public abstract class AskForAssessmentBean implements Serializable {
     protected String peerSearchTerm;
     protected Set<Long> existingPeerAssessors;
     protected List<Long> usersToExcludeFromPeerSearch;
-    protected boolean noRandomAssessor = false;
     protected AssessmentRequestData assessmentRequestData = new AssessmentRequestData();
     protected BlindAssessmentMode blindAssessmentMode;
     protected PaginationData paginationData = new PaginationData();
     protected boolean remindStudentToSubmitEvidenceSummary;
+    private UserAssessmentTokenExtendedData userAssessmentTokenData;
+    protected List<Long> assessorPoolUserIds;
+    private boolean unassignedAssessmentExists;
 
     protected abstract void initInstructorAssessmentAssessor();
     public abstract void searchPeers();
-    public abstract UserData getRandomPeerForAssessor();
+    public abstract UserData getPeerAssessorFromAssessorPool();
     protected abstract LearningResourceType getResourceType();
     protected abstract void submitAssessmentRequest() throws IllegalDataStateException;
-    protected abstract void notifyAssessorToAssessResource();
+    protected abstract void notifyAssessorToAssessResource() throws IllegalDataStateException;
     protected abstract boolean shouldStudentBeRemindedToSubmitEvidenceSummary();
 
-    public void init(long resourceId, long targetResourceId, AssessmentType assessmentType, BlindAssessmentMode blindAssessmentMode) {
-        initAssessmentBasicInfo(resourceId, targetResourceId, assessmentType, blindAssessmentMode);
+    private void initAssessorIfNeeded() {
         if (assessmentType == AssessmentType.INSTRUCTOR_ASSESSMENT) {
             initInstructorAssessmentAssessor();
-        } else if (assessmentType == AssessmentType.PEER_ASSESSMENT && (blindAssessmentMode == BlindAssessmentMode.BLIND || blindAssessmentMode == BlindAssessmentMode.DOUBLE_BLIND)) {
-            chooseRandomPeerForAssessor();
+        } else if (isAssessorPredetermined()) {
+            //if it is blinded peer assessment or assessment tokens are enabled, assessor should be predetermined, student should not be able to choose assessor.
+            setPeerAssessorFromThePool();
+        } else if (canStudentChooseAssessor()) {
+            //if student can choose assessor we do not set assessor but assessment is treated as new, at least until assessor is set
+            assessmentRequestData.setNewAssessment(true);
         }
-        determineWhetherStudentShouldBeRemindedToSubmitEvidenceSummary();
+    }
+
+    private boolean isAssessorPredetermined() {
+        return assessmentType == AssessmentType.PEER_ASSESSMENT &&
+                ((blindAssessmentMode == BlindAssessmentMode.BLIND || blindAssessmentMode == BlindAssessmentMode.DOUBLE_BLIND)
+                        || userAssessmentTokenData.isAssessmentTokensEnabled());
+    }
+
+    public boolean canStudentChooseAssessor() {
+        return assessmentType == AssessmentType.PEER_ASSESSMENT &&  !isAssessorPredetermined();
+    }
+
+    private void setOrInitAssessor(UserData assessor) {
+        if (assessor != null) {
+            setAssessor(assessor);
+        } else {
+            initAssessorIfNeeded();
+        }
     }
 
     /**
-     * init ask for assessment with assessor info
+     * Initializes initial data that need to be set before any other logic or initialization
+     * takes place
      *
      * @param resourceId
      * @param targetResourceId
      * @param assessmentType
-     * @param assessor
+     * @param blindAssessmentMode
      */
-    public void init(long resourceId, long targetResourceId, AssessmentType assessmentType, UserData assessor, BlindAssessmentMode blindAssessmentMode) {
-        initAssessmentBasicInfo(resourceId, targetResourceId, assessmentType, blindAssessmentMode);
-        if (assessor != null) {
-            assessmentRequestData.setAssessorId(assessor.getId());
-            assessmentRequestData.setAssessorFullName(assessor.getFullName());
-            assessmentRequestData.setAssessorAvatarUrl(assessor.getAvatarUrl());
-        }
-        determineWhetherStudentShouldBeRemindedToSubmitEvidenceSummary();
-    }
-
-    private void initAssessmentBasicInfo(long resourceId, long targetResourceId, AssessmentType assessmentType, BlindAssessmentMode blindAssessmentMode) {
+    protected void initCommonInitialData(long resourceId, long targetResourceId, AssessmentType assessmentType, BlindAssessmentMode blindAssessmentMode) {
         this.resourceId = resourceId;
         this.assessmentType = assessmentType;
         usersToExcludeFromPeerSearch = Arrays.asList(loggedUser.getUserId());
@@ -105,43 +123,91 @@ public abstract class AskForAssessmentBean implements Serializable {
     }
 
     /**
-     * new assessment request is when assessment request is submitted to new peer
+     * Initializes other data (other than initial data), should be called
+     * after initial data is already initialized. This method is separated from
+     * {@link #initCommonInitialData(long, long, AssessmentType, BlindAssessmentMode)}
+     * to provide a way for classes inheriting this class to initialize their specific
+     * 'initial' data before this method is called
+     *
+     * @param assessor
      */
-    private boolean isNewAssessmentRequest() {
-        return assessmentType == AssessmentType.PEER_ASSESSMENT
-                && !existingPeerAssessors.contains(assessmentRequestData.getAssessorId());
+    protected void initOtherCommonData(UserData assessor) {
+        //init existing peer assessors if peer assessment
+        if (assessmentType == AssessmentType.PEER_ASSESSMENT) {
+            existingPeerAssessors = getExistingPeerAssessors();
+        }
+        initUserAssessmentTokenDataIfNeeded(assessor);
+        setOrInitAssessor(assessor);
+        determineWhetherStudentShouldBeRemindedToSubmitEvidenceSummary();
+        initAssessorPoolUserIds();
+        initUnassignedAssessmentExistsFlagIfNeeded();
     }
 
+    private void initUnassignedAssessmentExistsFlagIfNeeded() {
+        if (assessmentType == AssessmentType.PEER_ASSESSMENT) {
+            unassignedAssessmentExists = isThereUnassignedAssessmentForThisUser();
+        }
+    }
+
+    protected abstract boolean isThereUnassignedAssessmentForThisUser();
+
+    private void initAssessorPoolUserIds() {
+        if (canStudentChooseAssessor()) {
+            assessorPoolUserIds = loadAssessorPoolUserIds();
+        }
+    }
+
+    protected abstract List<Long> loadAssessorPoolUserIds();
+
+    private void initUserAssessmentTokenDataIfNeeded(UserData assessor) {
+        if (assessmentType == AssessmentType.PEER_ASSESSMENT && (assessor == null || !existingPeerAssessors.contains(assessor.getId()))) {
+            //if new assessment load user assessment token data
+            userAssessmentTokenData = loadUserAssessmentTokenDataAndRefreshInSession();
+            assessmentRequestData.setNumberOfTokensToSpend(userAssessmentTokenData.getNumberOfTokensSpentPerRequest());
+        }
+    }
+
+    /**
+     * Loads user assessment token data, refreshes token data in session and returns loaded data
+     *
+     * @return
+     */
+    protected abstract UserAssessmentTokenExtendedData loadUserAssessmentTokenDataAndRefreshInSession();
+
+    protected abstract Set<Long> getExistingPeerAssessors();
+
     public void resetAskForAssessmentModal() {
-        noRandomAssessor = false;
         assessmentRequestData.resetAssessorData();
         peersForAssessment = null;
         peerSearchTerm = null;
+    }
+
+    public void resetPeerAssessor() {
+        resetAskForAssessmentModal();
+        //after peer assessor is reset and there is no assessor assigned, assessment is treated as new
+        assessmentRequestData.setNewAssessment(true);
     }
 
     public void setAssessor(UserData assessorData) {
         assessmentRequestData.setAssessorId(assessorData.getId());
         assessmentRequestData.setAssessorFullName(assessorData.getFullName());
         assessmentRequestData.setAssessorAvatarUrl(assessorData.getAvatarUrl());
-        assessmentRequestData.setNewAssessment(isNewAssessmentRequest());
-
-        noRandomAssessor = false;
+        assessmentRequestData.setNewAssessment(assessmentType == AssessmentType.PEER_ASSESSMENT
+                && !existingPeerAssessors.contains(assessmentRequestData.getAssessorId()));
     }
 
-    public void chooseRandomPeerForAssessor() {
+    public void setPeerAssessorFromThePool() {
         resetAskForAssessmentModal();
 
-        UserData randomPeer = getRandomPeerForAssessor();
+        UserData randomPeer = getPeerAssessorFromAssessorPool();
 
         if (randomPeer != null) {
             assessmentRequestData.setAssessorId(randomPeer.getId());
             assessmentRequestData.setAssessorFullName(randomPeer.getFullName());
             assessmentRequestData.setAssessorAvatarUrl(randomPeer.getAvatarUrl());
-            assessmentRequestData.setNewAssessment(true);
-            noRandomAssessor = false;
-        } else {
-            noRandomAssessor = true;
         }
+        //when assessor is set from the pool assessment is new even if there is no available assessor
+        assessmentRequestData.setNewAssessment(true);
     }
 
     public void submitAssessment() {
@@ -153,29 +219,35 @@ public abstract class AskForAssessmentBean implements Serializable {
         }
     }
 
+    public boolean isValidRequest() {
+        return
+                //for assessment notification
+                (!assessmentRequestData.isNewAssessment() && assessmentRequestData.isAssessorSet())
+                        //for new assessment request when assessor is not set
+                        || isValidAssessmentRequestWithoutAssessorSet()
+                        //for new assessment request when assessor is set
+                        || (assessmentRequestData.isNewAssessment() && assessmentRequestData.isAssessorSet() && (!userAssessmentTokenData.isAssessmentTokensEnabled() || userAssessmentTokenData.doesUserHaveEnoughTokensForOneRequest()));
+    }
+
     public boolean submitAssessmentRequestAndReturnStatus() throws Exception {
-        boolean status;
-        if (this.assessmentRequestData.isAssessorSet()) {
-            if (assessmentRequestData.isNewAssessment()) {
-                submitAssessmentRequest();
-                if (existingPeerAssessors != null) {
-                    existingPeerAssessors.add(assessmentRequestData.getAssessorId());
-                }
-                PageUtil.fireSuccessfulInfoMessage("Your assessment request is sent");
-            } else {
-                //notify
-                notifyAssessorToAssessResource();
-                PageUtil.fireSuccessfulInfoMessage("Assessor is notified");
+        if (assessmentRequestData.isNewAssessment()) {
+            submitAssessmentRequest();
+            if (existingPeerAssessors != null) {
+                existingPeerAssessors.add(assessmentRequestData.getAssessorId());
             }
-            status = true;
+            //refresh number of tokens in session
+            if (userAssessmentTokenData.isAssessmentTokensEnabled()) {
+                assessmentTokenSessionBean.tokensSpent(assessmentRequestData.getNumberOfTokensToSpend());
+            }
+            PageUtil.fireSuccessfulInfoMessage("Your assessment request is sent");
         } else {
-            logger.error("Student " + loggedUser.getFullName() + " tried to submit assessment request for " + getResourceType().name().toLowerCase() + " : "
-                    + resourceId + ", but " + getResourceType().name().toLowerCase() + " has no assessor/instructor set!");
-            PageUtil.fireErrorMessage("No assessor set");
-            status = false;
+            //notify
+            notifyAssessorToAssessResource();
+            PageUtil.fireSuccessfulInfoMessage("Assessor is notified");
         }
+
         resetAskForAssessmentModal();
-        return status;
+        return true;
     }
 
     public void determineWhetherStudentShouldBeRemindedToSubmitEvidenceSummary() {
@@ -188,6 +260,49 @@ public abstract class AskForAssessmentBean implements Serializable {
         this.assessmentRequestData.setTargetResourceId(targetResourceId);
     }
 
+    public boolean isValidAssessmentRequestWithoutAssessorSet() {
+             return isNewValidAssessmentRequestWithoutAvailableAssessor() && !unassignedAssessmentExists;
+    }
+
+    public boolean isNewAssessmentRequestWithoutAvailableAssessorWithExistingUnassignedAssessment() {
+        return isNewValidAssessmentRequestWithoutAvailableAssessor() && unassignedAssessmentExists;
+    }
+
+    public boolean isNewValidAssessmentRequestWithoutAvailableAssessor() {
+        return isNewPeerAssessmentWithoutAssessorSet() &&
+                //tokens enabled and user has enough tokens
+                ((userAssessmentTokenData.isAssessmentTokensEnabled() && userAssessmentTokenData.doesUserHaveEnoughTokensForOneRequest())
+                        //blinded assessment is on
+                        || (!userAssessmentTokenData.isAssessmentTokensEnabled() && isBlindAssessment())
+                        //user can choose assessor but there is no available peer
+                        || (canStudentChooseAssessor() && assessorPoolUserIds.isEmpty()));
+
+    }
+
+    public boolean isAssessorAvailableThroughSearch() {
+        return canStudentChooseAssessor() && !assessorPoolUserIds.isEmpty();
+    }
+
+    public boolean isAssessorAvailable() {
+        return assessmentRequestData.isAssessorSet() || isAssessorAvailableThroughSearch();
+    }
+
+    public boolean isNewAssessmentWithAvailableAssessorsNotYetChosen() {
+        return isNewPeerAssessmentWithoutAssessorSet() && canStudentChooseAssessor() && !assessorPoolUserIds.isEmpty();
+    }
+
+    private boolean isNewPeerAssessmentWithoutAssessorSet() {
+        return assessmentType == AssessmentType.PEER_ASSESSMENT && assessmentRequestData.isNewAssessment() && !assessmentRequestData.isAssessorSet();
+    }
+
+    public boolean isPeerBlindAssessment() {
+        return assessmentType == AssessmentType.PEER_ASSESSMENT && isBlindAssessment();
+    }
+
+    private boolean isBlindAssessment() {
+        return blindAssessmentMode == BlindAssessmentMode.BLIND || blindAssessmentMode == BlindAssessmentMode.DOUBLE_BLIND;
+    }
+
     public List<UserData> getPeersForAssessment() {
         return peersForAssessment;
     }
@@ -198,14 +313,6 @@ public abstract class AskForAssessmentBean implements Serializable {
 
     public void setPeerSearchTerm(String peerSearchTerm) {
         this.peerSearchTerm = peerSearchTerm;
-    }
-
-    public boolean isNoRandomAssessor() {
-        return noRandomAssessor;
-    }
-
-    public void setNoRandomAssessor(boolean noRandomAssessor) {
-        this.noRandomAssessor = noRandomAssessor;
     }
 
     public AssessmentRequestData getAssessmentRequestData() {
@@ -234,5 +341,9 @@ public abstract class AskForAssessmentBean implements Serializable {
 
     public boolean isRemindStudentToSubmitEvidenceSummary() {
         return remindStudentToSubmitEvidenceSummary;
+    }
+
+    public UserAssessmentTokenExtendedData getUserAssessmentTokenData() {
+        return userAssessmentTokenData;
     }
 }

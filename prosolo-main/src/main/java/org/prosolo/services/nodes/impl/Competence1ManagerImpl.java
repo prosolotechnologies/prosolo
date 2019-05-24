@@ -21,6 +21,8 @@ import org.prosolo.common.domainmodel.rubric.Rubric;
 import org.prosolo.common.domainmodel.rubric.RubricType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
+import org.prosolo.common.event.EventData;
+import org.prosolo.common.event.EventQueue;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.search.util.competences.CompetenceSearchFilter;
@@ -29,9 +31,7 @@ import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.assessment.RubricManager;
 import org.prosolo.services.assessment.data.AssessmentTypeConfig;
 import org.prosolo.services.data.Result;
-import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventFactory;
-import org.prosolo.services.event.EventQueue;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.config.competence.CompetenceLoadConfig;
@@ -46,7 +46,6 @@ import org.prosolo.services.nodes.factory.CompetenceDataFactory;
 import org.prosolo.services.nodes.factory.UserDataFactory;
 import org.prosolo.services.nodes.observers.learningResources.CompetenceChangeTracker;
 import org.prosolo.services.user.UserGroupManager;
-import org.prosolo.services.user.data.UserData;
 import org.prosolo.services.util.roles.SystemRoleNames;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -55,6 +54,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
+import java.math.BigInteger;
 import java.util.*;
 
 @Service("org.prosolo.services.nodes.Competence1Manager")
@@ -97,7 +97,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		//self-invocation
 		Result<Competence1> res = self.saveNewCompetenceAndGetEvents(data, credentialId, context);
 
-		eventFactory.generateEvents(res.getEventQueue());
+		eventFactory.generateAndPublishEvents(res.getEventQueue());
 		return res.getResult();
 	}
 
@@ -293,10 +293,6 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 									List<LearningEvidenceData> compEvidences = learningEvidenceManager.getUserEvidencesForACompetence(compData.getTargetCompId(), LearningEvidenceLoadConfig.builder().build());
 									compData.setEvidences(compEvidences);
 								}
-								//load number of competence assessments if needed
-								if (compLoadConfig.isLoadAssessmentCount()) {
-									compData.setNumberOfAssessments(assessmentManager.getNumberOfApprovedAssessmentsForUserCompetence(compData.getCompetenceId(), userId));
-								}
 							}
 						} else {
 							compData = competenceFactory.getCompetenceData(createdBy, cc, null, tags, false);
@@ -319,16 +315,16 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	}
 
 	@Override
-	public TargetCompetence1 enrollInCompetence(long compId, long userId, UserContextData context)
+	public TargetCompetence1 enrollInCompetence(long credId, long compId, long userId, UserContextData context)
 			throws DbConnectionException {
-		Result<TargetCompetence1> res = self.enrollInCompetenceAndGetEvents(compId, userId, context);
-		eventFactory.generateEvents(res.getEventQueue());
+		Result<TargetCompetence1> res = self.enrollInCompetenceAndGetEvents(credId, compId, userId, context);
+		eventFactory.generateAndPublishEvents(res.getEventQueue());
 		return res.getResult();
 	}
 
 	@Override
 	@Transactional
-	public Result<TargetCompetence1> enrollInCompetenceAndGetEvents(long compId, long userId, UserContextData context)
+	public Result<TargetCompetence1> enrollInCompetenceAndGetEvents(long credId, long compId, long userId, UserContextData context)
 			throws DbConnectionException {
 		try {
 			Date now = new Date();
@@ -368,20 +364,19 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 					.filter(config -> config.getAssessmentType() == AssessmentType.SELF_ASSESSMENT)
 					.findFirst().get()
 					.isEnabled()) {
-				res.appendEvents(assessmentManager.createSelfCompetenceAssessmentAndGetEvents(compId, userId, context).getEventQueue());
+				res.appendEvents(assessmentManager.createSelfCompetenceAssessmentAndGetEvents(credId, compId, userId, context).getEventQueue());
 			}
 
 			return res;
 		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
+			logger.error("error", e);
 			throw new DbConnectionException("Error enrolling a competence");
 		}
 	}
 
 	@Override
 	@Transactional(readOnly = true)
-	public RestrictedAccessResult<CompetenceData1> getCompetenceDataWithAccessRightsInfo(long credId, long compId, 
+	public RestrictedAccessResult<CompetenceData1> getCompetenceDataWithAccessRightsInfo(long compId,
 			boolean loadCreator, boolean loadAssessmentConfig, boolean loadTags, boolean loadActivities, long userId,
 			ResourceAccessRequirements req, boolean shouldTrackChanges) 
 					throws ResourceNotFoundException, IllegalArgumentException, DbConnectionException {
@@ -389,7 +384,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			if(req == null) {
 				throw new IllegalArgumentException();
 			}
-			CompetenceData1 compData = getCompetenceData(credId, compId, loadCreator, loadAssessmentConfig, loadTags, loadActivities,
+			CompetenceData1 compData = getCompetenceData(compId, loadCreator, loadAssessmentConfig, loadTags, loadActivities,
 					shouldTrackChanges);
 			
 			ResourceAccessData access = getResourceAccessData(compId, userId, req);
@@ -409,11 +404,11 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	
 	@Override
 	@Transactional(readOnly = true)
-	public CompetenceData1 getCompetenceData(long credId, long compId, boolean loadCreator, 
+	public CompetenceData1 getCompetenceData(long compId, boolean loadCreator,
 			boolean loadAssessmentConfig, boolean loadTags, boolean loadActivities, boolean shouldTrackChanges)
 					throws ResourceNotFoundException, DbConnectionException {
 		try {
-			Competence1 comp = getCompetence(credId, compId, loadCreator, loadTags, true);
+			Competence1 comp = getCompetence(compId, loadCreator, loadTags, true);
 			
 			if (comp == null) {
 				throw new ResourceNotFoundException();
@@ -443,34 +438,17 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	}
 
 	/**
-	 * @param credId
 	 * @param compId
 	 * @param loadCreator
 	 * @param loadTags
 	 * @param returnIfArchived
 	 * @return
 	 */
-	private Competence1 getCompetence(long credId, long compId, boolean loadCreator, boolean loadTags,
-			boolean returnIfArchived) {
+	private Competence1 getCompetence(long compId, boolean loadCreator, boolean loadTags, boolean returnIfArchived) {
 		StringBuilder builder = new StringBuilder();
-		builder.append("SELECT comp ");
-		/*
-		 * if credential id is passed need to make sure that competence really
-		 * is in credential with specified id
-		 */
-		if(credId > 0) {
-			builder.append("FROM CredentialCompetence1 credComp " +
-						   "INNER JOIN credComp.competence comp " +
-						   		"WITH comp.id = :compId " +
-						   	    "AND comp.deleted = :deleted ");
-			if(!returnIfArchived) {
-				builder.append("AND comp.archived = :archived ");
-			}
-		} else {
-			builder.append("FROM Competence1 comp ");
-		}
-		// builder.append("SELECT comp " +
-		// "FROM Competence1 comp ");
+		builder.append(
+				"SELECT comp " +
+				"FROM Competence1 comp ");
 
 		if (loadCreator) {
 			builder.append("INNER JOIN fetch comp.createdBy user ");
@@ -478,33 +456,26 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		if (loadTags) {
 			builder.append("LEFT JOIN fetch comp.tags tags ");
 		}
-		// if(loadActivities) {
-		// builder.append("LEFT JOIN fetch comp.activities compAct " +
-		// "INNER JOIN fetch compAct.activity act ");
-		// }
-		if (credId > 0) {
-			builder.append("WHERE credComp.credential.id = :credId");
-		} else {
-			builder.append("WHERE comp.id = :compId " +
-					   "AND comp.deleted = :deleted ");
-			if(!returnIfArchived) {
-				builder.append("AND comp.archived = :archived ");
-			}
+
+		builder.append(
+				"WHERE comp.id = :compId " +
+					"AND comp.deleted = :deleted ");
+
+		if (!returnIfArchived) {
+			builder.append("AND comp.archived = :archived ");
 		}
 
 		logger.info("QUERY: " + builder.toString());
-		Query q = persistence.currentManager().createQuery(builder.toString()).setLong("compId", compId)
+
+		Query q = persistence.currentManager().createQuery(builder.toString())
+				.setLong("compId", compId)
 				.setBoolean("deleted", false);
 
-		if (credId > 0) {
-			q.setLong("credId", credId);
-		}
-		if(!returnIfArchived) {
+		if (!returnIfArchived) {
 			q.setBoolean("archived", false);
 		}
 
-		Competence1 res = (Competence1) q.uniqueResult();
-		return res;
+		return (Competence1) q.uniqueResult();
 	}
 
 	@Override
@@ -528,7 +499,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			}
 
 			Result<Competence1> updatedComp = resourceFactory.updateCompetence(data, context);
-			eventFactory.generateEvents(updatedComp.getEventQueue());
+			eventFactory.generateAndPublishEvents(updatedComp.getEventQueue());
 			/* 
 			 * flushing to force lock timeout exception so it can be caught here.
 			 * It is rethrown as StaleDataException.
@@ -552,7 +523,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	}
 
 	private EventData fireCompEditEvent(CompetenceData1 data, Competence1 updatedComp,
-								   UserContextData context) {
+										UserContextData context) {
 		Map<String, String> params = new HashMap<>();
 		CompetenceChangeTracker changeTracker = new CompetenceChangeTracker(data.isPublished(),
 				data.isPublishedChanged(), data.isTitleChanged(), data.isDescriptionChanged(), false,
@@ -989,15 +960,14 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		CompetenceData1 compData = null;
 		try {
 			compData = getTargetCompetenceData(credId, compId, userId, true, true);
+
 			if (compData == null) {
-//				compData = getCompetenceData(compId, true, true, true, userId,
-//						LearningResourceReturnResultType.FIRST_TIME_DRAFT_FOR_USER, true);
-				//compData = getCompetenceDataForUser(credId, compId, true, true, true, userId, true);
 				ResourceAccessRequirements req = ResourceAccessRequirements
 						.of(AccessMode.USER)
 						.addPrivilege(UserGroupPrivilege.Learn)
 						.addPrivilege(UserGroupPrivilege.Edit);
-				return getCompetenceDataWithAccessRightsInfo(credId, compId, true, true, true, true, userId,
+
+				return getCompetenceDataWithAccessRightsInfo(compId, true, true, true, true, userId,
 						req, false);
 			}
 				
@@ -1036,30 +1006,24 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		CompetenceData1 compData;
 		try {
 			StringBuilder builder = new StringBuilder();
-			builder.append("SELECT targetComp " +
+			builder.append(
+					"SELECT targetComp " +
 					"FROM TargetCompetence1 targetComp " +
-					"INNER JOIN fetch targetComp.competence comp ");
-
-			if (credId > 0) {
-				builder.append("INNER JOIN comp.credentialCompetences credComp " +
-						"WITH credComp.credential.id = :credId ");
-			}
-
-			builder.append("INNER JOIN fetch comp.createdBy user " +
+					"INNER JOIN fetch targetComp.competence comp " +
+					"INNER JOIN comp.credentialCompetences credComp " +
+						"WITH credComp.credential.id = :credId " +
+					"INNER JOIN fetch comp.createdBy user " +
 					"LEFT JOIN fetch comp.tags tags " +
 					"WHERE targetComp.user.id = :userId " +
-					"AND comp.id = :compId ");
-
+						"AND comp.id = :compId ");
 
 			logger.info("QUERY: " + builder.toString());
+
 			Query q = persistence.currentManager()
 					.createQuery(builder.toString())
 					.setLong("compId", compId)
-					.setLong("userId", userId);
-
-			if (credId > 0) {
-				q.setLong("credId", credId);
-			}
+					.setLong("userId", userId)
+					.setLong("credId", credId);
 
 			TargetCompetence1 res = (TargetCompetence1) q.uniqueResult();
 
@@ -1081,7 +1045,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 					if (loadAssessmentConfig) {
 						for (AssessmentTypeConfig conf : compData.getAssessmentTypes()) {
 							if (conf.isEnabled()) {
-								conf.setGradeSummary(assessmentManager.getCompetenceAssessmentsGradeSummary(compId, userId, conf.getType()));
+								conf.setGradeSummary(assessmentManager.getActiveCompetenceAssessmentsGradeSummary(credId, compId, userId, conf.getType()));
 							}
 						}
 					}
@@ -1354,7 +1318,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			EventQueue events =
 					self.updateCompetenceVisibilityAndGetEvents(compId, groups, users, visibleToAll,
 							visibleToAllChanged, context);
-			eventFactory.generateEvents(events);
+			eventFactory.generateAndPublishEvents(events);
 		} catch (DbConnectionException e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -1497,7 +1461,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	public void bookmarkCompetence(long compId, UserContextData context)
 			throws DbConnectionException {
 		Result<Void> res = self.bookmarkCompetenceAndGetEvents(compId, context);
-		eventFactory.generateEvents(res.getEventQueue());
+		eventFactory.generateAndPublishEvents(res.getEventQueue());
 	}
 
 	@Override
@@ -1531,7 +1495,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	public void deleteCompetenceBookmark(long compId, UserContextData context)
 			throws DbConnectionException {
 		Result<Void> res = self.deleteCompetenceBookmarkAndGetEvents(compId, context);
-		eventFactory.generateEvents(res.getEventQueue());
+		eventFactory.generateAndPublishEvents(res.getEventQueue());
 	}
 	
 	@Override
@@ -1662,7 +1626,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	public void archiveCompetence(long compId, UserContextData context)
 			throws DbConnectionException {
 		Result<Void> res = self.archiveCompetenceAndGetEvents(compId, context);
-		eventFactory.generateEvents(res.getEventQueue());
+		eventFactory.generateAndPublishEvents(res.getEventQueue());
 	}
 
 	@Override
@@ -1851,7 +1815,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	public long duplicateCompetence(long compId, UserContextData context)
 			throws DbConnectionException {
 		Result<Competence1> res = self.duplicateCompetenceAndGetEvents(compId, context);
-		eventFactory.generateEvents(res.getEventQueue());
+		eventFactory.generateAndPublishEvents(res.getEventQueue());
 		return res.getResult().getId();
 	}
 
@@ -1998,28 +1962,28 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	
 	@Override
 	@Transactional(readOnly = true)
-	public String getCompetenceTitleForCompetenceWithType(long id, LearningResourceType type)
+	public String getCompetenceTitleForCompetenceWithType(long compId, LearningResourceType type)
 			throws DbConnectionException {
 		try {
 			StringBuilder queryBuilder = new StringBuilder(
-				   "SELECT c.title " +
-				   "FROM Competence1 c " +
-				   "WHERE c.id = :compId ");
-			
-			if(type != null) {
+					"SELECT c.title " +
+					"FROM Competence1 c " +
+					"WHERE c.id = :compId ");
+
+			if (type != null) {
 				queryBuilder.append("AND c.type = :type");
 			}
-			
+
 			Query q = persistence.currentManager()
-				.createQuery(queryBuilder.toString())
-				.setLong("compId", id);
-			
-			if(type != null) {
+					.createQuery(queryBuilder.toString())
+					.setLong("compId", compId);
+
+			if (type != null) {
 				q.setParameter("type", type);
 			}
-			
+
 			String title = (String) q.uniqueResult();
-			
+
 			return title;
 		} catch(Exception e) {
 			logger.error(e);
@@ -2055,7 +2019,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	public void restoreArchivedCompetence(long compId, UserContextData context)
 			throws DbConnectionException {
 		Result<Void> res = self.restoreArchivedCompetenceAndGetEvents(compId, context);
-		eventFactory.generateEvents(res.getEventQueue());
+		eventFactory.generateAndPublishEvents(res.getEventQueue());
 	}
 	
 	@Override
@@ -2097,7 +2061,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		try {
 			ResourceAccessRequirements req = ResourceAccessRequirements.of(accessMode)
 					.addPrivilege(UserGroupPrivilege.Edit);
-			RestrictedAccessResult<CompetenceData1> res = getCompetenceDataWithAccessRightsInfo(credId, compId, true, true, true, true, userId,
+			RestrictedAccessResult<CompetenceData1> res = getCompetenceDataWithAccessRightsInfo(compId, true, true, true, true, userId,
 					req, true);
 			
 			boolean canUnpublish = !isThereOngoingDeliveryWithCompetence(compId);
@@ -2136,44 +2100,66 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	@Transactional(readOnly = false)
 	public EventQueue updateCompetenceProgress(long targetCompId, UserContextData context)
 			throws DbConnectionException {
+		EventQueue eventQueue = EventQueue.newEventQueue();
+
 		try {
-			EventQueue eventQueue = EventQueue.newEventQueue();
-			
 			String query = "SELECT comp.id, act.id, tAct.completed " +
-				   "FROM TargetActivity1 tAct " +
-				   "INNER JOIN tAct.targetCompetence tComp " +
-				   "INNER JOIN tComp.competence comp " +
-				   "INNER JOIN tAct.activity act " +
-				   "WHERE tComp.id = :tCompId " +
-				   "ORDER BY tAct.order";
-	
-			@SuppressWarnings("unchecked")
+					"FROM TargetActivity1 tAct " +
+					"INNER JOIN tAct.targetCompetence tComp " +
+					"INNER JOIN tComp.competence comp " +
+					"INNER JOIN tAct.activity act " +
+					"WHERE tComp.id = :tCompId " +
+					"ORDER BY tAct.order";
+
 			List<Object[]> res = persistence.currentManager()
-				.createQuery(query)
-				.setLong("tCompId", targetCompId)
-				.list();
-			
-			if(res != null) {
+					.createQuery(query)
+					.setLong("tCompId", targetCompId)
+					.list();
+
+			if (res != null) {
 				int cumulativeCompProgress = 0;
 				int numberOfActivitiesInACompetence = 0;
 				long nextActToLearnInACompetenceId = 0;
-				
-				for(Object[] obj : res) {
-					long actId = (long) obj[1];
-					boolean actCompleted = (boolean) obj[2];
-					
+
+				for (Object[] obj : res) {
+					long actId = ((BigInteger) obj[2]).longValue();
+					boolean actCompleted = (boolean) obj[3];
+
 					int progress = actCompleted ? 100 : 0;
 					cumulativeCompProgress += progress;
-					numberOfActivitiesInACompetence ++;
-					if(nextActToLearnInACompetenceId == 0 && !actCompleted) {
+					numberOfActivitiesInACompetence++;
+					if (nextActToLearnInACompetenceId == 0 && !actCompleted) {
 						nextActToLearnInACompetenceId = actId;
 					}
 				}
 				int finalCompProgress = cumulativeCompProgress / numberOfActivitiesInACompetence;
-				
-				eventQueue.appendEvents(updateCompetenceProgress(targetCompId, (long) res.get(0)[0], finalCompProgress,
-						nextActToLearnInACompetenceId, context));
-				
+
+				updateCompetenceProgress(targetCompId, finalCompProgress, nextActToLearnInACompetenceId);
+
+				// generate appropriate events
+				long compId = (long) res.get(0)[0];
+
+				TargetCompetence1 tComp = new TargetCompetence1();
+				tComp.setId(targetCompId);
+				Competence1 competence = new Competence1();
+				competence.setId(compId);
+				tComp.setCompetence(competence);
+
+				Map<String, String> params = new HashMap<>();
+
+				// if the competence is completed
+				if (finalCompProgress == 100) {
+					params.put("dateCompleted", DateUtil.getMillisFromDate(new Date()) + "");
+
+					eventQueue.appendEvent(eventFactory.generateEventData(
+							EventType.Completion, context, tComp, null, null, params));
+				}
+
+				EventData ev = eventFactory.generateEventData(EventType.ChangeProgress,
+						context, tComp, null, null, null);
+				ev.setProgress(finalCompProgress);
+				eventQueue.appendEvent(ev);
+
 				eventQueue.appendEvents(credentialManager.updateCredentialProgress(targetCompId, context));
 			}
 			return eventQueue;
@@ -2186,55 +2172,28 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		}
 	}
 
-	private EventQueue updateCompetenceProgress(long targetCompId, long compId, int finalCompProgress,
-			long nextActivityToLearnId, UserContextData context) {
-		Date now = new Date();
-		
+	private void updateCompetenceProgress(long targetCompId, int finalCompProgress,
+										  long nextActivityToLearnId) {
 		StringBuilder builder = new StringBuilder();
 		builder.append("UPDATE TargetCompetence1 targetComp SET " +
- 				 	   "targetComp.progress = :progress, " +
-					   "targetComp.nextActivityToLearnId = :nextActToLearnId ");
+				"targetComp.progress = :progress, " +
+				"targetComp.nextActivityToLearnId = :nextActToLearnId ");
+
 		if (finalCompProgress == 100) {
 			builder.append(", targetComp.dateCompleted = :dateCompleted ");
 		}
 		builder.append("WHERE targetComp.id = :targetCompId");
-		
+
 		Query q = persistence.currentManager()
-			.createQuery(builder.toString())
-			.setInteger("progress", finalCompProgress)
-			.setLong("targetCompId", targetCompId)
-			.setLong("nextActToLearnId", nextActivityToLearnId);
-		
+				.createQuery(builder.toString())
+				.setInteger("progress", finalCompProgress)
+				.setLong("targetCompId", targetCompId)
+				.setLong("nextActToLearnId", nextActivityToLearnId);
+
 		if (finalCompProgress == 100) {
-			q.setTimestamp("dateCompleted", now);
+			q.setTimestamp("dateCompleted", new Date());
 		}
 		q.executeUpdate();
-		
-		EventQueue events = EventQueue.newEventQueue();
-		
-		TargetCompetence1 tComp = new TargetCompetence1();
-		tComp.setId(targetCompId);
-		Competence1 competence = new Competence1();
-		competence.setId(compId);
-		tComp.setCompetence(competence);
-
-		Map<String, String> params = new HashMap<>();
-
-		if (finalCompProgress == 100) {
-			params.put("dateCompleted", DateUtil.getMillisFromDate(now) + "");
-
-			events.appendEvent(eventFactory.generateEventData(
-					EventType.Completion, context, tComp, null,null, params));
-		}
-
-		EventData ev = eventFactory.generateEventData(EventType.ChangeProgress,
-				context, tComp, null, null, params);
-		ev.setProgress(finalCompProgress);
-		events.appendEvent(ev);
-//		eventFactory.generateChangeProgressEvent(userId, tComp, finalCompProgress, 
-//				lcPage, lcContext, lcService, params);
-
-		return events;
 	}
 
 	@Override
@@ -2428,7 +2387,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	@Override
 	//nt
 	public void changeOwner(long compId, long newOwnerId, UserContextData context) throws DbConnectionException {
-		eventFactory.generateEvents(self.changeOwnerAndGetEvents(compId, newOwnerId, context).getEventQueue());
+		eventFactory.generateAndPublishEvents(self.changeOwnerAndGetEvents(compId, newOwnerId, context).getEventQueue());
 	}
 
 	@Override
@@ -2524,62 +2483,34 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	}
 
 	@Override
-	@Transactional(readOnly = true)
-	public UserData chooseRandomPeer(long compId, long userId) throws DbConnectionException {
-		try {
-			String query =
-					"SELECT user " +
-					"FROM TargetCompetence1 tComp " +
-					"INNER JOIN tComp.user user " +
-					"WHERE tComp.competence.id = :compId " +
-					"AND user.id != :userId " +
-					"AND user.id NOT IN ( " +
-						"SELECT assessment.assessor.id " +
-						"FROM CompetenceAssessment assessment " +
-						"WHERE assessment.student.id = :userId " +
-						"AND assessment.competence.id = :compId " +
-						"AND assessment.assessor IS NOT NULL " + // can be NULL in default assessments when instructor is not set
-						"AND assessment.type = :aType " +
-					") " +
-					"ORDER BY RAND()";
-
-			@SuppressWarnings("unchecked")
-			User res = (User) persistence.currentManager()
-					.createQuery(query)
-					.setLong("compId", compId)
-					.setLong("userId", userId)
-					.setString("aType", AssessmentType.PEER_ASSESSMENT.name())
-					.setMaxResults(1)
-					.uniqueResult();
-
-			return res != null ? new UserData(res) : null;
-		} catch (Exception e) {
-			logger.error("Error", e);
-			throw new DbConnectionException("Error retrieving random peer");
-		}
-	}
-
-	@Override
-	public void completeCompetence(long targetCompetenceId, UserContextData context) throws DbConnectionException {
-		Result<Void> res = self.completeCompetenceAndGetEvents(targetCompetenceId, context);
-		eventFactory.generateEvents(res.getEventQueue());
+	//nt
+	public void completeCompetence(long targetCompetenceId, long credentialId, UserContextData context) throws DbConnectionException {
+		Result<Void> res = self.completeCompetenceAndGetEvents(targetCompetenceId, credentialId, context);
+		eventFactory.generateAndPublishEvents(res.getEventQueue());
 	}
 
 	@Override
 	@Transactional
-	public Result<Void> completeCompetenceAndGetEvents(long targetCompetenceId, UserContextData context)
+	public Result<Void> completeCompetenceAndGetEvents(long targetCompetenceId, long credentialId, UserContextData context)
 			throws DbConnectionException {
 		try {
+			Date dateCompleted = new Date();
+
 			TargetCompetence1 tc = (TargetCompetence1) persistence.currentManager()
 					.load(TargetCompetence1.class, targetCompetenceId);
 			tc.setProgress(100);
-			tc.setDateCompleted(new Date());
+			tc.setDateCompleted(dateCompleted);
 
 			Result<Void> res = new Result<>();
 			TargetCompetence1 tComp = new TargetCompetence1();
 			tComp.setId(targetCompetenceId);
+
+			Map<String, String> params = new HashMap<>();
+			params.put("dateCompleted", DateUtil.getMillisFromDate(dateCompleted) + "");
+			params.put("credId", credentialId+"");
+
 			res.appendEvent(eventFactory.generateEventData(
-					EventType.Completion, context, tComp, null, null, null));
+					EventType.Completion, context, tComp, null, null, params));
 
 			EventData ev = eventFactory.generateEventData(EventType.ChangeProgress,
 					context, tComp, null, null, null);
@@ -2591,6 +2522,42 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			res.appendEvents(credentialManager.updateCredentialProgress(targetCompetenceId, context));
 
 			return res;
+		} catch (DbConnectionException e) {
+			throw e;
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error marking the competence as completed");
+		}
+	}
+
+	@Override
+	@Transactional
+	public Result<Void> completeCompetenceAndGetEvents(long targetCompetenceId, UserContextData context)
+			throws DbConnectionException {
+		try {
+			String query =
+					"SELECT cred.id " +
+					"FROM TargetCompetence1 tComp " +
+					"LEFT JOIN tComp.competence comp " +
+					"LEFT JOIN comp.credentialCompetences credComp " +
+					"LEFT JOIN credComp.credential cred " +
+					"LEFT JOIN cred.targetCredentials tCred " +
+					"LEFT JOIN tCred.user user " +
+					"WHERE tComp.id = :targetCompId " +
+						"AND user.id = :studentId ";
+
+			@SuppressWarnings("unchecked")
+			Long credentialId = (Long) persistence.currentManager()
+					.createQuery(query)
+					.setLong("targetCompId", targetCompetenceId)
+					.setLong("studentId", context.getActorId())
+					.uniqueResult();
+
+			if (credentialId > 0) {
+				return completeCompetenceAndGetEvents(targetCompetenceId, credentialId, context);
+			} else {
+				throw new RuntimeException("Error finding credential isd for the Target Comeptence " + targetCompetenceId);
+			}
 		} catch (DbConnectionException e) {
 			throw e;
 		} catch (Exception e) {
@@ -2624,25 +2591,20 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	@Transactional
 	public void checkIfCompetenceIsPartOfACredential(long credId, long compId)
 			throws ResourceNotFoundException {
-		/*
-		 * check if passed credential has specified competence
-		 */
-		if(credId > 0) {
-			String query1 = "SELECT credComp.id " +
-					"FROM CredentialCompetence1 credComp " +
-					"WHERE credComp.credential.id = :credId " +
+		String query1 =
+				"SELECT credComp.id " +
+				"FROM CredentialCompetence1 credComp " +
+				"WHERE credComp.credential.id = :credId " +
 					"AND credComp.competence.id = :compId";
 
-			@SuppressWarnings("unchecked")
-			List<Long> res1 = persistence.currentManager()
-					.createQuery(query1)
-					.setLong("credId", credId)
-					.setLong("compId", compId)
-					.list();
+		List<Long> res1 = persistence.currentManager()
+				.createQuery(query1)
+				.setLong("credId", credId)
+				.setLong("compId", compId)
+				.list();
 
-			if(res1 == null || res1.isEmpty()) {
-				throw new ResourceNotFoundException();
-			}
+		if (res1 == null || res1.isEmpty()) {
+			throw new ResourceNotFoundException();
 		}
 	}
 
@@ -2660,12 +2622,12 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	@Override
 	@Transactional(readOnly = true)
 	public CompetenceData1 getTargetCompetenceOrCompetenceData(
-			long compId, long studentId, boolean loadAssessmentConfig, boolean loadLearningPathContent,
+			long credId, long compId, long studentId, boolean loadAssessmentConfig, boolean loadLearningPathContent,
 			boolean loadCreator, boolean loadTags) throws DbConnectionException {
 		try {
-			CompetenceData1 compData = getTargetCompetenceData(0, compId, studentId, loadAssessmentConfig, loadLearningPathContent);
+			CompetenceData1 compData = getTargetCompetenceData(credId, compId, studentId, loadAssessmentConfig, loadLearningPathContent);
 			if (compData == null) {
-				compData = getCompetenceData(0, compId, loadCreator, loadAssessmentConfig, loadTags, loadLearningPathContent, false);
+				compData = getCompetenceData(compId, loadCreator, loadAssessmentConfig, loadTags, loadLearningPathContent, false);
 			}
 
 			return compData;
@@ -2680,15 +2642,17 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	public List<AssessmentTypeConfig> getCompetenceAssessmentTypesConfig(long compId) throws DbConnectionException {
 		try {
 			String q =
-					"SELECT conf FROM CompetenceAssessmentConfig conf " +
+					"SELECT conf " +
+					"FROM CompetenceAssessmentConfig conf " +
 					"WHERE conf.competence.id = :compId";
+
 			@SuppressWarnings("unchecked")
 			List<CompetenceAssessmentConfig> assessmentTypesConfig = persistence.currentManager()
 					.createQuery(q)
 					.setLong("compId", compId)
 					.list();
-			List<AssessmentTypeConfig> res = competenceFactory.getAssessmentConfig(assessmentTypesConfig);
-			return res;
+
+			return competenceFactory.getAssessmentConfig(assessmentTypesConfig);
 		} catch (Exception e) {
 			logger.error("Error", e);
 			throw new DbConnectionException("Error loading the assessment types config for competence");

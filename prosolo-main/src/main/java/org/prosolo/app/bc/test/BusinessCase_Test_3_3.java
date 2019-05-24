@@ -6,11 +6,11 @@ import org.prosolo.common.domainmodel.credential.LearningEvidenceType;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.common.domainmodel.observations.Suggestion;
 import org.prosolo.common.domainmodel.observations.Symptom;
+import org.prosolo.common.event.EventQueue;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.assessment.data.AssessmentDataFull;
-import org.prosolo.services.assessment.data.CompetenceAssessmentData;
-import org.prosolo.services.event.EventQueue;
+import org.prosolo.services.assessment.data.CompetenceAssessmentDataFull;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.config.competence.CompetenceLoadConfig;
@@ -70,27 +70,27 @@ public class BusinessCase_Test_3_3 extends BusinessCase_Test_3 {
 
         // enroll helen campbell
         List<CompetenceData1> credential1Delivery1CompetencesHelen = compManager.getCompetencesForCredential(credential1Delivery1.getId(), userHelenCampbell.getId(), new CompetenceLoadConfig.CompetenceLoadConfigBuilder().create());
-        TargetCompetence1 credential1Delivery1Comp1TargetHelen = extractResultAndAddEvents(events, compManager.enrollInCompetenceAndGetEvents(credential1Delivery1CompetencesHelen.get(0).getCompetenceId(), userHelenCampbell.getId(), createUserContext(userHelenCampbell)));
-        TargetCompetence1 credential1Delivery1Comp2TargetHelen = extractResultAndAddEvents(events, compManager.enrollInCompetenceAndGetEvents(credential1Delivery1CompetencesHelen.get(1).getCompetenceId(), userHelenCampbell.getId(), createUserContext(userHelenCampbell)));
-        TargetCompetence1 credential1Delivery1Comp3TargetHelen = extractResultAndAddEvents(events, compManager.enrollInCompetenceAndGetEvents(credential1Delivery1CompetencesHelen.get(2).getCompetenceId(), userHelenCampbell.getId(), createUserContext(userHelenCampbell)));
-        TargetCompetence1 credential1Delivery1Comp4TargetHelen = extractResultAndAddEvents(events, compManager.enrollInCompetenceAndGetEvents(credential1Delivery1CompetencesHelen.get(3).getCompetenceId(), userHelenCampbell.getId(), createUserContext(userHelenCampbell)));
-        TargetCompetence1 credential1Delivery1Comp5TargetHelen = extractResultAndAddEvents(events, compManager.enrollInCompetenceAndGetEvents(credential1Delivery1CompetencesHelen.get(4).getCompetenceId(), userHelenCampbell.getId(), createUserContext(userHelenCampbell)));
-        TargetCompetence1 credential1Delivery1Comp6TargetHelen = extractResultAndAddEvents(events, compManager.enrollInCompetenceAndGetEvents(credential1Delivery1CompetencesHelen.get(5).getCompetenceId(), userHelenCampbell.getId(), createUserContext(userHelenCampbell)));
+        TargetCompetence1 credential1Delivery1Comp1TargetHelen = extractResultAndAddEvents(events, compManager.enrollInCompetenceAndGetEvents(credential1Delivery1.getId(), credential1Delivery1CompetencesHelen.get(0).getCompetenceId(), userHelenCampbell.getId(), createUserContext(userHelenCampbell)));
+        TargetCompetence1 credential1Delivery1Comp2TargetHelen = extractResultAndAddEvents(events, compManager.enrollInCompetenceAndGetEvents(credential1Delivery1.getId(), credential1Delivery1CompetencesHelen.get(1).getCompetenceId(), userHelenCampbell.getId(), createUserContext(userHelenCampbell)));
+        TargetCompetence1 credential1Delivery1Comp3TargetHelen = extractResultAndAddEvents(events, compManager.enrollInCompetenceAndGetEvents(credential1Delivery1.getId(), credential1Delivery1CompetencesHelen.get(2).getCompetenceId(), userHelenCampbell.getId(), createUserContext(userHelenCampbell)));
+        TargetCompetence1 credential1Delivery1Comp4TargetHelen = extractResultAndAddEvents(events, compManager.enrollInCompetenceAndGetEvents(credential1Delivery1.getId(), credential1Delivery1CompetencesHelen.get(3).getCompetenceId(), userHelenCampbell.getId(), createUserContext(userHelenCampbell)));
+        TargetCompetence1 credential1Delivery1Comp5TargetHelen = extractResultAndAddEvents(events, compManager.enrollInCompetenceAndGetEvents(credential1Delivery1.getId(), credential1Delivery1CompetencesHelen.get(4).getCompetenceId(), userHelenCampbell.getId(), createUserContext(userHelenCampbell)));
+        TargetCompetence1 credential1Delivery1Comp6TargetHelen = extractResultAndAddEvents(events, compManager.enrollInCompetenceAndGetEvents(credential1Delivery1.getId(), credential1Delivery1CompetencesHelen.get(5).getCompetenceId(), userHelenCampbell.getId(), createUserContext(userHelenCampbell)));
 
 
         // Helen Campbell starts activity-based competencies
         List<CompetenceData1> credentialWithActivities1Delivery1CompetenciesHelen = ServiceLocator.getInstance().getService(Competence1Manager.class).getCompetencesForCredential(credentialWithActivities1Delivery1.getId(), userHelenCampbell.getId(), new CompetenceLoadConfig.CompetenceLoadConfigBuilder().create());
-        TargetCompetence1 credentialWithActivities1Delivery1Competency1Helen = extractResultAndAddEvents(events, compManager.enrollInCompetenceAndGetEvents(credentialWithActivities1Delivery1CompetenciesHelen.get(0).getCompetenceId(), userHelenCampbell.getId(), createUserContext(userHelenCampbell)));
+        TargetCompetence1 credentialWithActivities1Delivery1Competency1Helen = extractResultAndAddEvents(events, compManager.enrollInCompetenceAndGetEvents(credentialWithActivities1Delivery1.getId(), credentialWithActivities1Delivery1CompetenciesHelen.get(0).getCompetenceId(), userHelenCampbell.getId(), createUserContext(userHelenCampbell)));
 
 
         // enroll George Young
         List<CompetenceData1> credential1Delivery1CompetencesGeorge = compManager.getCompetencesForCredential(credential1Delivery1.getId(), userGeorgeYoung.getId(), new CompetenceLoadConfig.CompetenceLoadConfigBuilder().create());
-        enrollToCompetencies(events, credential1Delivery1CompetencesGeorge, userGeorgeYoung);
+        enrollToCompetencies(events, credential1Delivery1.getId(), credential1Delivery1CompetencesGeorge, userGeorgeYoung);
 
         //enroll Richard Anderson
         List<CompetenceData1> credential1Delivery1CompetencesRichard = compManager.getCompetencesForCredential(credential1Delivery1.getId(), userRichardAnderson.getId(), new CompetenceLoadConfig.CompetenceLoadConfigBuilder().create());
-        TargetCompetence1 credential1Delivery1Comp1TargetRichard = extractResultAndAddEvents(events, compManager.enrollInCompetenceAndGetEvents(credential1Delivery1CompetencesRichard.get(0).getCompetenceId(), userRichardAnderson.getId(), createUserContext(userRichardAnderson)));
-        TargetCompetence1 credential1Delivery1Comp2TargetRichard = extractResultAndAddEvents(events, compManager.enrollInCompetenceAndGetEvents(credential1Delivery1CompetencesRichard.get(1).getCompetenceId(), userRichardAnderson.getId(), createUserContext(userRichardAnderson)));
+        TargetCompetence1 credential1Delivery1Comp1TargetRichard = extractResultAndAddEvents(events, compManager.enrollInCompetenceAndGetEvents(credential1Delivery1.getId(), credential1Delivery1CompetencesRichard.get(0).getCompetenceId(), userRichardAnderson.getId(), createUserContext(userRichardAnderson)));
+        TargetCompetence1 credential1Delivery1Comp2TargetRichard = extractResultAndAddEvents(events, compManager.enrollInCompetenceAndGetEvents(credential1Delivery1.getId(), credential1Delivery1CompetencesRichard.get(1).getCompetenceId(), userRichardAnderson.getId(), createUserContext(userRichardAnderson)));
 
 
 
@@ -178,10 +178,10 @@ public class BusinessCase_Test_3_3 extends BusinessCase_Test_3 {
 
         // grade and approve instructor assessment
         long credential1Delivery1HelenCampbellInstructorAssessmentId = ServiceLocator.getInstance().getService(AssessmentManager.class)
-                .getInstructorCredentialAssessmentId(credential1Delivery1.getId(), userHelenCampbell.getId()).get();
+                .getActiveInstructorCredentialAssessmentId(credential1Delivery1.getId(), userHelenCampbell.getId()).get();
         AssessmentDataFull instructorCredentialAssessmentData = getCredentialAssessmentData(credential1Delivery1HelenCampbellInstructorAssessmentId, userAnnaHallowell.getId(), AssessmentType.INSTRUCTOR_ASSESSMENT);
         gradeCredentialAssessmentByRubric(events, instructorCredentialAssessmentData, userAnnaHallowell, 3);
-        for (CompetenceAssessmentData competenceAssessmentData : instructorCredentialAssessmentData.getCompetenceAssessmentData()) {
+        for (CompetenceAssessmentDataFull competenceAssessmentData : instructorCredentialAssessmentData.getCompetenceAssessmentData()) {
             int lvl = 0;
             if (competenceAssessmentData.getTargetCompetenceId() == credential1Delivery1Comp1TargetHelen.getId()) {
                 lvl = 2;

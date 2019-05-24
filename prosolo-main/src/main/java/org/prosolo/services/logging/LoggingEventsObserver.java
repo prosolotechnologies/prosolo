@@ -3,13 +3,11 @@ package org.prosolo.services.logging;
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
+import org.prosolo.common.event.Event;
+import org.prosolo.common.event.EventObserver;
 import org.prosolo.common.event.context.LearningContext;
 import org.prosolo.services.context.ContextJsonParserService;
-import org.prosolo.services.event.Event;
-import org.prosolo.services.event.EventObserver;
 import org.prosolo.services.logging.exception.LoggingException;
-import org.prosolo.web.ApplicationBean;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -21,10 +19,8 @@ import java.util.Map;
 @Service("org.prosolo.services.logging.LoggingEventsObserver")
 public class LoggingEventsObserver extends EventObserver {
 	protected static Logger logger = Logger.getLogger(LoggingEventsObserver.class);
-	
-	@Autowired private ApplicationBean applicationBean;
-	@Autowired private LoggingService loggingService;
-	@Inject private ContextJsonParserService contextJsonParserService;
+
+	@Inject private LoggingService loggingService;
 
 	@Override
 	public Class<? extends BaseEntity>[] getResourceClasses() {
@@ -45,7 +41,7 @@ public class LoggingEventsObserver extends EventObserver {
 		String objectTitle = "";
 		
 		try {
-			LearningContext learningContext = contextJsonParserService.
+			LearningContext learningContext = ContextJsonParserService.
 					parseCustomContextString(event.getPage(), event.getContext(), event.getService());
 			
 			BaseEntity object = event.getObject();

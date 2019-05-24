@@ -6,10 +6,10 @@ import org.prosolo.common.domainmodel.comment.Comment1;
 import org.prosolo.common.domainmodel.user.notifications.NotificationActorRole;
 import org.prosolo.common.domainmodel.user.notifications.NotificationType;
 import org.prosolo.common.domainmodel.user.notifications.ResourceType;
+import org.prosolo.common.event.Event;
 import org.prosolo.common.event.context.Context;
 import org.prosolo.common.event.context.ContextName;
 import org.prosolo.services.context.ContextJsonParserService;
-import org.prosolo.services.event.Event;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.notifications.NotificationManager;
@@ -20,7 +20,7 @@ import org.prosolo.web.util.page.PageSection;
 
 import java.util.List;
 
-public abstract class CommentEventProcessor extends NotificationEventProcessor {
+public abstract class CommentEventProcessor extends SimpleNotificationEventProcessor {
 
 	private static Logger logger = Logger.getLogger(CommentEventProcessor.class);
 	
@@ -32,9 +32,9 @@ public abstract class CommentEventProcessor extends NotificationEventProcessor {
 	public CommentEventProcessor(Event event, Session session,
 								 NotificationManager notificationManager,
 								 NotificationsSettingsManager notificationsSettingsManager, Activity1Manager activityManager,
-								 UrlIdEncoder idEncoder, ContextJsonParserService contextJsonParserService) {
+								 UrlIdEncoder idEncoder) {
 		super(event, session, notificationManager, notificationsSettingsManager, idEncoder);
-		context = contextJsonParserService.parseContext(event.getContext());
+		context = ContextJsonParserService.parseContext(event.getContext());
 		setResource();
 		setCommentedResourceType();
 		this.activityManager = activityManager;
@@ -63,9 +63,14 @@ public abstract class CommentEventProcessor extends NotificationEventProcessor {
 
 	@Override
 	NotificationSenderData getSenderData() {
-		return new NotificationSenderData(event.getActorId(), NotificationActorRole.OTHER, false);
+		return new NotificationSenderData(event.getActorId(), NotificationActorRole.OTHER);
 	}
-	
+
+	@Override
+	boolean isAnonymizedActor() {
+		return false;
+	}
+
 	@Override
 	boolean isConditionMet(long sender, long receiver) {
 		if (receiver != 0 && sender != receiver) {

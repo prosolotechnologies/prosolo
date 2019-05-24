@@ -31,14 +31,11 @@
 				<div class="wallPostHead">
 				   <div class="user32">
 					   <ui:fragment rendered="#{cc.attrs.socialActivity.actor.type eq 'REGULAR_USER'}">
-						   <h:link outcome="/profile">
+						   <h:link outcome="/profile-legacy">
 								<utilcomp:userAvatar
 									avatar="#{cc.attrs.socialActivity.actor.avatarUrl}"
-									fullName="#{cc.attrs.socialActivity.actor.fullName}"
-									width="32"
-									height="32"
-								/>
-								<f:param name="id" value="#{util:encodeId(cc.attrs.socialActivity.actor.id)}"></f:param>
+									fullName="#{cc.attrs.socialActivity.actor.fullName}"/>
+								<f:param name="studentId" value="#{util:encodeId(cc.attrs.socialActivity.actor.id)}"></f:param>
 						   </h:link>
 					   </ui:fragment>
 					   <ui:fragment rendered="#{cc.attrs.socialActivity.actor.type eq 'TWITTER_USER'}">
@@ -53,9 +50,9 @@
 					   </ui:fragment>
 					   <h3>
 							<ui:fragment rendered="#{cc.attrs.socialActivity.actor.type eq 'REGULAR_USER'}">
-								<h:link outcome="/profile">
+								<h:link outcome="/profile-legacy">
 									#{cc.attrs.socialActivity.actor.fullName}
-									<f:param name="id" value="#{util:encodeId(cc.attrs.socialActivity.actor.id)}"></f:param>
+									<f:param name="studentId" value="#{util:encodeId(cc.attrs.socialActivity.actor.id)}"></f:param>
 								</h:link>
 							</ui:fragment>
 							<ui:fragment rendered="#{cc.attrs.socialActivity.actor.type eq 'TWITTER_USER'}">
@@ -67,9 +64,9 @@
 								#{cc.attrs.socialActivity.predicate}
 								<ui:fragment rendered="#{not empty cc.attrs.socialActivity.object}">
 									<ui:fragment rendered="#{not empty cc.attrs.socialActivity.object.creator.fullName}">
-										<h:link outcome="/profile">
+										<h:link outcome="/profile-legacy">
 											#{cc.attrs.socialActivity.object.creator.fullName}'s
-											<f:param name="id" value="#{util:encodeId(cc.attrs.socialActivity.object.creator.id)}"></f:param>
+											<f:param name="studentId" value="#{util:encodeId(cc.attrs.socialActivity.object.creator.id)}"></f:param>
 									   </h:link>
 									</ui:fragment>
 									#{cc.attrs.socialActivity.object.shortType}

@@ -1,0 +1,101 @@
+<ui:component xmlns:h="http://java.sun.com/jsf/html"
+              xmlns:f="http://java.sun.com/jsf/core"
+              xmlns:ui="http://java.sun.com/jsf/facelets"
+              xmlns:composite="http://java.sun.com/jsf/composite"
+              xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+              xmlns:util="http://www.prosolo.com/util"
+              xmlns:assessment="http://java.sun.com/jsf/composite/components/assessments"
+>
+
+	<composite:interface>
+		<composite:attribute name="assessment" type="org.prosolo.services.assessment.data.AssessmentData" />
+		<composite:attribute name="encodedCredId" default="" />
+        <composite:attribute name="encodedCompId" default="" />
+    </composite:interface>
+
+	<composite:implementation>
+        <article class="whiteBox assessmentItem">
+            <div class="#{styleUtilBean.getIconClassForAssessmentStatus(assessment.status)}" style="float: right; margin-top: 3px;">#{msg['label.enum.AssessmentStatus.'.concat(assessment.status.name())]}</div>
+            <div class="user32">
+                Assessor:&#160;&#160;&#160;&#160;
+                <ui:fragment rendered="#{assessment.assessorId gt 0}">
+                    <h:link outcome="/competence-peer-assessment">
+                        <assessment:assessmentActorAvatar
+                                actorId="#{assessment.assessorId}"
+                                avatarUrl="#{assessment.assessorAvatarUrl}"
+                                actorFullName="#{assessment.assessorFullName}"
+                                blindAssessmentMode="#{assessment.blindAssessmentMode}"
+                                actorType="ASSESSOR"
+                        />
+                        <f:param value="#{util:encodeId(assessment.assessmentId)}" name="assessmentId" />
+                        <f:param value="#{cc.attrs.encodedCompId}" name="compId" />
+                        <f:param value="#{cc.attrs.encodedCredId}" name="credId" disable="#{empty cc.attrs.encodedCredId}" />
+                    </h:link>
+                    <h:link outcome="/competence-peer-assessment">
+                        <h3>
+                            <assessment:assessmentActorName
+                                    actorId="#{assessment.assessorId}"
+                                    actorFullName="#{assessment.assessorFullName}"
+                                    blindAssessmentMode="#{assessment.blindAssessmentMode}"
+                                    actorType="ASSESSOR"
+                            />
+                        </h3>
+                        <f:param value="#{util:encodeId(assessment.assessmentId)}" name="assessmentId" />
+                        <f:param value="#{cc.attrs.encodedCompId}" name="compId" />
+                        <f:param value="#{cc.attrs.encodedCredId}" name="credId" disable="#{empty cc.attrs.encodedCredId}" />
+                    </h:link>
+                </ui:fragment>
+                <ui:fragment rendered="#{assessment.assessorId le 0}">
+                    <h:link outcome="/competence-peer-assessment">
+                        <h3>
+                            No assessor
+                        </h3>
+                        <f:param value="#{util:encodeId(assessment.assessmentId)}" name="assessmentId" />
+                        <f:param value="#{cc.attrs.encodedCompId}" name="compId" />
+                        <f:param value="#{cc.attrs.encodedCredId}" name="credId" disable="#{empty cc.attrs.encodedCredId}" />
+                    </h:link>
+                </ui:fragment>
+
+            </div>
+            <div class="clear"></div>
+            <div class="date">
+                Requested:
+                <utilcomp:convertTimeOutput
+                        millis="#{assessment.dateRequested}"
+                        format="MMMM DD, YYYY" />
+            </div>
+            <ui:fragment rendered="#{assessment.status eq 'REQUEST_EXPIRED'}">
+                <div class="date left">
+                    Expired:
+                    <utilcomp:convertTimeOutput
+                            millis="#{assessment.dateQuit}"
+                            format="MMMM DD, YYYY" />
+                </div>
+            </ui:fragment>
+            <ui:fragment rendered="#{assessment.status eq 'REQUEST_DECLINED'}">
+                <div class="date left">
+                    Declined:
+                    <utilcomp:convertTimeOutput
+                            millis="#{assessment.dateQuit}"
+                            format="MMMM DD, YYYY" />
+                </div>
+            </ui:fragment>
+            <ui:fragment rendered="#{assessment.status eq 'ASSESSMENT_QUIT' or assessment.status eq 'SUBMITTED_ASSESSMENT_QUIT'}">
+                <div class="date left">
+                    Withdrawn:
+                    <utilcomp:convertTimeOutput
+                            millis="#{assessment.dateQuit}"
+                            format="MMMM DD, YYYY" />
+                </div>
+            </ui:fragment>
+            <ui:fragment rendered="#{assessment.status eq 'SUBMITTED'}">
+                <div class="date left">
+                    Submitted:
+                    <utilcomp:convertTimeOutput
+                            millis="#{assessment.dateSubmitted}"
+                            format="MMMM DD, YYYY" />
+                </div>
+            </ui:fragment>
+        </article>
+	</composite:implementation>
+</ui:component>
