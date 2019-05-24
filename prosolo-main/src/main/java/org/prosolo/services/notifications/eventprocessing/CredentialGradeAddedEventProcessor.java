@@ -22,7 +22,6 @@ public class CredentialGradeAddedEventProcessor extends GradeAddedEventProcessor
 
 	private static Logger logger = Logger.getLogger(CredentialGradeAddedEventProcessor.class);
 
-	private ContextJsonParserService contextJsonParserService;
 	private AssessmentManager assessmentManager;
 	private CredentialManager credentialManager;
 
@@ -30,10 +29,9 @@ public class CredentialGradeAddedEventProcessor extends GradeAddedEventProcessor
 
 	public CredentialGradeAddedEventProcessor(Event event, Session session, NotificationManager notificationManager,
 											  NotificationsSettingsManager notificationsSettingsManager, UrlIdEncoder idEncoder,
-											  ContextJsonParserService contextJsonParserService, AssessmentManager assessmentManager,
+											  AssessmentManager assessmentManager,
 											  CredentialManager credentialManager) {
 		super(event, session, notificationManager, notificationsSettingsManager, idEncoder);
-		this.contextJsonParserService = contextJsonParserService;
 		this.assessmentManager = assessmentManager;
 		this.credentialManager = credentialManager;
 		assessment = (CredentialAssessment) session.load(CredentialAssessment.class, event.getObject().getId());
@@ -63,7 +61,7 @@ public class CredentialGradeAddedEventProcessor extends GradeAddedEventProcessor
 
 	@Override
 	protected String getNotificationLink() {
-		Context context = contextJsonParserService.parseContext(event.getContext());
+		Context context = ContextJsonParserService.parseContext(event.getContext());
 		long credentialId = Context.getIdFromSubContextWithName(context, ContextName.CREDENTIAL);
 		return AssessmentLinkUtil.getAssessmentNotificationLink(
 				context, credentialId, 0, 0, assessment.getType(), assessmentManager, idEncoder,

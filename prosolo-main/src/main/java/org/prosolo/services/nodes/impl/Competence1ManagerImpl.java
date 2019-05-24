@@ -54,6 +54,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
+import java.math.BigInteger;
 import java.util.*;
 
 @Service("org.prosolo.services.nodes.Competence1Manager")
@@ -2102,34 +2103,17 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		EventQueue eventQueue = EventQueue.newEventQueue();
 
 		try {
-			String query =
-				"SELECT credComp.credential, comp.id, act.id, tAct.completed " +
-				"FROM target_activity1 tAct " +
-				"INNER JOIN target_competence1 tComp ON tAct.target_competence = tComp.id " +
-				"INNER JOIN competence1 comp ON tComp.competence = comp.id " +
-				"INNER JOIN activity1 act ON tAct.activity = act.id " +
-				"INNER JOIN credential_competence1 credComp ON credComp.competence = comp.id " +
-				"INNER JOIN credential1 cred ON cred.id = credComp.credential " +
-				"INNER JOIN target_credential1 tCred ON tCred.credential = credComp.credential " +
-				"WHERE tComp.id = :tCompId " +
-					"AND cred.type = 'Delivery' " +
-					"AND tCred.user = :userId " +
-				"ORDER BY tAct.act_order";
-//			String query =
-//					"SELECT comp.id, act.id, tAct.completed " +
-//					"FROM TargetActivity1 tAct " +
-//					"INNER JOIN tAct.targetCompetence tComp " +
-//					"INNER JOIN tComp.competence comp " +
-//					"INNER JOIN tAct.activity act " +
-//					"JOIN CredentialCompetence1 credComp " +
-//					"JOIN CredentialCompetence1 credComp " +
-//					"WHERE tComp.id = :tCompId " +
-//					"ORDER BY tAct.order";
+			String query = "SELECT comp.id, act.id, tAct.completed " +
+					"FROM TargetActivity1 tAct " +
+					"INNER JOIN tAct.targetCompetence tComp " +
+					"INNER JOIN tComp.competence comp " +
+					"INNER JOIN tAct.activity act " +
+					"WHERE tComp.id = :tCompId " +
+					"ORDER BY tAct.order";
 
 			List<Object[]> res = persistence.currentManager()
-					.createSQLQuery(query)
+					.createQuery(query)
 					.setLong("tCompId", targetCompId)
-					.setLong("userId", context.getActorId())
 					.list();
 
 			if (res != null) {
@@ -2138,7 +2122,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 				long nextActToLearnInACompetenceId = 0;
 
 				for (Object[] obj : res) {
-					long actId = (long) obj[2];
+					long actId = ((BigInteger) obj[2]).longValue();
 					boolean actCompleted = (boolean) obj[3];
 
 					int progress = actCompleted ? 100 : 0;
@@ -2153,8 +2137,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 				updateCompetenceProgress(targetCompId, finalCompProgress, nextActToLearnInACompetenceId);
 
 				// generate appropriate events
-				long credId = (long) res.get(0)[0];
-				long compId = (long) res.get(0)[1];
+				long compId = (long) res.get(0)[0];
 
 				TargetCompetence1 tComp = new TargetCompetence1();
 				tComp.setId(targetCompId);
@@ -2167,7 +2150,6 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 				// if the competence is completed
 				if (finalCompProgress == 100) {
 					params.put("dateCompleted", DateUtil.getMillisFromDate(new Date()) + "");
-					params.put("credId", credId+"");
 
 					eventQueue.appendEvent(eventFactory.generateEventData(
 							EventType.Completion, context, tComp, null, null, params));

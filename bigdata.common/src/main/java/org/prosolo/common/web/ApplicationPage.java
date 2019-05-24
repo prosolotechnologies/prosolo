@@ -1,5 +1,8 @@
 package org.prosolo.common.web;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public enum ApplicationPage {
 
 	LOGIN("/login.xhtml"),
@@ -93,7 +96,18 @@ public enum ApplicationPage {
 	ADMIN_COMPETENCE("/admin/competence.xhtml"),
 	ADMIN_ACTIVITY("/admin/activity.xhtml");
 
-    private String uri; 
+    private String uri;
+	private static Map<String,ApplicationPage> inversePageMap;
+
+	public static ApplicationPage getPageForURI(String uri) {
+		if (inversePageMap == null) {
+			inversePageMap = new HashMap<>();
+			for (ApplicationPage ap : ApplicationPage.values()) {
+				inversePageMap.put(ap.getUri(), ap);
+			}
+		}
+		return inversePageMap.get(uri);
+	}
     
     ApplicationPage(String uri) {
         this.uri = uri;

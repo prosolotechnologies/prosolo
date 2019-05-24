@@ -29,7 +29,6 @@ import org.prosolo.common.elasticsearch.ElasticSearchConnector;
 import org.prosolo.common.event.context.Context;
 import org.prosolo.common.event.context.LearningContext;
 import org.prosolo.es.LogsSearch;
-import org.prosolo.services.context.ContextJsonParserService;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -44,13 +43,7 @@ public class LogsSearchImpl implements LogsSearch {
 
     private static Logger logger = Logger.getLogger(LogsSearchImpl.class);
 
-    //@Inject
-    private ContextJsonParserService contextParser;
 
-    @Inject
-    public LogsSearchImpl(ContextJsonParserService contextParser){
-        this.contextParser=contextParser;
-    }
     @Override
     public List<LogsRecord> findLogsByFilter(LogsFilter logsFilter){
         BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();

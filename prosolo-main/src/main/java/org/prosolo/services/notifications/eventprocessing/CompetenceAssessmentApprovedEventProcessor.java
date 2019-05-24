@@ -5,7 +5,6 @@ import org.hibernate.Session;
 import org.prosolo.common.domainmodel.user.notifications.NotificationType;
 import org.prosolo.common.domainmodel.user.notifications.ResourceType;
 import org.prosolo.services.assessment.AssessmentManager;
-import org.prosolo.services.context.ContextJsonParserService;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
 import org.prosolo.services.nodes.Competence1Manager;
@@ -27,9 +26,8 @@ public class CompetenceAssessmentApprovedEventProcessor extends CompetenceAssess
 
 	public CompetenceAssessmentApprovedEventProcessor(Event event, Session session, NotificationManager notificationManager,
 													  NotificationsSettingsManager notificationsSettingsManager, UrlIdEncoder idEncoder,
-													  AssessmentManager assessmentManager, ContextJsonParserService contextJsonParserService,
-													  CredentialManager credentialManager, Competence1Manager competenceManager) {
-		super(event, session, notificationManager, notificationsSettingsManager, idEncoder, contextJsonParserService, credentialManager, competenceManager);
+													  AssessmentManager assessmentManager, CredentialManager credentialManager, Competence1Manager competenceManager) {
+		super(event, session, notificationManager, notificationsSettingsManager, idEncoder, credentialManager, competenceManager);
 		this.assessmentManager = assessmentManager;
 	}
 
