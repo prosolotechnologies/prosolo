@@ -1258,7 +1258,9 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 				
 				if (searchHits != null) {
 					for (SearchHit sh : searchHits) {
-						response.addFoundNode(getUserDataFromSearchHit(sh));
+						UserData userData = getUserDataFromSearchHit(sh);
+						userData.setEmail(userManager.getUserEmail(userData.getId()));
+						response.addFoundNode(userData);
 					}
 				}
 			}
@@ -1722,7 +1724,9 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 
 				if (searchHits != null) {
 					for (SearchHit sh : searchHits) {
-						response.addFoundNode(getUserDataFromSearchHit(sh));
+						UserData userData = getUserDataFromSearchHit(sh);
+						userData.setEmail(userManager.getUserEmail(userData.getId()));
+						response.addFoundNode(userData);
 					}
 				}
 			}
