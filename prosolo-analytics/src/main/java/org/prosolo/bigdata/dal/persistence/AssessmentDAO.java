@@ -8,6 +8,7 @@ import org.prosolo.common.event.EventData;
 import org.prosolo.common.event.EventQueue;
 import org.prosolo.common.util.date.DateUtil;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -19,4 +20,7 @@ public interface AssessmentDAO {
 
     EventQueue assignAssessorFromAssessorPoolToCompetencePeerAssessmentAndGetEvents(long compAssessmentId);
     List<Long> getIdsOfUnassignedCompetencePeerAssessmentRequests();
+
+    List<Long> getIdsOfAssignedCompetencePeerAssessmentRequestsOlderThanSpecified(Date olderThan);
+    EventQueue expireCompetenceAssessmentRequest(long competenceAssessmentId);
 }

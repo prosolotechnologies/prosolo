@@ -448,7 +448,7 @@ public class DateUtil {
 		return date != null ? date.getTime() : -1;
 	}
 
-	public static Date getNDaysFromNow(int n) {
+	public static Date getNDaysBeforeNow(int n) {
 		Instant now = Instant.now();
 		return Date.from(now.minus(Duration.ofDays(n)));
 	}
@@ -494,6 +494,6 @@ public class DateUtil {
 
 		System.out.println("NOW AT ZONE: " + LocalDateTime.now().atZone(TimeZone.getTimeZone("UTC").toZoneId()));
 
-		System.out.println(getNDaysFromNow(30));
+		System.out.println(getNDaysBeforeNow(30));
 	}
 }

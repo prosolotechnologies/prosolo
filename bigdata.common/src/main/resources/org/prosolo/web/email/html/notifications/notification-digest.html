@@ -495,6 +495,30 @@
                                                         <br />
 
                                                         {{/hasAssignedAssessments}}
+                                                        {{#hasExpiredAssessments}}
+                                                        <br />
+                                                        You have <strong>{{expiredAssessmentsCount}} expired assessment request(s)</strong>
+
+                                                        <br />
+                                                        <table border="0" cellpadding="0" cellspacing="0">
+                                                            {{#expiredAssessments}}
+                                                            <tr>
+                                                                <td valign="top">
+                                                                    {{actorFullName}} {{predicate}} <a href="{{link}}">{{objectTitle}}</a>
+                                                                </td>
+                                                            </tr>
+                                                            {{/expiredAssessments}}
+                                                            {{#hasMoreExpiredAssessments}}
+                                                            <tr>
+                                                                <td valign="top" style="padding-top:10px;">
+                                                                    <a href="{{notificationsLink}}?filters=assessment_request_expired">View all expired assessment requests</a>
+                                                                </td>
+                                                            </tr>
+                                                            {{/hasMoreExpiredAssessments}}
+                                                        </table>
+                                                        <br />
+
+                                                        {{/hasExpiredAssessments}}
 
                                                         {{#hasGradeAdded}}
                                                         <br />

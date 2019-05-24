@@ -4027,7 +4027,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
                     .setString("aType", AssessmentType.PEER_ASSESSMENT.name())
                     .setLong("credId", credId)
                     .setParameterList("activeStatuses", AssessmentStatus.getActiveStatuses())
-                    .setTimestamp("monthAgo", DateUtil.getNDaysFromNow(30))
+                    .setTimestamp("monthAgo", DateUtil.getNDaysBeforeNow(30))
                     .setMaxResults(1)
                     .uniqueResult();
 
@@ -4072,7 +4072,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
                     .setString("aType", AssessmentType.PEER_ASSESSMENT.name())
                     .setLong("credId", credId)
                     .setParameterList("activeStatuses", AssessmentStatus.getActiveStatuses())
-                    .setTimestamp("monthAgo", DateUtil.getNDaysFromNow(30))
+                    .setTimestamp("monthAgo", DateUtil.getNDaysBeforeNow(30))
                     .list();
         } catch (Exception e) {
             logger.error("Error", e);

@@ -128,6 +128,8 @@ public class NotificationEventProcessorFactory {
 				return new CompetenceAssessmentWithdrawEventProcessor(event, session, notificationManager, notificationsSettingsManager, idEncoder);
 			case ASSESSOR_ASSIGNED_TO_ASSESSMENT:
 				return new AssessorAssignedToExistingCompetenceAssessmenEventProcessor(event, session, notificationManager, notificationsSettingsManager, idEncoder);
+			case ASSESSMENT_REQUEST_EXPIRED:
+				return new CompetenceAssessmentRequestExpiredNotificationEventProcessor(event, session, notificationManager, notificationsSettingsManager, idEncoder);
 			default:
 				return null;
 		}

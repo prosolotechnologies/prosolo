@@ -95,6 +95,11 @@ class NotificationsDigestEmailGenerator(
   def assignedAssessments():java.util.List[Notification]= getNotificationsByType(NotificationType.ASSIGNED_TO_ASSESSMENT_AS_ASSESSOR)
   def hasMoreAssignedAssessments:Boolean=hasMore(assignedAssessmentsCount)
 
+  def hasExpiredAssessments():Boolean= hasNotificationType(NotificationType.ASSESSMENT_REQUEST_EXPIRED)
+  def expiredAssessmentsCount():Int= getNotificationTypeCount(NotificationType.ASSESSMENT_REQUEST_EXPIRED)
+  def expiredAssessments():java.util.List[Notification]= getNotificationsByType(NotificationType.ASSESSMENT_REQUEST_EXPIRED)
+  def hasMoreExpiredAssessments:Boolean=hasMore(expiredAssessmentsCount)
+
   def hasGradeAdded():Boolean= hasNotificationType(NotificationType.GradeAdded)
   def gradeAddedCount():Int={ getNotificationTypeCount(NotificationType.GradeAdded)}
   def gradesAdded():java.util.List[Notification]= getNotificationsByType(NotificationType.GradeAdded)

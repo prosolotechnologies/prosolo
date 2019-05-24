@@ -5,25 +5,19 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.dal.persistence.AssessmentDAO;
-import org.prosolo.bigdata.dal.persistence.CourseDAO;
 import org.prosolo.bigdata.dal.persistence.HibernateUtil;
 import org.prosolo.common.domainmodel.assessment.AssessmentStatus;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
-import org.prosolo.common.domainmodel.credential.CredentialType;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
-import org.prosolo.common.event.Event;
-import org.prosolo.common.event.EventData;
 import org.prosolo.common.event.EventFactory;
 import org.prosolo.common.event.EventQueue;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.util.date.DateUtil;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -168,7 +162,7 @@ public class AssessmentDAOImpl implements AssessmentDAO {
                     .setString("aType", AssessmentType.PEER_ASSESSMENT.name())
                     .setLong("credId", credId)
                     .setParameterList("activeStatuses", AssessmentStatus.getActiveStatuses())
-                    .setTimestamp("monthAgo", DateUtil.getNDaysFromNow(30))
+                    .setTimestamp("monthAgo", DateUtil.getNDaysBeforeNow(30))
                     .setMaxResults(1)
                     .uniqueResult();
 
@@ -177,6 +171,78 @@ public class AssessmentDAOImpl implements AssessmentDAO {
             logger.error("Error", e);
             throw new DbConnectionException("Error retrieving peer from the pool of available peer assessors");
         }
+    }
+
+
+    @Override
+    public List<Long> getIdsOfAssignedCompetencePeerAssessmentRequestsOlderThanSpecified(Date olderThan) {
+        Session session = HibernateUtil.getSessionFactory().openSession();
+        Transaction t = null;
+        String query =
+                "SELECT ca.id " +
+                        "FROM CompetenceAssessment ca " +
+                        "WHERE ca.type = :type " +
+                        "AND ca.status = :status " +
+                        "AND ca.assessor IS NOT NULL " +
+                        "AND ca.dateCreated < :date";
+        List<Long> result = null;
+        try {
+            t = session.beginTransaction();
+            result = (List<Long>) session.createQuery(query)
+                    .setString("type", AssessmentType.PEER_ASSESSMENT.name())
+                    .setString("status", AssessmentStatus.REQUESTED.name())
+                    .setTimestamp("date", olderThan)
+                    .list();
+            t.commit();
+        } catch (Exception ex) {
+            logger.error("error", ex);
+            if (t != null) {
+                t.rollback();
+            }
+        } finally {
+            session.close();
+        }
+        if (result != null) {
+            return result;
+        }
+        return new ArrayList<>();
+    }
+
+    @Override
+    public EventQueue expireCompetenceAssessmentRequest(long competenceAssessmentId) {
+        EventQueue events = null;
+        Session session = HibernateUtil.getSessionFactory().openSession();
+        Transaction t = null;
+        try {
+            t = session.beginTransaction();
+            CompetenceAssessment ca = (CompetenceAssessment) session.load(CompetenceAssessment.class, competenceAssessmentId);
+            if (ca.getStatus() != AssessmentStatus.REQUESTED) {
+                return EventQueue.newEventQueue();
+            }
+            ca.setStatus(AssessmentStatus.REQUEST_EXPIRED);
+            ca.setQuitDate(new Date());
+            Organization org = ca.getStudent().getOrganization();
+            if (org.isAssessmentTokensEnabled()) {
+                ca.getStudent().setNumberOfTokens(ca.getStudent().getNumberOfTokens() + ca.getNumberOfTokensSpent());
+            }
+
+            CompetenceAssessment eventObj = new CompetenceAssessment();
+            eventObj.setId(competenceAssessmentId);
+            events = EventQueue.of(eventFactory.generateEventData(EventType.ASSESSMENT_REQUEST_EXPIRED, UserContextData.ofOrganization(org.getId()), eventObj, null, null, null));
+
+            t.commit();
+        } catch (Exception ex) {
+            logger.error("error", ex);
+            if (t != null) {
+                t.rollback();
+            }
+        } finally {
+            session.close();
+        }
+        if (events != null) {
+            return events;
+        }
+        return EventQueue.newEventQueue();
     }
 
 }
