@@ -7,7 +7,6 @@ import org.prosolo.common.domainmodel.user.notifications.NotificationType;
 import org.prosolo.common.domainmodel.user.notifications.ResourceType;
 import org.prosolo.common.event.context.Context;
 import org.prosolo.common.event.context.ContextName;
-import org.prosolo.services.context.ContextJsonParserService;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.interaction.CommentManager;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
@@ -32,9 +31,8 @@ public class CommentPostEventProcessor extends CommentEventProcessor {
 	public CommentPostEventProcessor(Event event, Session session,
 									 NotificationManager notificationManager,
 									 NotificationsSettingsManager notificationsSettingsManager, Activity1Manager activityManager,
-									 UrlIdEncoder idEncoder, CommentManager commentManager, CredentialManager credentialManager, ContextJsonParserService contextJsonParserService) {
-		super(event, session, notificationManager, notificationsSettingsManager, activityManager, idEncoder,
-				contextJsonParserService);
+									 UrlIdEncoder idEncoder, CommentManager commentManager) {
+		super(event, session, notificationManager, notificationsSettingsManager, activityManager, idEncoder);
 		this.commentManager = commentManager;
 		this.credentialManager = credentialManager;
 	}

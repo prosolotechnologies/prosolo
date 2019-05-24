@@ -15,7 +15,7 @@
 
     <ui:define name="metadata">
         <f:metadata>
-            <f:viewParam name="studentId" value="#{profileEvidenceBean.studentId}"/>
+            <f:viewParam name="customProfileUrl" value="#{profileEvidenceBean.customProfileUrl}"/>
             <f:viewParam name="competenceEvidenceId" value="#{profileEvidenceBean.competenceEvidenceId}" default="null"/>
             <f:viewAction action="#{profileEvidenceBean.initStudent()}" />
         </f:metadata>
@@ -28,7 +28,6 @@
     <ui:define name="content">
 
         <div class="whiteBar">
-
         </div>
 
         <div class="container">
@@ -36,11 +35,11 @@
                 <li>
                     <h:link outcome="/profile"
                             value="#{profileEvidenceBean.evidence.userFullName}">
-                        <f:param name="id" value="#{param.studentId}"/>
+                        <f:param name="customProfileUrl" value="#{param.customProfileUrl}"/>
                     </h:link>
                 </li>
                 <li>Evidence</li>
-                <li class="active">#{util:shortenAndAddDots(profileEvidenceBean.evidence.title)}</li>
+                <li class="active">#{profileEvidenceBean.evidence.title}</li>
             </ol>
         </div>
 

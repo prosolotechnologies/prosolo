@@ -12,7 +12,6 @@ import org.prosolo.common.domainmodel.rubric.Rubric;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroup;
 import org.prosolo.services.assessment.AssessmentManager;
-import org.prosolo.services.context.ContextJsonParserService;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.indexing.*;
 import org.prosolo.services.nodes.CredentialManager;
@@ -41,8 +40,6 @@ public class NodeChangeProcessorFactory {
     private ESAdministration esAdministration;
     @Inject
     private OrganizationManager organizationManager;
-    @Inject
-    private ContextJsonParserService ctxJsonParserService;
     @Inject
     private CredentialManager credManager;
     @Inject
@@ -106,7 +103,7 @@ public class NodeChangeProcessorFactory {
                 } else if (node instanceof UserGroup) {
                     return new UserGroupNodeChangeProcessor(event, userGroupESService,
                             credentialESService, userGroupManager, competenceESService,
-                            userEntityESService, ctxJsonParserService, session);
+                            userEntityESService, session);
                 } else if (node instanceof Organization) {
                     return new OrganizationNodeChangeProcessor(esAdministration, userEntityESService,
                             organizationManager, event, session);
@@ -131,7 +128,7 @@ public class NodeChangeProcessorFactory {
                 } else if (node instanceof UserGroup) {
                     return new UserGroupNodeChangeProcessor(event, userGroupESService,
                             credentialESService, userGroupManager, competenceESService,
-                            userEntityESService, ctxJsonParserService, session);
+                            userEntityESService, session);
                 } else if (node instanceof Rubric) {
                     return new RubricNodeChangeProcessor(event, rubricsESService, session);
                 } else if (node instanceof LearningEvidence) {
@@ -154,7 +151,7 @@ public class NodeChangeProcessorFactory {
             case REMOVE_USER_FROM_GROUP:
             case USER_GROUP_CHANGE:
                 return new UserGroupNodeChangeProcessor(event, userGroupESService, credentialESService,
-                        userGroupManager, competenceESService, userEntityESService, ctxJsonParserService, session);
+                        userGroupManager, competenceESService, userEntityESService, session);
             case ARCHIVE:
                 if (node instanceof Competence1) {
                     return new CompetenceNodeChangeProcessor(event, competenceESService,

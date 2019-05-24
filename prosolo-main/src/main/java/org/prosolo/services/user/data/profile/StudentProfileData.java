@@ -23,5 +23,6 @@ public class StudentProfileData implements Serializable {
     private UserData studentData;
     private UserSocialNetworksData socialNetworks;
     private ProfileLearningData profileLearningData;
+    private ProfileSettingsData profileSettings;
 
 }

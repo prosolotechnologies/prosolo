@@ -1,25 +1,7 @@
 package org.prosolo.app.bc.test;
 
 import org.apache.log4j.Logger;
-import org.prosolo.app.bc.BaseBusinessCase5;
-import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
-import org.prosolo.common.domainmodel.credential.*;
-import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
-import org.prosolo.common.util.date.DateUtil;
-import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.event.EventQueue;
-import org.prosolo.services.nodes.Competence1Manager;
-import org.prosolo.services.nodes.CredentialInstructorManager;
-import org.prosolo.services.nodes.CredentialManager;
-import org.prosolo.services.nodes.config.competence.CompetenceLoadConfig;
-import org.prosolo.services.nodes.data.ActivityResultType;
-import org.prosolo.services.nodes.data.ActivityType;
-import org.prosolo.services.nodes.data.competence.CompetenceData1;
-
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
 
 /**
  * @author Nikola Milikic

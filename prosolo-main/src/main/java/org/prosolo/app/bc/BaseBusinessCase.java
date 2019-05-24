@@ -33,7 +33,6 @@ import org.prosolo.services.assessment.RubricManager;
 import org.prosolo.services.assessment.config.AssessmentLoadConfig;
 import org.prosolo.services.assessment.data.AssessmentDataFull;
 import org.prosolo.services.assessment.data.AssessmentTypeConfig;
-import org.prosolo.services.assessment.data.CompetenceAssessmentData;
 import org.prosolo.services.assessment.data.CompetenceAssessmentDataFull;
 import org.prosolo.services.assessment.data.grading.*;
 import org.prosolo.services.data.Result;
@@ -45,7 +44,6 @@ import org.prosolo.services.indexing.impl.NodeChangeObserver;
 import org.prosolo.services.media.util.LinkParserException;
 import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.data.*;
-import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview1;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.credential.CredentialData;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceData;
@@ -55,6 +53,7 @@ import org.prosolo.services.nodes.data.resourceAccess.RestrictedAccessResult;
 import org.prosolo.services.nodes.data.rubrics.RubricCriterionData;
 import org.prosolo.services.nodes.data.rubrics.RubricData;
 import org.prosolo.services.nodes.data.rubrics.RubricLevelData;
+import org.prosolo.services.nodes.data.statusWall.AttachmentPreview;
 import org.prosolo.services.nodes.impl.util.EditMode;
 import org.prosolo.services.user.UserManager;
 import org.prosolo.services.user.data.UserData;
@@ -64,7 +63,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.net.URL;
-import java.text.SimpleDateFormat;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -212,8 +210,8 @@ public abstract class BaseBusinessCase {
         if (url != null) {
             try {
                 LinkParser parser = LinkParserFactory.buildParser(StringUtil.cleanHtml(url));
-                AttachmentPreview1 attachmentPreview1 = parser.parse();
-                newSocialActivity.setAttachmentPreview(attachmentPreview1);
+                AttachmentPreview attachmentPreview = parser.parse();
+                newSocialActivity.setAttachmentPreview(attachmentPreview);
             } catch (LinkParserException e) {
                 e.printStackTrace();
                 getLogger().error("Error", e);

@@ -83,7 +83,6 @@ public interface Competence1Manager {
 	/**
 	 * Returns competence data with access rights info for user specified by {@code userId} id.
 	 * 
-	 * @param credId
 	 * @param compId
 	 * @param loadCreator
 	 * @param loadTags
@@ -96,13 +95,12 @@ public interface Competence1Manager {
 	 * @throws IllegalArgumentException
 	 * @throws DbConnectionException
 	 */
-	RestrictedAccessResult<CompetenceData1> getCompetenceDataWithAccessRightsInfo(long credId, long compId, boolean loadCreator, 
+	RestrictedAccessResult<CompetenceData1> getCompetenceDataWithAccessRightsInfo(long compId, boolean loadCreator,
 			boolean loadAssessmentConfig, boolean loadTags, boolean loadActivities, long userId, ResourceAccessRequirements req,
 			boolean shouldTrackChanges) throws ResourceNotFoundException, IllegalArgumentException, DbConnectionException;
 	
 	/**
 	 * 
-	 * @param credId
 	 * @param compId
 	 * @param loadCreator
 	 * @param loadTags
@@ -113,7 +111,7 @@ public interface Competence1Manager {
 	 * @throws IllegalArgumentException
 	 * @throws DbConnectionException
 	 */
-	CompetenceData1 getCompetenceData(long credId, long compId, boolean loadCreator, 
+	CompetenceData1 getCompetenceData(long compId, boolean loadCreator,
 			boolean loadAssessmentConfig, boolean loadTags, boolean loadActivities, boolean shouldTrackChanges)
 					throws ResourceNotFoundException, IllegalArgumentException, DbConnectionException;
 
@@ -398,19 +396,46 @@ public interface Competence1Manager {
 												   boolean loadAssessmentConfig, boolean loadLearningPathContent)
 			 throws DbConnectionException;
 
-	Result<Void> completeCompetenceAndGetEvents(long targetCompetenceId, UserContextData context)
+	/**
+	 * Marks target competence as completed. Id of the credential (to be used for generated events) will be extracted
+	 * based on the target credential id and student id (available from the context).
+	 *
+	 * @param targetCompId target competence id
+	 * @param context context sent with events
+	 * @return void result with events
+	 * @throws DbConnectionException
+	 */
+	Result<Void> completeCompetenceAndGetEvents(long targetCompId, UserContextData context) throws DbConnectionException;
+
+	/**
+	 * Marks target competence as completed. Id of the credential and context are sent with generated events.
+	 *
+	 * @param targetCompetenceId target competence id
+	 * @param credentialId id of the credential the target competence belongs to
+	 * @param context context sent with events
+	 * @return void result with events
+	 * @throws DbConnectionException
+	 */
+	Result<Void> completeCompetenceAndGetEvents(long targetCompetenceId, long credentialId, UserContextData context)
 			throws DbConnectionException;
 
-	void completeCompetence(long targetCompetenceId, UserContextData context) throws DbConnectionException;
+	/**
+	 * Marks target competence as completed. Id of the credential and context are sent with generated events.
+	 *
+	 * @param targetCompetenceId
+	 * @param credentialId
+	 * @param context
+	 * @throws DbConnectionException
+	 */
+	void completeCompetence(long targetCompetenceId, long credentialId, UserContextData context) throws DbConnectionException;
 
 	TargetCompetence1 getTargetCompetence(long compId, long userId) throws DbConnectionException;
 
 	/**
-	 * Checks if competence specified with {@code compId} id is part of a credential with {@code credId} id
-	 * and if not throws {@link ResourceNotFoundException}.
+	 * Checks if the competence is a part of the credential.
 	 *
-	 * @param credId
-	 * @param compId
+	 * @param credId id of the credential
+	 * @param compId id of the competence
 	 * @throws ResourceNotFoundException
 	 */
 	void checkIfCompetenceIsPartOfACredential(long credId, long compId) throws ResourceNotFoundException;

@@ -8,17 +8,15 @@ import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
 import org.prosolo.common.domainmodel.comment.Comment1;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.services.assessment.AssessmentManager;
-import org.prosolo.services.context.ContextJsonParserService;
 import org.prosolo.services.event.Event;
 import org.prosolo.services.interaction.CommentManager;
-import org.prosolo.services.interaction.FollowResourceManager;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.notifications.NotificationManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.prosolo.services.user.StudentProfileManager;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -36,15 +34,14 @@ public class NotificationEventProcessorFactory {
 	private UrlIdEncoder idEncoder;
 	@Inject
 	private CommentManager commentManager;
-	@Autowired 
-	private FollowResourceManager followResourceManager;
 	@Inject
 	private AssessmentManager assessmentManager;
 	@Inject
 	private CredentialManager credentialManager;
 	@Inject
-	private ContextJsonParserService contextJsonParserService;
-	@Inject private Competence1Manager competenceManager;
+	private Competence1Manager competenceManager;
+	@Inject
+	private StudentProfileManager studentProfileManager;
 
 	public NotificationEventProcessor getNotificationEventProcessor(Event event, Session session) {
 		switch (event.getAction()) {
@@ -56,8 +53,7 @@ public class NotificationEventProcessorFactory {
 			case Comment:
 			case Comment_Reply:
 				return new CommentPostEventProcessor(event, session, notificationManager,
-						notificationsSettingsManager, activityManager, idEncoder, commentManager,
-						credentialManager, contextJsonParserService);
+						notificationsSettingsManager, activityManager, idEncoder, commentManager);
 			/*
 			 * Someone liked or disliked a resource. We need to determine whether it
 			 * was generated on the Status Wall (liked/disliked a SocialActivity
@@ -68,8 +64,7 @@ public class NotificationEventProcessorFactory {
 			case Dislike:
 				if (event.getObject() instanceof Comment1) {
 					return new CommentLikeEventProcessor(event, session, notificationManager,
-							notificationsSettingsManager, activityManager, idEncoder,
-							contextJsonParserService);
+							notificationsSettingsManager, activityManager, idEncoder);
 				} else if (event.getObject() instanceof SocialActivity1) {
 					return new SocialActivityLikeEventProcessor(event, session, notificationManager,
 							notificationsSettingsManager, activityManager, idEncoder);
@@ -77,15 +72,15 @@ public class NotificationEventProcessorFactory {
 				break;
 			case Follow:
 				return new FollowUserEventProcessor(event, session, notificationManager,
-						notificationsSettingsManager, idEncoder, followResourceManager);
+						notificationsSettingsManager, idEncoder, studentProfileManager);
 			case AssessmentComment:
 				BaseEntity target = event.getTarget();
 				if (target instanceof ActivityAssessment) {
 					return new ActivityAssessmentCommentEventProcessor(event, session, notificationManager,
-							notificationsSettingsManager, idEncoder, assessmentManager, credentialManager, competenceManager, contextJsonParserService);
+							notificationsSettingsManager, idEncoder, assessmentManager, credentialManager, competenceManager);
 				} else if (target instanceof CompetenceAssessment) {
 					return new CompetenceAssessmentCommentEventProcessor(event, session, notificationManager,
-							notificationsSettingsManager, idEncoder, assessmentManager, credentialManager, competenceManager, contextJsonParserService);
+							notificationsSettingsManager, idEncoder, assessmentManager, credentialManager, competenceManager);
 				} else if (target instanceof CredentialAssessment) {
 					return new CredentialAssessmentCommentEventProcessor(event, session, notificationManager,
 							notificationsSettingsManager, idEncoder, assessmentManager, credentialManager, competenceManager);
@@ -97,7 +92,7 @@ public class NotificationEventProcessorFactory {
 							notificationsSettingsManager, idEncoder, credentialManager);
 				} else if (event.getObject() instanceof CompetenceAssessment) {
 					return new CompetenceAssessmentApprovedEventProcessor(event, session, notificationManager,
-							notificationsSettingsManager, idEncoder, assessmentManager, contextJsonParserService, credentialManager, competenceManager);
+							notificationsSettingsManager, idEncoder, assessmentManager, credentialManager, competenceManager);
 				}
 				break;
 			case AssessmentRequested:
@@ -106,7 +101,7 @@ public class NotificationEventProcessorFactory {
 							notificationsSettingsManager, idEncoder, credentialManager);
 				} else if (event.getObject() instanceof CompetenceAssessment) {
 					return new CompetenceAssessmentRequestEventProcessor(event, session, notificationManager,
-							notificationsSettingsManager, idEncoder, contextJsonParserService, assessmentManager, credentialManager, competenceManager);
+							notificationsSettingsManager, idEncoder, assessmentManager, credentialManager, competenceManager);
 				}
 				break;
 			case AnnouncementPublished:
@@ -116,24 +111,21 @@ public class NotificationEventProcessorFactory {
 				BaseEntity assessment = event.getObject();
 				if (assessment instanceof ActivityAssessment) {
 					return new ActivityGradeAddedEventProcessor(event, session, notificationManager,
-							notificationsSettingsManager, idEncoder, contextJsonParserService, assessmentManager);
+							notificationsSettingsManager, idEncoder, assessmentManager);
 				} else if (assessment instanceof CompetenceAssessment) {
 					return new CompetenceGradeAddedEventProcessor(event, session, notificationManager,
-							notificationsSettingsManager, idEncoder, contextJsonParserService, assessmentManager, credentialManager, competenceManager);
+							notificationsSettingsManager, idEncoder, assessmentManager, credentialManager, competenceManager);
 				} else if (assessment instanceof CredentialAssessment) {
 					return new CredentialGradeAddedEventProcessor(event, session, notificationManager,
-							notificationsSettingsManager, idEncoder, contextJsonParserService, assessmentManager, credentialManager);
+							notificationsSettingsManager, idEncoder, assessmentManager, credentialManager);
 				}
 				break;
 			case ASSESSMENT_REQUEST_ACCEPTED:
-				return new CompetenceAssessmentRequestAcceptEventProcessor(event, session, notificationManager, notificationsSettingsManager, idEncoder,
-						contextJsonParserService, credentialManager, competenceManager);
+				return new CompetenceAssessmentRequestAcceptEventProcessor(event, session, notificationManager, notificationsSettingsManager, idEncoder, credentialManager, competenceManager);
 			case ASSESSMENT_REQUEST_DECLINED:
-				return new CompetenceAssessmentRequestDeclineEventProcessor(event, session, notificationManager, notificationsSettingsManager, idEncoder,
-						contextJsonParserService, credentialManager, competenceManager);
+				return new CompetenceAssessmentRequestDeclineEventProcessor(event, session, notificationManager, notificationsSettingsManager, idEncoder, credentialManager, competenceManager);
 			case ASSESSOR_WITHDREW_FROM_ASSESSMENT:
-				return new CompetenceAssessmentWithdrawEventProcessor(event, session, notificationManager, notificationsSettingsManager, idEncoder,
-						contextJsonParserService, credentialManager, competenceManager);
+				return new CompetenceAssessmentWithdrawEventProcessor(event, session, notificationManager, notificationsSettingsManager, idEncoder, credentialManager, competenceManager);
 			default:
 				return null;
 		}

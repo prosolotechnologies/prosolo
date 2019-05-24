@@ -136,7 +136,7 @@ public class CredentialViewBeanUser implements Serializable {
 		try {
 			compManager.enrollInCompetence(decodedId, comp.getCompetenceId(), loggedUser.getUserId(), loggedUser.getUserContext());
 
-			PageUtil.redirect("/credentials/" + id + "/" + idEncoder.encodeId(comp.getCompetenceId()) + "?justEnrolled=true");
+			PageUtil.redirect("/credentials/" + id + "/competences/" + idEncoder.encodeId(comp.getCompetenceId()) + "?justEnrolled=true");
 		} catch (DbConnectionException e) {
 			logger.error("Error", e);
 			PageUtil.fireErrorMessage("Error enrolling in a " + ResourceBundleUtil.getMessage("label.competence").toLowerCase());

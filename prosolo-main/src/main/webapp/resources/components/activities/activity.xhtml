@@ -55,15 +55,13 @@
 		<div id="#{cc.clientId}">
 	    	<div class="whiteBar">
 				<div class="container">
-					<activities:activityHeaderOptions
-						id="header"
-						bean="#{cc.attrs.bean}"
-						activity="#{cc.attrs.bean.competenceData.activityToShowWithDetails}"
-						learningContext="#{learningContext}"
-						service="#{cc.attrs.service}"
-						canEdit="#{canEdit}"
-						toUpdateOnActivityComplete=":#{cc.clientId}:activityContent:panelCompProgress :#{cc.clientId}:growlMain"
-					/>
+					<activities:activityHeaderOptions id="header"
+													  bean="#{cc.attrs.bean}"
+													  activity="#{cc.attrs.bean.competenceData.activityToShowWithDetails}"
+													  learningContext="#{learningContext}"
+													  service="#{cc.attrs.service}"
+													  canEdit="#{canEdit}"
+													  toUpdateOnActivityComplete=":#{cc.clientId}:activityContent:panelCompProgress :#{cc.clientId}:growlMain" />
 				</div>
 			</div>
 	
@@ -137,9 +135,7 @@
 										growlToUpdate=":#{cc.clientId}:growlMain"
 										readOnly="#{!cc.attrs.bean.access.canAccess and not cc.attrs.bean.competenceData.activityToShowWithDetails.enrolled}"
 										panelCompProgressId="panelCompProgress"
-										updateProgress=":#{cc.clientId}:header:formMain:panelComplete"
-			/>
-
+										updateProgress=":#{cc.clientId}:header:formMain:panelComplete" />
 		</div>
 	</composite:implementation>
 </ui:component>

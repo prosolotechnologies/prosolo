@@ -9,7 +9,7 @@ import org.prosolo.services.assessment.data.grading.GradeData;
 import org.prosolo.services.assessment.data.grading.GradingMode;
 import org.prosolo.services.assessment.data.grading.RubricAssessmentGradeSummary;
 import org.prosolo.services.nodes.data.ActivityType;
-import org.prosolo.services.nodes.data.activity.attachmentPreview.MediaType1;
+import org.prosolo.services.nodes.data.statusWall.MediaType1;
 import org.prosolo.services.nodes.data.credential.CredentialDeliveryStatus;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.springframework.context.annotation.Scope;

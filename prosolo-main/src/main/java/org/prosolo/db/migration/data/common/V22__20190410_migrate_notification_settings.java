@@ -10,7 +10,7 @@ import java.sql.*;
  * @date 2018-12-18
  * @since 1.2.0
  */
-public class V20__20190410_migrate_notification_settings extends BaseMigration {
+public class V22__20190410_migrate_notification_settings extends BaseMigration {
 
     @Override
     protected void doMigrate(Context context) throws Exception {

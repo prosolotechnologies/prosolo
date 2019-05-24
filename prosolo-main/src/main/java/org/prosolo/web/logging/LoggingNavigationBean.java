@@ -1,11 +1,14 @@
 package org.prosolo.web.logging;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.log4j.Logger;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.logging.AccessResolver;
@@ -45,17 +48,14 @@ public class LoggingNavigationBean implements Serializable {
 	@Autowired private AccessResolver accessResolver;
 	@Inject private EventFactory eventFactory;
 	
-	private long userId;
 	private User user;
-	private String link;
-	private String context;
-	private String component;
-	private String parameters;
-	
-	// added for new context approach
-	private String page;
-	private String learningContext;
-	private String service;
+
+	@Getter @Setter private String link;
+	@Getter @Setter private String component;
+	@Getter @Setter private String parameters;
+	@Getter @Setter private String page;
+	@Getter @Setter private String learningContext;
+	@Getter @Setter private String service;
 	
 	/*
 	 * ACTIONS
@@ -70,12 +70,12 @@ public class LoggingNavigationBean implements Serializable {
 	}
 	
 	public void logServiceUse(ComponentName component, String parm1, String value1, String parm2, String value2) {
-		Map<String, String> parameters = new HashMap<String, String>();
+		Map<String, String> parameters = new HashMap<>();
 		parameters.put(parm1, value1);
 		parameters.put(parm2, value2);
 		
 		try {
-			loggingService.logServiceUse(loggedUser.getUserContext(), component, link, parameters, getIpAddress());
+			loggingService.logServiceUse(loggedUser.getUserContext(new PageContextData(page, learningContext, service)), component, link, parameters, getIpAddress());
 		} catch (LoggingException e) {
 			logger.error(e);
 		}  
@@ -85,7 +85,7 @@ public class LoggingNavigationBean implements Serializable {
 		try {
 			Map<String, String> params = new HashMap<>();
 			params.put("query", query);
-			loggingService.logServiceUse(loggedUser.getUserContext(), component, null, params, getIpAddress());
+			loggingService.logServiceUse(loggedUser.getUserContext(new PageContextData(page, learningContext, service)), component, null, params, getIpAddress());
 		} catch (LoggingException e) {
 			logger.error(e);
 		}
@@ -100,7 +100,7 @@ public class LoggingNavigationBean implements Serializable {
 		parameters.put(parm3, value3);
 		
 		try {
-			loggingService.logServiceUse(loggedUser.getUserContext(), component, link, parameters, getIpAddress());
+			loggingService.logServiceUse(loggedUser.getUserContext(new PageContextData(page, learningContext, service)), component, link, parameters, getIpAddress());
 		} catch (LoggingException e) {
 			logger.error(e);
 		}  
@@ -121,7 +121,7 @@ public class LoggingNavigationBean implements Serializable {
 	
 	public void submitPageNavigation(){
 		try {
-			loggingService.logNavigationFromContext(loggedUser.getUserContext(), link, parameters, getIpAddress());
+			loggingService.logNavigationFromContext(loggedUser.getUserContext(new PageContextData(page, learningContext, service)), link, parameters, getIpAddress());
 		} catch (LoggingException e) {
 			logger.error(e);
 		}
@@ -129,7 +129,7 @@ public class LoggingNavigationBean implements Serializable {
 	
 	public void submitTabNavigation(){
 		try {
-			loggingService.logTabNavigationFromContext(loggedUser.getUserContext(), link, parameters, getIpAddress());
+			loggingService.logTabNavigationFromContext(loggedUser.getUserContext(new PageContextData(page, learningContext, service)), link, parameters, getIpAddress());
 		} catch (LoggingException e) {
 			logger.error(e);
 		}
@@ -138,7 +138,7 @@ public class LoggingNavigationBean implements Serializable {
 	public void submitServiceUse(){
 		Map<String, String> params = convertToMap(parameters);
 		params.put("objectType", component);
-		eventFactory.generateEvent(EventType.SERVICEUSE, loggedUser.getUserContext(), null, null,
+		eventFactory.generateEvent(EventType.SERVICEUSE, loggedUser.getUserContext(new PageContextData(page, learningContext, service)), null, null,
 				null, params);
 		//loggingService.logServiceUse(loggedUser.getUser(), component, parameters, getIpAddress());
 	}
@@ -153,7 +153,7 @@ public class LoggingNavigationBean implements Serializable {
 	}
 	
 	private Map<String, String> convertToMap(String parametersJson) {
-		Map<String, String> parameters = new HashMap<String, String>();
+		Map<String, String> parameters = new HashMap<>();
 		
 		if (parametersJson != null && parametersJson.length() > 0) {
 			try{
@@ -169,82 +169,6 @@ public class LoggingNavigationBean implements Serializable {
 
 		}
 		return parameters;
-	}
-	
-	/* 
-	 * GETTERS / SETTERS
-	 */
-
-	public String getComponent() {
-		return component;
-	}
-
-	public void setComponent(String component) {
-		this.component = component;
-	}
-
-	public String getParameters() {
-		return parameters;
-	}
-
-	public void setParameters(String parameters) {
-		this.parameters = parameters;
-	}
-
-	public long getUserId() {
-		return userId;
-	}
-
-	public void setUserId(long userId) {
-		this.userId = userId;
-	}
-
-	public String getLink() {
-		return link;
-	}
-
-	public void setLink(String link) {
-		this.link = link;
-	}
-
-	public String getContext() {
-		return context;
-	}
-
-	public void setContext(String context) {
-		this.context = context;
-	}
-
-	public User getUser() {
-		return user;
-	}
-
-	public void setUser(User user) {
-		this.user = user;
-	}
-
-	public String getPage() {
-		return page;
-	}
-
-	public void setPage(String page) {
-		this.page = page;
-	}
-
-	public String getLearningContext() {
-		return learningContext;
-	}
-
-	public void setLearningContext(String learningContext) {
-		this.learningContext = learningContext;
-	}
-
-	public String getService() {
-		return service;
-	}
-
-	public void setService(String service) {
-		this.service = service;
 	}
 
 }

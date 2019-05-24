@@ -3,13 +3,12 @@
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	template="templates/masterLayout2.xhtml"
 	xmlns:competences="http://java.sun.com/jsf/composite/components/competences"
-	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
-	xmlns:util="http://www.prosolo.com/util">
+	xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
 
 	<utilcomp:messagesBundle var="msg" />
 
 	<ui:define name="windowTitle">
-		#{competenceViewBean.competenceData.title} - #{not empty competenceViewBean.credentialTitle ? competenceViewBean.credentialTitle.concat(' - ') : ''}ProSolo
+		#{competenceViewBean.competenceData.title} - #{competenceViewBean.credentialTitle} - ProSolo
 	</ui:define>
 
 	<ui:define name="metadata">
@@ -28,19 +27,17 @@
     </ui:define>
 
 	<ui:define name="navLinks">
-		<competences:competenceStudentNavLinks
-				id="compNavLinks"
-				enrolled="#{competenceViewBean.competenceData.enrolled}"
-				credId="#{competenceViewBean.decodedCredId}"
-				compId="#{competenceViewBean.decodedCompId}"
+		<competences:competenceStudentNavLinks id="compNavLinks"
+											   enrolled="#{competenceViewBean.competenceData.enrolled}"
+											   credId="#{competenceViewBean.decodedCredId}"
+											   compId="#{competenceViewBean.decodedCompId}"
 		/>
 	</ui:define>
     
 	<ui:define name="content">
-    	<competences:competence
-    		id="competence"
-			bean="#{competenceViewBean}"
-			toUpdateOnEnroll=":compNavLinks"
-    	/>
+		<competences:competence id="competence"
+								bean="#{competenceViewBean}"
+								toUpdateOnEnroll=":compNavLinks"
+		/>
 	</ui:define>
 </ui:composition>

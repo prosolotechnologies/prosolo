@@ -71,10 +71,13 @@ public class CompetenceViewBeanUser implements Serializable {
 
 	public void init() {
 		decodedCompId = idEncoder.decodeId(compId);
-		if (decodedCompId > 0) {
+		decodedCredId = idEncoder.decodeId(credId);
+
+		if (decodedCompId > 0 && decodedCredId > 0) {
 			try {
-				decodedCredId = idEncoder.decodeId(credId);
-				
+				// check if credential and competency are connected
+				competenceManager.checkIfCompetenceIsPartOfACredential(decodedCredId, decodedCompId);
+
 				RestrictedAccessResult<CompetenceData1> res = competenceManager
 						.getFullTargetCompetenceOrCompetenceData(decodedCredId, decodedCompId, 
 								loggedUser.getUserId());
@@ -91,19 +94,9 @@ public class CompetenceViewBeanUser implements Serializable {
 						competenceData.getCompetenceId(), false, false);
 				commentsData.setCommentId(idEncoder.decodeId(commentId));
 				commentBean.loadComments(commentsData);
-				
-				if(decodedCredId > 0) {
+
+				if (decodedCredId > 0) {
 					credentialTitle = credManager.getCredentialTitle(decodedCredId);
-//					if(competenceData.isEnrolled()) {
-////						LearningInfo li = credManager.getCredentialLearningInfo(decodedCredId, 
-////								loggedUser.getUserId(), false);
-//						//credTitle = li.getCredentialTitle();
-//						//TODO cred-redesign-07 what to do with mandatory order now when competence is independent resource
-//						//nextCompToLearn = li.getNextCompetenceToLearn();
-//						//mandatoryOrder = li.isMandatoryFlow();
-//					} else {
-//						credTitle = credManager.getCredentialTitle(decodedCredId);
-//					}
 				}
 				if (competenceData.getLearningPathType() == LearningPathType.EVIDENCE && competenceData.isEnrolled()) {
 					submitEvidenceBean.init(new LearningEvidenceData());
@@ -260,6 +253,7 @@ public class CompetenceViewBeanUser implements Serializable {
 		try {
 			competenceManager.completeCompetence(
 					competenceData.getTargetCompId(),
+					decodedCredId,
 					loggedUser.getUserContext());
 			competenceData.setProgress(100);
 

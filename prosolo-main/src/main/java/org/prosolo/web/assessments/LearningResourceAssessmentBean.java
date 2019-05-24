@@ -1,5 +1,7 @@
 package org.prosolo.web.assessments;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
@@ -29,7 +31,7 @@ public abstract class LearningResourceAssessmentBean implements Serializable {
 	protected LoggedUserBean loggedUserBean;
 
 	// adding new comment
-	private String newCommentValue;
+	@Getter @Setter private String newCommentValue;
 
 	public abstract GradeData getGradeData();
 	public abstract RubricCriteriaGradeData getRubricForLearningResource();
@@ -112,18 +114,6 @@ public abstract class LearningResourceAssessmentBean implements Serializable {
 
 	private void cleanupCommentData() {
 		newCommentValue = "";
-	}
-
-	/*
-	 * GETTERS / SETTERS
-	 */
-
-	public String getNewCommentValue() {
-		return newCommentValue;
-	}
-
-	public void setNewCommentValue(String newCommentValue) {
-		this.newCommentValue = newCommentValue;
 	}
 
 }

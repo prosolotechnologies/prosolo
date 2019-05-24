@@ -9,7 +9,10 @@ import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
 import org.apache.log4j.Logger;
 import org.apache.velocity.app.VelocityEngine;
-import org.opensaml.saml2.metadata.provider.*;
+import org.opensaml.saml2.metadata.provider.HTTPMetadataProvider;
+import org.opensaml.saml2.metadata.provider.MetadataProvider;
+import org.opensaml.saml2.metadata.provider.MetadataProviderException;
+import org.opensaml.saml2.metadata.provider.ResourceBackedMetadataProvider;
 import org.opensaml.util.resource.ClasspathResource;
 import org.opensaml.util.resource.ResourceException;
 import org.opensaml.xml.parse.ParserPool;
@@ -30,7 +33,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.MethodInvokingFactoryBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -118,7 +120,10 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers("/elb_ping").permitAll()
 				.antMatchers("/terms").permitAll()
 				.antMatchers("/profile").hasAuthority("BASIC.USER.ACCESS")
-				.antMatchers("/profile/*").permitAll()
+				.antMatchers("/profile/*").permitAll()	// legacy profile page
+				.antMatchers("/profile/*/evidence/*").permitAll()	// legacy profile evidence page
+				.antMatchers("/p/*").permitAll()
+				.antMatchers("/p/*/evidence/*").permitAll()
 				.antMatchers("/maintenance").permitAll()
 				.antMatchers("/digest").permitAll()
 				.antMatchers("/login").permitAll()
@@ -152,27 +157,27 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers("/settings/email").hasAuthority("BASIC.USER.ACCESS")
 				.antMatchers("/settings/password").hasAuthority("BASIC.USER.ACCESS")
 				.antMatchers("/settings/twitterOAuth").hasAuthority("BASIC.USER.ACCESS")
+				.antMatchers("/credentials").hasAuthority("BASIC.USER.ACCESS")
 				.antMatchers("/credentials/*/preview").permitAll()
 				.antMatchers("/credentials/*/students").hasAuthority("BASIC.USER.ACCESS")
 				.antMatchers("/credentials/*/students/*").hasAuthority("BASIC.USER.ACCESS")
 				.antMatchers("/credentials/*/keywords").hasAuthority("BASIC.USER.ACCESS")
-				.antMatchers("/profile/*/evidence/*").permitAll()
-				.antMatchers("/competences/*/edit").hasAuthority("BASIC.USER.ACCESS")
-				.antMatchers("/credentials/*/*").hasAuthority("BASIC.USER.ACCESS")
 				.antMatchers("/credentials/*/assessments").hasAuthority("BASIC.USER.ACCESS")
 				.antMatchers("/credentials/*/assessments/self").hasAuthority("BASIC.USER.ACCESS")
-				.antMatchers("/credentials/*/assessments/instructor").hasAuthority("BASIC.USER.ACCESS")
 				.antMatchers("/credentials/*/assessments/peer").hasAuthority("BASIC.USER.ACCESS")
 				.antMatchers("/credentials/*/assessments/peer/*").hasAuthority("BASIC.USER.ACCESS")
+				.antMatchers("/credentials/*/assessments/instructor").hasAuthority("BASIC.USER.ACCESS")
 				.antMatchers("/credentials/*/announcements").hasAuthority("BASIC.USER.ACCESS")
-				.antMatchers("/credentials/*/*/*").hasAuthority("BASIC.USER.ACCESS")
-				.antMatchers("/credentials/*/*/*/results").hasAuthority("BASIC.USER.ACCESS")
-				.antMatchers("/competences/new").hasAuthority("BASIC.USER.ACCESS")
-				.antMatchers("/competences/**").hasAuthority("BASIC.USER.ACCESS")
-				.antMatchers("/competences/*/assessments/self").hasAuthority("BASIC.USER.ACCESS")
-				.antMatchers("/competences/*/assessments/instructor").hasAuthority("BASIC.USER.ACCESS")
-				.antMatchers("/competences/*/assessments/peer").hasAuthority("BASIC.USER.ACCESS")
-				.antMatchers("/competences/*/assessments/peer/*").hasAuthority("BASIC.USER.ACCESS")
+
+				.antMatchers("/credentials/*/competences/*").hasAuthority("BASIC.USER.ACCESS")
+				.antMatchers("/credentials/*/competences/*/activities/*").hasAuthority("BASIC.USER.ACCESS")
+				.antMatchers("/credentials/*/competences/*/activities/*/results").hasAuthority("BASIC.USER.ACCESS")
+				.antMatchers("/credentials/*/competences/*/activities/*/responses/*").hasAnyAuthority("BASIC.USER.ACCESS")
+				.antMatchers("/credentials/*/competences/*/assessments").hasAuthority("BASIC.USER.ACCESS")
+				.antMatchers("/credentials/*/competences/*/assessments/self").hasAuthority("BASIC.USER.ACCESS")
+				.antMatchers("/credentials/*/competences/*/assessments/instructor").hasAuthority("BASIC.USER.ACCESS")
+				.antMatchers("/credentials/*/competences/*/assessments/peer").hasAuthority("BASIC.USER.ACCESS")
+				.antMatchers("/credentials/*/competences/*/assessments/peer/*").hasAuthority("BASIC.USER.ACCESS")
 				.antMatchers("/assessments/my/credential").hasAuthority("BASIC.USER.ACCESS")
 				.antMatchers("/assessments/my/competence").hasAuthority("BASIC.USER.ACCESS")
 
@@ -184,13 +189,10 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers("/notifications").hasAuthority("BASIC.USER.ACCESS")
 				.antMatchers("/posts/*").hasAuthority("BASIC.USER.ACCESS")
 				.antMatchers("/groups/*/join").hasAuthority("BASIC.USER.ACCESS")
-				.antMatchers("/credentials/*/*/*/responses/*").hasAnyAuthority("BASIC.USER.ACCESS")
-				.antMatchers("/competences/*/*/responses/*").hasAnyAuthority("BASIC.USER.ACCESS")
 				.antMatchers("/evidence").hasAuthority("BASIC.USER.ACCESS")
 				.antMatchers("/evidence/new").hasAuthority("BASIC.USER.ACCESS")
 				.antMatchers("/evidence/*").hasAuthority("BASIC.USER.ACCESS")
 				.antMatchers("/evidence/*/edit").hasAuthority("BASIC.USER.ACCESS")
-
 
 				// MANAGE
 				.antMatchers("/manage").hasAnyAuthority("BASIC.INSTRUCTOR.ACCESS", "BASIC.MANAGER.ACCESS")
@@ -204,23 +206,16 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers("/manage/settings").hasAnyAuthority("BASIC.INSTRUCTOR.ACCESS", "BASIC.MANAGER.ACCESS")
 
 				//manage competence
-				.antMatchers("/manage/competences/*/edit").hasAuthority("COURSE.CREATE")
-				.antMatchers("/manage/competences/new").hasAuthority("COURSE.CREATE")
-				.antMatchers("/manage/competences/*/tools").hasAuthority("BASIC.MANAGER.ACCESS")
-				.antMatchers("/manage/competences/*/who-can-learn").hasAnyAuthority("BASIC.INSTRUCTOR.ACCESS", "BASIC.MANAGER.ACCESS")
-				.antMatchers("/manage/competences/*/editors").hasAnyAuthority("BASIC.INSTRUCTOR.ACCESS", "BASIC.MANAGER.ACCESS")
-				.antMatchers("/manage/competences/*").hasAnyAuthority("COURSE.VIEW", "COURSE.VIEW.PERSONALIZED")
-				.antMatchers("/manage/competences/*/students").hasAnyAuthority("COURSE.CREATE")
-				.antMatchers("/manage/competences/*/privacy").hasAnyAuthority("COURSE.CREATE")
-				//.antMatchers("/manage/competences/*/activities").hasAnyAuthority("COURSE.VIEW", "COURSE.VIEW.PERSONALIZED")
 				.antMatchers("/manage/competences").hasAuthority("COMPETENCES.VIEW")
 
 				// competences with credential id
-				.antMatchers("/manage/credentials/*/*/edit").hasAuthority("COURSE.CREATE")
-				.antMatchers("/manage/credentials/*/*/who-can-learn").hasAnyAuthority("BASIC.INSTRUCTOR.ACCESS", "BASIC.MANAGER.ACCESS")
-				.antMatchers("/manage/credentials/*/*/editors").hasAnyAuthority("BASIC.INSTRUCTOR.ACCESS", "BASIC.MANAGER.ACCESS")
-				.antMatchers("/manage/credentials/*/*/students").hasAnyAuthority("COURSE.CREATE")
-				.antMatchers("/manage/credentials/*/*/privacy").hasAnyAuthority("COURSE.CREATE")
+				.antMatchers("/manage/credentials/*/competences/new").hasAuthority("COURSE.CREATE")
+				.antMatchers("/manage/credentials/*/competences/*").hasAnyAuthority("COURSE.VIEW", "COURSE.VIEW.PERSONALIZED")
+				.antMatchers("/manage/credentials/*/competences/*/edit").hasAuthority("COURSE.CREATE")
+				.antMatchers("/manage/credentials/*/competences/*/who-can-learn").hasAnyAuthority("BASIC.INSTRUCTOR.ACCESS", "BASIC.MANAGER.ACCESS")
+				.antMatchers("/manage/credentials/*/competences/*/editors").hasAnyAuthority("BASIC.INSTRUCTOR.ACCESS", "BASIC.MANAGER.ACCESS")
+				.antMatchers("/manage/credentials/*/competences/*/students").hasAnyAuthority("COURSE.CREATE")
+				.antMatchers("/manage/credentials/*/competences/*/privacy").hasAnyAuthority("COURSE.CREATE")
 
 				.antMatchers("/manage/credentials/*/feeds").hasAnyAuthority("COURSE.VIEW", "COURSE.VIEW.PERSONALIZED")
 				.antMatchers("/manage/credentials/*/students").hasAnyAuthority("COURSE.MEMBERS.VIEW", "COURSE.MEMBERS.VIEW.PERSONALIZED")
@@ -232,7 +227,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers("/manage/credentials/new").hasAnyAuthority("COURSE.CREATE")
 				//capability for external tool?
 				//for manage competence
-				.antMatchers("/manage/credentials/*/*").hasAuthority("COMPETENCES.VIEW")
+				.antMatchers("/manage/credentials/*/competences/*").hasAuthority("COMPETENCES.VIEW")
 
 				.antMatchers("/manage/students/*").hasAnyAuthority("MANAGE.STUDENTPROFILE.VIEW")
 
@@ -251,11 +246,10 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers("/manage/credentials/*/deliveries").hasAnyAuthority("BASIC.MANAGER.ACCESS")
 
 				//manage activity
-				.antMatchers("/manage/competences/*/*/edit").hasAnyAuthority("COURSE.CREATE")
-				.antMatchers("/manage/competences/*/newActivity").hasAnyAuthority("COURSE.CREATE")
-				.antMatchers("/manage/credentials/*/*/*").hasAnyAuthority("COMPETENCES.VIEW")
-				.antMatchers("/manage/credentials/*/*/*/results").hasAuthority("COMPETENCES.VIEW")
-				.antMatchers("/manage/competences/*/*").hasAnyAuthority("COMPETENCES.VIEW")
+				.antMatchers("/manage/credentials/*/competences/*/activities/new").hasAnyAuthority("COURSE.CREATE")
+				.antMatchers("/manage/credentials/*/competences/*/activities/*").hasAnyAuthority("COMPETENCES.VIEW")
+				.antMatchers("/manage/credentials/*/competences/*/activities/*/edit").hasAnyAuthority("COURSE.CREATE")
+				.antMatchers("/manage/credentials/*/competences/*/activities/*/results").hasAuthority("COMPETENCES.VIEW")
 
 				.antMatchers("/manage/credentials/**").hasAnyAuthority("COURSE.VIEW", "COURSE.VIEW.PERSONALIZED")
 				//manage library

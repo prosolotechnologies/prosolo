@@ -53,15 +53,14 @@ public abstract class CompetencePeerAssessmentsBean implements Paginable, Serial
 			decodedCredId = idEncoder.decodeId(credId);
 			decodedCompId = idEncoder.decodeId(compId);
 
-			if (decodedCompId > 0) {
+			if (decodedCompId > 0 && decodedCredId > 0) {
 				if (!isUserAllowedToAccess()) {
 					PageUtil.accessDenied();
 				} else {
-					if (decodedCredId > 0) {
-						credentialTitle = credentialManager.getCredentialTitle(decodedCredId);
-					}
+					credentialTitle = credentialManager.getCredentialTitle(decodedCredId);
 					competenceTitle = compManager.getCompetenceTitle(decodedCompId);
-					if (competenceTitle != null) {
+
+					if (credentialTitle != null && competenceTitle != null) {
 						if (page > 0) {
 							paginationData.setPage(page);
 						}
@@ -73,6 +72,7 @@ public abstract class CompetencePeerAssessmentsBean implements Paginable, Serial
 							loadAdditionalData();
 						}
 					} else {
+						// cred
 						PageUtil.notFound();
 					}
 				}
