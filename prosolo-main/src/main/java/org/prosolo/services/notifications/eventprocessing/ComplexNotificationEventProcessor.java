@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
  * Includes several simple and/or complex notification event processors which it calls for getting the notifications to be generated
  * @author stefanvuckovic
  * @date 2019-05-09
- * @since 1.3
+ * @since 1.3.2
  */
 public class ComplexNotificationEventProcessor implements NotificationEventProcessor {
 

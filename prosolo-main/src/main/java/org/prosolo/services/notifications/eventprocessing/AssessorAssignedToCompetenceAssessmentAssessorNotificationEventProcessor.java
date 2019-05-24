@@ -19,6 +19,10 @@ import java.util.List;
 /**
  * Processes event when assessor is assigned to existing competency assessment and prepares data
  * for generating notification for ASSESSOR
+ *
+ * @author stefanvuckovic
+ * @date 2019-04-23
+ * @since 1.3.2
  */
 public class AssessorAssignedToCompetenceAssessmentAssessorNotificationEventProcessor extends CompetenceAssessmentNotificationEventProcessor {
 

@@ -10,7 +10,7 @@ import org.prosolo.services.urlencoding.UrlIdEncoder;
 /**
  * @author stefanvuckovic
  * @date 2019-05-09
- * @since 1.3
+ * @since 1.3.2
  */
 public class AssessorAssignedToExistingCompetenceAssessmenEventProcessor extends ComplexNotificationEventProcessor {
 
