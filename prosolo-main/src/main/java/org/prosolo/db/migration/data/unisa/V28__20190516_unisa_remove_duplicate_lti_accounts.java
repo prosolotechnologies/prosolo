@@ -18,7 +18,7 @@ import java.util.List;
  * @date 2019-05-16
  * @since 1.3.2
  */
-public class V26__20190516_unisa_remove_duplicate_lti_accounts extends BaseMigration {
+public class V28__20190516_unisa_remove_duplicate_lti_accounts extends BaseMigration {
 
     @Override
     protected void doMigrate(Context context) throws Exception {

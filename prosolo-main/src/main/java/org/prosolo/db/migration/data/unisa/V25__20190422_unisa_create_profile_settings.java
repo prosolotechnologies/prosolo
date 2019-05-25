@@ -16,7 +16,7 @@ import java.util.List;
  * @date 2019-04-22
  * @since 1.3.2
  */
-public class V24__20190422_unisa_create_profile_settings extends BaseMigration {
+public class V25__20190422_unisa_create_profile_settings extends BaseMigration {
 
     private UrlIdEncoder urlIdEncoder = new HashidsUrlIdEncoderImpl();
 
