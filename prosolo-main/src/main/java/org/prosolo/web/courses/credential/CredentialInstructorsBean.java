@@ -106,6 +106,10 @@ public class CredentialInstructorsBean implements Serializable, Paginable {
     private long instructorRoleId;
     private List<Long> unitIds;
 
+    // Id of user that has just been removed and should be excluded from search. We exclude it from search explicitly
+    // since ES might not be updated.
+    private long userIdToExcludeFromSearch;
+
     private ResourceAccessData access;
 
     public void init() {
@@ -205,7 +209,6 @@ public class CredentialInstructorsBean implements Serializable, Paginable {
             sortOption = InstructorSortOption.Date;
             paginationData.update((int) credInstructorManager.getCredentialInstructorsCount(decodedId));
             instructors = credInstructorManager.getCredentialInstructors(decodedId, true, paginationData.getLimit(), true);
-
             PageUtil.fireSuccessfulInfoMessage(ResourceBundleUtil.getLabel("instructor") + " is added");
         } catch (DbConnectionException e) {
             logger.error("Error", e);
@@ -216,7 +219,7 @@ public class CredentialInstructorsBean implements Serializable, Paginable {
 
     public void getCredentialInstructors() {
         PaginatedResult<InstructorData> searchResponse = userTextSearch.searchInstructors(
-                loggedUserBean.getOrganizationId(), searchTerm, paginationData.getPage() - 1, paginationData.getLimit(), decodedId, sortOption, null);
+                loggedUserBean.getOrganizationId(), searchTerm, paginationData.getPage() - 1, paginationData.getLimit(), decodedId, sortOption, List.of(userIdToExcludeFromSearch));
 
         paginationData.update((int) searchResponse.getHitsNumber());
         instructors = searchResponse.getFoundNodes();
@@ -240,6 +243,7 @@ public class CredentialInstructorsBean implements Serializable, Paginable {
             credInstructorManager.removeInstructorFromCredential(
                     instructorForRemoval.getInstructorId(), decodedId, reassignAutomatically,
                     loggedUserBean.getUserContext(ctx));
+            userIdToExcludeFromSearch = instructorForRemoval.getUser().getId();
             instructorForRemoval = null;
 
             // if the removed tutor was the only one on the current page (pagination), then decrease the page
@@ -249,6 +253,8 @@ public class CredentialInstructorsBean implements Serializable, Paginable {
             searchTerm = "";
 
             searchCredentialInstructors();
+
+            userIdToExcludeFromSearch = 0;
 
             // since ES indices are async refreshed, we will set the pagination based on the state in the DB
             paginationData.update((int) credInstructorManager.getCredentialInstructorsCount(decodedId));
