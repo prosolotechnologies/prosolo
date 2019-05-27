@@ -5,18 +5,13 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
-import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.event.Event;
+import org.prosolo.common.event.EventObserver;
 import org.prosolo.core.db.hibernate.HibernateUtil;
-import org.prosolo.services.event.Event;
-import org.prosolo.services.event.EventObserver;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
-import org.prosolo.services.user.data.profile.ProfileSettingsData;
-import org.prosolo.util.StringUtils;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
-import java.util.Random;
 
 /**
  * @author Nikola Milikic

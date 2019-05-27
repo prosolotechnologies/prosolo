@@ -175,7 +175,7 @@ public class ExternalToolServiceImpl implements ExternalToolService {
 				}
 
 				if (res != null) {
-					eventFactory.generateEvents(res.getEventQueue());
+					eventFactory.generateAndPublishEvents(res.getEventQueue());
 				}
 
 				System.out.println("USER ID:" + parts[0] + " activity id:"

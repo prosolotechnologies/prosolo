@@ -13,6 +13,7 @@ import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.rubric.Rubric;
 import org.prosolo.common.domainmodel.rubric.RubricType;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.event.EventData;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.util.ImageFormat;
 import org.prosolo.services.annotation.TagManager;
@@ -22,7 +23,6 @@ import org.prosolo.services.assessment.data.*;
 import org.prosolo.services.assessment.data.factory.AssessmentDataFactory;
 import org.prosolo.services.assessment.data.grading.RubricAssessmentGradeSummary;
 import org.prosolo.services.data.Result;
-import org.prosolo.services.event.EventData;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.interaction.CommentManager;
@@ -35,8 +35,8 @@ import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.ResourceFactory;
-import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.data.ActivityResultType;
+import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.factory.ActivityDataFactory;
@@ -79,7 +79,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 		try {
 			Result<Activity1> res = self.createActivity(data, context);
 
-			eventFactory.generateEvents(res.getEventQueue());
+			eventFactory.generateAndPublishEvents(res.getEventQueue());
 
 			return res.getResult();
 		} catch (IllegalDataStateException idse) {
@@ -235,8 +235,15 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	}
 
 	@Override
-	@Transactional(readOnly = false, rollbackFor = Exception.class)
 	public Activity1 deleteActivity(long activityId, UserContextData context) throws DbConnectionException, IllegalDataStateException {
+		Result<Activity1> res = self.deleteActivityAndGetEvents(activityId, context);
+		eventFactory.generateAndPublishEvents(res.getEventQueue());
+		return res.getResult();
+	}
+
+	@Override
+	@Transactional(readOnly = false, rollbackFor = Exception.class)
+	public Result<Activity1> deleteActivityAndGetEvents(long activityId, UserContextData context) throws DbConnectionException, IllegalDataStateException {
 		try {
 			if(activityId > 0) {
 				Activity1 act = (Activity1) persistence.currentManager().load(Activity1.class, activityId);
@@ -246,19 +253,17 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 
 				Activity1 activity = new Activity1();
 				activity.setId(activityId);
-				eventFactory.generateEvent(EventType.Delete, context, activity,
-						null, null, null);
-				
-				return act;
+				Result<Activity1> res = new Result<>();
+				res.appendEvent(eventFactory.generateEventData(EventType.Delete, context, activity, null, null, null));
+				res.setResult(act);
+				return res;
 			}
-			return null;
+			return new Result<>();
 		} catch (IllegalDataStateException idse) {
-			idse.printStackTrace();
-			logger.error(idse);
+			logger.error("error", idse);
 			throw idse;
 		} catch (Exception e) {
-			logger.error(e);
-			e.printStackTrace();
+			logger.error("error", e);
 			throw new DbConnectionException("Error deleting activity");
 		}
 	}
@@ -536,17 +541,26 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 			throw new DbConnectionException("Error retrieving competence activity data");
 		}
 	}
+
+	@Override
+	public Activity1 updateActivity(ActivityData data, UserContextData context)
+			throws DbConnectionException, StaleDataException, IllegalDataStateException {
+		Result<Activity1> res = self.updateActivityAndGetEvents(data, context);
+		eventFactory.generateAndPublishEvents(res.getEventQueue());
+		return res.getResult();
+	}
 	
 	@Override
 	@Transactional(readOnly = false, rollbackFor = Exception.class)
-	public Activity1 updateActivity(ActivityData data, UserContextData context)
+	public Result<Activity1> updateActivityAndGetEvents(ActivityData data, UserContextData context)
 			throws DbConnectionException, StaleDataException, IllegalDataStateException {
-		Activity1 act = resourceFactory.updateActivity(data);
+		Activity1 act = updateActivityData(data);
 
-		eventFactory.generateEvent(EventType.Edit, context, act,
-				null, null, null);
-
-		return act;
+		Result<Activity1> res = new Result<>();
+		res.appendEvent(eventFactory.generateEventData(EventType.Edit, context, act,
+				null, null, null));
+		res.setResult(act);
+		return res;
 	}
 	
 	private void updateActivityType(long activityId, ActivityType activityType) {
@@ -805,8 +819,15 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	}
 
 	@Override
-	@Transactional(readOnly = false)
 	public void saveResponse(long targetActId, String path, Date postDate,
+							 ActivityResultType resType, UserContextData context) throws DbConnectionException {
+		Result<Void> res = self.saveResponseAndGetEvents(targetActId, path, postDate, resType, context);
+		eventFactory.generateAndPublishEvents(res.getEventQueue());
+	}
+
+	@Override
+	@Transactional(readOnly = false)
+	public Result<Void> saveResponseAndGetEvents(long targetActId, String path, Date postDate,
 			ActivityResultType resType, UserContextData context) throws DbConnectionException {
 		try {
 			String query = "UPDATE TargetActivity1 act SET " +
@@ -826,17 +847,25 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 
 			EventType evType = resType == ActivityResultType.FILE_UPLOAD
 					? EventType.AssignmentUploaded : EventType.Typed_Response_Posted;
-			eventFactory.generateEvent(evType, context, tAct, null, null, null);
+			Result<Void> res = new Result<>();
+			res.appendEvent(eventFactory.generateEventData(evType, context, tAct, null, null, null));
+			return res;
 		} catch (Exception e) {
-			logger.error(e);
-			e.printStackTrace();
+			logger.error("error", e);
 			throw new DbConnectionException("Error saving assignment");
 		}
 	}
 
 	@Override
-	@Transactional
 	public void updateTextResponse(long targetActId, String path, UserContextData context)
+			throws DbConnectionException {
+		Result<Void> res = self.updateTextResponseAndGetEvents(targetActId, path, context);
+		eventFactory.generateAndPublishEvents(res.getEventQueue());
+	}
+
+	@Override
+	@Transactional
+	public Result<Void> updateTextResponseAndGetEvents(long targetActId, String path, UserContextData context)
 			throws DbConnectionException {
 		try {
 			String query = "UPDATE TargetActivity1 act SET " +
@@ -851,11 +880,11 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 
 			TargetActivity1 tAct = new TargetActivity1();
 			tAct.setId(targetActId);
-
-			eventFactory.generateEvent(EventType.Typed_Response_Edit, context, tAct, null, null, null);
+			Result<Void> res = new Result<>();
+			res.appendEvent(eventFactory.generateEventData(EventType.Typed_Response_Edit, context, tAct, null, null, null));
+			return res;
 		} catch (Exception e) {
-			logger.error(e);
-			e.printStackTrace();
+			logger.error("error", e);
 			throw new DbConnectionException("Error editing response");
 		}
 	}
@@ -864,7 +893,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	public void completeActivity(long targetActId, long targetCompId, UserContextData context)
 			throws DbConnectionException {
 		Result<Void> res = self.completeActivityAndGetEvents(targetActId, targetCompId, context);
-		eventFactory.generateEvents(res.getEventQueue());
+		eventFactory.generateAndPublishEvents(res.getEventQueue());
 	}
 	
 	@Override
@@ -1013,8 +1042,15 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	}
 
 	@Override
-	@Transactional
 	public void deleteAssignment(long targetActivityId, UserContextData context)
+			throws DbConnectionException {
+		Result<Void> res = self.deleteAssignmentAndGetEvents(targetActivityId, context);
+		eventFactory.generateAndPublishEvents(res.getEventQueue());
+	}
+
+	@Override
+	@Transactional
+	public Result<Void> deleteAssignmentAndGetEvents(long targetActivityId, UserContextData context)
 			throws DbConnectionException {
 		try {
 			String query = "UPDATE TargetActivity1 act SET " +
@@ -1028,10 +1064,11 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 
 			TargetActivity1 tAct = new TargetActivity1();
 			tAct.setId(targetActivityId);
-			eventFactory.generateEvent(EventType.AssignmentRemoved, context, tAct, null, null, null);
+			Result<Void> res = new Result<>();
+			res.appendEvent(eventFactory.generateEventData(EventType.AssignmentRemoved, context, tAct, null, null, null));
+			return res;
 		} catch (Exception e) {
-			logger.error(e);
-			e.printStackTrace();
+			logger.error("error", e);
 			throw new DbConnectionException("Error removing assignment");
 		}
 	}

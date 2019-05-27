@@ -63,7 +63,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
             throws DbConnectionException, ConstraintViolationException, DataIntegrityViolationException {
 
         Result<Unit> res = self.createNewUnitAndGetEvents(title, organizationId, parentUnitId, context);
-        eventFactory.generateEvents(res.getEventQueue());
+        eventFactory.generateAndPublishEvents(res.getEventQueue());
         return new UnitData(res.getResult(),parentUnitId);
     }
 
@@ -143,6 +143,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<UnitData> getUnitsWithSubUnits(long organizationId) {
         List<UnitData> units = getOrganizationUnits(organizationId);
         return getRootUnitsWithSubunits(units);
@@ -261,7 +262,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
             throws DbConnectionException {
         Result<Void> res = self.addUserToUnitAndGroupWithRoleAndGetEvents(userId, unitId, roleId, groupId, context);
 
-        eventFactory.generateEvents(res.getEventQueue());
+        eventFactory.generateAndPublishEvents(res.getEventQueue());
     }
 
     @Override
@@ -270,7 +271,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
         throws DbConnectionException {
         Result<Void> res = self.addUserToUnitWithRoleAndGetEvents(userId, unitId, roleId, context);
 
-        eventFactory.generateEvents(res.getEventQueue());
+        eventFactory.generateAndPublishEvents(res.getEventQueue());
     }
 
     @Override
@@ -310,7 +311,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
             throws DbConnectionException {
         Result<Void> res = self.removeUserFromAllUnitsWithRoleAndGetEvents(userId, roleId, context);
 
-        eventFactory.generateEvents(res.getEventQueue());
+        eventFactory.generateAndPublishEvents(res.getEventQueue());
     }
 
     @Override
@@ -372,7 +373,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
             throws DbConnectionException {
         Result<Void> res = self.removeUserFromUnitWithRoleAndGetEvents(userId, unitId, roleId, context);
 
-        eventFactory.generateEvents(res.getEventQueue());
+        eventFactory.generateAndPublishEvents(res.getEventQueue());
     }
 
     @Override
@@ -449,7 +450,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
     public Unit updateUnit(UnitData unit, UserContextData context)
             throws DbConnectionException, ConstraintViolationException, DataIntegrityViolationException {
         Result<Unit> res = self.updateUnitAndGetEvents(unit, context);
-        eventFactory.generateEvents(res.getEventQueue());
+        eventFactory.generateAndPublishEvents(res.getEventQueue());
         return res.getResult();
     }
 
@@ -708,7 +709,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
     public void addCredentialToUnit(long credId, long unitId, UserContextData context)
             throws DbConnectionException {
         Result<Void> res = self.addCredentialToUnitAndGetEvents(credId, unitId, context);
-        eventFactory.generateEvents(res.getEventQueue());
+        eventFactory.generateAndPublishEvents(res.getEventQueue());
     }
 
     @Override
@@ -743,7 +744,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
     public void removeCredentialFromUnit(long credId, long unitId, UserContextData context)
             throws DbConnectionException {
         Result<Void> res = self.removeCredentialFromUnitAndGetEvents(credId, unitId, context);
-        eventFactory.generateEvents(res.getEventQueue());
+        eventFactory.generateAndPublishEvents(res.getEventQueue());
     }
 
     @Override
@@ -846,7 +847,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
     public void addCompetenceToUnit(long compId, long unitId, UserContextData context)
             throws DbConnectionException {
         Result<Void> res = self.addCompetenceToUnitAndGetEvents(compId, unitId, context);
-        eventFactory.generateEvents(res.getEventQueue());
+        eventFactory.generateAndPublishEvents(res.getEventQueue());
     }
 
     @Override
@@ -881,7 +882,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
     public void removeCompetenceFromUnit(long compId, long unitId, UserContextData context)
             throws DbConnectionException {
         Result<Void> res = self.removeCompetenceFromUnitAndGetEvents(compId, unitId, context);
-        eventFactory.generateEvents(res.getEventQueue());
+        eventFactory.generateAndPublishEvents(res.getEventQueue());
     }
 
     @Override
@@ -1092,7 +1093,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
     public void addRubricToUnit(long rubricId, long unitId, UserContextData context)
             throws DbConnectionException {
         Result<Void> res = self.addRubricToUnitAndGetEvents(rubricId, unitId, context);
-        eventFactory.generateEvents(res.getEventQueue());
+        eventFactory.generateAndPublishEvents(res.getEventQueue());
     }
 
     @Override
@@ -1127,7 +1128,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
     public void removeRubricFromUnit(long rubricId, long unitId, UserContextData context)
             throws DbConnectionException {
         Result<Void> res = self.removeRubricFromUnitAndGetEvents(rubricId, unitId, context);
-        eventFactory.generateEvents(res.getEventQueue());
+        eventFactory.generateAndPublishEvents(res.getEventQueue());
     }
 
     @Override

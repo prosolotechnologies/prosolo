@@ -6,12 +6,12 @@ import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
 import org.prosolo.common.domainmodel.credential.BlindAssessmentMode;
 import org.prosolo.common.domainmodel.user.notifications.ResourceType;
+import org.prosolo.common.event.Event;
 import org.prosolo.common.event.context.Context;
 import org.prosolo.common.event.context.ContextName;
 import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.assessment.data.AssessmentBasicData;
 import org.prosolo.services.context.ContextJsonParserService;
-import org.prosolo.services.event.Event;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
@@ -35,10 +35,9 @@ public class ActivityAssessmentCommentEventProcessor extends AssessmentCommentEv
 
 	public ActivityAssessmentCommentEventProcessor(Event event, Session session, NotificationManager notificationManager,
 												   NotificationsSettingsManager notificationsSettingsManager, UrlIdEncoder idEncoder,
-												   AssessmentManager assessmentManager, CredentialManager credentialManager, Competence1Manager competenceManager,
-												   ContextJsonParserService ctxJsonParser) {
+												   AssessmentManager assessmentManager, CredentialManager credentialManager, Competence1Manager competenceManager) {
 		super(event, session, notificationManager, notificationsSettingsManager, idEncoder, assessmentManager, credentialManager, competenceManager);
-		Context context = ctxJsonParser.parseContext(event.getContext());
+		Context context = ContextJsonParserService.parseContext(event.getContext());
 		competenceId = Context.getIdFromSubContextWithName(context, ContextName.COMPETENCE);
 		compAssessmentId = Context.getIdFromSubContextWithName(context, ContextName.COMPETENCE_ASSESSMENT);
 		credentialId = Context.getIdFromSubContextWithName(context, ContextName.CREDENTIAL);

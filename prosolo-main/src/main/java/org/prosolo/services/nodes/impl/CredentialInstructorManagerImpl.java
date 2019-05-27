@@ -95,7 +95,7 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 	public void assignStudentToInstructor(long studentId, long instructorId, long credId,
 			UserContextData context) throws DbConnectionException {
 		Result<Void> res = credInstructorManager.assignStudentToInstructorAndGetEvents(studentId, instructorId, credId, context);
-		eventFactory.generateEvents(res.getEventQueue());
+		eventFactory.generateAndPublishEvents(res.getEventQueue());
 	}
 	
 	@Override
@@ -385,7 +385,7 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
     		throws DbConnectionException {
 		Result<Void> res = credInstructorManager.unassignStudentFromInstructorAndGetEvents(
 				userId, credId, context);
-		eventFactory.generateEvents(res.getEventQueue());
+		eventFactory.generateAndPublishEvents(res.getEventQueue());
     }
     
     @Override
@@ -421,7 +421,7 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 					throws DbConnectionException {
 		Result<Void> res = credInstructorManager.removeInstructorFromCredentialAndGetEvents(
 				instructorId, credId, reassignAutomatically, context);
-		eventFactory.generateEvents(res.getEventQueue());
+		eventFactory.generateAndPublishEvents(res.getEventQueue());
 	}
 	
 	@Override
@@ -487,7 +487,7 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 	public void addInstructorToCredential(long credId, long userId, 
 			int maxNumberOfStudents, UserContextData context) throws DbConnectionException {
 		//self invocation to trigger spring interception and transaction start
-		eventFactory.generateEvents(credInstructorManager.addInstructorToCredentialAndGetEvents(
+		eventFactory.generateAndPublishEvents(credInstructorManager.addInstructorToCredentialAndGetEvents(
 				credId, userId, maxNumberOfStudents, context).getEventQueue());
 	}
 	
@@ -540,7 +540,7 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 			throws DbConnectionException {
 		Result<Void> res = credInstructorManager.updateInstructorAndStudentsAssignedAndGetEvents(
 				credId, id, studentsToAssign, studentsToUnassign, context);
-		eventFactory.generateEvents(res.getEventQueue());
+		eventFactory.generateAndPublishEvents(res.getEventQueue());
 	}
 	
 	@Override
@@ -739,7 +739,7 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 	@Override
 	public void withdrawFromBeingInstructor(long credentialId, long studentUserId, UserContextData context) throws IllegalDataStateException {
 		Result<Void> res = credInstructorManager.withdrawFromBeingInstructorAndGetEvents(credentialId, studentUserId, context);
-		eventFactory.generateEvents(res.getEventQueue());
+		eventFactory.generateAndPublishEvents(res.getEventQueue());
 	}
 
 	@Override
@@ -756,7 +756,7 @@ public class CredentialInstructorManagerImpl extends AbstractManagerImpl impleme
 	@Override
 	public void withdrawFromBeingInstructor(long targetCredentialId, UserContextData context) throws IllegalDataStateException {
     	Result<Void> res = credInstructorManager.withdrawFromBeingInstructorAndGetEvents(targetCredentialId, context);
-    	eventFactory.generateEvents(res.getEventQueue());
+    	eventFactory.generateAndPublishEvents(res.getEventQueue());
 	}
 
 	@Override

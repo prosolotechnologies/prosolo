@@ -9,6 +9,7 @@ import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.assessment.AssessorAssignmentMethod;
 import org.prosolo.common.domainmodel.credential.*;
+import org.prosolo.common.event.EventQueue;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.search.util.credential.CredentialDeliverySortOption;
@@ -18,7 +19,6 @@ import org.prosolo.search.util.credential.CredentialStudentsInstructorFilter;
 import org.prosolo.services.assessment.data.AssessmentTypeConfig;
 import org.prosolo.services.common.data.SortOrder;
 import org.prosolo.services.data.Result;
-import org.prosolo.services.event.EventQueue;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.nodes.config.credential.CredentialLoadConfig;
 import org.prosolo.services.nodes.data.*;
@@ -308,8 +308,8 @@ public interface CredentialManager extends AbstractManager {
     		UserContextData context) throws DbConnectionException;
 	
 	EventQueue updateCredentialVisibilityAndGetEvents(long credId, List<ResourceVisibilityMember> groups,
-    		List<ResourceVisibilityMember> users, boolean visibleToAll, boolean visibleToAllChanged,
-    		UserContextData context) throws DbConnectionException;
+													  List<ResourceVisibilityMember> users, boolean visibleToAll, boolean visibleToAllChanged,
+													  UserContextData context) throws DbConnectionException;
 	
 	boolean isVisibleToAll(long credId) throws DbConnectionException;
 

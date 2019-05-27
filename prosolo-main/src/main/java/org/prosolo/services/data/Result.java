@@ -1,12 +1,12 @@
 package org.prosolo.services.data;
 
+import org.prosolo.common.event.Event;
+import org.prosolo.common.event.EventData;
+import org.prosolo.common.event.EventQueue;
+
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-
-import org.prosolo.services.event.Event;
-import org.prosolo.services.event.EventData;
-import org.prosolo.services.event.EventQueue;
 
 public class Result<T> {
 

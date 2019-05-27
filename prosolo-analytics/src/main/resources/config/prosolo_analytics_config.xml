@@ -111,6 +111,13 @@
 					</properties>
 				</job>
 			</class>
+			<class name="org.prosolo.bigdata.jobs.PeerAssessmentMaintenanceJob">
+				<job>
+					<activated>false</activated>
+					<on-startup>false</on-startup>
+					<schedule>0 0 2 * * ?</schedule><!--0 0 1 * * ? Executes every day at 2AM-->
+				</job>
+			</class>
 		</quartz-jobs>
 		<streaming-jobs>
 			<twitterStreaming>true</twitterStreaming>

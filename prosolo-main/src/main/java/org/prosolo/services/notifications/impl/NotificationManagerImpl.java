@@ -107,12 +107,13 @@ public class NotificationManagerImpl extends AbstractManagerImpl implements Noti
 			long objectId, ResourceType objectType, long targetId, ResourceType targetType, String link,
 			boolean notifyByEmail, boolean isObjectOwner, Session session, PageSection section) throws DbConnectionException {
 		try {
-			User actor = (User) session.load(User.class, actorId);
 			User receiver = (User) session.load(User.class, receiverId);
 			Notification1 notification = new Notification1();
 			notification.setNotifyByEmail(notifyByEmail);
 			notification.setDateCreated(date);
-			notification.setActor(actor);
+			if (actorId > 0) {
+				notification.setActor((User) session.load(User.class, actorId));
+			}
 			notification.setNotificationActorRole(actorRole);
 			notification.setAnonymizedActor(anonymizedActor);
 			notification.setReceiver(receiver);
@@ -130,8 +131,7 @@ public class NotificationManagerImpl extends AbstractManagerImpl implements Noti
 
 			return notification;
 		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
+			logger.error("error", e);
 			throw new DbConnectionException("Error saving notification");
 		}
 	}
@@ -157,7 +157,7 @@ public class NotificationManagerImpl extends AbstractManagerImpl implements Noti
 			StringBuilder queryBuilder = new StringBuilder();
 			queryBuilder.append("SELECT DISTINCT notification " +
 								"FROM Notification1 notification " +
-								"INNER JOIN FETCH notification.actor actor " +
+								"LEFT JOIN FETCH notification.actor actor " +
 								"WHERE notification.receiver.id = :userId " +
 								"AND notification.section =:section ");
 			if (filters != null && !filters.isEmpty()) {
@@ -225,7 +225,7 @@ public class NotificationManagerImpl extends AbstractManagerImpl implements Noti
 		StringBuilder query = new StringBuilder(
 			"SELECT notification1 " +
 			"FROM Notification1 notification1 " +
-			"INNER JOIN fetch notification1.actor actor ");
+			"LEFT JOIN fetch notification1.actor actor ");
 		
 		if(loadReceiver) {
 			query.append("INNER JOIN fetch notification1.receiver ");
@@ -272,6 +272,18 @@ public class NotificationManagerImpl extends AbstractManagerImpl implements Noti
 	}
 
 	private String getObjectTitle(long objectId, ResourceType objectType, Session session) {
+		if (objectType == ResourceType.Student) {
+			String query1 = "SELECT obj.name, obj.lastname " +
+					"FROM " + objectType.getDbTableName() + " obj " +
+					"WHERE obj.id = :id";
+			Object[] res = (Object[]) session
+					.createQuery(query1)
+					.setLong("id", objectId)
+					.uniqueResult();
+			String firstName = (String) res[0];
+			String lastName = (String) res[1];
+			return firstName + " " +  lastName;
+		}
 		String query = "SELECT obj.title " +
 					   "FROM " + objectType.getDbTableName() + " obj " +
 					   "WHERE obj.id = :id";

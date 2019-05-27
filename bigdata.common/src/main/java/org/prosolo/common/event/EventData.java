@@ -1,11 +1,10 @@
-package org.prosolo.services.event;
-
-import java.util.ArrayList;
-import java.util.Map;
+package org.prosolo.common.event;
 
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.event.context.data.UserContextData;
+
+import java.util.Map;
 
 public class EventData {
 

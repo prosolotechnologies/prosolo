@@ -1,7 +1,7 @@
 package org.prosolo.app.bc.test;
 
 import org.apache.log4j.Logger;
-import org.prosolo.services.event.EventQueue;
+import org.prosolo.common.event.EventQueue;
 
 /**
  * @author Nikola Milikic

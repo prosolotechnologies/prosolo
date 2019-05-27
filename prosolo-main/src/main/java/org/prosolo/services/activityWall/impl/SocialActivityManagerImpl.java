@@ -17,6 +17,7 @@ import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.organization.Unit;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.event.EventQueue;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.services.activityWall.SocialActivityManager;
 import org.prosolo.services.activityWall.factory.RichContentDataFactory;
@@ -800,7 +801,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 	public PostSocialActivity1 createNewPost(SocialActivityData1 postData,
 			UserContextData context) throws DbConnectionException {
 		Result<PostSocialActivity1> res = self.createNewPostAndGetEvents(postData, context);
-		eventFactory.generateEvents(res.getEventQueue());
+		eventFactory.generateAndPublishEvents(res.getEventQueue());
 		return res.getResult();
 	}
 
@@ -871,57 +872,84 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 		}
 		return userIds;
 	}
+
+	@Override
+	public PostReshareSocialActivity sharePost(String text, long originalPostId, UserContextData context)
+			throws DbConnectionException {
+		Result<PostReshareSocialActivity> res = self.sharePostAndGetEvents(text, originalPostId, context);
+		eventFactory.generateAndPublishEvents(res.getEventQueue());
+		return res.getResult();
+	}
 	
 	@Override
 	@Transactional
-	public PostReshareSocialActivity sharePost(String text, long originalPostId, UserContextData context)
+	public Result<PostReshareSocialActivity> sharePostAndGetEvents(String text, long originalPostId, UserContextData context)
 			throws DbConnectionException {
 		try {
 			PostReshareSocialActivity postShare = resourceFactory.sharePost(context.getActorId(), text, originalPostId);
 
-			eventFactory.generateEvent(EventType.PostShare, context, postShare, null, null, null);
-			
-			return postShare;
+			Result<PostReshareSocialActivity> res = new Result<>();
+			res.appendEvent(eventFactory.generateEventData(EventType.PostShare, context, postShare, null, null, null));
+			res.setResult(postShare);
+			return res;
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
 			throw new DbConnectionException("Error sharing post");
 		}
 	}
-	
+
+	@Override
+	public PostSocialActivity1 updatePost(long postId, String newText,
+										  UserContextData context) throws DbConnectionException {
+		Result<PostSocialActivity1> res = self.updatePostAndGetEvents(postId, newText, context);
+		eventFactory.generateAndPublishEvents(res.getEventQueue());
+		return res.getResult();
+	}
+
 	@Override
 	@Transactional
-	public PostSocialActivity1 updatePost(long postId, String newText,
+	public Result<PostSocialActivity1> updatePostAndGetEvents(long postId, String newText,
 			UserContextData context) throws DbConnectionException {
 		try {
-			PostSocialActivity1 post = resourceFactory.updatePost(postId, newText);
+			PostSocialActivity1 post = (PostSocialActivity1) persistence.currentManager()
+					.load(PostSocialActivity1.class, postId);
+			post.setLastAction(new Date());
+			post.setText(newText);
 
 			Map<String, String> parameters = new HashMap<String, String>();
 			parameters.put("newText", newText);
-			
-			eventFactory.generateEvent(EventType.PostUpdate, context, post, null, null, parameters);
 
+			Result<PostSocialActivity1> res = new Result<>();
+			res.appendEvent(eventFactory.generateEventData(EventType.PostUpdate, context, post, null, null, parameters));
+			res.setResult(post);
 			
-			return post;
+			return res;
 		} catch(Exception e) {
-			e.printStackTrace();
 			logger.error("Error", e);
 			throw new DbConnectionException("Error saving post");
 		}
 	}
 
 	@Override
+	public Comment1 saveSocialActivityComment(long socialActivityId, CommentData data,
+											  CommentedResourceType resource, UserContextData context) throws DbConnectionException {
+		Result<Comment1> res = self.saveSocialActivityCommentAndGetEvents(socialActivityId, data, resource, context);
+		eventFactory.generateAndPublishEvents(res.getEventQueue());
+		return res.getResult();
+	}
+
+	@Override
 	@Transactional(readOnly = false)
-	public Comment1 saveSocialActivityComment(long socialActivityId, CommentData data, 
+	public Result<Comment1> saveSocialActivityCommentAndGetEvents(long socialActivityId, CommentData data,
 			CommentedResourceType resource, UserContextData context)
 					throws DbConnectionException {
 		try {
-			Comment1 comment = commentManager.saveNewComment(data, resource, context);
-			updateLastActionDate(socialActivityId, comment.getPostDate());
-			return comment;
+			Result<Comment1> res = commentManager.saveNewCommentAndGetEvents(data, resource, context);
+			updateLastActionDate(socialActivityId, res.getResult().getPostDate());
+			return res;
 		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
+			logger.error("error", e);
 			throw new DbConnectionException("Error saving comment");
 		}
 		
@@ -946,10 +974,17 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 			throw new DbConnectionException("Error updating comment");
 		}
 	}
-	
+
+	@Override
+	public void likeSocialActivity(long socialActivityId, UserContextData context)
+			throws DbConnectionException {
+		Result<Void> res = self.likeSocialActivityAndGetEvents(socialActivityId, context);
+		eventFactory.generateAndPublishEvents(res.getEventQueue());
+	}
+
 	@Override
 	@Transactional (readOnly = false)
-	public void likeSocialActivity(long socialActivityId, UserContextData context)
+	public Result<Void> likeSocialActivityAndGetEvents(long socialActivityId, UserContextData context)
 			throws DbConnectionException {
 		try {
 			annotationManager.createAnnotation(context.getActorId(), socialActivityId, AnnotatedResource.SocialActivity,
@@ -965,18 +1000,32 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 			//to avoid retrieving data from database
 			SocialActivity1 sa = new SocialActivity1();
 			sa.setId(socialActivityId);
-			
-			eventFactory.generateEvent(EventType.Like, context, sa, null,null, null);
+
+			return Result.of(
+					EventQueue.of(
+							eventFactory.generateEventData(
+									EventType.Like,
+									context,
+									sa,
+									null,
+									null,
+									null)));
 		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
+			logger.error("Error", e);
 			throw new DbConnectionException("Error saving social activity like");
 		}
+	}
+
+	@Override
+	public void unlikeSocialActivity(long socialActivityId, UserContextData context)
+			throws DbConnectionException {
+		Result<Void> res = self.unlikeSocialActivityAndGetEvents(socialActivityId, context);
+		eventFactory.generateAndPublishEvents(res.getEventQueue());
 	}
 	
 	@Override
 	@Transactional (readOnly = false)
-	public void unlikeSocialActivity(long socialActivityId, UserContextData context)
+	public Result<Void> unlikeSocialActivityAndGetEvents(long socialActivityId, UserContextData context)
 			throws DbConnectionException {
 		try {
 			annotationManager.deleteAnnotation(context.getActorId(), socialActivityId, AnnotatedResource.SocialActivity,
@@ -992,11 +1041,18 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 			//to avoid retrieving data from database
 			SocialActivity1 sa = new SocialActivity1();
 			sa.setId(socialActivityId);
-			
-			eventFactory.generateEvent(EventType.RemoveLike, context, sa, null, null, null);
+
+			return Result.of(
+					EventQueue.of(
+							eventFactory.generateEventData(
+									EventType.RemoveLike,
+									context,
+									sa,
+									null,
+									null,
+									null)));
 		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
+			logger.error("error", e);
 			throw new DbConnectionException("Error saving social activity like");
 		}
 	}

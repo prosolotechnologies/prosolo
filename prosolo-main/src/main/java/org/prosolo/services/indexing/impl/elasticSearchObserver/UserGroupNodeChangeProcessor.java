@@ -7,10 +7,10 @@ import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroup;
+import org.prosolo.common.event.Event;
 import org.prosolo.common.event.context.Context;
 import org.prosolo.common.event.context.ContextName;
 import org.prosolo.services.context.ContextJsonParserService;
-import org.prosolo.services.event.Event;
 import org.prosolo.services.indexing.CompetenceESService;
 import org.prosolo.services.indexing.CredentialESService;
 import org.prosolo.services.indexing.UserEntityESService;
@@ -28,20 +28,17 @@ public class UserGroupNodeChangeProcessor implements NodeChangeProcessor {
 	private CompetenceESService compESService;
 	private UserEntityESService userEntityESService;
 	private Session session;
-	private ContextJsonParserService ctxJsonParserService;
-	
-	
+
 	public UserGroupNodeChangeProcessor(Event event, UserGroupESService groupESService, 
 			CredentialESService credESService, UserGroupManager userGroupManager, 
 			CompetenceESService compESService, UserEntityESService userEntityESService,
-			ContextJsonParserService ctxJsonParserService, Session session) {
+			Session session) {
 		this.event = event;
 		this.groupESService = groupESService;
 		this.credESService = credESService;
 		this.userGroupManager = userGroupManager;
 		this.compESService = compESService;
 		this.userEntityESService = userEntityESService;
-		this.ctxJsonParserService = ctxJsonParserService;
 		this.session = session;
 	}
 	
@@ -52,7 +49,7 @@ public class UserGroupNodeChangeProcessor implements NodeChangeProcessor {
 		BaseEntity target = event.getTarget();
 		if (type == EventType.Create || type == EventType.Edit || type == EventType.Delete) {
 			long orgId = Context.getIdFromSubContextWithName(
-					ctxJsonParserService.parseContext(event.getContext()), ContextName.ORGANIZATION);
+					ContextJsonParserService.parseContext(event.getContext()), ContextName.ORGANIZATION);
 			UserGroup group = (UserGroup) session.load(UserGroup.class, object.getId());
 			if (type == EventType.Create || type == EventType.Edit) {
 				if (!group.isDefaultGroup()) {

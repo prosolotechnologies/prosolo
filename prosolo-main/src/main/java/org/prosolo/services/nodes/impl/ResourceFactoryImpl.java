@@ -20,12 +20,13 @@ import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
-import org.prosolo.services.nodes.*;
+import org.prosolo.services.nodes.Activity1Manager;
+import org.prosolo.services.nodes.Competence1Manager;
+import org.prosolo.services.nodes.CredentialManager;
+import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.credential.CredentialData;
 import org.prosolo.services.upload.AvatarProcessor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -112,13 +113,6 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
     }
 
     @Override
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
-    public Activity1 updateActivity(org.prosolo.services.nodes.data.ActivityData data)
-            throws DbConnectionException, StaleDataException, IllegalDataStateException {
-        return activityManager.updateActivityData(data);
-    }
-
-    @Override
     @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
     public PostReshareSocialActivity sharePost(long userId, String text, long socialActivityId)
             throws DbConnectionException {
@@ -143,45 +137,6 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
             throw new DbConnectionException("Error saving new post");
         }
 
-    }
-
-    @Override
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
-    public PostSocialActivity1 updatePost(long postId, String newText) throws DbConnectionException {
-        try {
-            PostSocialActivity1 post = (PostSocialActivity1) persistence.currentManager()
-                    .load(PostSocialActivity1.class, postId);
-            post.setLastAction(new Date());
-            post.setText(newText);
-            return post;
-        } catch(Exception e) {
-            logger.error(e);
-            e.printStackTrace();
-            throw new DbConnectionException("Error updating post");
-        }
-
-    }
-
-    @Override
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
-    public UserGroup updateGroupJoinUrl(long groupId, boolean joinUrlActive, String joinUrlPassword)
-            throws DbConnectionException {
-        try {
-            UserGroup group = (UserGroup) persistence.currentManager().load(UserGroup.class, groupId);
-            group.setJoinUrlActive(joinUrlActive);
-
-            if (joinUrlActive) {
-                group.setJoinUrlPassword(joinUrlPassword);
-            } else {
-                group.setJoinUrlPassword(null);
-            }
-
-            return group;
-        } catch (Exception e) {
-            e.printStackTrace();
-            logger.error(e);
-            throw new DbConnectionException("Error saving user group");
-        }
     }
 
 }

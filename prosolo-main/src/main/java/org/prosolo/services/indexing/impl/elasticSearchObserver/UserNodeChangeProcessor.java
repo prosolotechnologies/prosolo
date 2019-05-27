@@ -9,8 +9,8 @@ import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.event.Event;
 import org.prosolo.services.assessment.AssessmentManager;
-import org.prosolo.services.event.Event;
 import org.prosolo.services.indexing.CompetenceESService;
 import org.prosolo.services.indexing.CredentialESService;
 import org.prosolo.services.indexing.UserEntityESService;
@@ -34,7 +34,7 @@ public class UserNodeChangeProcessor implements NodeChangeProcessor {
 	private AssessmentManager assessmentManager;
 	
 	public UserNodeChangeProcessor(Event event, Session session, UserEntityESService userEntityESService,
-			CredentialESService credESService, CompetenceESService compESService, CredentialManager credManager, AssessmentManager assessmentManager, EventUserRole userRole) {
+								   CredentialESService credESService, CompetenceESService compESService, CredentialManager credManager, AssessmentManager assessmentManager, EventUserRole userRole) {
 		this.event = event;
 		this.session = session;
 		this.userEntityESService = userEntityESService;

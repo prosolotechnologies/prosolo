@@ -16,6 +16,7 @@ import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.rubric.*;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.event.EventQueue;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.common.util.ImageFormat;
@@ -32,7 +33,6 @@ import org.prosolo.services.common.data.SortOrder;
 import org.prosolo.services.common.data.SortingOption;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventFactory;
-import org.prosolo.services.event.EventQueue;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.config.competence.CompetenceLoadConfig;
@@ -90,7 +90,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
                 .load(TargetCredential1.class, assessmentRequestData.getTargetResourceId());
         Result<Long> res = self.getOrCreateAssessmentAndGetEvents(targetCredential, assessmentRequestData.getStudentId(),
                 assessmentRequestData.getAssessorId(), AssessmentType.PEER_ASSESSMENT, AssessmentStatus.REQUESTED, false, context);
-        eventFactory.generateEvents(res.getEventQueue());
+        eventFactory.generateAndPublishEvents(res.getEventQueue());
         return res.getResult();
     }
 
@@ -269,6 +269,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
                     credentialAssessment.getTargetCredential().getCredential().getId(), comp, credentialAssessment.getStudent().getId(),
                     credentialAssessment.getAssessor().getId(), credentialAssessment.getType(), AssessmentStatus.PENDING,
                     credentialAssessment.getBlindAssessmentMode(), 0, Optional.of(credentialAssessment), context);
+
             results.add(res);
         }
         return results;
@@ -332,7 +333,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
             throws DbConnectionException, IllegalDataStateException {
         Result<CompetenceAssessment> res = self.requestCompetenceAssessmentAndGetEvents(assessmentRequestData.getCredentialId(), assessmentRequestData.getResourceId(), assessmentRequestData.getStudentId(),
                 assessmentRequestData.getAssessorId(), assessmentRequestData.getNumberOfTokensToSpend(), context);
-        eventFactory.generateEvents(res.getEventQueue());
+        eventFactory.generateAndPublishEvents(res.getEventQueue());
         return res.getResult().getId();
     }
 
@@ -913,6 +914,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		if average grade is between 0 and 1 it means that there is at least one assessment that is graded
 		and we should return 1 as a grade because 0 means there are no graded assessments
 		 */
+
         avgGrade = avgGrade < 1 && avgGrade > 0 ? 1 : avgGrade;
         int roundedAvgGrade = (int) Math.round(avgGrade);
 
@@ -1276,7 +1278,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
             throws DbConnectionException, IllegalDataStateException {
         Result<Void> result = self.approveCredentialAndGetEvents(credentialAssessmentId, reviewText, context);
 
-        eventFactory.generateEvents(result.getEventQueue());
+        eventFactory.generateAndPublishEvents(result.getEventQueue());
     }
 
     @Override
@@ -1445,7 +1447,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
         Result<AssessmentDiscussionMessageData> result = self.addCommentToDiscussionAndGetEvents(actualDiscussionId, senderId,
                 comment, context, credentialAssessmentId, credentialId);
 
-        eventFactory.generateEvents(result.getEventQueue());
+        eventFactory.generateAndPublishEvents(result.getEventQueue());
         return result.getResult();
     }
 
@@ -1547,7 +1549,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
         Result<AssessmentDiscussionMessageData> result = self.addCommentToCompetenceAssessmentAndGetEvents(
                 assessmentId, senderId, comment, context, credentialAssessmentId, credentialId);
 
-        eventFactory.generateEvents(result.getEventQueue());
+        eventFactory.generateAndPublishEvents(result.getEventQueue());
         return result.getResult();
     }
 
@@ -1645,7 +1647,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
         Result<AssessmentDiscussionMessageData> result = self.addCommentToCredentialAssessmentAndGetEvents(
                 assessmentId, senderId, comment, context);
 
-        eventFactory.generateEvents(result.getEventQueue());
+        eventFactory.generateAndPublishEvents(result.getEventQueue());
         return result.getResult();
     }
 
@@ -1738,7 +1740,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
     //nt
     public void approveCompetence(long competenceAssessmentId, UserContextData context) throws DbConnectionException {
         Result<Void> res = self.approveCompetenceAndGetEvents(competenceAssessmentId, true, context);
-        eventFactory.generateEvents(res.getEventQueue());
+        eventFactory.generateAndPublishEvents(res.getEventQueue());
     }
 
     @Override
@@ -2115,7 +2117,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
             throws DbConnectionException, IllegalDataStateException {
         Result<GradeData> res = self.updateGradeForActivityAssessmentAndGetEvents(
                 activityAssessmentId, grade, context);
-        eventFactory.generateEvents(res.getEventQueue());
+        eventFactory.generateAndPublishEvents(res.getEventQueue());
         return res.getResult();
     }
 
@@ -2186,7 +2188,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
             throws DbConnectionException, IllegalDataStateException {
         Result<GradeData> res = self.updateGradeForCompetenceAssessmentAndGetEvents(
                 assessmentId, grade, context);
-        eventFactory.generateEvents(res.getEventQueue());
+        eventFactory.generateAndPublishEvents(res.getEventQueue());
         return res.getResult();
     }
 
@@ -2276,7 +2278,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
             throws DbConnectionException {
         Result<GradeData> res = self.updateGradeForCredentialAssessmentAndGetEvents(
                 assessmentId, grade, context);
-        eventFactory.generateEvents(res.getEventQueue());
+        eventFactory.generateAndPublishEvents(res.getEventQueue());
         return res.getResult();
     }
 
@@ -3126,7 +3128,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
     public void notifyAssessorToAssessCredential(AssessmentNotificationData assessmentNotification, UserContextData context)
             throws DbConnectionException, IllegalDataStateException {
         Result<Void> res = self.notifyAssessorToAssessCredentialAndGetEvents(assessmentNotification, context);
-        eventFactory.generateEvents(res.getEventQueue());
+        eventFactory.generateAndPublishEvents(res.getEventQueue());
     }
 
     @Transactional
@@ -3174,7 +3176,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
     public void notifyAssessorToAssessCompetence(AssessmentNotificationData assessmentNotification, UserContextData context)
             throws DbConnectionException, IllegalDataStateException {
         Result<Void> res = self.notifyAssessorToAssessCompetenceAndGetEvents(assessmentNotification, context);
-        eventFactory.generateEvents(res.getEventQueue());
+        eventFactory.generateAndPublishEvents(res.getEventQueue());
     }
 
     @Transactional
@@ -3733,6 +3735,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
                         "AND ca.student.id = :assessedStudentId " +
                         "AND ca.type = :type " +
                         "AND tc.credential.id = :credId ";
+
         if (countOnlyApproved) {
             q += "AND ca.status = :submitted";
         }
@@ -3974,6 +3977,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
         }
     }
 
+    //TODO: Same method exists in analytics application: org.prosolo.bigdata.dal.persistence.impl.AssessmentDAOImpl.getPeerFromAvailableAssessorsPoolForCompetenceAssessment
     @Override
     @Transactional(readOnly = true)
     public UserData getPeerFromAvailableAssessorsPoolForCompetenceAssessment(long credId, long compId, long userId, boolean orderByTokens) {
@@ -3991,8 +3995,6 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
                             "WHERE tComp.competence.id = :compId " +
                             "AND user.id != :userId " +
                             "AND user.availableForAssessments is TRUE " +
-                            //condition that assures that competency assessment is joined only if it is connected to the right credential
-                            "AND (tCred IS NOT NULL OR (tCred IS NULL AND ca IS NULL)) " +
                             "AND user.id NOT IN ( " +
                             "SELECT assessment.assessor.id " +
                             "FROM CompetenceAssessment assessment " +
@@ -4014,7 +4016,9 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
                 query += "user.numberOfTokens, ";
             }
             query +=
-                    "COUNT(ca.id), tComp.dateCreated";
+                    //count tCred instead of ca because we are only interested in competency
+                    //assessments referencing given credential
+                    "COUNT(tCred.id), tComp.dateCreated";
 
             User res = (User) persistence.currentManager()
                     .createQuery(query)
@@ -4023,7 +4027,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
                     .setString("aType", AssessmentType.PEER_ASSESSMENT.name())
                     .setLong("credId", credId)
                     .setParameterList("activeStatuses", AssessmentStatus.getActiveStatuses())
-                    .setTimestamp("monthAgo", DateUtil.getNDaysFromNow(30))
+                    .setTimestamp("monthAgo", DateUtil.getNDaysBeforeNow(30))
                     .setMaxResults(1)
                     .uniqueResult();
 
@@ -4068,7 +4072,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
                     .setString("aType", AssessmentType.PEER_ASSESSMENT.name())
                     .setLong("credId", credId)
                     .setParameterList("activeStatuses", AssessmentStatus.getActiveStatuses())
-                    .setTimestamp("monthAgo", DateUtil.getNDaysFromNow(30))
+                    .setTimestamp("monthAgo", DateUtil.getNDaysBeforeNow(30))
                     .list();
         } catch (Exception e) {
             logger.error("Error", e);
@@ -4209,7 +4213,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
     @Override
     public void acceptCompetenceAssessmentRequest(long compAssessmentId, UserContextData context) throws IllegalDataStateException {
         Result<Void> res = self.acceptCompetenceAssessmentRequestAndGetEvents(compAssessmentId, context);
-        eventFactory.generateEvents(res.getEventQueue());
+        eventFactory.generateAndPublishEvents(res.getEventQueue());
     }
 
     @Override
@@ -4251,7 +4255,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
     @Override
     public void declineCompetenceAssessmentRequest(long compAssessmentId, UserContextData context) throws IllegalDataStateException {
         Result<Void> res = self.declineCompetenceAssessmentRequestAndGetEvents(compAssessmentId, context);
-        eventFactory.generateEvents(res.getEventQueue());
+        eventFactory.generateAndPublishEvents(res.getEventQueue());
     }
 
     @Override
@@ -4287,7 +4291,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
     @Override
     public void declinePendingCompetenceAssessment(long compAssessmentId, UserContextData context) throws IllegalDataStateException {
         Result<Void> res = self.declinePendingCompetenceAssessmentAndGetEvents(compAssessmentId, context);
-        eventFactory.generateEvents(res.getEventQueue());
+        eventFactory.generateAndPublishEvents(res.getEventQueue());
     }
 
     @Override

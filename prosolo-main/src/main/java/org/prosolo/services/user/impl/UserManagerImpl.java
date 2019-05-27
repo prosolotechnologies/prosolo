@@ -239,7 +239,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 				roles,
 				isSystem);
 
-		eventFactory.generateEvents(res.getEventQueue());
+		eventFactory.generateAndPublishEvents(res.getEventQueue());
 
 		return res.getResult();
 	}
@@ -261,7 +261,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 				roles,
 				isSystem);
 
-		eventFactory.generateEvents(res.getEventQueue());
+		eventFactory.generateAndPublishEvents(res.getEventQueue());
 
 		return res.getResult();
 	}
@@ -284,23 +284,25 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 				roles,
 				isSystem);
 
-		//send email to new user for password recovery
-		sendNewPassword(res.getResult());
+		if (CommonSettings.getInstance().config.emailNotifier.activated) {
+			//send email to new user for password recovery
+			try {
+				sendNewPassword(res.getResult());
+			} catch (Exception e) {
+				logger.error("error sending the password reset email", e);
+				//don't throw exception since we don't want to rollback the transaction just because email could not be sent.
+			}
+		}
 		return res;
 	}
 
 	private void sendNewPassword(User user) {
-		try {
-			boolean resetLinkSent = passwordResetManager.initiatePasswordReset(user, user.getEmail(),
-					CommonSettings.getInstance().config.appConfig.domain + "recovery", persistence.currentManager());
-			if (resetLinkSent) {
-				logger.info("Password instructions have been sent");
-			} else {
-				logger.error("Error sending password instruction");
-			}
-		} catch (Exception e) {
-			logger.error("Error", e);
-			throw new DbConnectionException("Error sending the password to the new user");
+		boolean resetLinkSent = passwordResetManager.initiatePasswordReset(user, user.getEmail(),
+				CommonSettings.getInstance().config.appConfig.domain + "recovery", persistence.currentManager());
+		if (resetLinkSent) {
+			logger.info("Password instructions have been sent");
+		} else {
+			logger.error("Error sending password instruction");
 		}
 	}
 
@@ -339,7 +341,10 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 			user.setVerificationKey(UUID.randomUUID().toString().replace("-", ""));
 
 			if (organizationId > 0) {
-				user.setOrganization((Organization) persistence.currentManager().load(Organization.class, organizationId));
+				Organization org = (Organization) persistence.currentManager().load(Organization.class, organizationId);
+				user.setOrganization(org);
+				//setting initial number of tokens no matter if tokens are enabled at the moment
+				user.setNumberOfTokens(org.getInitialNumberOfTokensGiven());
 			}
 
 			if (password != null) {
@@ -517,7 +522,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 		Result<User> result = self.updateUserAndGetEvents(userId, name, lastName, email, emailVerified,
 				changePassword, password, position, newRoleList, allRoles, context);
 
-		eventFactory.generateEvents(result.getEventQueue());
+		eventFactory.generateAndPublishEvents(result.getEventQueue());
 
 		return result.getResult();
 	}
@@ -687,7 +692,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	public void deleteUser(long oldCreatorId, long newCreatorId, UserContextData context)
 			throws DbConnectionException {
 		Result<Void> result = self.deleteUserAndGetEvents(oldCreatorId, newCreatorId, context);
-		eventFactory.generateEvents(result.getEventQueue());
+		eventFactory.generateAndPublishEvents(result.getEventQueue());
 	}
 
 	@Override
@@ -1009,7 +1014,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 				userGroupId, context);
 
 		if (res.getResult() != null) {
-			eventFactory.generateEvents(res.getEventQueue());
+			eventFactory.generateAndPublishEvents(res.getEventQueue());
 			return res.getResult().getUser();
 		}
 		return null;
@@ -1200,7 +1205,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	public void saveAccountChanges(UserData accountData, UserContextData contextData)
 			throws DbConnectionException, ResourceCouldNotBeLoadedException {
 		Result<Void> result = self.saveAccountChangesAndGetEvents(accountData,contextData);
-		eventFactory.generateEvents(result.getEventQueue());
+		eventFactory.generateAndPublishEvents(result.getEventQueue());
 	}
 
 	@Override

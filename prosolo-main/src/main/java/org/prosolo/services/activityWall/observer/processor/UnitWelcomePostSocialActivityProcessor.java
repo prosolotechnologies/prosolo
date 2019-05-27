@@ -2,8 +2,8 @@ package org.prosolo.services.activityWall.observer.processor;
 
 import org.hibernate.Session;
 import org.prosolo.common.domainmodel.organization.Unit;
+import org.prosolo.common.event.Event;
 import org.prosolo.services.activityWall.SocialActivityManager;
-import org.prosolo.services.event.Event;
 
 public class UnitWelcomePostSocialActivityProcessor extends SocialActivityProcessor {
 

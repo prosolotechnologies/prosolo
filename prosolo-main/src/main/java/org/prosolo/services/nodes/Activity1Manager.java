@@ -38,6 +38,8 @@ public interface Activity1Manager extends AbstractManager {
 	 */
 	Activity1 deleteActivity(long activityId, UserContextData context) throws DbConnectionException, IllegalDataStateException;
 
+	Result<Activity1> deleteActivityAndGetEvents(long activityId, UserContextData context) throws DbConnectionException, IllegalDataStateException;
+
 	List<ActivityData> getCompetenceActivitiesData(long competenceId) throws DbConnectionException;
 
 	List<TargetActivity1> createTargetActivities(TargetCompetence1 targetComp)
@@ -76,6 +78,9 @@ public interface Activity1Manager extends AbstractManager {
 	 */
 	Activity1 updateActivity(ActivityData data, UserContextData context) throws DbConnectionException, StaleDataException, IllegalDataStateException;
 
+	Result<Activity1> updateActivityAndGetEvents(ActivityData data, UserContextData context)
+			throws DbConnectionException, StaleDataException, IllegalDataStateException;
+
 	/**
 	 * Updates activity.
 	 *
@@ -105,7 +110,13 @@ public interface Activity1Manager extends AbstractManager {
 	void saveResponse(long targetActId, String path, Date postDate, ActivityResultType resType,
 					  UserContextData context) throws DbConnectionException;
 
+	Result<Void> saveResponseAndGetEvents(long targetActId, String path, Date postDate,
+										  ActivityResultType resType, UserContextData context) throws DbConnectionException;
+
 	void updateTextResponse(long targetActId, String path, UserContextData context)
+			throws DbConnectionException;
+
+	Result<Void> updateTextResponseAndGetEvents(long targetActId, String path, UserContextData context)
 			throws DbConnectionException;
 
 	/**
@@ -129,6 +140,9 @@ public interface Activity1Manager extends AbstractManager {
 			throws DbConnectionException, ResourceNotFoundException, IllegalArgumentException;
 
 	void deleteAssignment(long targetActivityId, UserContextData context)
+			throws DbConnectionException;
+
+	Result<Void> deleteAssignmentAndGetEvents(long targetActivityId, UserContextData context)
 			throws DbConnectionException;
 
 	Long getCompetenceIdForActivity(long actId) throws DbConnectionException;

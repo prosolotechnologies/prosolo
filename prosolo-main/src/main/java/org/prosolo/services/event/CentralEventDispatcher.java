@@ -5,6 +5,8 @@ package org.prosolo.services.event;
 
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.events.EventType;
+import org.prosolo.common.event.Event;
+import org.prosolo.common.event.EventObserver;
 import org.prosolo.services.activityWall.observer.SocialStreamObserver;
 import org.prosolo.services.interaction.impl.MessagesObserver;
 import org.prosolo.services.logging.LoggingEventsObserver;

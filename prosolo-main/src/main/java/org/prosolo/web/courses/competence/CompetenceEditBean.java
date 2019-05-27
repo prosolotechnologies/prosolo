@@ -51,7 +51,6 @@ public class CompetenceEditBean extends CompoundLearningResourceAssessmentSettin
 	@Inject private Competence1Manager compManager;
 	@Inject private CredentialManager credManager;
 	@Inject private UrlIdEncoder idEncoder;
-	@Inject private ContextJsonParserService contextParser;
 	@Inject private UnitManager unitManager;
 
 	private String id;
@@ -174,7 +173,7 @@ public class CompetenceEditBean extends CompoundLearningResourceAssessmentSettin
 			context = "name:CREDENTIAL|id:" + decodedCredId;
 		}
 		if(decodedId > 0) {
-			context = contextParser.addSubContext(context, "name:COMPETENCE|id:" + decodedId);
+			context = ContextJsonParserService.addSubContext(context, "name:COMPETENCE|id:" + decodedId);
 		}
 	}
 	
@@ -263,7 +262,7 @@ public class CompetenceEditBean extends CompoundLearningResourceAssessmentSettin
 			String service = PageUtil.getPostParameter("service");
 			String learningContext = context;
 			if (lContext != null && !lContext.isEmpty()) {
-				learningContext = contextParser.addSubContext(context, lContext);
+				learningContext = ContextJsonParserService.addSubContext(context, lContext);
 			}
 			PageContextData lcd = new PageContextData(page, learningContext, service);
 			if (competenceData.getCompetenceId() > 0) {

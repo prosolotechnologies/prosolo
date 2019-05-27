@@ -4,7 +4,7 @@ import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.services.event.Event;
+import org.prosolo.common.event.Event;
 import org.prosolo.services.indexing.ESAdministration;
 import org.prosolo.services.indexing.UserEntityESService;
 import org.prosolo.services.nodes.OrganizationManager;

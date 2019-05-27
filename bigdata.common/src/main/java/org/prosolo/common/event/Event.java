@@ -1,15 +1,14 @@
-package org.prosolo.services.event;
+package org.prosolo.common.event;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import org.prosolo.common.domainmodel.events.EventType;
+import org.prosolo.common.domainmodel.general.BaseEntity;
 
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Transient;
-
-import org.prosolo.common.domainmodel.events.EventType;
-import org.prosolo.common.domainmodel.general.BaseEntity;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Event extends BaseEntity  {
 
