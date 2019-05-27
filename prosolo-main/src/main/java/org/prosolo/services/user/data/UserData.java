@@ -54,6 +54,8 @@ public class UserData implements Serializable {
     private Double latitude;
     @Getter @Setter
     private String newPassword;
+    @Getter @Setter
+    private int numberOfTokens;
 
     public UserData() {
         this.roles = new LinkedList<>();
@@ -73,6 +75,7 @@ public class UserData implements Serializable {
         this.latitude = user.getLatitude();
         this.longitude = user.getLongitude();
         this.objectStatus = ObjectStatus.UP_TO_DATE;
+        this.numberOfTokens = user.getNumberOfTokens();
         for (Role r : user.getRoles()) {
             this.roleIds.add(r.getId());
         }

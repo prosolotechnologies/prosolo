@@ -54,6 +54,7 @@
 						<ui:fragment rendered="#{cc.attrs.showFormTitle and userEditBean.user.id le 0}">
 							<h2>New User</h2>
 						</ui:fragment>
+
 						<h:form id="formMain">
 							<p:growl id="growlMain" showDetail="true" globalOnly="true"></p:growl>
 							<div class="formWrapper">
@@ -96,7 +97,23 @@
 								<div class="formLine">
 									<label>Position</label>
 									<div class="formLineRight">
-										<h:inputText autocomplete="off" value="#{userEditBean.user.position}"></h:inputText>
+										<h:inputText autocomplete="off" value="#{userEditBean.user.position}"/>
+									</div>
+								</div>
+								<div class="formLine">
+									<label>Number of Tokens</label>
+									<div class="formLineRight">
+										<h:inputText id="inputTextTokens"
+													 type="number"
+													 styleClass="width100"
+													 label="Number of tokens"
+													 autocomplete="off"
+													 required="true"
+													 value="#{userEditBean.user.numberOfTokens}">
+											<f:validateLongRange minimum="0" maximum="500" />
+										</h:inputText>
+										<br></br>
+										<small class="redText"><h:message for="inputTextTokens" /></small>
 									</div>
 								</div>
 								<div class="formLine">
