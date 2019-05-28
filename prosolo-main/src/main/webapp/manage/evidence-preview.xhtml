@@ -9,19 +9,18 @@
     <utilcomp:messagesBundle var="msg"/>
 
     <ui:define name="windowTitle">
-        #{profileEvidenceBean.evidence.title} - Evidence - ProSolo
+        #{evidencePreviewBean.evidence.title} - Evidence - ProSolo
     </ui:define>
 
     <ui:define name="metadata">
         <f:metadata>
-            <f:viewParam name="studentId" value="#{profileEvidenceBean.studentId}"/>
-            <f:viewParam name="competenceEvidenceId" value="#{profileEvidenceBean.competenceEvidenceId}" default="null"/>
-            <f:viewAction action="#{profileEvidenceBean.initManager()}"/>
+            <f:viewParam name="competenceEvidenceId" value="#{evidencePreviewBean.competenceEvidenceId}" default="null"/>
+            <f:viewAction action="#{evidencePreviewBean.initManager()}"/>
         </f:metadata>
     </ui:define>
 
     <ui:define name="resourceTitle">
-        <h1>#{profileEvidenceBean.evidence.title}</h1>
+        <h1>#{evidencePreviewBean.evidence.title}</h1>
     </ui:define>
 
     <ui:define name="content">
@@ -34,9 +33,8 @@
 
         <div class="container">
             <ol class="breadcrumb">
-                <li>#{profileEvidenceBean.evidence.userFullName}</li>
                 <li>Evidence</li>
-                <li class="active">#{util:shortenAndAddDots(profileEvidenceBean.evidence.title)}</li>
+                <li class="active">#{util:shortenAndAddDots(evidencePreviewBean.evidence.title)}</li>
             </ol>
         </div>
 
@@ -45,12 +43,12 @@
 
                 <div class="col-md-12">
                     <p>
-                        Evidence details in relation to the #{msg['label.competence'].toLowerCase()} <b>#{profileEvidenceBean.evidence.competenceTitle}</b>.
+                        Evidence details in relation to the #{msg['label.competence'].toLowerCase()} <b>#{evidencePreviewBean.evidence.competenceTitle}</b>.
                     </p>
                 </div>
                 <div class="col-md-12">
                     <evidence:evidenceForCompetence
-                            evidence="#{profileEvidenceBean.evidence}" />
+                            evidence="#{evidencePreviewBean.evidence}" />
                 </div>
             </div>
         </div>
