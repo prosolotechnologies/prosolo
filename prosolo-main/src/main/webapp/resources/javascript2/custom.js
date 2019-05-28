@@ -154,6 +154,11 @@ function showLoaderNextToElem(elem, context) {
     $(elem).after('<img class="loaderSvg" src="' + context + '/resources/images2/loader.svg" width="20" height="20"/>')
 };
 
+function hideLoaderForElem(elemId) {
+    var loader = $("#" + escapeColons(elemId)).parent().find('img.loaderSvg');
+    loader.remove();
+}
+
 function hideLoader(comp) {
 	var loaderContainer = $(comp);
 	loaderContainer.hide();

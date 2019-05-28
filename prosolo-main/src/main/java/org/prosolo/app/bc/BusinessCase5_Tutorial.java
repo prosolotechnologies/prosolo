@@ -9,6 +9,7 @@ import org.prosolo.common.domainmodel.credential.LearningEvidenceType;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.common.domainmodel.user.socialNetworks.SocialNetworkName;
 import org.prosolo.common.event.EventQueue;
+import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.assessment.config.AssessmentLoadConfig;
@@ -231,12 +232,15 @@ public class BusinessCase5_Tutorial extends BaseBusinessCase5 {
 				userRichardAnderson.getId(),
 				0,
 				createUserContext(userHelenCampbell)));
-
+        //accept assessment request
+		extractResultAndAddEvents(events, assessmentService.acceptCompetenceAssessmentRequestAndGetEvents(
+				comp1AssessmentHelenCampbellPeerRichardAnderson.getId(),
+				UserContextData.ofActor(userRichardAnderson.getId())));
 		// set grade
 		gradeCompetenceAssessmentByRubric(events,
 				comp1AssessmentHelenCampbellPeerRichardAnderson.getId(),
 				AssessmentType.PEER_ASSESSMENT,
-				userRichardAnderson, 4);
+				userRichardAnderson, rubricData.getLevels().get(3).getId());
 
 		// approve competency
 		approveCompetenceAssessment(events, comp1AssessmentHelenCampbellPeerRichardAnderson.getId(), userRichardAnderson);
@@ -265,7 +269,7 @@ public class BusinessCase5_Tutorial extends BaseBusinessCase5 {
 		userDataHelenCampbell.setLocationName("Adelaide SA, Australia");
 		userDataHelenCampbell.setLatitude(-34.92849890000001);
 		userDataHelenCampbell.setLongitude(138.60074559999998);
-		ServiceLocator.getInstance().getService(UserManager.class).saveAccountChanges(userDataHelenCampbell, createUserContext(userHelenCampbell));
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(UserManager.class).saveAccountChangesAndGetEvents(userDataHelenCampbell, createUserContext(userHelenCampbell)));
 
 		ServiceLocator.getInstance().getService(SocialNetworksManager.class).createSocialNetworkAccount(
 				SocialNetworkName.LINKEDIN,

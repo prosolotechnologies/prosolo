@@ -68,33 +68,6 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
 
     @Override
     @Transactional (readOnly = false)
-    public AnonUser createAnonUser(String nickname, String name, String avatarUrl, String profileUrl, ServiceType serviceType) {
-        AnonUser anonUser = new AnonUser();
-        anonUser.setName(name);
-        anonUser.setProfileUrl(profileUrl);
-        anonUser.setNickname(nickname);
-        anonUser.setAvatarUrl(avatarUrl);
-        anonUser.setServiceType(serviceType);
-        anonUser.setUserType(UserType.TWITTER_USER);
-        return saveEntity(anonUser);
-    }
-
-    @Override
-    @Transactional (readOnly = false, propagation = Propagation.REQUIRES_NEW)
-    public User updateUserAvatar(User user, InputStream imageInputStream, String avatarFilename) {
-        if (imageInputStream != null) {
-            try {
-                user.setAvatarUrl(avatarProcessor.storeUserAvatar(user.getId(), imageInputStream, avatarFilename, true));
-                return saveEntity(user);
-            } catch (IOException e) {
-                logger.error(e);
-            }
-        }
-        return user;
-    }
-
-    @Override
-    @Transactional (readOnly = false)
     public SimpleOutcome createSimpleOutcome(int resultValue, long targetActId, Session session) {
         SimpleOutcome sOutcome=new SimpleOutcome();
         sOutcome.setDateCreated(new Date());
@@ -103,46 +76,6 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
                 TargetActivity1.class, targetActId);
         sOutcome.setActivity(ta);
         return saveEntity(sOutcome, session);
-    }
-
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
-    public Credential1 createCredential(String title, String description, String tagsString,
-                                        String hashtagsString, long creatorId, boolean compOrderMandatory, long duration,
-                                        CredentialData.AssessorAssignmentMethodData assessorAssignment, List<CompetenceData1> comps) throws DbConnectionException {
-        try {
-            Credential1 cred = new Credential1();
-            cred.setCreatedBy(loadResource(User.class, creatorId));
-            cred.setType(CredentialType.Original);
-            cred.setTitle(title);
-            cred.setDescription(description);
-            cred.setDateCreated(new Date());
-            cred.setCompetenceOrderMandatory(compOrderMandatory);
-            cred.setDuration(duration);
-            cred.setTags(new HashSet<Tag>(tagManager.parseCSVTagsAndSave(tagsString)));
-            cred.setHashtags(new HashSet<Tag>(tagManager.parseCSVTagsAndSave(hashtagsString)));
-            cred.setAssessorAssignmentMethod(assessorAssignment.getAssessorAssignmentMethod());
-
-            saveEntity(cred);
-
-            if(comps != null) {
-                for(CompetenceData1 cd : comps) {
-                    CredentialCompetence1 cc = new CredentialCompetence1();
-                    cc.setOrder(cd.getOrder());
-                    cc.setCredential(cred);
-                    Competence1 comp = (Competence1) persistence.currentManager().load(
-                            Competence1.class, cd.getCompetenceId());
-                    cc.setCompetence(comp);
-                    saveEntity(cc);
-                }
-            }
-
-            logger.info("New credential is created with id " + cred.getId());
-            return cred;
-        } catch(Exception e) {
-            e.printStackTrace();
-            logger.error(e);
-            throw new DbConnectionException("Error saving credential");
-        }
     }
 
 	@Transactional (readOnly = true)
@@ -177,29 +110,6 @@ public class ResourceFactoryImpl extends AbstractManagerImpl implements Resource
     public Result<Competence1> updateCompetence(CompetenceData1 data, UserContextData context) throws StaleDataException,
             IllegalDataStateException {
         return competenceManager.updateCompetenceData(data, context);
-    }
-
-    @Override
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
-    public PostSocialActivity1 createNewPost(long userId, String text, RichContent1 richContent)
-            throws DbConnectionException {
-        try {
-            User user = (User) persistence.currentManager().load(User.class, userId);
-            PostSocialActivity1 post = new PostSocialActivity1();
-            post.setDateCreated(new Date());
-            post.setLastAction(new Date());
-            post.setActor(user);
-            post.setText(text);
-            post.setRichContent(richContent);
-            post = saveEntity(post);
-
-            return post;
-        } catch(Exception e) {
-            logger.error(e);
-            e.printStackTrace();
-            throw new DbConnectionException("Error saving new post");
-        }
-
     }
 
     @Override

@@ -149,6 +149,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 					cac.setEnabled(atc.isEnabled());
 					cac.setBlindAssessmentMode(atc.getBlindAssessmentMode());
 					saveEntity(cac);
+					comp.getAssessmentConfig().add(cac);
 				}
 			}
 
@@ -1915,6 +1916,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			compAssessmentConfig.setAssessmentType(cac.getAssessmentType());
 			compAssessmentConfig.setEnabled(cac.isEnabled());
 			saveEntity(compAssessmentConfig);
+			competence.getAssessmentConfig().add(compAssessmentConfig);
 		}
 		/*
 		if this line is put before saveEntity and there is an exception thrown so competence can't be saved, hibernate would still issue
@@ -2122,8 +2124,8 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 				long nextActToLearnInACompetenceId = 0;
 
 				for (Object[] obj : res) {
-					long actId = ((BigInteger) obj[2]).longValue();
-					boolean actCompleted = (boolean) obj[3];
+					long actId = (long) obj[1];
+					boolean actCompleted = (boolean) obj[2];
 
 					int progress = actCompleted ? 100 : 0;
 					cumulativeCompProgress += progress;

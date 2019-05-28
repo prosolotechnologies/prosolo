@@ -813,7 +813,15 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 			Result<PostSocialActivity1> result = new Result<>();
 			RichContent1 richContent = richContentFactory.getRichContent(postData.getAttachmentPreview());
 
-			PostSocialActivity1 post = resourceFactory.createNewPost(context.getActorId(), postData.getText(), richContent);
+			User user = (User) persistence.currentManager().load(User.class, context.getActorId());
+			PostSocialActivity1 post = new PostSocialActivity1();
+			Date date = new Date();
+			post.setDateCreated(date);
+			post.setLastAction(date);
+			post.setActor(user);
+			post.setText(postData.getText());
+			post.setRichContent(richContent);
+			post = saveEntity(post);
 
 			// generate events for links and files indexing
 //			if (richContent != null && richContent.getContentType() != null) {
@@ -845,8 +853,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 
 			return result;
 		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
+			logger.error("error", e);
 			throw new DbConnectionException("Error saving post");
 		}
 	}

@@ -259,6 +259,13 @@
                 "Admin",
                 "Super Admin"
             ]
+        },
+        {
+            "name": "testData.switch",
+            "description": "Choose test data to be loaded",
+            "roles": [
+                "Super Admin"
+            ]
         }
     ]
 }

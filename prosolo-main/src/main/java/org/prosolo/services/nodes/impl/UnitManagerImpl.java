@@ -143,6 +143,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<UnitData> getUnitsWithSubUnits(long organizationId) {
         List<UnitData> units = getOrganizationUnits(organizationId);
         return getRootUnitsWithSubunits(units);

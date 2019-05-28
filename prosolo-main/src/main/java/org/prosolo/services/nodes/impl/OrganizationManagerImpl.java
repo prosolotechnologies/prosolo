@@ -409,6 +409,8 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
         }
     }
 
+    @Override
+    @Transactional(readOnly = true)
     public OrganizationData getOrganizationDataWithoutAdmins(long organizationId) {
         String query =
                 "SELECT organization " +
