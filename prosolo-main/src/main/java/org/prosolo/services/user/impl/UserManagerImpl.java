@@ -517,10 +517,10 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	// nt
 	public User updateUser(long userId, String name, String lastName, String email,
 						   boolean emailVerified, boolean changePassword, String password,
-						   String position, List<Long> newRoleList, List<Long> allRoles, UserContextData context)
+						   String position, int numberOfTokens, List<Long> newRoleList, List<Long> allRoles, UserContextData context)
 			throws DbConnectionException {
 		Result<User> result = self.updateUserAndGetEvents(userId, name, lastName, email, emailVerified,
-				changePassword, password, position, newRoleList, allRoles, context);
+				changePassword, password, position, numberOfTokens, newRoleList, allRoles, context);
 
 		eventFactory.generateAndPublishEvents(result.getEventQueue());
 
@@ -531,14 +531,16 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	@Transactional (readOnly = false)
 	public Result<User> updateUserAndGetEvents(long userId, String name, String lastName, String email,
 											   boolean emailVerified, boolean changePassword, String password,
-											   String position, List<Long> newRoleList, List<Long> allRoles, UserContextData context) throws DbConnectionException {
+											   String position, int numberOfTokens, List<Long> newRoleList,
+											   List<Long> allRoles, UserContextData context) throws DbConnectionException {
 		Result<User> result = new Result<>();
 		try {
 			User user = loadResource(User.class, userId);
 			user.setName(name);
 			user.setLastname(lastName);
-			user.setPosition(position);
 			user.setEmail(email);
+			user.setPosition(position);
+			user.setNumberOfTokens(numberOfTokens);
 			user.setVerified(true);
 
 			if (changePassword) {
