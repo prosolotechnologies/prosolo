@@ -756,7 +756,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 				query += "AND user.organization.id = :orgId ";
 			}
 			if (filterByRoleId > 0) {
-				query += "AND role.id = :filterByRoleId ";
+				query += "AND user.id IN (SELECT u.id FROM user u INNER JOIN u.roles r WITH r.id = :filterByRoleId) ";
 			} else if (roles != null && !roles.isEmpty()) {
 				query += "AND role IN (:roles) ";
 			}
