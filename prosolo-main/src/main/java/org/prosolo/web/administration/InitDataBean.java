@@ -16,9 +16,12 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
- * @author Bojan
- * @date 2017-07-04
- * @since 1.0.0
+ * Bean that serves the page /admin/data-init that allows reinitializing the database state to a specific dataset
+ * used for manual testing.
+ *
+ * @author Stefan Vuckovic
+ * @date 2019-05-28
+ * @since 1.3.2
  */
 
 @ManagedBean(name = "initDataBean")

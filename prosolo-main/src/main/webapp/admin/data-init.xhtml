@@ -112,9 +112,11 @@
 						<h2 class="modal-title" id="applyBCModalTitle">Reinitialize database data?</h2>
 					</div>
 					<div class="modal-body">
-						<p>Are you sure you want to reinitialize database data?
-						<br/><br/>
-							<small>Note: Action can NOT be undone!</small></p>
+						<p>
+							Are you sure you want to reinitialize database data?
+							<br/><br/>
+							<small>Note: This action CANNOT be undone!</small>
+						</p>
 					</div>
 					<div class="modal-footer">
 						<utilcomp:singleClickLink
@@ -124,7 +126,7 @@
 								action="#{initDataBean.applyBc()}"
 								update=":growlMain"
 								oncomplete="hideLoaderForElem(this.source); $('#applyBCModal').modal('hide')">
-							Submit
+							Reinitialize
 						</utilcomp:singleClickLink>
 						<a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
 					</div>
