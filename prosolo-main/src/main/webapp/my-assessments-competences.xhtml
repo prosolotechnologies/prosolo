@@ -87,6 +87,12 @@
                             </h2>
                             <div class="#{styleUtilBean.getIconClassForAssessmentStatus(assessment.status)}" style="float: right; margin-top: 3px;">#{msg['label.enum.AssessmentStatus.'.concat(assessment.status.name())]}</div>
                             <div class="clear"></div>
+                            <h3><span>#{msg['label.credential']}:</span>
+                                <h:link outcome="/credential" target="_blank"
+                                        value=" #{assessment.credentialTitle}">
+                                    <f:param name="id" value="#{util:encodeId(assessment.credentialId)}"/>
+                                </h:link>
+                            </h3>
                             <div class="user32">
                                 Student:&#160;&#160;&#160;&#160;
                                 <assessment:assessmentActorAvatar
