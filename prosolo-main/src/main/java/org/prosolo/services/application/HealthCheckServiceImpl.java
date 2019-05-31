@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class HealthCheckServiceImpl extends AbstractManagerImpl implements HealthCheckService {
 
     @Override
-    @Transactional
+    @Transactional (readOnly = true)
     public void pingDatabase() throws DbConnectionException {
         try {
             String query = "SELECT 1";
