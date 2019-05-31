@@ -1,6 +1,6 @@
 package org.prosolo.core.spring.security.authentication.lti.authenticationtoken;
 
-import org.prosolo.common.domainmodel.lti.LtiTool;
+import org.prosolo.services.lti.data.LTIToolData;
 import org.prosolo.web.lti.message.LTILaunchMessage;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -27,7 +27,7 @@ public class LTIAuthenticationToken extends AbstractAuthenticationToken {
      */
     private LTIPreauthenticationToken preauthenticationToken;
 
-    public static LTIAuthenticationToken createPreauthenticationToken(LTILaunchMessage msg, LtiTool tool) {
+    public static LTIAuthenticationToken createPreauthenticationToken(LTILaunchMessage msg, LTIToolData tool) {
         LTIAuthenticationToken authenticationToken = new LTIAuthenticationToken();
         authenticationToken.setPreauthenticationToken(new LTIPreauthenticationToken(msg, tool));
         return authenticationToken;
@@ -88,9 +88,9 @@ public class LTIAuthenticationToken extends AbstractAuthenticationToken {
     public static class LTIPreauthenticationToken {
 
         private final LTILaunchMessage launchMessage;
-        private final LtiTool ltiTool;
+        private final LTIToolData ltiTool;
 
-        public LTIPreauthenticationToken(LTILaunchMessage launchMessage, LtiTool ltiTool) {
+        public LTIPreauthenticationToken(LTILaunchMessage launchMessage, LTIToolData ltiTool) {
             this.launchMessage = launchMessage;
             this.ltiTool = ltiTool;
         }
@@ -99,7 +99,7 @@ public class LTIAuthenticationToken extends AbstractAuthenticationToken {
             return launchMessage;
         }
 
-        public LtiTool getLtiTool() {
+        public LTIToolData getLtiTool() {
             return ltiTool;
         }
     }
