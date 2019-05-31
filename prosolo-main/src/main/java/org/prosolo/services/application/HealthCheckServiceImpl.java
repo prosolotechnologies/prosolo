@@ -3,6 +3,7 @@ package org.prosolo.services.application;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author Nikola Milikic
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 public class HealthCheckServiceImpl extends AbstractManagerImpl implements HealthCheckService {
 
     @Override
+    @Transactional (readOnly = true)
     public void pingDatabase() throws DbConnectionException {
         try {
             String query = "SELECT 1";
