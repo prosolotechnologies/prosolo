@@ -30,41 +30,48 @@
 		<c:if test="#{cc.attrs.allowEvidenceTypeChangeForExistingEvidence or submitEvidenceBean.evidence.id eq 0}">
 			<div class="whiteBox">
 				<ul class="nav nav-tabs pageSubmenu" role="tablist">
-					<li role="presentation" class="#{empty submitEvidenceBean.evidence.type or submitEvidenceBean.evidence.type eq 'FILE' ? 'active' : ''}">
-						<p:commandLink
-								pt:role="tab"
-								pt:data-toggle="tab"
-								process="@this"
-								action="#{submitEvidenceBean.resetEvidence()}"
-								update=":#{cc.clientId}:formFileEvidence"
-								oncomplete="$('#uploadTabLink').tab('show');">
-							Upload File
-						</p:commandLink>
-					</li>
-					<li role="presentation" class="#{submitEvidenceBean.evidence.type eq 'LINK' ? 'active' : ''}">
-						<p:commandLink href="javascript:void(0);"
-									   pt:role="tab"
-									   pt:data-toggle="tab"
-									   process="@this"
-									   action="#{submitEvidenceBean.resetEvidence()}"
-									   update=":#{cc.clientId}:formUrlEvidence"
-									   oncomplete="$('#urlTabLink').tab('show');">
-							URL
-						</p:commandLink>
-					</li>
-					<ui:remove>
-					<li role="presentation" class="#{submitEvidenceBean.evidence.type eq 'TEXT' ? 'active' : ''}">
-						<p:commandLink
-								pt:role="tab"
-								pt:data-toggle="tab"
-								process="@this"
-								action="#{submitEvidenceBean.resetEvidence()}"
-								update=":#{cc.clientId}:formTextEvidence"
-								oncomplete="$('#textTabLink').tab('show');">
-							Text
-						</p:commandLink>
-					</li>
-					</ui:remove>
+					<c:if test="#{submitEvidenceBean.evidenceRepositoryPluginData.fileEvidenceEnabled}">
+						<li role="presentation" class="#{empty submitEvidenceBean.evidence.type or submitEvidenceBean.evidence.type eq 'FILE' ? 'active' : ''}">
+							<p:commandLink
+									pt:role="tab"
+									pt:data-toggle="tab"
+									process="@this"
+									action="#{submitEvidenceBean.resetEvidence()}"
+									update=":#{cc.clientId}:formFileEvidence"
+									oncomplete="$('#uploadTabLink').tab('show');">
+								Upload File
+							</p:commandLink>
+						</li>
+					</c:if>
+
+					<c:if test="#{submitEvidenceBean.evidenceRepositoryPluginData.urlEvidenceEnabled}">
+						<li role="presentation" class="#{submitEvidenceBean.evidence.type eq 'LINK' ? 'active' : ''}">
+							<p:commandLink href="javascript:void(0);"
+										   pt:role="tab"
+										   pt:data-toggle="tab"
+										   process="@this"
+										   action="#{submitEvidenceBean.resetEvidence()}"
+										   update=":#{cc.clientId}:formUrlEvidence"
+										   oncomplete="$('#urlTabLink').tab('show');">
+								URL
+							</p:commandLink>
+						</li>
+					</c:if>
+
+					<c:if test="#{submitEvidenceBean.evidenceRepositoryPluginData.textEvidenceEnabled}">
+						<li role="presentation" class="#{submitEvidenceBean.evidence.type eq 'TEXT' ? 'active' : ''}">
+							<p:commandLink
+									pt:role="tab"
+									pt:data-toggle="tab"
+									process="@this"
+									action="#{submitEvidenceBean.resetEvidence()}"
+									update=":#{cc.clientId}:formTextEvidence"
+									oncomplete="$('#textTabLink').tab('show');">
+								Text
+							</p:commandLink>
+						</li>
+					</c:if>
+
 					<c:if test="#{cc.attrs.addEvidenceToCompetence}">
 						<li role="presentation">
 							<p:commandLink
@@ -88,7 +95,7 @@
 			</div>
 		</c:if>
 		<div class="tab-content">
-			<c:if test="#{cc.attrs.allowEvidenceTypeChangeForExistingEvidence or submitEvidenceBean.evidence.id eq 0 or submitEvidenceBean.evidence.type eq 'FILE'}">
+			<c:if test="#{submitEvidenceBean.evidenceRepositoryPluginData.fileEvidenceEnabled and cc.attrs.allowEvidenceTypeChangeForExistingEvidence or submitEvidenceBean.evidence.id eq 0 or submitEvidenceBean.evidence.type eq 'FILE'}">
 				<div role="tabpanel" class="tab-pane fade #{empty submitEvidenceBean.evidence.type or submitEvidenceBean.evidence.type eq 'FILE' ? 'in active' : ''} submitEvidenceTab" id="upload">
 					<h:form id="formFileEvidence" enctype="multipart/form-data">
 						<p:focus/>
@@ -166,15 +173,17 @@
 							</ui:fragment>
 						</h:panelGroup>
 
-						<label>Keywords (optional):</label>
+						<c:if test="#{submitEvidenceBean.evidenceRepositoryPluginData.keywordsEnabled}">
+							<label>Keywords (optional):</label>
 
-						<h:inputText id="inputFileEvidenceKeywords"
-									 styleClass="tagsInputEvidence"
-									 value="#{submitEvidenceBean.evidence.tagsString}"
-									 placeholder="Type and press 'Enter'"
-									 pt:data-role="tagsinput"
-									 autocomplete="off" />
-						<script>$('.tagsInputEvidence').tagsinput();</script>
+							<h:inputText id="inputFileEvidenceKeywords"
+										 styleClass="tagsInputEvidence"
+										 value="#{submitEvidenceBean.evidence.tagsString}"
+										 placeholder="Type and press 'Enter'"
+										 pt:data-role="tagsinput"
+										 autocomplete="off" />
+							<script>$('.tagsInputEvidence').tagsinput();</script>
+						</c:if>
 
 						<c:if test="#{cc.attrs.addEvidenceToCompetence}">
 							<label>Relation:</label>
@@ -209,7 +218,8 @@
 					</h:form>
 				</div>
 			</c:if>
-			<c:if test="#{cc.attrs.allowEvidenceTypeChangeForExistingEvidence or submitEvidenceBean.evidence.id eq 0 or submitEvidenceBean.evidence.type eq 'LINK'}">
+
+			<c:if test="#{submitEvidenceBean.evidenceRepositoryPluginData.urlEvidenceEnabled and cc.attrs.allowEvidenceTypeChangeForExistingEvidence or submitEvidenceBean.evidence.id eq 0 or submitEvidenceBean.evidence.type eq 'LINK'}">
 				<div role="tabpanel" class="tab-pane fade submitEvidenceTab #{submitEvidenceBean.evidence.type eq 'LINK' ? 'in active' : ''}" id="url">
 					<h:form id="formUrlEvidence">
 						<p:focus/>
@@ -258,15 +268,17 @@
 						</h:inputText>
 						<small class="redText bottom30 topMinus30 displayBlock"><h:message for="inputUrl" /></small>
 
-						<label>Keywords (optional):</label>
+						<c:if test="#{submitEvidenceBean.evidenceRepositoryPluginData.keywordsEnabled}">
+							<label>Keywords (optional):</label>
 
-						<h:inputText styleClass="tagsInputEvidence"
-									 id="inputURLEvidenceKeywords"
-									 value="#{submitEvidenceBean.evidence.tagsString}"
-									 placeholder="Type and press 'Enter'"
-									 pt:data-role="tagsinput"
-									 autocomplete="off" />
-						<script>$('.tagsInputEvidence').tagsinput();</script>
+							<h:inputText styleClass="tagsInputEvidence"
+										 id="inputURLEvidenceKeywords"
+										 value="#{submitEvidenceBean.evidence.tagsString}"
+										 placeholder="Type and press 'Enter'"
+										 pt:data-role="tagsinput"
+										 autocomplete="off" />
+							<script>$('.tagsInputEvidence').tagsinput();</script>
+						</c:if>
 
 						<c:if test="#{cc.attrs.addEvidenceToCompetence}">
 							<label>Relation:</label>
@@ -301,7 +313,8 @@
 					</h:form>
 				</div>
 			</c:if>
-			<c:if test="#{cc.attrs.allowEvidenceTypeChangeForExistingEvidence or submitEvidenceBean.evidence.id eq 0 or submitEvidenceBean.evidence.type eq 'TEXT'}">
+
+			<c:if test="#{submitEvidenceBean.evidenceRepositoryPluginData.textEvidenceEnabled and cc.attrs.allowEvidenceTypeChangeForExistingEvidence or submitEvidenceBean.evidence.id eq 0 or submitEvidenceBean.evidence.type eq 'TEXT'}">
 				<div role="tabpanel" class="tab-pane fade submitEvidenceTab #{submitEvidenceBean.evidence.type eq 'TEXT' ? 'in active' : ''}" id="text">
 					<h:form id="formTextEvidence">
 						<p:focus/>
@@ -335,15 +348,17 @@
 
 						<small class="redText bottom30 displayBlock"><h:message for="textareaTextualEvidenceDesc"></h:message></small>
 
-						<label>Keywords (optional):</label>
+						<c:if test="#{submitEvidenceBean.evidenceRepositoryPluginData.keywordsEnabled}">
+							<label>Keywords (optional):</label>
 
-						<h:inputText styleClass="tagsInputEvidence"
-									 id="inputTextualEvidenceKeywords"
-									 value="#{submitEvidenceBean.evidence.tagsString}"
-									 placeholder="Type and press 'Enter'"
-									 pt:data-role="tagsinput"
-									 autocomplete="off" />
-						<script>$('.tagsInputEvidence').tagsinput();</script>
+							<h:inputText styleClass="tagsInputEvidence"
+										 id="inputTextualEvidenceKeywords"
+										 value="#{submitEvidenceBean.evidence.tagsString}"
+										 placeholder="Type and press 'Enter'"
+										 pt:data-role="tagsinput"
+										 autocomplete="off" />
+							<script>$('.tagsInputEvidence').tagsinput();</script>
+						</c:if>
 
 						<c:if test="#{cc.attrs.addEvidenceToCompetence}">
 							<label>Relation:</label>
@@ -378,6 +393,7 @@
 					</h:form>
 				</div>
 			</c:if>
+
 			<c:if test="#{cc.attrs.addEvidenceToCompetence and (cc.attrs.allowEvidenceTypeChangeForExistingEvidence or submitEvidenceBean.evidence.id eq 0)}">
 				<div role="tabpanel" class="tab-pane fade submitEvidenceTab" id="document">
 					<h:panelGroup layout="block" id="panelExistingEvidence" styleClass="whiteBox manageVisibility">

@@ -1,11 +1,15 @@
 package org.prosolo.web.learningevidence;
 
+import lombok.Getter;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.common.domainmodel.organization.settings.EvidenceRepositoryPlugin;
 import org.prosolo.search.LearningEvidenceTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.nodes.LearningEvidenceManager;
+import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceData;
+import org.prosolo.services.nodes.data.organization.EvidenceRepositoryPluginData;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageUtil;
 import org.prosolo.web.util.pagination.Paginable;
@@ -23,18 +27,19 @@ import java.util.List;
  * @date 2017-12-12
  * @since 1.2.0
  */
-@ManagedBean(name = "learningEvidencesBean")
-@Component("learningEvidencesBean")
+@ManagedBean(name = "evidenceRepositoryBean")
+@Component("evidenceRepositoryBean")
 @Scope("view")
-public class LearningEvidencesBean implements Serializable, Paginable {
+public class EvidenceRepositoryBean implements Serializable, Paginable {
 
     private static final long serialVersionUID = 7111934651137147635L;
 
-    private static Logger logger = Logger.getLogger(LearningEvidencesBean.class);
+    private static Logger logger = Logger.getLogger(EvidenceRepositoryBean.class);
 
     @Inject private LearningEvidenceManager learningEvidenceManager;
     @Inject private LoggedUserBean loggedUserBean;
     @Inject private LearningEvidenceTextSearch learningEvidenceTextSearch;
+    @Inject private OrganizationManager organizationManager;
 
     private String page;
 
@@ -50,6 +55,9 @@ public class LearningEvidencesBean implements Serializable, Paginable {
     private LearningEvidenceLabeledSortOption[] sortOptions;
 
     private List<String> keywords;
+
+    @Getter
+    private EvidenceRepositoryPluginData evidenceRepositoryPluginData;
 
     public void init() {
         int page = 1;
@@ -67,6 +75,10 @@ public class LearningEvidencesBean implements Serializable, Paginable {
         try {
             loadEvidences();
             keywords = learningEvidenceManager.getKeywordsFromAllUserEvidences(loggedUserBean.getUserId());
+
+            // load evidence repository plugin data
+            EvidenceRepositoryPlugin evidenceRepositoryPlugin = organizationManager.getOrganizationPlugin(EvidenceRepositoryPlugin.class, loggedUserBean.getOrganizationId());
+            evidenceRepositoryPluginData = new EvidenceRepositoryPluginData(evidenceRepositoryPlugin);
         } catch (DbConnectionException e) {
             logger.error("Error", e);
             PageUtil.fireErrorMessage("Error loading the page");

@@ -43,7 +43,6 @@ public class V21__20190402_add_parent_credential_to_competence_complete_social_a
 
                 // update each social activity record with parent credential id its target competence references to
                 for (Long socialActivityId : socialActivityIds) {
-                    System.out.println(socialActivityId);
                     statement.executeUpdate(
                             "UPDATE social_activity1 sa\n" +
                                 "SET sa.parent_credential = (SELECT cred.id\n" +

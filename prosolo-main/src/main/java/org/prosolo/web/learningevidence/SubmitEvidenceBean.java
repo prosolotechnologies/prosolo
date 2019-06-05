@@ -1,11 +1,17 @@
 package org.prosolo.web.learningevidence;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.log4j.Logger;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.UploadedFile;
 import org.prosolo.common.domainmodel.credential.LearningEvidenceType;
+import org.prosolo.common.domainmodel.organization.settings.EvidenceRepositoryPlugin;
+import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceData;
+import org.prosolo.services.nodes.data.organization.EvidenceRepositoryPluginData;
 import org.prosolo.services.upload.UploadManager;
+import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -33,13 +39,23 @@ public class SubmitEvidenceBean implements Serializable {
     private static Logger logger = Logger.getLogger(SubmitEvidenceBean.class);
 
     @Inject private UploadManager uploadManager;
-
-    private LearningEvidenceData evidence;
+    @Inject private LoggedUserBean loggedUserBean;
+    @Inject private OrganizationManager organizationManager;
 
     private static final int MAX_FILE_NAME_LENGTH = 200;
 
+    @Getter @Setter
+    private LearningEvidenceData evidence;
+    @Getter
+    private EvidenceRepositoryPluginData evidenceRepositoryPluginData;
+
+
     public void init(LearningEvidenceData evidence) {
         this.evidence = evidence;
+
+        // load evidence repository plugin data
+        EvidenceRepositoryPlugin evidenceRepositoryPlugin = organizationManager.getOrganizationPlugin(EvidenceRepositoryPlugin.class, loggedUserBean.getOrganizationId());
+        evidenceRepositoryPluginData = new EvidenceRepositoryPluginData(evidenceRepositoryPlugin);
     }
 
     /*
@@ -48,10 +64,6 @@ public class SubmitEvidenceBean implements Serializable {
 
     public void resetEvidence() {
         evidence = new LearningEvidenceData();
-    }
-
-    public void setEvidence(LearningEvidenceData evidence) {
-        this.evidence = evidence;
     }
 
     public void removeUploadedEvidence() {
@@ -85,7 +97,6 @@ public class SubmitEvidenceBean implements Serializable {
     /*
 	VALIDATORS
 	 */
-
     public void validateFileEvidence(FacesContext context, UIComponent component, Object value) {
         String msg = null;
         if (evidence.getUrl() == null || evidence.getUrl().isEmpty()) {
@@ -98,13 +109,6 @@ public class SubmitEvidenceBean implements Serializable {
             fm.setSeverity(FacesMessage.SEVERITY_ERROR);
             throw new ValidatorException(fm);
         }
-    }
-
-    /*
-    GETTERS AND SETTERS
-     */
-    public LearningEvidenceData getEvidence() {
-        return evidence;
     }
 
 }

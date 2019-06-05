@@ -38,10 +38,8 @@ import org.prosolo.services.nodes.config.competence.CompetenceLoadConfig;
 import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceData;
-import org.prosolo.services.nodes.data.evidence.LearningEvidenceDataFactory;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceLoadConfig;
 import org.prosolo.services.nodes.data.resourceAccess.*;
-import org.prosolo.services.nodes.factory.ActivityDataFactory;
 import org.prosolo.services.nodes.factory.CompetenceDataFactory;
 import org.prosolo.services.nodes.factory.UserDataFactory;
 import org.prosolo.services.nodes.observers.learningResources.CompetenceChangeTracker;
@@ -78,14 +76,12 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 	private CredentialManager credentialManager;
 	@Inject
 	private UserGroupManager userGroupManager;
-	@Inject private ActivityDataFactory activityFactory;
 	@Inject private ResourceAccessFactory resourceAccessFactory;
 	@Inject private UserDataFactory userDataFactory;
 	@Inject private Competence1Manager self;
 	@Inject private RoleManager roleManager;
 	@Inject private UnitManager unitManager;
 	@Inject private LearningEvidenceManager learningEvidenceManager;
-	@Inject private LearningEvidenceDataFactory learningEvidenceDataFactory;
 	@Inject private RubricManager rubricManager;
 	@Inject private AssessmentManager assessmentManager;
 
@@ -1016,8 +1012,6 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 					"LEFT JOIN fetch comp.tags tags " +
 					"WHERE targetComp.user.id = :userId " +
 						"AND comp.id = :compId ");
-
-			logger.info("QUERY: " + builder.toString());
 
 			Query q = persistence.currentManager()
 					.createQuery(builder.toString())

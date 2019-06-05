@@ -1,9 +1,9 @@
 package org.prosolo.services.nodes.data.organization;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.prosolo.common.domainmodel.organization.settings.CredentialCategoriesPlugin;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -17,12 +17,23 @@ import java.util.List;
  */
 @Getter
 @Setter
-@AllArgsConstructor
-@NoArgsConstructor
-public class OrganizationCategoryData implements Serializable {
+public class CredentialCategoriesPluginData implements Serializable {
 
-    private List<CredentialCategoryData> credentialCategories = new ArrayList<>();
-    private List<CredentialCategoryData> credentialCategoriesForDeletion = new ArrayList<>();
+    private long pluginId;
+    private boolean enabled;
+    private List<CredentialCategoryData> credentialCategories;
+    private List<CredentialCategoryData> credentialCategoriesForDeletion;
+
+    public CredentialCategoriesPluginData() {
+        this.credentialCategories = new ArrayList<>();
+        this.credentialCategoriesForDeletion = new ArrayList<>();
+    }
+
+    public CredentialCategoriesPluginData(CredentialCategoriesPlugin credentialCategoriesPlugin) {
+        this();
+        this.pluginId = credentialCategoriesPlugin.getId();
+        this.enabled = credentialCategoriesPlugin.isEnabled();
+    }
 
     public void addCredentialCategory(CredentialCategoryData category) {
         credentialCategories.add(category);
@@ -31,6 +42,7 @@ public class OrganizationCategoryData implements Serializable {
     public void addAllCredentialCategories(Collection<CredentialCategoryData> categories) {
         credentialCategories.addAll(categories);
     }
+
     public void addCredentialCategoryForDeletion(CredentialCategoryData category) {
         credentialCategoriesForDeletion.add(category);
     }
