@@ -25,8 +25,8 @@ import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.interfaceSettings.InterfaceSettingsManager;
 import org.prosolo.services.media.util.LinkParserException;
 import org.prosolo.services.user.data.UserData;
-import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview1;
-import org.prosolo.services.nodes.data.activity.attachmentPreview.MediaData;
+import org.prosolo.services.nodes.data.statusWall.AttachmentPreview;
+import org.prosolo.services.nodes.data.statusWall.MediaData;
 import org.prosolo.services.upload.UploadManager;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.activitywall.data.StatusWallFilter;
@@ -76,7 +76,7 @@ public class ActivityWallBean implements Serializable {
 	
 	private SocialActivityData1 newSocialActivity = new SocialActivityData1();
 	private String link;
-	private AttachmentPreview1 uploadFile = new AttachmentPreview1();
+	private AttachmentPreview uploadFile = new AttachmentPreview();
 	
 	private String postShareText;
 	private SocialActivityData1 socialActivityForShare;
@@ -297,8 +297,8 @@ public class ActivityWallBean implements Serializable {
 
 			try {
 				LinkParser parser = LinkParserFactory.buildParser(StringUtil.cleanHtml(link.trim()));
-				AttachmentPreview1 attachmentPreview1 = parser.parse();
-				newSocialActivity.setAttachmentPreview(attachmentPreview1);
+				AttachmentPreview attachmentPreview = parser.parse();
+				newSocialActivity.setAttachmentPreview(attachmentPreview);
 				setNewSocialActivity(newSocialActivity);
 			} catch (LinkParserException e) {
 				logger.debug("Could not parse URL " + link + ". " + e);
@@ -310,7 +310,7 @@ public class ActivityWallBean implements Serializable {
     	UploadedFile uploadedFile = event.getFile();
     	
 		try {
-			AttachmentPreview1 attachmentPreview = uploadManager.uploadFile(uploadedFile.getFileName(), uploadedFile);
+			AttachmentPreview attachmentPreview = uploadManager.uploadFile(uploadedFile.getFileName(), uploadedFile);
 			
 			if(attachmentPreview != null) {
 				uploadFile = attachmentPreview;
@@ -323,7 +323,7 @@ public class ActivityWallBean implements Serializable {
     }
 
     public void prepareModal(){
-		uploadFile = new AttachmentPreview1();
+		uploadFile = new AttachmentPreview();
 	}
 	
 	public void saveUploadedFile() {
@@ -341,13 +341,13 @@ public class ActivityWallBean implements Serializable {
 			}
 			newSocialActivity.setAttachmentPreview(uploadFile);
 			
-			uploadFile = new AttachmentPreview1();
+			uploadFile = new AttachmentPreview();
 		}
 		
 	}
 	
 	public void deleteAttachmentPreview() {
-		newSocialActivity.setAttachmentPreview(new AttachmentPreview1());
+		newSocialActivity.setAttachmentPreview(new AttachmentPreview());
 	}
 	
 	public synchronized void addNewSocialActivity(SocialActivityData1 socialActivity) {
@@ -431,11 +431,11 @@ public class ActivityWallBean implements Serializable {
 		this.link = link;
 	}
 
-	public AttachmentPreview1 getUploadFile() {
+	public AttachmentPreview getUploadFile() {
 		return uploadFile;
 	}
 
-	public void setUploadFile(AttachmentPreview1 uploadFile) {
+	public void setUploadFile(AttachmentPreview uploadFile) {
 		this.uploadFile = uploadFile;
 	}
 

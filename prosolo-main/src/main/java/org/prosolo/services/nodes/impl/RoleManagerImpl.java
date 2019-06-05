@@ -41,6 +41,7 @@ public class RoleManagerImpl extends AbstractManagerImpl implements RoleManager 
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public List<Role> getRolesByNames(String[] names) {
 		 String query =
 				 "SELECT role " +

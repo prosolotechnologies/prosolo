@@ -261,7 +261,7 @@
                                                         {{/hasFollowers}}
                                                         {{#hasAnnouncements}}
                                                         <br />
-                                                        You have <strong>{{announcementsCount}} new announcement(s)</strong>
+                                                        You have <strong>{{announcementsCount}} new announcement(s)</strong>:
                                                         <br/>
                                                         <table border="0" cellpadding="0" cellspacing="0">
                                                             {{#announcements}}
@@ -307,7 +307,7 @@
                                                         {{/hasComments}}
                                                         {{#hasAssessmentsApproved}}
                                                         <br />
-                                                        You have <strong>{{assessmentsApprovedCount}} new assessment(s) approved</strong>
+                                                        You have <strong>{{assessmentsApprovedCount}} new assessment(s) submitted</strong>:
 
                                                         <br/>
                                                         <table border="0" cellpadding="0" cellspacing="0">
@@ -321,7 +321,7 @@
                                                             {{#hasMoreAssessmentsApproved}}
                                                             <tr>
                                                                 <td valign="top" style="padding-top:10px;">
-                                                                    <a href="{{notificationsLink}}?filters=assessment_approved">View all Assessments approved</a>
+                                                                    <a href="{{notificationsLink}}?filters=assessment_approved">View all submitted assessments</a>
                                                                 </td>
                                                             </tr>
                                                             {{/hasMoreAssessmentsApproved}}
@@ -352,7 +352,7 @@
                                                         {{/hasAssessmentsComments}}
                                                         {{#hasAssessmentsRequest}}
                                                         <br />
-                                                        You have <strong>{{assessmentsRequestsCount}} new assessment request(s)</strong>
+                                                        You have <strong>{{assessmentsRequestsCount}} new assessment request(s)</strong>:
 
                                                         <br />
                                                         <table border="0" cellpadding="0" cellspacing="0">
@@ -366,7 +366,7 @@
                                                             {{#hasMoreAssessmentsRequests}}
                                                             <tr>
                                                                 <td valign="top" style="padding-top:10px;">
-                                                                    <a href="{{notificationsLink}}?filters=assessment_requested">View all requests</a>
+                                                                    <a href="{{notificationsLink}}?filters=assessment_requested">View all assessment requests</a>
                                                                 </td>
                                                             </tr>
                                                             {{/hasMoreAssessmentsRequests}}
@@ -374,9 +374,155 @@
                                                         <br />
 
                                                         {{/hasAssessmentsRequest}}
+                                                        {{#hasAcceptedAssessmentRequests}}
+                                                        <br />
+                                                        You have <strong>{{acceptedAssessmentRequestsCount}} new assessment request(s) of yours accepted</strong>:
+
+                                                        <br />
+                                                        <table border="0" cellpadding="0" cellspacing="0">
+                                                            {{#acceptedAssessmentRequests}}
+                                                            <tr>
+                                                                <td valign="top">
+                                                                    {{actorFullName}} {{predicate}} <a href="{{link}}">{{objectTitle}}</a>
+                                                                </td>
+                                                            </tr>
+                                                            {{/acceptedAssessmentRequests}}
+                                                            {{#hasMoreAcceptedAssessmentRequests}}
+                                                            <tr>
+                                                                <td valign="top" style="padding-top:10px;">
+                                                                    <a href="{{notificationsLink}}?filters=assessment_request_accepted">View all accepted assessment requests</a>
+                                                                </td>
+                                                            </tr>
+                                                            {{/hasMoreAcceptedAssessmentRequests}}
+                                                        </table>
+                                                        <br />
+
+                                                        {{/hasAcceptedAssessmentRequests}}
+                                                        {{#hasDeclinedAssessmentRequests}}
+                                                        <br />
+                                                        You have <strong>{{declinedAssessmentRequestsCount}} new assessment request(s) of yours declined</strong>:
+
+                                                        <br />
+                                                        <table border="0" cellpadding="0" cellspacing="0">
+                                                            {{#declinedAssessmentRequests}}
+                                                            <tr>
+                                                                <td valign="top">
+                                                                    {{actorFullName}} {{predicate}} <a href="{{link}}">{{objectTitle}}</a>
+                                                                </td>
+                                                            </tr>
+                                                            {{/declinedAssessmentRequests}}
+                                                            {{#hasMoreDeclinedAssessmentRequests}}
+                                                            <tr>
+                                                                <td valign="top" style="padding-top:10px;">
+                                                                    <a href="{{notificationsLink}}?filters=assessment_request_declined">View all declined assessment requests</a>
+                                                                </td>
+                                                            </tr>
+                                                            {{/hasMoreDeclinedAssessmentRequests}}
+                                                        </table>
+                                                        <br />
+
+                                                        {{/hasDeclinedAssessmentRequests}}
+                                                        {{#hasWithdrawnAssessments}}
+                                                        <br />
+
+                                                        You have <strong>{{withdrawnAssessmentsCount}} assessment(s) of yours withdrawn by assessor</strong>:
+
+                                                        <br />
+                                                        <table border="0" cellpadding="0" cellspacing="0">
+                                                            {{#withdrawnAssessments}}
+                                                            <tr>
+                                                                <td valign="top">
+                                                                    {{actorFullName}} {{predicate}} <a href="{{link}}">{{objectTitle}}</a>
+                                                                </td>
+                                                            </tr>
+                                                            {{/withdrawnAssessments}}
+                                                            {{#hasMoreWithdrawnAssessments}}
+                                                            <tr>
+                                                                <td valign="top" style="padding-top:10px;">
+                                                                    <a href="{{notificationsLink}}?filters=assessor_withdrew_from_assessment">View all withdrawn assessments</a>
+                                                                </td>
+                                                            </tr>
+                                                            {{/hasMoreWithdrawnAssessments}}
+                                                        </table>
+                                                        <br />
+
+                                                        {{/hasWithdrawnAssessments}}
+                                                        {{#hasAssignedAssessors}}
+                                                        <br />
+                                                        You have been assigned an assessor in <strong>{{assignedAssessorsCount}} assessment(s)</strong>
+
+                                                        <br />
+                                                        <table border="0" cellpadding="0" cellspacing="0">
+                                                            {{#assignedAssessors}}
+                                                            <tr>
+                                                                <td valign="top">
+                                                                    {{actorFullName}} {{predicate}} <a href="{{link}}">{{objectTitle}}</a>
+                                                                </td>
+                                                            </tr>
+                                                            {{/assignedAssessors}}
+                                                            {{#hasMoreAssignedAssessors}}
+                                                            <tr>
+                                                                <td valign="top" style="padding-top:10px;">
+                                                                    <a href="{{notificationsLink}}?filters=assessor_assigned_to_assessment">View all assigned assessors</a>
+                                                                </td>
+                                                            </tr>
+                                                            {{/hasMoreAssignedAssessors}}
+                                                        </table>
+                                                        <br />
+
+                                                        {{/hasAssignedAssessors}}
+                                                        {{#hasAssignedAssessments}}
+                                                        <br />
+                                                        You have been assigned as assessor in <strong>{{assignedAssessmentsCount}} assessment(s)</strong>
+
+                                                        <br />
+                                                        <table border="0" cellpadding="0" cellspacing="0">
+                                                            {{#assignedAssessments}}
+                                                            <tr>
+                                                                <td valign="top">
+                                                                    {{actorFullName}} {{predicate}} <a href="{{link}}">{{objectTitle}}</a> {{relationToTarget}} {{targetTitle}}
+                                                                </td>
+                                                            </tr>
+                                                            {{/assignedAssessments}}
+                                                            {{#hasMoreAssignedAssessments}}
+                                                            <tr>
+                                                                <td valign="top" style="padding-top:10px;">
+                                                                    <a href="{{notificationsLink}}?filters=assigned_to_assessment_as_assessor">View all assigned assessments</a>
+                                                                </td>
+                                                            </tr>
+                                                            {{/hasMoreAssignedAssessments}}
+                                                        </table>
+                                                        <br />
+
+                                                        {{/hasAssignedAssessments}}
+                                                        {{#hasExpiredAssessments}}
+                                                        <br />
+                                                        You have <strong>{{expiredAssessmentsCount}} expired assessment request(s)</strong>
+
+                                                        <br />
+                                                        <table border="0" cellpadding="0" cellspacing="0">
+                                                            {{#expiredAssessments}}
+                                                            <tr>
+                                                                <td valign="top">
+                                                                    {{actorFullName}} {{predicate}} <a href="{{link}}">{{objectTitle}}</a>
+                                                                </td>
+                                                            </tr>
+                                                            {{/expiredAssessments}}
+                                                            {{#hasMoreExpiredAssessments}}
+                                                            <tr>
+                                                                <td valign="top" style="padding-top:10px;">
+                                                                    <a href="{{notificationsLink}}?filters=assessment_request_expired">View all expired assessment requests</a>
+                                                                </td>
+                                                            </tr>
+                                                            {{/hasMoreExpiredAssessments}}
+                                                        </table>
+                                                        <br />
+
+                                                        {{/hasExpiredAssessments}}
+
                                                         {{#hasGradeAdded}}
                                                         <br />
-                                                        You have <strong>{{gradeAddedCount}} new assessments(s) received</strong>
+                                                        You have <strong>{{gradeAddedCount}} new assessments(s) updated</strong>:
 
                                                         <br />
                                                         <table border="0" cellpadding="0" cellspacing="0">
@@ -390,7 +536,7 @@
                                                             {{#hasMoreGradesAdded}}
                                                             <tr>
                                                                 <td valign="top" style="padding-top:10px;">
-                                                                    <a href="{{notificationsLink}}?filters=gradeadded">View all assessments</a>
+                                                                    <a href="{{notificationsLink}}?filters=gradeadded">View all updated assessments</a>
                                                                 </td>
                                                             </tr>
                                                             {{/hasMoreGradesAdded}}
@@ -400,7 +546,9 @@
                                                         {{/hasGradeAdded}}
                                                         {{#hasCommentLiked}}
                                                         <br />
-                                                        You have <strong>{{commentLikeCount}} comment(s) liked</strong>
+
+                                                        You have <strong>{{commentLikeCount}} comment(s) liked</strong>:
+
                                                         <table border="0" cellpadding="0" cellspacing="0">
                                                             {{#commentLikes}}
                                                             <tr>
@@ -423,7 +571,8 @@
                                                         {{/hasCommentLiked}}
                                                         {{#hasSocialActivityLiked}}
                                                         <br />
-                                                        You have <strong>{{socialActivityLikeCount}} social activity(s) added</strong>
+                                                        You have <strong>{{socialActivityLikeCount}} new post likes</strong>:
+
                                                         <table border="0" cellpadding="0" cellspacing="0">
                                                             {{#socialActivityLikes}}
                                                             <tr>
@@ -435,7 +584,7 @@
                                                             {{#hasMoreSocialActivitiesLikes}}
                                                             <tr>
                                                                 <td valign="top" style="padding-top:10px;">
-                                                                    <a href="{{notificationsLink}}?filters=social_activity_like">View all social activities likes</a>
+                                                                    <a href="{{notificationsLink}}?filters=social_activity_like">View all post likes</a>
                                                                 </td>
                                                             </tr>
                                                             {{/hasMoreSocialActivitiesLikes}}

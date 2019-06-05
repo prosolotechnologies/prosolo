@@ -13,6 +13,8 @@ import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.general.AbstractManager;
+import org.prosolo.services.user.data.UserAssessmentTokenData;
+import org.prosolo.services.user.data.UserAssessmentTokenExtendedData;
 import org.prosolo.services.user.data.UserCreationData;
 import org.prosolo.services.user.data.UserData;
 
@@ -109,12 +111,12 @@ public interface UserManager extends AbstractManager {
 
 	User updateUser(long userId, String name, String lastName, String email,
 			boolean emailVerified, boolean changePassword, String password, 
-			String position, List<Long> roles, List<Long> rolesToUpdate, UserContextData context)
+			String position, int numberOfTokens, List<Long> roles, List<Long> rolesToUpdate, UserContextData context)
 			throws DbConnectionException;
 
 	Result<User> updateUserAndGetEvents(long userId, String name, String lastName, String email,
 					boolean emailVerified, boolean changePassword, String password,
-					String position, List<Long> roles, List<Long> rolesToUpdate, UserContextData context) throws DbConnectionException;
+					String position, int numberOfTokens, List<Long> roles, List<Long> rolesToUpdate, UserContextData context) throws DbConnectionException;
 
 	List<User> getUsers(Long[] toExclude, int limit);
 
@@ -204,4 +206,31 @@ public interface UserManager extends AbstractManager {
 
 	Result<Void> saveAccountChangesAndGetEvents(UserData accountData, UserContextData contextData)
 			throws DbConnectionException, ResourceCouldNotBeLoadedException;
+
+	/**
+	 *
+	 * @param userId
+	 * @return
+	 *
+	 * @throws DbConnectionException
+	 */
+	UserAssessmentTokenData getUserAssessmentTokenData(long userId);
+
+	/**
+	 *
+	 * @param userId
+	 * @return
+	 *
+	 * @throws DbConnectionException
+	 */
+	UserAssessmentTokenExtendedData getUserAssessmentTokenExtendedData(long userId);
+
+	/**
+	 *
+	 * @param userId
+	 * @param availableForAssessments
+	 *
+	 * @throws DbConnectionException
+	 */
+	void updateAssessmentAvailability(long userId, boolean availableForAssessments);
 }

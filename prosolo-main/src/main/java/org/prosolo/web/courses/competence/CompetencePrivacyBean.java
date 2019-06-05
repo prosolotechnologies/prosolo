@@ -50,8 +50,13 @@ public class CompetencePrivacyBean implements Serializable {
 
 	public void init() {
 		decodedCompId = idEncoder.decodeId(compId);
-		if (decodedCompId > 0) {
+		long decodedCredId = idEncoder.decodeId(credId);
+
+		if (decodedCompId > 0 && decodedCredId > 0) {
 			try {
+				// check if credential and competency are connected
+				compManager.checkIfCompetenceIsPartOfACredential(decodedCredId, decodedCompId);
+
 				ResourceAccessRequirements req = ResourceAccessRequirements.of(AccessMode.MANAGER)
 						.addPrivilege(UserGroupPrivilege.Edit);
 				ResourceAccessData access = compManager.getResourceAccessData(decodedCompId,
@@ -62,10 +67,7 @@ public class CompetencePrivacyBean implements Serializable {
 				} else {
 					competenceTitle = compManager.getCompetenceTitle(decodedCompId);
 					if (competenceTitle != null) {
-						long decodedCredId = idEncoder.decodeId(credId);
-						if (decodedCredId > 0){
-							this.credentialIdData = credManager.getCredentialIdData(decodedCredId, null);
-						}
+						this.credentialIdData = credManager.getCredentialIdData(decodedCredId, null);
 
 						loadData();
 					} else {

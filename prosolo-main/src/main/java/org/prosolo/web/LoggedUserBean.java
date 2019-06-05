@@ -47,7 +47,7 @@ public class LoggedUserBean implements Serializable {
 	@Inject private AuthenticatedUserService authenticatedUserService;
 
 	private UserData loginAsUser;
-	
+
 	public String setFullName(String name, String lastName) {
 		return name + (lastName != null ? " " + lastName : "");
 	}

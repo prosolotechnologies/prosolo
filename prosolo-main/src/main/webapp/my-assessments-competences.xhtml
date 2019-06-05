@@ -1,0 +1,161 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="templates/masterLayout2.xhtml"
+                xmlns:assessments="http://java.sun.com/jsf/composite/components/assessments"
+                xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+                xmlns:assessment="http://java.sun.com/jsf/composite/components/assessments"
+>
+
+    <ui:define name="windowTitle">
+        My Assessments - ProSolo
+    </ui:define>
+
+    <ui:define name="metadata">
+        <f:metadata>
+            <f:viewParam name="p" value="#{myAssessmentsBeanCompetence.page}" default="1" />
+            <f:viewAction action="#{myAssessmentsBeanCompetence.init()}" />
+        </f:metadata>
+    </ui:define>
+
+    <ui:define name="resourceTitle">
+        <h1>My Assessments</h1>
+    </ui:define>
+
+    <ui:define name="navLinks">
+        <assessment:myAssessmentsNavLinks
+            resource="COMPETENCE"
+        />
+    </ui:define>
+
+    <ui:define name="content">
+
+        <div class="whiteBar">
+            <div class="container">
+                <div class="whiteBarContent">
+                    <div class="whiteBarLeft">
+
+                    </div>
+                    <div class="whiteBarRight">
+                        <h:panelGroup layout="block" id="panelSearchFilters" styleClass="dropdown showDrop item">
+                            <h:link id="linkSearchFilter"
+                                    pt:data-toggle="dropdown"
+                                    pt:aria-haspopup="true"
+                                    pt:aria-expanded="true">
+                                #{myAssessmentsBeanCompetence.getLabelForSelectedFilter()}
+                                <span class="arrowDown">arrowDown</span>
+                            </h:link>
+
+                            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenu1">
+                                <ui:repeat var="filter" value="#{myAssessmentsBeanCompetence.assessmentStatusFilters}">
+                                    <li>
+                                        <p:commandLink process="@this"
+                                                       value="#{myAssessmentsBeanCompetence.getLabelForFilter(filter)}"
+                                                       action="#{myAssessmentsBeanCompetence.applyAssessmentStatusFilter(filter)}"
+                                                       update=":panelAssessments :panelSearchFilters" />
+                                    </li>
+                                </ui:repeat>
+                            </ul>
+                        </h:panelGroup>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                <h:panelGroup layout="block" id="panelAssessments" styleClass="col-md-9">
+                    <ui:fragment rendered="#{empty myAssessmentsBeanCompetence.assessmentsData}">
+                        <div class="noContentMessage">
+                            <p>
+                                No assessments.
+                            </p>
+                        </div>
+                    </ui:fragment>
+
+                    <ui:repeat value="#{myAssessmentsBeanCompetence.assessmentsData}" var="assessment">
+                        <article class="whiteBox assessmentItem">
+                            <h2>
+                                <h:link outcome="/competence-peer-assessment" value="#{assessment.competenceTitle}">
+                                    <f:param value="#{util:encodeId(assessment.assessmentId)}" name="assessmentId" />
+                                    <f:param value="#{util:encodeId(assessment.competenceId)}" name="compId" />
+                                    <f:param value="#{util:encodeId(assessment.credentialId)}" name="credId"/>
+                                </h:link>
+                            </h2>
+                            <div class="#{styleUtilBean.getIconClassForAssessmentStatus(assessment.status)}" style="float: right; margin-top: 3px;">#{msg['label.enum.AssessmentStatus.'.concat(assessment.status.name())]}</div>
+                            <div class="clear"></div>
+                            <div class="user32">
+                                Student:&#160;&#160;&#160;&#160;
+                                <assessment:assessmentActorAvatar
+                                        actorId="#{assessment.studentId}"
+                                        avatarUrl="#{assessment.studentAvatarUrl}"
+                                        actorFullName="#{assessment.studentFullName}"
+                                        blindAssessmentMode="#{assessment.blindAssessmentMode}"
+                                        actorType="STUDENT"
+                                />
+                                <h3>
+                                    <assessment:assessmentActorName
+                                            actorId="#{assessment.studentId}"
+                                            actorFullName="#{assessment.studentFullName}"
+                                            blindAssessmentMode="#{assessment.blindAssessmentMode}"
+                                            actorType="STUDENT"
+                                    />
+                                </h3>
+                            </div>
+                            <div class="clear"></div>
+                            <div class="date">
+                                Requested:
+                                <utilcomp:convertTimeOutput
+                                        millis="#{assessment.dateRequested}"
+                                        format="MMMM DD, YYYY" />
+                            </div>
+                            <ui:fragment rendered="#{assessment.status eq 'REQUEST_EXPIRED'}">
+                                <div class="date left">
+                                    Expired:
+                                    <utilcomp:convertTimeOutput
+                                            millis="#{assessment.dateQuit}"
+                                            format="MMMM DD, YYYY" />
+                                </div>
+                            </ui:fragment>
+                            <ui:fragment rendered="#{assessment.status eq 'REQUEST_DECLINED'}">
+                                <div class="date left">
+                                    Declined:
+                                    <utilcomp:convertTimeOutput
+                                            millis="#{assessment.dateQuit}"
+                                            format="MMMM DD, YYYY" />
+                                </div>
+                            </ui:fragment>
+                            <ui:fragment rendered="#{assessment.status eq 'ASSESSMENT_QUIT' or assessment.status eq 'SUBMITTED_ASSESSMENT_QUIT'}">
+                                <div class="date left">
+                                    Withdrawn:
+                                    <utilcomp:convertTimeOutput
+                                            millis="#{assessment.dateQuit}"
+                                            format="MMMM DD, YYYY" />
+                                </div>
+                            </ui:fragment>
+                            <ui:fragment rendered="#{assessment.status eq 'SUBMITTED'}">
+                                <div class="date left">
+                                    Submitted:
+                                    <utilcomp:convertTimeOutput
+                                            millis="#{assessment.dateSubmitted}"
+                                            format="MMMM DD, YYYY" />
+                                </div>
+                            </ui:fragment>
+                        </article>
+                    </ui:repeat>
+
+                    <utilcomp:pagination id="pagination"
+                                         bean="#{myAssessmentsBeanCompetence}"
+                                         updateUrl="true"
+                                         toUpdate=":panelAssessments"/>
+                </h:panelGroup>
+                <div class="col-md-3">
+                    <assessments:assessmentAvailability/>
+                </div>
+            </div>
+        </div>
+    </ui:define>
+</ui:composition>

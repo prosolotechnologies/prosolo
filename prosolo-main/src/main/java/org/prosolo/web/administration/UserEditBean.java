@@ -231,6 +231,7 @@ public class UserEditBean implements Serializable {
 					false,
 					this.user.getPassword(),
 					this.user.getPosition(),
+					this.user.getNumberOfTokens(),
 					getSelectedRoles(),
 					allRoles.stream().map(Role::getId).collect(Collectors.toList()),
 					loggedUser.getUserContext(decodedOrgId));

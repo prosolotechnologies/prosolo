@@ -157,6 +157,48 @@ ul {
 .topMinus100 {
   margin-top: -100px !important; }
 
+.left0 {
+  margin-left: 0px !important; }
+
+.left5 {
+  margin-left: 5px !important; }
+
+.left10 {
+  margin-left: 10px !important; }
+
+.left20 {
+  margin-left: 20px !important; }
+
+.left30 {
+  margin-left: 30px !important; }
+
+.left50 {
+  margin-left: 50px !important; }
+
+.left100 {
+  margin-left: 100px !important; }
+
+.right0 {
+  margin-right: 0px !important; }
+
+.right5 {
+  margin-right: 5px !important; }
+
+.right10 {
+  margin-right: 10px !important; }
+
+.right20 {
+  margin-right: 20px !important; }
+
+.right30 {
+  margin-right: 30px !important; }
+
+.right50 {
+  margin-right: 50px !important; }
+
+.right100 {
+  margin-right: 100px !important; }
+
 .btn {
   display: inline-block;
   padding: 0 18px;
@@ -321,6 +363,8 @@ ul {
 
 .tagPending {
   background: url("../images2/icon-pending.svg") no-repeat right center; }
+  .tagPending.left {
+    background: url("../images2/icon-pending.svg") no-repeat left center; }
 
 .tagDeclined {
   background: url("../images2/icon-declined.svg") no-repeat right center; }
@@ -538,7 +582,6 @@ input {
   font-family: 'prosolo_bold', "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-weight: 500;
   font-size: 13px;
-  margin-left: 5px;
   padding-left: 25px;
   background: url("../images2/iconToken20.svg") no-repeat left center; }
 
@@ -623,8 +666,6 @@ input {
     padding-bottom: 1px; }
   .whiteBox.settingsEmailNotifications {
     padding-bottom: 30px; }
-  .whiteBox.assessmentInitialMessage {
-    margin-bottom: 30px !important; }
   .whiteBox.highlighted {
     border: 5px solid rgba(255, 236, 0, 0.1); }
 
@@ -1145,8 +1186,8 @@ input {
 #askAssessment .messageModalMeta,
 #askAssessmentPeer .assessmentModalMeta,
 #askAssessmentPeer .messageModalMeta,
-#approveAssessment .assessmentModalMeta,
-#approveAssessment .messageModalMeta,
+#submitCredAssessment .assessmentModalMeta,
+#submitCredAssessment .messageModalMeta,
 #evidencesList .assessmentModalMeta,
 #evidencesList .messageModalMeta,
 #assessmentsList .assessmentModalMeta,
@@ -1156,7 +1197,11 @@ input {
 #newAnnouncementModal .assessmentModalMeta,
 #newAnnouncementModal .messageModalMeta,
 #evidenceSummaryModal .assessmentModalMeta,
-#evidenceSummaryModal .messageModalMeta {
+#evidenceSummaryModal .messageModalMeta,
+#editRelationModal .assessmentModalMeta,
+#editRelationModal .messageModalMeta,
+#submitCompAssessment .assessmentModalMeta,
+#submitCompAssessment .messageModalMeta {
   background: #F8F9FB;
   border-top: 1px solid #EEEFF3;
   border-bottom: 1px solid #EEEFF3;
@@ -1175,10 +1220,10 @@ input {
   #askAssessmentPeer .assessmentModalMeta .messageModalMetaLine,
   #askAssessmentPeer .messageModalMeta .assessmentModalMetaLine,
   #askAssessmentPeer .messageModalMeta .messageModalMetaLine,
-  #approveAssessment .assessmentModalMeta .assessmentModalMetaLine,
-  #approveAssessment .assessmentModalMeta .messageModalMetaLine,
-  #approveAssessment .messageModalMeta .assessmentModalMetaLine,
-  #approveAssessment .messageModalMeta .messageModalMetaLine,
+  #submitCredAssessment .assessmentModalMeta .assessmentModalMetaLine,
+  #submitCredAssessment .assessmentModalMeta .messageModalMetaLine,
+  #submitCredAssessment .messageModalMeta .assessmentModalMetaLine,
+  #submitCredAssessment .messageModalMeta .messageModalMetaLine,
   #evidencesList .assessmentModalMeta .assessmentModalMetaLine,
   #evidencesList .assessmentModalMeta .messageModalMetaLine,
   #evidencesList .messageModalMeta .assessmentModalMetaLine,
@@ -1198,7 +1243,15 @@ input {
   #evidenceSummaryModal .assessmentModalMeta .assessmentModalMetaLine,
   #evidenceSummaryModal .assessmentModalMeta .messageModalMetaLine,
   #evidenceSummaryModal .messageModalMeta .assessmentModalMetaLine,
-  #evidenceSummaryModal .messageModalMeta .messageModalMetaLine {
+  #evidenceSummaryModal .messageModalMeta .messageModalMetaLine,
+  #editRelationModal .assessmentModalMeta .assessmentModalMetaLine,
+  #editRelationModal .assessmentModalMeta .messageModalMetaLine,
+  #editRelationModal .messageModalMeta .assessmentModalMetaLine,
+  #editRelationModal .messageModalMeta .messageModalMetaLine,
+  #submitCompAssessment .assessmentModalMeta .assessmentModalMetaLine,
+  #submitCompAssessment .assessmentModalMeta .messageModalMetaLine,
+  #submitCompAssessment .messageModalMeta .assessmentModalMetaLine,
+  #submitCompAssessment .messageModalMeta .messageModalMetaLine {
     display: flex;
     padding-top: 10px; }
     #whyAddEvidence .assessmentModalMeta .assessmentModalMetaLine:last-child,
@@ -1213,10 +1266,10 @@ input {
     #askAssessmentPeer .assessmentModalMeta .messageModalMetaLine:last-child,
     #askAssessmentPeer .messageModalMeta .assessmentModalMetaLine:last-child,
     #askAssessmentPeer .messageModalMeta .messageModalMetaLine:last-child,
-    #approveAssessment .assessmentModalMeta .assessmentModalMetaLine:last-child,
-    #approveAssessment .assessmentModalMeta .messageModalMetaLine:last-child,
-    #approveAssessment .messageModalMeta .assessmentModalMetaLine:last-child,
-    #approveAssessment .messageModalMeta .messageModalMetaLine:last-child,
+    #submitCredAssessment .assessmentModalMeta .assessmentModalMetaLine:last-child,
+    #submitCredAssessment .assessmentModalMeta .messageModalMetaLine:last-child,
+    #submitCredAssessment .messageModalMeta .assessmentModalMetaLine:last-child,
+    #submitCredAssessment .messageModalMeta .messageModalMetaLine:last-child,
     #evidencesList .assessmentModalMeta .assessmentModalMetaLine:last-child,
     #evidencesList .assessmentModalMeta .messageModalMetaLine:last-child,
     #evidencesList .messageModalMeta .assessmentModalMetaLine:last-child,
@@ -1236,7 +1289,15 @@ input {
     #evidenceSummaryModal .assessmentModalMeta .assessmentModalMetaLine:last-child,
     #evidenceSummaryModal .assessmentModalMeta .messageModalMetaLine:last-child,
     #evidenceSummaryModal .messageModalMeta .assessmentModalMetaLine:last-child,
-    #evidenceSummaryModal .messageModalMeta .messageModalMetaLine:last-child {
+    #evidenceSummaryModal .messageModalMeta .messageModalMetaLine:last-child,
+    #editRelationModal .assessmentModalMeta .assessmentModalMetaLine:last-child,
+    #editRelationModal .assessmentModalMeta .messageModalMetaLine:last-child,
+    #editRelationModal .messageModalMeta .assessmentModalMetaLine:last-child,
+    #editRelationModal .messageModalMeta .messageModalMetaLine:last-child,
+    #submitCompAssessment .assessmentModalMeta .assessmentModalMetaLine:last-child,
+    #submitCompAssessment .assessmentModalMeta .messageModalMetaLine:last-child,
+    #submitCompAssessment .messageModalMeta .assessmentModalMetaLine:last-child,
+    #submitCompAssessment .messageModalMeta .messageModalMetaLine:last-child {
       padding-bottom: 10px; }
     #whyAddEvidence .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaLeft,
     #whyAddEvidence .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight,
@@ -1286,22 +1347,22 @@ input {
     #askAssessmentPeer .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight,
     #askAssessmentPeer .messageModalMeta .messageModalMetaLine .messageModalMetaLeft,
     #askAssessmentPeer .messageModalMeta .messageModalMetaLine .messageModalMetaRight,
-    #approveAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaLeft,
-    #approveAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight,
-    #approveAssessment .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaLeft,
-    #approveAssessment .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight,
-    #approveAssessment .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaLeft,
-    #approveAssessment .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight,
-    #approveAssessment .assessmentModalMeta .messageModalMetaLine .messageModalMetaLeft,
-    #approveAssessment .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight,
-    #approveAssessment .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaLeft,
-    #approveAssessment .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight,
-    #approveAssessment .messageModalMeta .assessmentModalMetaLine .messageModalMetaLeft,
-    #approveAssessment .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight,
-    #approveAssessment .messageModalMeta .messageModalMetaLine .assessmentModalMetaLeft,
-    #approveAssessment .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight,
-    #approveAssessment .messageModalMeta .messageModalMetaLine .messageModalMetaLeft,
-    #approveAssessment .messageModalMeta .messageModalMetaLine .messageModalMetaRight,
+    #submitCredAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaLeft,
+    #submitCredAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight,
+    #submitCredAssessment .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaLeft,
+    #submitCredAssessment .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight,
+    #submitCredAssessment .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaLeft,
+    #submitCredAssessment .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight,
+    #submitCredAssessment .assessmentModalMeta .messageModalMetaLine .messageModalMetaLeft,
+    #submitCredAssessment .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight,
+    #submitCredAssessment .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaLeft,
+    #submitCredAssessment .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight,
+    #submitCredAssessment .messageModalMeta .assessmentModalMetaLine .messageModalMetaLeft,
+    #submitCredAssessment .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight,
+    #submitCredAssessment .messageModalMeta .messageModalMetaLine .assessmentModalMetaLeft,
+    #submitCredAssessment .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight,
+    #submitCredAssessment .messageModalMeta .messageModalMetaLine .messageModalMetaLeft,
+    #submitCredAssessment .messageModalMeta .messageModalMetaLine .messageModalMetaRight,
     #evidencesList .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaLeft,
     #evidencesList .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight,
     #evidencesList .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaLeft,
@@ -1381,7 +1442,39 @@ input {
     #evidenceSummaryModal .messageModalMeta .messageModalMetaLine .assessmentModalMetaLeft,
     #evidenceSummaryModal .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight,
     #evidenceSummaryModal .messageModalMeta .messageModalMetaLine .messageModalMetaLeft,
-    #evidenceSummaryModal .messageModalMeta .messageModalMetaLine .messageModalMetaRight {
+    #evidenceSummaryModal .messageModalMeta .messageModalMetaLine .messageModalMetaRight,
+    #editRelationModal .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaLeft,
+    #editRelationModal .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight,
+    #editRelationModal .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaLeft,
+    #editRelationModal .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight,
+    #editRelationModal .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaLeft,
+    #editRelationModal .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight,
+    #editRelationModal .assessmentModalMeta .messageModalMetaLine .messageModalMetaLeft,
+    #editRelationModal .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight,
+    #editRelationModal .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaLeft,
+    #editRelationModal .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight,
+    #editRelationModal .messageModalMeta .assessmentModalMetaLine .messageModalMetaLeft,
+    #editRelationModal .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight,
+    #editRelationModal .messageModalMeta .messageModalMetaLine .assessmentModalMetaLeft,
+    #editRelationModal .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight,
+    #editRelationModal .messageModalMeta .messageModalMetaLine .messageModalMetaLeft,
+    #editRelationModal .messageModalMeta .messageModalMetaLine .messageModalMetaRight,
+    #submitCompAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaLeft,
+    #submitCompAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight,
+    #submitCompAssessment .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaLeft,
+    #submitCompAssessment .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight,
+    #submitCompAssessment .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaLeft,
+    #submitCompAssessment .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight,
+    #submitCompAssessment .assessmentModalMeta .messageModalMetaLine .messageModalMetaLeft,
+    #submitCompAssessment .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight,
+    #submitCompAssessment .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaLeft,
+    #submitCompAssessment .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight,
+    #submitCompAssessment .messageModalMeta .assessmentModalMetaLine .messageModalMetaLeft,
+    #submitCompAssessment .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight,
+    #submitCompAssessment .messageModalMeta .messageModalMetaLine .assessmentModalMetaLeft,
+    #submitCompAssessment .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight,
+    #submitCompAssessment .messageModalMeta .messageModalMetaLine .messageModalMetaLeft,
+    #submitCompAssessment .messageModalMeta .messageModalMetaLine .messageModalMetaRight {
       position: relative;
       display: flex;
       line-height: 32px;
@@ -1434,22 +1527,22 @@ input {
       #askAssessmentPeer .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight h3,
       #askAssessmentPeer .messageModalMeta .messageModalMetaLine .messageModalMetaLeft h3,
       #askAssessmentPeer .messageModalMeta .messageModalMetaLine .messageModalMetaRight h3,
-      #approveAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaLeft h3,
-      #approveAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight h3,
-      #approveAssessment .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaLeft h3,
-      #approveAssessment .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight h3,
-      #approveAssessment .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaLeft h3,
-      #approveAssessment .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight h3,
-      #approveAssessment .assessmentModalMeta .messageModalMetaLine .messageModalMetaLeft h3,
-      #approveAssessment .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight h3,
-      #approveAssessment .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaLeft h3,
-      #approveAssessment .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight h3,
-      #approveAssessment .messageModalMeta .assessmentModalMetaLine .messageModalMetaLeft h3,
-      #approveAssessment .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight h3,
-      #approveAssessment .messageModalMeta .messageModalMetaLine .assessmentModalMetaLeft h3,
-      #approveAssessment .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight h3,
-      #approveAssessment .messageModalMeta .messageModalMetaLine .messageModalMetaLeft h3,
-      #approveAssessment .messageModalMeta .messageModalMetaLine .messageModalMetaRight h3,
+      #submitCredAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaLeft h3,
+      #submitCredAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight h3,
+      #submitCredAssessment .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaLeft h3,
+      #submitCredAssessment .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight h3,
+      #submitCredAssessment .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaLeft h3,
+      #submitCredAssessment .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight h3,
+      #submitCredAssessment .assessmentModalMeta .messageModalMetaLine .messageModalMetaLeft h3,
+      #submitCredAssessment .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight h3,
+      #submitCredAssessment .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaLeft h3,
+      #submitCredAssessment .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight h3,
+      #submitCredAssessment .messageModalMeta .assessmentModalMetaLine .messageModalMetaLeft h3,
+      #submitCredAssessment .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight h3,
+      #submitCredAssessment .messageModalMeta .messageModalMetaLine .assessmentModalMetaLeft h3,
+      #submitCredAssessment .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight h3,
+      #submitCredAssessment .messageModalMeta .messageModalMetaLine .messageModalMetaLeft h3,
+      #submitCredAssessment .messageModalMeta .messageModalMetaLine .messageModalMetaRight h3,
       #evidencesList .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaLeft h3,
       #evidencesList .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight h3,
       #evidencesList .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaLeft h3,
@@ -1529,7 +1622,39 @@ input {
       #evidenceSummaryModal .messageModalMeta .messageModalMetaLine .assessmentModalMetaLeft h3,
       #evidenceSummaryModal .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight h3,
       #evidenceSummaryModal .messageModalMeta .messageModalMetaLine .messageModalMetaLeft h3,
-      #evidenceSummaryModal .messageModalMeta .messageModalMetaLine .messageModalMetaRight h3 {
+      #evidenceSummaryModal .messageModalMeta .messageModalMetaLine .messageModalMetaRight h3,
+      #editRelationModal .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaLeft h3,
+      #editRelationModal .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight h3,
+      #editRelationModal .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaLeft h3,
+      #editRelationModal .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight h3,
+      #editRelationModal .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaLeft h3,
+      #editRelationModal .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight h3,
+      #editRelationModal .assessmentModalMeta .messageModalMetaLine .messageModalMetaLeft h3,
+      #editRelationModal .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight h3,
+      #editRelationModal .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaLeft h3,
+      #editRelationModal .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight h3,
+      #editRelationModal .messageModalMeta .assessmentModalMetaLine .messageModalMetaLeft h3,
+      #editRelationModal .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight h3,
+      #editRelationModal .messageModalMeta .messageModalMetaLine .assessmentModalMetaLeft h3,
+      #editRelationModal .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight h3,
+      #editRelationModal .messageModalMeta .messageModalMetaLine .messageModalMetaLeft h3,
+      #editRelationModal .messageModalMeta .messageModalMetaLine .messageModalMetaRight h3,
+      #submitCompAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaLeft h3,
+      #submitCompAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight h3,
+      #submitCompAssessment .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaLeft h3,
+      #submitCompAssessment .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight h3,
+      #submitCompAssessment .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaLeft h3,
+      #submitCompAssessment .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight h3,
+      #submitCompAssessment .assessmentModalMeta .messageModalMetaLine .messageModalMetaLeft h3,
+      #submitCompAssessment .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight h3,
+      #submitCompAssessment .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaLeft h3,
+      #submitCompAssessment .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight h3,
+      #submitCompAssessment .messageModalMeta .assessmentModalMetaLine .messageModalMetaLeft h3,
+      #submitCompAssessment .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight h3,
+      #submitCompAssessment .messageModalMeta .messageModalMetaLine .assessmentModalMetaLeft h3,
+      #submitCompAssessment .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight h3,
+      #submitCompAssessment .messageModalMeta .messageModalMetaLine .messageModalMetaLeft h3,
+      #submitCompAssessment .messageModalMeta .messageModalMetaLine .messageModalMetaRight h3 {
         margin: 0; }
     #whyAddEvidence .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaLeft,
     #whyAddEvidence .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaLeft,
@@ -1543,10 +1668,10 @@ input {
     #askAssessmentPeer .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaLeft,
     #askAssessmentPeer .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaLeft,
     #askAssessmentPeer .messageModalMeta .messageModalMetaLine .assessmentModalMetaLeft,
-    #approveAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaLeft,
-    #approveAssessment .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaLeft,
-    #approveAssessment .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaLeft,
-    #approveAssessment .messageModalMeta .messageModalMetaLine .assessmentModalMetaLeft,
+    #submitCredAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaLeft,
+    #submitCredAssessment .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaLeft,
+    #submitCredAssessment .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaLeft,
+    #submitCredAssessment .messageModalMeta .messageModalMetaLine .assessmentModalMetaLeft,
     #evidencesList .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaLeft,
     #evidencesList .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaLeft,
     #evidencesList .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaLeft,
@@ -1566,7 +1691,15 @@ input {
     #evidenceSummaryModal .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaLeft,
     #evidenceSummaryModal .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaLeft,
     #evidenceSummaryModal .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaLeft,
-    #evidenceSummaryModal .messageModalMeta .messageModalMetaLine .assessmentModalMetaLeft {
+    #evidenceSummaryModal .messageModalMeta .messageModalMetaLine .assessmentModalMetaLeft,
+    #editRelationModal .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaLeft,
+    #editRelationModal .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaLeft,
+    #editRelationModal .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaLeft,
+    #editRelationModal .messageModalMeta .messageModalMetaLine .assessmentModalMetaLeft,
+    #submitCompAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaLeft,
+    #submitCompAssessment .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaLeft,
+    #submitCompAssessment .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaLeft,
+    #submitCompAssessment .messageModalMeta .messageModalMetaLine .assessmentModalMetaLeft {
       width: 90px;
       flex-shrink: 0; }
     #whyAddEvidence .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaLeft,
@@ -1581,10 +1714,10 @@ input {
     #askAssessmentPeer .assessmentModalMeta .messageModalMetaLine .messageModalMetaLeft,
     #askAssessmentPeer .messageModalMeta .assessmentModalMetaLine .messageModalMetaLeft,
     #askAssessmentPeer .messageModalMeta .messageModalMetaLine .messageModalMetaLeft,
-    #approveAssessment .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaLeft,
-    #approveAssessment .assessmentModalMeta .messageModalMetaLine .messageModalMetaLeft,
-    #approveAssessment .messageModalMeta .assessmentModalMetaLine .messageModalMetaLeft,
-    #approveAssessment .messageModalMeta .messageModalMetaLine .messageModalMetaLeft,
+    #submitCredAssessment .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaLeft,
+    #submitCredAssessment .assessmentModalMeta .messageModalMetaLine .messageModalMetaLeft,
+    #submitCredAssessment .messageModalMeta .assessmentModalMetaLine .messageModalMetaLeft,
+    #submitCredAssessment .messageModalMeta .messageModalMetaLine .messageModalMetaLeft,
     #evidencesList .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaLeft,
     #evidencesList .assessmentModalMeta .messageModalMetaLine .messageModalMetaLeft,
     #evidencesList .messageModalMeta .assessmentModalMetaLine .messageModalMetaLeft,
@@ -1604,7 +1737,15 @@ input {
     #evidenceSummaryModal .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaLeft,
     #evidenceSummaryModal .assessmentModalMeta .messageModalMetaLine .messageModalMetaLeft,
     #evidenceSummaryModal .messageModalMeta .assessmentModalMetaLine .messageModalMetaLeft,
-    #evidenceSummaryModal .messageModalMeta .messageModalMetaLine .messageModalMetaLeft {
+    #evidenceSummaryModal .messageModalMeta .messageModalMetaLine .messageModalMetaLeft,
+    #editRelationModal .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaLeft,
+    #editRelationModal .assessmentModalMeta .messageModalMetaLine .messageModalMetaLeft,
+    #editRelationModal .messageModalMeta .assessmentModalMetaLine .messageModalMetaLeft,
+    #editRelationModal .messageModalMeta .messageModalMetaLine .messageModalMetaLeft,
+    #submitCompAssessment .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaLeft,
+    #submitCompAssessment .assessmentModalMeta .messageModalMetaLine .messageModalMetaLeft,
+    #submitCompAssessment .messageModalMeta .assessmentModalMetaLine .messageModalMetaLeft,
+    #submitCompAssessment .messageModalMeta .messageModalMetaLine .messageModalMetaLeft {
       width: 30px; }
     #whyAddEvidence .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight,
     #whyAddEvidence .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight,
@@ -1630,14 +1771,14 @@ input {
     #askAssessmentPeer .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight,
     #askAssessmentPeer .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight,
     #askAssessmentPeer .messageModalMeta .messageModalMetaLine .messageModalMetaRight,
-    #approveAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight,
-    #approveAssessment .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight,
-    #approveAssessment .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight,
-    #approveAssessment .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight,
-    #approveAssessment .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight,
-    #approveAssessment .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight,
-    #approveAssessment .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight,
-    #approveAssessment .messageModalMeta .messageModalMetaLine .messageModalMetaRight,
+    #submitCredAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight,
+    #submitCredAssessment .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight,
+    #submitCredAssessment .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight,
+    #submitCredAssessment .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight,
+    #submitCredAssessment .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight,
+    #submitCredAssessment .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight,
+    #submitCredAssessment .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight,
+    #submitCredAssessment .messageModalMeta .messageModalMetaLine .messageModalMetaRight,
     #evidencesList .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight,
     #evidencesList .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight,
     #evidencesList .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight,
@@ -1677,7 +1818,23 @@ input {
     #evidenceSummaryModal .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight,
     #evidenceSummaryModal .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight,
     #evidenceSummaryModal .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight,
-    #evidenceSummaryModal .messageModalMeta .messageModalMetaLine .messageModalMetaRight {
+    #evidenceSummaryModal .messageModalMeta .messageModalMetaLine .messageModalMetaRight,
+    #editRelationModal .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight,
+    #editRelationModal .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight,
+    #editRelationModal .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight,
+    #editRelationModal .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight,
+    #editRelationModal .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight,
+    #editRelationModal .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight,
+    #editRelationModal .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight,
+    #editRelationModal .messageModalMeta .messageModalMetaLine .messageModalMetaRight,
+    #submitCompAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight,
+    #submitCompAssessment .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight,
+    #submitCompAssessment .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight,
+    #submitCompAssessment .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight,
+    #submitCompAssessment .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight,
+    #submitCompAssessment .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight,
+    #submitCompAssessment .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight,
+    #submitCompAssessment .messageModalMeta .messageModalMetaLine .messageModalMetaRight {
       flex-grow: 1; }
       #whyAddEvidence .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .letterAvatar,
       #whyAddEvidence .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight img,
@@ -1727,22 +1884,22 @@ input {
       #askAssessmentPeer .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight img,
       #askAssessmentPeer .messageModalMeta .messageModalMetaLine .messageModalMetaRight .letterAvatar,
       #askAssessmentPeer .messageModalMeta .messageModalMetaLine .messageModalMetaRight img,
-      #approveAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .letterAvatar,
-      #approveAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight img,
-      #approveAssessment .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight .letterAvatar,
-      #approveAssessment .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight img,
-      #approveAssessment .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight .letterAvatar,
-      #approveAssessment .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight img,
-      #approveAssessment .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight .letterAvatar,
-      #approveAssessment .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight img,
-      #approveAssessment .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .letterAvatar,
-      #approveAssessment .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight img,
-      #approveAssessment .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight .letterAvatar,
-      #approveAssessment .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight img,
-      #approveAssessment .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .letterAvatar,
-      #approveAssessment .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight img,
-      #approveAssessment .messageModalMeta .messageModalMetaLine .messageModalMetaRight .letterAvatar,
-      #approveAssessment .messageModalMeta .messageModalMetaLine .messageModalMetaRight img,
+      #submitCredAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .letterAvatar,
+      #submitCredAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight img,
+      #submitCredAssessment .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight .letterAvatar,
+      #submitCredAssessment .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight img,
+      #submitCredAssessment .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight .letterAvatar,
+      #submitCredAssessment .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight img,
+      #submitCredAssessment .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight .letterAvatar,
+      #submitCredAssessment .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight img,
+      #submitCredAssessment .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .letterAvatar,
+      #submitCredAssessment .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight img,
+      #submitCredAssessment .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight .letterAvatar,
+      #submitCredAssessment .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight img,
+      #submitCredAssessment .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .letterAvatar,
+      #submitCredAssessment .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight img,
+      #submitCredAssessment .messageModalMeta .messageModalMetaLine .messageModalMetaRight .letterAvatar,
+      #submitCredAssessment .messageModalMeta .messageModalMetaLine .messageModalMetaRight img,
       #evidencesList .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .letterAvatar,
       #evidencesList .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight img,
       #evidencesList .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight .letterAvatar,
@@ -1822,7 +1979,39 @@ input {
       #evidenceSummaryModal .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .letterAvatar,
       #evidenceSummaryModal .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight img,
       #evidenceSummaryModal .messageModalMeta .messageModalMetaLine .messageModalMetaRight .letterAvatar,
-      #evidenceSummaryModal .messageModalMeta .messageModalMetaLine .messageModalMetaRight img {
+      #evidenceSummaryModal .messageModalMeta .messageModalMetaLine .messageModalMetaRight img,
+      #editRelationModal .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .letterAvatar,
+      #editRelationModal .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight img,
+      #editRelationModal .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight .letterAvatar,
+      #editRelationModal .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight img,
+      #editRelationModal .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight .letterAvatar,
+      #editRelationModal .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight img,
+      #editRelationModal .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight .letterAvatar,
+      #editRelationModal .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight img,
+      #editRelationModal .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .letterAvatar,
+      #editRelationModal .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight img,
+      #editRelationModal .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight .letterAvatar,
+      #editRelationModal .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight img,
+      #editRelationModal .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .letterAvatar,
+      #editRelationModal .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight img,
+      #editRelationModal .messageModalMeta .messageModalMetaLine .messageModalMetaRight .letterAvatar,
+      #editRelationModal .messageModalMeta .messageModalMetaLine .messageModalMetaRight img,
+      #submitCompAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .letterAvatar,
+      #submitCompAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight img,
+      #submitCompAssessment .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight .letterAvatar,
+      #submitCompAssessment .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight img,
+      #submitCompAssessment .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight .letterAvatar,
+      #submitCompAssessment .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight img,
+      #submitCompAssessment .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight .letterAvatar,
+      #submitCompAssessment .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight img,
+      #submitCompAssessment .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .letterAvatar,
+      #submitCompAssessment .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight img,
+      #submitCompAssessment .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight .letterAvatar,
+      #submitCompAssessment .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight img,
+      #submitCompAssessment .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .letterAvatar,
+      #submitCompAssessment .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight img,
+      #submitCompAssessment .messageModalMeta .messageModalMetaLine .messageModalMetaRight .letterAvatar,
+      #submitCompAssessment .messageModalMeta .messageModalMetaLine .messageModalMetaRight img {
         margin-right: 15px; }
       #whyAddEvidence .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight input[type="text"],
       #whyAddEvidence .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight input[type="text"],
@@ -1848,14 +2037,14 @@ input {
       #askAssessmentPeer .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight input[type="text"],
       #askAssessmentPeer .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight input[type="text"],
       #askAssessmentPeer .messageModalMeta .messageModalMetaLine .messageModalMetaRight input[type="text"],
-      #approveAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight input[type="text"],
-      #approveAssessment .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight input[type="text"],
-      #approveAssessment .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight input[type="text"],
-      #approveAssessment .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight input[type="text"],
-      #approveAssessment .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight input[type="text"],
-      #approveAssessment .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight input[type="text"],
-      #approveAssessment .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight input[type="text"],
-      #approveAssessment .messageModalMeta .messageModalMetaLine .messageModalMetaRight input[type="text"],
+      #submitCredAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight input[type="text"],
+      #submitCredAssessment .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight input[type="text"],
+      #submitCredAssessment .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight input[type="text"],
+      #submitCredAssessment .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight input[type="text"],
+      #submitCredAssessment .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight input[type="text"],
+      #submitCredAssessment .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight input[type="text"],
+      #submitCredAssessment .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight input[type="text"],
+      #submitCredAssessment .messageModalMeta .messageModalMetaLine .messageModalMetaRight input[type="text"],
       #evidencesList .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight input[type="text"],
       #evidencesList .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight input[type="text"],
       #evidencesList .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight input[type="text"],
@@ -1895,7 +2084,23 @@ input {
       #evidenceSummaryModal .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight input[type="text"],
       #evidenceSummaryModal .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight input[type="text"],
       #evidenceSummaryModal .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight input[type="text"],
-      #evidenceSummaryModal .messageModalMeta .messageModalMetaLine .messageModalMetaRight input[type="text"] {
+      #evidenceSummaryModal .messageModalMeta .messageModalMetaLine .messageModalMetaRight input[type="text"],
+      #editRelationModal .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight input[type="text"],
+      #editRelationModal .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight input[type="text"],
+      #editRelationModal .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight input[type="text"],
+      #editRelationModal .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight input[type="text"],
+      #editRelationModal .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight input[type="text"],
+      #editRelationModal .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight input[type="text"],
+      #editRelationModal .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight input[type="text"],
+      #editRelationModal .messageModalMeta .messageModalMetaLine .messageModalMetaRight input[type="text"],
+      #submitCompAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight input[type="text"],
+      #submitCompAssessment .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight input[type="text"],
+      #submitCompAssessment .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight input[type="text"],
+      #submitCompAssessment .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight input[type="text"],
+      #submitCompAssessment .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight input[type="text"],
+      #submitCompAssessment .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight input[type="text"],
+      #submitCompAssessment .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight input[type="text"],
+      #submitCompAssessment .messageModalMeta .messageModalMetaLine .messageModalMetaRight input[type="text"] {
         width: 100%;
         height: 30px;
         line-height: 20px;
@@ -1929,14 +2134,14 @@ input {
       #askAssessmentPeer .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop,
       #askAssessmentPeer .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop,
       #askAssessmentPeer .messageModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop,
-      #approveAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop,
-      #approveAssessment .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop,
-      #approveAssessment .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop,
-      #approveAssessment .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop,
-      #approveAssessment .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop,
-      #approveAssessment .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop,
-      #approveAssessment .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop,
-      #approveAssessment .messageModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop,
+      #submitCredAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop,
+      #submitCredAssessment .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop,
+      #submitCredAssessment .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop,
+      #submitCredAssessment .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop,
+      #submitCredAssessment .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop,
+      #submitCredAssessment .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop,
+      #submitCredAssessment .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop,
+      #submitCredAssessment .messageModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop,
       #evidencesList .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop,
       #evidencesList .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop,
       #evidencesList .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop,
@@ -1976,7 +2181,23 @@ input {
       #evidenceSummaryModal .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop,
       #evidenceSummaryModal .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop,
       #evidenceSummaryModal .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop,
-      #evidenceSummaryModal .messageModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop {
+      #evidenceSummaryModal .messageModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop,
+      #editRelationModal .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop,
+      #editRelationModal .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop,
+      #editRelationModal .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop,
+      #editRelationModal .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop,
+      #editRelationModal .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop,
+      #editRelationModal .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop,
+      #editRelationModal .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop,
+      #editRelationModal .messageModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop,
+      #submitCompAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop,
+      #submitCompAssessment .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop,
+      #submitCompAssessment .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop,
+      #submitCompAssessment .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop,
+      #submitCompAssessment .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop,
+      #submitCompAssessment .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop,
+      #submitCompAssessment .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop,
+      #submitCompAssessment .messageModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop {
         top: 30px; }
         #whyAddEvidence .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a,
         #whyAddEvidence .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a,
@@ -2002,14 +2223,14 @@ input {
         #askAssessmentPeer .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a,
         #askAssessmentPeer .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a,
         #askAssessmentPeer .messageModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a,
-        #approveAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a,
-        #approveAssessment .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a,
-        #approveAssessment .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a,
-        #approveAssessment .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a,
-        #approveAssessment .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a,
-        #approveAssessment .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a,
-        #approveAssessment .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a,
-        #approveAssessment .messageModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a,
+        #submitCredAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a,
+        #submitCredAssessment .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a,
+        #submitCredAssessment .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a,
+        #submitCredAssessment .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a,
+        #submitCredAssessment .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a,
+        #submitCredAssessment .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a,
+        #submitCredAssessment .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a,
+        #submitCredAssessment .messageModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a,
         #evidencesList .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a,
         #evidencesList .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a,
         #evidencesList .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a,
@@ -2049,7 +2270,23 @@ input {
         #evidenceSummaryModal .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a,
         #evidenceSummaryModal .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a,
         #evidenceSummaryModal .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a,
-        #evidenceSummaryModal .messageModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a {
+        #evidenceSummaryModal .messageModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a,
+        #editRelationModal .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a,
+        #editRelationModal .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a,
+        #editRelationModal .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a,
+        #editRelationModal .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a,
+        #editRelationModal .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a,
+        #editRelationModal .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a,
+        #editRelationModal .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a,
+        #editRelationModal .messageModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a,
+        #submitCompAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a,
+        #submitCompAssessment .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a,
+        #submitCompAssessment .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a,
+        #submitCompAssessment .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a,
+        #submitCompAssessment .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a,
+        #submitCompAssessment .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a,
+        #submitCompAssessment .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a,
+        #submitCompAssessment .messageModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a {
           height: 52px; }
           #whyAddEvidence .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a img,
           #whyAddEvidence .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a .letterAvatar,
@@ -2099,22 +2336,22 @@ input {
           #askAssessmentPeer .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a .letterAvatar,
           #askAssessmentPeer .messageModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a img,
           #askAssessmentPeer .messageModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a .letterAvatar,
-          #approveAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a img,
-          #approveAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a .letterAvatar,
-          #approveAssessment .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a img,
-          #approveAssessment .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a .letterAvatar,
-          #approveAssessment .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a img,
-          #approveAssessment .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a .letterAvatar,
-          #approveAssessment .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a img,
-          #approveAssessment .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a .letterAvatar,
-          #approveAssessment .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a img,
-          #approveAssessment .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a .letterAvatar,
-          #approveAssessment .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a img,
-          #approveAssessment .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a .letterAvatar,
-          #approveAssessment .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a img,
-          #approveAssessment .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a .letterAvatar,
-          #approveAssessment .messageModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a img,
-          #approveAssessment .messageModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a .letterAvatar,
+          #submitCredAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a img,
+          #submitCredAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a .letterAvatar,
+          #submitCredAssessment .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a img,
+          #submitCredAssessment .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a .letterAvatar,
+          #submitCredAssessment .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a img,
+          #submitCredAssessment .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a .letterAvatar,
+          #submitCredAssessment .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a img,
+          #submitCredAssessment .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a .letterAvatar,
+          #submitCredAssessment .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a img,
+          #submitCredAssessment .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a .letterAvatar,
+          #submitCredAssessment .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a img,
+          #submitCredAssessment .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a .letterAvatar,
+          #submitCredAssessment .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a img,
+          #submitCredAssessment .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a .letterAvatar,
+          #submitCredAssessment .messageModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a img,
+          #submitCredAssessment .messageModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a .letterAvatar,
           #evidencesList .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a img,
           #evidencesList .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a .letterAvatar,
           #evidencesList .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a img,
@@ -2194,7 +2431,39 @@ input {
           #evidenceSummaryModal .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a img,
           #evidenceSummaryModal .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a .letterAvatar,
           #evidenceSummaryModal .messageModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a img,
-          #evidenceSummaryModal .messageModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a .letterAvatar {
+          #evidenceSummaryModal .messageModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a .letterAvatar,
+          #editRelationModal .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a img,
+          #editRelationModal .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a .letterAvatar,
+          #editRelationModal .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a img,
+          #editRelationModal .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a .letterAvatar,
+          #editRelationModal .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a img,
+          #editRelationModal .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a .letterAvatar,
+          #editRelationModal .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a img,
+          #editRelationModal .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a .letterAvatar,
+          #editRelationModal .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a img,
+          #editRelationModal .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a .letterAvatar,
+          #editRelationModal .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a img,
+          #editRelationModal .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a .letterAvatar,
+          #editRelationModal .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a img,
+          #editRelationModal .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a .letterAvatar,
+          #editRelationModal .messageModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a img,
+          #editRelationModal .messageModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a .letterAvatar,
+          #submitCompAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a img,
+          #submitCompAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a .letterAvatar,
+          #submitCompAssessment .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a img,
+          #submitCompAssessment .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a .letterAvatar,
+          #submitCompAssessment .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a img,
+          #submitCompAssessment .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a .letterAvatar,
+          #submitCompAssessment .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a img,
+          #submitCompAssessment .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a .letterAvatar,
+          #submitCompAssessment .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a img,
+          #submitCompAssessment .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a .letterAvatar,
+          #submitCompAssessment .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a img,
+          #submitCompAssessment .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a .letterAvatar,
+          #submitCompAssessment .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a img,
+          #submitCompAssessment .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a .letterAvatar,
+          #submitCompAssessment .messageModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a img,
+          #submitCompAssessment .messageModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a .letterAvatar {
             float: left;
             margin-right: 15px; }
           #whyAddEvidence .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a h3,
@@ -2221,14 +2490,14 @@ input {
           #askAssessmentPeer .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a h3,
           #askAssessmentPeer .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a h3,
           #askAssessmentPeer .messageModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a h3,
-          #approveAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a h3,
-          #approveAssessment .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a h3,
-          #approveAssessment .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a h3,
-          #approveAssessment .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a h3,
-          #approveAssessment .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a h3,
-          #approveAssessment .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a h3,
-          #approveAssessment .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a h3,
-          #approveAssessment .messageModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a h3,
+          #submitCredAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a h3,
+          #submitCredAssessment .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a h3,
+          #submitCredAssessment .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a h3,
+          #submitCredAssessment .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a h3,
+          #submitCredAssessment .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a h3,
+          #submitCredAssessment .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a h3,
+          #submitCredAssessment .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a h3,
+          #submitCredAssessment .messageModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a h3,
           #evidencesList .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a h3,
           #evidencesList .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a h3,
           #evidencesList .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a h3,
@@ -2268,7 +2537,23 @@ input {
           #evidenceSummaryModal .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a h3,
           #evidenceSummaryModal .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a h3,
           #evidenceSummaryModal .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a h3,
-          #evidenceSummaryModal .messageModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a h3 {
+          #evidenceSummaryModal .messageModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a h3,
+          #editRelationModal .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a h3,
+          #editRelationModal .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a h3,
+          #editRelationModal .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a h3,
+          #editRelationModal .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a h3,
+          #editRelationModal .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a h3,
+          #editRelationModal .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a h3,
+          #editRelationModal .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a h3,
+          #editRelationModal .messageModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a h3,
+          #submitCompAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a h3,
+          #submitCompAssessment .assessmentModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a h3,
+          #submitCompAssessment .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a h3,
+          #submitCompAssessment .assessmentModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a h3,
+          #submitCompAssessment .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a h3,
+          #submitCompAssessment .messageModalMeta .assessmentModalMetaLine .messageModalMetaRight .searchResultsDrop li a h3,
+          #submitCompAssessment .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .searchResultsDrop li a h3,
+          #submitCompAssessment .messageModalMeta .messageModalMetaLine .messageModalMetaRight .searchResultsDrop li a h3 {
             margin: 7px 0 0 0; }
     #whyAddEvidence .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .removeX,
     #whyAddEvidence .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight .removeX,
@@ -2282,10 +2567,10 @@ input {
     #askAssessmentPeer .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight .removeX,
     #askAssessmentPeer .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .removeX,
     #askAssessmentPeer .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .removeX,
-    #approveAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .removeX,
-    #approveAssessment .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight .removeX,
-    #approveAssessment .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .removeX,
-    #approveAssessment .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .removeX,
+    #submitCredAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .removeX,
+    #submitCredAssessment .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight .removeX,
+    #submitCredAssessment .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .removeX,
+    #submitCredAssessment .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .removeX,
     #evidencesList .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .removeX,
     #evidencesList .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight .removeX,
     #evidencesList .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .removeX,
@@ -2305,19 +2590,29 @@ input {
     #evidenceSummaryModal .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .removeX,
     #evidenceSummaryModal .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight .removeX,
     #evidenceSummaryModal .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .removeX,
-    #evidenceSummaryModal .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .removeX {
+    #evidenceSummaryModal .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .removeX,
+    #editRelationModal .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .removeX,
+    #editRelationModal .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight .removeX,
+    #editRelationModal .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .removeX,
+    #editRelationModal .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .removeX,
+    #submitCompAssessment .assessmentModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .removeX,
+    #submitCompAssessment .assessmentModalMeta .messageModalMetaLine .assessmentModalMetaRight .removeX,
+    #submitCompAssessment .messageModalMeta .assessmentModalMetaLine .assessmentModalMetaRight .removeX,
+    #submitCompAssessment .messageModalMeta .messageModalMetaLine .assessmentModalMetaRight .removeX {
       position: absolute;
       right: 0; }
 
 #whyAddEvidence .modal-body input[type="text"],
 #askAssessment .modal-body input[type="text"],
 #askAssessmentPeer .modal-body input[type="text"],
-#approveAssessment .modal-body input[type="text"],
+#submitCredAssessment .modal-body input[type="text"],
 #evidencesList .modal-body input[type="text"],
 #assessmentsList .modal-body input[type="text"],
 #message .modal-body input[type="text"],
 #newAnnouncementModal .modal-body input[type="text"],
-#evidenceSummaryModal .modal-body input[type="text"] {
+#evidenceSummaryModal .modal-body input[type="text"],
+#editRelationModal .modal-body input[type="text"],
+#submitCompAssessment .modal-body input[type="text"] {
   width: 100%;
   margin-top: 20px;
   padding: 0;
@@ -2329,12 +2624,14 @@ input {
 #whyAddEvidence .modal-body textarea,
 #askAssessment .modal-body textarea,
 #askAssessmentPeer .modal-body textarea,
-#approveAssessment .modal-body textarea,
+#submitCredAssessment .modal-body textarea,
 #evidencesList .modal-body textarea,
 #assessmentsList .modal-body textarea,
 #message .modal-body textarea,
 #newAnnouncementModal .modal-body textarea,
-#evidenceSummaryModal .modal-body textarea {
+#evidenceSummaryModal .modal-body textarea,
+#editRelationModal .modal-body textarea,
+#submitCompAssessment .modal-body textarea {
   width: 100%;
   height: 100px;
   margin-top: 20px;
@@ -2345,35 +2642,40 @@ input {
   box-shadow: none; }
 
 #askAssessment .assessmentModalMetaRight,
-#approveAssessment .assessmentModalMetaRight,
+#submitCredAssessment .assessmentModalMetaRight,
 #evidencesList .assessmentModalMetaRight,
-#assessmentsList .assessmentModalMetaRight {
+#assessmentsList .assessmentModalMetaRight,
+#submitCompAssessment .assessmentModalMetaRight {
   position: absolute; }
   #askAssessment .assessmentModalMetaRight .btn,
-  #approveAssessment .assessmentModalMetaRight .btn,
+  #submitCredAssessment .assessmentModalMetaRight .btn,
   #evidencesList .assessmentModalMetaRight .btn,
-  #assessmentsList .assessmentModalMetaRight .btn {
+  #assessmentsList .assessmentModalMetaRight .btn,
+  #submitCompAssessment .assessmentModalMetaRight .btn {
     position: absolute;
     right: 0;
     top: 0; }
 
 #askAssessment .assessmentModalMetaRight .removeX,
-#approveAssessment .assessmentModalMetaRight .removeX,
+#submitCredAssessment .assessmentModalMetaRight .removeX,
 #evidencesList .assessmentModalMetaRight .removeX,
-#assessmentsList .assessmentModalMetaRight .removeX {
+#assessmentsList .assessmentModalMetaRight .removeX,
+#submitCompAssessment .assessmentModalMetaRight .removeX {
   position: absolute;
   right: 0; }
 
 #askAssessment .alert,
-#approveAssessment .alert,
+#submitCredAssessment .alert,
 #evidencesList .alert,
-#assessmentsList .alert {
+#assessmentsList .alert,
+#submitCompAssessment .alert {
   margin: 10px 30px; }
 
 #askAssessment .resultLine,
-#approveAssessment .resultLine,
+#submitCredAssessment .resultLine,
 #evidencesList .resultLine,
-#assessmentsList .resultLine {
+#assessmentsList .resultLine,
+#submitCompAssessment .resultLine {
   padding-bottom: 20px; }
 
 #newAnnouncementModal .modal-body textarea {
@@ -2385,7 +2687,14 @@ input {
     display: inline;
     margin-left: 10px; }
 
-#evidenceSummaryModal .modal-body textarea {
+#profileSettings .customURL a {
+  margin-left: 20px; }
+
+#profileSettings .customURL input {
+  width: 270px; }
+
+#evidenceSummaryModal .modal-body textarea,
+#editRelationModal .modal-body textarea {
   margin-top: 0; }
 
 #uploadFile .modal-body, #addURL .modal-body, #addSubtitles .modal-body {
@@ -2450,6 +2759,9 @@ input {
   .alert-dismissible .close:hover {
     opacity: .5; }
 
+.ui-growl {
+  z-index: 1060 !important; }
+
 .ui-growl-item-container {
   border: 1px solid #E6E7EC;
   background: #fff;
@@ -2512,6 +2824,16 @@ input[type="number"],
 input[type="password"] {
   line-height: 30px;
   padding: 5px 10px; }
+  input[type="text"].width50,
+  input[type="email"].width50,
+  input[type="number"].width50,
+  input[type="password"].width50 {
+    width: 50px !important; }
+  input[type="text"].width100,
+  input[type="email"].width100,
+  input[type="number"].width100,
+  input[type="password"].width100 {
+    width: 100px !important; }
 
 .searchField {
   background: #fff;
@@ -4445,6 +4767,9 @@ header {
   margin-bottom: 20px;
   float: left; }
 
+.assessmentItem h3 span {
+  color: #859095; }
+
 .assessmentItem .user32 {
   margin-bottom: 20px;
   float: left; }
@@ -4986,6 +5311,7 @@ header {
   display: flex;
   flex-direction: column;
   height: 160px;
+  margin-bottom: 30px;
   border: 1px dashed #D5D8DA;
   -webkit-border-radius: 5px;
   -moz-border-radius: 5px;
@@ -5344,6 +5670,8 @@ header {
           margin: 0; }
           .peopleList > li .peopleListRight .assignedTo p span {
             font-size: 12px; }
+        .peopleList > li .peopleListRight .assignedTo .optMoreMenu {
+          margin-left: 30px; }
       .peopleList > li .peopleListRight .studentFollowOpt {
         width: 50%; }
         .peopleList > li .peopleListRight .studentFollowOpt > .btn {
@@ -6400,6 +6728,9 @@ header {
 
 .discussion .commentForm {
   min-height: 50px; }
+  .discussion .commentForm textarea {
+    width: 100%;
+    height: 44px; }
 
 .discussion .editComment {
   padding-bottom: 20px; }

@@ -9,14 +9,15 @@ import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.event.Event;
 import org.prosolo.services.assessment.AssessmentManager;
-import org.prosolo.services.event.Event;
 import org.prosolo.services.indexing.CompetenceESService;
 import org.prosolo.services.indexing.CredentialESService;
 import org.prosolo.services.indexing.UserEntityESService;
 import org.prosolo.services.nodes.CredentialManager;
 
 import java.util.Map;
+import java.util.Optional;
 
 public class UserNodeChangeProcessor implements NodeChangeProcessor {
 
@@ -33,7 +34,7 @@ public class UserNodeChangeProcessor implements NodeChangeProcessor {
 	private AssessmentManager assessmentManager;
 	
 	public UserNodeChangeProcessor(Event event, Session session, UserEntityESService userEntityESService,
-			CredentialESService credESService, CompetenceESService compESService, CredentialManager credManager, AssessmentManager assessmentManager, EventUserRole userRole) {
+								   CredentialESService credESService, CompetenceESService compESService, CredentialManager credManager, AssessmentManager assessmentManager, EventUserRole userRole) {
 		this.event = event;
 		this.session = session;
 		this.userEntityESService = userEntityESService;
@@ -82,8 +83,12 @@ public class UserNodeChangeProcessor implements NodeChangeProcessor {
 			Long instId = credManager.getInstructorUserId(userId, credId, session);
 			long instructorId = instId != null ? instId.longValue() : 0;
 
-			userEntityESService.assignInstructorToUserInCredential(event.getOrganizationId(), userId,
-					credId, instructorId);
+			userEntityESService.assignInstructorToUserInCredential(
+					event.getOrganizationId(),
+					userId,
+					credId,
+					instructorId,
+					instructorId > 0 ? assessmentManager.getActiveInstructorCredentialAssessment(credId, userId, session) : Optional.empty());
 		} else if(eventType == EventType.INSTRUCTOR_ASSIGNED_TO_CREDENTIAL || eventType == EventType.INSTRUCTOR_REMOVED_FROM_CREDENTIAL) {
 			userEntityESService.updateCredentialsWithInstructorRole(event.getOrganizationId(), event.getObject().getId());
 			credESService.updateInstructors(event.getOrganizationId(), event.getTarget().getId(), session);

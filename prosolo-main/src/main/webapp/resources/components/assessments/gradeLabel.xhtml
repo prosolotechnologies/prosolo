@@ -12,7 +12,7 @@
 		<composite:attribute name="currentUserAssessor" required="true" type="java.lang.Boolean" />
 		<composite:attribute name="currentUserAssessedStudent" required="true" type="java.lang.Boolean" />
 		<composite:attribute name="userAllowedToSeeRubric" required="true" type="java.lang.Boolean" />
-		<composite:attribute name="fullDisplayMode" default="true" type="java.lang.Boolean" />
+		<composite:attribute name="readOnly" required="true" type="java.lang.Boolean" />
 		<composite:attribute name="gradeLinkSelectorId" default=""/>
 		<composite:attribute name="toUpdateGradePanel" default="" />
 		<composite:attribute name="gradePanelSidebarId" default="" />
@@ -25,8 +25,8 @@
 	</composite:interface>
 
 	<composite:implementation>
-		<c:if test="#{(not cc.attrs.currentUserAssessor and cc.attrs.currentUserAssessedStudent) or not cc.attrs.fullDisplayMode}">
-			<p:commandLink rendered="#{cc.attrs.gradeData.gradingMode eq 'MANUAL_RUBRIC' and cc.attrs.userAllowedToSeeRubric}"
+		<ui:fragment rendered="#{(not cc.attrs.currentUserAssessor and cc.attrs.currentUserAssessedStudent) or cc.attrs.readOnly}">
+            <p:commandLink rendered="#{cc.attrs.gradeData.gradingMode eq 'MANUAL_RUBRIC' and cc.attrs.userAllowedToSeeRubric and not cc.attrs.readOnly}"
 						   styleClass="grade #{styleUtilBean.getGradeStarClass(cc.attrs.gradeData.assessmentStarData)}"
 						   action="#{cc.attrs.assessmentBean.prepareLearningResourceAssessmentForGrading(cc.attrs.assessment)}"
 						   update="#{cc.attrs.toUpdateRubricPanelForStudent} #{cc.attrs.growlToUpdate}"
@@ -42,7 +42,7 @@
 					Rubric
 				</ui:fragment>
 			</p:commandLink>
-			<ui:fragment rendered="#{cc.attrs.gradeData.gradingMode ne 'NONGRADED' and (cc.attrs.gradeData.gradingMode ne 'MANUAL_RUBRIC' or not cc.attrs.userAllowedToSeeRubric)}">
+			<ui:fragment rendered="#{cc.attrs.gradeData.gradingMode ne 'NONGRADED' and (cc.attrs.gradeData.gradingMode ne 'MANUAL_RUBRIC' or not cc.attrs.userAllowedToSeeRubric or cc.attrs.readOnly)}">
 				<a href="javascript:void(0);" class="grade #{styleUtilBean.getGradeStarClass(cc.attrs.gradeData.assessmentStarData)}"
 				   data-html="true"
 				   data-toggle="tooltip"
@@ -63,9 +63,9 @@
 					&#160;
 				</a>
 			</ui:fragment>
-		</c:if>
-		<c:if test="#{cc.attrs.fullDisplayMode and (cc.attrs.currentUserAssessor or not cc.attrs.currentUserAssessedStudent)}">
-            <ui:fragment rendered="#{cc.attrs.currentUserAssessor}">
+		</ui:fragment>
+		<ui:fragment rendered="#{not cc.attrs.readOnly and (cc.attrs.currentUserAssessor or not cc.attrs.currentUserAssessedStudent)}">
+			<ui:fragment rendered="#{cc.attrs.currentUserAssessor}">
 				<ui:fragment rendered="#{cc.attrs.gradeData.gradingMode ne 'NONGRADED'}">
 					<p:commandLink rendered="#{not cc.attrs.approved}"
 								   styleClass="grade gradeModalLink_#{cc.attrs.gradeLinkSelectorId} #{styleUtilBean.getGradeStarClass(cc.attrs.gradeData.assessmentStarData)}"
@@ -122,7 +122,7 @@
 					</ui:fragment>
 				</a>
 			</ui:fragment>
-		</c:if>
+        </ui:fragment>
 		<script>
             $('.grade[data-toggle="tooltip"]').tooltip();
 		</script>

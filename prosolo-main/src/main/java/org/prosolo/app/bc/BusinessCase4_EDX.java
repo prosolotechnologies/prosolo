@@ -6,14 +6,15 @@ import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.comment.Comment1;
-import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
+import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.organization.Unit;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
+import org.prosolo.common.event.EventQueue;
 import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.util.date.DateUtil;
@@ -22,19 +23,18 @@ import org.prosolo.services.admin.BulkDataAdministrationService;
 import org.prosolo.services.assessment.data.AssessmentTypeConfig;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventFactory;
-import org.prosolo.services.event.EventQueue;
 import org.prosolo.services.indexing.impl.NodeChangeObserver;
 import org.prosolo.services.interaction.CommentManager;
 import org.prosolo.services.interaction.FollowResourceManager;
 import org.prosolo.services.interaction.data.CommentData;
 import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.config.competence.CompetenceLoadConfig;
-import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.data.ActivityResultType;
+import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.credential.CredentialData;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceData;
-import org.prosolo.services.nodes.data.organization.OrganizationData;
+import org.prosolo.services.nodes.data.organization.OrganizationBasicData;
 import org.prosolo.services.user.UserManager;
 import org.prosolo.services.user.data.UserData;
 import org.prosolo.services.util.roles.SystemRoleNames;
@@ -59,12 +59,13 @@ import java.util.*;
  * @since 0.5
  */
 @Service
-public class BusinessCase4_EDX {
+public class BusinessCase4_EDX implements BusinessCase {
 
     private static Logger logger = Logger.getLogger(BusinessCase4_EDX.class.getName());
 
 	private SimpleDateFormat dateFormatter = new SimpleDateFormat("dd.MM.yyyy. HH:mm");
 
+	@Override
 	public void initRepository() {
         logger.info("BusinessCaseTest - initRepository() with BC 4");
 
@@ -91,7 +92,7 @@ public class BusinessCase4_EDX {
 				userNickPowell, null, null, params));
 
 		//create organization
-		OrganizationData orgData = new OrganizationData();
+		OrganizationBasicData orgData = new OrganizationBasicData();
 		orgData.setTitle("Desert Winds University");
 		orgData.setAdmins(Arrays.asList(new UserData(userNickPowell)));
 
@@ -688,7 +689,7 @@ public class BusinessCase4_EDX {
 			// Lori starts the first competency
 			List<CompetenceData1> cred1CompetenciesLoriAbner = ServiceLocator.getInstance().getService(Competence1Manager.class).getCompetencesForCredential(cred1Delivery.getId(), userLoriAbner.getId(), new CompetenceLoadConfig.CompetenceLoadConfigBuilder().create());
 
-			TargetCompetence1 cred1Comp1TargetLoriAbner = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(cred1CompetenciesLoriAbner.get(0).getCompetenceId(), userLoriAbner.getId(), createUserContext(userLoriAbner)));
+			TargetCompetence1 cred1Comp1TargetLoriAbner = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(cred1Delivery.getId(), cred1CompetenciesLoriAbner.get(0).getCompetenceId(), userLoriAbner.getId(), createUserContext(userLoriAbner)));
 
 			// enroll other students
 			extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CredentialManager.class).enrollInCredentialAndGetEvents(cred1Delivery.getId(), userGeorgeYoung.getId(), 0, createUserContext(userGeorgeYoung)));
@@ -718,8 +719,8 @@ public class BusinessCase4_EDX {
 			// Richard starts both competencies
 			List<CompetenceData1> cred4CompetenciesRichardAnderson = ServiceLocator.getInstance().getService(Competence1Manager.class).getCompetencesForCredential(cred4Delivery.getId(), userRichardAnderson.getId(), new CompetenceLoadConfig.CompetenceLoadConfigBuilder().create());
 
-			TargetCompetence1 cred4Comp1TargetRichardAnderson = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(cred4CompetenciesRichardAnderson.get(0).getCompetenceId(), userRichardAnderson.getId(), createUserContext(userRichardAnderson)));
-			TargetCompetence1 cred4Comp2TargetRichardAnderson = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(cred4CompetenciesRichardAnderson.get(1).getCompetenceId(), userRichardAnderson.getId(), createUserContext(userRichardAnderson)));
+			TargetCompetence1 cred4Comp1TargetRichardAnderson = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(cred4Delivery.getId(), cred4CompetenciesRichardAnderson.get(0).getCompetenceId(), userRichardAnderson.getId(), createUserContext(userRichardAnderson)));
+			TargetCompetence1 cred4Comp2TargetRichardAnderson = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(cred4Delivery.getId(), cred4CompetenciesRichardAnderson.get(1).getCompetenceId(), userRichardAnderson.getId(), createUserContext(userRichardAnderson)));
 
 			// Richard completes first competency
 			// create a piece of evidence and add to
@@ -758,8 +759,8 @@ public class BusinessCase4_EDX {
             // Lori starts both competencies
             List<CompetenceData1> cred4CompetenciesLoriAbner = ServiceLocator.getInstance().getService(Competence1Manager.class).getCompetencesForCredential(cred4Delivery.getId(), userLoriAbner.getId(), new CompetenceLoadConfig.CompetenceLoadConfigBuilder().create());
 
-            TargetCompetence1 cred4Comp1Target = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(cred4CompetenciesLoriAbner.get(0).getCompetenceId(), userLoriAbner.getId(), createUserContext(userLoriAbner)));
-            TargetCompetence1 cred4Comp2Target = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(cred4CompetenciesLoriAbner.get(1).getCompetenceId(), userLoriAbner.getId(), createUserContext(userLoriAbner)));
+            TargetCompetence1 cred4Comp1Target = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(cred4Delivery.getId(), cred4CompetenciesLoriAbner.get(0).getCompetenceId(), userLoriAbner.getId(), createUserContext(userLoriAbner)));
+            TargetCompetence1 cred4Comp2Target = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(cred4Delivery.getId(), cred4CompetenciesLoriAbner.get(1).getCompetenceId(), userLoriAbner.getId(), createUserContext(userLoriAbner)));
 
             // give learn privilege to Akiko Kido
             givePrivilegeToUsersOnDelivery(events, cred4Delivery, UserGroupPrivilege.Learn, userNickPowell, org, Arrays.asList(userAkikoKido));
@@ -803,7 +804,7 @@ public class BusinessCase4_EDX {
 		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(FollowResourceManager.class).followUserAndGetEvents(userSheriLaureano.getId(),  createUserContext(userJosephGarcia)));
 		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(FollowResourceManager.class).followUserAndGetEvents(userKevinHall.getId(),  createUserContext(userAngelicaFallon)));
 
-		ServiceLocator.getInstance().getService(EventFactory.class).generateEvents(events, new Class[]{NodeChangeObserver.class});
+		ServiceLocator.getInstance().getService(EventFactory.class).generateAndPublishEvents(events, new Class[]{NodeChangeObserver.class});
 
 		try {
 			logger.info("Reindexing all indices since we know some observers have failed");
@@ -985,7 +986,7 @@ public class BusinessCase4_EDX {
 		AssessmentTypeConfig instructorAssessment = new AssessmentTypeConfig(-1, AssessmentType.INSTRUCTOR_ASSESSMENT, true, true);
 		AssessmentTypeConfig peerAssessment = new AssessmentTypeConfig(-1, AssessmentType.PEER_ASSESSMENT, true, false);
 		AssessmentTypeConfig selfAssessment = new AssessmentTypeConfig(-1, AssessmentType.SELF_ASSESSMENT, true, false);
-		compData.setAssessmentTypes(Arrays.asList(instructorAssessment, peerAssessment, selfAssessment));
+		compData.setAssessmentTypes(Arrays.asList(selfAssessment, peerAssessment, instructorAssessment));
 
 		Competence1 comp;
 		try {

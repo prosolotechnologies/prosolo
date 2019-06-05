@@ -3,14 +3,11 @@
  */
 package org.prosolo.services.upload.impl;
 
-import java.io.File;
 import java.io.IOException;
 
-import org.apache.commons.io.FileUtils;
 import org.primefaces.model.UploadedFile;
-import org.prosolo.app.Settings;
 import org.prosolo.common.domainmodel.content.ContentType1;
-import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview1;
+import org.prosolo.services.nodes.data.statusWall.AttachmentPreview;
 import org.prosolo.services.upload.AmazonS3UploadManager;
 import org.prosolo.services.upload.ImageUtil;
 import org.prosolo.services.upload.UploadManager;
@@ -30,9 +27,9 @@ public class UploadManagerImpl implements UploadManager {
 	@Autowired private AmazonS3UploadManager s3Manager;
 	
 	@Override
-	public AttachmentPreview1 uploadFile(String fileName, UploadedFile uploadedFile) 
+	public AttachmentPreview uploadFile(String fileName, UploadedFile uploadedFile)
 			throws IOException {
-		AttachmentPreview1 attachmentPreview = new AttachmentPreview1();
+		AttachmentPreview attachmentPreview = new AttachmentPreview();
 		attachmentPreview.setInitialized(true);
 		String fullPath = storeFile(uploadedFile, fileName);
 

@@ -1,13 +1,12 @@
 package org.prosolo.web.assessments;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.prosolo.services.assessment.AssessmentManager;
+import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
-import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageUtil;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
-import javax.faces.bean.ManagedBean;
 import javax.inject.Inject;
 import java.io.Serializable;
 import java.util.Optional;
@@ -18,19 +17,21 @@ public abstract class CompetenceSelfAssessmentBean implements Serializable {
 
 	@Inject private UrlIdEncoder idEncoder;
 	@Inject private AssessmentManager assessmentManager;
+	@Inject private Competence1Manager compManager;
 
 	// PARAMETERS
-	private String id;
-	private long decodedId;
-	private String credId;
+	@Getter @Setter private String id;
+	@Getter @Setter	private String credId;
+	private long decodedCompId;
 
 	public void initSelfAssessment() {
-		decodedId = idEncoder.decodeId(id);
+		decodedCompId = idEncoder.decodeId(id);
+		long decodedCredId = idEncoder.decodeId(credId);
 
-		if (decodedId > 0) {
-			Optional<Long> optAssessmentId = assessmentManager.getSelfCompetenceAssessmentId(decodedId, getStudentId());
+		if (decodedCompId > 0 && decodedCredId > 0) {
+			Optional<Long> optAssessmentId = assessmentManager.getSelfCompetenceAssessmentId(decodedCredId, decodedCompId, getStudentId());
 			if (optAssessmentId.isPresent()) {
-				getCompetenceAssessmentBean().initSelfAssessment(id, idEncoder.encodeId(optAssessmentId.get()), credId);
+				getCompetenceAssessmentBean().initSelfAssessment(id, idEncoder.encodeId(optAssessmentId.get()), this.credId);
 			} else {
 				PageUtil.notFound();
 			}
@@ -41,22 +42,6 @@ public abstract class CompetenceSelfAssessmentBean implements Serializable {
 
 	protected abstract long getStudentId();
 	protected abstract CompetenceAssessmentBean getCompetenceAssessmentBean();
-
-	public String getId() {
-		return id;
-	}
-
-	public void setId(String id) {
-		this.id = id;
-	}
-
-	public String getCredId() {
-		return credId;
-	}
-
-	public void setCredId(String credId) {
-		this.credId = credId;
-	}
 
 	protected UrlIdEncoder getIdEncoder() {
 		return idEncoder;

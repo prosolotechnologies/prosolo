@@ -61,7 +61,7 @@ public class LogsFilterBean implements Serializable {
         }
 
         userSearchResults.clear();
-        PaginatedResult<UserData> usersResponse = userTextSearch.searchUsers(0, searchText, 0, 4, false, totalListToExclude);
+        PaginatedResult<UserData> usersResponse = userTextSearch.searchUsers(0, searchText, 0, 4, false, null, totalListToExclude);
 
         userSearchResults = usersResponse.getFoundNodes();
     }

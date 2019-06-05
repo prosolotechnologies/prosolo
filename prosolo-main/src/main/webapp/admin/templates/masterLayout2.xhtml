@@ -18,7 +18,9 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1"></meta>
 		<link rel="icon" href="#{request.contextPath}/favicon.ico"
 			  type="image/x-icon" />
-		<title><ui:insert name="windowTitle" /></title>
+		<h:panelGroup id="panelWindowTitle">
+			<title><ui:insert name="windowTitle" /></title>
+		</h:panelGroup>
 	</f:facet>
 
 	<link rel="stylesheet" type="text/css" media="all"
@@ -59,117 +61,126 @@
 						<ui:param name="section" value="ADMIN" />
 					</ui:include>
 
-					<ui:fragment rendered="#{request.isUserInRole('ADMIN.ADVANCED')}">
-					<nav>
-						<ul class="nav nav-pills">
-							<ui:remove>
-								<li role="presentation"
-									class="#{util:getPagePath(view.viewId)  == 'dashboard' ? 'active' : ''}">
-									<h:link
-											onclick="sendLogPageNavigation('dashboard','mainmenu');"
-											value="Dashboard" outcome="/admin/dashboard" />
-								</li>
-							</ui:remove>
-							<li role="presentation"
-								class="#{util:getPagePath(view.viewId) == 'organizations'
-									or util:getPagePath(view.viewId) == 'organization-settings'
-									or util:getPagePath(view.viewId) == 'organizationUsers'
-									or util:getPagePath(view.viewId) == 'organizationUserEdit'
-									or util:getPagePath(view.viewId) == 'userEditPassword'
-									or util:getPagePath(view.viewId) == 'units'
-									or util:getPagePath(view.viewId) == 'unit-credentials'
-									or util:getPagePath(view.viewId) == 'unit-teachers'
-									or util:getPagePath(view.viewId) == 'unit-students'
-									or util:getPagePath(view.viewId) == 'unit-instructors'
-									or util:getPagePath(view.viewId) == 'unit-group-users'
-									or util:getPagePath(view.viewId) == 'unit-groups'
-									or util:getPagePath(view.viewId) == 'unit-settings'
-									or util:getPagePath(view.viewId) == 'credential'
-									or util:getPagePath(view.viewId) == 'competence'
-									or util:getPagePath(view.viewId) == 'activity'
-									or util:getPagePath(view.viewId) == 'credential-who-can-learn'
-									? 'active' : ''}">
-								<h:link onclick="sendLogPageNavigation('organizations','mainmenu');"
-										value="Organizations" outcome="/admin/organizations" />
-							</li>
-							<li role="presentation"
-								class="#{util:getPagePath(view.viewId)  == 'admins'  ? 'active' : ''}
-								#{util:getPagePath(view.viewId)  == 'adminNew'  ? 'active' : ''}
-								#{util:getPagePath(view.viewId)  == 'adminEditPassword'  ? 'active' : ''}">
-								<h:link onclick="sendLogPageNavigation('admins','mainmenu');"
-										value="Admins" outcome="/admin/admins" />
-							</li>
-							<li role="presentation"
-								class="#{util:getPagePath(view.viewId)  == 'roles' ? 'active' : ''}">
-								<h:link onclick="sendLogPageNavigation('roles','mainmenu');"
-										value="Roles" outcome="/admin/roles" />
-							</li>
-							<ui:remove>
-								<li role="presentation"
-									class="#{util:getPagePath(view.viewId)  == 'twitter' ? 'active' : ''}">
-									<h:link onclick="sendLogPageNavigation('twitter','mainmenu');	"
-											value="Twitter" outcome="/admin/users" />
-								</li>
-							</ui:remove>
-							<li role="presentation"
-								class="#{util:getPagePath(view.viewId)  == 'other' ? 'active' : ''}">
-								<h:link onclick="sendLogPageNavigation('other','mainmenu');"
-										value="Other" outcome="/admin/other" />
-							</li>
-						</ul>
-					</nav>
-					</ui:fragment>
-
-					<ui:fragment rendered="#{!request.isUserInRole('ADMIN.ADVANCED')}">
+					<ui:fragment rendered="#{request.isUserInRole('ADMIN.ADVANCED') or request.isUserInRole('BASIC.ADMIN.ACCESS') or request.isUserInRole('TESTDATA.SWITCH')}">
 						<nav>
 							<ul class="nav nav-pills">
-								<li role="presentation" class="#{util:getPagePath(view.viewId) eq 'units'
-									or util:getPagePath(view.viewId) == 'unit-settings'
-									or util:getPagePath(view.viewId) == 'unit-students'
-									or util:getPagePath(view.viewId) == 'unit-instructors'
-									or util:getPagePath(view.viewId) == 'unit-group-users'
-									or util:getPagePath(view.viewId) == 'unit-groups'
-									or util:getPagePath(view.viewId) == 'unit-teachers'
-									or util:getPagePath(view.viewId) == 'unit-credentials'
-									or util:getPagePath(view.viewId) == 'credential'
-									or util:getPagePath(view.viewId) == 'competence'
-									or util:getPagePath(view.viewId) == 'activity'
-									or util:getPagePath(view.viewId) == 'credential-who-can-learn'
-									? 'active' : ''}">
-									<h:link rendered="#{util:getPagePath(view.viewId) ne 'units'}" outcome="/admin/units">
-										<f:param name="id" value="#{util:encodeId(loggeduser.organizationId)}" />
-										#{msg['label.unit.plural']}
-									</h:link>
-									<ui:fragment rendered="#{util:getPagePath(view.viewId) eq 'units'}">
-										<a href="javascript:void(0);">#{msg['label.unit.plural']}</a>
-									</ui:fragment>
-								</li>
-								<li role="presentation" class="#{util:getPagePath(view.viewId) eq 'organizationUsers'
-									or util:getPagePath(view.viewId) eq 'userEditPassword'
-									or util:getPagePath(view.viewId) eq 'organizationUserEdit' ? 'active' : ''}">
-									<h:link rendered="#{not (util:getPagePath(view.viewId) eq 'organizationUsers')}"
-											outcome="/admin/organizationUsers">
-										<f:param name="orgId" value="#{util:encodeId(loggeduser.organizationId)}" />
-										People
-									</h:link>
-									<ui:fragment rendered="#{util:getPagePath(view.viewId) eq 'organizationUsers'}">
-										<a href="javascript:void(0);">People</a>
-									</ui:fragment>
-								</li>
-								<li role="presentation" class="#{util:getPagePath(view.viewId) eq 'organization-settings' ? 'active' : ''}">
-									<h:link rendered="#{util:getPagePath(view.viewId) ne 'organization-settings'}"
-											outcome="/admin/organization-settings">
-										<f:param name="id" value="#{util:encodeId(loggeduser.organizationId)}" />
-										Settings
-									</h:link>
-									<ui:fragment rendered="#{util:getPagePath(view.viewId) eq 'organization-settings'}">
-										<a href="javascript:void(0);">Settings</a>
-									</ui:fragment>
-								</li>
+								<ui:fragment rendered="#{request.isUserInRole('ADMIN.ADVANCED')}">
+									<ui:remove>
+										<li role="presentation"
+											class="#{util:getPagePath(view.viewId)  == 'dashboard' ? 'active' : ''}">
+											<h:link
+													onclick="sendLogPageNavigation('dashboard','mainmenu');"
+													value="Dashboard" outcome="/admin/dashboard" />
+										</li>
+									</ui:remove>
+									<li role="presentation"
+										class="#{util:getPagePath(view.viewId) == 'organizations'
+											or util:getPagePath(view.viewId) == 'organization-settings'
+											or util:getPagePath(view.viewId) == 'organizationUsers'
+											or util:getPagePath(view.viewId) == 'organizationUserEdit'
+											or util:getPagePath(view.viewId) == 'userEditPassword'
+											or util:getPagePath(view.viewId) == 'units'
+											or util:getPagePath(view.viewId) == 'unit-credentials'
+											or util:getPagePath(view.viewId) == 'unit-teachers'
+											or util:getPagePath(view.viewId) == 'unit-students'
+											or util:getPagePath(view.viewId) == 'unit-instructors'
+											or util:getPagePath(view.viewId) == 'unit-group-users'
+											or util:getPagePath(view.viewId) == 'unit-groups'
+											or util:getPagePath(view.viewId) == 'unit-settings'
+											or util:getPagePath(view.viewId) == 'credential'
+											or util:getPagePath(view.viewId) == 'competence'
+											or util:getPagePath(view.viewId) == 'activity'
+											or util:getPagePath(view.viewId) == 'credential-who-can-learn'
+											? 'active' : ''}">
+										<h:link onclick="sendLogPageNavigation('organizations','mainmenu');"
+												value="Organizations" outcome="/admin/organizations" />
+									</li>
+									<li role="presentation"
+										class="#{util:getPagePath(view.viewId)  == 'admins'  ? 'active' : ''}
+										#{util:getPagePath(view.viewId)  == 'adminNew'  ? 'active' : ''}
+										#{util:getPagePath(view.viewId)  == 'adminEditPassword'  ? 'active' : ''}">
+										<h:link onclick="sendLogPageNavigation('admins','mainmenu');"
+												value="Admins" outcome="/admin/admins" />
+									</li>
+									<li role="presentation"
+										class="#{util:getPagePath(view.viewId)  == 'roles' ? 'active' : ''}">
+										<h:link onclick="sendLogPageNavigation('roles','mainmenu');"
+												value="Roles" outcome="/admin/roles" />
+									</li>
+									<ui:remove>
+										<li role="presentation"
+											class="#{util:getPagePath(view.viewId)  == 'twitter' ? 'active' : ''}">
+											<h:link onclick="sendLogPageNavigation('twitter','mainmenu');	"
+													value="Twitter" outcome="/admin/users" />
+										</li>
+									</ui:remove>
+									<li role="presentation"
+										class="#{util:getPagePath(view.viewId)  == 'other' ? 'active' : ''}">
+										<h:link onclick="sendLogPageNavigation('other','mainmenu');"
+												value="Other" outcome="/admin/other" />
+									</li>
+								</ui:fragment>
+
+								<ui:fragment rendered="#{!request.isUserInRole('ADMIN.ADVANCED') and request.isUserInRole('BASIC.ADMIN.ACCESS')}">
+									<li role="presentation" class="#{util:getPagePath(view.viewId) eq 'units'
+										or util:getPagePath(view.viewId) == 'unit-settings'
+										or util:getPagePath(view.viewId) == 'unit-students'
+										or util:getPagePath(view.viewId) == 'unit-instructors'
+										or util:getPagePath(view.viewId) == 'unit-group-users'
+										or util:getPagePath(view.viewId) == 'unit-groups'
+										or util:getPagePath(view.viewId) == 'unit-teachers'
+										or util:getPagePath(view.viewId) == 'unit-credentials'
+										or util:getPagePath(view.viewId) == 'credential'
+										or util:getPagePath(view.viewId) == 'competence'
+										or util:getPagePath(view.viewId) == 'activity'
+										or util:getPagePath(view.viewId) == 'credential-who-can-learn'
+										? 'active' : ''}">
+										<h:link rendered="#{util:getPagePath(view.viewId) ne 'units'}" outcome="/admin/units">
+											<f:param name="id" value="#{util:encodeId(loggeduser.organizationId)}" />
+											#{msg['label.unit.plural']}
+										</h:link>
+										<ui:fragment rendered="#{util:getPagePath(view.viewId) eq 'units'}">
+											<a href="javascript:void(0);">#{msg['label.unit.plural']}</a>
+										</ui:fragment>
+									</li>
+									<li role="presentation" class="#{util:getPagePath(view.viewId) eq 'organizationUsers'
+										or util:getPagePath(view.viewId) eq 'userEditPassword'
+										or util:getPagePath(view.viewId) eq 'organizationUserEdit' ? 'active' : ''}">
+										<h:link rendered="#{not (util:getPagePath(view.viewId) eq 'organizationUsers')}"
+												outcome="/admin/organizationUsers">
+											<f:param name="orgId" value="#{util:encodeId(loggeduser.organizationId)}" />
+											People
+										</h:link>
+										<ui:fragment rendered="#{util:getPagePath(view.viewId) eq 'organizationUsers'}">
+											<a href="javascript:void(0);">People</a>
+										</ui:fragment>
+									</li>
+									<li role="presentation" class="#{util:getPagePath(view.viewId) eq 'organization-settings' ? 'active' : ''}">
+										<h:link rendered="#{util:getPagePath(view.viewId) ne 'organization-settings'}"
+												outcome="/admin/organization-settings">
+											<f:param name="id" value="#{util:encodeId(loggeduser.organizationId)}" />
+											Settings
+										</h:link>
+										<ui:fragment rendered="#{util:getPagePath(view.viewId) eq 'organization-settings'}">
+											<a href="javascript:void(0);">Settings</a>
+										</ui:fragment>
+									</li>
+								</ui:fragment>
+
+								<ui:fragment rendered="#{request.isUserInRole('TESTDATA.SWITCH')}">
+									<li role="presentation" class="#{util:getPagePath(view.viewId) eq 'data-init' ? 'active' : ''}">
+										<h:link rendered="#{util:getPagePath(view.viewId) ne 'data-init'}"
+												outcome="/admin/data-init">
+											Init data
+										</h:link>
+										<ui:fragment rendered="#{util:getPagePath(view.viewId) eq 'data-init'}">
+											<a href="javascript:void(0);">Init data</a>
+										</ui:fragment>
+									</li>
+								</ui:fragment>
 							</ul>
 						</nav>
 					</ui:fragment>
-
 
 				</div>
 				<div class="headerTopRight">

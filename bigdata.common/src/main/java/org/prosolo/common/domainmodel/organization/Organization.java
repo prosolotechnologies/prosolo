@@ -29,6 +29,11 @@ public class Organization extends BaseEntity {
 
 	private boolean learningInStagesEnabled;
 
+	private boolean assessmentTokensEnabled;
+	private int initialNumberOfTokensGiven;
+	private int numberOfSpentTokensPerRequest;
+	private int numberOfEarnedTokensPerAssessment;
+
 	@OneToMany(mappedBy = "organization")
 	public List<User> getUsers(){
 		return users;
@@ -74,5 +79,37 @@ public class Organization extends BaseEntity {
 
 	public void setCredentialCategories(Set<CredentialCategory> credentialCategories) {
 		this.credentialCategories = credentialCategories;
+	}
+
+	public boolean isAssessmentTokensEnabled() {
+		return assessmentTokensEnabled;
+	}
+
+	public void setAssessmentTokensEnabled(boolean assessmentTokensEnabled) {
+		this.assessmentTokensEnabled = assessmentTokensEnabled;
+	}
+
+	public int getInitialNumberOfTokensGiven() {
+		return initialNumberOfTokensGiven;
+	}
+
+	public void setInitialNumberOfTokensGiven(int initialNumberOfTokensGiven) {
+		this.initialNumberOfTokensGiven = initialNumberOfTokensGiven;
+	}
+
+	public int getNumberOfSpentTokensPerRequest() {
+		return numberOfSpentTokensPerRequest;
+	}
+
+	public void setNumberOfSpentTokensPerRequest(int numberOfSpentTokensPerRequest) {
+		this.numberOfSpentTokensPerRequest = numberOfSpentTokensPerRequest;
+	}
+
+	public int getNumberOfEarnedTokensPerAssessment() {
+		return numberOfEarnedTokensPerAssessment;
+	}
+
+	public void setNumberOfEarnedTokensPerAssessment(int numberOfEarnedTokensPerAssessment) {
+		this.numberOfEarnedTokensPerAssessment = numberOfEarnedTokensPerAssessment;
 	}
 }

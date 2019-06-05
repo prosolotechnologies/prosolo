@@ -5,12 +5,18 @@
                 xmlns:util="http://www.prosolo.com/util"
                 xmlns:c="http://java.sun.com/jsp/jstl/core"
                 xmlns:assessments="http://java.sun.com/jsf/composite/components/assessments"
-                xmlns:competence="http://java.sun.com/jsf/composite/components/competences">
+                xmlns:competence="http://java.sun.com/jsf/composite/components/competences"
+                xmlns:assessment="http://java.sun.com/jsf/composite/components/assessments">
 
     <ui:param name="bodyClass" value="cbp-spmenu-push"/>
 
     <ui:define name="windowTitle">
-        Assessment - #{competenceAssessmentBean.competenceAssessmentData.title} - ProSolo
+        <assessment:assessmentActorName
+                actorId="#{competenceAssessmentBean.competenceAssessmentData.assessorId}"
+                actorFullName="#{competenceAssessmentBean.competenceAssessmentData.assessorFullName}"
+                blindAssessmentMode="#{competenceAssessmentBean.competenceAssessmentData.blindAssessmentMode}"
+                actorType="ASSESSOR"
+        /> - #{msg['label.assessment.type.PEER_ASSESSMENT.plural']} - #{competenceAssessmentBean.competenceAssessmentData.title} - #{competenceAssessmentBean.credentialTitle} - ProSolo
     </ui:define>
 
     <ui:define name="metadata">
@@ -32,6 +38,12 @@
                     enrolled="#{true}"
                     credId="#{util:decodeId(param.credId)}"
                     compId="#{util:decodeId(param.compId)}"
+            />
+        </c:if>
+        <c:if test="#{competenceAssessmentBean.isUserAssessorInCurrentContext()}">
+            <assessments:myAssessmentsNavLinks
+                    resource="COMPETENCE"
+                    activeLinkClickable="true"
             />
         </c:if>
     </ui:define>

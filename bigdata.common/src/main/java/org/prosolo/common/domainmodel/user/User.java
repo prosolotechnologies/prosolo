@@ -8,6 +8,7 @@ import java.util.Set;
 import javax.persistence.*;
 
 import org.hibernate.annotations.Type;
+import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.organization.Role;
@@ -44,8 +45,13 @@ public class User extends BaseEntity {
 	private boolean verified;
 	private String verificationKey;
 
+	private boolean availableForAssessments;
+	private int numberOfTokens;
+
 	private List<UnitRoleMembership> unitMemberships;
 	private List<UserGroupUser> groups;
+
+	private List<CompetenceAssessment> competenceAssessmentsWithAssessorRole;
 	
 	public User() {
 		roles = new HashSet<Role>();
@@ -260,5 +266,30 @@ public class User extends BaseEntity {
 
 	public void setGroups(List<UserGroupUser> groups) {
 		this.groups = groups;
+	}
+
+	public int getNumberOfTokens() {
+		return numberOfTokens;
+	}
+
+	public void setNumberOfTokens(int numberOfTokens) {
+		this.numberOfTokens = numberOfTokens;
+	}
+
+	public boolean isAvailableForAssessments() {
+		return availableForAssessments;
+	}
+
+	public void setAvailableForAssessments(boolean availableForAssessments) {
+		this.availableForAssessments = availableForAssessments;
+	}
+
+	@OneToMany(mappedBy = "assessor")
+	public List<CompetenceAssessment> getCompetenceAssessmentsWithAssessorRole() {
+		return competenceAssessmentsWithAssessorRole;
+	}
+
+	public void setCompetenceAssessmentsWithAssessorRole(List<CompetenceAssessment> competenceAssessmentsWithAssessorRole) {
+		this.competenceAssessmentsWithAssessorRole = competenceAssessmentsWithAssessorRole;
 	}
 }

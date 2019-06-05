@@ -1,9 +1,14 @@
 package org.prosolo.services.user;
 
+import org.hibernate.Session;
+import org.hibernate.exception.ConstraintViolationException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.StaleDataException;
+import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.user.data.profile.*;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,11 +23,11 @@ public interface StudentProfileManager extends AbstractManager {
     /**
      * Returns {@link StudentProfileData} object for the given user id
      *
-     * @param userId
+     * @param customProfileUrl custom profile URL of the student
      * @return
      * @throws DbConnectionException
      */
-    Optional<StudentProfileData> getStudentProfileData(long userId);
+    Optional<StudentProfileData> getStudentProfileData(String customProfileUrl);
 
     /**
      * Returns student profile learning data
@@ -106,4 +111,37 @@ public interface StudentProfileManager extends AbstractManager {
      * @throws DbConnectionException
      */
     List<AssessmentByTypeProfileData> getCompetenceAssessmentsProfileData(long competenceProfileConfigId);
+
+    /**
+     * Updates profile settings.
+     *
+     * @param profileSettings profile settings to be updated
+     */
+    void updateProfileSettings(ProfileSettingsData profileSettings) throws ConstraintViolationException;
+
+    /**
+     * Retirieves profile settings for the given student.
+     *
+     * @param customProfileUrl custom profile URL of the student
+     * @return
+     */
+    Optional<ProfileSettingsData> getProfileSettingsData(String customProfileUrl);
+
+    /**
+     * Retirieves profile settings for the given student.
+     *
+     * @param userId id of the student
+     * @return
+     */
+    Optional<ProfileSettingsData> getProfileSettingsData(long userId);
+
+    /**
+     * Generates new profile settings for the given user.
+     *
+     * @param userId id of the profile owner
+     * @param summarySidebarEnabled whether summary should be displayed in the Profile page
+     * @param session Hibernate session to be used to perform queries
+     * @return
+     */
+    ProfileSettingsData generateProfileSettings(long userId, boolean summarySidebarEnabled, Session session);
 }

@@ -1,19 +1,18 @@
 package org.prosolo.services.activityWall.observer.processor;
 
-import java.util.Date;
-
 import org.hibernate.Session;
 import org.prosolo.common.domainmodel.activitywall.ActivityCommentSocialActivity;
 import org.prosolo.common.domainmodel.activitywall.CommentSocialActivity;
 import org.prosolo.common.domainmodel.activitywall.CompetenceCommentSocialActivity;
-import org.prosolo.common.domainmodel.activitywall.SocialActivity1;
 import org.prosolo.common.domainmodel.comment.Comment1;
 import org.prosolo.common.domainmodel.credential.Activity1;
 import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.event.Event;
 import org.prosolo.services.activityWall.SocialActivityManager;
-import org.prosolo.services.event.Event;
+
+import java.util.Date;
 
 public class CommentSocialActivityProcessor extends SocialActivityProcessor {
 

@@ -6,7 +6,6 @@ import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
-import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.assessment.data.AssessmentRequestData;
 import org.prosolo.services.nodes.Activity1Manager;
@@ -135,9 +134,9 @@ public class CredentialViewBeanUser implements Serializable {
 	
 	public void enrollInCompetence(CompetenceData1 comp) {
 		try {
-			compManager.enrollInCompetence(comp.getCompetenceId(), loggedUser.getUserId(), loggedUser.getUserContext());
+			compManager.enrollInCompetence(decodedId, comp.getCompetenceId(), loggedUser.getUserId(), loggedUser.getUserContext());
 
-			PageUtil.redirect("/credentials/" + id + "/" + idEncoder.encodeId(comp.getCompetenceId()) + "?justEnrolled=true");
+			PageUtil.redirect("/credentials/" + id + "/competences/" + idEncoder.encodeId(comp.getCompetenceId()) + "?justEnrolled=true");
 		} catch (DbConnectionException e) {
 			logger.error("Error", e);
 			PageUtil.fireErrorMessage("Error enrolling in a " + ResourceBundleUtil.getMessage("label.competence").toLowerCase());
@@ -204,22 +203,6 @@ public class CredentialViewBeanUser implements Serializable {
 		if (StringUtils.isNotBlank(id)) {
 			assessmentRequestData.setAssessorId(Long.valueOf(id));
 		}
-	}
-
-	public boolean userHasAssessmentForCredential() {
-		Long assessmentCount = assessmentManager.countAssessmentsForUserAndCredential(loggedUser.getUserId(),
-				decodedId);
-		if (assessmentCount > 0) {
-			logger.debug("We found " + assessmentCount + " assessments for user " + loggedUser.getUserId()
-					+ "for credential" + decodedId);
-			return true;
-		}
-		return false;
-	}
-
-	public String getAssessmentIdForUser() {
-		return idEncoder.encodeId(
-				assessmentManager.getAssessmentIdForUser(loggedUser.getUserId(), credentialData.getTargetCredId()));
 	}
 
 	/**

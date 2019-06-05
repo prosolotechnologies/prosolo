@@ -8,13 +8,14 @@ import org.prosolo.common.domainmodel.credential.LearningEvidence;
 import org.prosolo.common.domainmodel.credential.LearningEvidenceType;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
 import org.prosolo.common.domainmodel.user.socialNetworks.SocialNetworkName;
+import org.prosolo.common.event.EventQueue;
+import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.assessment.config.AssessmentLoadConfig;
 import org.prosolo.services.assessment.data.AssessmentDataFull;
 import org.prosolo.services.assessment.data.AssessmentDiscussionMessageData;
-import org.prosolo.services.assessment.data.CompetenceAssessmentData;
-import org.prosolo.services.event.EventQueue;
+import org.prosolo.services.assessment.data.CompetenceAssessmentDataFull;
 import org.prosolo.services.interaction.FollowResourceManager;
 import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.config.competence.CompetenceLoadConfig;
@@ -24,7 +25,6 @@ import org.prosolo.services.nodes.data.organization.CredentialCategoryData;
 import org.prosolo.services.user.UserManager;
 import org.prosolo.services.user.data.UserData;
 
-import java.text.SimpleDateFormat;
 import java.util.List;
 
 /**
@@ -99,12 +99,12 @@ public class BusinessCase5_Tutorial extends BaseBusinessCase5 {
 		////////////////////////////
 		List<CompetenceData1> standard1Competencies = ServiceLocator.getInstance().getService(Competence1Manager.class).getCompetencesForCredential(credential1Delivery1.getId(), userHelenCampbell.getId(), new CompetenceLoadConfig.CompetenceLoadConfigBuilder().create());
 		// we need a reference to the TargetCompetence1
-		TargetCompetence1 credential1Comp1Target = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(standard1Competencies.get(0).getCompetenceId(), userHelenCampbell.getId(), createUserContext(userHelenCampbell)));
-		TargetCompetence1 credential1Comp2Target = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(standard1Competencies.get(1).getCompetenceId(), userHelenCampbell.getId(), createUserContext(userHelenCampbell)));
-		TargetCompetence1 credential1Comp3Target = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(standard1Competencies.get(2).getCompetenceId(), userHelenCampbell.getId(), createUserContext(userHelenCampbell)));
-		TargetCompetence1 credential1Comp4Target = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(standard1Competencies.get(3).getCompetenceId(), userHelenCampbell.getId(), createUserContext(userHelenCampbell)));
-		TargetCompetence1 credential1Comp5Target = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(standard1Competencies.get(4).getCompetenceId(), userHelenCampbell.getId(), createUserContext(userHelenCampbell)));
-		TargetCompetence1 credential1Comp6Target = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(standard1Competencies.get(5).getCompetenceId(), userHelenCampbell.getId(), createUserContext(userHelenCampbell)));
+		TargetCompetence1 credential1Comp1Target = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(credential1Delivery1.getId(), standard1Competencies.get(0).getCompetenceId(), userHelenCampbell.getId(), createUserContext(userHelenCampbell)));
+		TargetCompetence1 credential1Comp2Target = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(credential1Delivery1.getId(), standard1Competencies.get(1).getCompetenceId(), userHelenCampbell.getId(), createUserContext(userHelenCampbell)));
+		TargetCompetence1 credential1Comp3Target = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(credential1Delivery1.getId(), standard1Competencies.get(2).getCompetenceId(), userHelenCampbell.getId(), createUserContext(userHelenCampbell)));
+		TargetCompetence1 credential1Comp4Target = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(credential1Delivery1.getId(), standard1Competencies.get(3).getCompetenceId(), userHelenCampbell.getId(), createUserContext(userHelenCampbell)));
+		TargetCompetence1 credential1Comp5Target = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(credential1Delivery1.getId(), standard1Competencies.get(4).getCompetenceId(), userHelenCampbell.getId(), createUserContext(userHelenCampbell)));
+		TargetCompetence1 credential1Comp6Target = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(credential1Delivery1.getId(), standard1Competencies.get(5).getCompetenceId(), userHelenCampbell.getId(), createUserContext(userHelenCampbell)));
 
 		// add pieces of evidence to the all competencies
 		LearningEvidence evidence1 = createEvidence(
@@ -206,14 +206,13 @@ public class BusinessCase5_Tutorial extends BaseBusinessCase5 {
 		// fetch instructor assessment
 		AssessmentManager assessmentService = ServiceLocator.getInstance().getService(AssessmentManager.class);
 
-		Long tutorPhillArmstronfAssessmentHelenCampbellId = assessmentService.getInstructorCredentialAssessmentId(credential1Delivery1.getId(), userHelenCampbell.getId()).get();
+		Long tutorPhillArmstronfAssessmentHelenCampbellId = assessmentService.getActiveInstructorCredentialAssessmentId(credential1Delivery1.getId(), userHelenCampbell.getId()).get();
 		AssessmentDataFull tutorPhillArmstronfAssessmentHelenCampbell = assessmentService.getFullAssessmentData(
 				tutorPhillArmstronfAssessmentHelenCampbellId,
 				userPhilArmstrong.getId(),
-				new SimpleDateFormat("MMMM dd, yyyy"),
 				AssessmentLoadConfig.of(true, true, true));
 
-		CompetenceAssessmentData comp1AssessmentData = tutorPhillArmstronfAssessmentHelenCampbell.getCompetenceAssessmentData().get(0);
+		CompetenceAssessmentDataFull comp1AssessmentData = tutorPhillArmstronfAssessmentHelenCampbell.getCompetenceAssessmentData().get(0);
 
 		AssessmentDiscussionMessageData newComment = assessmentService.addCommentToCompetenceAssessmentDiscussion(
 				comp1AssessmentData.getCompetenceAssessmentId(),
@@ -227,16 +226,21 @@ public class BusinessCase5_Tutorial extends BaseBusinessCase5 {
 		// Create one peer assessment
 		/////////////////////////////////////
 		CompetenceAssessment comp1AssessmentHelenCampbellPeerRichardAnderson = extractResultAndAddEvents(events, assessmentService.requestCompetenceAssessmentAndGetEvents(
+				credential1Delivery1.getId(),
 				comp1AssessmentData.getCompetenceId(),
 				userHelenCampbell.getId(),
 				userRichardAnderson.getId(),
+				0,
 				createUserContext(userHelenCampbell)));
-
+        //accept assessment request
+		extractResultAndAddEvents(events, assessmentService.acceptCompetenceAssessmentRequestAndGetEvents(
+				comp1AssessmentHelenCampbellPeerRichardAnderson.getId(),
+				UserContextData.ofActor(userRichardAnderson.getId())));
 		// set grade
 		gradeCompetenceAssessmentByRubric(events,
 				comp1AssessmentHelenCampbellPeerRichardAnderson.getId(),
 				AssessmentType.PEER_ASSESSMENT,
-				userRichardAnderson, 4);
+				userRichardAnderson, rubricData.getLevels().get(3).getId());
 
 		// approve competency
 		approveCompetenceAssessment(events, comp1AssessmentHelenCampbellPeerRichardAnderson.getId(), userRichardAnderson);
@@ -265,7 +269,7 @@ public class BusinessCase5_Tutorial extends BaseBusinessCase5 {
 		userDataHelenCampbell.setLocationName("Adelaide SA, Australia");
 		userDataHelenCampbell.setLatitude(-34.92849890000001);
 		userDataHelenCampbell.setLongitude(138.60074559999998);
-		ServiceLocator.getInstance().getService(UserManager.class).saveAccountChanges(userDataHelenCampbell, createUserContext(userHelenCampbell));
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(UserManager.class).saveAccountChangesAndGetEvents(userDataHelenCampbell, createUserContext(userHelenCampbell)));
 
 		ServiceLocator.getInstance().getService(SocialNetworksManager.class).createSocialNetworkAccount(
 				SocialNetworkName.LINKEDIN,

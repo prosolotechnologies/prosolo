@@ -2,7 +2,6 @@
 	xmlns:h="http://java.sun.com/jsf/html"
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:ui="http://java.sun.com/jsf/facelets"
-	xmlns:p="http://primefaces.org/ui"
 	template="templates/masterLayout2.xhtml"
 	xmlns:activities="http://java.sun.com/jsf/composite/components/activities">
 
@@ -26,10 +25,8 @@
     </ui:define>
     
 	<ui:define name="content">
-		<activities:createActivity
-			id="createActivity"
-			toUpdate=":panelTitle"
-			role="MANAGER"
-		/>
+		<activities:createActivity id="createActivity"
+								   toUpdate=":panelTitle"
+								   role="MANAGER"/>
 	</ui:define>
 </ui:composition>

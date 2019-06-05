@@ -1,7 +1,6 @@
 package org.prosolo.web.assessments;
 
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.assessments.util.AssessmentDisplayMode;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -19,11 +18,6 @@ public class CredentialUniqueAssessmentStudentBean extends CredentialUniqueAsses
 	@Override
 	protected long getUserId() {
 		return loggedUserBean.getUserId();
-	}
-
-	@Override
-	protected AssessmentDisplayMode getAssessmentDisplayMode() {
-		return AssessmentDisplayMode.FULL;
 	}
 
 }

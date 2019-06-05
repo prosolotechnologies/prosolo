@@ -6,7 +6,7 @@ import org.prosolo.common.domainmodel.credential.BlindAssessmentMode;
 import org.prosolo.common.domainmodel.credential.LearningPathType;
 import org.prosolo.services.assessment.data.AssessmentDataFull;
 import org.prosolo.services.assessment.data.AssessmentTypeConfig;
-import org.prosolo.services.assessment.data.CompetenceAssessmentData;
+import org.prosolo.services.assessment.data.CompetenceAssessmentDataFull;
 import org.prosolo.services.assessment.data.grading.GradeData;
 import org.prosolo.services.assessment.data.grading.GradingMode;
 import org.prosolo.services.assessment.data.grading.RubricGradeData;
@@ -61,7 +61,7 @@ public class AssessmentUtil {
 
 
     public static AssessmentDisabledIndicator isCredentialFullyGraded(AssessmentDataFull credentialAssessment) {
-        for (CompetenceAssessmentData compAssessment : credentialAssessment.getCompetenceAssessmentData()) {
+        for (CompetenceAssessmentDataFull compAssessment : credentialAssessment.getCompetenceAssessmentData()) {
             AssessmentDisabledIndicator compAssessmentGraded = isCompetenceFullyGraded(compAssessment);
 
             // If NONE is returned, continue iteration
@@ -79,7 +79,7 @@ public class AssessmentUtil {
         return AssessmentDisabledIndicator.NONE;
     }
 
-    public static AssessmentDisabledIndicator isCompetenceFullyGraded(CompetenceAssessmentData competenceAssessmentData) {
+    public static AssessmentDisabledIndicator isCompetenceFullyGraded(CompetenceAssessmentDataFull competenceAssessmentData) {
         if (competenceAssessmentData.getLearningPathType() == LearningPathType.ACTIVITY) {
             boolean allActivitiesGraded = competenceAssessmentData.getActivityAssessmentData()
                     .stream()
