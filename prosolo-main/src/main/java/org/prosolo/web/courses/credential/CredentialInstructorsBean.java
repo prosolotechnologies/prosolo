@@ -250,14 +250,9 @@ public class CredentialInstructorsBean implements Serializable, Paginable {
             if (paginationData.getPage() != 1 && instructors.size() % paginationData.getLimit() == 1) {
                 paginationData.setPage(paginationData.getPage() - 1);
             }
-            searchTerm = "";
-
             searchCredentialInstructors();
 
             userIdToExcludeFromSearch = 0;
-
-            // since ES indices are async refreshed, we will set the pagination based on the state in the DB
-            paginationData.update((int) credInstructorManager.getCredentialInstructorsCount(decodedId));
 
             PageUtil.fireSuccessfulInfoMessage("The " + ResourceBundleUtil.getLabel("instructor").toLowerCase() + " has been removed from the " + ResourceBundleUtil.getMessage("label.credential").toLowerCase());
         } catch (Exception e) {
