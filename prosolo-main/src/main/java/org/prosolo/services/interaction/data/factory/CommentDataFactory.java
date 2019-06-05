@@ -17,7 +17,8 @@ public class CommentDataFactory {
 	 * if comment does not have parent comment, just pass 0 for {@code parentCommentId}
 	 * @param comment
 	 * @param likedByCurrentUser
-	 * @param parentCommentId
+	 * @param parent
+	 * @param numberOfReplies
 	 * @return
 	 */
 	public CommentData getCommentData(Comment1 comment, boolean likedByCurrentUser, CommentData parent,
@@ -27,6 +28,7 @@ public class CommentDataFactory {
 		}
 		CommentData cd = new CommentData();
 		cd.setCommentId(comment.getId());
+		cd.setCredentialId(comment.getCredential() != null ? comment.getCredential().getId() : 0);
 		if(parent != null) {
 			cd.setParent(parent);
 		}

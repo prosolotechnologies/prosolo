@@ -3,10 +3,16 @@ package org.prosolo.services.interaction.data;
 import java.io.Serializable;
 import java.util.List;
 
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.web.useractions.CommentBean;
 
+@Builder
+@Getter
+@Setter
 public class CommentsData implements Serializable {
 
 	private static final long serialVersionUID = -4537657862393549529L;
@@ -21,6 +27,7 @@ public class CommentsData implements Serializable {
 	private List<CommentData> comments;
 	private CommentedResourceType resourceType;
 	private long resourceId;
+	@Builder.Default
 	private CommentSortOption sortOption = CommentSortOption.MOST_RECENT;
 	private boolean moreToLoad;
 	
@@ -28,23 +35,25 @@ public class CommentsData implements Serializable {
 	
 	private int numberOfComments;
 	private long commentId;
+
+	private long credentialId;
 	
-	public CommentsData(CommentedResourceType resourceType, long resourceId) {
-		this.resourceType = resourceType;
-		this.resourceId = resourceId;
-		logger.info("Comment options for resource " + resourceType.toString() + 
-				" with id " + resourceId + " is created");
-	}
-	
-	public CommentsData(CommentedResourceType resourceType, long resourceId, boolean isInstructor,
-			boolean isManagerComment) {
-		this.resourceType = resourceType;
-		this.resourceId = resourceId;
-		this.isInstructor = isInstructor;
-		this.isManagerComment = isManagerComment;
-		logger.info("Comment options for resource " + resourceType.toString() + 
-				" with id " + resourceId + " is created");
-	}
+//	public CommentsData(CommentedResourceType resourceType, long resourceId) {
+//		this.resourceType = resourceType;
+//		this.resourceId = resourceId;
+//		logger.info("Comment options for resource " + resourceType.toString() +
+//				" with id " + resourceId + " is created");
+//	}
+//
+//	public CommentsData(CommentedResourceType resourceType, long resourceId, boolean isInstructor,
+//			boolean isManagerComment) {
+//		this.resourceType = resourceType;
+//		this.resourceId = resourceId;
+//		this.isInstructor = isInstructor;
+//		this.isManagerComment = isManagerComment;
+//		logger.info("Comment options for resource " + resourceType.toString() +
+//				" with id " + resourceId + " is created");
+//	}
 	
 	public void incrementNumberOfComments() {
 		numberOfComments ++;
@@ -64,102 +73,6 @@ public class CommentsData implements Serializable {
 	
 	public void addAllCommentsToTheBeginning(List<CommentData> comments) {
 		comments.addAll(0, comments);
-	}
-	
-	public String getTopLevelComment() {
-		return topLevelComment;
-	}
-
-	public void setTopLevelComment(String topLevelComment) {
-		this.topLevelComment = topLevelComment;
-	}
-
-	public List<CommentData> getComments() {
-		return comments;
-	}
-
-	public void setComments(List<CommentData> comments) {
-		this.comments = comments;
-	}
-
-	public CommentSortOption getSortOption() {
-		return sortOption;
-	}
-
-	public void setSortOption(CommentSortOption sortOption) {
-		this.sortOption = sortOption;
-	}
-
-	public long getNewestCommentId() {
-		return newestCommentId;
-	}
-
-	public void setNewestCommentId(long newestCommentId) {
-		this.newestCommentId = newestCommentId;
-	}
-
-	public boolean isInstructor() {
-		return isInstructor;
-	}
-
-	public void setInstructor(boolean isInstructor) {
-		this.isInstructor = isInstructor;
-	}
-
-	public CommentedResourceType getResourceType() {
-		return resourceType;
-	}
-
-	public void setResourceType(CommentedResourceType resourceType) {
-		this.resourceType = resourceType;
-	}
-
-	public long getResourceId() {
-		return resourceId;
-	}
-
-	public void setResourceId(long resourceId) {
-		this.resourceId = resourceId;
-	}
-
-	public boolean isInitialized() {
-		return initialized;
-	}
-
-	public void setInitialized(boolean initialized) {
-		this.initialized = initialized;
-	}
-
-	public boolean isMoreToLoad() {
-		return moreToLoad;
-	}
-
-	public void setMoreToLoad(boolean moreToLoad) {
-		this.moreToLoad = moreToLoad;
-	}
-
-	public int getNumberOfComments() {
-		return numberOfComments;
-	}
-
-	public void setNumberOfComments(int numberOfComments) {
-		this.numberOfComments = numberOfComments;
-	}
-
-	public long getCommentId() {
-		return commentId;
-	}
-
-	public void setCommentId(long commentId) {
-		this.commentId = commentId;
-	}
-
-	public boolean isManagerComment() {
-		return isManagerComment;
-	}
-
-	public void setManagerComment(boolean isManagerComment) {
-		this.isManagerComment = isManagerComment;
 	}
 	
 }

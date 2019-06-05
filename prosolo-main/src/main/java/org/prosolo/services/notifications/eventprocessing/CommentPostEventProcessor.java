@@ -31,7 +31,7 @@ public class CommentPostEventProcessor extends CommentEventProcessor {
 	public CommentPostEventProcessor(Event event, Session session,
 									 NotificationManager notificationManager,
 									 NotificationsSettingsManager notificationsSettingsManager, Activity1Manager activityManager,
-									 UrlIdEncoder idEncoder, CommentManager commentManager) {
+									 UrlIdEncoder idEncoder, CommentManager commentManager, CredentialManager credentialManager) {
 		super(event, session, notificationManager, notificationsSettingsManager, activityManager, idEncoder);
 		this.commentManager = commentManager;
 		this.credentialManager = credentialManager;
@@ -99,7 +99,7 @@ public class CommentPostEventProcessor extends CommentEventProcessor {
 			}
 			return receiversData;
 		} catch(Exception e) {
-			logger.error(e);
+			logger.error("error", e);
 			return new ArrayList<>();
 		}
 	}

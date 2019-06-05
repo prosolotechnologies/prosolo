@@ -45,7 +45,7 @@ public class CompetenceObjectSocialActivityProcessor extends SocialActivityProce
 					Credential1 credential = (Credential1) session.load(Credential1.class, credId);
 					((CompetenceCompleteSocialActivity) act).setParentCredential(credential);
 				} else {
-					throw new RuntimeException("Credential id ('credId' entry) could not be found in the event parameters for the event Completion on a competence object.");
+					throw new RuntimeException("Credential id ('credId' entry) could not be found in the learning context for the event Completion on a competence object.");
 				}
 				break;
 			default:

@@ -8,8 +8,8 @@ import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.media.util.LinkParserException;
 import org.prosolo.services.media.util.SlideShareUtils;
-import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.data.ActivityResultType;
+import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.user.data.UserData;
 import org.prosolo.services.util.url.URLUtil;
 import org.prosolo.util.nodes.AnnotationUtil;
@@ -451,9 +451,14 @@ public class ActivityDataFactory {
 			ard.setUser(new UserData(user));
 		}
 		ard.setTargetActivityId(targetActivityId);
-		CommentsData commData = new CommentsData(CommentedResourceType.ActivityResult, 
-				targetActivityId, isInstructor, isManager);
-		commData.setNumberOfComments(commentsNumber);
+		CommentsData commData = CommentsData
+				.builder()
+				.resourceType(CommentedResourceType.ActivityResult)
+				.resourceId(targetActivityId)
+				.isInstructor(isInstructor)
+				.isManagerComment(isManager)
+				.numberOfComments(commentsNumber)
+				.build();
 		ard.setResultComments(commData);
 		return ard;
 	}

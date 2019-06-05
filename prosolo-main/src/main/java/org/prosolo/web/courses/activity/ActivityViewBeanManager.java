@@ -50,14 +50,14 @@ public class ActivityViewBeanManager implements Serializable {
 	@Getter	@Setter	private String commentId;
 
 	private long decodedActId;
-	private long decodedCompId;
-	private long decodedCredId;
+	@Getter private long decodedCompId;
+	@Getter private long decodedCredId;
 
 	@Getter private CompetenceData1 competenceData;
-	private ResourceAccessData access;
-	private CommentsData commentsData;
+	@Getter private ResourceAccessData access;
+	@Getter private CommentsData commentsData;
 
-	private CredentialIdData credentialIdData;
+	@Getter private CredentialIdData credentialIdData;
 
 	public void init() {	
 		decodedActId = idEncoder.decodeId(actId);
@@ -83,11 +83,16 @@ public class ActivityViewBeanManager implements Serializable {
 
 					competenceData = activityManager.getCompetenceActivitiesWithSpecifiedActivityInFocus(
 									decodedCredId, decodedCompId, decodedActId);
-					commentsData = new CommentsData(CommentedResourceType.Activity, 
-							competenceData.getActivityToShowWithDetails().getActivityId(), 
-							access.isCanInstruct(), true);
+					commentsData = CommentsData
+							.builder()
+							.resourceType(CommentedResourceType.Activity)
+							.resourceId(competenceData.getActivityToShowWithDetails().getActivityId())
+							.isInstructor(access.isCanInstruct())
+							.isManagerComment(true)
+							.commentId(idEncoder.decodeId(commentId))
+							.credentialId(decodedCredId)
+							.build();
 
-					commentsData.setCommentId(idEncoder.decodeId(commentId));
 					commentBean.loadComments(commentsData);
 					
 					ActivityUtil.createTempFilesAndSetUrlsForCaptions(
