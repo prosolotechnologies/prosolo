@@ -1,17 +1,17 @@
 package org.prosolo.services.lti.impl;
 
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-
-import org.prosolo.common.domainmodel.lti.LtiConsumer;
-import org.prosolo.common.domainmodel.lti.LtiTool;
 import org.prosolo.common.domainmodel.lti.LtiVersion;
 import org.prosolo.services.lti.LtiToolLaunchValidator;
+import org.prosolo.services.lti.data.LTIConsumerData;
+import org.prosolo.services.lti.data.LTIToolData;
 import org.prosolo.services.lti.exceptions.LtiToolAccessDeniedException;
 import org.prosolo.services.lti.exceptions.LtiToolDeletedException;
 import org.prosolo.services.lti.exceptions.LtiToolDisabledException;
 import org.prosolo.services.oauth.OauthService;
 import org.springframework.stereotype.Service;
+
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 
 @Service("org.prosolo.services.lti.LtiToolLaunchValidator")
 public class LtiToolLaunchValidatorImpl implements LtiToolLaunchValidator {
@@ -19,7 +19,7 @@ public class LtiToolLaunchValidatorImpl implements LtiToolLaunchValidator {
 	@Inject private OauthService oauthService;
 	
 	@Override
-	public void validateLaunch(LtiTool tool, String consumerKey, LtiVersion version, HttpServletRequest request) throws RuntimeException {
+	public void validateLaunch(LTIToolData tool, String consumerKey, LtiVersion version, HttpServletRequest request) throws RuntimeException {
 		if (tool == null){
 
 			throw new LtiToolAccessDeniedException();
@@ -30,7 +30,7 @@ public class LtiToolLaunchValidatorImpl implements LtiToolLaunchValidator {
 		if (tool.isDeleted()) {
 			throw new LtiToolDeletedException();
 		}
-		LtiConsumer consumer = tool.getToolSet().getConsumer();
+		LTIConsumerData consumer = tool.getConsumer();
 		String key;
 		String secret;
 		if (LtiVersion.V1.equals(version)){

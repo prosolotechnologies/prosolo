@@ -3,9 +3,12 @@ package org.prosolo.services.lti.impl;
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.common.domainmodel.lti.LtiConsumer;
 import org.prosolo.common.domainmodel.lti.LtiTool;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.lti.LtiToolManager;
+import org.prosolo.services.lti.data.LTIConsumerData;
+import org.prosolo.services.lti.data.LTIToolData;
 import org.prosolo.services.lti.filter.Filter;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -78,6 +81,29 @@ public class LtiToolManagerImpl  extends AbstractManagerImpl implements LtiToolM
 			return (LtiTool) persistence.currentManager().get(LtiTool.class, toolId);
 		}catch(Exception e){
 			throw new DbConnectionException("Tool details cannot be loaded at the moment");
+		}
+	}
+
+	@Override
+	@Transactional(readOnly=true)
+	public LTIToolData getToolDetailsData(long toolId) {
+		try {
+			LtiTool ltiTool = (LtiTool) persistence.currentManager().get(LtiTool.class, toolId);
+			LtiConsumer consumer = ltiTool.getToolSet().getConsumer();
+			return LTIToolData.builder()
+					.id(ltiTool.getId())
+					.launchUrl(ltiTool.getLaunchUrl())
+					.deleted(ltiTool.isDeleted())
+					.enabled(ltiTool.isEnabled())
+					.toolType(ltiTool.getToolType())
+					.organizationId(ltiTool.getOrganization() != null ? ltiTool.getOrganization().getId() : 0)
+					.unitId(ltiTool.getUnit() != null ? ltiTool.getUnit().getId() : 0)
+					.userGroupId(ltiTool.getUserGroup() != null ? ltiTool.getUserGroup().getId() : 0)
+					.consumer(new LTIConsumerData(consumer.getId(), consumer.getKeyLtiOne(), consumer.getSecretLtiOne(), consumer.getKeyLtiTwo(), consumer.getSecretLtiTwo()))
+					.build();
+		} catch (Exception e) {
+			logger.error("error", e);
+			throw new DbConnectionException("Error loading LTI Tool with id " + toolId);
 		}
 	}
 	
