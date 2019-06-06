@@ -400,8 +400,7 @@
                                     <div class="evidenceLeft #{ev.type eq 'TEXT' ? 'evidenceText' : styleUtilBean.getEvidenceFileTypeIcon(ev.url)}">
                                         <div class="icon iconType"></div>
                                         <h3>
-                                            <h:link outcome="/student-profile-evidence-legacy" target="_blank" value="#{ev.title}">
-                                                <f:param name="studentId" value="#{util:encodeId(profileBean.ownerOfAProfileUserId)}"/>
+                                            <h:link outcome="/evidence-preview" target="_blank" value="#{ev.title}">
                                                 <f:param name="competenceEvidenceId" value="#{util:encodeId(ev.competenceEvidenceId)}"/>
                                             </h:link>
                                         </h3>

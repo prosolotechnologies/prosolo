@@ -46,9 +46,8 @@ public class RewriteConfigurationProvider extends HttpConfigurationProvider {
 				.addRule(Join.path("/plan").to("/plan.xhtml"))
 				.addRule(Join.path("/profile").to("/profile-legacy.xhtml"))
 				.addRule(Join.path("/profile/{studentId}").to("/profile-legacy.xhtml"))
-				.addRule(Join.path("/profile/{studentId}/evidence/{competenceEvidenceId}").to("/student-profile-evidence-legacy.xhtml"))
+				.addRule(Join.path("/evidence/{competenceEvidenceId}/preview").to("/evidence-preview.xhtml"))
 				.addRule(Join.path("/p/{customProfileUrl}").to("/profile.xhtml"))
-				.addRule(Join.path("/p/{customProfileUrl}/evidence/{competenceEvidenceId}").to("/student-profile-evidence.xhtml"))
 				.addRule(Join.path("/credentials/{id}").to("/credential.xhtml"))
 				.addRule(Join.path("/credentials/{id}/preview").to("/public-credential.xhtml"))
 				.addRule(Join.path("/credentials/{id}/announcements/{announcementId}").to("/announcement.xhtml"))
@@ -157,7 +156,7 @@ public class RewriteConfigurationProvider extends HttpConfigurationProvider {
 				.addRule(Join.path("/manage/library/credentials").to("/manage/credentialLibrary.xhtml"))
 				.addRule(Join.path("/manage/library/competencies").to("/manage/competenceLibrary.xhtml"))
 				.addRule(Join.path("/manage/library/instructor/credentials").to("/manage/credential-library-instructor.xhtml"))
-				.addRule(Join.path("/manage/profile/{studentId}/evidence/{competenceEvidenceId}").to("/manage/student-profile-evidence.xhtml"))
+				.addRule(Join.path("/manage/evidence/{competenceEvidenceId}/preview").to("/manage/evidence-preview.xhtml"))
 
 				//admin
 				.addRule(Join.path("/admin/notfound").to("/admin/404.xhtml"))

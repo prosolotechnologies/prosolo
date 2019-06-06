@@ -121,9 +121,8 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers("/terms").permitAll()
 				.antMatchers("/profile").hasAuthority("BASIC.USER.ACCESS")
 				.antMatchers("/profile/*").permitAll()	// legacy profile page
-				.antMatchers("/profile/*/evidence/*").permitAll()	// legacy profile evidence page
+				.antMatchers("/evidence/*/preview").permitAll()	// legacy profile evidence page
 				.antMatchers("/p/*").permitAll()
-				.antMatchers("/p/*/evidence/*").permitAll()
 				.antMatchers("/maintenance").permitAll()
 				.antMatchers("/digest").permitAll()
 				.antMatchers("/login").permitAll()
@@ -272,7 +271,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers("/manage/reports").hasAuthority("REPORTS.VIEW")
 
 				.antMatchers("/manage/evidence/*").hasAnyAuthority("BASIC.MANAGER.ACCESS", "BASIC.INSTRUCTOR.ACCESS")
-				.antMatchers("/manage/profile/*/evidence/*").hasAnyAuthority("BASIC.MANAGER.ACCESS", "BASIC.INSTRUCTOR.ACCESS")
+				.antMatchers("/manage/evidence/*/preview").hasAnyAuthority("BASIC.MANAGER.ACCESS", "BASIC.INSTRUCTOR.ACCESS")
 
 
 				//admin
