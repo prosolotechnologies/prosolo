@@ -3951,6 +3951,8 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
         }
     }
 
+    @Override
+    @Transactional(readOnly = true)
     public boolean isThereExistingUnasignedPeerCompetencyAssessment(long credentialId, long competenceId, long studentId) {
         try {
             String query =
