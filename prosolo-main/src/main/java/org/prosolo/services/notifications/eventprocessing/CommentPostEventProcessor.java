@@ -2,16 +2,19 @@ package org.prosolo.services.notifications.eventprocessing;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
+import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.common.domainmodel.credential.TargetCredential1;
 import org.prosolo.common.domainmodel.user.notifications.NotificationType;
 import org.prosolo.common.domainmodel.user.notifications.ResourceType;
 import org.prosolo.common.event.Event;
 import org.prosolo.common.event.context.Context;
 import org.prosolo.common.event.context.ContextName;
+import org.prosolo.services.activityWall.SocialActivityManager;
 import org.prosolo.services.interaction.CommentManager;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.CredentialManager;
+import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.Role;
 import org.prosolo.services.notifications.NotificationManager;
 import org.prosolo.services.notifications.eventprocessing.data.NotificationReceiverData;
@@ -20,6 +23,7 @@ import org.prosolo.web.util.page.PageSection;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class CommentPostEventProcessor extends CommentEventProcessor {
 
@@ -27,14 +31,17 @@ public class CommentPostEventProcessor extends CommentEventProcessor {
 	
 	private CommentManager commentManager;
 	private CredentialManager credentialManager;
+	private SocialActivityManager socialActivityManager;
 
 	public CommentPostEventProcessor(Event event, Session session,
 									 NotificationManager notificationManager,
 									 NotificationsSettingsManager notificationsSettingsManager, Activity1Manager activityManager,
-									 UrlIdEncoder idEncoder, CommentManager commentManager, CredentialManager credentialManager) {
+									 UrlIdEncoder idEncoder, CommentManager commentManager, CredentialManager credentialManager,
+									 SocialActivityManager socialActivityManager) {
 		super(event, session, notificationManager, notificationsSettingsManager, activityManager, idEncoder);
 		this.commentManager = commentManager;
 		this.credentialManager = credentialManager;
+		this.socialActivityManager = socialActivityManager;
 	}
 	
 	@Override
@@ -72,6 +79,13 @@ public class CommentPostEventProcessor extends CommentEventProcessor {
 					List<Long> users = commentManager.getIdsOfUsersThatCommentedResource(
 							getResource().getResourceType(), getResource().getCommentedResourceId(),
 							Role.User, usersToExclude);
+
+					// in case of SocialActivity or ActivityResult, we want to notify the creator of the post/activity result
+					if (getResource().getResourceType() == CommentedResourceType.SocialActivity) {
+						users.add(socialActivityManager.getSocialActivityActorId(getResource().getCommentedResourceId()));
+					} else if (getResource().getResourceType() == CommentedResourceType.ActivityResult) {
+						users.add(activityManager.getTargetActivityOwnerId(getResource().getCommentedResourceId()));
+					}
 
 					for (Long id : users) {
 						receiversData.add(new NotificationReceiverData(id, userSectionLink, id == resCreatorId, PageSection.STUDENT));

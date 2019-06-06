@@ -8,6 +8,7 @@ import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
 import org.prosolo.common.domainmodel.comment.Comment1;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.event.Event;
+import org.prosolo.services.activityWall.SocialActivityManager;
 import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.interaction.CommentManager;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
@@ -24,27 +25,22 @@ import javax.inject.Inject;
 @Service
 public class NotificationEventProcessorFactory {
 
-	@Inject
-	private NotificationManager notificationManager;
-	@Inject
-	private NotificationsSettingsManager notificationsSettingsManager;
-	@Inject
-	private Activity1Manager activityManager;
-	@Inject
-	private UrlIdEncoder idEncoder;
-	@Inject
-	private CommentManager commentManager;
-	@Inject
-	private AssessmentManager assessmentManager;
-	@Inject
-	private CredentialManager credentialManager;
-	@Inject
-	private Competence1Manager competenceManager;
-	@Inject
-	private StudentProfileManager studentProfileManager;
+	@Inject private NotificationManager notificationManager;
+	@Inject private NotificationsSettingsManager notificationsSettingsManager;
+	@Inject private Activity1Manager activityManager;
+	@Inject private UrlIdEncoder idEncoder;
+	@Inject private CommentManager commentManager;
+	@Inject private AssessmentManager assessmentManager;
+	@Inject private CredentialManager credentialManager;
+	@Inject private Competence1Manager competenceManager;
+	@Inject private StudentProfileManager studentProfileManager;
+	@Inject private SocialActivityManager socialActivityManager;
 
 	public NotificationEventProcessor getNotificationEventProcessor(Event event, Session session) {
 		switch (event.getAction()) {
+			case Follow:
+				return new FollowUserEventProcessor(event, session, notificationManager,
+						notificationsSettingsManager, idEncoder, studentProfileManager);
 			/*
 			 * A new comment was posted. If comment is posted on competence/activity
 			 * page notify user that created competence/activity and all users that
@@ -52,8 +48,9 @@ public class NotificationEventProcessorFactory {
 			 */
 			case Comment:
 			case Comment_Reply:
-				return new CommentPostEventProcessor(event, session, notificationManager,
-						notificationsSettingsManager, activityManager, idEncoder, commentManager, credentialManager);
+			return new CommentPostEventProcessor(event, session, notificationManager,
+						notificationsSettingsManager, activityManager, idEncoder, commentManager, credentialManager,
+					socialActivityManager);
 			/*
 			 * Someone liked or disliked a resource. We need to determine whether it
 			 * was generated on the Status Wall (liked/disliked a SocialActivity
@@ -62,17 +59,14 @@ public class NotificationEventProcessorFactory {
 			 */
 			case Like:
 			case Dislike:
-				if (event.getObject() instanceof Comment1) {
+			if (event.getObject() instanceof Comment1) {
 					return new CommentLikeEventProcessor(event, session, notificationManager,
 							notificationsSettingsManager, activityManager, idEncoder);
 				} else if (event.getObject() instanceof SocialActivity1) {
 					return new SocialActivityLikeEventProcessor(event, session, notificationManager,
 							notificationsSettingsManager, activityManager, idEncoder);
 				}
-				break;
-			case Follow:
-				return new FollowUserEventProcessor(event, session, notificationManager,
-						notificationsSettingsManager, idEncoder, studentProfileManager);
+			break;
 			case AssessmentComment:
 				BaseEntity target = event.getTarget();
 				if (target instanceof ActivityAssessment) {

@@ -142,11 +142,10 @@ public class ActivityViewBeanUser implements Serializable {
 					
 					ActivityUtil.createTempFilesAndSetUrlsForCaptions(ad.getCaptions(), loggedUser.getUserId());
 				}
-			} catch(ResourceNotFoundException rnfe) {
+			} catch (ResourceNotFoundException rnfe) {
 				PageUtil.notFound();
-			} catch(Exception e) {
-				e.printStackTrace();
-				logger.error(e);
+			} catch (Exception e) {
+				logger.error("Error", e);
 				PageUtil.fireErrorMessage("Error loading activity");
 			}
 		} else {
