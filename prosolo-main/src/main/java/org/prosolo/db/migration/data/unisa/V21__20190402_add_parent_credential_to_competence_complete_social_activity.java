@@ -53,7 +53,8 @@ public class V21__20190402_add_parent_credential_to_competence_complete_social_a
                                 "                              INNER JOIN credential1 cred ON credComp.credential = cred.id\n" +
                                 "                              INNER JOIN target_credential1 tCred ON tCred.credential = cred.id\n" +
                                 "                            WHERE tComp.id = sa.target_competence_object\n" +
-                                "                              AND tCred.user = sa.actor)\n" +
+                                "                              AND tCred.user = sa.actor\n" +
+                                "                            LIMIT 1)\n" +
                                 "WHERE sa.id = " + socialActivityId);
                 }
             }
