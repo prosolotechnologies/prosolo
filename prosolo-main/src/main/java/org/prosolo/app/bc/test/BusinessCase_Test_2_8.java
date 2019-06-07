@@ -5,15 +5,20 @@ import org.prosolo.app.bc.BaseBusinessCase5;
 import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.EventQueue;
+import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.core.spring.ServiceLocator;
+import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.Competence1Manager;
+import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.config.competence.CompetenceLoadConfig;
+import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.ActivityType;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceData;
 import org.prosolo.services.nodes.data.organization.CredentialCategoryData;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -91,12 +96,20 @@ public class BusinessCase_Test_2_8 extends BaseBusinessCase5 {
         // create activity based competency, give privilege, enroll, complete
         ///////////////////////////
 
+        Credential1 credentialWithActivities1 = createCredential(events,
+                "Basics of Social Network Analysis",
+                "This credential defines social network analysis and its main analysis methods and "
+                        + "introduces how to perform social network analysis and visualize analysis results in Gephi",
+                userNickPowell,
+                "network structure, data collection, learning analytics, network measures, network modularity, social network analysis",
+                rubricData.getId(),
+                null);
         Competence1 comp1 = createCompetence(events,
                     userNickPowell,
                     "Social Network Analysis",
                     "Define social network analysis and its main analysis methods.",
                     "centrality measures, data collection, modularity analysis, network centrality, network structure, social network analysis",
-                    0,
+                credentialWithActivities1.getId(),
                     0,
                     LearningPathType.ACTIVITY);
 
@@ -141,24 +154,13 @@ public class BusinessCase_Test_2_8 extends BaseBusinessCase5 {
                 org.prosolo.services.nodes.data.ActivityResultType.TEXT,
                 "Slides",
                 "http://www.slideshare.net/dgasevic/network-modularity-and-community-identification/1");
-        extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class)
-                        .publishCompetenceIfNotPublished(comp1.getId(), createUserContext(userNickPowell)));
-        //TODO I commmented out the lines below because we changed the rule and user can't learn competency outside credential
-        //TargetCompetence1 independentComp1Target = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(comp1.getId(), userGeorgeYoung.getId(), createUserContext(userGeorgeYoung)));
-//        List<ActivityData> independentComp1TargetActivities = ServiceLocator.getInstance().getService(Activity1Manager.class).getTargetActivitiesData(independentComp1Target.getId());
-//        completeActivity(events, independentComp1Target.getId(), independentComp1TargetActivities.get(0).getActivityId(), userGeorgeYoung);
 
-        Competence1 comp2 = createCompetence(events,
-                    userNickPowell,
-                    "Basic of Prediction Modeling",
-                    "Conduct prediction modeling effectively and appropriately",
-                    "academic performance, creative potential, social network analysis",
-                    0,
-                    0,
-                    LearningPathType.EVIDENCE);
-        givePrivilegeToUsersForCompetency(events, comp2.getId(), UserGroupPrivilege.Learn, userNickPowell, List.of(userGeorgeYoung));
-        extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class)
-                .publishCompetenceIfNotPublished(comp2.getId(), createUserContext(userNickPowell)));
+        Credential1 credentialWithActivities1Delivery1 = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CredentialManager.class).createCredentialDeliveryAndGetEvents(credentialWithActivities1.getId(), DateUtil.getDateFromMillis(new Date().getTime()), DateUtil.getDateFromMillis(getDaysFromNow(90)), createUserContext(userNickPowell)));
+        enrollToDelivery(events, credentialWithActivities1Delivery1, userGeorgeYoung);
+
+        TargetCompetence1 comp1Target = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(credentialWithActivities1Delivery1.getId(), comp1.getId(), userGeorgeYoung.getId(), createUserContext(userGeorgeYoung)));
+        List<ActivityData> comp1TargetActivities = ServiceLocator.getInstance().getService(Activity1Manager.class).getTargetActivitiesData(comp1Target.getId());
+        completeActivity(events, comp1Target.getId(), comp1TargetActivities.get(0).getActivityId(), userGeorgeYoung);
     }
 
     @Override
