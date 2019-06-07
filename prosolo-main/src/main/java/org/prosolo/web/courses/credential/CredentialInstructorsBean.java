@@ -1,8 +1,10 @@
 /**
- * 
+ *
  */
 package org.prosolo.web.courses.credential;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.credential.CredentialType;
@@ -44,303 +46,242 @@ import java.util.List;
 @Scope("view")
 public class CredentialInstructorsBean implements Serializable, Paginable {
 
-	private static final long serialVersionUID = -4892911343069292524L;
+    private static final long serialVersionUID = -4892911343069292524L;
 
-	private static Logger logger = Logger.getLogger(CredentialInstructorsBean.class);
+    private static Logger logger = Logger.getLogger(CredentialInstructorsBean.class);
 
-	private List<InstructorData> instructors;
 
-	@Inject private UrlIdEncoder idEncoder;
-	@Inject private UserTextSearch userTextSearch;
-	@Inject private CredentialManager credManager;
-	@Inject private CredentialInstructorManager credInstructorManager;
-	@Inject private LoggedUserBean loggedUserBean;
-	@Inject @Qualifier("taskExecutor") private ThreadPoolTaskExecutor taskExecutor;
-	@Inject private RoleManager roleManager;
-	@Inject private StudentAssignBean studentAssignBean;
-	@Inject private UnitManager unitManager;
+    @Inject
+    private UrlIdEncoder idEncoder;
+    @Inject
+    private UserTextSearch userTextSearch;
+    @Inject
+    private CredentialManager credManager;
+    @Inject
+    private CredentialInstructorManager credInstructorManager;
+    @Inject
+    private LoggedUserBean loggedUserBean;
+    @Inject
+    private RoleManager roleManager;
+    @Inject
+    private StudentAssignBean studentAssignBean;
+    @Inject
+    private UnitManager unitManager;
 
-	// PARAMETERS
-	private String id;
-	private long decodedId;
+    // PARAMETERS
+    @Getter @Setter
+    private String id;
+    @Getter
+    private long decodedId;
 
-	private String searchTerm = "";
-	private InstructorSortOption sortOption = InstructorSortOption.Date;
-	private PaginationData paginationData = new PaginationData();
-	
-	private InstructorData instructorForRemoval;
-	private boolean reassignAutomatically = true;
-	//private InstructorData instructorForStudentAssign;
-	
-	private String context;
-	
-	private CredentialIdData credentialIdData;
-	
-	private InstructorSortOption[] sortOptions;
-	
-	//for searching unassigned instructors
-	private String instructorSearchTerm;
-	private List<UserData> unassignedInstructors;
-	private long instructorRoleId;
-	List<Long> unitIds;
-	//list of ids of instructors that are already assigned to this credential
-	private List<Long> excludedInstructorIds = new ArrayList<>();
-	
-	private ResourceAccessData access;
+    @Getter
+    private long parentCredId;
+    @Getter
+    private List<InstructorData> instructors;
+    @Getter @Setter
+    private String searchTerm = "";
+    @Getter @Setter
+    private InstructorSortOption sortOption = InstructorSortOption.Date;
+    @Getter @Setter
+    private int page;
+    @Getter
+    private PaginationData paginationData = new PaginationData();
+    @Getter
+    private InstructorData instructorForRemoval;
+    @Getter @Setter
+    private boolean reassignAutomatically = true;
 
-	public void init() {
-		sortOptions = InstructorSortOption.values();
-		
-		decodedId = idEncoder.decodeId(id);
-		
-		if (decodedId > 0) {
-			context = "name:CREDENTIAL|id:" + decodedId;
-			try {
-				credentialIdData = credManager.getCredentialIdData(decodedId, CredentialType.Delivery);
-				if (credentialIdData != null) {
-					access = credManager.getResourceAccessData(decodedId, loggedUserBean.getUserId(),
-								ResourceAccessRequirements.of(AccessMode.MANAGER)
-														  .addPrivilege(UserGroupPrivilege.Edit));
-					if (!access.isCanAccess()) {
-						PageUtil.accessDenied();
-					} else {
-						//manuallyAssignStudents = credManager.areStudentsManuallyAssignedToInstructor(decodedId);
-						searchCredentialInstructors();
-						studentAssignBean.init(decodedId, context);
-					}
-				} else {
-					PageUtil.notFound();
-				}
-			} catch (Exception e) {
-				PageUtil.fireErrorMessage("Error loading instructor data");
-			}
-		} else {
-			PageUtil.notFound();
-		}
-	}
+    private String context;
+    @Getter
+    private CredentialIdData credentialIdData;
+    @Getter @Setter
+    private InstructorSortOption[] sortOptions;
 
-	public void searchCredentialInstructors() {
-		try {
-			if (instructors != null) {
-				instructors.clear();
-			}
+    //for searching unassigned instructors
+    @Getter
+    @Setter
+    private String instructorSearchTerm;
+    @Getter
+    private List<UserData> unassignedInstructors;
+    private long instructorRoleId;
+    private List<Long> unitIds;
 
-			getCredentialInstructors();
-		} catch (Exception e) {
-			e.printStackTrace();
-			logger.error(e);
-		}
-	}
-	
-	public void searchUnassignedInstructors() {
-		try {
-			unassignedInstructors = new ArrayList<>();
-			PaginatedResult<UserData> result = userTextSearch
-					.searchUsersWithInstructorRole(loggedUserBean.getOrganizationId(), instructorSearchTerm, decodedId,
-							instructorRoleId, unitIds, excludedInstructorIds);
-			unassignedInstructors = result.getFoundNodes();
-		} catch(Exception e) {
-			logger.error(e);
-		}
-	}
-	
-	public void prepareAddingInstructor() {
-		try {
-			if(instructorRoleId == 0) {
-				instructorRoleId = roleManager.getRoleIdByName(SystemRoleNames.INSTRUCTOR);
+    // Id of user that has just been removed and should be excluded from search. We exclude it from search explicitly
+    // since ES might not be updated.
+    private long userIdToExcludeFromSearch;
 
-				//retrieve unit ids for original credential, but only if not already initialized (condition instructorRoleId > 0)
-				unitIds = unitManager.getAllUnitIdsCredentialIsConnectedTo(credManager.getCredentialIdForDelivery(decodedId));
-			}
-			instructorSearchTerm = "";
-			searchUnassignedInstructors();
-		} catch(Exception e) {
-			logger.error("Error", e);
-			//TODO
-		}
-	}
-	
-	public void prepareInstructorForDelete(InstructorData id) {
-		instructorForRemoval = id;
-	}
+    private ResourceAccessData access;
 
-	public void addInstructorToCredential(UserData user) {
-		try {
-			String page = PageUtil.getPostParameter("page");
-			String service = PageUtil.getPostParameter("service");
-			PageContextData ctx = new PageContextData(page, context, service);
-			credInstructorManager
-					.addInstructorToCredential(decodedId, user.getId(), 0, loggedUserBean.getUserContext(ctx));
-			paginationData.setPage(1);
-			searchTerm = "";
-			sortOption = InstructorSortOption.Date;
-			paginationData.update((int) credInstructorManager.getCredentialInstructorsCount(decodedId)); 
-			instructors = credInstructorManager.getCredentialInstructors(decodedId, true, paginationData.getLimit(), true);
-			for (InstructorData id : instructors) {
-				excludedInstructorIds.add(id.getUser().getId());
-			}
-		} catch(DbConnectionException e) {
-			logger.error(e);
-			PageUtil.fireErrorMessage(e.getMessage());
-		}
-		
-	}
+    public void init() {
+        sortOptions = InstructorSortOption.values();
 
-	public void getCredentialInstructors() {
-		PaginatedResult<InstructorData> searchResponse = userTextSearch.searchInstructors(
-				loggedUserBean.getOrganizationId(), searchTerm, paginationData.getPage() - 1, paginationData.getLimit(), decodedId, sortOption, null);
-	
-		paginationData.update((int) searchResponse.getHitsNumber());
-		instructors = searchResponse.getFoundNodes();
-		for (InstructorData id : instructors) {
-			excludedInstructorIds.add(id.getUser().getId());
-		}
-	}
-	
-	public void resetAndSearch() {
-		paginationData.setPage(1);
-		searchCredentialInstructors();
-	}
-	
-	public void applySortOption(InstructorSortOption sortOption) {
-		this.sortOption = sortOption;
-		paginationData.setPage(1);
-		searchCredentialInstructors();
-	}
-	
-	public void removeInstructorFromCredential() {
-		try {
-			String appPage = PageUtil.getPostParameter("page");
-			String service = PageUtil.getPostParameter("service");
-			String lContext = context + "|context:/name:INSTRUCTOR|id:" 
-					+ instructorForRemoval.getInstructorId() + "/";
-			PageContextData ctx = new PageContextData(appPage, lContext, service);
-			credInstructorManager.removeInstructorFromCredential(
-					instructorForRemoval.getInstructorId(), decodedId, reassignAutomatically,
-					loggedUserBean.getUserContext(ctx));
+        decodedId = idEncoder.decodeId(id);
 
-			excludedInstructorIds.remove(new Long(instructorForRemoval.getUser().getId()));
-			searchCredentialInstructors();
-			instructorForRemoval = null;
-			PageUtil.fireSuccessfulInfoMessage("The " + ResourceBundleUtil.getLabel("instructor").toLowerCase() + " has been removed from the " + ResourceBundleUtil.getMessage("label.credential").toLowerCase());
-		} catch (DbConnectionException e) {
-			PageUtil.fireErrorMessage(e.getMessage());
-		}
-	}
-	
-	@Override
-	public void changePage(int page) {
-		if(this.paginationData.getPage() != page) {
-			this.paginationData.setPage(page);
-			searchCredentialInstructors();
-		}
-	}
-	
-	public boolean canEdit() {
-		return access != null && access.isCanEdit();
-	}
+        if (decodedId > 0) {
+            context = "name:CREDENTIAL|id:" + decodedId;
+            try {
+                credentialIdData = credManager.getCredentialIdData(decodedId, CredentialType.Delivery);
+                if (credentialIdData != null) {
+                    access = credManager.getResourceAccessData(decodedId, loggedUserBean.getUserId(),
+                            ResourceAccessRequirements.of(AccessMode.MANAGER)
+                                    .addPrivilege(UserGroupPrivilege.Edit));
+                    if (!access.isCanAccess()) {
+                        PageUtil.accessDenied();
+                    } else {
+                        // set the pagination page from the UI
+                        if (page > 0) {
+                            paginationData.setPage(page);
+                        }
 
-	/*
-	 * PARAMETERS
-	 */
-	public void setId(String id) {
-		this.id = id;
-	}
+                        // retrieve parent credential id used for the learning context
+                        parentCredId = credManager.getCredentialIdForDelivery(decodedId);
 
-	public String getId() {
-		return id;
-	}
+                        // retrieve instructors
+                        searchCredentialInstructors();
+                        studentAssignBean.init(decodedId, context);
+                    }
+                } else {
+                    PageUtil.notFound();
+                }
+            } catch (Exception e) {
+                PageUtil.fireErrorMessage("Error loading instructor data");
+            }
+        } else {
+            PageUtil.notFound();
+        }
+    }
 
-	/*
-	 * GETTERS / SETTERS
-	 */
+    public void searchCredentialInstructors() {
+        try {
+            if (instructors != null) {
+                instructors.clear();
+            }
 
-	public String getSearchTerm() {
-		return searchTerm;
-	}
+            getCredentialInstructors();
+        } catch (Exception e) {
+            logger.error("Error", e);
+        }
+    }
 
-	public void setSearchTerm(String searchTerm) {
-		this.searchTerm = searchTerm;
-	}
+    public void searchUnassignedInstructors() {
+        try {
+            unassignedInstructors = new ArrayList<>();
+            PaginatedResult<UserData> result = userTextSearch
+                    .searchUsersWithInstructorRole(loggedUserBean.getOrganizationId(), instructorSearchTerm, decodedId,
+                            instructorRoleId, unitIds);
+            unassignedInstructors = result.getFoundNodes();
+        } catch (Exception e) {
+            logger.error(e);
+        }
+    }
 
-	@Override
-	public PaginationData getPaginationData() {
-		return paginationData;
-	}
-	
-	public List<InstructorData> getInstructors() {
-		return instructors;
-	}
+    public void prepareAddingInstructor() {
+        try {
+            if (instructorRoleId == 0) {
+                instructorRoleId = roleManager.getRoleIdByName(SystemRoleNames.INSTRUCTOR);
 
-	public void setInstructors(List<InstructorData> instructors) {
-		this.instructors = instructors;
-	}
+                //retrieve unit ids for original credential, but only if not already initialized (condition instructorRoleId > 0)
+                unitIds = unitManager.getAllUnitIdsCredentialIsConnectedTo(credManager.getCredentialIdForDelivery(decodedId));
+            }
+            instructorSearchTerm = "";
+            searchUnassignedInstructors();
+        } catch (Exception e) {
+            logger.error("Error", e);
+        }
+    }
 
-	public InstructorSortOption getSortOption() {
-		return sortOption;
-	}
+    public void prepareInstructorForDelete(InstructorData id) {
+        instructorForRemoval = id;
+    }
 
-	public void setSortOption(InstructorSortOption sortOption) {
-		this.sortOption = sortOption;
-	}
+    public void addInstructorToCredential(UserData user) {
+        try {
+            PageContextData ctx = new PageContextData(PageUtil.getPage(), PageUtil.getPostParameter("learningContext"), null);
 
-	public InstructorData getInstructorForRemoval() {
-		return instructorForRemoval;
-	}
+            credInstructorManager.addInstructorToCredential(decodedId, user.getId(), 0, loggedUserBean.getUserContext(ctx));
 
-	public void setInstructorForRemoval(InstructorData instructorForRemoval) {
-		this.instructorForRemoval = instructorForRemoval;
-	}
+            // update cache
+            unassignedInstructors.remove(user);
 
-//	public InstructorData getInstructorForStudentAssign() {
-//		return instructorForStudentAssign;
-//	}
-//
-//	public void setInstructorForStudentAssign(InstructorData instructorForStudentAssign) {
-//		this.instructorForStudentAssign = instructorForStudentAssign;
-//	}
+            // reset main instructor list
+            paginationData.setPage(1);
+            searchTerm = "";
+            sortOption = InstructorSortOption.Date;
+            paginationData.update((int) credInstructorManager.getCredentialInstructorsCount(decodedId));
+            instructors = credInstructorManager.getCredentialInstructors(decodedId, true, paginationData.getLimit(), true);
+            PageUtil.fireSuccessfulInfoMessage(ResourceBundleUtil.getLabel("instructor") + " is added");
+        } catch (DbConnectionException e) {
+            logger.error("Error", e);
+            PageUtil.fireErrorMessage("Error adding " + ResourceBundleUtil.getLabel("instructor").toLowerCase());
+        }
 
-	public String getCredentialTitle() {
-		return credentialIdData.getTitle();
-	}
+    }
 
-	public CredentialIdData getCredentialIdData() {
-		return credentialIdData;
-	}
+    public void getCredentialInstructors() {
+        PaginatedResult<InstructorData> searchResponse = userTextSearch.searchInstructors(
+                loggedUserBean.getOrganizationId(), searchTerm, paginationData.getPage() - 1, paginationData.getLimit(), decodedId, sortOption, List.of(userIdToExcludeFromSearch));
 
-	public InstructorSortOption[] getSortOptions() {
-		return sortOptions;
-	}
+        paginationData.update((int) searchResponse.getHitsNumber());
+        instructors = searchResponse.getFoundNodes();
+    }
 
-	public void setSortOptions(InstructorSortOption[] sortOptions) {
-		this.sortOptions = sortOptions;
-	}
+    public void resetAndSearch() {
+        paginationData.setPage(1);
+        searchCredentialInstructors();
+    }
 
-	public String getInstructorSearchTerm() {
-		return instructorSearchTerm;
-	}
+    public void applySortOption(InstructorSortOption sortOption) {
+        this.sortOption = sortOption;
+        paginationData.setPage(1);
+        searchCredentialInstructors();
+    }
 
-	public void setInstructorSearchTerm(String instructorSearchTerm) {
-		this.instructorSearchTerm = instructorSearchTerm;
-	}
+    public void removeInstructorFromCredential() {
+        try {
+            PageContextData ctx = new PageContextData(PageUtil.getPage(), PageUtil.getPostParameter("learningContext"), null);
 
-	public List<UserData> getUnassignedInstructors() {
-		return unassignedInstructors;
-	}
+            credInstructorManager.removeInstructorFromCredential(
+                    instructorForRemoval.getInstructorId(), decodedId, reassignAutomatically,
+                    loggedUserBean.getUserContext(ctx));
+            userIdToExcludeFromSearch = instructorForRemoval.getUser().getId();
+            instructorForRemoval = null;
 
-	public void setUnassignedInstructors(List<UserData> unassignedInstructors) {
-		this.unassignedInstructors = unassignedInstructors;
-	}
+            // if the removed tutor was the only one on the current page (pagination), then decrease the page
+            if (paginationData.getPage() != 1 && instructors.size() % paginationData.getLimit() == 1) {
+                paginationData.setPage(paginationData.getPage() - 1);
+            }
+            searchCredentialInstructors();
 
-	public boolean isReassignAutomatically() {
-		return reassignAutomatically;
-	}
+            userIdToExcludeFromSearch = 0;
 
-	public void setReassignAutomatically(boolean reassignAutomatically) {
-		this.reassignAutomatically = reassignAutomatically;
-	}
+            PageUtil.fireSuccessfulInfoMessage("The " + ResourceBundleUtil.getLabel("instructor").toLowerCase() + " has been removed from the " + ResourceBundleUtil.getMessage("label.credential").toLowerCase());
+        } catch (Exception e) {
+            logger.error("Error", e);
+            PageUtil.fireErrorMessage("Error removing " + ResourceBundleUtil.getLabel("instructor").toLowerCase() + " from the " + ResourceBundleUtil.getLabel("delivery").toLowerCase());
+        }
+    }
 
-	public long getCredentialId() {
-		return decodedId;
-	}
+    @Override
+    public void changePage(int page) {
+        if (this.paginationData.getPage() != page) {
+            this.paginationData.setPage(page);
+            searchCredentialInstructors();
+        }
+    }
+
+    public boolean canEdit() {
+        return access != null && access.isCanEdit();
+    }
+
+    /*
+     * GETTERS / SETTERS
+     */
+
+    public String getCredentialTitle() {
+        return credentialIdData.getTitle();
+    }
+
+    public long getCredentialId() {
+        return decodedId;
+    }
 }

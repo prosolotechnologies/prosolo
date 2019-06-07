@@ -632,8 +632,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 	
 	@Override
 	public PaginatedResult<UserData> searchUsersWithInstructorRole (long orgId, String searchTerm,
-																	long credId, long roleId, List<Long> unitIds,
-																	List<Long> excludedUserIds) {
+																	long credId, long roleId, List<Long> unitIds) {
 		PaginatedResult<UserData> response = new PaginatedResult<>();
 		try {
 			if (unitIds == null || unitIds.isEmpty()) {
@@ -661,10 +660,6 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 
 			NestedQueryBuilder nestedFilter = QueryBuilders.nestedQuery("roles", unitRoleFilter, ScoreMode.None);
 			bQueryBuilder.filter(nestedFilter);
-			
-			for (Long id : excludedUserIds) {
-				bQueryBuilder.mustNot(termQuery("id", id));
-			}
 			
 			//bQueryBuilder.minimumNumberShouldMatch(1);
 			
