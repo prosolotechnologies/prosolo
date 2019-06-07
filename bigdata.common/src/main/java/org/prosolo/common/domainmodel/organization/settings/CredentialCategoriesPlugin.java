@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
 import org.prosolo.common.domainmodel.credential.CredentialCategory;
+import org.prosolo.common.domainmodel.organization.Organization;
 
 import javax.persistence.*;
 import java.util.Set;
@@ -14,12 +15,17 @@ import java.util.Set;
  * @since 1.3.2
  */
 @Entity
-@Builder
 @NoArgsConstructor
-@AllArgsConstructor
 public class CredentialCategoriesPlugin extends OrganizationPlugin {
 
     private Set<CredentialCategory> credentialCategories;
+
+    @Builder
+    public CredentialCategoriesPlugin(long id, boolean enabled, OrganizationPluginType type, Organization organization,
+                                      Set<CredentialCategory> credentialCategories) {
+        super(id, enabled, type, organization);
+        this.credentialCategories = credentialCategories;
+    }
 
     @OneToMany(mappedBy = "credentialCategoriesPlugin", cascade = CascadeType.REMOVE, orphanRemoval = true)
     public Set<CredentialCategory> getCredentialCategories() {

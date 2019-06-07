@@ -1,5 +1,6 @@
 package org.prosolo.common.domainmodel.organization.settings;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -19,6 +20,7 @@ import javax.persistence.*;
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @NoArgsConstructor
+@AllArgsConstructor
 public abstract class OrganizationPlugin {
 
     private long id;

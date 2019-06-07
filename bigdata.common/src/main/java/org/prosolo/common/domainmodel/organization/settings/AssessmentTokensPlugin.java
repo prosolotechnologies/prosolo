@@ -1,8 +1,7 @@
 package org.prosolo.common.domainmodel.organization.settings;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.prosolo.common.domainmodel.organization.Organization;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -15,14 +14,22 @@ import javax.persistence.Enumerated;
  * @since 1.3.2
  */
 @Entity
-@Builder
 @NoArgsConstructor
-@AllArgsConstructor
 public class AssessmentTokensPlugin extends OrganizationPlugin {
 
     private int initialNumberOfTokensGiven;
     private int numberOfSpentTokensPerRequest;
     private int numberOfEarnedTokensPerAssessment;
+
+    @Builder
+    public AssessmentTokensPlugin(long id, boolean enabled, OrganizationPluginType type, Organization organization,
+                                  int initialNumberOfTokensGiven, int numberOfSpentTokensPerRequest,
+                                  int numberOfEarnedTokensPerAssessment) {
+        super(id, enabled, type, organization);
+        this.initialNumberOfTokensGiven = initialNumberOfTokensGiven;
+        this.numberOfSpentTokensPerRequest = numberOfSpentTokensPerRequest;
+        this.numberOfEarnedTokensPerAssessment = numberOfEarnedTokensPerAssessment;
+    }
 
     public int getInitialNumberOfTokensGiven() {
         return initialNumberOfTokensGiven;

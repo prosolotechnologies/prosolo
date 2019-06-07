@@ -524,10 +524,10 @@ public abstract class BaseBusinessCase {
     }
 
     protected void createCredentialCategories(EventQueue events, String... categories) {
-        OrganizationPlugin learningStagesPlugin = organization.getPlugins().stream().filter(p -> p.getType() == OrganizationPluginType.CREDENTIAL_CATEGORIES).findAny().get();
+        OrganizationPlugin credentialCategoriesPlugin = organization.getPlugins().stream().filter(p -> p.getType() == OrganizationPluginType.CREDENTIAL_CATEGORIES).findAny().get();
 
         CredentialCategoriesPluginData credentialCategoriesPluginData = new CredentialCategoriesPluginData();
-        credentialCategoriesPluginData.setPluginId(learningStagesPlugin.getId());
+        credentialCategoriesPluginData.setPluginId(credentialCategoriesPlugin.getId());
 
         for (String category : categories) {
             CredentialCategoryData categoryData = new CredentialCategoryData(false);

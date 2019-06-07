@@ -192,15 +192,13 @@
                                     <div class="formLine">
                                         <label>Plugin configuration</label>
                                         <div class="formLineRight">
-                                            <ui:remove>
-                                                <div class="checkbox checkLine">
-                                                    <h:selectBooleanCheckbox id="checkboxLearningInStages" styleClass="checkboxLearningInStagesSelector"
-                                                        onchange="onLearningInStagesChanged()"
-                                                        value="#{organizationEditBean.organization.learningStagesPluginData.enabled}"
-                                                    />
-                                                    <h:outputLabel for="checkboxLearningInStages">Enabled</h:outputLabel>
-                                                </div>
-                                            </ui:remove>
+                                            <div class="checkbox checkLine">
+                                                <h:selectBooleanCheckbox id="checkboxLearningInStages" styleClass="checkboxLearningInStagesSelector"
+                                                    onchange="onLearningInStagesChanged()"
+                                                    value="#{organizationEditBean.organization.learningStagesPluginData.enabled}"
+                                                />
+                                                <h:outputLabel for="checkboxLearningInStages">Enabled</h:outputLabel>
+                                            </div>
                                             <p class="top10 bottom30">Learning in stages mode allows for defining different stages a #{msg['label.credential'].toLowerCase()} or #{msg['label.competence'].toLowerCase()} can be achieved at. Each stage should have specific requirements and learners complete a specific stage one at a time.</p>
                                             <h:panelGroup id="panelLearningStages">
                                                 <ui:fragment rendered="#{empty organizationEditBean.organization.learningStagesPluginData.learningStages}">
