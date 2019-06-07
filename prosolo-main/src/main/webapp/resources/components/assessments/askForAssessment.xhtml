@@ -164,7 +164,7 @@
 
 							<ui:fragment rendered="#{cc.attrs.bean.isValidAssessmentRequestWithoutAssessorSet()}">
 								<div class="alert alert-warning" role="alert">
-									There is no available assessor at the moment. You can still submit an unassigned assessment request that will be assigned to the first available assessor when one appears.
+									There are no available assessors at the moment. You can still submit an unassigned assessment request that will be assigned to the first available assessor when one appears.
 									<ui:fragment rendered="#{cc.attrs.bean.userAssessmentTokenData.assessmentTokensEnabled}">
 										By submitting this request you will still spend #{cc.attrs.bean.userAssessmentTokenData.numberOfTokensSpentPerRequest} #{cc.attrs.bean.userAssessmentTokenData.numberOfTokensSpentPerRequest eq 1 ? 'token' : 'tokens'}.
 									</ui:fragment>
@@ -173,7 +173,7 @@
 
 							<ui:fragment rendered="#{cc.attrs.bean.isNewAssessmentRequestWithoutAvailableAssessorWithExistingUnassignedAssessment()}">
 								<div class="alert alert-danger" role="alert">
-									You cannot submit the assessment request. There is no available assessor at the moment, and you have already submitted an unassigned assessment request that will be assigned to the first available assessor when one appears. After this request is assigned to an assessor, you can make a new assessment request.
+									You cannot submit the assessment request. There are no available assessors at the moment, and you have already submitted an unassigned assessment request that will be assigned to the first available assessor when one appears. After this request is assigned to an assessor, you can make a new assessment request.
 								</div>
 							</ui:fragment>
 

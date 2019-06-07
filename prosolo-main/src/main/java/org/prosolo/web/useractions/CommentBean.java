@@ -41,6 +41,7 @@ public class CommentBean implements Serializable, ICommentBean {
 	@Inject private SocialActivityManager socialActivityManager;
 	@Inject @Qualifier("taskExecutor") private ThreadPoolTaskExecutor taskExecutor;
 	@Inject private CommentDataFactory commentDataFactory;
+
 	private CommentSortOption[] sortOptions;
 	private int limit = 2;
 	
@@ -146,6 +147,7 @@ public class CommentBean implements Serializable, ICommentBean {
 		try {
 			CommentData newComment = new CommentData();
 			CommentData realParent = null;
+
 			if (parent == null) {
 				newComment.setComment(commentsData.getTopLevelComment());
 				commentsData.setTopLevelComment(null);
@@ -159,6 +161,7 @@ public class CommentBean implements Serializable, ICommentBean {
 				newComment.setParent(realParent);
 				newComment.setComment(parent.getReplyToComment());
 			}
+
 			newComment.setCommentedResourceId(commentsData.getResourceId());
 			newComment.setDateCreated(new Date());
 
@@ -176,14 +179,14 @@ public class CommentBean implements Serializable, ICommentBean {
 			newComment.setManagerComment(commentsData.isManagerComment());
 			
     		Comment1 comment = null;
-    		if(commentsData.getResourceType() == CommentedResourceType.SocialActivity) {
-    			comment = socialActivityManager.saveSocialActivityComment(
-    					commentsData.getResourceId(), newComment,
-    					commentsData.getResourceType(), loggedUser.getUserContext());
-    		} else {
-    			comment = commentManager.saveNewComment(newComment, commentsData.getResourceType(),
+			if (commentsData.getResourceType() == CommentedResourceType.SocialActivity) {
+				comment = socialActivityManager.saveSocialActivityComment(
+						commentsData.getResourceId(), newComment,
+						commentsData.getResourceType(), loggedUser.getUserContext());
+			} else {
+				comment = commentManager.saveNewComment(newComment, commentsData.getResourceType(),
 						loggedUser.getUserContext());
-    		}
+			}
     		
         	newComment.setCommentId(comment.getId());
         	commentsData.setNewestCommentId(newComment.getCommentId());
@@ -205,6 +208,12 @@ public class CommentBean implements Serializable, ICommentBean {
 				commentsData.addComment(newComment);
 				commentsData.incrementNumberOfComments();
         	}
+
+			if (parent.getParent() != null) {
+				parent.getParent().setReplyToComment(null);
+			} else {
+				parent.setReplyToComment(null);
+			}
         	PageUtil.fireSuccessfulInfoMessage("Your comment is posted");
     	} catch (Exception e) {
     		logger.error(e);
