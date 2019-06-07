@@ -209,13 +209,11 @@ public class CommentBean implements Serializable, ICommentBean {
 				commentsData.incrementNumberOfComments();
         	}
 
-			commentsData.setTopLevelComment(null);
 			if (parent.getParent() != null) {
 				parent.getParent().setReplyToComment(null);
 			} else {
 				parent.setReplyToComment(null);
 			}
-			commentsData.setTopLevelComment(null);
         	PageUtil.fireSuccessfulInfoMessage("Your comment is posted");
     	} catch (Exception e) {
     		logger.error(e);
