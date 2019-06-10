@@ -424,8 +424,7 @@ public class StudentCompetenceAssessmentBean extends CompetenceAssessmentBean im
             UserContextData userContext = loggedUserBean.getUserContext();
 
             AssessmentDiscussionMessageData newComment = getAssessmentManager().addCommentToCompetenceAssessmentDiscussion(
-                    assessmentId, loggedUserBean.getUserId(), getNewCommentValue(), userContext,
-                    getCompetenceAssessmentData().getCredentialAssessmentId(), getCompetenceAssessmentData().getCredentialId());
+                    assessmentId, loggedUserBean.getUserId(), getNewCommentValue(), userContext);
 
             addNewCommentToAssessmentData(newComment);
         } catch (Exception e) {
