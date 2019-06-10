@@ -1,7 +1,5 @@
 package org.prosolo.config.app;
 
-import org.simpleframework.xml.Element;
-
 /**
  * @author stefanvuckovic
  * @date 2017-11-16
@@ -9,6 +7,4 @@ import org.simpleframework.xml.Element;
  */
 public class Plugin {
 
-    @Element(name = "enabled")
-    public boolean enabled;
 }

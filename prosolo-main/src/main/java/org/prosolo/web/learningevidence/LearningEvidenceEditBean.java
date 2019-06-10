@@ -1,12 +1,16 @@
 package org.prosolo.web.learningevidence;
 
+import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.common.domainmodel.organization.settings.EvidenceRepositoryPlugin;
 import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.services.nodes.LearningEvidenceManager;
+import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceData;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceLoadConfig;
+import org.prosolo.services.nodes.data.organization.EvidenceRepositoryPluginData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageUtil;
@@ -35,9 +39,12 @@ public class LearningEvidenceEditBean implements Serializable {
     @Inject private LoggedUserBean loggedUserBean;
     @Inject private UrlIdEncoder idEncoder;
     @Inject private SubmitEvidenceBean submitEvidenceBean;
+    @Inject private OrganizationManager organizationManager;
 
     private String evidenceId;
     private long decodedEvidenceId;
+    @Getter
+    private EvidenceRepositoryPluginData evidenceRepositoryPluginData;
 
     public void init() {
         try {
@@ -46,6 +53,8 @@ public class LearningEvidenceEditBean implements Serializable {
             } else {
                 decodedEvidenceId = idEncoder.decodeId(evidenceId);
                 submitEvidenceBean.init(learningEvidenceManager.getLearningEvidence(decodedEvidenceId, LearningEvidenceLoadConfig.builder().loadTags(true).build()));
+                EvidenceRepositoryPlugin evidenceRepositoryPlugin = organizationManager.getOrganizationPlugin(EvidenceRepositoryPlugin.class, loggedUserBean.getOrganizationId());
+                evidenceRepositoryPluginData = new EvidenceRepositoryPluginData(evidenceRepositoryPlugin);
             }
         } catch (DbConnectionException e) {
             logger.error("Error", e);
