@@ -680,6 +680,7 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
     }
 
     @Override
+    @Transactional(readOnly = true)
     public <T extends OrganizationPlugin> T getOrganizationPlugin(Class<T> pluginClass, long organizationId) {
         try {
             String query =
@@ -701,6 +702,7 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<OrganizationPlugin> getAllOrganizationPlugins(long organizationId) {
         try {
             String query =

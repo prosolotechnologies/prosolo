@@ -67,12 +67,10 @@ public interface AssessmentManager {
 			throws ResourceCouldNotBeLoadedException;
 
 	AssessmentDiscussionMessageData addCommentToCompetenceAssessmentDiscussion(
-			long assessmentId, long senderId, String comment, UserContextData context,
-			long credentialAssessmentId, long credentialId);
+			long assessmentId, long senderId, String comment, UserContextData context);
 
 	Result<AssessmentDiscussionMessageData> addCommentToCompetenceAssessmentAndGetEvents(
-			long assessmentId, long senderId, String comment, UserContextData context,
-			long credentialAssessmentId, long credentialId);
+			long assessmentId, long senderId, String comment, UserContextData context);
 
 	AssessmentDiscussionMessageData addCommentToCredentialAssessmentDiscussion(
 			long assessmentId, long senderId, String comment, UserContextData context);

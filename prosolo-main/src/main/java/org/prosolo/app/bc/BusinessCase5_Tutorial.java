@@ -218,9 +218,7 @@ public class BusinessCase5_Tutorial extends BaseBusinessCase5 {
 				comp1AssessmentData.getCompetenceAssessmentId(),
 				userPhilArmstrong.getId(),
 				"More evidence needed for this focus area",
-				createUserContext(userPhilArmstrong),
-				tutorPhillArmstronfAssessmentHelenCampbellId,
-				credential1Delivery1.getId());
+				createUserContext(userPhilArmstrong));
 
 		/////////////////////////////////////
 		// Create one peer assessment
