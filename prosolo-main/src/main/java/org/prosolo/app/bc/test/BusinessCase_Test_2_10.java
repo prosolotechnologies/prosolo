@@ -69,6 +69,8 @@ public class BusinessCase_Test_2_10 extends BaseBusinessCase5 {
         attachExistingEvidenceToCompetence(evidence3Helen.getId(), credential6Comp3Target.getId(), "Includes teaching strategies that have been designed and implemented based on the identified learning strengths and needs of students from diverse linguistic backgrounds.");
         attachExistingEvidenceToCompetence(evidence2Helen.getId(), credential6Comp4Target.getId(), "Teaching strategies success analysis for the K-12 programme.");
 
+        ServiceLocator.getInstance().getService(Competence1Manager.class).saveEvidenceSummary(credential6Comp2Target.getId(), "Evidence Summary from Helen Campbell for focus area 6.2 Engage in professional learning and improve practice");
+
         markCompetenciesAsCompleted(
                 events,
                 List.of(
