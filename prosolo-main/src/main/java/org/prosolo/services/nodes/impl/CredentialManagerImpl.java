@@ -3117,6 +3117,12 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 	@Override
 	@Transactional(readOnly = true)
+	public List<Long> getIdsOfAllCompetencesInACredential(long credId) {
+		return getIdsOfAllCompetencesInACredential(credId, persistence.currentManager());
+	}
+
+	@Override
+	@Transactional(readOnly = true)
 	public List<Long> getIdsOfAllCompetencesInACredential(long credId, Session session) throws DbConnectionException {
 		try {
 			String query = "SELECT cc.competence.id " +

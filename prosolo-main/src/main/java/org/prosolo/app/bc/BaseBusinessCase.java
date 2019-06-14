@@ -18,6 +18,7 @@ import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.organization.Role;
+import org.prosolo.common.domainmodel.organization.settings.AssessmentTokensPlugin;
 import org.prosolo.common.domainmodel.organization.settings.OrganizationPlugin;
 import org.prosolo.common.domainmodel.organization.settings.OrganizationPluginType;
 import org.prosolo.common.domainmodel.rubric.Rubric;
@@ -584,8 +585,8 @@ public abstract class BaseBusinessCase implements BusinessCase {
         extractResultAndAddEvents(events, credManager.updateCredentialData(credentialData, createUserContext(user)));
     }
 
-    protected CompetenceAssessment askPeerForCompetenceAssessment(EventQueue events, long deliveryId, long compId, User student, long peerId) throws Exception {
-        return extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(AssessmentManager.class).requestCompetenceAssessmentAndGetEvents(deliveryId, compId, student.getId(), peerId, 0, createUserContext(student)));
+    protected CompetenceAssessment askPeerForCompetenceAssessment(EventQueue events, long deliveryId, long compId, User student, long peerId, int numberOfTokensToSpend) throws Exception {
+        return extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(AssessmentManager.class).requestCompetenceAssessmentAndGetEvents(deliveryId, compId, student.getId(), peerId, numberOfTokensToSpend, createUserContext(student)));
     }
 
     protected void updateCompetenceBlindAssessmentMode(EventQueue events, long compId, BlindAssessmentMode blindAssessmentMode, User userEditor) throws Exception {
@@ -739,6 +740,51 @@ public abstract class BaseBusinessCase implements BusinessCase {
                         sender.getId(),
                         comment,
                         createUserContext(sender)));
+    }
+
+    protected void enableTokensPlugin(int initialNumberOfTokens, int tokensSpentPerRequest, int tokensEarnedPerAssessment) {
+        AssessmentTokensPlugin tokensPlugin = ServiceLocator.getInstance().getService(OrganizationManager.class).getOrganizationPlugin(AssessmentTokensPlugin.class, organization.getId());
+        AssessmentTokensPluginData tokensPluginData = new AssessmentTokensPluginData(tokensPlugin);
+        tokensPluginData.setEnabled(true);
+        tokensPluginData.setInitialNumberOfTokensGiven(initialNumberOfTokens);
+        tokensPluginData.setNumberOfSpentTokensPerRequest(tokensSpentPerRequest);
+        tokensPluginData.setNumberOfEarnedTokensPerAssessment(tokensEarnedPerAssessment);
+        ServiceLocator.getInstance().getService(OrganizationManager.class).updateAssessmentTokensPlugin(tokensPluginData);
+    }
+
+    protected CompetenceAssessment askPeerFromPoolForCompetenceAssessment(EventQueue events, long deliveryId, long compId, User student, int numberOfTokensToSpend, boolean tokensEnabled) throws Exception {
+        UserData assessor = ServiceLocator.getInstance().getService(AssessmentManager.class)
+                .getPeerFromAvailableAssessorsPoolForCompetenceAssessment(
+                        deliveryId,
+                        compId,
+                        student.getId(),
+                        tokensEnabled);
+        return askPeerForCompetenceAssessment(events, deliveryId, compId, student, assessor != null ? assessor.getId() : 0, numberOfTokensToSpend);
+    }
+
+    protected void updateUserNumberOfTokens(EventQueue events, long userId, List<Long> allRoles, int numberOfTokens) {
+        UserData user = ServiceLocator.getInstance().getService(UserManager.class).getUserWithRoles(userId, organization.getId());
+        extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(UserManager.class)
+                .updateUserAndGetEvents(
+                        user.getId(),
+                        user.getName(),
+                        user.getLastName(),
+                        user.getEmail(),
+                        true,
+                        false,
+                        user.getPassword(),
+                        user.getPosition(),
+                        numberOfTokens,
+                        user.getRoleIds(),
+                        allRoles,
+                        createUserContext(userNickPowell)));
+    }
+
+    protected void setBlindAssessmentModeForCredentialCompetencies(EventQueue events, long credentialId, BlindAssessmentMode assessmentMode, User actor) throws Exception {
+        List<Long> ids = ServiceLocator.getInstance().getService(CredentialManager.class).getIdsOfAllCompetencesInACredential(credentialId);
+        for (long id : ids) {
+            updateCompetenceBlindAssessmentMode(events, id, assessmentMode, actor);
+        }
     }
 
 
