@@ -9,6 +9,7 @@ import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.nodes.RoleManager;
+import org.prosolo.web.administration.data.RoleData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,7 +43,7 @@ public class RoleManagerImpl extends AbstractManagerImpl implements RoleManager 
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<Role> getRolesByNames(String[] names) {
+	public List<RoleData> getRolesByNames(String[] names) {
 		 String query =
 				 "SELECT role " +
 				 "FROM Role role " +
@@ -52,22 +53,31 @@ public class RoleManagerImpl extends AbstractManagerImpl implements RoleManager 
 		List<Role> result = persistence.currentManager().createQuery(query)
 				 .setParameterList("names", names)
 				 .list();
-		 
-		 if(result != null && !result.isEmpty()){
-			 return result;
-		 }
-		 return new ArrayList<Role>();
+
+		List<RoleData> roleDataList = new LinkedList<>();
+
+		if (result != null && !result.isEmpty()) {
+			for (Role role : result) {
+				roleDataList.add(new RoleData(role));
+			}
+		}
+		 return roleDataList;
 	}
 
 	@Override
-	public List<Role> getAllRoles() {
+	@Transactional (readOnly = true)
+	public List<RoleData> getAllRoles() {
 		List<Role> result = getAllResources(Role.class);
+
+		List<RoleData> roleDataList = new LinkedList<>();
 		
 		if (result != null && !result.isEmpty()) {
-			return result;
+			for (Role role : result) {
+				roleDataList.add(new RoleData(role));
+			}
 		}
 
-		return new ArrayList<Role>();
+		return roleDataList;
 	}
 
 	@Override
@@ -185,21 +195,23 @@ public class RoleManagerImpl extends AbstractManagerImpl implements RoleManager 
 	
 	@Override
 	@Transactional(readOnly = true)
-	public Map<Long, List<Long>> getUsersWithRoles(List<Role> roles) throws DbConnectionException{
+	public Map<Long, List<Long>> getUsersWithRoles(List<Long> roleIds) throws DbConnectionException{
 		try{
 			String query = 
 					"SELECT role.id, user.id " +
 					"FROM User user " +
 					"INNER JOIN user.roles role " +
-					"WHERE role IN (:roles) " +
+					"WHERE role.id IN (:roleIds) " +
 					"AND user.deleted = :deleted";
 				
 			@SuppressWarnings("unchecked")
 			List<Object[]> result = persistence.currentManager().createQuery(query).
-					setParameterList("roles", roles)
+					setParameterList("roleIds", roleIds)
 					.setBoolean("deleted", false)
 					.list();
-			Map<Long, List<Long>> resultMap = new HashMap<Long, List<Long>>();
+
+			Map<Long, List<Long>> resultMap = new HashMap<>();
+
 			if (result != null && !result.isEmpty()) {
 				for (Object[] res : result) {
 					Long roleId = (Long) res[0];
@@ -208,7 +220,7 @@ public class RoleManagerImpl extends AbstractManagerImpl implements RoleManager 
 					List<Long> users = resultMap.get(roleId);
 					
 					if (users == null) {
-						users = new ArrayList<Long>();
+						users = new ArrayList<>();
 					}
 					users.add(userId);
 					

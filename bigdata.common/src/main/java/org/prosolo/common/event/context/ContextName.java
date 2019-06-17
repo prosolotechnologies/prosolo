@@ -66,6 +66,7 @@ public enum ContextName {
 	ACTIVITY_ASSESSMENT("ActivityAssessment"),
 	COMPETENCE_ASSESSMENT("CompetenceAssessment"),
 	CREDENTIAL_ASSESSMENT("CredentialAssessment"),
+
 	ACTIVITY_GRADE_DIALOG(""),
 	ASSESSMENT_COMMENTS(""),
 	COMMENTS_ON_ACTIVITY_SUBMISSION("TargetActivity1"),	// used when assessing an activity and instructor clicks the link that displays comments on activity submissions by other students

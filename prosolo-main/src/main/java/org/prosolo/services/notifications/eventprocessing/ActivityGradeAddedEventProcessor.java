@@ -10,6 +10,7 @@ import org.prosolo.common.domainmodel.user.notifications.ResourceType;
 import org.prosolo.common.event.Event;
 import org.prosolo.common.event.context.Context;
 import org.prosolo.common.event.context.ContextName;
+import org.prosolo.common.web.ApplicationPage;
 import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.context.ContextJsonParserService;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
@@ -64,10 +65,10 @@ public class ActivityGradeAddedEventProcessor extends GradeAddedEventProcessor {
 
 	@Override
 	protected String getNotificationLink() {
-		long competenceAssessmentId = Context.getIdFromSubContextWithName(context, ContextName.COMPETENCE_ASSESSMENT);
-		return AssessmentLinkUtil.getAssessmentNotificationLink(
-				context, credentialId, competenceId, competenceAssessmentId, assessment.getType(), assessmentManager, idEncoder,
-				session, PageSection.STUDENT);
+		Context context = ContextJsonParserService.parseContext(event.getContext());
+		ApplicationPage page = ApplicationPage.getPageForURI(event.getPage());
+
+		return AssessmentLinkUtil.getNotificationLinkForCompetenceAssessment(context, page, assessment.getType(), idEncoder, PageSection.STUDENT);
 	}
 
 	@Override

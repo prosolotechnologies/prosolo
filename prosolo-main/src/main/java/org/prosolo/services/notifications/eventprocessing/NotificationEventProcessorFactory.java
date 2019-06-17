@@ -13,6 +13,7 @@ import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.interaction.CommentManager;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
 import org.prosolo.services.nodes.Activity1Manager;
+import org.prosolo.services.nodes.AnnouncementManager;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.notifications.NotificationManager;
@@ -35,6 +36,7 @@ public class NotificationEventProcessorFactory {
 	@Inject private Competence1Manager competenceManager;
 	@Inject private StudentProfileManager studentProfileManager;
 	@Inject private SocialActivityManager socialActivityManager;
+	@Inject private AnnouncementManager announcementManager;
 
 	public NotificationEventProcessor getNotificationEventProcessor(Event event, Session session) {
 		switch (event.getAction()) {
@@ -92,7 +94,7 @@ public class NotificationEventProcessorFactory {
 			case AssessmentRequested:
 				if (event.getObject() instanceof CredentialAssessment) {
 					return new CredentialAssessmentRequestEventProcessor(event, session, notificationManager,
-							notificationsSettingsManager, idEncoder, credentialManager);
+							notificationsSettingsManager, idEncoder);
 				} else if (event.getObject() instanceof CompetenceAssessment) {
 					return new CompetenceAssessmentRequestEventProcessor(event, session, notificationManager,
 							notificationsSettingsManager, idEncoder, assessmentManager);
@@ -100,7 +102,7 @@ public class NotificationEventProcessorFactory {
 				break;
 			case AnnouncementPublished:
 				return new AnnouncementPublishedEventProcessor(event, session, notificationManager,
-						notificationsSettingsManager, idEncoder, credentialManager);
+						notificationsSettingsManager, idEncoder, credentialManager, announcementManager);
 			case GRADE_ADDED:
 				BaseEntity assessment = event.getObject();
 				if (assessment instanceof ActivityAssessment) {
@@ -111,19 +113,19 @@ public class NotificationEventProcessorFactory {
 							notificationsSettingsManager, idEncoder, assessmentManager, credentialManager, competenceManager);
 				} else if (assessment instanceof CredentialAssessment) {
 					return new CredentialGradeAddedEventProcessor(event, session, notificationManager,
-							notificationsSettingsManager, idEncoder, assessmentManager, credentialManager);
+							notificationsSettingsManager, idEncoder);
 				}
 				break;
 			case ASSESSMENT_REQUEST_ACCEPTED:
-				return new CompetenceAssessmentRequestAcceptEventProcessor(event, session, notificationManager, notificationsSettingsManager, idEncoder);
+				return new CompetenceAssessmentRequestAcceptEventProcessor(event, session, notificationManager, notificationsSettingsManager, idEncoder, assessmentManager);
 			case ASSESSMENT_REQUEST_DECLINED:
-				return new CompetenceAssessmentRequestDeclineEventProcessor(event, session, notificationManager, notificationsSettingsManager, idEncoder);
+				return new CompetenceAssessmentRequestDeclineEventProcessor(event, session, notificationManager, notificationsSettingsManager, idEncoder, assessmentManager);
 			case ASSESSOR_WITHDREW_FROM_ASSESSMENT:
-				return new CompetenceAssessmentWithdrawEventProcessor(event, session, notificationManager, notificationsSettingsManager, idEncoder);
+				return new CompetenceAssessmentWithdrawEventProcessor(event, session, notificationManager, notificationsSettingsManager, idEncoder, assessmentManager);
 			case ASSESSOR_ASSIGNED_TO_ASSESSMENT:
-				return new AssessorAssignedToExistingCompetenceAssessmenEventProcessor(event, session, notificationManager, notificationsSettingsManager, idEncoder);
+				return new AssessorAssignedToExistingCompetenceAssessmenEventProcessor(event, session, notificationManager, notificationsSettingsManager, idEncoder, assessmentManager);
 			case ASSESSMENT_REQUEST_EXPIRED:
-				return new CompetenceAssessmentRequestExpiredNotificationEventProcessor(event, session, notificationManager, notificationsSettingsManager, idEncoder);
+				return new CompetenceAssessmentRequestExpiredNotificationEventProcessor(event, session, notificationManager, notificationsSettingsManager, idEncoder, assessmentManager);
 			default:
 				return null;
 		}

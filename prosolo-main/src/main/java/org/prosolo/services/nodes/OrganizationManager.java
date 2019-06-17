@@ -26,7 +26,7 @@ public interface OrganizationManager extends AbstractManager {
 
     void deleteOrganization(long organizationId) throws DbConnectionException;
 
-    List<User> getOrganizationUsers(long organizationId, boolean returnDeleted, Session session, List<Role> roles)
+    List<User> getOrganizationUsers(long organizationId, boolean returnDeleted, Session session, List<Long> roleIds)
             throws DbConnectionException;
 
     Organization createNewOrganization(OrganizationBasicData organizationBasicData, UserContextData context)
@@ -71,7 +71,7 @@ public interface OrganizationManager extends AbstractManager {
      */
     void updateOrganizationCredentialCategories(long orgId, OrganizationCategoryData organizationCategoryData);
 
-    OrganizationData getOrganizationForEdit(long organizationId, List<Role> userRoles) throws DbConnectionException;
+    OrganizationData getOrganizationForEdit(long organizationId, List<Long> roleIds) throws DbConnectionException;
 
     Organization updateOrganizationBasicInfo(long organizationid, OrganizationBasicData org, UserContextData context)
             throws DbConnectionException, ConstraintViolationException, DataIntegrityViolationException;

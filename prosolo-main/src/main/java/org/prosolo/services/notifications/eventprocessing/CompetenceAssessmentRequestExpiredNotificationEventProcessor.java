@@ -5,6 +5,7 @@ import org.hibernate.Session;
 import org.prosolo.common.domainmodel.user.notifications.NotificationType;
 import org.prosolo.common.domainmodel.user.notifications.ResourceType;
 import org.prosolo.common.event.Event;
+import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
 import org.prosolo.services.notifications.NotificationManager;
 import org.prosolo.services.notifications.eventprocessing.data.NotificationReceiverData;
@@ -26,8 +27,9 @@ public class CompetenceAssessmentRequestExpiredNotificationEventProcessor extend
 	private static Logger logger = Logger.getLogger(CompetenceAssessmentRequestExpiredNotificationEventProcessor.class);
 
 	public CompetenceAssessmentRequestExpiredNotificationEventProcessor(Event event, Session session, NotificationManager notificationManager,
-                                                                        NotificationsSettingsManager notificationsSettingsManager, UrlIdEncoder idEncoder) {
-		super(event, event.getObject().getId(), session, notificationManager, notificationsSettingsManager, idEncoder);
+                                                                        NotificationsSettingsManager notificationsSettingsManager, UrlIdEncoder idEncoder,
+																		AssessmentManager assessmentManager) {
+		super(event, event.getObject().getId(), session, notificationManager, notificationsSettingsManager, idEncoder, assessmentManager);
 	}
 
 	@Override
@@ -55,11 +57,11 @@ public class CompetenceAssessmentRequestExpiredNotificationEventProcessor extend
 
 	@Override
 	long getObjectId() {
-		return getAssessment().getCompetence().getId();
+		return assessment.getCompetence().getId();
 	}
 
 	private String getNotificationLink() {
 		return AssessmentLinkUtil.getCompetenceAssessmentNotificationLinkForStudent(
-				getCredentialId(), getAssessment().getCompetence().getId(), getAssessment().getId(), getAssessment().getType(), idEncoder);
+				credentialId, assessment.getCompetence().getId(), assessment.getId(), assessment.getType(), idEncoder);
 	}
 }

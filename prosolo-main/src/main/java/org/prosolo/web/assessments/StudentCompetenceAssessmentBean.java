@@ -133,22 +133,18 @@ public class StudentCompetenceAssessmentBean extends CompetenceAssessmentBean im
         try {
             getAssessmentManager().acceptCompetenceAssessmentRequest(getCompetenceAssessmentData().getCompetenceAssessmentId(), loggedUserBean.getUserContext());
             PageUtil.fireSuccessfulInfoMessageAcrossPages("Assessment request has been successfully accepted");
-            PageUtil.redirect(getRefreshUrl());
+            PageUtil.redirect("/assessments/my/competences/" + getCompetenceAssessmentId());
         } catch (Exception e) {
             logger.error("error", e);
             PageUtil.fireErrorMessage("Error accepting assessment request");
         }
     }
 
-    private String getRefreshUrl() {
-        return "/competences/" + getCompetenceId() + "/assessments/peer/" + getCompetenceAssessmentId() + "?credId=" + getCredId();
-    }
-
     public void declineAssessmentRequest() {
         try {
             getAssessmentManager().declineCompetenceAssessmentRequest(getCompetenceAssessmentData().getCompetenceAssessmentId(), loggedUserBean.getUserContext());
             PageUtil.fireSuccessfulInfoMessageAcrossPages("Assessment request has been successfully declined");
-            PageUtil.redirect(getRefreshUrl());
+            PageUtil.redirect("assessments/my/competences");
         } catch (Exception e) {
             logger.error("error", e);
             PageUtil.fireErrorMessage("Error declining assessment request");
@@ -159,7 +155,7 @@ public class StudentCompetenceAssessmentBean extends CompetenceAssessmentBean im
         try {
             getAssessmentManager().declinePendingCompetenceAssessment(getCompetenceAssessmentData().getCompetenceAssessmentId(), loggedUserBean.getUserContext());
             PageUtil.fireSuccessfulInfoMessageAcrossPages("You have withdrawn from the assessment");
-            PageUtil.redirect(getRefreshUrl());
+            PageUtil.redirect("assessments/my/competences");
         } catch (Exception e) {
             logger.error("error", e);
             PageUtil.fireErrorMessage("Error withdrawing from the assessment");

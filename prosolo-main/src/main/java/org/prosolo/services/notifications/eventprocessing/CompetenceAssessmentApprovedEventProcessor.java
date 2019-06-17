@@ -25,7 +25,7 @@ public class CompetenceAssessmentApprovedEventProcessor extends CompetenceAssess
 	public CompetenceAssessmentApprovedEventProcessor(Event event, Session session, NotificationManager notificationManager,
 													  NotificationsSettingsManager notificationsSettingsManager, UrlIdEncoder idEncoder,
 													  AssessmentManager assessmentManager) {
-		super(event, event.getObject().getId(), session, notificationManager, notificationsSettingsManager, idEncoder);
+		super(event, event.getObject().getId(), session, notificationManager, notificationsSettingsManager, idEncoder, assessmentManager);
 		this.assessmentManager = assessmentManager;
 	}
 
@@ -59,12 +59,12 @@ public class CompetenceAssessmentApprovedEventProcessor extends CompetenceAssess
 
 	@Override
 	long getObjectId() {
-		return getAssessment().getCompetence().getId();
+		return assessment.getCompetence().getId();
 	}
 
 	private String getNotificationLink() {
 		return AssessmentLinkUtil.getAssessmentNotificationLink(
-				getContext(), getCredentialId(), getAssessment().getCompetence().getId(), getAssessment().getId(), getAssessment().getType(), assessmentManager, idEncoder, session, PageSection.STUDENT);
+				context, credentialId, assessment.getCompetence().getId(), assessment.getId(), assessment.getType(), assessmentManager, idEncoder, session, PageSection.STUDENT);
 	}
 
 }

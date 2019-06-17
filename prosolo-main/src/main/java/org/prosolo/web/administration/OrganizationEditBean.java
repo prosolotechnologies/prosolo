@@ -22,6 +22,7 @@ import org.prosolo.services.util.roles.SystemRoleNames;
 import org.prosolo.web.ApplicationBean;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.PageAccessRightsResolver;
+import org.prosolo.web.administration.data.RoleData;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.prosolo.web.util.page.UseCase;
@@ -78,7 +79,7 @@ public class OrganizationEditBean implements Serializable {
     private long decodedId;
     private String searchTerm;
     private String[] rolesArray;
-    private List<Role> adminRoles;
+    private List<RoleData> adminRoles;
     private List<Long> adminRolesIds = new ArrayList<>();
 
     private LearningStageData selectedLearningStage;
@@ -99,7 +100,8 @@ public class OrganizationEditBean implements Serializable {
             if (pageAccessRightsResolver.getAccessRightsForOrganizationPage(decodedId).isCanAccess()) {
                 rolesArray = new String[] {SystemRoleNames.ADMIN, SystemRoleNames.SUPER_ADMIN};
                 adminRoles = roleManager.getRolesByNames(rolesArray);
-                for(Role r : adminRoles){
+
+                for(RoleData r : adminRoles){
                     adminRolesIds.add(r.getId());
                 }
                 if (decodedId > 0) {
@@ -118,7 +120,7 @@ public class OrganizationEditBean implements Serializable {
     }
 
     private void initOrgData() {
-        this.organization = organizationManager.getOrganizationForEdit(decodedId, adminRoles);
+        this.organization = organizationManager.getOrganizationForEdit(decodedId, adminRoles.stream().map(RoleData::getId).collect(Collectors.toList()));
 
         if (organization == null) {
             this.organization = new OrganizationData();

@@ -5,6 +5,7 @@ import org.hibernate.Session;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.event.context.Context;
 import org.prosolo.common.event.context.ContextName;
+import org.prosolo.common.web.ApplicationPage;
 import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.util.page.PageSection;
@@ -57,11 +58,9 @@ public class AssessmentLinkUtil {
                     + "/credentials/" +
                     idEncoder.encodeId(credId) +
                     "/assessments/" +
-                    (section == PageSection.MANAGE ? encodedCredAssessmentId
-                            : (assessmentType == AssessmentType.PEER_ASSESSMENT
+                    (section == PageSection.MANAGE ? encodedCredAssessmentId : (assessmentType == AssessmentType.PEER_ASSESSMENT
                                 ? "peer/" + encodedCredAssessmentId
-                                : (assessmentType == AssessmentType.INSTRUCTOR_ASSESSMENT
-                                    ? "instructor" : "self")));
+                                : (assessmentType == AssessmentType.INSTRUCTOR_ASSESSMENT ? "instructor" : "self")));
         }
 
         //if student section and cred id is not passed or credential assessment does not exist, we create notification for competence assessment page
@@ -74,6 +73,84 @@ public class AssessmentLinkUtil {
                         ? "peer/" + encodedCompAssessmentId
                         : (assessmentType == AssessmentType.INSTRUCTOR_ASSESSMENT
                             ? "instructor/" + encodedCompAssessmentId : "self"));
+        }
+
+        logger.debug("Assessment notification link can't be created");
+        return null;
+    }
+
+    public static String getNotificationLinkForCompetenceAssessment(Context context, ApplicationPage page, AssessmentType type, UrlIdEncoder idEncoder, PageSection pageSection) {
+        long credentialId = Context.getIdFromSubContextWithName(context, ContextName.CREDENTIAL);
+
+        switch (page) {
+            // if grade is added to a competency assessment is a part of the credential assessment
+            case MY_ASSESSMENTS_CREDENTIAL:
+            case CREDENTIAL_ASSESSMENT_MANAGE:
+                long credentialAssessment = Context.getIdFromSubContextWithName(context, ContextName.CREDENTIAL_ASSESSMENT);
+
+                return AssessmentLinkUtil.getCredentialAssessmentPageLink(
+                        credentialId,
+                        credentialAssessment,
+                        type,
+                        idEncoder,
+                        pageSection);
+
+            // if grade is added to a competency assessment is a part of the competency assessment
+            case MY_ASSESSMENTS_COMPETENCE_ASSESSMENT:
+                long competenceId = Context.getIdFromSubContextWithName(context, ContextName.COMPETENCE);
+                long competenceAssessmentId = Context.getIdFromSubContextWithName(context, ContextName.COMPETENCE_ASSESSMENT);
+
+                return AssessmentLinkUtil.getCompetenceAssessmentPageLink(
+                        credentialId,
+                        competenceId,
+                        competenceAssessmentId,
+                        type,
+                        idEncoder,
+                        pageSection);
+            default:
+                throw new IllegalArgumentException("Cannot generate notification link for page " + page);
+        }
+    }
+
+    public static String getCredentialAssessmentPageLink(
+            long credId,
+            long credAssessmentId,
+            AssessmentType assessmentType,
+            UrlIdEncoder idEncoder,
+            PageSection section) {
+
+        if (credId > 0 && credAssessmentId > 0) {
+            String encodedCredAssessmentId = idEncoder.encodeId(credAssessmentId);
+
+            return section.getPrefix() +
+                    "/credentials/" + idEncoder.encodeId(credId) +
+                    "/assessments/" +
+                    (section == PageSection.MANAGE ? encodedCredAssessmentId : (assessmentType == AssessmentType.PEER_ASSESSMENT
+                            ? "peer/" + encodedCredAssessmentId
+                            : (assessmentType == AssessmentType.INSTRUCTOR_ASSESSMENT ? "instructor" : "self")));
+        }
+
+        logger.debug("Assessment notification link can't be created");
+        return null;
+    }
+
+    public static String getCompetenceAssessmentPageLink(
+            long credentialId,
+            long compId,
+            long compAssessmentId,
+            AssessmentType assessmentType,
+            UrlIdEncoder idEncoder,
+            PageSection section) {
+
+        if (credentialId > 0 && compId > 0 && compAssessmentId > 0) {
+            String encodedCompAssessmentId = idEncoder.encodeId(compAssessmentId);
+            return section.getPrefix() +
+                    "/credentials/" + idEncoder.encodeId(credentialId) +
+                    "/competences/" + idEncoder.encodeId(compId) +
+                    "/assessments/" +
+                    (assessmentType == AssessmentType.PEER_ASSESSMENT
+                            ? "peer/" + encodedCompAssessmentId
+                            : (assessmentType == AssessmentType.INSTRUCTOR_ASSESSMENT ? "instructor" : "self"));
         }
 
         logger.debug("Assessment notification link can't be created");

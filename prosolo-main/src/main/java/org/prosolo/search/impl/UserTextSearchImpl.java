@@ -46,6 +46,7 @@ import org.prosolo.services.user.UserManager;
 import org.prosolo.services.user.data.StudentAssessmentInfo;
 import org.prosolo.services.user.data.StudentData;
 import org.prosolo.services.user.data.UserData;
+import org.prosolo.web.administration.data.RoleData;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -153,7 +154,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 
 	@Override
 	public PaginatedResult<UserData> getUsersWithRoles(
-			String term, int page, int limit, boolean paginate, long roleId, List<Role> roles,
+			String term, int page, int limit, boolean paginate, long roleId, List<RoleData> roles,
 			boolean includeSystemUsers, List<Long> excludeIds, long organizationId) {
 
 		PaginatedResult<UserData> response =
@@ -208,7 +209,8 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 
 			if (roles != null && !roles.isEmpty()) {
 				BoolQueryBuilder bqb1 = QueryBuilders.boolQuery();
-				for(Role r : roles) {
+
+				for (RoleData r : roles) {
 					bqb1.should(termQuery("roles.id", r.getId()));
 				}
 				if (organizationId > 0) {
@@ -238,12 +240,9 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 
 			if (sResponse != null) {
 				response.setHitsNumber(sResponse.getHits().getTotalHits());
-				List<Role> listRoles;
 
 				if (roles == null || roles.isEmpty()){
-					listRoles = roleManager.getAllRoles();
-				} else {
-					listRoles = roles;
+					roles = roleManager.getAllRoles();
 				}
 
 				for (SearchHit sh : sResponse.getHits()) {
@@ -257,12 +256,15 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 					user.setEmail(userManager.getUserEmail(user.getId()));
 					@SuppressWarnings("unchecked")
 					List<Map<String, Object>> rolesList = (List<Map<String, Object>>) fields.get("roles");
-					List<Role> userRoles = new ArrayList<>();
-					if(rolesList != null) {
-						for(Map<String, Object> map : rolesList) {
-							Role r = getRoleDataForId(listRoles, Long.parseLong(map.get("id") + ""));
-							if(r != null) {
-								userRoles.add(r);
+					List<RoleData> userRoles = new ArrayList<>();
+
+					if (rolesList != null) {
+						for (Map<String, Object> map : rolesList) {
+							long rid = Long.parseLong(map.get("id") + "");
+							Optional<RoleData> r = roles.stream().filter(role -> role.getId() == rid).findAny();
+
+							if (r.isPresent()) {
+								userRoles.add(r.get());
 							}
 						}
 					}
@@ -286,13 +288,14 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 				RoleFilter defaultFilter = new RoleFilter(0, "All", docCount.getValue());
 				roleFilters.add(defaultFilter);
 				RoleFilter selectedFilter = defaultFilter;
-				for(Role role : listRoles) {
+
+				for(RoleData role : roles) {
 					Terms.Bucket bucket = getBucketForRoleId(role.getId(), buckets);
 					int number = 0;
 					if(bucket != null) {
 						number = (int) bucket.getDocCount();
 					}
-					RoleFilter rf = new RoleFilter(role.getId(), role.getTitle(), number);
+					RoleFilter rf = new RoleFilter(role.getId(), role.getName(), number);
 					roleFilters.add(rf);
 					if(role.getId() == roleId) {
 						selectedFilter = rf;
@@ -323,18 +326,6 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 		return null;
 	}
 
-	private Role getRoleDataForId(List<Role> roles,
-			long roleId) {
-		if(roles != null) {
-			for(Role r : roles) {
-				if(roleId == r.getId()) {
-					return r;
-				}
-			}
-		}
-		return null;
-	}
-	
 	private int setStart(int page, int limit){
 		int start = 0;
 		if (page >= 0 && limit > 0) {

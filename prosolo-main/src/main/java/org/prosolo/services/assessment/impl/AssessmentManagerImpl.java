@@ -555,7 +555,8 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
     public AssessmentDataFull getFullAssessmentDataForAssessmentType(long id, long userId, AssessmentType type, AssessmentLoadConfig loadConfig) {
         CredentialAssessment assessment = (CredentialAssessment) persistence.currentManager()
                 .get(CredentialAssessment.class, id);
-        if (type != null && assessment.getType() != type) {
+
+        if (assessment == null || (type != null && assessment.getType() != type)) {
             return null;
         }
 

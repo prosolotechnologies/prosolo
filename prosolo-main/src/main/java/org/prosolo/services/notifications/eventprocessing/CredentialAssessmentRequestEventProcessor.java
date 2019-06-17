@@ -8,6 +8,9 @@ import org.prosolo.common.domainmodel.credential.BlindAssessmentMode;
 import org.prosolo.common.domainmodel.user.notifications.NotificationType;
 import org.prosolo.common.domainmodel.user.notifications.ResourceType;
 import org.prosolo.common.event.Event;
+import org.prosolo.common.event.context.Context;
+import org.prosolo.common.event.context.ContextName;
+import org.prosolo.services.context.ContextJsonParserService;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.notifications.NotificationManager;
@@ -24,14 +27,11 @@ public class CredentialAssessmentRequestEventProcessor extends AssessmentNotific
 	@SuppressWarnings("unused")
 	private static Logger logger = Logger.getLogger(CredentialAssessmentRequestEventProcessor.class);
 
-	private CredentialManager credentialManager;
 	private CredentialAssessment assessment;
 	
 	public CredentialAssessmentRequestEventProcessor(Event event, Session session, NotificationManager notificationManager,
-													 NotificationsSettingsManager notificationsSettingsManager, UrlIdEncoder idEncoder,
-													 CredentialManager credentialManager) {
+													 NotificationsSettingsManager notificationsSettingsManager, UrlIdEncoder idEncoder) {
 		super(event, session, notificationManager, notificationsSettingsManager, idEncoder);
-		this.credentialManager = credentialManager;
 		assessment = (CredentialAssessment) session.load(CredentialAssessment.class, event.getObject().getId());
 	}
 
@@ -83,16 +83,23 @@ public class CredentialAssessmentRequestEventProcessor extends AssessmentNotific
 	}
 
 	private String getNotificationLink(PageSection section) {
-		//assessment type is Instructor if manage section and Peer if student section because in Self assessment there is no assessment request.
-		AssessmentType assessmentType = section == PageSection.MANAGE ? AssessmentType.INSTRUCTOR_ASSESSMENT : AssessmentType.PEER_ASSESSMENT;
-		return AssessmentLinkUtil.getAssessmentNotificationLink(
-				assessment.getTargetCredential().getCredential().getId(),
-				assessment.getId(),
-				0,
-				0,
-				assessmentType,
-				idEncoder,
-				section);
+		Context context = ContextJsonParserService.parseContext(event.getContext());
+
+		if (assessment.getType() == AssessmentType.INSTRUCTOR_ASSESSMENT) {
+			long credentialId = Context.getIdFromSubContextWithName(context, ContextName.CREDENTIAL);
+
+			return AssessmentLinkUtil.getCredentialAssessmentPageLink(
+					credentialId,
+					assessment.getId(),
+					assessment.getType(),
+					idEncoder,
+					PageSection.MANAGE);
+		} else if (assessment.getType() == AssessmentType.PEER_ASSESSMENT) {
+			return section.getPrefix() +
+					"/assessments/my/credentials/" + idEncoder.encodeId(assessment.getId());
+		} else {
+			throw new IllegalArgumentException("Cannot generate notification link for page ");
+		}
 	}
 
 }
