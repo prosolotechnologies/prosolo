@@ -76,10 +76,15 @@ public class BusinessCase_Test_2_13 extends BaseBusinessCase5 {
         updateUserNumberOfTokens(events, userSheriLaureano.getId(), roles, 11);
         updateUserNumberOfTokens(events, userTaniaCortese.getId(), roles, 2);
         updateUserNumberOfTokens(events, userSonyaElston.getId(), roles, 2);
+        updateUserNumberOfTokens(events, userAngelicaFallon.getId(), roles, 2);
+        updateUserNumberOfTokens(events, userIdaFritz.getId(), roles, 2);
+
 
         createEvidenceForHelenCampbell(events);
 
         enrollTimothyRiveraToDelivery6(events);
+        //these two users should have different enrollment date
+        Thread.sleep(1500);
         enrollStevenTurnerToDelivery6(events);
         enrollKevinHallToDelivery6(events);
         enrollRichardAndersonToDelivery6(events);
@@ -93,13 +98,15 @@ public class BusinessCase_Test_2_13 extends BaseBusinessCase5 {
 
         updateUserNumberOfTokens(events, userJosephGarcia.getId(), roles, 7);
         updateUserNumberOfTokens(events, userKevinHall.getId(), roles, 10);
-
-        enrollTaniaCorteseToDelivery6(events);
-        enrollSonyaElstonToDelivery6(events);
-
+        updateUserNumberOfTokens(events, userSamanthaDell.getId(), roles, 0);
         updateUserNumberOfTokens(events, userStevenTurner.getId(), roles, 10);
         updateUserNumberOfTokens(events, userTimothyRivera.getId(), roles, 10);
         updateUserNumberOfTokens(events, userRichardAnderson.getId(), roles, 30);
+
+        enrollTaniaCorteseToDelivery6(events);
+        enrollSonyaElstonToDelivery6(events);
+        enrollAngelicaFallonToDelivery6(events);
+        enrollIdaFritzToDelivery6(events);
 
         ServiceLocator.getInstance().getService(UserManager.class).updateAssessmentAvailability(userKennethCarter.getId(), false);
         ServiceLocator.getInstance().getService(UserManager.class).updateAssessmentAvailability(userAnthonyMoore.getId(), false);
@@ -249,8 +256,7 @@ public class BusinessCase_Test_2_13 extends BaseBusinessCase5 {
         // we need a reference to the TargetCompetence1
         TargetCompetence1 credential6Comp2Target = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(credential6Delivery1.getId(), credential6Competencies.get(1).getCompetenceId(), userTaniaCortese.getId(), createUserContext(userTaniaCortese)));
 
-        CompetenceAssessment competenceAssessment1 = askPeerFromPoolForCompetenceAssessment(events, credential6Delivery1.getId(), credential6Competencies.get(1).getCompetenceId(), userTaniaCortese, tokensSpentPerRequest, true);
-
+        CompetenceAssessment competenceAssessment = askPeerForCompetenceAssessment(events, credential6Delivery1.getId(), credential6Competencies.get(1).getCompetenceId(), userTaniaCortese, userStevenTurner.getId(), tokensSpentPerRequest);
     }
 
     private void enrollSonyaElstonToDelivery6(EventQueue events) throws Exception {
@@ -262,7 +268,31 @@ public class BusinessCase_Test_2_13 extends BaseBusinessCase5 {
         // we need a reference to the TargetCompetence1
         TargetCompetence1 credential6Comp2Target = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(credential6Delivery1.getId(), credential6Competencies.get(1).getCompetenceId(), userSonyaElston.getId(), createUserContext(userSonyaElston)));
 
-        CompetenceAssessment competenceAssessment1 = askPeerFromPoolForCompetenceAssessment(events, credential6Delivery1.getId(), credential6Competencies.get(1).getCompetenceId(), userSonyaElston, tokensSpentPerRequest, true);
+        CompetenceAssessment competenceAssessment = askPeerForCompetenceAssessment(events, credential6Delivery1.getId(), credential6Competencies.get(1).getCompetenceId(), userSonyaElston, userTimothyRivera.getId(), tokensSpentPerRequest);
+    }
+
+    private void enrollAngelicaFallonToDelivery6(EventQueue events) throws Exception {
+        enrollToDelivery(events, credential6Delivery1, userAngelicaFallon);
+
+        //enroll in competencies
+        List<CompetenceData1> credential6Competencies = ServiceLocator.getInstance().getService(Competence1Manager.class).getCompetencesForCredential(credential6Delivery1.getId(), userAngelicaFallon.getId(), new CompetenceLoadConfig.CompetenceLoadConfigBuilder().create());
+
+        // we need a reference to the TargetCompetence1
+        TargetCompetence1 credential6Comp2Target = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(credential6Delivery1.getId(), credential6Competencies.get(1).getCompetenceId(), userAngelicaFallon.getId(), createUserContext(userAngelicaFallon)));
+
+        CompetenceAssessment competenceAssessment = askPeerForCompetenceAssessment(events, credential6Delivery1.getId(), credential6Competencies.get(1).getCompetenceId(), userAngelicaFallon, userStevenTurner.getId(), tokensSpentPerRequest);
+    }
+
+    private void enrollIdaFritzToDelivery6(EventQueue events) throws Exception {
+        enrollToDelivery(events, credential6Delivery1, userIdaFritz);
+
+        //enroll in competencies
+        List<CompetenceData1> credential6Competencies = ServiceLocator.getInstance().getService(Competence1Manager.class).getCompetencesForCredential(credential6Delivery1.getId(), userIdaFritz.getId(), new CompetenceLoadConfig.CompetenceLoadConfigBuilder().create());
+
+        // we need a reference to the TargetCompetence1
+        TargetCompetence1 credential6Comp2Target = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(credential6Delivery1.getId(), credential6Competencies.get(1).getCompetenceId(), userIdaFritz.getId(), createUserContext(userIdaFritz)));
+
+        CompetenceAssessment competenceAssessment = askPeerForCompetenceAssessment(events, credential6Delivery1.getId(), credential6Competencies.get(1).getCompetenceId(), userIdaFritz, userTimothyRivera.getId(), tokensSpentPerRequest);
     }
 
     private void enrollHelenCampbellToDelivery6(EventQueue events) throws Exception {
