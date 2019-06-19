@@ -1,17 +1,16 @@
 package org.prosolo.services.interaction.data;
 
-import java.io.Serializable;
-import java.util.List;
-
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
-import org.prosolo.web.useractions.CommentBean;
+
+import java.io.Serializable;
+import java.util.List;
 
 public class CommentsData implements Serializable {
 
 	private static final long serialVersionUID = -4537657862393549529L;
 
-	private static Logger logger = Logger.getLogger(CommentBean.class);
+	private static Logger logger = Logger.getLogger(CommentsData.class);
 	
 	private String topLevelComment;
 	

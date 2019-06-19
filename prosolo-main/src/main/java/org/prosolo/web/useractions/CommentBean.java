@@ -163,6 +163,7 @@ public class CommentBean implements Serializable, ICommentBean {
 			}
 
 			newComment.setCommentedResourceId(commentsData.getResourceId());
+			newComment.setCommentedResourceType(commentsData.getResourceType());
 			newComment.setDateCreated(new Date());
 
 			UserData creator = new UserData(
@@ -223,22 +224,6 @@ public class CommentBean implements Serializable, ICommentBean {
     		logger.error("Error", e);
     		PageUtil.fireErrorMessage("Error posting a comment");
     	}
-		
-//		taskExecutor.execute(new Runnable() {
-//            @Override
-//            public void run() {	
-//            	try {
-//            		PageContextData context = new PageContextData(page, lContext, service);
-//            		Comment1 comment = commentManager.saveNewComment(editComment, loggedUser.getUser().getId(), 
-//            				resourceType, context);
-//	            	
-//	            	editComment.setCommentId(comment.getId());
-//	            	
-//            	} catch (DbConnectionException e) {
-//            		logger.error(e);
-//            	}
-//            }
-//        });
 	}
 	
 	public void editComment(CommentData comment, CommentsData allCommentsData) {
@@ -253,10 +238,10 @@ public class CommentBean implements Serializable, ICommentBean {
 			logger.error("Error", e);
 		}
 	}
-	
+
 	public void likeAction(CommentData data) {
 		UserContextData context = loggedUser.getUserContext();
-		
+
 		//we can trade off accuracy for performance here
 		boolean liked = !data.isLikedByCurrentUser();
 		data.setLikedByCurrentUser(liked);
@@ -265,7 +250,7 @@ public class CommentBean implements Serializable, ICommentBean {
 		} else {
 			data.setLikeCount(data.getLikeCount() - 1);
 		}
-		
+
 		taskExecutor.execute(() -> {
 			try {
 				if(liked) {

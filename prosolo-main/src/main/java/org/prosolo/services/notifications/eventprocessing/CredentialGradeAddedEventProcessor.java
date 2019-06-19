@@ -1,15 +1,12 @@
 package org.prosolo.services.notifications.eventprocessing;
 
 import org.apache.log4j.Logger;
-import org.hibernate.Session;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
-import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
 import org.prosolo.common.domainmodel.credential.BlindAssessmentMode;
 import org.prosolo.common.domainmodel.user.notifications.ResourceType;
 import org.prosolo.common.event.Event;
-import org.prosolo.common.event.context.Context;
-import org.prosolo.common.event.context.ContextName;
-import org.prosolo.services.context.ContextJsonParserService;
+import org.prosolo.services.assessment.AssessmentManager;
+import org.prosolo.services.assessment.data.AssessmentBasicData;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
 import org.prosolo.services.notifications.NotificationManager;
 import org.prosolo.services.notifications.eventprocessing.util.AssessmentLinkUtil;
@@ -18,55 +15,63 @@ import org.prosolo.web.util.page.PageSection;
 
 public class CredentialGradeAddedEventProcessor extends GradeAddedEventProcessor {
 
-	private static Logger logger = Logger.getLogger(CredentialGradeAddedEventProcessor.class);
+    private static Logger logger = Logger.getLogger(CredentialGradeAddedEventProcessor.class);
 
-	private CredentialAssessment assessment;
+    private long credentialId;
+    private AssessmentBasicData credentialAssessment;
 
-	public CredentialGradeAddedEventProcessor(Event event, Session session, NotificationManager notificationManager,
-											  NotificationsSettingsManager notificationsSettingsManager, UrlIdEncoder idEncoder) {
-		super(event, session, notificationManager, notificationsSettingsManager, idEncoder);
-		assessment = (CredentialAssessment) session.load(CredentialAssessment.class, event.getObject().getId());
-	}
+    public CredentialGradeAddedEventProcessor(Event event, NotificationManager notificationManager,
+                                              NotificationsSettingsManager notificationsSettingsManager,
+                                              UrlIdEncoder idEncoder, AssessmentManager assessmentManager) {
+        super(event, notificationManager, notificationsSettingsManager, idEncoder);
 
-	@Override
-	protected boolean shouldNotificationBeGenerated() {
-		return assessment.getType() != AssessmentType.SELF_ASSESSMENT;
-	}
+        credentialAssessment = assessmentManager.getBasicAssessmentInfoForCredentialAssessment(event.getObject().getId());
 
-	@Override
-	protected long getStudentId() {
-		return assessment.getStudent().getId();
-	}
+        credentialId = credentialAssessment.getCredentialId();
+    }
 
-	@Override
-	protected BlindAssessmentMode getBlindAssessmentMode() {
-		return assessment.getBlindAssessmentMode();
-	}
+    @Override
+    protected boolean shouldNotificationBeGenerated() {
+        return credentialAssessment.getType() != AssessmentType.SELF_ASSESSMENT;
+    }
 
-	@Override
-	protected long getAssessorId() {
-		return assessment.getAssessor() != null
-				? assessment.getAssessor().getId()
-				: 0;
-	}
+    @Override
+    protected long getStudentId() {
+        return credentialAssessment.getStudentId();
+    }
 
-	@Override
-	protected String getNotificationLink() {
-		Context context = ContextJsonParserService.parseContext(event.getContext());
-		long credentialId = Context.getIdFromSubContextWithName(context, ContextName.CREDENTIAL);
-		long credentialAssessment = Context.getIdFromSubContextWithName(context, ContextName.CREDENTIAL_ASSESSMENT);
+    @Override
+    protected BlindAssessmentMode getBlindAssessmentMode() {
+        return credentialAssessment.getBlindAssessmentMode();
+    }
 
-		return AssessmentLinkUtil.getCredentialAssessmentPageLink(
-				credentialId,
-				credentialAssessment,
-				assessment.getType(),
-				idEncoder,
-				PageSection.STUDENT);
-	}
+    @Override
+    protected long getAssessorId() {
+        return credentialAssessment.getAssessorId();
+    }
 
-	@Override
-	ResourceType getObjectType() {
-		return ResourceType.CredentialAssessment;
-	}
+    @Override
+    protected String getNotificationLink() {
+        AssessmentType assessmentType = credentialAssessment.getType();
+
+        switch (assessmentType) {
+            case INSTRUCTOR_ASSESSMENT:
+                return AssessmentLinkUtil.getCredentialAssessmentUrlForAssessedStudent(
+                        idEncoder.encodeId(credentialId),
+                        idEncoder.encodeId(credentialAssessment.getCredentialAssessmentId()),
+                        assessmentType,
+                        PageSection.STUDENT);
+            case PEER_ASSESSMENT:
+                return AssessmentLinkUtil.getCredentialAssessmentUrlForStudentPeerAssessor(
+                        idEncoder.encodeId(credentialAssessment.getCredentialAssessmentId()));
+            default:
+                throw new IllegalArgumentException("Cannot generate notification link for the assessment type " + assessmentType);
+        }
+    }
+
+    @Override
+    ResourceType getObjectType() {
+        return ResourceType.CredentialAssessment;
+    }
 
 }

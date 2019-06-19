@@ -1,10 +1,10 @@
 package org.prosolo.services.notifications.eventprocessing;
 
 import org.apache.log4j.Logger;
-import org.hibernate.Session;
 import org.prosolo.common.domainmodel.user.notifications.NotificationType;
 import org.prosolo.common.domainmodel.user.notifications.ResourceType;
 import org.prosolo.common.event.Event;
+import org.prosolo.services.interaction.CommentManager;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.notifications.NotificationManager;
@@ -17,46 +17,44 @@ import java.util.List;
 
 public class CommentLikeEventProcessor extends CommentEventProcessor {
 
-	private static Logger logger = Logger.getLogger(CommentLikeEventProcessor.class);
-	
-	public CommentLikeEventProcessor(Event event, Session session,
-									 NotificationManager notificationManager,
-									 NotificationsSettingsManager notificationsSettingsManager, Activity1Manager activityManager,
-									 UrlIdEncoder idEncoder) {
-		super(event, session, notificationManager, notificationsSettingsManager, activityManager, idEncoder);
-	}
+    private static Logger logger = Logger.getLogger(CommentLikeEventProcessor.class);
 
-	@Override
-	List<NotificationReceiverData> getReceiversData() {
-		List<NotificationReceiverData> receivers = new ArrayList<>();
-		try {
-			PageSection section = getResource().isManagerComment() ? PageSection.MANAGE : PageSection.STUDENT;
-			String notificationLink = getNotificationLink(section);
-			if (notificationLink != null && !notificationLink.isEmpty()) {
-				Long resCreatorId = getResource().getUser().getId();
-				receivers.add(new NotificationReceiverData(resCreatorId, notificationLink, false, section));
-			}
-			return receivers;
-		} catch(Exception e) {
-			e.printStackTrace();
-			logger.error(e);
-			return new ArrayList<>();
-		}
-	}
+    public CommentLikeEventProcessor(Event event, NotificationManager notificationManager,
+                                     NotificationsSettingsManager notificationsSettingsManager, Activity1Manager activityManager,
+                                     UrlIdEncoder idEncoder, CommentManager commentManager) {
+        super(event, notificationManager, notificationsSettingsManager, idEncoder, commentManager);
+    }
 
-	@Override
-	NotificationType getNotificationType() {
-		return NotificationType.Comment_Like;
-	}
+    @Override
+    List<NotificationReceiverData> getReceiversData() {
+        try {
+            PageSection section = commentData.isManagerComment() ? PageSection.MANAGE : PageSection.STUDENT;
+            String notificationLink = getNotificationLink(section);
 
-	@Override
-	ResourceType getObjectType() {
-		return ResourceType.Comment;
-	}
+            if (notificationLink != null && !notificationLink.isEmpty()) {
+                Long resCreatorId = commentData.getCreator().getId();
+                return List.of(new NotificationReceiverData(resCreatorId, notificationLink, false, section));
+            }
+            return List.of();
+        } catch (Exception e) {
+            logger.error("Error", e);
+            return new ArrayList<>();
+        }
+    }
 
-	@Override
-	long getObjectId() {
-		return getResource().getId();
-	}
+    @Override
+    NotificationType getNotificationType() {
+        return NotificationType.Comment_Like;
+    }
+
+    @Override
+    ResourceType getObjectType() {
+        return ResourceType.Comment;
+    }
+
+    @Override
+    long getObjectId() {
+        return commentData.getCommentId();
+    }
 
 }

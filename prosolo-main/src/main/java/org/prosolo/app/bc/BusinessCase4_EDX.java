@@ -826,6 +826,7 @@ public class BusinessCase4_EDX implements BusinessCase {
 	private CommentData commentOnActivity(EventQueue events, User userKevinHall, Activity1 act1comp1cred1, CommentData parent, String date, String commentText) {
 		CommentData newComment = new CommentData();
 		newComment.setCommentedResourceId(act1comp1cred1.getId());
+		newComment.setCommentedResourceType(CommentedResourceType.Activity);
 		try {
 			newComment.setDateCreated(dateFormatter.parse(date));
 		} catch (ParseException e) {

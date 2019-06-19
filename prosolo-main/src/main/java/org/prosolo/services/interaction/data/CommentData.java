@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.common.util.date.DateUtil;
+import org.prosolo.services.nodes.data.activity.ResourceType;
 import org.prosolo.services.user.data.UserData;
 
 public class CommentData {
@@ -12,6 +14,7 @@ public class CommentData {
 	private long commentId;
 	private CommentData parent;
 	private long commentedResourceId;
+	private CommentedResourceType commentedResourceType;
 	private String comment;
 	private UserData creator;
 	private boolean isInstructor;
@@ -107,6 +110,14 @@ public class CommentData {
 
 	public void setCommentedResourceId(long commentedResourceId) {
 		this.commentedResourceId = commentedResourceId;
+	}
+
+	public CommentedResourceType getCommentedResourceType() {
+		return commentedResourceType;
+	}
+
+	public void setCommentedResourceType(CommentedResourceType commentedResourceType) {
+		this.commentedResourceType = commentedResourceType;
 	}
 
 	public Date getDateCreated() {

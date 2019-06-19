@@ -11,8 +11,10 @@ public enum ApplicationPage {
 	PROFILE("/profile.xhtml"),
 	MESSAGES("/messages.xhtml"),
 	SETTINGS("/settings.xhtml"),
-	CREDENTIAL_ASSESSMENT("/credential-assessment.xhtml"),
-	COMPETENCE_ASSESSMENT("/competence-peer-assessment.xhtml"),
+	CREDENTIAL_PEER_ASSESSMENT("/credential-assessment.xhtml"),
+	CREDENTIAL_INSTRUCTOR_ASSESSMENT("/credential-instructor-assessment.xhtml"),
+	COMPETENCE_PEER_ASSESSMENT("/competence-peer-assessment.xhtml"),
+	COMPETENCE_INSTRUCTOR_ASSESSMENT("/competence-instructor-assessment.xhtml"),
 	ANNOUNCEMENT("/announcement.xhtml"),
 	LTI_PROVIDER_LAUNCH("/ltiproviderlaunch.xhtml"),
 	EMAIL("/email.xhtml"),
@@ -30,8 +32,9 @@ public enum ApplicationPage {
 	RESULTS("/activity-responses.xhtml"),
 	USER_COMPETENCE_LIBRARY("/competenceLibrary.xhtml"),
 	MY_ASSESSMENTS_CREDENTIAL("/my-assessments-credentials.xhtml"),
+	MY_ASSESSMENTS_CREDENTIAL_ASSESSMENT("/my-assessments-credentials.xhtml"),
 	MY_ASSESSMENTS_COMPETENCES("/my-assessments-competences.xhtml"),
-	MY_ASSESSMENTS_COMPETENCE_ASSESSMENT("/my-assessments-competence-peer-assessment.xhtml"),
+	MY_ASSESSMENTS_COMPETENCE_ASSESSMENT("/my-assessments-competences-assessment.xhtml"),
 
 
 	MANAGER_CREDENTIAL_LIBRARY("/manage/credentialLibrary.xhtml"),

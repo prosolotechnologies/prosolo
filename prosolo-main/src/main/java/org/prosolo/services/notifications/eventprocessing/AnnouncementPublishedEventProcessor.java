@@ -1,7 +1,7 @@
 package org.prosolo.services.notifications.eventprocessing;
 
 import org.apache.log4j.Logger;
-import org.hibernate.Session;
+import org.prosolo.common.domainmodel.credential.AnnouncementPublishMode;
 import org.prosolo.common.domainmodel.user.notifications.NotificationActorRole;
 import org.prosolo.common.domainmodel.user.notifications.NotificationType;
 import org.prosolo.common.domainmodel.user.notifications.ResourceType;
@@ -14,7 +14,6 @@ import org.prosolo.services.notifications.NotificationManager;
 import org.prosolo.services.notifications.eventprocessing.data.NotificationReceiverData;
 import org.prosolo.services.notifications.eventprocessing.data.NotificationSenderData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
-import org.prosolo.common.domainmodel.credential.AnnouncementPublishMode;
 import org.prosolo.web.util.page.PageSection;
 
 import java.util.ArrayList;
@@ -28,10 +27,10 @@ public class AnnouncementPublishedEventProcessor extends SimpleNotificationEvent
     private CredentialManager credentialManager;
     private AnnouncementManager announcementManager;
 
-    public AnnouncementPublishedEventProcessor(Event event, Session session, NotificationManager notificationManager,
+    public AnnouncementPublishedEventProcessor(Event event, NotificationManager notificationManager,
                                                NotificationsSettingsManager notificationsSettingsManager, UrlIdEncoder idEncoder,
                                                CredentialManager credentialManager, AnnouncementManager announcementManager) {
-        super(event, session, notificationManager, notificationsSettingsManager, idEncoder);
+        super(event, notificationManager, notificationsSettingsManager, idEncoder);
         this.credentialManager = credentialManager;
         this.announcementManager = announcementManager;
     }

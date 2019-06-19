@@ -96,7 +96,7 @@ public class RewriteConfigurationProvider extends HttpConfigurationProvider {
 				.addRule(Join.path("/groups/{id}/join").to("/groups-join.xhtml"))
 				.addRule(Join.path("/assessments/my/credentials").to("/my-assessments-credentials.xhtml"))
 				.addRule(Join.path("/assessments/my/competences").to("/my-assessments-competences.xhtml"))
-				.addRule(Join.path("/assessments/my/competences/{assessmentId}").to("/my-assessments-competence-peer-assessment.xhtml"))
+				.addRule(Join.path("/assessments/my/competences/{assessmentId}").to("/my-assessments-competences-assessment.xhtml"))
 
 				.addRule(Join.path("/manage/notfound").to("/manage/404.xhtml"))
 				.addRule(Join.path("/manage/accessDenied").to("/manage/accessDenied.xhtml"))

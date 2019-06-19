@@ -11,6 +11,7 @@ import org.prosolo.services.interaction.data.CommentSortData;
 import org.prosolo.services.nodes.data.Role;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface CommentManager {
 
@@ -103,4 +104,12 @@ public interface CommentManager {
 	Role getCommentedResourceCreatorRole(CommentedResourceType resourceType, long resourceId) 
 			throws DbConnectionException;
 
+	/**
+	 * Retrives comment data for the given comment id and id of the user looking at the comment.
+	 *
+	 * @param commentId comment id
+	 * @param userId id of the user looking at the comment
+	 * @return
+	 */
+    Optional<CommentData> getCommentData(long commentId, long userId);
 }

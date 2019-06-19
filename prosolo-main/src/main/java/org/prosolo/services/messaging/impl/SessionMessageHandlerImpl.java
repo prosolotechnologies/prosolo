@@ -49,7 +49,7 @@ public class SessionMessageHandlerImpl implements MessageHandler<SessionMessage>
 						break;
 					case ADD_NOTIFICATION:
 						for (HttpSession httpSession : userSessions) {
-							notificationCacheUpdater.updateNotificationData(resourceId, httpSession, session);
+							notificationCacheUpdater.updateNotificationData(resourceId, httpSession);
 						}
 						break;
 					default:

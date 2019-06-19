@@ -132,7 +132,7 @@ public class StudentCompetenceAssessmentBean extends CompetenceAssessmentBean im
     public void acceptAssessmentRequest() {
         try {
             getAssessmentManager().acceptCompetenceAssessmentRequest(getCompetenceAssessmentData().getCompetenceAssessmentId(), loggedUserBean.getUserContext());
-            PageUtil.fireSuccessfulInfoMessageAcrossPages("Assessment request has been successfully accepted");
+            PageUtil.fireSuccessfulInfoMessageAcrossPages("Assessment request has been accepted");
             PageUtil.redirect("/assessments/my/competences/" + getCompetenceAssessmentId());
         } catch (Exception e) {
             logger.error("error", e);
@@ -143,7 +143,7 @@ public class StudentCompetenceAssessmentBean extends CompetenceAssessmentBean im
     public void declineAssessmentRequest() {
         try {
             getAssessmentManager().declineCompetenceAssessmentRequest(getCompetenceAssessmentData().getCompetenceAssessmentId(), loggedUserBean.getUserContext());
-            PageUtil.fireSuccessfulInfoMessageAcrossPages("Assessment request has been successfully declined");
+            PageUtil.fireSuccessfulInfoMessageAcrossPages("Assessment request has been declined");
             PageUtil.redirect("assessments/my/competences");
         } catch (Exception e) {
             logger.error("error", e);

@@ -347,7 +347,7 @@ public interface AssessmentManager {
 
 	List<Long> getPeerAssessorIdsForCompetence(long credId, long compId, long userId) throws DbConnectionException;
 
-	long getCredentialAssessmentIdForCompetenceAssessment(long compAssessmentId, Session session) throws DbConnectionException;
+	long getCredentialAssessmentIdForCompetenceAssessment(long compAssessmentId) throws DbConnectionException;
 
 	PaginatedResult<CompetenceAssessmentDataFull> getPaginatedStudentsCompetenceAssessments(
 			long credId, long compId, long userId, boolean countOnlyAssessmentsWhereUserIsAssessor,
@@ -581,4 +581,21 @@ public interface AssessmentManager {
 	 * @throws DbConnectionException
 	 */
 	void declinePendingCompetenceAssessment(long compAssessmentId, UserContextData context) throws IllegalDataStateException;
+
+	/**
+	 * For the given id of the competence or credential assessment, return the id of the credential it belongs to.
+	 *
+	 * @param assessmentId competence/credential assessment id
+	 * @return
+	 */
+	long getParentCredentialIdOfAssessment(long assessmentId);
+
+	/**
+	 * Returns id of a competence for the given competence assessment id.
+	 *
+	 * @param compAssessmentId competence assessment id
+	 * @return
+	 */
+	long getCompetenceIdForCompetenceAssessment(long compAssessmentId);
+
 }
