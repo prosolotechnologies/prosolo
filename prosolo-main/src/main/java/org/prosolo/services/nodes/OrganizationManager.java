@@ -5,6 +5,7 @@ import org.hibernate.exception.ConstraintViolationException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.organization.Role;
+import org.prosolo.common.domainmodel.organization.settings.OrganizationPlugin;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.search.impl.PaginatedResult;
@@ -15,6 +16,7 @@ import org.prosolo.services.nodes.data.organization.*;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by Bojan on 6/6/2017.
@@ -38,19 +40,19 @@ public interface OrganizationManager extends AbstractManager {
     /**
      *
      * @param orgId
-     * @param organizationLearningStageData
+     * @param pluginData
      * @param context
      *
      * @throws ConstraintViolationException
      * @throws DataIntegrityViolationException
      * @throws DbConnectionException
      */
-    void updateOrganizationLearningStages(long orgId, OrganizationLearningStageData organizationLearningStageData, UserContextData context);
+    void updateLearningStagesPlugin(long orgId, LearningStagesPluginData pluginData, UserContextData context);
 
     /**
      *
      * @param orgId
-     * @param organizationLearningStageData
+     * @param pluginData
      * @param context
      * @return
      *
@@ -58,18 +60,29 @@ public interface OrganizationManager extends AbstractManager {
      * @throws DataIntegrityViolationException
      * @throws DbConnectionException
      */
-    Result<Void> updateOrganizationLearningStagesAndGetEvents(long orgId, OrganizationLearningStageData organizationLearningStageData, UserContextData context);
+    Result<Void> updateLearningStagesPluginAndGetEvents(long orgId, LearningStagesPluginData pluginData, UserContextData context);
 
     /**
      *
      * @param orgId
-     * @param organizationCategoryData
+     * @param pluginData
      *
      * @throws ConstraintViolationException
      * @throws DataIntegrityViolationException
      * @throws DbConnectionException
      */
-    void updateOrganizationCredentialCategories(long orgId, OrganizationCategoryData organizationCategoryData);
+    void updateEvidenceRepositoryPlugin(long orgId, EvidenceRepositoryPluginData pluginData);
+
+    /**
+     *
+     * @param orgId
+     * @param credentialCategoriesPluginData
+     *
+     * @throws ConstraintViolationException
+     * @throws DataIntegrityViolationException
+     * @throws DbConnectionException
+     */
+    void updateCredentialCategoriesPlugin(long orgId, CredentialCategoriesPluginData credentialCategoriesPluginData);
 
     OrganizationData getOrganizationForEdit(long organizationId, List<Long> roleIds) throws DbConnectionException;
 
@@ -126,12 +139,11 @@ public interface OrganizationManager extends AbstractManager {
 
     /**
      *
-     * @param organizationId
-     * @param tokenData
+     * @param pluginData
      *
      * @throws DbConnectionException
      */
-    void updateOrganizationTokenInfo(long organizationId, OrganizationTokenData tokenData);
+    void updateAssessmentTokensPlugin(AssessmentTokensPluginData pluginData);
 
     /**
      *
@@ -150,5 +162,22 @@ public interface OrganizationManager extends AbstractManager {
      * @throws DbConnectionException
      */
     void addTokensToAllOrganizationUsers(long organizationId, int numberOfTokens);
+
+    /**
+     * Loads plugin information of a given type.
+     *
+     * @param pluginClass class of a plugin
+     * @param organizationId organization id
+     * @return
+     */
+    <T extends OrganizationPlugin> T getOrganizationPlugin(Class<T> pluginClass, long organizationId);
+
+    /**
+     * Loads all organization plugins.
+     *
+     * @param organizationId organization id
+     * @return
+     */
+    List<OrganizationPlugin> getAllOrganizationPlugins(long organizationId);
 }
 

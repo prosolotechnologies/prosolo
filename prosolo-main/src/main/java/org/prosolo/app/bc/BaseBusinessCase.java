@@ -16,6 +16,8 @@ import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.organization.Role;
+import org.prosolo.common.domainmodel.organization.settings.OrganizationPlugin;
+import org.prosolo.common.domainmodel.organization.settings.OrganizationPluginType;
 import org.prosolo.common.domainmodel.rubric.Rubric;
 import org.prosolo.common.domainmodel.rubric.RubricType;
 import org.prosolo.common.domainmodel.user.User;
@@ -520,32 +522,39 @@ public abstract class BaseBusinessCase implements BusinessCase {
     }
 
     protected void createLearningStages(EventQueue events, String... stages) {
-        OrganizationLearningStageData orgData = new OrganizationLearningStageData();
-        orgData.setLearningInStagesEnabled(true);
+        OrganizationPlugin learningStagesPlugin = organization.getPlugins().stream().filter(p -> p.getType() == OrganizationPluginType.LEARNING_STAGES).findAny().get();
+        LearningStagesPluginData learningStagesPluginData = new LearningStagesPluginData();
+        learningStagesPluginData.setPluginId(learningStagesPlugin.getId());
+        learningStagesPluginData.setEnabled(true);
         int order = 1;
         for (String stage : stages) {
             LearningStageData stageData = new LearningStageData(false);
             stageData.setTitle(stage);
             stageData.setOrder(order++);
             stageData.setStatus(ObjectStatus.CREATED);    // this needs to be set in order for the stage to be created in the method createNewOrganizationAndGetEvents
-            orgData.addLearningStage(stageData);
+            learningStagesPluginData.addLearningStage(stageData);
         }
 
+
         extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(OrganizationManager.class)
-               .updateOrganizationLearningStagesAndGetEvents(organization.getId(), orgData, UserContextData.empty()));
+               .updateLearningStagesPluginAndGetEvents(organization.getId(), learningStagesPluginData, UserContextData.empty()));
     }
 
     protected void createCredentialCategories(EventQueue events, String... categories) {
-        OrganizationCategoryData orgData = new OrganizationCategoryData();
+        OrganizationPlugin credentialCategoriesPlugin = organization.getPlugins().stream().filter(p -> p.getType() == OrganizationPluginType.CREDENTIAL_CATEGORIES).findAny().get();
+
+        CredentialCategoriesPluginData credentialCategoriesPluginData = new CredentialCategoriesPluginData();
+        credentialCategoriesPluginData.setPluginId(credentialCategoriesPlugin.getId());
+
         for (String category : categories) {
             CredentialCategoryData categoryData = new CredentialCategoryData(false);
             categoryData.setTitle(category);
             categoryData.setStatus(ObjectStatus.CREATED);    // this needs to be set in order for the stage to be created in the method createNewOrganizationAndGetEvents
-            orgData.addCredentialCategory(categoryData);
+            credentialCategoriesPluginData.addCredentialCategory(categoryData);
         }
 
         ServiceLocator.getInstance().getService(OrganizationManager.class)
-                .updateOrganizationCredentialCategories(organization.getId(), orgData);
+                .updateCredentialCategoriesPlugin(organization.getId(), credentialCategoriesPluginData);
     }
 
     protected void addUsersToUnitWithRole(EventQueue events, long unitId, List<Long> users, long roleId, UserContextData userContext) {

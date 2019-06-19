@@ -68,10 +68,10 @@ public class ContextJsonParserService {
     }
 
     private static void addObjectTypeInfoForContext(LearningContextInfo lci) {
-        if ((lci.getObjectType() == null || lci.getObjectType().isEmpty()) &&
+        if (lci.getObjectType() == null &&
                 lci.getName() != null && lci.getName().getObjectType() != null &&
-                !lci.getName().getObjectType().isEmpty()) {
-            lci.setObjectType(lci.getName().getObjectType());
+                lci.getName().getObjectType() != null) {
+            lci.setObjectType(lci.getName().getObjectType().getSimpleName());
         }
 
         if (lci instanceof Context) {

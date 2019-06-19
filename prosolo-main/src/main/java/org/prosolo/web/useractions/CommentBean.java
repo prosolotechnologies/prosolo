@@ -218,7 +218,7 @@ public class CommentBean implements Serializable, ICommentBean {
 			} else {
 				parent.setReplyToComment(null);
 			}
-			
+
         	PageUtil.fireSuccessfulInfoMessage("Your comment is posted");
     	} catch (Exception e) {
     		logger.error("Error", e);

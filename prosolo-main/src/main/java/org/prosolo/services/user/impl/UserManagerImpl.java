@@ -10,6 +10,8 @@ import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.organization.Role;
+import org.prosolo.common.domainmodel.organization.settings.AssessmentTokensPlugin;
+import org.prosolo.common.domainmodel.organization.settings.OrganizationPluginType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserType;
 import org.prosolo.common.domainmodel.user.preferences.TopicPreference;
@@ -70,6 +72,8 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	private EventFactory eventFactory;
 	@Inject
 	private RoleManager roleManager;
+	@Inject
+	private OrganizationManager organizationManager;
 	@Inject private PasswordResetManager passwordResetManager;
 	@Inject private AuthenticatedUserService authenticatedUserService;
 
@@ -346,7 +350,9 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 				Organization org = (Organization) persistence.currentManager().load(Organization.class, organizationId);
 				user.setOrganization(org);
 				//setting initial number of tokens no matter if tokens are enabled at the moment
-				user.setNumberOfTokens(org.getInitialNumberOfTokensGiven());
+				AssessmentTokensPlugin assessmentTokensPlugin = (AssessmentTokensPlugin) org.getPlugins().stream().filter(p -> p.getType() == OrganizationPluginType.ASSESSMENT_TOKENS).findAny().get();
+
+				user.setNumberOfTokens(assessmentTokensPlugin.getInitialNumberOfTokensGiven());
 			}
 
 			if (password != null) {
@@ -758,7 +764,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 				query += "AND user.organization.id = :orgId ";
 			}
 			if (filterByRoleId > 0) {
-				query += "AND role.id = :filterByRoleId ";
+				query += "AND user.id IN (SELECT u.id FROM user u INNER JOIN u.roles r WITH r.id = :filterByRoleId) ";
 			} else if (roles != null && !roles.isEmpty()) {
 				query += "AND role IN (:roles) ";
 			}
@@ -1261,8 +1267,11 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 		try {
 			User user = (User) persistence.currentManager().load(User.class, userId);
 			boolean tokensEnabled = false;
+
 			if (user.getOrganization() != null) {
-				tokensEnabled = user.getOrganization().isAssessmentTokensEnabled();
+				AssessmentTokensPlugin assessmentTokensPlugin = organizationManager.getOrganizationPlugin(AssessmentTokensPlugin.class, user.getOrganization().getId());
+
+				tokensEnabled = assessmentTokensPlugin.isEnabled();
 			}
 			return new UserAssessmentTokenData(tokensEnabled, user.isAvailableForAssessments(), user.getNumberOfTokens());
 		} catch (Exception e) {
@@ -1278,9 +1287,12 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 			User user = (User) persistence.currentManager().load(User.class, userId);
 			boolean tokensEnabled = false;
 			int numberOfTokensSpentPerRequest = 0;
+
 			if (user.getOrganization() != null) {
-				tokensEnabled = user.getOrganization().isAssessmentTokensEnabled();
-				numberOfTokensSpentPerRequest = user.getOrganization().getNumberOfSpentTokensPerRequest();
+				AssessmentTokensPlugin assessmentTokensPlugin = organizationManager.getOrganizationPlugin(AssessmentTokensPlugin.class, user.getOrganization().getId());
+
+				tokensEnabled = assessmentTokensPlugin.isEnabled();
+				numberOfTokensSpentPerRequest = assessmentTokensPlugin.getNumberOfSpentTokensPerRequest();
 			}
 			return new UserAssessmentTokenExtendedData(tokensEnabled, user.isAvailableForAssessments(), user.getNumberOfTokens(), numberOfTokensSpentPerRequest);
 		} catch (Exception e) {

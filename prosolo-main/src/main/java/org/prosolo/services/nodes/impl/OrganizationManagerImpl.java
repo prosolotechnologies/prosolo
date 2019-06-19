@@ -12,6 +12,7 @@ import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.learningStage.LearningStage;
 import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.organization.Role;
+import org.prosolo.common.domainmodel.organization.settings.*;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.EventQueue;
 import org.prosolo.common.event.context.data.UserContextData;
@@ -39,7 +40,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -82,6 +85,16 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
         try {
             Organization organization = new Organization();
             organization.setTitle(organizationBasicData.getTitle());
+            organization.setPlugins(new HashSet<>());
+            saveEntity(organization);
+
+            // initialize organization plugins
+            for (OrganizationPluginType type : OrganizationPluginType.values()) {
+                OrganizationPlugin plugin = OrganizationPluginFactory.getOrganizationPlugin(type);
+                plugin.setOrganization(organization);
+                saveEntity(plugin);
+                organization.getPlugins().add(plugin);
+            }
 
             saveEntity(organization);
             userManager.setOrganizationForUsers(organizationBasicData.getAdmins(), organization.getId());
@@ -101,74 +114,98 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
     }
 
     @Override
-    public void updateOrganizationLearningStages(long orgId, OrganizationLearningStageData organizationLearningStageData, UserContextData context) {
-        Result<Void> res = self.updateOrganizationLearningStagesAndGetEvents(orgId, organizationLearningStageData, context);
+    public void updateLearningStagesPlugin(long orgId, LearningStagesPluginData pluginData, UserContextData context) {
+        Result<Void> res = self.updateLearningStagesPluginAndGetEvents(orgId, pluginData, context);
         eventFactory.generateAndPublishEvents(res.getEventQueue());
     }
 
     @Override
     @Transactional
-    public Result<Void> updateOrganizationLearningStagesAndGetEvents(long orgId, OrganizationLearningStageData organizationLearningStageData, UserContextData context) {
+    public Result<Void> updateLearningStagesPluginAndGetEvents(long orgId, LearningStagesPluginData pluginData, UserContextData context) {
         //if learning stages are not enabled, we don't update learning stages for organization
         EventQueue queue = EventQueue.newEventQueue();
-        if (Settings.getInstance().config.application.pluginConfig.learningInStagesPlugin.enabled) {
-            try {
-                Organization org = (Organization) persistence.currentManager().load(Organization.class, orgId);
-                /*
-                if learning in stages was enabled and should be disabled now we should remove stages
-                from all credentials and competences in this organization
-                 */
-                if (org.isLearningInStagesEnabled() && !organizationLearningStageData.isLearningInStagesEnabled()) {
-                    queue.appendEvents(credManager.disableLearningStagesForOrganizationCredentials(orgId, context));
-                    queue.appendEvents(compManager.disableLearningStagesForOrganizationCompetences(orgId, context));
-                }
-                org.setLearningInStagesEnabled(organizationLearningStageData.isLearningInStagesEnabled());
-                for (LearningStageData ls : organizationLearningStageData.getLearningStagesForDeletion()) {
-                    deleteById(LearningStage.class, ls.getId(), persistence.currentManager());
-                }
 
-                /*
-                trigger learning stages deletion at this point to avoid name conflict
-                for new learning stages with deleted
-                 */
-                persistence.currentManager().flush();
+        try {
+            LearningStagesPlugin learningStagesPlugin = (LearningStagesPlugin) persistence.currentManager().get(LearningStagesPlugin.class, pluginData.getPluginId());
 
-                for (LearningStageData ls : organizationLearningStageData.getLearningStages()) {
-                    switch (ls.getStatus()) {
-                        case CREATED:
-                            LearningStage newLStage = new LearningStage();
-                            newLStage.setOrganization(org);
-                            newLStage.setTitle(ls.getTitle());
-                            newLStage.setOrder(ls.getOrder());
-                            saveEntity(newLStage);
-                            break;
-                        case CHANGED:
-                            LearningStage lStageToChange = (LearningStage) persistence.currentManager().load(LearningStage.class, ls.getId());
-                            lStageToChange.setTitle(ls.getTitle());
-                            lStageToChange.setOrder(ls.getOrder());
-                            break;
-                        default:
-                            break;
-                    }
-                }
-            } catch (ConstraintViolationException | DataIntegrityViolationException e) {
-                logger.error("DB constraint violation when updating organization learning stages", e);
-                throw e;
-            } catch (Exception e) {
-                logger.error("Error", e);
-                throw new DbConnectionException("Error updating the learning stages");
+            /*
+            if learning in stages was enabled and should be disabled now we should remove stages
+            from all credentials and competences in this organization
+             */
+            if (learningStagesPlugin.isEnabled() && !pluginData.isEnabled()) {
+                queue.appendEvents(credManager.disableLearningStagesForOrganizationCredentials(orgId, context));
+                queue.appendEvents(compManager.disableLearningStagesForOrganizationCompetences(orgId, context));
             }
+
+            learningStagesPlugin.setEnabled(pluginData.isEnabled());
+
+            for (LearningStageData ls : pluginData.getLearningStagesForDeletion()) {
+                deleteById(LearningStage.class, ls.getId(), persistence.currentManager());
+            }
+
+            /*
+            trigger learning stages deletion at this point to avoid name conflict
+            for new learning stages with deleted
+             */
+            persistence.currentManager().flush();
+
+            for (LearningStageData ls : pluginData.getLearningStages()) {
+                switch (ls.getStatus()) {
+                    case CREATED:
+                        Organization org = new Organization();
+                        org.setId(orgId);
+
+                        LearningStage newLStage = new LearningStage();
+                        newLStage.setOrganization(org);
+                        newLStage.setLearningStagesPlugin(learningStagesPlugin);
+                        newLStage.setTitle(ls.getTitle());
+                        newLStage.setOrder(ls.getOrder());
+                        saveEntity(newLStage);
+                        break;
+                    case CHANGED:
+                        LearningStage lStageToChange = (LearningStage) persistence.currentManager().load(LearningStage.class, ls.getId());
+                        lStageToChange.setTitle(ls.getTitle());
+                        lStageToChange.setOrder(ls.getOrder());
+                        break;
+                    default:
+                        break;
+                }
+            }
+        } catch (ConstraintViolationException | DataIntegrityViolationException e) {
+            logger.error("DB constraint violation when updating organization learning stages", e);
+            throw e;
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error updating the learning stages");
         }
         return Result.of(queue);
     }
 
     @Override
     @Transactional
-    public void updateOrganizationCredentialCategories(long orgId, OrganizationCategoryData organizationCategoryData) {
+    public void updateEvidenceRepositoryPlugin(long orgId, EvidenceRepositoryPluginData pluginData) {
         try {
-            Organization org = (Organization) persistence.currentManager().load(Organization.class, orgId);
+            EvidenceRepositoryPlugin evidenceRepositoryPlugin = (EvidenceRepositoryPlugin) persistence.currentManager().load(EvidenceRepositoryPlugin.class, pluginData.getPluginId());
+            evidenceRepositoryPlugin.setEnabled(pluginData.isEnabled());
+            evidenceRepositoryPlugin.setKeywordsEnabled(pluginData.isKeywordsEnabled());
+            evidenceRepositoryPlugin.setFileEvidenceEnabled(pluginData.isFileEvidenceEnabled());
+            evidenceRepositoryPlugin.setUrlEvidenceEnabled(pluginData.isUrlEvidenceEnabled());
+            evidenceRepositoryPlugin.setTextEvidenceEnabled(pluginData.isTextEvidenceEnabled());
+        } catch (Exception e){
+            logger.error("Error", e);
+            throw new DbConnectionException("Error updating evidence repository plugin");
+        }
+    }
 
-            for (CredentialCategoryData cat : organizationCategoryData.getCredentialCategoriesForDeletion()) {
+    @Override
+    @Transactional
+    public void updateCredentialCategoriesPlugin(long orgId, CredentialCategoriesPluginData pluginData) {
+        try {
+            CredentialCategoriesPlugin credentialCategoriesPlugin = (CredentialCategoriesPlugin) persistence.currentManager().load(CredentialCategoriesPlugin.class, pluginData.getPluginId());
+
+            credentialCategoriesPlugin.setEnabled(pluginData.isEnabled());
+
+            for (CredentialCategoryData cat : pluginData.getCredentialCategoriesForDeletion()) {
                 deleteById(CredentialCategory.class, cat.getId(), persistence.currentManager());
             }
 
@@ -178,11 +215,15 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
              */
             persistence.currentManager().flush();
 
-            for (CredentialCategoryData cat : organizationCategoryData.getCredentialCategories()) {
+            for (CredentialCategoryData cat : pluginData.getCredentialCategories()) {
                 switch (cat.getStatus()) {
                     case CREATED:
+                        Organization org = new Organization();
+                        org.setId(orgId);
+
                         CredentialCategory newCat = new CredentialCategory();
                         newCat.setOrganization(org);
+                        newCat.setCredentialCategoriesPlugin(credentialCategoriesPlugin);
                         newCat.setTitle(cat.getTitle());
                         saveEntity(newCat);
                         break;
@@ -207,11 +248,13 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
     @Transactional (readOnly = true)
     public OrganizationData getOrganizationForEdit(long organizationId, List<Long> roleIds) throws DbConnectionException {
         try{
-            String query = "SELECT organization " +
-                "FROM Organization organization " +
-                "WHERE organization.id = :organizationId";
+            String query =
+                    "SELECT organization " +
+                    "FROM Organization organization " +
+                    "LEFT JOIN FETCH organization.plugins " +
+                    "WHERE organization.id = :organizationId";
 
-            Organization organization = (Organization)persistence.currentManager()
+            Organization organization = (Organization) persistence.currentManager()
                 .createQuery(query)
                 .setLong("organizationId",organizationId)
                 .uniqueResult();
@@ -238,14 +281,11 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
     public List<LearningStageData> getOrganizationLearningStagesData(long orgId) {
         try {
             List<LearningStageData> learningStagesData = new ArrayList<>();
-            //only if learning in stages is enabled load the stages
-            if (Settings.getInstance().config.application.pluginConfig.learningInStagesPlugin.enabled) {
-                List<LearningStage> res = getOrganizationLearningStages(orgId, false);
+            List<LearningStage> res = getOrganizationLearningStages(orgId, false);
 
-                for (LearningStage ls : res) {
-                    learningStagesData.add(new LearningStageData(
-                            ls.getId(), ls.getTitle(), ls.getOrder(), isLearningStageBeingUsed(ls.getId()), true));
-                }
+            for (LearningStage ls : res) {
+                learningStagesData.add(new LearningStageData(
+                        ls.getId(), ls.getTitle(), ls.getOrder(), isLearningStageBeingUsed(ls.getId()), true));
             }
             return learningStagesData;
         } catch (Exception e) {
@@ -257,18 +297,16 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
     private List<LearningStage> getOrganizationLearningStages(long orgId, boolean returnOnlyIfEnabled) throws DbConnectionException {
         String query =
                 "SELECT ls " +
-                "FROM LearningStage ls ";
+                "FROM LearningStage ls " +
+                "LEFT JOIN ls.learningStagesPlugin learningStagesPlugin " +
+                "LEFT JOIN learningStagesPlugin.organization org " +
+                "WHERE org.id = :orgId " ;
+
         if (returnOnlyIfEnabled) {
-            query +=
-                    "INNER JOIN ls.organization org " +
-                    "WHERE org.id = :orgId " +
-                    "AND org.learningInStagesEnabled IS TRUE ";
-        } else {
-            query +=
-                    "WHERE ls.organization.id = :orgId ";
+            query += "AND learningStagesPlugin.enabled IS TRUE ";
         }
 
-        query += "order by ls.order ASC";
+        query += "ORDER BY ls.order ASC";
 
         @SuppressWarnings("unchecked")
         List<LearningStage> res = persistence.currentManager()
@@ -283,12 +321,9 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
     @Transactional(readOnly = true)
     public List<LearningResourceLearningStage> getOrganizationLearningStagesForLearningResource(long orgId) throws DbConnectionException {
         try {
-            if (Settings.getInstance().config.application.pluginConfig.learningInStagesPlugin.enabled) {
-                List<LearningStage> learningStages = getOrganizationLearningStages(orgId, true);
-                return learningResourceLearningStageDataFactory.getLearningResourceLearningStages(
-                        learningStages.stream().map(ls -> new Object[]{ls, null}).collect(Collectors.toList()));
-            }
-            return new ArrayList<>();
+            List<LearningStage> learningStages = getOrganizationLearningStages(orgId, true);
+            return learningResourceLearningStageDataFactory.getLearningResourceLearningStages(
+                    learningStages.stream().map(ls -> new Object[]{ls, null}).collect(Collectors.toList()));
         } catch (Exception e) {
             logger.error("Error", e);
             throw new DbConnectionException("Error loading the learning stages");
@@ -436,8 +471,8 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
 
             String query =
                     "SELECT organization " +
-                            "FROM Organization organization " +
-                            "WHERE organization.deleted IS FALSE ";
+                    "FROM Organization organization " +
+                    "WHERE organization.deleted IS FALSE ";
 
             Query q = persistence.currentManager().createQuery(query);
             if (page >= 0 && limit > 0) {
@@ -476,8 +511,8 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
     private Long getOrganizationsCount(){
         String countQuery =
                 "SELECT COUNT (organization) " +
-                        "FROM Organization organization " +
-                        "WHERE organization.deleted IS FALSE ";
+                "FROM Organization organization " +
+                "WHERE organization.deleted IS FALSE ";
 
         Query result = persistence.currentManager().createQuery(countQuery);
 
@@ -583,13 +618,14 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
 
     @Override
     @Transactional
-    public void updateOrganizationTokenInfo(long organizationId, OrganizationTokenData tokenData) {
+    public void updateAssessmentTokensPlugin(AssessmentTokensPluginData pluginData) {
         try {
-            Organization organization = (Organization) persistence.currentManager().load(Organization.class, organizationId);
-            organization.setAssessmentTokensEnabled(tokenData.isAssessmentTokensEnabled());
-            organization.setInitialNumberOfTokensGiven(tokenData.getInitialNumberOfTokensGiven());
-            organization.setNumberOfEarnedTokensPerAssessment(tokenData.getNumberOfEarnedTokensPerAssessment());
-            organization.setNumberOfSpentTokensPerRequest(tokenData.getNumberOfSpentTokensPerRequest());
+            AssessmentTokensPlugin assessmentTokensPlugin = (AssessmentTokensPlugin) persistence.currentManager().load(AssessmentTokensPlugin.class, pluginData.getPluginId());
+
+            assessmentTokensPlugin.setEnabled(pluginData.isEnabled());
+            assessmentTokensPlugin.setInitialNumberOfTokensGiven(pluginData.getInitialNumberOfTokensGiven());
+            assessmentTokensPlugin.setNumberOfEarnedTokensPerAssessment(pluginData.getNumberOfEarnedTokensPerAssessment());
+            assessmentTokensPlugin.setNumberOfSpentTokensPerRequest(pluginData.getNumberOfSpentTokensPerRequest());
         } catch (Exception e){
             logger.error("Error", e);
             throw new DbConnectionException("Error updating the organization token info");
@@ -641,6 +677,46 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
         } catch (Exception e){
             logger.error("Error", e);
             throw new DbConnectionException("Error adding tokens to organization (" + organizationId + ") users");
+        }
+    }
+
+    @Override
+    public <T extends OrganizationPlugin> T getOrganizationPlugin(Class<T> pluginClass, long organizationId) {
+        try {
+            String query =
+                    "SELECT plugin " +
+                    "FROM OrganizationPlugin plugin " +
+                    "LEFT JOIN plugin.organization org " +
+                    "WHERE org.id = :orgId " +
+                    "AND type(plugin) = :type";
+
+            return (T) persistence.currentManager()
+                    .createQuery(query)
+                    .setLong("orgId", organizationId)
+                    .setString("type", pluginClass.getSimpleName())
+                    .uniqueResult();
+        } catch (Exception e){
+            logger.error("Error", e);
+            throw new DbConnectionException("Error retrieving organization plugin of type " + pluginClass + " for the organization with id " + organizationId);
+        }
+    }
+
+    @Override
+    public List<OrganizationPlugin> getAllOrganizationPlugins(long organizationId) {
+        try {
+            String query =
+                    "SELECT plugin " +
+                    "FROM OrganizationPlugin plugin " +
+                    "LEFT JOIN plugin.organization org " +
+                    "WHERE org.id = :orgId";
+
+            return persistence.currentManager()
+                    .createQuery(query)
+                    .setLong("orgId", organizationId)
+                    .list();
+        } catch (Exception e){
+            logger.error("Error", e);
+            throw new DbConnectionException("Error retrieving all organization plugins for the organization with id " + organizationId);
         }
     }
 

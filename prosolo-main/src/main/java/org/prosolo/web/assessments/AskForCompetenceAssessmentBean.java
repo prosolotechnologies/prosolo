@@ -111,7 +111,7 @@ public class AskForCompetenceAssessmentBean extends AskForAssessmentBean impleme
                         loggedUser.getOrganizationId(), peerSearchTerm, 0, 3, false, assessorPoolUserIds, usersToExcludeFromPeerSearch);
                 peersForAssessment = result.getFoundNodes();
             } catch (Exception e) {
-                logger.error(e);
+                logger.error("error", e);
             }
         }
     }

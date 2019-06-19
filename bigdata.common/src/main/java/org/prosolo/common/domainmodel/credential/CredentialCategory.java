@@ -1,7 +1,10 @@
 package org.prosolo.common.domainmodel.credential;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.organization.Organization;
+import org.prosolo.common.domainmodel.organization.settings.CredentialCategoriesPlugin;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -19,7 +22,18 @@ public class CredentialCategory extends BaseEntity {
 
     private static final long serialVersionUID = -5410256371279670751L;
 
+    private CredentialCategoriesPlugin credentialCategoriesPlugin;
     private Organization organization;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(nullable = false)
+    public CredentialCategoriesPlugin getCredentialCategoriesPlugin() {
+        return credentialCategoriesPlugin;
+    }
+
+    public void setCredentialCategoriesPlugin(CredentialCategoriesPlugin credentialCategoriesPlugin) {
+        this.credentialCategoriesPlugin = credentialCategoriesPlugin;
+    }
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(nullable = false)

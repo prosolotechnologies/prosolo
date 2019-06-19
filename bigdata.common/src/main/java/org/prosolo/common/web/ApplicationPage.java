@@ -35,7 +35,7 @@ public enum ApplicationPage {
 	MY_ASSESSMENTS_CREDENTIAL_ASSESSMENT("/my-assessments-credentials.xhtml"),
 	MY_ASSESSMENTS_COMPETENCES("/my-assessments-competences.xhtml"),
 	MY_ASSESSMENTS_COMPETENCE_ASSESSMENT("/my-assessments-competences-assessment.xhtml"),
-
+	EVIDENCE_PREVIEW("/evidence-preview.xhtml"),
 
 	MANAGER_CREDENTIAL_LIBRARY("/manage/credentialLibrary.xhtml"),
 	MANAGER_CREDENTIAL("/manage/credential.xhtml"),
@@ -62,11 +62,7 @@ public enum ApplicationPage {
 	MANAGER_RUBRIC_PRIVACY("/manage/rubric-privacy.xhtml"),
 	MANAGER_RUBRIC_CRITERIA("/manage/rubric-criteria.xhtml"),
 	MANAGER_CREDENTIAL_ACTIVITY_ASSESSMENTS("/manage/credential-delivery-assessments-activity.xhtml"),
-	REPORTS("/manage/reports.xhtml"),
-	STUDENT_LIST("/manage/credential-students.xhtml"),
-	STUDENT_PROFILE("/manage/studentProfile.xhtml"),
-	EXTERNAL_TOOLS("/manage/tools.xhtml"),
-	EXTERNAL_TOOL_DETAILS("/manage/externalTools/toolDetails.xhtml"),
+	MANAGER_EVIDENCE_PREVIEW("/manage/evidence-preview.xhtml"),
 
 
 	ROLES("/admin/roles.xhtml"),

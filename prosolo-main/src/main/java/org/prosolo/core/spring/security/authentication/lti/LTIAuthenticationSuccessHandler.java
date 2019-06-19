@@ -4,6 +4,7 @@ import org.prosolo.common.domainmodel.lti.LtiTool;
 import org.prosolo.core.spring.security.authentication.lti.authenticationtoken.LTIAuthenticationToken;
 import org.prosolo.core.spring.security.authentication.lti.urlbuilder.ToolLaunchUrlBuilderFactory;
 import org.prosolo.core.spring.security.successhandlers.ProsoloAuthenticationSuccessHandler;
+import org.prosolo.services.lti.data.LTIToolData;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
@@ -21,7 +22,7 @@ public class LTIAuthenticationSuccessHandler extends ProsoloAuthenticationSucces
 
     @Override
     protected void determineSuccessTargetUrl(HttpServletRequest request, Authentication authentication) {
-        LtiTool ltiTool = ((LTIAuthenticationToken) authentication).getPreauthenticationToken().getLtiTool();
+        LTIToolData ltiTool = ((LTIAuthenticationToken) authentication).getPreauthenticationToken().getLtiTool();
         setDefaultTargetUrl(ToolLaunchUrlBuilderFactory.getLaunchUrlBuilder(ltiTool).getLaunchUrl());
     }
 }

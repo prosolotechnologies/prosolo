@@ -10,9 +10,9 @@ import org.prosolo.search.util.roles.RoleFilter;
 import org.prosolo.services.authentication.AuthenticationService;
 import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.RoleManager;
+import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.services.user.UserManager;
 import org.prosolo.services.user.data.UserData;
-import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.services.util.roles.SystemRoleNames;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.PageAccessRightsResolver;
@@ -171,7 +171,7 @@ public class UsersBean implements Serializable,Paginable{
 	public void changePage(int page) {
 		if(this.paginationData.getPage() != page) {
 			this.paginationData.setPage(page);
-			loadUsers();
+			searchUsers();
 		}
 	}
 
