@@ -334,12 +334,10 @@ public class ActivityViewBeanUser implements Serializable {
 	}
 	
 	public void handleFileUpload(FileUploadEvent event) {
+		PageContextData pageContextData = PageUtil.extractLearningContextDataFromComponent(event.getComponent());
 		activityResultBean.uploadAssignment(event, 
-				competenceData.getActivityToShowWithDetails().getResultData());
-		String page = (String) event.getComponent().getAttributes().get("page");
-		String lContext = (String) event.getComponent().getAttributes().get("learningContext");
-		String service = (String) event.getComponent().getAttributes().get("service");
-		completeActivity(loggedUser.getUserContext(new PageContextData(page, lContext, service)));
+				competenceData.getActivityToShowWithDetails().getResultData(), pageContextData);
+		completeActivity(loggedUser.getUserContext(pageContextData));
 	}
 	
 	public void deleteAssignment() {
