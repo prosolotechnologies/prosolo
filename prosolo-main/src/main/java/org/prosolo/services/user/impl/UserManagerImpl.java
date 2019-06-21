@@ -457,7 +457,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	}
 
 	@Override
-	@Transactional (readOnly = false)
+	@Transactional
 	public String changePasswordWithResetKey(String resetKey, String newPassword) {
 		String newPassEncrypted = passwordEncoder.encode(newPassword);
 
