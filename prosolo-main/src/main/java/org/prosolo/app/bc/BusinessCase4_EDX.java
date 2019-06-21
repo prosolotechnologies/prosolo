@@ -511,7 +511,7 @@ public class BusinessCase4_EDX implements BusinessCase {
 					"analytics interpretation, gephi, learning analytics, sensemaking, social network analysis, tableau", LearningPathType.EVIDENCE);
 
 		} catch (Exception ex) {
-			logger.error(ex);
+			logger.error("error", ex);
 		}
 
 
@@ -622,49 +622,54 @@ public class BusinessCase4_EDX implements BusinessCase {
 			logger.error(ex);
 		}
 
-		/*
-		 * Commenting on activities/ competences
-		 */
-		CommentData comment1 = commentOnActivity(events, userIdaFritz, act1comp1cred1, null, "10.06.2016. 15:24", "Very good presentation. Well suited for the novices like I am.");
-		CommentData comment2 = commentOnActivity(events, userAnthonyMoore, act1comp1cred1, null, "12.06.2016. 09:50", "The video makes an important point of how individuals lay a data trail of interest that requires parties retrieving this information to proper understand the opportunities and confront “data overload” to best take advantage of this same data.");
-		CommentData comment3 = commentOnActivity(events, userErikaAmes, act1comp1cred1, comment2, "13.06.2016. 13:02", "anthony - I would add to information overload and decision quality, the issue with multitasking and shorter attention spans (a la twitter)");
-		CommentData comment4 = commentOnActivity(events, userKarenWhite, act2comp1cred1, comment2, "05.06.2016. 11:46", "The topics are well presented. Please take in account the fact that during the first week it is necessary for us, as learners, to become familiar with the dual-layer MOOC. This is important so every learner is building himself his knowledge");
+		try {
+			/*
+			 * Commenting on activities/ competences
+			 */
+			CommentData comment1 = commentOnActivity(events, userIdaFritz, act1comp1cred1, null, "10.06.2016. 15:24", "Very good presentation. Well suited for the novices like I am.", cred1.getId());
+			CommentData comment2 = commentOnActivity(events, userAnthonyMoore, act1comp1cred1, null, "12.06.2016. 09:50", "The video makes an important point of how individuals lay a data trail of interest that requires parties retrieving this information to proper understand the opportunities and confront “data overload” to best take advantage of this same data.", cred1.getId());
+			CommentData comment3 = commentOnActivity(events, userErikaAmes, act1comp1cred1, comment2, "13.06.2016. 13:02", "anthony - I would add to information overload and decision quality, the issue with multitasking and shorter attention spans (a la twitter)", cred1.getId());
+			CommentData comment4 = commentOnActivity(events, userKarenWhite, act2comp1cred1, comment2, "05.06.2016. 11:46", "The topics are well presented. Please take in account the fact that during the first week it is necessary for us, as learners, to become familiar with the dual-layer MOOC. This is important so every learner is building himself his knowledge", cred1.getId());
 
 
-		CommentData comment5 = commentOnActivity(events, userKevinHall, act1comp1cred1, null, "11.07.2016. 12:37", "Very good video to explain the meaning of learning analytics. Thanks");
-		CommentData comment6 = commentOnActivity(events, userAnnaHallowell, act1comp1cred1, comment5, "11.07.2016. 17:42", "I also found this to be a concise introduction to learning analytics. :)");
-		CommentData comment7 = commentOnActivity(events, userAkikoKido, act1comp1cred1, null, "12.07.2016. 08:17", "Nice video. Thanks.");
-		CommentData comment8 = commentOnActivity(events, userIdaFritz, act1comp1cred1, null, "12.07.2016. 08:37", "Very concise, thanks");
-		CommentData comment9 = commentOnActivity(events, userRichardAnderson, act1comp1cred1, null, "14.07.2016. 15:05", "This is short yet to the point in introducing learning analytics. Thanks");
-		CommentData comment10 = commentOnActivity(events, userPhilArmstrong, act1comp1cred1, null, "12.07.2016. 16:21", "The video makes an important point of how individuals lay a data trail of interest that requires parties retrieving this information to proper understand the opportunities and confront “data overload” to best take advantage of this same data. In support of this point a study by Speier, Valacich, and Vessey (1999) state that “when information overload occurs, it is likely that a reduction in decision quality will occur” (p.338). Reference: Speier, C., Valacich, J. S., & Vessey, I. (1999). The influence of task interruption on individual decision making: An information overload perspective. Decision Sciences, 30(2), 337-360.");
-		CommentData comment11 = commentOnActivity(events, userKevinHall, act1comp1cred1, comment10, "13.07.2016. 10:52", "I would add to information overload and decision quality, the issue with multitasking and shorter attention spans (a la twitter)");
+			CommentData comment5 = commentOnActivity(events, userKevinHall, act1comp1cred1, null, "11.07.2016. 12:37", "Very good video to explain the meaning of learning analytics. Thanks", cred1.getId());
+			CommentData comment6 = commentOnActivity(events, userAnnaHallowell, act1comp1cred1, comment5, "11.07.2016. 17:42", "I also found this to be a concise introduction to learning analytics. :)", cred1.getId());
+			CommentData comment7 = commentOnActivity(events, userAkikoKido, act1comp1cred1, null, "12.07.2016. 08:17", "Nice video. Thanks.", cred1.getId());
+			CommentData comment8 = commentOnActivity(events, userIdaFritz, act1comp1cred1, null, "12.07.2016. 08:37", "Very concise, thanks", cred1.getId());
+			CommentData comment9 = commentOnActivity(events, userRichardAnderson, act1comp1cred1, null, "14.07.2016. 15:05", "This is short yet to the point in introducing learning analytics. Thanks", cred1.getId());
+			CommentData comment10 = commentOnActivity(events, userPhilArmstrong, act1comp1cred1, null, "12.07.2016. 16:21", "The video makes an important point of how individuals lay a data trail of interest that requires parties retrieving this information to proper understand the opportunities and confront “data overload” to best take advantage of this same data. In support of this point a study by Speier, Valacich, and Vessey (1999) state that “when information overload occurs, it is likely that a reduction in decision quality will occur” (p.338). Reference: Speier, C., Valacich, J. S., & Vessey, I. (1999). The influence of task interruption on individual decision making: An information overload perspective. Decision Sciences, 30(2), 337-360.", cred1.getId());
+			CommentData comment11 = commentOnActivity(events, userKevinHall, act1comp1cred1, comment10, "13.07.2016. 10:52", "I would add to information overload and decision quality, the issue with multitasking and shorter attention spans (a la twitter)", cred1.getId());
 
-		CommentData comment12 = commentOnActivity(events, userKevinHall, act4comp1cred1, null, "13.07.2016. 14:52", "I'm up to speed on the course design, but I wish I had found this video sooner!");
-		CommentData comment13 = commentOnActivity(events, userPhilArmstrong, act4comp1cred1, null, "14.07.2016. 09:51", "I LIKE the idea of assignment bank. Definitely, each has different learning pace. I LOATHE the idea of group work. That is one thing I always wish to avoid in the university.");
-		CommentData comment14 = commentOnActivity(events, userAnnaHallowell, act4comp1cred1, null, "14.07.2016. 12:43", "The topics are well presented. Please take in account the fact that during the first week it is necessary for us, as learners, to become familiar with the dual-layer MOOC. This is important so every learner is building himself his knowledge. ");
-		CommentData comment15 = commentOnActivity(events, userGeorgeYoung, act4comp1cred1, null, "15.07.2016. 16:22", "Interesting structure. Its taken me a while to orient myself with the course setup, but am quite enjoying the use of prosolo as it helps to integrate the social media, content and course activities. The list of goals and competences (activities) has provided the best structure so far. ");
-		CommentData comment16 = commentOnActivity(events, userKevinHall, act4comp1cred1, comment15, "16.07.2016. 20:37", "Great course.");
+			CommentData comment12 = commentOnActivity(events, userKevinHall, act4comp1cred1, null, "13.07.2016. 14:52", "I'm up to speed on the course design, but I wish I had found this video sooner!", cred1.getId());
+			CommentData comment13 = commentOnActivity(events, userPhilArmstrong, act4comp1cred1, null, "14.07.2016. 09:51", "I LIKE the idea of assignment bank. Definitely, each has different learning pace. I LOATHE the idea of group work. That is one thing I always wish to avoid in the university.", cred1.getId());
+			CommentData comment14 = commentOnActivity(events, userAnnaHallowell, act4comp1cred1, null, "14.07.2016. 12:43", "The topics are well presented. Please take in account the fact that during the first week it is necessary for us, as learners, to become familiar with the dual-layer MOOC. This is important so every learner is building himself his knowledge. ", cred1.getId());
+			CommentData comment15 = commentOnActivity(events, userGeorgeYoung, act4comp1cred1, null, "15.07.2016. 16:22", "Interesting structure. Its taken me a while to orient myself with the course setup, but am quite enjoying the use of prosolo as it helps to integrate the social media, content and course activities. The list of goals and competences (activities) has provided the best structure so far. ", cred1.getId());
+			CommentData comment16 = commentOnActivity(events, userKevinHall, act4comp1cred1, comment15, "16.07.2016. 20:37", "Great course.", cred1.getId());
 
-		/*
-		 * Liking comments
-		 */
-		String commentContextMessage = "name:competence|id:1|context:/name:activity|id:1|context:/context:/name:comment|id:{0}/|name:target_activity|id:1//";
+			/*
+			 * Liking comments
+			 */
+			String commentContextMessage = "name:competence|id:1|context:/name:activity|id:1|context:/context:/name:comment|id:{0}/|name:target_activity|id:1//";
 
-		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment5.getCommentId(), UserContextData.of(userAkikoKido.getId(), org.getId(), null, null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment5.getCommentId()), null))));
-		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment5.getCommentId(), UserContextData.of(userIdaFritz.getId(), org.getId(), null, null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment5.getCommentId()), null))));
-		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment5.getCommentId(), UserContextData.of(userPhilArmstrong.getId(), org.getId(), null, null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment5.getCommentId()), null))));
-		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment5.getCommentId(), UserContextData.of(userGeorgeYoung.getId(), org.getId(), null, null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment5.getCommentId()), null))));
-		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment5.getCommentId(), UserContextData.of(userAnnaHallowell.getId(), org.getId(), null, null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment5.getCommentId()), null))));
-		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment6.getCommentId(), UserContextData.of(userIdaFritz.getId(), org.getId(), null, null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment6.getCommentId()), null))));
-		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment6.getCommentId(), UserContextData.of(userKevinHall.getId(), org.getId(), null, null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment6.getCommentId()), null))));
-		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment6.getCommentId(), UserContextData.of(userGeorgeYoung.getId(), org.getId(), null, null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment6.getCommentId()), null))));
-		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment9.getCommentId(), UserContextData.of(userPhilArmstrong.getId(), org.getId(), null, null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment9.getCommentId()), null))));
-		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment9.getCommentId(), UserContextData.of(userAnnaHallowell.getId(), org.getId(), null, null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment9.getCommentId()), null))));
-		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment12.getCommentId(), UserContextData.of(userPhilArmstrong.getId(), org.getId(), null, null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment12.getCommentId()), null))));
-		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment12.getCommentId(), UserContextData.of(userAnnaHallowell.getId(), org.getId(), null, null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment12.getCommentId()), null))));
-		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment13.getCommentId(), UserContextData.of(userIdaFritz.getId(), org.getId(), null, null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment13.getCommentId()), null))));
-		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment13.getCommentId(), UserContextData.of(userRichardAnderson.getId(), org.getId(), null, null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment13.getCommentId()), null))));
-		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment14.getCommentId(), UserContextData.of(userGeorgeYoung.getId(), org.getId(), null, null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment14.getCommentId()), null))));
+			extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment5.getCommentId(), UserContextData.of(userAkikoKido.getId(), org.getId(), null, null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment5.getCommentId()), null))));
+			extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment5.getCommentId(), UserContextData.of(userIdaFritz.getId(), org.getId(), null, null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment5.getCommentId()), null))));
+			extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment5.getCommentId(), UserContextData.of(userPhilArmstrong.getId(), org.getId(), null, null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment5.getCommentId()), null))));
+			extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment5.getCommentId(), UserContextData.of(userGeorgeYoung.getId(), org.getId(), null, null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment5.getCommentId()), null))));
+			extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment5.getCommentId(), UserContextData.of(userAnnaHallowell.getId(), org.getId(), null, null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment5.getCommentId()), null))));
+			extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment6.getCommentId(), UserContextData.of(userIdaFritz.getId(), org.getId(), null, null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment6.getCommentId()), null))));
+			extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment6.getCommentId(), UserContextData.of(userKevinHall.getId(), org.getId(), null, null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment6.getCommentId()), null))));
+			extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment6.getCommentId(), UserContextData.of(userGeorgeYoung.getId(), org.getId(), null, null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment6.getCommentId()), null))));
+			extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment9.getCommentId(), UserContextData.of(userPhilArmstrong.getId(), org.getId(), null, null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment9.getCommentId()), null))));
+			extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment9.getCommentId(), UserContextData.of(userAnnaHallowell.getId(), org.getId(), null, null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment9.getCommentId()), null))));
+			extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment12.getCommentId(), UserContextData.of(userPhilArmstrong.getId(), org.getId(), null, null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment12.getCommentId()), null))));
+			extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment12.getCommentId(), UserContextData.of(userAnnaHallowell.getId(), org.getId(), null, null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment12.getCommentId()), null))));
+			extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment13.getCommentId(), UserContextData.of(userIdaFritz.getId(), org.getId(), null, null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment13.getCommentId()), null))));
+			extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment13.getCommentId(), UserContextData.of(userRichardAnderson.getId(), org.getId(), null, null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment13.getCommentId()), null))));
+			extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment14.getCommentId(), UserContextData.of(userGeorgeYoung.getId(), org.getId(), null, null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment14.getCommentId()), null))));
+		} catch (Exception e) {
+			logger.error("error", e);
+			throw new RuntimeException();
+		}
 
 
 		////////////////////////////////
@@ -823,7 +828,7 @@ public class BusinessCase4_EDX implements BusinessCase {
 		return result.getResult();
 	}
 
-	private CommentData commentOnActivity(EventQueue events, User userKevinHall, Activity1 act1comp1cred1, CommentData parent, String date, String commentText) {
+	private CommentData commentOnActivity(EventQueue events, User userKevinHall, Activity1 act1comp1cred1, CommentData parent, String date, String commentText, long credentialId) throws IllegalDataStateException {
 		CommentData newComment = new CommentData();
 		newComment.setCommentedResourceId(act1comp1cred1.getId());
 		try {
@@ -834,6 +839,7 @@ public class BusinessCase4_EDX implements BusinessCase {
 		newComment.setComment(commentText);
 		newComment.setCreator(new UserData(userKevinHall));
 		newComment.setParent(parent);
+		newComment.setCredentialId(credentialId);
 
 		String learningContext= MessageFormat.format("name:competence|id:1|context:/name:activity|id:1|context:/context:/name:comment/|name:target_activity|id:1//", act1comp1cred1.getId());
 

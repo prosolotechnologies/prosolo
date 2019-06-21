@@ -102,8 +102,8 @@ public class CommentPostEventProcessor extends CommentEventProcessor {
 				}
 			}
 			return receiversData;
-		} catch (Exception e) {
-			logger.error("Error", e);
+		} catch(Exception e) {
+			logger.error("error", e);
 			return new ArrayList<>();
 		}
 	}
