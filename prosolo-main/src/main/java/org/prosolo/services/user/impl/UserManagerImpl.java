@@ -83,6 +83,13 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 
 	@Override
 	@Transactional (readOnly = true)
+	public Optional<UserData> getUserData(String email) {
+		User user = getUser(email);
+		return user != null ? Optional.of(new UserData(user)) : Optional.empty();
+	}
+
+	@Override
+	@Transactional (readOnly = true)
 	public User getUserIfNotDeleted(String email) throws DbConnectionException {
 		return getUser(email, true);
 	}
@@ -227,6 +234,52 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 
 	@Override
 	//nt
+	public UserData createNewUserAndReturnData(long organizationId, String name, String lastname, String emailAddress, boolean emailVerified,
+							  String password, String position, InputStream avatarStream,
+							  String avatarFilename, List<Long> roles, boolean isSystem) {
+		Result<UserData> res = self.createNewUserAndGetUserDataAndEvents(
+				organizationId,
+				name,
+				lastname,
+				emailAddress,
+				emailVerified,
+				password,
+				position,
+				avatarStream,
+				avatarFilename,
+				roles,
+				isSystem);
+
+		eventFactory.generateAndPublishEvents(res.getEventQueue());
+
+		return res.getResult();
+	}
+
+	@Override
+	@Transactional
+	public Result<UserData> createNewUserAndGetUserDataAndEvents(long organizationId, String name, String lastname, String emailAddress, boolean emailVerified,
+											   String password, String position, InputStream avatarStream,
+											   String avatarFilename, List<Long> roles, boolean isSystem) {
+		Result<User> res = createNewUserAndGetEvents(
+				organizationId,
+				name,
+				lastname,
+				emailAddress,
+				emailVerified,
+				password,
+				position,
+				avatarStream,
+				avatarFilename,
+				roles,
+				isSystem);
+		Result<UserData> result = new Result<>();
+		result.setResult(new UserData(res.getResult()));
+		result.appendEvents(res.getEventQueue());
+		return result;
+	}
+
+	@Override
+	//nt
 	public User createNewUser(long organizationId, String name, String lastname, String emailAddress, boolean emailVerified,
 							  String password, String position, InputStream avatarStream,
 							  String avatarFilename, List<Long> roles, boolean isSystem) throws DbConnectionException, IllegalDataStateException {
@@ -247,6 +300,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 
 		return res.getResult();
 	}
+
 
 	@Override
 	public User createNewUserAndSendEmail(long organizationId, String name, String lastname, String emailAddress, boolean emailVerified,
