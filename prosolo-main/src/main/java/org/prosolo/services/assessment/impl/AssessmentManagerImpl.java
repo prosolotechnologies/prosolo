@@ -4181,7 +4181,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
         if (!filter.getStatuses().isEmpty()) {
             q += "AND ca.status IN (:statuses) ";
         }
-        q += "ORDER BY ca.dateCreated DESC";
+        q += "ORDER BY ca.dateCreated DESC, ca.id DESC";
 
         Query query = persistence.currentManager().createQuery(q)
                 .setLong("assessorId", assessorId)

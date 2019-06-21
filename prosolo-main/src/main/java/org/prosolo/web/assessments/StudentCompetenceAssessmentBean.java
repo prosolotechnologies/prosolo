@@ -141,7 +141,7 @@ public class StudentCompetenceAssessmentBean extends CompetenceAssessmentBean im
     }
 
     private String getRefreshUrl() {
-        return "/competences/" + getCompetenceId() + "/assessments/peer/" + getCompetenceAssessmentId() + "?credId=" + getCredId();
+        return "/credentials/" + getCredId() + "/competences/" + getCompetenceId() + "/assessments/peer/" + getCompetenceAssessmentId();
     }
 
     public void declineAssessmentRequest() {
