@@ -23,6 +23,7 @@ import org.prosolo.config.app.SAMLIdentityProviderInfo;
 import org.prosolo.core.spring.security.authentication.loginas.LoginAsAuthenticationFailureHandler;
 import org.prosolo.core.spring.security.authentication.loginas.ProsoloSwitchUserFilter;
 import org.prosolo.core.spring.security.authentication.lti.LTIAuthenticationFilter;
+import org.prosolo.core.spring.security.authentication.lti.LTIAuthenticationFilterImpl;
 import org.prosolo.core.spring.security.authentication.lti.LTIAuthenticationProvider;
 import org.prosolo.core.spring.security.authentication.lti.LTIAuthenticationSuccessHandler;
 import org.prosolo.core.spring.security.successhandlers.DefaultProsoloAuthenticationSuccessHandler;
@@ -121,9 +122,8 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers("/terms").permitAll()
 				.antMatchers("/profile").hasAuthority("BASIC.USER.ACCESS")
 				.antMatchers("/profile/*").permitAll()	// legacy profile page
-				.antMatchers("/profile/*/evidence/*").permitAll()	// legacy profile evidence page
+				.antMatchers("/evidence/*/preview").permitAll()	// legacy profile evidence page
 				.antMatchers("/p/*").permitAll()
-				.antMatchers("/p/*/evidence/*").permitAll()
 				.antMatchers("/maintenance").permitAll()
 				.antMatchers("/digest").permitAll()
 				.antMatchers("/login").permitAll()
@@ -272,7 +272,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers("/manage/reports").hasAuthority("REPORTS.VIEW")
 
 				.antMatchers("/manage/evidence/*").hasAnyAuthority("BASIC.MANAGER.ACCESS", "BASIC.INSTRUCTOR.ACCESS")
-				.antMatchers("/manage/profile/*/evidence/*").hasAnyAuthority("BASIC.MANAGER.ACCESS", "BASIC.INSTRUCTOR.ACCESS")
+				.antMatchers("/manage/evidence/*/preview").hasAnyAuthority("BASIC.MANAGER.ACCESS", "BASIC.INSTRUCTOR.ACCESS")
 
 
 				//admin
@@ -845,7 +845,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 	 */
 	@Bean
 	public LTIAuthenticationFilter ltiAuthenticationFilter() {
-		LTIAuthenticationFilter ltiAuthenticationFilter = new LTIAuthenticationFilter(ltiAuthenticationProvider, ltiAuthenticationSuccessHandler, sessionAttributeManagementStrategyProvider.getObject(AuthenticationChangeType.USER_SESSION_END));
+		LTIAuthenticationFilterImpl ltiAuthenticationFilter = new LTIAuthenticationFilterImpl(ltiAuthenticationProvider, ltiAuthenticationSuccessHandler, sessionAttributeManagementStrategyProvider.getObject(AuthenticationChangeType.USER_SESSION_END));
 		String errorMsg = null;
 		try {
 			errorMsg = URLEncoder.encode("Error launching the external activity", "utf-8");

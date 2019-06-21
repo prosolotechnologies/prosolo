@@ -13,7 +13,7 @@ import org.prosolo.common.domainmodel.assessment.*;
 import org.prosolo.common.domainmodel.credential.GradingMode;
 import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.events.EventType;
-import org.prosolo.common.domainmodel.organization.Organization;
+import org.prosolo.common.domainmodel.organization.settings.AssessmentTokensPlugin;
 import org.prosolo.common.domainmodel.rubric.*;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.EventQueue;
@@ -79,7 +79,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
     @Inject private CredentialManager credManager;
     @Inject private CompetenceDataFactory compDataFactory;
     @Inject private LearningEvidenceManager learningEvidenceManager;
-    @Inject private UnitManager unitManager;
+    @Inject private OrganizationManager organizationManager;
     @Inject private org.prosolo.services.user.data.profile.factory.GradeDataFactory gradeDataFactory;
 
     @Override
@@ -404,10 +404,15 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
                     }
                 });
             } else {
-                Organization org = (Organization) persistence.currentManager().load(Organization.class, context.getOrganizationId());
+                AssessmentTokensPlugin assessmentTokensPlugin = organizationManager.getOrganizationPlugin(AssessmentTokensPlugin.class, context.getOrganizationId());
+
                 competenceAssessment = new CompetenceAssessment();
                 User student;
-                if (numberOfTokensForAssessmentRequest > 0 && org.isAssessmentTokensEnabled()) {
+
+                // numberOfTokensForAssessmentRequest is not read form the plugin, but from the method arguments since it is
+                // will be 0 for assessment type where tokens are not used (e.g. tutor assessment or self-assessment)
+
+                if (numberOfTokensForAssessmentRequest > 0 && assessmentTokensPlugin.isEnabled()) {
                     student = (User) persistence.currentManager().load(User.class, studentId, LockOptions.UPGRADE);
                     if (numberOfTokensForAssessmentRequest > student.getNumberOfTokens()) {
                         throw new IllegalDataStateException("Student does not have enough tokens");
@@ -1772,9 +1777,9 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
                 if (competenceAssessment.getType() == AssessmentType.PEER_ASSESSMENT) {
                     //if peer assessment check whether assessment tokens are enabled and if yes, award peer assessor with specified number of tokens
-                    Organization org = (Organization) persistence.currentManager().load(Organization.class, context.getOrganizationId());
-                    if (org.isAssessmentTokensEnabled()) {
-                        competenceAssessment.getAssessor().setNumberOfTokens(competenceAssessment.getAssessor().getNumberOfTokens() + org.getNumberOfEarnedTokensPerAssessment());
+                    AssessmentTokensPlugin assessmentTokensPlugin = organizationManager.getOrganizationPlugin(AssessmentTokensPlugin.class, context.getOrganizationId());
+                    if (assessmentTokensPlugin.isEnabled()) {
+                        competenceAssessment.getAssessor().setNumberOfTokens(competenceAssessment.getAssessor().getNumberOfTokens() + assessmentTokensPlugin.getNumberOfEarnedTokensPerAssessment());
                     }
                 }
 
@@ -3951,6 +3956,8 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
         }
     }
 
+    @Override
+    @Transactional(readOnly = true)
     public boolean isThereExistingUnasignedPeerCompetencyAssessment(long credentialId, long competenceId, long studentId) {
         try {
             String query =
@@ -4325,8 +4332,8 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
     }
 
     private void returnTokensToStudentIfEnabled(long organizationId, Assessment assessment) {
-        Organization org = (Organization) persistence.currentManager().load(Organization.class, organizationId);
-        if (org.isAssessmentTokensEnabled()) {
+        AssessmentTokensPlugin assessmentTokensPlugin = organizationManager.getOrganizationPlugin(AssessmentTokensPlugin.class, organizationId);
+        if (assessmentTokensPlugin.isEnabled()) {
             assessment.getStudent().setNumberOfTokens(assessment.getStudent().getNumberOfTokens() + assessment.getNumberOfTokensSpent());
         }
     }

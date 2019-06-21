@@ -274,7 +274,10 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 	}
 
  	private Long extractCourseIdForUsedResource(LearningContext learningContext) {
-		Long courseId = Context.getIdFromSubContextWithName(learningContext.getContext(), ContextName.CREDENTIAL);
+		long courseId = Context.getIdFromSubContextWithName(learningContext.getContext(), ContextName.DELIVERY);
+
+		if (courseId == 0)
+			courseId = Context.getIdFromSubContextWithName(learningContext.getContext(), ContextName.CREDENTIAL);
 		/*if(learningContext != null && learningContext.getContext() != null) {
 			if(learningContext.getContext().getContext().getName().equals(ContextName.CREDENTIAL)){
 					courseId=learningContext.getContext().getContext().getId();

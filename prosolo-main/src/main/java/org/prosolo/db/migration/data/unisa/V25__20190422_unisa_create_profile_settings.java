@@ -63,7 +63,7 @@ public class V25__20190422_unisa_create_profile_settings extends BaseMigration {
                     // supposing here that this will be a unique customProfileURL and not retrying with other variants of the URL
                     String customProfileURL = StudentProfileManagerImpl.generateCustomProfileURLPrefix(user[1], user[2])+"-"+urlIdEncoder.encodeId(userId);
 
-                    insertQueryBuffer.append("("+id+",'"+customProfileURL+"','T', "+userId+")");
+                    insertQueryBuffer.append("("+id+",'"+customProfileURL+"','F', "+userId+")");
 
                     firstRecord = false;
                     id++;

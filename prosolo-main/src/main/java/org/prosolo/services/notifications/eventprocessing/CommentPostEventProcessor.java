@@ -46,31 +46,33 @@ public class CommentPostEventProcessor extends CommentEventProcessor {
 					getResource().getResourceType(),
 					getResource().getCommentedResourceId());
 			if (resCreatorId != null) {
+				List<Long> usersToExclude = new ArrayList<>();
+
 				/*
-				if student commented we want to notify his instructor in delivery if
-				delivery id available and instructor is assigned
+				if a student has posted a comment, we want to notify his instructor if delivery id available and
+				instructor is assigned
 				 */
 				long studentInstructorId = 0;
 				boolean isStudentComment = !getResource().isManagerComment();
 				long credentialId = Context.getIdFromSubContextWithName(getContext(), ContextName.CREDENTIAL);
+
 				if (isStudentComment && credentialId > 0) {
 					TargetCredential1 tc = credentialManager.getTargetCredentialForStudentAndCredential(credentialId, event.getActorId(), session);
 					if (tc.getInstructor() != null) {
 						studentInstructorId = tc.getInstructor().getUser().getId();
+						usersToExclude.add(studentInstructorId);
 					}
-				}
-				List<Long> usersToExclude = new ArrayList<>();
-				if (studentInstructorId > 0) {
-					usersToExclude.add(studentInstructorId);
 				}
 
 				String userSectionLink = getNotificationLink(PageSection.STUDENT);
-				//if link is null or empty it means there is no enough information to create notification
+
+				// if link is null or empty it means there is no enough information to create notification
 				if (userSectionLink != null && !userSectionLink.isEmpty()) {
 					//get ids of all users who posted a comment as regular users
 					List<Long> users = commentManager.getIdsOfUsersThatCommentedResource(
 							getResource().getResourceType(), getResource().getCommentedResourceId(),
 							Role.User, usersToExclude);
+
 					for (Long id : users) {
 						receiversData.add(new NotificationReceiverData(id, userSectionLink, id == resCreatorId, PageSection.STUDENT));
 					}
@@ -78,6 +80,7 @@ public class CommentPostEventProcessor extends CommentEventProcessor {
 				}
 
 				String manageSectionLink = getNotificationLink(PageSection.MANAGE);
+
 				//if link is null or empty it means there is no enough information to create notification
 				if (manageSectionLink != null && !manageSectionLink.isEmpty()) {
 					//get ids of all users who posted a comment as managers
@@ -85,12 +88,13 @@ public class CommentPostEventProcessor extends CommentEventProcessor {
 							getResource().getResourceType(), getResource().getCommentedResourceId(),
 							Role.Manager,
 							usersToExclude);
+
 					for (long id : managers) {
 						receiversData.add(new NotificationReceiverData(id, manageSectionLink, id == resCreatorId, PageSection.MANAGE));
 					}
 					/*
 					 * add student instructor (if exists) to the collection of receivers with a link
-					 * for manage section
+					 * to manage section
 					 */
 					if (studentInstructorId > 0) {
 						receiversData.add(new NotificationReceiverData(studentInstructorId, manageSectionLink, studentInstructorId == resCreatorId, PageSection.MANAGE));

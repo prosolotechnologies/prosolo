@@ -47,6 +47,7 @@ import org.prosolo.services.user.data.StudentAssessmentInfo;
 import org.prosolo.services.user.data.StudentData;
 import org.prosolo.services.user.data.UserData;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -75,6 +76,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 	@Inject private UserManager userManager;
 
 	@Override
+    @Transactional (readOnly = true)
 	public PaginatedResult<UserData> searchUsers(
 			long orgId, String searchString, int page, int limit, boolean loadOneMore,
 			Collection<Long> includeUserIds, Collection<Long> excludeUserIds) {
@@ -630,8 +632,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 	
 	@Override
 	public PaginatedResult<UserData> searchUsersWithInstructorRole (long orgId, String searchTerm,
-																	long credId, long roleId, List<Long> unitIds,
-																	List<Long> excludedUserIds) {
+																	long credId, long roleId, List<Long> unitIds) {
 		PaginatedResult<UserData> response = new PaginatedResult<>();
 		try {
 			if (unitIds == null || unitIds.isEmpty()) {
@@ -659,10 +660,6 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 
 			NestedQueryBuilder nestedFilter = QueryBuilders.nestedQuery("roles", unitRoleFilter, ScoreMode.None);
 			bQueryBuilder.filter(nestedFilter);
-			
-			for (Long id : excludedUserIds) {
-				bQueryBuilder.mustNot(termQuery("id", id));
-			}
 			
 			//bQueryBuilder.minimumNumberShouldMatch(1);
 			

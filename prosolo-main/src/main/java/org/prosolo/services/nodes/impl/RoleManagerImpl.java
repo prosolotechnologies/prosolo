@@ -60,6 +60,7 @@ public class RoleManagerImpl extends AbstractManagerImpl implements RoleManager 
 	}
 
 	@Override
+	@Transactional
 	public List<Role> getAllRoles() {
 		List<Role> result = getAllResources(Role.class);
 		
