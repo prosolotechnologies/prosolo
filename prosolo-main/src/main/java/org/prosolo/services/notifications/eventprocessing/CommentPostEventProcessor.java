@@ -8,14 +8,12 @@ import org.prosolo.common.domainmodel.user.notifications.ResourceType;
 import org.prosolo.common.event.Event;
 import org.prosolo.common.event.context.Context;
 import org.prosolo.common.event.context.ContextName;
-import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.activityWall.SocialActivityManager;
 import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.assessment.data.AssessmentBasicData;
 import org.prosolo.services.interaction.CommentManager;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
 import org.prosolo.services.nodes.Activity1Manager;
-import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.Role;
 import org.prosolo.services.notifications.NotificationManager;
 import org.prosolo.services.notifications.eventprocessing.data.NotificationReceiverData;
@@ -100,8 +98,7 @@ public class CommentPostEventProcessor extends CommentEventProcessor {
                     //get ids of all users who posted a comment as managers
                     List<Long> managers = commentManager.getIdsOfUsersThatCommentedResource(
                             commentData.getCommentedResourceType(), commentData.getCommentedResourceId(),
-                            Role.Manager,
-                            usersToExclude);
+                            Role.Manager, usersToExclude);
 
                     for (long id : managers) {
                         receiversData.add(new NotificationReceiverData(id, manageSectionLink, id == resCreatorId, PageSection.MANAGE));
@@ -117,7 +114,7 @@ public class CommentPostEventProcessor extends CommentEventProcessor {
             }
             return receiversData;
         } catch (Exception e) {
-            logger.error("Error", e);
+            logger.error("error", e);
             return new ArrayList<>();
         }
     }

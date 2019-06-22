@@ -286,8 +286,11 @@ public class ActivityWallBean implements Serializable {
 		sActivity.setLastAction(sa.getLastAction());
 		sActivity.setPredicate(ResourceBundleUtil.getActionName(
 				sActivity.getType().name(), loggedUser.getLocale()));
-		CommentsData cd = new CommentsData(CommentedResourceType.SocialActivity,
-				sActivity.getId());
+		CommentsData cd = CommentsData
+				.builder()
+				.resourceType(CommentedResourceType.SocialActivity)
+				.resourceId(sActivity.getId())
+				.build();
 		sActivity.setComments(cd);
 	}
 	

@@ -20,10 +20,20 @@ import org.prosolo.web.administration.data.RoleData;
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 public interface UserManager extends AbstractManager {
 
 	User getUser(String email) throws DbConnectionException;
+
+	/**
+	 * Returns user data for user with given email. Data returned includes user roles.
+	 *
+	 * @param email
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	Optional<UserData> getUserData(String email);
 
 	User getUserIfNotDeleted(String email) throws DbConnectionException;
 
@@ -40,6 +50,48 @@ public interface UserManager extends AbstractManager {
 	User createNewUser(long organizationId, String name, String lastname, String emailAddress, boolean emailVerified,
 			String password, String position, InputStream avatarStream, 
 			String avatarFilename, List<Long> roles, boolean isSystem) throws DbConnectionException, IllegalDataStateException;
+
+	/**
+	 * Creates new user, returns user data ({@link UserData} and events to be generated
+	 *
+	 * @param organizationId
+	 * @param name
+	 * @param lastname
+	 * @param emailAddress
+	 * @param emailVerified
+	 * @param password
+	 * @param position
+	 * @param avatarStream
+	 * @param avatarFilename
+	 * @param roles
+	 * @param isSystem
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	Result<UserData> createNewUserAndGetUserDataAndEvents(long organizationId, String name, String lastname, String emailAddress, boolean emailVerified,
+														  String password, String position, InputStream avatarStream,
+														  String avatarFilename, List<Long> roles, boolean isSystem);
+
+	/**
+	 * Creates new user, generates events and returns user data ({@link UserData}
+	 *
+	 * @param organizationId
+	 * @param name
+	 * @param lastname
+	 * @param emailAddress
+	 * @param emailVerified
+	 * @param password
+	 * @param position
+	 * @param avatarStream
+	 * @param avatarFilename
+	 * @param roles
+	 * @param isSystem
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	UserData createNewUserAndReturnData(long organizationId, String name, String lastname, String emailAddress, boolean emailVerified,
+										String password, String position, InputStream avatarStream,
+										String avatarFilename, List<Long> roles, boolean isSystem);
 
 	Result<User> createNewUserAndGetEvents(long organizationId, String name, String lastname, String emailAddress, boolean emailVerified,
 										   String password, String position, InputStream avatarStream,

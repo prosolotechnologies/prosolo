@@ -8,6 +8,7 @@ import org.prosolo.common.domainmodel.credential.ActivityRubricVisibility;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.PageContextData;
+import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.services.assessment.RubricManager;
 import org.prosolo.services.assessment.data.grading.RubricCriteriaGradeData;
 import org.prosolo.services.interaction.CommentManager;
@@ -118,9 +119,15 @@ public class ActivityViewBeanUser implements Serializable {
 				if (!competenceData.getActivityToShowWithDetails().isEnrolled()) {
 					PageUtil.accessDenied();
 				} else {
-					commentsData = new CommentsData(CommentedResourceType.Activity, 
-							competenceData.getActivityToShowWithDetails().getActivityId(), false, false);
-					commentsData.setCommentId(idEncoder.decodeId(commentId));
+					commentsData = CommentsData
+							.builder()
+							.resourceType(CommentedResourceType.Activity)
+							.resourceId(competenceData.getActivityToShowWithDetails().getActivityId())
+							.isInstructor(false)
+							.isManagerComment(false)
+							.credentialId(decodedCredId)
+							.commentId(idEncoder.decodeId(commentId))
+							.build();
 					commentBean.loadComments(commentsData);
 					//load result comments number
 					ActivityData ad = competenceData.getActivityToShowWithDetails();
@@ -253,13 +260,17 @@ public class ActivityViewBeanUser implements Serializable {
 	/*
 	 * ACTIONS
 	 */
-	
+
 	public void completeActivity() {
+		completeActivity(loggedUser.getUserContext());
+	}
+	
+	public void completeActivity(UserContextData contextData) {
 		try {
 			activityManager.completeActivity(
 					competenceData.getActivityToShowWithDetails().getTargetActivityId(), 
 					competenceData.getActivityToShowWithDetails().getCompetenceId(),
-					loggedUser.getUserContext());
+					contextData);
 			competenceData.getActivityToShowWithDetails().setCompleted(true);
 			
 			boolean localNextToLearn = false;
@@ -290,7 +301,7 @@ public class ActivityViewBeanUser implements Serializable {
 					nextCompToLearn = 0;
 				}
 			} catch(DbConnectionException e) {
-				logger.error(e);
+				logger.error("error", e);
 			}
 			
 			PageUtil.fireSuccessfulInfoMessage("The activity has been completed");
@@ -314,17 +325,17 @@ public class ActivityViewBeanUser implements Serializable {
 			
 			completeActivity();
 		} catch(Exception e) {
-			logger.error(e);
+			logger.error("error", e);
 			competenceData.getActivityToShowWithDetails().getResultData().setResult(null);
 			PageUtil.fireErrorMessage("Error saving response");
 		}
 	}
 	
 	public void handleFileUpload(FileUploadEvent event) {
+		PageContextData pageContextData = PageUtil.extractLearningContextDataFromComponent(event.getComponent());
 		activityResultBean.uploadAssignment(event, 
-				competenceData.getActivityToShowWithDetails().getResultData());
-		
-		completeActivity();
+				competenceData.getActivityToShowWithDetails().getResultData(), pageContextData);
+		completeActivity(loggedUser.getUserContext(pageContextData));
 	}
 	
 	public void deleteAssignment() {

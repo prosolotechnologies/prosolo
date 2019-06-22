@@ -398,7 +398,8 @@ public class BusinessCase_Test_2_9 extends BaseBusinessCase5 {
                 comp1UserHelenCampbell.getCompetence().getId(),
                 CommentedResourceType.Competence,
                 null,
-                false);
+                false,
+                credentialWithActivities1Delivery1.getId());
 
         likeComment(events, comment1, userGeorgeYoung);
 
@@ -408,7 +409,8 @@ public class BusinessCase_Test_2_9 extends BaseBusinessCase5 {
                 comp1UserHelenCampbell.getCompetence().getId(),
                 CommentedResourceType.Competence,
                 comment1,
-                false);
+                false,
+                credentialWithActivities1Delivery1.getId());
 
         likeComment(events, comment1Reply1, userHelenCampbell);
 
@@ -418,7 +420,8 @@ public class BusinessCase_Test_2_9 extends BaseBusinessCase5 {
                 comp1UserHelenCampbell.getCompetence().getId(),
                 CommentedResourceType.Competence,
                 null,
-                false);
+                false,
+                credentialWithActivities1Delivery1.getId());
 
         CommentData comment3 = createNewComment(events,
                 userHelenCampbell,
@@ -426,7 +429,8 @@ public class BusinessCase_Test_2_9 extends BaseBusinessCase5 {
                 comp1UserHelenCampbell.getCompetence().getId(),
                 CommentedResourceType.Competence,
                 null,
-                false);
+                false,
+                credentialWithActivities1Delivery1.getId());
 
         CommentData comment3reply = createNewComment(events,
                 userPhilArmstrong,
@@ -434,7 +438,8 @@ public class BusinessCase_Test_2_9 extends BaseBusinessCase5 {
                 comp1UserHelenCampbell.getCompetence().getId(),
                 CommentedResourceType.Competence,
                 comment3,
-                true);
+                true,
+                credentialWithActivities1Delivery1.getId());
 
         CommentData comment4 = createNewComment(events,
                 userPhilArmstrong,
@@ -444,7 +449,8 @@ public class BusinessCase_Test_2_9 extends BaseBusinessCase5 {
                 comp1UserHelenCampbell.getCompetence().getId(),
                 CommentedResourceType.Competence,
                 null,
-                true);
+                true,
+                credentialWithActivities1Delivery1.getId());
 
 
         ////////////////////////////////
@@ -468,7 +474,8 @@ public class BusinessCase_Test_2_9 extends BaseBusinessCase5 {
                 comp1UserTaniaCortese.getCompetence().getId(),
                 CommentedResourceType.Competence,
                 null,
-                false);
+                false,
+                credentialWithActivities1Delivery2.getId());
 
         CommentData comment5Reply = createNewComment(events,
                 userAnnaHallowell,
@@ -476,7 +483,8 @@ public class BusinessCase_Test_2_9 extends BaseBusinessCase5 {
                 comp1UserTaniaCortese.getCompetence().getId(),
                 CommentedResourceType.Competence,
                 comment5,
-                true);
+                true,
+                credentialWithActivities1Delivery2.getId());
 
         CommentData comment6 = createNewComment(events,
                 userAnnaHallowell,
@@ -486,7 +494,8 @@ public class BusinessCase_Test_2_9 extends BaseBusinessCase5 {
                 comp1UserTaniaCortese.getCompetence().getId(),
                 CommentedResourceType.Competence,
                 null,
-                true);
+                true,
+                credentialWithActivities1Delivery2.getId());
 
 
     }

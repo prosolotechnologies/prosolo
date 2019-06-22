@@ -1611,7 +1611,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 						commentsData.getResourceId(), false, 0, 
 						commentDataFactory.getCommentSortData(commentsData), 
 						CommentReplyFetchMode.FetchReplies, 
-						loggedUserId, false);
+						loggedUserId, 0);
 				
 				Collections.reverse(comments);
 				
@@ -1876,7 +1876,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	}
 
 	@Override
-	@Transactional (readOnly = true)
+	@Transactional(readOnly = true)
 	public void checkIfActivityAndCompetenceArePartOfCredential(long credId, long compId, long actId) throws ResourceNotFoundException {
 		String query1 =
 				"SELECT COUNT(compAct.id) " +
@@ -1901,7 +1901,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	}
 
 	@Override
-	@Transactional (readOnly = true)
+	@Transactional(readOnly = true)
 	public void checkIfActivityIsPartOfACredential(long credId, long actId)	throws ResourceNotFoundException {
 		String query1 =
 				"SELECT COUNT(compAct.id) " +

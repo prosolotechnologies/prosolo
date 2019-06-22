@@ -1,6 +1,7 @@
 package org.prosolo.services.interaction;
 
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.common.domainmodel.comment.Comment1;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.common.event.context.data.UserContextData;
@@ -21,12 +22,12 @@ public interface CommentManager {
 	 * @param resourceId
 	 * @param commentSortData
 	 * @param userId
-	 * @param loadOnlyCommentsFromUsersLearningSameDeliveries
+	 * @param credentialId
 	 * @return
 	 * @throws DbConnectionException
 	 */
 	List<CommentData> getAllComments(CommentedResourceType resourceType, long resourceId, 
-			CommentSortData commentSortData, long userId, boolean loadOnlyCommentsFromUsersLearningSameDeliveries) throws DbConnectionException;
+			CommentSortData commentSortData, long userId, long credentialId) throws DbConnectionException;
 	/**
 	 * Returns number of comments specified by {@code maxResults} 
 	 * @param resourceType
@@ -36,20 +37,20 @@ public interface CommentManager {
 	 * @param commentSortData
 	 * @param replyFetchMode
 	 * @param userId
-	 * @param loadOnlyCommentsFromUsersLearningSameDeliveries
+	 * @param credentialId
 	 * @return
 	 * @throws DbConnectionException
 	 */
 	List<CommentData> getComments(CommentedResourceType resourceType, long resourceId, 
 			boolean paginate, int maxResults, CommentSortData commentSortData, 
-			CommentReplyFetchMode replyFetchMode, long userId, boolean loadOnlyCommentsFromUsersLearningSameDeliveries) throws DbConnectionException;
+			CommentReplyFetchMode replyFetchMode, long userId, long credentialId) throws DbConnectionException;
 	
 	List<CommentData> getCommentsWithNumberOfReplies(CommentedResourceType resourceType, long resourceId,
-			boolean paginate, int maxResults, CommentSortData commentSortData, long userId, boolean loadOnlyCommentsFromUsersLearningSameDeliveries)
+			boolean paginate, int maxResults, CommentSortData commentSortData, long userId, long credentialId)
 			throws DbConnectionException;
 	
 	List<CommentData> getCommentsWithReplies(CommentedResourceType resourceType, long resourceId, boolean paginate,
-			int maxResults, CommentSortData commentSortData, long userId, boolean loadOnlyCommentsFromUsersLearningSameDeliveries) throws DbConnectionException;
+			int maxResults, CommentSortData commentSortData, long userId, long credentialId) throws DbConnectionException;
 	
 	List<CommentData> getAllCommentReplies(CommentData parent, CommentSortData commentSortData, 
 			long userId) throws DbConnectionException;
@@ -67,10 +68,10 @@ public interface CommentManager {
 			throws DbConnectionException;
 	
 	Comment1 saveNewComment(CommentData data, CommentedResourceType resource,
-			UserContextData context) throws DbConnectionException;
+			UserContextData context) throws DbConnectionException, IllegalDataStateException;
 
 	Result<Comment1> saveNewCommentAndGetEvents(CommentData data, CommentedResourceType resource,
-												UserContextData context) throws DbConnectionException;
+												UserContextData context) throws DbConnectionException, IllegalDataStateException;
 	
 	void updateComment(CommentData data, UserContextData context)
 			throws DbConnectionException;
@@ -99,7 +100,7 @@ public interface CommentManager {
 	
 	List<CommentData> getAllFirstLevelCommentsAndSiblingsOfSpecifiedComment(
 			CommentedResourceType resourceType, long resourceId, CommentSortData commentSortData, 
-			long commentId, long userId, boolean loadOnlyCommentsFromUsersLearningSameDeliveries) throws DbConnectionException;
+			long commentId, long userId, long credentialId) throws DbConnectionException;
 	
 	Role getCommentedResourceCreatorRole(CommentedResourceType resourceType, long resourceId) 
 			throws DbConnectionException;

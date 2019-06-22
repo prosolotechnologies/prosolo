@@ -89,8 +89,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 					return new ArrayList<>();
 			}
 		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
+			logger.error("error", e);
 			throw new DbConnectionException("Error retrieving social activities");
 		}
 	}

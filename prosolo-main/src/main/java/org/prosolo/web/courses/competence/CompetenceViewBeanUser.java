@@ -88,9 +88,15 @@ public class CompetenceViewBeanUser implements Serializable {
 					throw new AccessDeniedException();
 				}
 
-				commentsData = new CommentsData(CommentedResourceType.Competence, 
-						competenceData.getCompetenceId(), false, false);
-				commentsData.setCommentId(idEncoder.decodeId(commentId));
+				commentsData = CommentsData
+						.builder()
+						.resourceType(CommentedResourceType.Competence)
+						.resourceId(competenceData.getCompetenceId())
+						.isInstructor(false)
+						.isManagerComment(false)
+						.commentId(idEncoder.decodeId(commentId))
+						.credentialId(decodedCredId)
+						.build();
 				commentBean.loadComments(commentsData);
 
 				if (decodedCredId > 0) {

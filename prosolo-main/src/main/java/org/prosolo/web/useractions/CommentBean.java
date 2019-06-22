@@ -65,21 +65,15 @@ public class CommentBean implements Serializable, ICommentBean {
 			CommentSortData csd = getCommentSortData(commentsData);
 			List<CommentData> comments = null;
 
-			//TODO hack - if it is competency or activity comment and it is Student,
-			// load comments only if from same deliveries user is learning and all manager comments
-			boolean loadCommentsFromSameDeliveries =
-					(commentsData.getResourceType() == CommentedResourceType.Activity
-							|| commentsData.getResourceType() == CommentedResourceType.Competence)
-							&& !commentsData.isManagerComment();
 			if(commentsData.getCommentId() > 0) {
 				comments = commentManager.getAllFirstLevelCommentsAndSiblingsOfSpecifiedComment(
 						commentsData.getResourceType(), commentsData.getResourceId(), csd, 
-						commentsData.getCommentId(), loggedUser.getUserId(), loadCommentsFromSameDeliveries);
+						commentsData.getCommentId(), loggedUser.getUserId(), commentsData.getCredentialId());
 				commentsData.setNumberOfComments(comments.size());
 			} else {
 				comments = commentManager.getComments(commentsData.getResourceType(), 
 						commentsData.getResourceId(), true, limit, csd, 
-						CommentReplyFetchMode.FetchNumberOfReplies, loggedUser.getUserId(), loadCommentsFromSameDeliveries);
+						CommentReplyFetchMode.FetchNumberOfReplies, loggedUser.getUserId(), commentsData.getCredentialId());
 				
 				int commentsNumber = comments.size();
 				if(commentsNumber == limit + 1) {
@@ -92,7 +86,7 @@ public class CommentBean implements Serializable, ICommentBean {
 			Collections.reverse(comments);
 			return comments;
 		} catch(Exception e) {
-			logger.error(e);
+			logger.error("error", e);
 			return null;
 		}
 	}
@@ -178,6 +172,7 @@ public class CommentBean implements Serializable, ICommentBean {
 			newComment.setCreator(creator);
 			newComment.setInstructor(commentsData.isInstructor());
 			newComment.setManagerComment(commentsData.isManagerComment());
+			newComment.setCredentialId(commentsData.getCredentialId());
 			
     		Comment1 comment = null;
 			if (commentsData.getResourceType() == CommentedResourceType.SocialActivity) {

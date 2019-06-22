@@ -107,10 +107,11 @@ public class RichContentDataFactory {
      * @param comment   comment text
      * @param compId    comeptence id
      * @param actId     activity id
+     * @param credId
      * @return
      */
     public AttachmentPreview getAttachmentPreviewForComment(long commentId,
-                                                            ResourceType type, String title, String comment, long compId, long actId, ActivityType actType) {
+                                                            ResourceType type, String title, String comment, long compId, long actId, ActivityType actType, long credId) {
         CommentPostData ap = new CommentPostData();
         MediaType1 mediaType;
 
@@ -120,9 +121,6 @@ public class RichContentDataFactory {
             mediaType = MediaType1.ActivityComment;
             ap.setActivityType(actType);
         }
-
-        // TODO: PRS-3638
-        int credId = 1;
 
         ap.setId(commentId);
         ap.setCredentialId(credId);
