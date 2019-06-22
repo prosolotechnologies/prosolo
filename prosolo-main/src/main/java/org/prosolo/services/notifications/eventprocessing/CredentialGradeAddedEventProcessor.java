@@ -56,14 +56,12 @@ public class CredentialGradeAddedEventProcessor extends GradeAddedEventProcessor
 
         switch (assessmentType) {
             case INSTRUCTOR_ASSESSMENT:
+            case PEER_ASSESSMENT:
                 return AssessmentLinkUtil.getCredentialAssessmentUrlForAssessedStudent(
                         idEncoder.encodeId(credentialId),
                         idEncoder.encodeId(credentialAssessment.getCredentialAssessmentId()),
                         assessmentType,
                         PageSection.STUDENT);
-            case PEER_ASSESSMENT:
-                return AssessmentLinkUtil.getCredentialAssessmentUrlForStudentPeerAssessor(
-                        idEncoder.encodeId(credentialAssessment.getCredentialAssessmentId()));
             default:
                 throw new IllegalArgumentException("Cannot generate notification link for the assessment type " + assessmentType);
         }

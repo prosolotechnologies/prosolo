@@ -64,7 +64,8 @@ public class CompetenceAssessmentRequestEventProcessor extends CompetenceAssessm
                         assessmentType,
                         PageSection.MANAGE);
             case PEER_ASSESSMENT:
-                return "/assessments/my/competences/" + idEncoder.encodeId(competenceAssessment.getCompetenceAssessmentId());
+                return AssessmentLinkUtil.getCompetenceAssessmentUrlForStudentPeerAssessor(
+                        idEncoder.encodeId(competenceAssessment.getCompetenceAssessmentId()));
             default:
                 throw new IllegalArgumentException("Cannot generate notification link for the assessment type " + assessmentType);
         }
