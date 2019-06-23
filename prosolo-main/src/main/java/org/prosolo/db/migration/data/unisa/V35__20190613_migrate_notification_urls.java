@@ -17,11 +17,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * @author stefanvuckovic
- * @date 2019-05-16
+ * Migrate url fields for records of specific notification type.
+ *
+ * @author Nikola Milikic
+ * @date 2019-06-13
  * @since 1.3.2
  */
-public class V33__20190613_migrate_notification_urls extends BaseMigration {
+public class V35__20190613_migrate_notification_urls extends BaseMigration {
 
     @Getter
     private Pattern commentPattern = Pattern.compile(".*\\/competences\\/([a-zA-Z0-9]+)\\?comment=([a-zA-Z0-9]+)");
@@ -34,6 +36,7 @@ public class V33__20190613_migrate_notification_urls extends BaseMigration {
     @Override
     protected void doMigrate(Context context) throws Exception {
         migrateCommentNotifications(context);
+        migrateCommentLikeNotifications(context);
         migrateAssessmentRequestedNotifications(context);
         migrateAssessmentApprovedNotifications(context);
 
@@ -45,21 +48,21 @@ public class V33__20190613_migrate_notification_urls extends BaseMigration {
             // fetch all Comment notifications
             try (ResultSet rs = statement.executeQuery(
                     "SELECT DISTINCT notif.id AS id, notif.link AS link, cred.id AS credId\n" +
-                    "FROM notification1 AS notif\n" +
-                    "  INNER JOIN competence1 comp ON notif.object_id = comp.id\n" +
-                    "  INNER JOIN credential_competence1 credComp ON comp.id = credComp.competence\n" +
-                    "  INNER JOIN credential1 cred ON credComp.credential = cred.id\n" +
-                    "  INNER JOIN target_credential1 tCred ON tCred.credential = cred.id\n" +
-                    "  INNER JOIN user_user_role userReceiverRole ON notif.receiver = userReceiverRole.user\n" +
-                    "  INNER JOIN user_user_role userActorRole ON notif.actor = userActorRole.user\n" +
-                    "WHERE notif.type = 'Comment'\n" +
-                    "  AND notif.object_type = 'Competence'\n" +
-                    "  AND (\n" +
-                    "    (notif.section = 'STUDENT'\n" +
-                    "     AND notif.receiver = tCred.user)\n" +
-                    "    OR\n" +
-                    "    (notif.section = 'MANAGE'\n" +
-                    "      AND notif.actor = tCred.user))")
+                            "FROM notification1 AS notif\n" +
+                            "  INNER JOIN competence1 comp ON notif.object_id = comp.id\n" +
+                            "  INNER JOIN credential_competence1 credComp ON comp.id = credComp.competence\n" +
+                            "  INNER JOIN credential1 cred ON credComp.credential = cred.id\n" +
+                            "  INNER JOIN target_credential1 tCred ON tCred.credential = cred.id\n" +
+                            "  INNER JOIN user_user_role userReceiverRole ON notif.receiver = userReceiverRole.user\n" +
+                            "  INNER JOIN user_user_role userActorRole ON notif.actor = userActorRole.user\n" +
+                            "WHERE notif.type = 'Comment'\n" +
+                            "  AND notif.object_type = 'Competence'\n" +
+                            "  AND (\n" +
+                            "    (notif.section = 'STUDENT'\n" +
+                            "     AND notif.receiver = tCred.user)\n" +
+                            "    OR\n" +
+                            "    (notif.section = 'MANAGE'\n" +
+                            "      AND notif.actor = tCred.user))")
             ) {
                 // Extract all data and store to the list before making any update queries
                 List<String[]> notifList = new LinkedList<>();
@@ -87,8 +90,48 @@ public class V33__20190613_migrate_notification_urls extends BaseMigration {
 
                     statement.executeUpdate(
                             "UPDATE notification1 notif\n" +
-                            "    SET link = '" + newLink + "' \n" +
-                            "    WHERE notif.id = " + notifId);
+                                    "    SET link = '" + newLink + "' \n" +
+                                    "    WHERE notif.id = " + notifId);
+                }
+            }
+        }
+    }
+
+    private void migrateCommentLikeNotifications(Context context) throws SQLException {
+        try (Statement statement = context.getConnection().createStatement()) {
+
+            // fetch all Comment notifications
+            try (ResultSet rs = statement.executeQuery(
+                    "SELECT DISTINCT notif.id AS id, notif.link AS link, comment.credential AS credId\n" +
+                            "FROM notification1 AS notif\n" +
+                            "       INNER JOIN comment1 comment ON notif.object_id = comment.id\n" +
+                            "WHERE notif.type = 'Comment_Like'\n" +
+                            "  AND notif.link REGEXP ('\\\\/competences\\\\/');")
+            ) {
+                // Extract all data and store to the list before making any update queries
+                List<String[]> notifList = new LinkedList<>();
+
+                while (rs.next()) {
+                    notifList.add(new String[] {
+                            String.valueOf(rs.getLong("id")),
+                            rs.getString("link"),
+                            String.valueOf(rs.getLong("credId"))
+                    });
+                }
+
+                for (String[] notif : notifList) {
+                    long notifId = Long.parseLong(notif[0]);
+                    String oldLink = notif[1];
+                    long credId = Long.parseLong(notif[2]);
+
+                    String[] ids = extractMatchedGroups(commentPattern, 2, oldLink);
+
+                    String newLink = "/credentials/"+idEncoder.encodeId(credId)+"/competences/"+ids[0]+"?comment="+ids[1];
+
+                    statement.executeUpdate(
+                            "UPDATE notification1 notif\n" +
+                                    "    SET link = '" + newLink + "' \n" +
+                                    "    WHERE notif.id = " + notifId);
                 }
             }
         }
@@ -101,10 +144,10 @@ public class V33__20190613_migrate_notification_urls extends BaseMigration {
             // to update Instructor Credential assessment URLs
             try (ResultSet rs = statement.executeQuery(
                     "SELECT DISTINCT notif.id AS id, notif.link AS link\n" +
-                    "FROM notification1 AS notif\n" +
-                    "WHERE notif.type = 'Assessment_Requested'\n" +
-                    "  AND notif.object_type = 'Competence'\n" +
-                    "  AND notif.link NOT REGEXP ('\\\\/manage\\\\/credentials\\\\/([a-zA-Z0-9]*)');")
+                            "FROM notification1 AS notif\n" +
+                            "WHERE notif.type = 'Assessment_Requested'\n" +
+                            "  AND notif.object_type = 'Competence'\n" +
+                            "  AND notif.link NOT REGEXP ('\\\\/manage\\\\/credentials\\\\/([a-zA-Z0-9]*)');")
             ) {
                 // Extract all data and store to the list before making any update queries
                 List<String[]> notifList = new LinkedList<>();
@@ -126,8 +169,8 @@ public class V33__20190613_migrate_notification_urls extends BaseMigration {
 
                     statement.executeUpdate(
                             "UPDATE notification1 notif\n" +
-                            "SET link = '" + newLink + "' \n" +
-                            "WHERE notif.id = " + notifId);
+                                    "SET link = '" + newLink + "' \n" +
+                                    "WHERE notif.id = " + notifId);
                 }
             }
         }
@@ -140,15 +183,15 @@ public class V33__20190613_migrate_notification_urls extends BaseMigration {
             // to update Credential assessment URLs
             try (ResultSet rs = statement.executeQuery(
                     "SELECT DISTINCT notif.id AS id, notif.link AS link, cred.id AS credId\n" +
-                    "FROM notification1 AS notif\n" +
-                    "  INNER JOIN competence1 comp ON notif.object_id = comp.id\n" +
-                    "  INNER JOIN credential_competence1 credComp ON comp.id = credComp.competence\n" +
-                    "  INNER JOIN credential1 cred ON credComp.credential = cred.id\n" +
-                    "  INNER JOIN target_credential1 tCred ON tCred.credential = cred.id\n" +
-                    "  INNER JOIN user_user_role userReceiverRole ON notif.receiver = userReceiverRole.user\n" +
-                    "  INNER JOIN user_user_role userActorRole ON notif.actor = userActorRole.user\n" +
-                    "WHERE notif.type = 'Assessment_Approved'\n" +
-                    "  AND notif.object_type = 'Competence';")
+                            "FROM notification1 AS notif\n" +
+                            "  INNER JOIN competence1 comp ON notif.object_id = comp.id\n" +
+                            "  INNER JOIN credential_competence1 credComp ON comp.id = credComp.competence\n" +
+                            "  INNER JOIN credential1 cred ON credComp.credential = cred.id\n" +
+                            "  INNER JOIN target_credential1 tCred ON tCred.credential = cred.id\n" +
+                            "  INNER JOIN user_user_role userReceiverRole ON notif.receiver = userReceiverRole.user\n" +
+                            "  INNER JOIN user_user_role userActorRole ON notif.actor = userActorRole.user\n" +
+                            "WHERE notif.type = 'Assessment_Approved'\n" +
+                            "  AND notif.object_type = 'Competence';")
             ) {
                 // Extract all data and store to the list before making any update queries
                 List<String[]> notifList = new LinkedList<>();
@@ -174,8 +217,8 @@ public class V33__20190613_migrate_notification_urls extends BaseMigration {
 
                     statement.executeUpdate(
                             "UPDATE notification1 notif\n" +
-                            "SET link = '" + newLink + "' \n" +
-                            "WHERE notif.id = " + notifId);
+                                    "SET link = '" + newLink + "' \n" +
+                                    "WHERE notif.id = " + notifId);
                 }
             }
         }

@@ -11,9 +11,9 @@ import static org.junit.Assert.*;
  * @date 2019-06-13
  * @since 1.3.2
  */
-public class V33__20190613_migrate_notification_urlsTest {
+public class V35__20190613_migrate_notification_urlsTest {
 
-    private V33__20190613_migrate_notification_urls v33Migration = new V33__20190613_migrate_notification_urls();
+    private V35__20190613_migrate_notification_urls v33Migration = new V35__20190613_migrate_notification_urls();
     private Pattern commentPattern = v33Migration.getCommentPattern();
     private Pattern assessmentRequestedPattern = v33Migration.getAssessmentRequestedPattern();
     private Pattern assessmentApprovedPattern = v33Migration.getAssessmentApprovedPattern();

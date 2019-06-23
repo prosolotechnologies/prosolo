@@ -4401,45 +4401,4 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
         }
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public long getParentCredentialIdOfAssessment(long assessmentId) {
-        try {
-            String query =
-                "SELECT cred.id " +
-                "FROM Assessment ass " +
-                "LEFT JOIN ass.targetCredential tCred " +
-                "LEFT JOIN tCred.credential cred " +
-                "WHERE ass.id = :assessmentId";
-
-            return (Long) persistence.currentManager()
-                    .createQuery(query)
-                    .setLong("assessmentId", assessmentId)
-                    .uniqueResult();
-        } catch (Exception e) {
-            logger.error("Error", e);
-            throw new DbConnectionException("Error retrieving credential id for the given competence assessment");
-        }
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public long getCompetenceIdForCompetenceAssessment(long compAssessmentId) {
-        try {
-            String query =
-                "SELECT comp.id " +
-                "FROM CompetenceAssessment ca " +
-                "LEFT JOIN ca.competence comp " +
-                "WHERE ca.id = :compAssessmentId";
-
-            return (Long) persistence.currentManager()
-                    .createQuery(query)
-                    .setLong("compAssessmentId", compAssessmentId)
-                    .uniqueResult();
-        } catch (Exception e) {
-            logger.error("Error", e);
-            throw new DbConnectionException("Error retrieving competence id for the given competence assessment");
-        }
-    }
-
 }
