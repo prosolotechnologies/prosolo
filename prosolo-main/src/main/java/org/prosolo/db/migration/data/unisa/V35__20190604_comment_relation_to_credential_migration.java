@@ -11,7 +11,7 @@ import java.sql.Statement;
  * @date 2019-05-16
  * @since 1.3.2
  */
-public class V30__20190604_comment_relation_to_credential_migration extends BaseMigration {
+public class V35__20190604_comment_relation_to_credential_migration extends BaseMigration {
 
     @Override
     protected void doMigrate(Context context) throws Exception {
