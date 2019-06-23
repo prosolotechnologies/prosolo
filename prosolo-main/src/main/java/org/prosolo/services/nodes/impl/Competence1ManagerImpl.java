@@ -2503,7 +2503,6 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 
 			Map<String, String> params = new HashMap<>();
 			params.put("dateCompleted", DateUtil.getMillisFromDate(dateCompleted) + "");
-			params.put("credId", credentialId+"");
 
 			res.appendEvent(eventFactory.generateEventData(
 					EventType.Completion, context, tComp, null, null, params));

@@ -741,8 +741,7 @@ public class BusinessCase4_EDX implements BusinessCase {
 					cred4Comp1TargetRichardAnderson.getId(), evidence1Data, createUserContext(userRichardAnderson)));
 
 			// mark the competency as completed
-			extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).completeCompetenceAndGetEvents(
-					cred4Comp1TargetRichardAnderson.getId(), createUserContext(userRichardAnderson)));
+			markCompetencyAsCompleted(events, cred4Comp1TargetRichardAnderson.getId(), cred4CompetenciesRichardAnderson.get(0).getCompetenceId(), cred4Delivery.getId(), userRichardAnderson);
 
 			// Richard completes first competency
 			List<ActivityData> cred2Comp2Activities = ServiceLocator.getInstance().getService(Activity1Manager.class).getTargetActivitiesData(cred4Comp2TargetRichardAnderson.getId());
@@ -753,8 +752,7 @@ public class BusinessCase4_EDX implements BusinessCase {
 					createUserContext(userRichardAnderson)));
 
 			// mark the competency as completed
-			extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).completeCompetenceAndGetEvents(
-					cred4Comp2TargetRichardAnderson.getId(), createUserContext(userRichardAnderson)));
+			markCompetencyAsCompleted(events, cred4Comp2TargetRichardAnderson.getId(), cred4CompetenciesRichardAnderson.get(1).getCompetenceId(), cred4Delivery.getId(), userRichardAnderson);
 
 			// the credential is completed at this point
 
@@ -821,6 +819,10 @@ public class BusinessCase4_EDX implements BusinessCase {
 
 	private UserContextData createUserContext(User user) {
 		return UserContextData.of(user.getId(), user.getOrganization().getId(), null, null, null);
+	}
+
+	protected UserContextData createUserContext(User user, PageContextData context) {
+		return UserContextData.of(user.getId(), user.getOrganization().getId(), null, null, context);
 	}
 
 	private <T> T extractResultAndAddEvents(EventQueue events, Result<T> result) {
@@ -1024,6 +1026,14 @@ public class BusinessCase4_EDX implements BusinessCase {
 			logger.error(e.getLocalizedMessage());
 		}
 		return null;
+	}
+
+	protected void markCompetencyAsCompleted(EventQueue events, long targetCompetenceId, long competenceId, long credentialId, User user) {
+		String learningContext= MessageFormat.format("name:CREDENTIAL|id:{0}|context:/name:COMPETENCE|id:{1}|context:/name:TARGET_COMPETENCE|id:{2}//", credentialId, competenceId, targetCompetenceId);
+
+		PageContextData context = new PageContextData("/competence.xhtml", learningContext, null);
+
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).completeCompetenceAndGetEvents(targetCompetenceId, createUserContext(user, context)));
 	}
 
 }
