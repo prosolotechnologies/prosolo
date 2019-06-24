@@ -27,10 +27,10 @@
 		<script src="#{request.contextPath}/resources/javascript2/prosolo.tinymce.js"></script>
 		<h:outputScript library="javascript2" name="autosize.min.js" />
 
-		<c:if test="#{cc.attrs.allowEvidenceTypeChangeForExistingEvidence or submitEvidenceBean.evidence.id eq 0}">
+		<ui:fragment rendered="#{cc.attrs.allowEvidenceTypeChangeForExistingEvidence or submitEvidenceBean.evidence.id eq 0}">
 			<div class="whiteBox">
 				<ul class="nav nav-tabs pageSubmenu" role="tablist">
-					<c:if test="#{submitEvidenceBean.evidenceRepositoryPluginData.fileEvidenceEnabled}">
+					<ui:fragment rendered="#{submitEvidenceBean.evidenceRepositoryPluginData.fileEvidenceEnabled}">
 						<li role="presentation" class="#{empty submitEvidenceBean.evidence.type or submitEvidenceBean.evidence.type eq 'FILE' ? 'active' : ''}">
 							<p:commandLink
 									pt:role="tab"
@@ -42,9 +42,9 @@
 								Upload File
 							</p:commandLink>
 						</li>
-					</c:if>
+					</ui:fragment>
 
-					<c:if test="#{submitEvidenceBean.evidenceRepositoryPluginData.urlEvidenceEnabled}">
+					<ui:fragment rendered="#{submitEvidenceBean.evidenceRepositoryPluginData.urlEvidenceEnabled}">
 						<li role="presentation" class="#{submitEvidenceBean.evidence.type eq 'LINK' ? 'active' : ''}">
 							<p:commandLink href="javascript:void(0);"
 										   pt:role="tab"
@@ -56,9 +56,9 @@
 								URL
 							</p:commandLink>
 						</li>
-					</c:if>
+					</ui:fragment>
 
-					<c:if test="#{submitEvidenceBean.evidenceRepositoryPluginData.textEvidenceEnabled}">
+					<ui:fragment rendered="#{submitEvidenceBean.evidenceRepositoryPluginData.textEvidenceEnabled}">
 						<li role="presentation" class="#{submitEvidenceBean.evidence.type eq 'TEXT' ? 'active' : ''}">
 							<p:commandLink
 									pt:role="tab"
@@ -70,7 +70,7 @@
 								Text
 							</p:commandLink>
 						</li>
-					</c:if>
+					</ui:fragment>
 
 					<c:if test="#{cc.attrs.addEvidenceToCompetence}">
 						<li role="presentation">
@@ -93,9 +93,9 @@
 					<a id="documentTabLink" href="#document" style="display: none;"></a>
 				</c:if>
 			</div>
-		</c:if>
+		</ui:fragment>
 		<div class="tab-content">
-			<c:if test="#{submitEvidenceBean.evidenceRepositoryPluginData.fileEvidenceEnabled and cc.attrs.allowEvidenceTypeChangeForExistingEvidence or submitEvidenceBean.evidence.id eq 0 or submitEvidenceBean.evidence.type eq 'FILE'}">
+			<ui:fragment rendered="#{submitEvidenceBean.evidenceRepositoryPluginData.fileEvidenceEnabled and cc.attrs.allowEvidenceTypeChangeForExistingEvidence or submitEvidenceBean.evidence.id eq 0 or submitEvidenceBean.evidence.type eq 'FILE'}">
 				<div role="tabpanel" class="tab-pane fade #{empty submitEvidenceBean.evidence.type or submitEvidenceBean.evidence.type eq 'FILE' ? 'in active' : ''} submitEvidenceTab" id="upload">
 					<h:form id="formFileEvidence" enctype="multipart/form-data">
 						<p:focus/>
@@ -173,7 +173,7 @@
 							</ui:fragment>
 						</h:panelGroup>
 
-						<c:if test="#{submitEvidenceBean.evidenceRepositoryPluginData.keywordsEnabled}">
+						<ui:fragment rendered="#{submitEvidenceBean.evidenceRepositoryPluginData.keywordsEnabled}">
 							<label>Keywords (optional):</label>
 
 							<h:inputText id="inputFileEvidenceKeywords"
@@ -183,7 +183,7 @@
 										 pt:data-role="tagsinput"
 										 autocomplete="off" />
 							<script>$('.tagsInputEvidence').tagsinput();</script>
-						</c:if>
+						</ui:fragment>
 
 						<c:if test="#{cc.attrs.addEvidenceToCompetence}">
 							<label>Relation:</label>
@@ -217,9 +217,9 @@
 						</div>
 					</h:form>
 				</div>
-			</c:if>
+			</ui:fragment>
 
-			<c:if test="#{submitEvidenceBean.evidenceRepositoryPluginData.urlEvidenceEnabled and cc.attrs.allowEvidenceTypeChangeForExistingEvidence or submitEvidenceBean.evidence.id eq 0 or submitEvidenceBean.evidence.type eq 'LINK'}">
+			<ui:fragment rendered="#{submitEvidenceBean.evidenceRepositoryPluginData.urlEvidenceEnabled and cc.attrs.allowEvidenceTypeChangeForExistingEvidence or submitEvidenceBean.evidence.id eq 0 or submitEvidenceBean.evidence.type eq 'LINK'}">
 				<div role="tabpanel" class="tab-pane fade submitEvidenceTab #{submitEvidenceBean.evidence.type eq 'LINK' ? 'in active' : ''}" id="url">
 					<h:form id="formUrlEvidence">
 						<p:focus/>
@@ -268,7 +268,7 @@
 						</h:inputText>
 						<small class="redText bottom30 topMinus30 displayBlock"><h:message for="inputUrl" /></small>
 
-						<c:if test="#{submitEvidenceBean.evidenceRepositoryPluginData.keywordsEnabled}">
+						<ui:fragment rendered="#{submitEvidenceBean.evidenceRepositoryPluginData.keywordsEnabled}">
 							<label>Keywords (optional):</label>
 
 							<h:inputText styleClass="tagsInputEvidence"
@@ -278,7 +278,7 @@
 										 pt:data-role="tagsinput"
 										 autocomplete="off" />
 							<script>$('.tagsInputEvidence').tagsinput();</script>
-						</c:if>
+						</ui:fragment>
 
 						<c:if test="#{cc.attrs.addEvidenceToCompetence}">
 							<label>Relation:</label>
@@ -312,9 +312,9 @@
 						</div>
 					</h:form>
 				</div>
-			</c:if>
+			</ui:fragment>
 
-			<c:if test="#{submitEvidenceBean.evidenceRepositoryPluginData.textEvidenceEnabled and cc.attrs.allowEvidenceTypeChangeForExistingEvidence or submitEvidenceBean.evidence.id eq 0 or submitEvidenceBean.evidence.type eq 'TEXT'}">
+			<ui:fragment rendered="#{submitEvidenceBean.evidenceRepositoryPluginData.textEvidenceEnabled and cc.attrs.allowEvidenceTypeChangeForExistingEvidence or submitEvidenceBean.evidence.id eq 0 or submitEvidenceBean.evidence.type eq 'TEXT'}">
 				<div role="tabpanel" class="tab-pane fade submitEvidenceTab #{submitEvidenceBean.evidence.type eq 'TEXT' ? 'in active' : ''}" id="text">
 					<h:form id="formTextEvidence">
 						<p:focus/>
@@ -348,7 +348,7 @@
 
 						<small class="redText bottom30 displayBlock"><h:message for="textareaTextualEvidenceDesc"></h:message></small>
 
-						<c:if test="#{submitEvidenceBean.evidenceRepositoryPluginData.keywordsEnabled}">
+						<ui:fragment rendered="#{submitEvidenceBean.evidenceRepositoryPluginData.keywordsEnabled}">
 							<label>Keywords (optional):</label>
 
 							<h:inputText styleClass="tagsInputEvidence"
@@ -358,7 +358,7 @@
 										 pt:data-role="tagsinput"
 										 autocomplete="off" />
 							<script>$('.tagsInputEvidence').tagsinput();</script>
-						</c:if>
+						</ui:fragment>
 
 						<c:if test="#{cc.attrs.addEvidenceToCompetence}">
 							<label>Relation:</label>
@@ -392,9 +392,9 @@
 						</div>
 					</h:form>
 				</div>
-			</c:if>
+			</ui:fragment>
 
-			<c:if test="#{cc.attrs.addEvidenceToCompetence and (cc.attrs.allowEvidenceTypeChangeForExistingEvidence or submitEvidenceBean.evidence.id eq 0)}">
+			<ui:fragment rendered="#{cc.attrs.addEvidenceToCompetence and (cc.attrs.allowEvidenceTypeChangeForExistingEvidence or submitEvidenceBean.evidence.id eq 0)}">
 				<div role="tabpanel" class="tab-pane fade submitEvidenceTab" id="document">
 					<h:panelGroup layout="block" id="panelExistingEvidence" styleClass="whiteBox manageVisibility">
 						<div class="innerWrapper">
@@ -497,7 +497,7 @@
 						</div>
 					</div>
 				</h:form>
-			</c:if>
+			</ui:fragment>
 		</div>
 	</composite:implementation>
 </ui:component>

@@ -3,12 +3,14 @@ package org.prosolo.app.bc;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
+import org.hibernate.Transaction;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.OperationForbiddenException;
 import org.prosolo.common.domainmodel.activitywall.PostSocialActivity1;
 import org.prosolo.common.domainmodel.activitywall.SocialActivity1;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
+import org.prosolo.common.domainmodel.assessment.AssessorAssignmentMethod;
 import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
 import org.prosolo.common.domainmodel.credential.GradingMode;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
@@ -50,6 +52,7 @@ import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.credential.CredentialData;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceData;
+import org.prosolo.services.nodes.data.instructor.InstructorData;
 import org.prosolo.services.nodes.data.organization.*;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.RestrictedAccessResult;
@@ -689,6 +692,55 @@ public abstract class BaseBusinessCase implements BusinessCase {
                         targetCompetenceId,
                         createUserContext(actor)));
     }
+
+    protected void updateInstructorMaxNumberOfStudents(EventQueue events, long credId, long instructorId, int maxNumberOfStudents, UserContextData context) {
+        InstructorData id = new InstructorData(false);
+        id.setMaxNumberOfStudents(-1);
+        id.setInstructorId(instructorId);
+        id.startObservingChanges();
+        id.setMaxNumberOfStudents(maxNumberOfStudents);
+        extractResultAndAddEvents(
+                events,
+                ServiceLocator.getInstance().getService(CredentialInstructorManager.class)
+                        .updateInstructorAndStudentsAssignedAndGetEvents(credId, id, null, null, context));
+    }
+
+    protected void updateInstructorAssignMode(long credentialId, AssessorAssignmentMethod assessorAssignmentMethod) {
+        Session session = (Session) ServiceLocator.getInstance().getService(DefaultManager.class).getPersistence().openSession();
+        Transaction transaction = null;
+        try {
+            transaction = session.beginTransaction();
+            Credential1 cred = (Credential1) session.load(Credential1.class, credentialId);
+            cred.setAssessorAssignmentMethod(assessorAssignmentMethod);
+            transaction.commit();
+        } catch (Exception e) {
+            getLogger().error("Error", e);
+            transaction.rollback();
+        } finally {
+            HibernateUtil.close(session);
+        }
+    }
+
+    protected void addCommentToCredentialAssessmentDiscussion(EventQueue events, long credentialAssessmentId, User sender, String comment) {
+        extractResultAndAddEvents(
+                events,
+                ServiceLocator.getInstance().getService(AssessmentManager.class).addCommentToCredentialAssessmentAndGetEvents(
+                        credentialAssessmentId,
+                        sender.getId(),
+                        comment,
+                        createUserContext(sender)));
+    }
+
+    protected void addCommentToCompetenceAssessmentDiscussion(EventQueue events, long compAssessmentId, User sender, String comment) {
+        extractResultAndAddEvents(
+                events,
+                ServiceLocator.getInstance().getService(AssessmentManager.class).addCommentToCompetenceAssessmentAndGetEvents(
+                        compAssessmentId,
+                        sender.getId(),
+                        comment,
+                        createUserContext(sender)));
+    }
+
 
     protected abstract String getBusinessCaseInitLog();
     protected abstract void createAdditionalData(EventQueue events) throws Exception;

@@ -1549,10 +1549,9 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
     @Override
     public AssessmentDiscussionMessageData addCommentToCompetenceAssessmentDiscussion(
-            long assessmentId, long senderId, String comment, UserContextData context,
-            long credentialAssessmentId, long credentialId) {
+            long assessmentId, long senderId, String comment, UserContextData context) {
         Result<AssessmentDiscussionMessageData> result = self.addCommentToCompetenceAssessmentAndGetEvents(
-                assessmentId, senderId, comment, context, credentialAssessmentId, credentialId);
+                assessmentId, senderId, comment, context);
 
         eventFactory.generateAndPublishEvents(result.getEventQueue());
         return result.getResult();
@@ -1561,8 +1560,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
     @Override
     @Transactional
     public Result<AssessmentDiscussionMessageData> addCommentToCompetenceAssessmentAndGetEvents(
-            long assessmentId, long senderId, String comment, UserContextData context,
-            long credentialAssessmentId, long credentialId) {
+            long assessmentId, long senderId, String comment, UserContextData context) {
         try {
             CompetenceAssessment assessment = (CompetenceAssessment) persistence.currentManager().load(CompetenceAssessment.class, assessmentId);
             CompetenceAssessmentDiscussionParticipant sender = assessment.getParticipantByUserId(senderId);
@@ -1604,7 +1602,8 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
             assessment1.setId(assessment.getId());
             Map<String, String> parameters = new HashMap<>();
             //TODO refactor this two ids should be put in learning context and extracted from there
-            parameters.put("credentialId", credentialId + "");
+            parameters.put("credentialId", assessment.getTargetCredential().getCredential().getId() + "");
+            long credentialAssessmentId = assessment.getCredentialAssessment() != null ? assessment.getCredentialAssessment().getId() : 0;
             parameters.put("credentialAssessmentId", credentialAssessmentId + "");
 
             Result<AssessmentDiscussionMessageData> result = new Result<>();
