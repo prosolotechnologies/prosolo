@@ -1,0 +1,2 @@
+ALTER TABLE `announcement`
+  ADD COLUMN `publish_mode` VARCHAR(255) DEFAULT 'ALL_STUDENTS' NOT NULL;

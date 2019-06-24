@@ -38,7 +38,6 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -149,11 +148,10 @@ public class ActivityViewBeanUser implements Serializable {
 					
 					ActivityUtil.createTempFilesAndSetUrlsForCaptions(ad.getCaptions(), loggedUser.getUserId());
 				}
-			} catch(ResourceNotFoundException rnfe) {
+			} catch (ResourceNotFoundException rnfe) {
 				PageUtil.notFound();
-			} catch(Exception e) {
-				e.printStackTrace();
-				logger.error(e);
+			} catch (Exception e) {
+				logger.error("Error", e);
 				PageUtil.fireErrorMessage("Error loading activity");
 			}
 		} else {

@@ -1,6 +1,7 @@
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
                 xmlns:f="http://java.sun.com/jsf/core"
                 xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
                 template="templates/masterLayout2.xhtml"
                 xmlns:assessments="http://java.sun.com/jsf/composite/components/assessments"
                 xmlns:competence="http://java.sun.com/jsf/composite/components/competences"
@@ -23,6 +24,7 @@
     <ui:define name="resourceTitle">
         <h1>#{competenceAssessmentBean.competenceAssessmentData.title}</h1>
     </ui:define>
+
     <ui:define name="navLinks">
         <competence:competenceStudentNavLinks
                 enrolled="#{true}"
@@ -30,9 +32,43 @@
                 compId="#{util:decodeId(param.compId)}"
         />
     </ui:define>
+
     <ui:define name="content">
+        <div class="whiteBar">
+        </div>
+
+        <div class="container">
+            <ol class="breadcrumb">
+                <li>
+                    <h:link value="#{msg['label.credential.plural']}" outcome="credentialLibrary"/>
+                </li>
+                <li>
+                    <h:link value="#{util:shortenAndAddDots(competenceAssessmentBean.credentialTitle)}"
+                            outcome="credential">
+                        <f:param name="id" value="#{param.credId}"></f:param>
+                    </h:link>
+                </li>
+                <li>
+                    <h:link value="#{util:shortenAndAddDots(competenceAssessmentBean.competenceAssessmentData.title)}"
+                            outcome="competence">
+                        <f:param name="credId" value="#{param.credId}"/>
+                        <f:param name="compId" value="#{param.compId}"/>
+                    </h:link>
+                </li>
+                <li>
+                    <h:link value="Assessments" outcome="/competence-assessments-root">
+                        <f:param name="credId" value="#{param.credId}"/>
+                        <f:param name="compId" value="#{param.compId}"/>
+                    </h:link>
+                </li>
+                <li class="active">
+                    #{msg['label.assessment.type.SELF_ASSESSMENT.short']}
+                </li>
+            </ol>
+        </div>
+
         <assessments:competenceAssessmentPreview
-                credentialId="#{util:decodeId(param.credId)}"
-        />
+                credentialId="#{competenceAssessmentBean.competenceAssessmentData.credentialId}"
+                learningContext="name:CREDENTIAL|id:#{competenceAssessmentBean.decodedCredId}" />
     </ui:define>
 </ui:composition>

@@ -40,17 +40,6 @@
 	<ui:define name="content">
 		<script src="#{request.contextPath}/resources/javascript2/tinymce/tinymce.min.js"></script>
 		<script src="#{request.contextPath}/resources/javascript2/prosolo.tinymce.js"></script>
-		<script>
-            function setPublishModeValue(publishMode) {
-                setPublishMode([{name:'value', value:publishMode}])
-            }
-
-            function hideConfirmDialog(dialogId) {
-				$('#' + dialogId).modal('hide');
-				$("body").removeAttr("class").removeAttr("style")
-				$("div.modal-backdrop.fade.in").remove()
-            }
-		</script>
 
 		<div class="whiteBar">
 			<div class="container">
@@ -164,14 +153,15 @@
 				toUpdate=":containerDiv" />
 		</h:panelGroup>
 
+		<h:form id="newAnnouncementPublishModeForm">
+			<!-- Remote command is in a separate form since it does not need to send announcement title and text, nor
+				to activate validation on those fields -->
+			<p:remoteCommand name="updatePublishMode" action="#{announcementBeanManager.updatePublishMode}" />
+		</h:form>
 
 		<h:form id="newAnnouncementForm">
-			<div class="modal fade" id="newAnnouncementModal" tabindex="-1"
-				 role="dialog" aria-labelledby="newAnnouncement">
+			<div class="modal fade" id="newAnnouncementModal" tabindex="-1" role="dialog" aria-labelledby="newAnnouncement">
 				<h:panelGroup id="announcementModalPanel">
-
-					<p:remoteCommand name="setPublishMode" actionListener="#{announcementBeanManager.setPublishMode}" />
-
 					<div class="modal-dialog" role="document">
 						<div class="modal-content">
 							<div class="modal-header alignLeft">
@@ -179,8 +169,7 @@
 										aria-label="Close">
 									<span aria-hidden="true">×</span>
 								</button>
-								<h2 class="modal-title" id="newAnnouncement">New
-									Announcement</h2>
+								<h2 class="modal-title" id="newAnnouncement">New Announcement</h2>
 							</div>
 							<div class="assessmentModalMeta">
 								<div class="assessmentModalMetaLine">
@@ -193,46 +182,42 @@
 							<div class="modal-body alignLeft">
 								<h:inputText type="text"
 											 id="title"
-											 value="#{announcementBeanManager.newAnnouncementTitle}"
+											 value="#{announcementBeanManager.newAnnouncement.title}"
 											 placeholder="Title"
 											 autocomplete="off"
 											 required="true"
-											 requiredMessage="Announcement title is required"
-								/>
+											 requiredMessage="Announcement title is required"/>
 
-								<small class="redText bottom2 0 topMinus40 displayBlock"><h:message for="title" id="errorInputTitle"/></small>
+								<small class="redText bottom20 topMinus40 displayBlock"><h:message for="title" id="errorInputTitle"/></small>
 
-								<h:inputTextarea placeholder="Write message..." value="#{announcementBeanManager.newAnnouncementText}"
-												 id="newAnnouncementText" required="true" requiredMessage="Announcement message is required"/>
+								<h:inputTextarea id="newAnnouncementText"
+												 value="#{announcementBeanManager.newAnnouncement.text}"
+												 placeholder="Write message..."
+												 required="true"
+												 requiredMessage="Announcement message is required" />
 
 								<small class="redText bottom2 0 topMinus40 displayBlock"><h:message for="newAnnouncementText" id="errorAnnouncementText"/></small>
 
 								<script>
-									tinymce.remove();
-									tinymce.init({
-										theme: "modern",
-										skin: 'light',
-										height : "200",
-										selector:'#newAnnouncementForm\\:newAnnouncementText',
-										font_formats: 'prosolo_semibold,Helvetica=Helvetica Neue,helvetica,sans-serif',
-										plugins: 'link media code image',
-										menubar:false,
-										statusbar: false,
-										toolbar: 'undo redo | bold italic | alignleft aligncenter alignright alignfull | bullist numlist |  outdent indent | link image media  | code'
-									});
+									initTinyMCE('#newAnnouncementForm\\:newAnnouncementText');
 								</script>
 
-								<div class="radioGroup">
+								<div class="radioGroup top10">
 									Send to:
 									<div class="radio">
-										<input checked="checked" onchange="setPublishModeValue('Active')" type="radio" name="radio2" id="radio2"
-											   value="option2"/><label for="radio2">Only
-										active students</label>
+										<input checked="checked"
+											   type="radio"
+											   id="radio2"
+											   name="publishModeRadio"
+											   onchange="updatePublishModeValue('#{announcementBeanManager.allPublishModes[0].announcementPublishMode}')"/>
+										<label for="radio2">#{announcementBeanManager.allPublishModes[0].text}</label>
 									</div>
 									<div class="radio">
-										<input onchange="setPublishModeValue('All')" type="radio" name="radio2" id="radio1"
-											   value="option1" /><label for="radio1">All
-										students</label>
+										<input type="radio"
+											   id="radio3"
+											   name="publishModeRadio"
+											   onchange="updatePublishModeValue('#{announcementBeanManager.allPublishModes[1].announcementPublishMode}')"/>
+										<label for="radio3">#{announcementBeanManager.allPublishModes[1].text}</label>
 									</div>
 								</div>
 							</div>
@@ -250,5 +235,17 @@
 				</h:panelGroup>
 			</div>
 		</h:form>
+
+		<script>
+			function updatePublishModeValue(publishMode) {
+				updatePublishMode([{name:'value', value:publishMode}]);
+			}
+
+			function hideConfirmDialog(dialogId) {
+				$('#' + dialogId).modal('hide');
+				$("body").removeAttr("class").removeAttr("style")
+				$("div.modal-backdrop.fade.in").remove()
+			}
+		</script>
 	</ui:define>
 </ui:composition>

@@ -87,14 +87,9 @@ public class UserData implements Serializable {
         }
     }
 
-    public UserData(User user, Collection<Role> roles) {
+    public UserData(User user, List<RoleData> roles) {
         this(user);
-
-        if (roles != null) {
-            for (Role role : roles) {
-                this.roles.add(new RoleData(role));
-            }
-        }
+        this.roles = roles;
     }
 
     public UserData(long id, String firstName, String lastName, String avatar, String position,

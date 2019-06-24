@@ -16,6 +16,7 @@ import org.prosolo.services.user.data.UserData;
 import org.prosolo.services.util.roles.SystemRoleNames;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.PageAccessRightsResolver;
+import org.prosolo.web.administration.data.RoleData;
 import org.prosolo.web.util.page.PageUtil;
 import org.prosolo.web.util.pagination.Paginable;
 import org.prosolo.web.util.pagination.PaginationData;
@@ -70,7 +71,7 @@ public class UsersBean implements Serializable,Paginable{
 	private String roleId;
 	private List<UserData> users;
 	String[] rolesArray;
-	List<Role> roles;
+	private List<RoleData> roles;
 	private String searchTerm = "";
 	
 	private RoleFilter filter;

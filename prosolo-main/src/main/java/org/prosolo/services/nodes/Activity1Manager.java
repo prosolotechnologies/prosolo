@@ -11,9 +11,11 @@ import org.prosolo.services.nodes.data.ActivityResultType;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.assessment.data.ActivityAssessmentsSummaryData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 public interface Activity1Manager extends AbstractManager {
 
@@ -138,6 +140,15 @@ public interface Activity1Manager extends AbstractManager {
 	CompetenceData1 getFullTargetActivityOrActivityData(long credId, long compId,
 														long actId, long userId, boolean isManager)
 			throws DbConnectionException, ResourceNotFoundException, IllegalArgumentException;
+
+	/**
+	 * Returns an id of the user who is the owner of the target activity.
+	 *
+	 * @param targetActivityId target activity id
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	long getTargetActivityOwnerId(long targetActivityId) throws DbConnectionException;
 
 	void deleteAssignment(long targetActivityId, UserContextData context)
 			throws DbConnectionException;

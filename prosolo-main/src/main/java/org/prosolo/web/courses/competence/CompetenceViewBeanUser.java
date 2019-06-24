@@ -15,7 +15,6 @@ import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.RestrictedAccessResult;
-import org.prosolo.services.upload.UploadManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.assessments.AskForCompetenceAssessmentBean;
@@ -45,7 +44,6 @@ public class CompetenceViewBeanUser implements Serializable {
 	@Inject private UrlIdEncoder idEncoder;
 	@Inject private CommentBean commentBean;
 	@Inject private CredentialManager credManager;
-	@Inject private UploadManager uploadManager;
 	@Inject private LearningEvidenceManager learningEvidenceManager;
 	@Inject private LearningEvidenceSearchBean learningEvidenceSearchBean;
 	@Inject private SubmitEvidenceBean submitEvidenceBean;

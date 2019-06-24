@@ -517,6 +517,7 @@ public abstract class BaseBusinessCase5 extends BaseBusinessCase {
     protected CommentData createNewComment(EventQueue events, User user, String text, long commentedResourceId, CommentedResourceType commentedResourceType, CommentData parent, boolean isManagerComment, long credentialId) throws IllegalDataStateException {
         CommentData newComment = new CommentData();
         newComment.setCommentedResourceId(commentedResourceId);
+        newComment.setCommentedResourceType(commentedResourceType);
         newComment.setDateCreated(new Date());
         newComment.setComment(text);
         newComment.setCreator(new UserData(user));

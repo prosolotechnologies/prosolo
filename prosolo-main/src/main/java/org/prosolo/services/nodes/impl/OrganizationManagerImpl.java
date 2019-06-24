@@ -32,6 +32,7 @@ import org.prosolo.services.nodes.factory.LearningResourceLearningStageDataFacto
 import org.prosolo.services.user.UserManager;
 import org.prosolo.services.user.data.UserData;
 import org.prosolo.services.util.roles.SystemRoleNames;
+import org.prosolo.web.administration.data.RoleData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -245,7 +246,7 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
 
     @Override
     @Transactional (readOnly = true)
-    public OrganizationData getOrganizationForEdit(long organizationId, List<Role> userRoles) throws DbConnectionException {
+    public OrganizationData getOrganizationForEdit(long organizationId, List<Long> roleIds) throws DbConnectionException {
         try{
             String query =
                     "SELECT organization " +
@@ -262,7 +263,7 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
                 return null;
             }
 
-            List<User> chosenAdmins = getOrganizationUsers(organization.getId(),false,persistence.currentManager(),userRoles);
+            List<User> chosenAdmins = getOrganizationUsers(organization.getId(),false,persistence.currentManager(), roleIds);
             List<LearningStageData> learningStages = getOrganizationLearningStagesData(organizationId);
             List<CredentialCategoryData> credentialCategories = getOrganizationCredentialCategoriesData(organizationId, true, true);
             OrganizationData od = organizationDataFactory.getOrganizationData(organization, chosenAdmins, learningStages, credentialCategories);
@@ -485,9 +486,9 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
                 OrganizationData od;
                 if (loadAdmins) {
                     String[] rolesArray = new String[]{SystemRoleNames.ADMIN, SystemRoleNames.SUPER_ADMIN};
-                    List<Role> adminRoles = roleManager.getRolesByNames(rolesArray);
+                    List<RoleData> adminRoles = roleManager.getRolesByNames(rolesArray);
 
-                    List<User> chosenAdmins = getOrganizationUsers(o.getId(), false, persistence.currentManager(), adminRoles);
+                    List<User> chosenAdmins = getOrganizationUsers(o.getId(), false, persistence.currentManager(), adminRoles.stream().map(RoleData::getId).collect(Collectors.toList()));
                     List<UserData> listToPass = new ArrayList<>();
                     for (User u : chosenAdmins) {
                         listToPass.add(new UserData(u));
@@ -532,16 +533,16 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
 
     @Override
     @Transactional(readOnly = true)
-    public List<User> getOrganizationUsers(long organizationId, boolean returnDeleted, Session session, List<Role> roles)
+    public List<User> getOrganizationUsers(long organizationId, boolean returnDeleted, Session session, List<Long> roleIds)
             throws DbConnectionException {
         try {
-            boolean filterRoles = roles != null && !roles.isEmpty();
+            boolean filterRoles = roleIds != null && !roleIds.isEmpty();
 
             StringBuilder sb = new StringBuilder("SELECT DISTINCT user FROM User user ");
 
             if (filterRoles) {
                 sb.append("INNER JOIN user.roles role " +
-                        "WITH role IN (:roles) ");
+                        "WITH role.id IN (:roleIds) ");
             }
 
             sb.append("WHERE user.organization.id = :orgId ");
@@ -557,7 +558,7 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
                     .setLong("orgId", organizationId);
 
             if (filterRoles) {
-                q.setParameterList("roles", roles);
+                q.setParameterList("roleIds", roleIds);
             }
 
             if (!returnDeleted) {

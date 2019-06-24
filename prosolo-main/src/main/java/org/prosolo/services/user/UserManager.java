@@ -4,12 +4,10 @@ import org.hibernate.Session;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.common.domainmodel.annotation.Tag;
-import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.preferences.UserPreference;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
-
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.general.AbstractManager;
@@ -17,6 +15,7 @@ import org.prosolo.services.user.data.UserAssessmentTokenData;
 import org.prosolo.services.user.data.UserAssessmentTokenExtendedData;
 import org.prosolo.services.user.data.UserCreationData;
 import org.prosolo.services.user.data.UserData;
+import org.prosolo.web.administration.data.RoleData;
 
 import java.io.InputStream;
 import java.util.Collection;
@@ -201,7 +200,7 @@ public interface UserManager extends AbstractManager {
 	 * @return
 	 * @throws DbConnectionException
 	 */
-	PaginatedResult<UserData> getUsersWithRoles(int page, int limit, long roleId, List<Role> roles, long organizationId)
+	PaginatedResult<UserData> getUsersWithRoles(int page, int limit, long roleId, List<RoleData> roles, long organizationId)
 			throws DbConnectionException;
 
 	void setOrganizationForUsers(List<UserData> users,Long organizationId);

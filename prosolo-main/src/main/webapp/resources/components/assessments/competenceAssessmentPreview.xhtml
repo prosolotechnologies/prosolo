@@ -13,7 +13,7 @@
 	<composite:interface>
 		<composite:attribute name="credentialId" required="true" />
 		<composite:attribute name="learningContext" default="" />
-	</composite:interface>
+    </composite:interface>
 
 	<composite:implementation>
 
@@ -61,7 +61,6 @@
                         $(inputElem).parent().find('a.btn-green').removeClass('hidden');
                     }
                 }
-
             </script>
 
             <h:form prependId="false" id="remoteCommandForm">
@@ -72,93 +71,6 @@
             </h:form>
 
             <p:growl id="growlMain" showDetail="true" globalOnly="true"/>
-
-            <div class="whiteBar">
-                <div class="container">
-                    <div class="whiteBarContent">
-                        <div class="whiteBarLeft">
-                            <ui:fragment rendered="#{competenceAssessmentBean.isUserAssessorInCurrentContext() and competenceAssessmentBean.competenceAssessmentData.status eq 'REQUESTED'}">
-                                <utilcomp:singleClickLink
-                                        styleClass="btn btn-green btn-sm item"
-                                        process="@this"
-                                        action="#{competenceAssessmentBean.acceptAssessmentRequest()}"
-                                        update=":#{cc.clientId}:growlMain">
-                                    Start Assessment
-                                    <f:param name="page" value="#{facesContext.viewRoot.viewId}"/>
-                                    <f:param name="learningContext" value="#{util:addSubContext(cc.attrs.learningContext, 'name:COMPETENCE|id:'.concat(competenceAssessmentBean.competenceAssessmentData.competenceId).concat('|context:/name:COMPETENCE_ASSESSMENT|id:').concat(competenceAssessmentBean.competenceAssessmentData.competenceAssessmentId).concat('/'))}"/>
-                                </utilcomp:singleClickLink>
-                                <a href="#" class="btn btn-default btn-sm item" data-toggle="modal" data-target="#declineAssessment">Decline Request</a>
-                            </ui:fragment>
-                        </div>
-                        <div class="whiteBarRight"></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="container">
-                <ol class="breadcrumb">
-                    <li>
-                        <h:link value="#{msg['label.credential.plural']}" outcome="credentialLibrary"/>
-                    </li>
-                    <li>
-                        <h:link value="#{util:shortenAndAddDots(competenceAssessmentBean.credentialTitle)}"
-                                outcome="credential">
-                            <f:param name="id" value="#{param.credId}"></f:param>
-                        </h:link>
-                    </li>
-                    <li>
-                        <h:link value="#{util:shortenAndAddDots(competenceAssessmentBean.competenceAssessmentData.title)}"
-                                outcome="competence">
-                            <f:param name="credId" value="#{param.credId}"/>
-                            <f:param name="compId" value="#{param.compId}"/>
-                        </h:link>
-                    </li>
-                    <li>
-                        <h:link value="Assessments" outcome="/competence-assessments-root">
-                            <f:param name="credId" value="#{param.credId}"/>
-                            <f:param name="compId" value="#{param.compId}"/>
-                        </h:link>
-                    </li>
-
-                    <ui:fragment rendered="#{competenceAssessmentBean.isUserAssessedStudentInCurrentContext() and util:getPagePath(view.viewId) == 'competence-self-assessment'}">
-                        <li class="active">
-                            #{msg['label.assessment.type.SELF_ASSESSMENT.short']}
-                        </li>
-                    </ui:fragment>
-
-                    <ui:fragment rendered="#{competenceAssessmentBean.isUserAssessedStudentInCurrentContext() and (util:getPagePath(view.viewId) == 'competence-peer-assessment' or util:getPagePath(view.viewId) == 'competence-peer-assessments')}">
-
-                        <ui:fragment rendered="#{util:getPagePath(view.viewId) == 'competence-peer-assessments'}">
-                            <li class="active">
-                                #{msg['label.assessment.type.PEER_ASSESSMENT.short']}
-                            </li>
-                        </ui:fragment>
-
-                        <ui:fragment rendered="#{util:getPagePath(view.viewId) == 'competence-peer-assessment'}">
-                            <li>
-                                <h:link includeViewParams="true"
-                                        value="#{msg['label.assessment.type.PEER_ASSESSMENT.short']}"
-                                        outcome="/competence-peer-assessments">
-                                </h:link>
-                            </li>
-                            <li class="active">
-                                <assessment:assessmentActorName
-                                        actorId="#{competenceAssessmentBean.competenceAssessmentData.assessorId}"
-                                        actorFullName="#{competenceAssessmentBean.competenceAssessmentData.assessorFullName}"
-                                        blindAssessmentMode="#{competenceAssessmentBean.competenceAssessmentData.blindAssessmentMode}"
-                                        actorType="ASSESSOR"
-                                />
-                            </li>
-                        </ui:fragment>
-                    </ui:fragment>
-
-                    <ui:fragment rendered="#{competenceAssessmentBean.isUserAssessedStudentInCurrentContext() and util:getPagePath(view.viewId) == 'competence-instructor-assessment'}">
-                        <li class="active">
-                            #{msg['label.assessment.type.INSTRUCTOR_ASSESSMENT.short']}
-                        </li>
-                    </ui:fragment>
-                </ol>
-            </div>
 
             <div class="container">
                 <div class="row">
@@ -340,7 +252,7 @@
 				assessorId="#{competenceAssessmentBean.competenceAssessmentData.assessorId}"
 				blindAssessmentMode="#{competenceAssessmentBean.currentBlindAssessmentMode}"
 				readOnly="#{not competenceAssessmentBean.competenceAssessmentData.assessmentActive}"
-				learningContext="#{competenceAssessmentBean.currentResType eq 'ACTIVITY'
+                learningContext="#{competenceAssessmentBean.currentResType eq 'ACTIVITY'
 					? util:addSubContext(cc.attrs.learningContext, 'name:competence|id:'.concat(activityAssessmentBean.activityAssessmentData.competenceId).concat('|context:/name:COMPETENCE_ASSESSMENT|id:').concat(activityAssessmentBean.activityAssessmentData.compAssessment.competenceAssessmentId).concat('|context:/name:activity|id:').concat(activityAssessmentBean.activityAssessmentData.activityId).concat('|context:/name:ACTIVITY_ASSESSMENT|id:').concat(activityAssessmentBean.activityAssessmentData.activityAssessmentId).concat('///'))
 					: util:addSubContext(cc.attrs.learningContext, 'name:competence|id:'.concat(competenceAssessmentBean.competenceAssessmentData.competenceId).concat('|context:/name:COMPETENCE_ASSESSMENT|id:').concat(competenceAssessmentBean.competenceAssessmentData.competenceAssessmentId).concat('/'))}"
 		/>
@@ -363,7 +275,7 @@
 							resource="COMPETENCE"
 							resourceTitle="#{competenceAssessmentBean.competenceAssessmentData.title}"
 							toUpdate=":#{cc.clientId}:growlMain @(.panelAssessorNotificationSelector)"
-							learningContext="#{util:addSubContext(cc.attrs.learningContext, 'name:competence|id:'.concat(competenceAssessmentBean.competenceAssessmentData.competenceId).concat('|context:/name:COMPETENCE_ASSESSMENT|id:').concat(competenceAssessmentBean.competenceAssessmentData.competenceAssessmentId).concat('/'))}"
+                            learningContext="#{util:addSubContext(cc.attrs.learningContext, 'name:competence|id:'.concat(competenceAssessmentBean.competenceAssessmentData.competenceId).concat('|context:/name:COMPETENCE_ASSESSMENT|id:').concat(competenceAssessmentBean.competenceAssessmentData.competenceAssessmentId).concat('/'))}"
 							credentialId="#{cc.attrs.credentialId}"
 					/>
 				</h:form>
@@ -372,8 +284,8 @@
 
 		<c:if test="#{competenceAssessmentBean.competenceAssessmentData.assessmentActive and competenceAssessmentBean.isUserAssessorInCurrentContext()}">
 			<h:panelGroup id="gradePanelContainer">
-				<ui:param name="compAssessmentLearningContext" value="#{util:addSubContext(cc.attrs.learningContext, 'name:competence|id:'.concat(competenceAssessmentBean.competenceAssessmentData.competenceId).concat('|context:/name:COMPETENCE_ASSESSMENT|id:').concat(competenceAssessmentBean.competenceAssessmentData.competenceAssessmentId).concat('/'))}" />
-				<ui:param name="activityAssessmentLearningContext" value="#{util:addSubContext(cc.attrs.learningContext, 'name:competence|id:'.concat(activityAssessmentBean.activityAssessmentData.competenceId).concat('|context:/name:COMPETENCE_ASSESSMENT|id:').concat(activityAssessmentBean.activityAssessmentData.compAssessment.competenceAssessmentId).concat('|context:/name:ACTIVITY|id:').concat(activityAssessmentBean.activityAssessmentData.activityId).concat('|context:/name:ACTIVITY_ASSESSMENT|id:').concat(activityAssessmentBean.activityAssessmentData.activityAssessmentId).concat('///'))}" />
+                <ui:param name="compAssessmentLearningContext" value="#{util:addSubContext(cc.attrs.learningContext, 'name:competence|id:'.concat(competenceAssessmentBean.competenceAssessmentData.competenceId).concat('|context:/name:COMPETENCE_ASSESSMENT|id:').concat(competenceAssessmentBean.competenceAssessmentData.competenceAssessmentId).concat('/'))}" />
+                <ui:param name="activityAssessmentLearningContext" value="#{util:addSubContext(cc.attrs.learningContext, 'name:competence|id:'.concat(activityAssessmentBean.activityAssessmentData.competenceId).concat('|context:/name:COMPETENCE_ASSESSMENT|id:').concat(activityAssessmentBean.activityAssessmentData.compAssessment.competenceAssessmentId).concat('|context:/name:ACTIVITY|id:').concat(activityAssessmentBean.activityAssessmentData.activityId).concat('|context:/name:ACTIVITY_ASSESSMENT|id:').concat(activityAssessmentBean.activityAssessmentData.activityAssessmentId).concat('///'))}" />
 
 				<assessment:gradePanel
 						id="resourceGradePanel"
@@ -391,8 +303,8 @@
 			</h:panelGroup>
 
 			<h:panelGroup id="approveModalContainer">
-				<ui:param name="compAssessmentLearningContext" value="#{util:addSubContext(cc.attrs.learningContext, 'name:competence|id:'.concat(competenceAssessmentBean.competenceAssessmentData.competenceId).concat('|context:/name:COMPETENCE_ASSESSMENT|id:').concat(competenceAssessmentBean.competenceAssessmentData.competenceAssessmentId).concat('/'))}" />
-				<assessment:approveAssessment
+                <ui:param name="compAssessmentLearningContext" value="#{util:addSubContext(cc.attrs.learningContext, 'name:competence|id:'.concat(competenceAssessmentBean.competenceAssessmentData.competenceId).concat('|context:/name:COMPETENCE_ASSESSMENT|id:').concat(competenceAssessmentBean.competenceAssessmentData.competenceAssessmentId).concat('/'))}" />
+                <assessment:approveAssessment
 						id="approveAssessment"
 						blindAssessmentMode="#{competenceAssessmentBean.competenceAssessmentData.blindAssessmentMode}"
 						approveAction="#{competenceAssessmentBean.approveCompetence()}"
@@ -401,7 +313,7 @@
 						student="#{competenceAssessmentBean.studentData}"
 						resource="COMPETENCE"
 						toUpdate=":#{cc.clientId}:panelCompetenceAssessmentPreview :panelHeaderNumberOfTokens"
-						learningContext="#{compAssessmentLearningContext}"
+                        learningContext="#{compAssessmentLearningContext}"
 				/>
 			</h:panelGroup>
 		</c:if>
