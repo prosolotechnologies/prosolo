@@ -571,7 +571,7 @@ public abstract class BaseBusinessCase implements BusinessCase {
     }
 
     protected void markCompetencyAsCompleted(EventQueue events, long targetCompetenceId, long competenceId, long credentialId, User user) {
-        String learningContext= MessageFormat.format("name:CREDENTIAL|id:{0}|context:/name:COMPETENCE|id:{1}|context:/name:TARGET_COMPETENCE|id:{2}//", credentialId, competenceId, targetCompetenceId);
+        String learningContext= MessageFormat.format("name:CREDENTIAL|id:{0}|context:/name:COMPETENCE|id:{1}|context:/name:TARGET_COMPETENCE|id:{2}//", credentialId+"", competenceId+"", targetCompetenceId+"");
 
         PageContextData context = new PageContextData("/competence.xhtml", learningContext, null);
 
@@ -696,7 +696,7 @@ public abstract class BaseBusinessCase implements BusinessCase {
     }
 
     protected void approveCredentialAssessment(EventQueue events, long credentialAssessmentId, long credentialId, User actor) throws Exception {
-        String learningContext= MessageFormat.format("name:CREDENTIAL|id:{0}/context:/name:CREDENTIAL_ASSESSMENT|id:{1}/", credentialId, credentialAssessmentId);
+        String learningContext= MessageFormat.format("name:CREDENTIAL|id:{0}/context:/name:CREDENTIAL_ASSESSMENT|id:{1}/", credentialId+"", credentialAssessmentId+"");
 
         PageContextData context = new PageContextData("/manage/credential-assessment.xhtml", learningContext, null);
 
@@ -705,7 +705,7 @@ public abstract class BaseBusinessCase implements BusinessCase {
     }
 
     protected void approveCompetenceAssessment(EventQueue events, long competenceAssessmentId, long credentialId, long competenceId, User actor) {
-        String learningContext= MessageFormat.format("name:CREDENTIAL|id:{0}/context:/name:COMPETENCE|id:{1}|context:/name:COMPETENCE_ASSESSMENT|id:{2}//", credentialId, competenceId, competenceAssessmentId);
+        String learningContext= MessageFormat.format("name:CREDENTIAL|id:{0}/context:/name:COMPETENCE|id:{1}|context:/name:COMPETENCE_ASSESSMENT|id:{2}//", credentialId+"", competenceId+"", competenceAssessmentId+"");
 
         PageContextData context = new PageContextData("/manage/credential-assessment.xhtml", learningContext, null);
 
