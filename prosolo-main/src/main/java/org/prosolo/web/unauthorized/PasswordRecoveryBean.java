@@ -42,6 +42,9 @@ public class PasswordRecoveryBean {
 		} catch (ResetKeyExpiredException e) {
 			logger.error(e.getMessage());
 			errorMessage = "This reset link has expired. Please try again resetting the password.";
+		} catch (Exception e) {
+			logger.error("error", e);
+			errorMessage = "An error occurred. Please try again resetting the password.";
 		}
 	}
 	

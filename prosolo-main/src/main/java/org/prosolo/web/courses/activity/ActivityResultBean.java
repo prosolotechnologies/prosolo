@@ -61,16 +61,17 @@ public class ActivityResultBean implements Serializable {
 	}
 	
 	public void uploadAssignment(FileUploadEvent event, ActivityResultData result) {
+		uploadAssignment(event, result, PageUtil.extractLearningContextDataFromComponent(event.getComponent()));
+	}
+
+	public void uploadAssignment(FileUploadEvent event, ActivityResultData result, PageContextData pageContextData) {
 		UploadedFile uploadedFile = event.getFile();
-		String page = (String) event.getComponent().getAttributes().get("page");
-		String lContext = (String) event.getComponent().getAttributes().get("learningContext");
-		String service = (String) event.getComponent().getAttributes().get("service");
 		try {
 			String fileName = uploadedFile.getFileName();
 			String fullPath = uploadManager.storeFile(uploadedFile, fileName);
 			Date postDate = new Date();
 			activityManager.saveResponse(result.getTargetActivityId(), fullPath, postDate,
-					ActivityResultType.FILE_UPLOAD, loggedUser.getUserContext(new PageContextData(page, lContext, service)));
+					ActivityResultType.FILE_UPLOAD, loggedUser.getUserContext(pageContextData));
 			result.setAssignmentTitle(fileName);
 			result.setResult(fullPath);
 			result.setResultPostDate(postDate);

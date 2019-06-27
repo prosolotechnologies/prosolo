@@ -89,8 +89,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 					return new ArrayList<>();
 			}
 		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
+			logger.error("error", e);
 			throw new DbConnectionException("Error retrieving social activities");
 		}
 	}
@@ -550,6 +549,25 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 		}
 	}
 
+	@Override
+	@Transactional (readOnly = true)
+	public long getSocialActivityActorId(long socialActivityId) {
+		try {
+			String query =
+					"SELECT actor.id " +
+					"FROM SocialActivity1 sa " +
+					"LEFT JOIN sa.actor actor " +
+					"WHERE sa.id = :socialActivityId";
+
+			return (Long) persistence.currentManager().createQuery(query)
+					.setLong("socialActivityId", socialActivityId)
+					.uniqueResult();
+		} catch(Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error retrieving social activity actor id.");
+		}
+	}
+
 	private Optional<UnitWelcomePostSocialActivity> getUnitWelcomePostSocialActivityIfExists(long unitId, Session session) throws DbConnectionException {
 		try {
 			String query = "SELECT sa " +
@@ -561,8 +579,7 @@ public class SocialActivityManagerImpl extends AbstractManagerImpl implements So
 
 			return Optional.ofNullable(sa);
 		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
+			logger.error("Error", e);
 			throw new DbConnectionException("Error retrieving social activity");
 		}
 	}

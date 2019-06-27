@@ -1,7 +1,6 @@
 package org.prosolo.services.notifications.eventprocessing;
 
 import org.apache.log4j.Logger;
-import org.hibernate.Session;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.user.notifications.NotificationType;
 import org.prosolo.common.domainmodel.user.notifications.ResourceType;
@@ -14,7 +13,6 @@ import org.prosolo.services.notifications.eventprocessing.util.AssessmentLinkUti
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.util.page.PageSection;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class CompetenceAssessmentRequestEventProcessor extends CompetenceAssessmentNotificationEventProcessor {
@@ -22,12 +20,10 @@ public class CompetenceAssessmentRequestEventProcessor extends CompetenceAssessm
     @SuppressWarnings("unused")
     private static Logger logger = Logger.getLogger(CompetenceAssessmentRequestEventProcessor.class);
 
-    private AssessmentManager assessmentManager;
-
-	public CompetenceAssessmentRequestEventProcessor(Event event, Session session, NotificationManager notificationManager,
-													 NotificationsSettingsManager notificationsSettingsManager, UrlIdEncoder idEncoder, AssessmentManager assessmentManager) {
-		super(event, event.getObject().getId(), session, notificationManager, notificationsSettingsManager, idEncoder);
-		this.assessmentManager = assessmentManager;
+	public CompetenceAssessmentRequestEventProcessor(Event event, NotificationManager notificationManager,
+													 NotificationsSettingsManager notificationsSettingsManager, UrlIdEncoder idEncoder,
+                                                     AssessmentManager assessmentManager) {
+		super(event, event.getObject().getId(), notificationManager, notificationsSettingsManager, idEncoder, assessmentManager);
 	}
 
     @Override
@@ -37,11 +33,9 @@ public class CompetenceAssessmentRequestEventProcessor extends CompetenceAssessm
 
     @Override
     List<NotificationReceiverData> getReceiversData() {
-        PageSection section = getAssessment().getType() == AssessmentType.INSTRUCTOR_ASSESSMENT ? PageSection.MANAGE : PageSection.STUDENT;
-        List<NotificationReceiverData> receivers = new ArrayList<>();
-        receivers.add(new NotificationReceiverData(event.getTarget().getId(), getNotificationLink(section),
-                false, section));
-        return receivers;
+        PageSection section = competenceAssessment.getType() == AssessmentType.INSTRUCTOR_ASSESSMENT ? PageSection.MANAGE : PageSection.STUDENT;
+
+        return List.of(new NotificationReceiverData(event.getTarget().getId(), getNotificationLink(),false, section));
     }
 
     @Override
@@ -56,12 +50,25 @@ public class CompetenceAssessmentRequestEventProcessor extends CompetenceAssessm
 
     @Override
     long getObjectId() {
-        return getAssessment().getCompetence().getId();
+        return competenceId;
     }
 
-    private String getNotificationLink(PageSection section) {
-        return AssessmentLinkUtil.getAssessmentNotificationLink(
-                getContext(), getCredentialId(), getAssessment().getCompetence().getId(), getAssessment().getId(), getAssessment().getType(), assessmentManager, idEncoder, session, section);
-    }
+    private String getNotificationLink() {
+        AssessmentType assessmentType = competenceAssessment.getType();
+
+        switch (assessmentType) {
+            case INSTRUCTOR_ASSESSMENT:
+                return AssessmentLinkUtil.getCredentialAssessmentUrlForAssessedStudent(
+                        idEncoder.encodeId(credentialId),
+                        idEncoder.encodeId(competenceAssessment.getCredentialAssessmentId()),
+                        assessmentType,
+                        PageSection.MANAGE);
+            case PEER_ASSESSMENT:
+                return AssessmentLinkUtil.getCompetenceAssessmentUrlForStudentPeerAssessor(
+                        idEncoder.encodeId(competenceAssessment.getCompetenceAssessmentId()));
+            default:
+                throw new IllegalArgumentException("Cannot generate notification link for the assessment type " + assessmentType);
+        }
+	}
 
 }

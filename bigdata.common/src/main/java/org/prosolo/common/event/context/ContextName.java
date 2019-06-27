@@ -2,7 +2,6 @@ package org.prosolo.common.event.context;
 
 import org.prosolo.common.domainmodel.activitywall.PostSocialActivity1;
 import org.prosolo.common.domainmodel.activitywall.SocialActivity1;
-import org.prosolo.common.domainmodel.activitywall.TwitterPostSocialActivity1;
 import org.prosolo.common.domainmodel.assessment.ActivityAssessment;
 import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
 import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
@@ -30,25 +29,15 @@ public enum ContextName {
     SOCIAL_ACTIVITY(SocialActivity1.class),
     STATUS_WALL,
     NEW_POST,
-    RESUME_LEARNING,
     COMPETENCE_PROGRESS,
     BREADCRUMBS,
     ASSESSMENT_DIALOG,
-    ACTIVATE_COURSE_DIALOG,
-    WITHDRAW_COURSE_DIALOG,
     ASSESSMENT,
     LTI_LAUNCH,
     LTI_TOOL(LtiTool.class),
     ADD_ACTIVITY_DIALOG(Activity1.class),
     COMPETENCE(Competence1.class),
-    ACTIVITY_SEARCH_BOX(Activity1.class),
     DELETE_COMPETENCE_ACTIVITY_DIALOG(CompetenceActivity1.class),
-    //	PERSONAL_FEEDS(FeedEntry.class),
-//	FRIENDS_FEEDS(FeedEntry.class),
-//	COURSE_FEEDS(FeedEntry.class),
-//	NEWS_DIGEST(FeedsDigest.class),
-    PERSONAL_TWEETS(TwitterPostSocialActivity1.class),
-    COURSE_TWEETS(TwitterPostSocialActivity1.class),
     COMMENT(Comment1.class),
     LIBRARY,
     ACTIVITY(Activity1.class),

@@ -34,6 +34,7 @@ import org.prosolo.services.upload.AvatarProcessor;
 import org.prosolo.services.user.UserGroupManager;
 import org.prosolo.services.user.UserManager;
 import org.prosolo.services.util.roles.SystemRoleNames;
+import org.prosolo.web.administration.data.RoleData;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,6 +43,7 @@ import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service("org.prosolo.services.user.UserManager")
 public class UserManagerImpl extends AbstractManagerImpl implements UserManager {
@@ -79,6 +81,13 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	@Transactional (readOnly = true)
 	public User getUser(String email) throws DbConnectionException {
 		return getUser(email, false);
+	}
+
+	@Override
+	@Transactional (readOnly = true)
+	public Optional<UserData> getUserData(String email) {
+		User user = getUser(email);
+		return user != null ? Optional.of(new UserData(user)) : Optional.empty();
 	}
 
 	@Override
@@ -227,6 +236,52 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 
 	@Override
 	//nt
+	public UserData createNewUserAndReturnData(long organizationId, String name, String lastname, String emailAddress, boolean emailVerified,
+							  String password, String position, InputStream avatarStream,
+							  String avatarFilename, List<Long> roles, boolean isSystem) {
+		Result<UserData> res = self.createNewUserAndGetUserDataAndEvents(
+				organizationId,
+				name,
+				lastname,
+				emailAddress,
+				emailVerified,
+				password,
+				position,
+				avatarStream,
+				avatarFilename,
+				roles,
+				isSystem);
+
+		eventFactory.generateAndPublishEvents(res.getEventQueue());
+
+		return res.getResult();
+	}
+
+	@Override
+	@Transactional
+	public Result<UserData> createNewUserAndGetUserDataAndEvents(long organizationId, String name, String lastname, String emailAddress, boolean emailVerified,
+											   String password, String position, InputStream avatarStream,
+											   String avatarFilename, List<Long> roles, boolean isSystem) {
+		Result<User> res = createNewUserAndGetEvents(
+				organizationId,
+				name,
+				lastname,
+				emailAddress,
+				emailVerified,
+				password,
+				position,
+				avatarStream,
+				avatarFilename,
+				roles,
+				isSystem);
+		Result<UserData> result = new Result<>();
+		result.setResult(new UserData(res.getResult()));
+		result.appendEvents(res.getEventQueue());
+		return result;
+	}
+
+	@Override
+	//nt
 	public User createNewUser(long organizationId, String name, String lastname, String emailAddress, boolean emailVerified,
 							  String password, String position, InputStream avatarStream,
 							  String avatarFilename, List<Long> roles, boolean isSystem) throws DbConnectionException, IllegalDataStateException {
@@ -247,6 +302,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 
 		return res.getResult();
 	}
+
 
 	@Override
 	public User createNewUserAndSendEmail(long organizationId, String name, String lastname, String emailAddress, boolean emailVerified,
@@ -457,7 +513,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	}
 
 	@Override
-	@Transactional (readOnly = false)
+	@Transactional
 	public String changePasswordWithResetKey(String resetKey, String newPassword) {
 		String newPassEncrypted = passwordEncoder.encode(newPassword);
 
@@ -646,7 +702,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 
 			User user = (User) q.uniqueResult();
 
-			return new UserData(user, user.getRoles());
+			return new UserData(user, user.getRoles().stream().map(r -> new RoleData(r)).collect(Collectors.toList()));
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -747,7 +803,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 
 	@Override
 	@Transactional(readOnly = true)
-	public PaginatedResult<UserData> getUsersWithRoles(int page, int limit, long filterByRoleId, List<Role> roles,
+	public PaginatedResult<UserData> getUsersWithRoles(int page, int limit, long filterByRoleId, List<RoleData> roles,
 													   long organizationId) throws  DbConnectionException {
 		try {
 			PaginatedResult<UserData> response = new PaginatedResult<>();
@@ -786,13 +842,18 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 					.list();
 
 			for (User u : users) {
-				List<Role> userRoles = new LinkedList<>(u.getRoles());
-				UserData userData = new UserData(u, userRoles);
+				UserData userData = new UserData(u, u.getRoles().stream().map(r -> new RoleData(r)).collect(Collectors.toList()));
 				response.addFoundNode(userData);
 			}
 
-			response.setAdditionalInfo(setFilter(organizationId, roles, filterByRoleId));
-			response.setHitsNumber(setUsersCountForFiltering(organizationId, roles, filterByRoleId));
+			List<Long> roleIds = null;
+
+			if (roles != null) {
+				roleIds = roles.stream().map(RoleData::getId).collect(Collectors.toList());
+			}
+
+			response.setAdditionalInfo(setFilter(organizationId, roleIds, filterByRoleId));
+			response.setHitsNumber(setUsersCountForFiltering(organizationId, roleIds, filterByRoleId));
 
 			return response;
 		} catch (Exception e) {
@@ -809,7 +870,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 		}
 	}
 
-	private Long setUsersCountForFiltering(long organizationId, List<Role> roles, long filterByRoleId){
+	private Long setUsersCountForFiltering(long organizationId, List<Long> roleIds, long filterByRoleId){
 		String countQuery =
 				"SELECT COUNT (DISTINCT user) " +
 				"FROM User user " +
@@ -822,8 +883,8 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 
 		if (filterByRoleId > 0) {
 			countQuery += "AND role.id = :filterByRoleId";
-		} else if (roles != null && !roles.isEmpty()) {
-			countQuery += "AND role IN (:roles)";
+		} else if (roleIds != null && !roleIds.isEmpty()) {
+			countQuery += "AND role.id IN (:roleIds)";
 		}
 
 		Query result1 = persistence.currentManager().createQuery(countQuery);
@@ -834,14 +895,14 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 
 		if (filterByRoleId > 0){
 			result1.setLong("filterByRoleId", filterByRoleId);
-		} else if (roles != null && !roles.isEmpty()) {
-			result1.setParameterList("roles", roles);
+		} else if (roleIds != null && !roleIds.isEmpty()) {
+			result1.setParameterList("roleIds", roleIds);
 		}
 
 		return (Long) result1.uniqueResult();
 	}
 
-	private Map<String,Object> setFilter(long organizationId, List<Role> roles, long filterByRoleId){
+	private Map<String,Object> setFilter(long organizationId, List<Long> roleIds, long filterByRoleId){
 		String countQuery =
 				"SELECT COUNT (DISTINCT user) " +
 				"FROM User user " +
@@ -852,8 +913,8 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 			countQuery += "AND user.organization.id = :orgId ";
 		}
 
-		if (roles != null && !roles.isEmpty()) {
-			countQuery += "AND role IN (:roles) ";
+		if (roleIds != null && !roleIds.isEmpty()) {
+			countQuery += "AND role.id IN (:roleIds) ";
 		}
 
 		Query q = persistence.currentManager().createQuery(countQuery);
@@ -862,8 +923,8 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 			q.setLong("orgId", organizationId);
 		}
 
-		if (roles != null && !roles.isEmpty()) {
-			q.setParameterList("roles", roles);
+		if (roleIds != null && !roleIds.isEmpty()) {
+			q.setParameterList("roleIds", roleIds);
 		}
 
 		long count = (long) q.uniqueResult();
@@ -878,8 +939,8 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 				"FROM User user "+
 				"INNER JOIN user.roles role ";
 
-		if (roles != null && !roles.isEmpty()) {
-			query += "WITH role in (:roles) ";
+		if (roleIds != null && !roleIds.isEmpty()) {
+			query += "WITH role.id IN (:roleIds) ";
 		}
 
 		query += "WHERE user.deleted IS false ";
@@ -895,8 +956,8 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 			q1.setLong("orgId", organizationId);
 		}
 
-		if (roles != null && !roles.isEmpty()) {
-			q1.setParameterList("roles", roles);
+		if (roleIds != null && !roleIds.isEmpty()) {
+			q1.setParameterList("roleIds", roleIds);
 		}
 
 		List<Object[]> result = q1.list();

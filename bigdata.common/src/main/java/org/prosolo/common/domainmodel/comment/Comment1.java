@@ -2,6 +2,7 @@ package org.prosolo.common.domainmodel.comment;
 
 import org.hibernate.annotations.Type;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
+import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
 
@@ -29,6 +30,12 @@ public class Comment1 extends BaseEntity {
 	
 	//date from baseentity not saving hours, minutes
 	private Date postDate;
+
+	/*
+	credential this comment is related to; it applies to Competency and Activity comment so it should have a value for these comment types.
+	In case of ActivityResult and SocialActivity comment, credential should be null.
+	 */
+	private Credential1 credential;
 	
 	public Comment1() {
 		
@@ -113,5 +120,13 @@ public class Comment1 extends BaseEntity {
 	public void setManagerComment(boolean isManagerComment) {
 		this.isManagerComment = isManagerComment;
 	}
-	
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	public Credential1 getCredential() {
+		return credential;
+	}
+
+	public void setCredential(Credential1 credential) {
+		this.credential = credential;
+	}
 }

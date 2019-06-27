@@ -12,6 +12,7 @@ import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.user.data.StudentData;
 import org.prosolo.services.user.data.UserData;
 import org.prosolo.services.nodes.data.instructor.InstructorData;
+import org.prosolo.web.administration.data.RoleData;
 
 import java.util.Collection;
 import java.util.List;
@@ -73,7 +74,7 @@ public interface UserTextSearch extends AbstractManager {
 	 * @return
 	 */
 	PaginatedResult<UserData> getUsersWithRoles(
-			String term, int page, int limit, boolean paginate, long roleId, List<Role> adminRoles,
+			String term, int page, int limit, boolean paginate, long roleId, List<RoleData> adminRoles,
 			boolean includeSystemUsers, List<Long> excludeIds, long organizationId);
 	
 	PaginatedResult<StudentData> searchCredentialMembersWithLearningStatusFilter (

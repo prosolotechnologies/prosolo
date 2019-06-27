@@ -1,14 +1,14 @@
 package org.prosolo.services.nodes;
 
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.nodes.data.AnnouncementData;
-import org.prosolo.web.courses.credential.announcements.AnnouncementPublishMode;
+import org.prosolo.common.domainmodel.credential.AnnouncementPublishMode;
 
 public interface AnnouncementManager {
 
@@ -33,4 +33,5 @@ public interface AnnouncementManager {
 	
 	AnnouncementData getLastAnnouncementForCredential(Long credentialId);
 
+	Optional<AnnouncementData> loadAnnouncement(long id);
 }

@@ -73,4 +73,11 @@ public interface SocialActivityManager {
 
     void deleteUnitWelcomePostSocialActivityIfExists(long unitId, Session session) throws DbConnectionException;
 
+    /**
+     * Returns an id of the social activity actor.
+     *
+     * @param socialActivityId id of the social activity
+     * @return
+     */
+    long getSocialActivityActorId(long socialActivityId);
 }
