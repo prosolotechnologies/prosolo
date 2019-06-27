@@ -50,13 +50,13 @@ public class AssessmentDAOImpl implements AssessmentDAO {
             CompetenceAssessment ca = (CompetenceAssessment) session.load(CompetenceAssessment.class, compAssessmentId);
             Organization org = ca.getStudent().getOrganization();
 
-            OrganizationPlugin assessmentTokePlugins = org.getPlugins().stream().filter(p -> p.getType() == OrganizationPluginType.ASSESSMENT_TOKENS).findAny().get();
+            OrganizationPlugin assessmentTokenPlugin = org.getPlugins().stream().filter(p -> p.getType() == OrganizationPluginType.ASSESSMENT_TOKENS).findAny().get();
 
             long assessorId = getPeerFromAvailableAssessorsPoolForCompetenceAssessment(
                     ca.getTargetCredential().getCredential().getId(),
                     ca.getCompetence().getId(),
                     ca.getStudent().getId(),
-                    assessmentTokePlugins.isEnabled(),
+                    assessmentTokenPlugin.isEnabled(),
                     session);
             if (assessorId > 0) {
                 events = assignAssessorToCompetenceAssessment(ca, assessorId, org.getId(), session);
@@ -227,9 +227,9 @@ public class AssessmentDAOImpl implements AssessmentDAO {
             ca.setStatus(AssessmentStatus.REQUEST_EXPIRED);
             ca.setQuitDate(new Date());
             Organization org = ca.getStudent().getOrganization();
-            OrganizationPlugin assessmentTokePlugins = org.getPlugins().stream().filter(p -> p.getType() == OrganizationPluginType.ASSESSMENT_TOKENS).findAny().get();
+            OrganizationPlugin assessmentTokenPlugin = org.getPlugins().stream().filter(p -> p.getType() == OrganizationPluginType.ASSESSMENT_TOKENS).findAny().get();
 
-            if (assessmentTokePlugins.isEnabled()) {
+            if (assessmentTokenPlugin.isEnabled()) {
                 ca.getStudent().setNumberOfTokens(ca.getStudent().getNumberOfTokens() + ca.getNumberOfTokensSpent());
             }
 
