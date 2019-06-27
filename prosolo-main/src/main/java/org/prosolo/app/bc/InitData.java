@@ -69,6 +69,12 @@ public enum InitData {
             return new BusinessCase_Test_2_12();
         }
     },
+    TEST_2_15(true) {
+        @Override
+        public BusinessCase getDataInitializer() {
+            return new BusinessCase_Test_2_15();
+        }
+    },
     TEST_3_1(true) {
         @Override
         public BusinessCase getDataInitializer() {
