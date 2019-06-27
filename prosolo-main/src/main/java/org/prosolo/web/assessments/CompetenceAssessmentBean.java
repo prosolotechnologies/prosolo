@@ -1,5 +1,7 @@
 package org.prosolo.web.assessments;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.AccessDeniedException;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
@@ -28,21 +30,33 @@ public abstract class CompetenceAssessmentBean extends LearningResourceAssessmen
 
 	private static Logger logger = Logger.getLogger(CompetenceAssessmentBean.class);
 
+	@Getter
 	@Inject private AssessmentManager assessmentManager;
+	@Getter
 	@Inject private UrlIdEncoder idEncoder;
 	@Inject private CredentialManager credManager;
+	@Getter
 	@Inject private Competence1Manager compManager;
 
+	@Getter @Setter
 	private String competenceId;
+	@Getter @Setter
 	private String competenceAssessmentId;
+	@Getter
 	private long decodedCompId;
+	@Getter
 	private long decodedCompAssessmentId;
+	@Getter @Setter
 	private String credId;
+	@Getter
 	private long decodedCredId;
 
+	@Getter @Setter
 	private CompetenceAssessmentDataFull competenceAssessmentData;
 
+	@Getter
 	private String credentialTitle;
+	@Getter
 	private String competenceTitle;
 
 	private List<AssessmentTypeConfig> assessmentTypesConfig;
@@ -85,42 +99,47 @@ public abstract class CompetenceAssessmentBean extends LearningResourceAssessmen
 		decodedCompAssessmentId = idEncoder.decodeId(competenceAssessmentId);
 		decodedCredId = idEncoder.decodeId(credId);
 
-		if (decodedCompId > 0 && decodedCredId > 0) {
-			try {
-				if (!canAccessPreLoad()) {
-					throw new AccessDeniedException();
+		if (decodedCompAssessmentId > 0) {
+			competenceAssessmentData = assessmentManager.getCompetenceAssessmentData(
+					decodedCompAssessmentId, loggedUserBean.getUserId(), assessmentType, AssessmentLoadConfig.of(true, true, true));
+
+			if (competenceAssessmentData != null) {
+				if (decodedCompId == 0 || decodedCredId == 0) {
+					decodedCredId = competenceAssessmentData.getCredentialId();
+					decodedCompId = competenceAssessmentData.getCompetenceId();
 				}
-				assessmentTypesConfig = compManager.getCompetenceAssessmentTypesConfig(decodedCompId);
-				if (AssessmentUtil.isAssessmentTypeEnabled(assessmentTypesConfig, assessmentType)) {
-					if (decodedCompAssessmentId > 0) {
-						competenceAssessmentData = assessmentManager.getCompetenceAssessmentData(
-								decodedCompAssessmentId, loggedUserBean.getUserId(), assessmentType, AssessmentLoadConfig.of(true, true, true));
-					}
-					if (competenceAssessmentData == null) {
-						if (notFoundIfAssessmentNull) {
-							PageUtil.notFound();
-						} else {
-							credentialTitle = credManager.getCredentialTitle(decodedCredId);
-							competenceTitle = compManager.getCompetenceTitle(decodedCompId);
-						}
+			}
+		}
+
+		try {
+			if (!canAccessPreLoad()) {
+				throw new AccessDeniedException();
+			}
+			assessmentTypesConfig = compManager.getCompetenceAssessmentTypesConfig(decodedCompId);
+
+			if (AssessmentUtil.isAssessmentTypeEnabled(assessmentTypesConfig, assessmentType)) {
+				if (competenceAssessmentData == null) {
+					if (notFoundIfAssessmentNull) {
+						PageUtil.notFound();
 					} else {
-						if (!canAccessPostLoad()) {
-							throw new AccessDeniedException();
-						}
 						credentialTitle = credManager.getCredentialTitle(decodedCredId);
-						competenceTitle = competenceAssessmentData.getTitle();
+						competenceTitle = compManager.getCompetenceTitle(decodedCompId);
 					}
 				} else {
-					PageUtil.notFound("This page is no longer available");
+					if (!canAccessPostLoad()) {
+						throw new AccessDeniedException();
+					}
+					credentialTitle = credManager.getCredentialTitle(decodedCredId);
+					competenceTitle = competenceAssessmentData.getTitle();
 				}
-			} catch (AccessDeniedException e) {
-				PageUtil.accessDenied();
-			} catch (Exception e) {
-				logger.error("Error loading assessment data", e);
-				PageUtil.fireErrorMessage("Error loading assessment data");
+			} else {
+				PageUtil.notFound("This page is no longer available");
 			}
-		} else {
-			PageUtil.notFound();
+		} catch (AccessDeniedException e) {
+			PageUtil.accessDenied();
+		} catch (Exception e) {
+			logger.error("Error loading assessment data", e);
+			PageUtil.fireErrorMessage("Error loading assessment data");
 		}
 	}
 
@@ -167,75 +186,4 @@ public abstract class CompetenceAssessmentBean extends LearningResourceAssessmen
 		return AssessmentUtil.isUserAllowedToSeeRubric(gradeData, resType);
 	}
 
-	/*
-	ACTIONS
-	 */
-
-	/*
-	 * GETTERS / SETTERS
-	 */
-
-	public CompetenceAssessmentDataFull getCompetenceAssessmentData() {
-		return competenceAssessmentData;
-	}
-
-	public void setCompetenceAssessmentData(CompetenceAssessmentDataFull competenceAssessmentData) {
-		this.competenceAssessmentData = competenceAssessmentData;
-	}
-
-	public String getCompetenceId() {
-		return competenceId;
-	}
-
-	public void setCompetenceId(String competenceId) {
-		this.competenceId = competenceId;
-	}
-
-	public String getCompetenceAssessmentId() {
-		return competenceAssessmentId;
-	}
-
-	public void setCompetenceAssessmentId(String competenceAssessmentId) {
-		this.competenceAssessmentId = competenceAssessmentId;
-	}
-
-	public String getCredentialTitle() {
-		return credentialTitle;
-	}
-
-	public String getCredId() {
-		return credId;
-	}
-
-	public void setCredId(String credId) {
-		this.credId = credId;
-	}
-
-	public AssessmentManager getAssessmentManager() {
-		return assessmentManager;
-	}
-
-	public UrlIdEncoder getIdEncoder() {
-		return idEncoder;
-	}
-
-	public long getDecodedCompId() {
-		return decodedCompId;
-	}
-
-	public Competence1Manager getCompManager() {
-		return compManager;
-	}
-
-	public List<AssessmentTypeConfig> getAssessmentTypesConfig() {
-		return assessmentTypesConfig;
-	}
-
-	public String getCompetenceTitle() {
-		return competenceTitle;
-	}
-
-	public void setCompetenceTitle(String competenceTitle) {
-		this.competenceTitle = competenceTitle;
-	}
 }

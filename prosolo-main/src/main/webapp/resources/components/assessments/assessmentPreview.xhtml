@@ -625,6 +625,7 @@
 					student="#{cc.attrs.bean.studentData}"
 					resource="#{cc.attrs.bean.currentResType}"
 					assessmentReviewField="#{cc.attrs.bean.fullAssessmentData.review}"
+					learningContext="#{cc.attrs.bean.currentResType == null ? '' : (cc.attrs.bean.currentResType == 'CREDENTIAL' ? learningContext : ((cc.attrs.bean.currentResType == 'COMPETENCE' ? compAssessmentLearningContext : activityAssessmentLearningContext)))}"
 					toUpdate="#{cc.attrs.bean.currentResType eq 'CREDENTIAL' ? ':'.concat(cc.clientId).concat(':panelAssessmentPreview') : cc.clientId.concat(':growlMain @(.panelAssessorNotificationSelector) @(.panelCompAssessment_').concat(cc.attrs.bean.currentCompetenceAssessmentId).concat(') @(.assessmentActivityList.comp_').concat(cc.attrs.bean.currentCompetenceAssessmentId).concat(')')}"
 			/>
 

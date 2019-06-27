@@ -2,13 +2,7 @@ package org.prosolo.common.domainmodel.credential;
 
 import java.util.List;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
@@ -24,7 +18,7 @@ public class Announcement extends BaseEntity {
 	private User createdBy;
 	private String text;
 	private List<SeenAnnouncement> seenAnouncements;
-	
+	private AnnouncementPublishMode publishMode;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(nullable = false)
@@ -64,7 +58,14 @@ public class Announcement extends BaseEntity {
 	public void setText(String text) {
 		this.text = text;
 	}
-	
-	
-	
+
+	@Enumerated(EnumType.STRING)
+	@Column(columnDefinition = "VARCHAR(255) DEFAULT 'ALL_STUDENTS'", nullable = false)
+	public AnnouncementPublishMode getPublishMode() {
+		return publishMode;
+	}
+
+	public void setPublishMode(AnnouncementPublishMode publishMode) {
+		this.publishMode = publishMode;
+	}
 }

@@ -1,7 +1,6 @@
 package org.prosolo.app.bc;
 
 import org.apache.commons.lang3.time.DateUtils;
-import org.hibernate.FlushMode;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
@@ -515,14 +514,16 @@ public abstract class BaseBusinessCase5 extends BaseBusinessCase {
         assignInstructorToStudent(events, instructor, List.of(student), delivery);
     }
 
-    protected CommentData createNewComment(EventQueue events, User user, String text, long commentedResourceId, CommentedResourceType commentedResourceType, CommentData parent, boolean isManagerComment) {
+    protected CommentData createNewComment(EventQueue events, User user, String text, long commentedResourceId, CommentedResourceType commentedResourceType, CommentData parent, boolean isManagerComment, long credentialId) throws IllegalDataStateException {
         CommentData newComment = new CommentData();
         newComment.setCommentedResourceId(commentedResourceId);
+        newComment.setCommentedResourceType(commentedResourceType);
         newComment.setDateCreated(new Date());
         newComment.setComment(text);
         newComment.setCreator(new UserData(user));
         newComment.setParent(parent);
         newComment.setManagerComment(isManagerComment);
+        newComment.setCredentialId(credentialId);
 
         Comment1 comment = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).saveNewCommentAndGetEvents(newComment,
                 commentedResourceType, UserContextData.of(user.getId(), user.getOrganization().getId(), null, null, null)));

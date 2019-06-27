@@ -1,6 +1,5 @@
 package org.prosolo.services.datainit.impl;
 
-import org.hibernate.jdbc.Work;
 import org.prosolo.app.Settings;
 import org.prosolo.app.bc.InitData;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
@@ -9,15 +8,14 @@ import org.prosolo.config.observation.ObservationConfigLoaderService;
 import org.prosolo.config.security.SecurityService;
 import org.prosolo.services.admin.ResourceSettingsManager;
 import org.prosolo.services.datainit.DataInitManager;
+import org.prosolo.services.datainit.StaticDataInitManager;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
-import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,6 +31,7 @@ public class DataInitManagerImpl extends AbstractManagerImpl implements DataInit
     @Inject private ObservationConfigLoaderService observationConfigLoaderService;
     @Inject private ResourceSettingsManager resourceSettingsManager;
     @Inject private DataInitManager self;
+    @Inject private StaticDataInitManager staticDataInitManager;
 
     @Override
     public void reinitializeDBData(InitData initData) {
@@ -44,6 +43,7 @@ public class DataInitManagerImpl extends AbstractManagerImpl implements DataInit
                     Settings.getInstance().config.admin.selectedUsersCanDoEvaluation,
                     Settings.getInstance().config.admin.userCanCreateCompetence,
                     Settings.getInstance().config.admin.individualCompetencesCanNotBeEvaluated);
+            staticDataInitManager.initStaticData();
             initData.getDataInitializer().initRepository();
         } catch (Exception e) {
             logger.error("error", e);

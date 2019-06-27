@@ -563,7 +563,8 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
     public AssessmentDataFull getFullAssessmentDataForAssessmentType(long id, long userId, AssessmentType type, AssessmentLoadConfig loadConfig) {
         CredentialAssessment assessment = (CredentialAssessment) persistence.currentManager()
                 .get(CredentialAssessment.class, id);
-        if (type != null && assessment.getType() != type) {
+
+        if (assessment == null || (type != null && assessment.getType() != type)) {
             return null;
         }
 
@@ -1330,13 +1331,15 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 				 */
                 credentialAssessment.setAssessorNotified(false);
 
+                CredentialAssessment credAss = new CredentialAssessment();
+                credAss.setId(credentialAssessmentId);
                 User student = new User();
                 student.setId(credentialAssessment.getStudent().getId());
                 Map<String, String> parameters = new HashMap<>();
                 parameters.put("credentialId", credentialAssessment.getTargetCredential().getCredential().getId() + "");
 
                 result.appendEvent(eventFactory.generateEventData(EventType.AssessmentApproved, context,
-                        credentialAssessment, student, null, parameters));
+                        credAss, student, null, parameters));
             }
             return result;
         } catch (IllegalDataStateException ex) {
@@ -2730,7 +2733,13 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
                         activityAssessmentId = Util.convertBigIntegerToLong((BigInteger) res[4]);
                     }
                 }
-                return AssessmentBasicData.of(credAssessmentId, compAssessmentId, activityAssessmentId, assessorId, type);
+                return AssessmentBasicData.builder()
+                        .credentialAssessmentId(credAssessmentId)
+                        .competenceAssessmentId(compAssessmentId)
+                        .activityAssessmentId(activityAssessmentId)
+                        .assessorId(assessorId)
+                        .type(type)
+                        .build();
             }
             return null;
         } catch (Exception e) {
@@ -2744,9 +2753,12 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
     public AssessmentBasicData getBasicAssessmentInfoForActivityAssessment(long activityAssessmentId)
             throws DbConnectionException {
         try {
-            String query = "SELECT ca.type, ca.student.id, ca.assessor.id " +
+            String query =
+                    "SELECT credAs.id, ca.id, ca.student.id, ca.assessor.id, ca.type, ca.blindAssessmentMode, targetCred.credential.id, ca.competence.id, aas.activity " +
                     "FROM ActivityAssessment aas " +
                     "INNER JOIN aas.assessment ca " +
+                    "INNER JOIN ca.targetCredential targetCred " +
+                    "LEFT JOIN ca.credentialAssessment credAs " +
                     "WHERE aas.id = :actAssessmentId";
 
             Object[] res = (Object[]) persistence.currentManager()
@@ -2755,11 +2767,31 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
                     .uniqueResult();
 
             if (res != null) {
-                Long assessorId = (Long) res[2];
-                return AssessmentBasicData.of((long) res[1], assessorId != null ? assessorId : 0, (AssessmentType) res[0]);
+                long credentialAssessmentId = res[0] != null ? (long) res[0] : 0;
+                long competenceAssessmentId = (long) res[1];
+                long studentId = (long) res[2];
+                long assessorId = res[3] != null ? (long) res[3] : 0;
+                AssessmentType assessmentType = (AssessmentType) res[4];
+                BlindAssessmentMode blindAssessmentMode = (BlindAssessmentMode) res[5];
+                long credentialId = (long) res[6];
+                long competenceId = (long) res[7];
+                long activityId = (long) res[8];
+
+                return AssessmentBasicData.builder()
+                        .credentialAssessmentId(credentialAssessmentId)
+                        .competenceAssessmentId(competenceAssessmentId)
+                        .activityAssessmentId(activityAssessmentId)
+                        .credentialId(credentialId)
+                        .competenceId(competenceId)
+                        .activityId(activityId)
+                        .studentId(studentId)
+                        .assessorId(assessorId)
+                        .type(assessmentType)
+                        .blindAssessmentMode(blindAssessmentMode)
+                        .build();
             }
 
-            return AssessmentBasicData.empty();
+            return AssessmentBasicData.builder().build();
         } catch (Exception e) {
             logger.error("error", e);
             throw new DbConnectionException("Error retrieving assessment data");
@@ -2772,9 +2804,11 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
             throws DbConnectionException {
         try {
             String query =
-                    "SELECT ca.type, ca.student.id, ca.assessor.id " +
-                            "FROM CompetenceAssessment ca " +
-                            "WHERE ca.id = :assessmentId";
+                    "SELECT credAs.id, ca.student.id, ca.assessor.id, ca.type, ca.blindAssessmentMode, targetCred.credential.id, ca.competence.id " +
+                    "FROM CompetenceAssessment ca " +
+                    "INNER JOIN ca.targetCredential targetCred " +
+                    "LEFT JOIN ca.credentialAssessment credAs " +
+                    "WHERE ca.id = :assessmentId";
 
             Object[] res = (Object[]) persistence.currentManager()
                     .createQuery(query)
@@ -2782,11 +2816,27 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
                     .uniqueResult();
 
             if (res != null) {
-                Long assessorId = (Long) res[2];
-                return AssessmentBasicData.of((long) res[1], assessorId != null ? assessorId : 0, (AssessmentType) res[0]);
+                long credentialAssessmentId = res[0] != null ? (long) res[0] : 0;
+                long studentId = (long) res[1];
+                long assessorId = res[3] != null ? (long) res[2] : 0;
+                AssessmentType assessmentType = (AssessmentType) res[3];
+                BlindAssessmentMode blindAssessmentMode = (BlindAssessmentMode) res[4];
+                long credentialId = (long) res[5];
+                long competenceId = (long) res[6];
+
+                return AssessmentBasicData.builder()
+                        .credentialAssessmentId(credentialAssessmentId)
+                        .competenceAssessmentId(assessmentId)
+                        .credentialId(credentialId)
+                        .competenceId(competenceId)
+                        .studentId(studentId)
+                        .assessorId(assessorId)
+                        .type(assessmentType)
+                        .blindAssessmentMode(blindAssessmentMode)
+                        .build();
             }
 
-            return AssessmentBasicData.empty();
+            return AssessmentBasicData.builder().build();
         } catch (Exception e) {
             logger.error("error", e);
             throw new DbConnectionException("Error retrieving the assessment data");
@@ -2799,9 +2849,10 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
             throws DbConnectionException {
         try {
             String query =
-                    "SELECT ca.type, ca.student.id, ca.assessor.id " +
-                            "FROM CredentialAssessment ca " +
-                            "WHERE ca.id = :assessmentId";
+                    "SELECT ca.student.id, ca.assessor.id, ca.type, ca.blindAssessmentMode, targetCred.credential.id " +
+                    "FROM CredentialAssessment ca " +
+                    "INNER JOIN ca.targetCredential targetCred " +
+                    "WHERE ca.id = :assessmentId";
 
             Object[] res = (Object[]) persistence.currentManager()
                     .createQuery(query)
@@ -2809,11 +2860,23 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
                     .uniqueResult();
 
             if (res != null) {
-                Long assessorId = (Long) res[2];
-                return AssessmentBasicData.of((long) res[1], assessorId != null ? assessorId : 0, (AssessmentType) res[0]);
+                long studentId = (long) res[0];
+                long assessorId = res[3] != null ? (long) res[1] : 0;
+                AssessmentType assessmentType = (AssessmentType) res[2];
+                BlindAssessmentMode blindAssessmentMode = (BlindAssessmentMode) res[3];
+                long credentialId = (long) res[4];
+
+                return AssessmentBasicData.builder()
+                        .credentialAssessmentId(assessmentId)
+                        .credentialId(credentialId)
+                        .studentId(studentId)
+                        .assessorId(assessorId)
+                        .type(assessmentType)
+                        .blindAssessmentMode(blindAssessmentMode)
+                        .build();
             }
 
-            return AssessmentBasicData.empty();
+            return AssessmentBasicData.builder().build();
         } catch (Exception e) {
             logger.error("error", e);
             throw new DbConnectionException("Error retrieving the assessment data");
@@ -3301,14 +3364,14 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
     @Override
     @Transactional(readOnly = true)
-    public long getCredentialAssessmentIdForCompetenceAssessment(long compAssessmentId, Session session) throws DbConnectionException {
+    public long getCredentialAssessmentIdForCompetenceAssessment(long compAssessmentId) throws DbConnectionException {
         try {
             String query =
                     "SELECT ca.credentialAssessment.id " +
                             "FROM CompetenceAssessment ca " +
                             "WHERE ca.id = :compAssessmentId";
 
-            Long id = (Long) session
+            Long id = (Long) persistence.currentManager()
                     .createQuery(query)
                     .setLong("compAssessmentId", compAssessmentId)
                     .uniqueResult();

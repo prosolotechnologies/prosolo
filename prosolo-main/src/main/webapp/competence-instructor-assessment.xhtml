@@ -7,7 +7,9 @@
                 xmlns:competence="http://java.sun.com/jsf/composite/components/competences"
                 xmlns:c="http://java.sun.com/jsp/jstl/core"
                 xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
                 xmlns:assessment="http://java.sun.com/jsf/composite/components/assessments"
+                xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
 >
 
     <ui:param name="bodyClass" value="cbp-spmenu-push"/>
@@ -35,42 +37,49 @@
                 compId="#{util:decodeId(param.compId)}"
         />
     </ui:define>
+
     <ui:define name="content">
+
+        <div class="whiteBar">
+        </div>
+
+        <div class="container">
+            <ol class="breadcrumb">
+                <li>
+                    <h:link value="#{msg['label.credential.plural']}" outcome="credentialLibrary"/>
+                </li>
+                <li>
+                    <h:link value="#{util:shortenAndAddDots(competenceAssessmentBean.credentialTitle)}"
+                            outcome="credential">
+                        <f:param name="id" value="#{param.credId}"></f:param>
+                    </h:link>
+                </li>
+                <li>
+                    <h:link value="#{util:shortenAndAddDots(competenceAssessmentBean.competenceTitle)}"
+                            outcome="competence">
+                        <f:param name="credId" value="#{param.credId}"/>
+                        <f:param name="compId" value="#{param.compId}"/>
+                    </h:link>
+                </li>
+                <li>
+                    <h:link value="Assessments" outcome="/competence-assessments-root">
+                        <f:param name="credId" value="#{param.credId}"/>
+                        <f:param name="compId" value="#{param.compId}"/>
+                    </h:link>
+                </li>
+                <li class="active">
+                    #{msg['label.assessment.type.INSTRUCTOR_ASSESSMENT.short']}
+                </li>
+            </ol>
+        </div>
+
         <c:if test="#{not empty competenceAssessmentBean.competenceAssessmentData}">
             <assessments:competenceAssessmentPreview
-                    credentialId="#{util:decodeId(param.credId)}"
-                    learningContext="name:credential|id:#{competenceAssessmentBean.competenceAssessmentData.credentialId}|context:/name:CREDENTIAL_ASSESSMENT|id:#{competenceAssessmentBean.competenceAssessmentData.credentialAssessmentId}/"
-            />
+                    credentialId="#{competenceAssessmentBean.competenceAssessmentData.credentialId}"
+                    learningContext="name:CREDENTIAL|id:#{competenceAssessmentBean.decodedCredId}" />
         </c:if>
+
         <c:if test="#{empty competenceAssessmentBean.competenceAssessmentData}">
-            <div class="whiteBar">
-
-            </div>
-
-            <div class="container">
-                <ol class="breadcrumb">
-                    <li>
-                        <h:link value="#{msg['label.credential.plural']}" outcome="credentialLibrary"/>
-                    </li>
-                    <li>
-                        <h:link value="#{util:shortenAndAddDots(competenceAssessmentBean.credentialTitle)}"
-                                outcome="credential">
-                            <f:param name="id" value="#{param.credId}"></f:param>
-                        </h:link>
-                    </li>
-                    <li>
-                        <h:link value="#{util:shortenAndAddDots(competenceAssessmentBean.competenceTitle)}"
-                                outcome="competence">
-                            <f:param name="credId" value="#{param.credId}"/>
-                            <f:param name="compId" value="#{param.compId}"/>
-                        </h:link>
-                    </li>
-                    <li class="active">
-                        Assessments
-                    </li>
-                </ol>
-            </div>
-
             <div class="container">
                 <div class="row">
                     <div class="col-md-12">

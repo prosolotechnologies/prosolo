@@ -11,6 +11,8 @@ import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.organization.Organization;
+import org.prosolo.common.domainmodel.organization.settings.OrganizationPlugin;
+import org.prosolo.common.domainmodel.organization.settings.OrganizationPluginType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.EventFactory;
 import org.prosolo.common.event.EventQueue;
@@ -47,11 +49,14 @@ public class AssessmentDAOImpl implements AssessmentDAO {
             t = session.beginTransaction();
             CompetenceAssessment ca = (CompetenceAssessment) session.load(CompetenceAssessment.class, compAssessmentId);
             Organization org = ca.getStudent().getOrganization();
+
+            OrganizationPlugin assessmentTokenPlugin = org.getPlugins().stream().filter(p -> p.getType() == OrganizationPluginType.ASSESSMENT_TOKENS).findAny().get();
+
             long assessorId = getPeerFromAvailableAssessorsPoolForCompetenceAssessment(
                     ca.getTargetCredential().getCredential().getId(),
                     ca.getCompetence().getId(),
                     ca.getStudent().getId(),
-                    org.isAssessmentTokensEnabled(),
+                    assessmentTokenPlugin.isEnabled(),
                     session);
             if (assessorId > 0) {
                 events = assignAssessorToCompetenceAssessment(ca, assessorId, org.getId(), session);
@@ -222,7 +227,9 @@ public class AssessmentDAOImpl implements AssessmentDAO {
             ca.setStatus(AssessmentStatus.REQUEST_EXPIRED);
             ca.setQuitDate(new Date());
             Organization org = ca.getStudent().getOrganization();
-            if (org.isAssessmentTokensEnabled()) {
+            OrganizationPlugin assessmentTokenPlugin = org.getPlugins().stream().filter(p -> p.getType() == OrganizationPluginType.ASSESSMENT_TOKENS).findAny().get();
+
+            if (assessmentTokenPlugin.isEnabled()) {
                 ca.getStudent().setNumberOfTokens(ca.getStudent().getNumberOfTokens() + ca.getNumberOfTokensSpent());
             }
 

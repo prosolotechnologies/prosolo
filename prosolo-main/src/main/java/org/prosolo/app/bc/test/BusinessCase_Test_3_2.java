@@ -22,7 +22,7 @@ public class BusinessCase_Test_3_2 extends BusinessCase_Test_3 {
     private static Logger logger = Logger.getLogger(BusinessCase_Test_3_2.class.getName());
 
     @Override
-    protected void createAdditionalDataTest3(EventQueue events) {
+    protected void createAdditionalDataTest3(EventQueue events) throws Exception {
         ////////////////////////////////
         // Enroll users to deliveries
         ////////////////////////////////
@@ -48,7 +48,7 @@ public class BusinessCase_Test_3_2 extends BusinessCase_Test_3 {
                 "Social network analysis (SNA) is the process of investigating social structures through the use of networks and graph theory.",
                 comp1UserHelenCampbell.getCompetence().getId(),
                 CommentedResourceType.Competence,
-                null, false);
+                null, false, credentialWithActivities1Delivery1.getId());
 
         likeComment(events, comment1, userGeorgeYoung);
 
@@ -57,7 +57,7 @@ public class BusinessCase_Test_3_2 extends BusinessCase_Test_3 {
                 "It characterizes networked structures in terms of nodes and the ties, edges, or links that connect them.",
                 comp1UserGeorgeYoung.getCompetence().getId(),
                 CommentedResourceType.Competence,
-                comment1, false);
+                comment1, false, credentialWithActivities1Delivery1.getId());
 
         likeComment(events, comment1Reply1, userHelenCampbell);
 
@@ -66,14 +66,14 @@ public class BusinessCase_Test_3_2 extends BusinessCase_Test_3 {
                 "Social network analysis has emerged as a key technique in modern sociology.",
                 comp1UserGeorgeYoung.getCompetence().getId(),
                 CommentedResourceType.Competence,
-                null, false);
+                null, false, credentialWithActivities1Delivery1.getId());
 
         CommentData comment3 = createNewComment(events,
                 userHelenCampbell,
                 "It has also gained a significant following in anthropology, biology, demography, communication studies, economics, geography, history, information science, organizational studies, political science, social psychology, development studies, sociolinguistics, and computer science and is now commonly available as a consumer tool.",
                 comp1UserHelenCampbell.getCompetence().getId(),
                 CommentedResourceType.Competence,
-                null, false);
+                null, false, credentialWithActivities1Delivery1.getId());
     }
 
     @Override
