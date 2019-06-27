@@ -23,6 +23,7 @@ import org.prosolo.services.nodes.config.competence.CompetenceLoadConfig;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.user.UserManager;
 import org.prosolo.services.util.roles.SystemRoleNames;
+import org.prosolo.web.administration.data.RoleData;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -61,7 +62,7 @@ public class BusinessCase_Test_2_13 extends BaseBusinessCase5 {
 
         List<Long> roles = ServiceLocator.getInstance().getService(RoleManager.class)
                 .getRolesByNames(new String[]{SystemRoleNames.USER, SystemRoleNames.INSTRUCTOR, SystemRoleNames.MANAGER, SystemRoleNames.ADMIN})
-                .stream().map(Role::getId).collect(Collectors.toList());
+                .stream().map(RoleData::getId).collect(Collectors.toList());
 
         updateUserNumberOfTokens(events, userHelenCampbell.getId(), roles, 17);
         updateUserNumberOfTokens(events, userRichardAnderson.getId(), roles, 2);
