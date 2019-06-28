@@ -14,7 +14,7 @@ import java.sql.Statement;
  * @date 2019-06-04
  * @since 1.3.2
  */
-public class V30__20190604_migrate_organization_plugin_data extends BaseMigration {
+public class V32__20190604_migrate_organization_plugin_data extends BaseMigration {
 
     @Override
     protected void doMigrate(Context context) throws Exception {

@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @ManagedBean(name="roles")
 @Component("roles")
@@ -57,25 +58,16 @@ public class RolesBean implements Serializable {
 	}
 	
 	public void loadRoles() {
-		roles = new ArrayList<RoleData>();
-
 		try {
-			Collection<Role> allRoles = roleManager.getAllRoles();
+			roles = roleManager.getAllRoles();
 	
-			if (allRoles != null && !allRoles.isEmpty()) {
-				List<Role> list = new ArrayList<>(allRoles);
-				
-				for (Role role : list) {
-					roles.add(new RoleData(role));
-				}
-				
-				Map<Long, List<Long>> roleUsers = roleManager.getUsersWithRoles(list);
-				for(RoleData rd:roles){
-					rd.setUserIds(roleUsers.get(rd.getId()));
-				}
+			Map<Long, List<Long>> roleUsers = roleManager.getUsersWithRoles(roles.stream().map(RoleData::getId).collect(Collectors.toList()));
+
+			for (RoleData rd : roles) {
+				rd.setUserIds(roleUsers.get(rd.getId()));
 			}
 		} catch(Exception e) {
-			logger.error(e);
+			logger.error("Error", e);
 		}
 	}
 	

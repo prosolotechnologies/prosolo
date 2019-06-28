@@ -1,59 +1,47 @@
 package org.prosolo.services.notifications.eventprocessing;
 
 import org.apache.log4j.Logger;
-import org.hibernate.Session;
-import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
 import org.prosolo.common.domainmodel.credential.BlindAssessmentMode;
 import org.prosolo.common.event.Event;
-import org.prosolo.common.event.context.Context;
-import org.prosolo.services.context.ContextJsonParserService;
+import org.prosolo.services.assessment.AssessmentManager;
+import org.prosolo.services.assessment.data.AssessmentBasicData;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
 import org.prosolo.services.notifications.NotificationManager;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 
 public abstract class CompetenceAssessmentNotificationEventProcessor extends AssessmentNotificationEventProcessor {
 
-	@SuppressWarnings("unused")
-	private static Logger logger = Logger.getLogger(CompetenceAssessmentNotificationEventProcessor.class);
+    @SuppressWarnings("unused")
+    private static Logger logger = Logger.getLogger(CompetenceAssessmentNotificationEventProcessor.class);
 
-	private CompetenceAssessment assessment;
-	private long credentialId;
-	private Context context;
+    protected AssessmentBasicData competenceAssessment;
+    protected long credentialId;
+    protected long competenceId;
 
-	public CompetenceAssessmentNotificationEventProcessor(Event event, long competenceAssessmentId, Session session, NotificationManager notificationManager,
-														  NotificationsSettingsManager notificationsSettingsManager, UrlIdEncoder idEncoder) {
-		super(event, session, notificationManager, notificationsSettingsManager, idEncoder);
-		assessment = (CompetenceAssessment) session.load(CompetenceAssessment.class, competenceAssessmentId);
-		context = ContextJsonParserService.parseContext(event.getContext());
-		credentialId = assessment.getTargetCredential().getCredential().getId();
-	}
+    public CompetenceAssessmentNotificationEventProcessor(Event event, long competenceAssessmentId, NotificationManager notificationManager,
+                                                          NotificationsSettingsManager notificationsSettingsManager, UrlIdEncoder idEncoder,
+                                                          AssessmentManager assessmentManager) {
+        super(event, notificationManager, notificationsSettingsManager, idEncoder);
 
-	@Override
-	protected long getAssessorId() {
-		return assessment.getAssessor() != null
-			? assessment.getAssessor().getId()
-			: 0;
-	}
+        competenceAssessment = assessmentManager.getBasicAssessmentInfoForCompetenceAssessment(competenceAssessmentId);
 
-	@Override
-	protected long getStudentId() {
-		return assessment.getStudent().getId();
-	}
+        credentialId = competenceAssessment.getCredentialId();
+        competenceId = competenceAssessment.getCompetenceId();
+    }
 
-	@Override
-	protected BlindAssessmentMode getBlindAssessmentMode() {
-		return assessment.getBlindAssessmentMode();
-	}
+    @Override
+    protected long getAssessorId() {
+        return competenceAssessment.getAssessorId();
+    }
 
-	public CompetenceAssessment getAssessment() {
-		return assessment;
-	}
+    @Override
+    protected long getStudentId() {
+        return competenceAssessment.getStudentId();
+    }
 
-	public Context getContext() {
-		return context;
-	}
+    @Override
+    protected BlindAssessmentMode getBlindAssessmentMode() {
+        return competenceAssessment.getBlindAssessmentMode();
+    }
 
-	public long getCredentialId() {
-		return credentialId;
-	}
 }

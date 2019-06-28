@@ -127,7 +127,11 @@ public class SocialActivityDataFactory {
         }
         sad.setLikeCount(likeCount);
         sad.setLiked(liked);
-        CommentsData cd = new CommentsData(CommentedResourceType.SocialActivity, id.longValue());
+        CommentsData cd = CommentsData
+                .builder()
+                .resourceType(CommentedResourceType.SocialActivity)
+                .resourceId(id.longValue())
+                .build();
         cd.setNumberOfComments(commentsNumber.intValue());
         sad.setComments(cd);
 
@@ -413,7 +417,7 @@ public class SocialActivityDataFactory {
             target = objectFactory.getObjectData(0, null,
                     ResourceType.Competence, 0, null, null, locale);
             ap = richContentFactory.getAttachmentPreviewForComment(comment.getId(),
-                    target.getType(), comp.getTitle(), comment.getDescription(), comp.getId(), 0, null);
+                    target.getType(), comp.getTitle(), comment.getDescription(), comp.getId(), 0, null, comment.getCredential().getId());
         } else if (act instanceof ActivityCommentSocialActivity) {
             //activity comment
             ActivityCommentSocialActivity acAct = (ActivityCommentSocialActivity) act;
@@ -428,7 +432,7 @@ public class SocialActivityDataFactory {
             //TODO pass competenceId when you find the way to retrieve it
             ap = richContentFactory.getAttachmentPreviewForComment(comment.getId(),
                     target.getType(), activity.getTitle(), comment.getDescription(), 0, activity.getId(),
-                    actType);
+                    actType, comment.getCredential().getId());
         } else if (act instanceof ActivityCompleteSocialActivity) {
             //activity complete
             ActivityCompleteSocialActivity acAct = (ActivityCompleteSocialActivity) act;

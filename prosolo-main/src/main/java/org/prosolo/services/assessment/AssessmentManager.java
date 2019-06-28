@@ -345,7 +345,7 @@ public interface AssessmentManager {
 
 	List<Long> getPeerAssessorIdsForCompetence(long credId, long compId, long userId) throws DbConnectionException;
 
-	long getCredentialAssessmentIdForCompetenceAssessment(long compAssessmentId, Session session) throws DbConnectionException;
+	long getCredentialAssessmentIdForCompetenceAssessment(long compAssessmentId) throws DbConnectionException;
 
 	PaginatedResult<CompetenceAssessmentDataFull> getPaginatedStudentsCompetenceAssessments(
 			long credId, long compId, long userId, boolean countOnlyAssessmentsWhereUserIsAssessor,

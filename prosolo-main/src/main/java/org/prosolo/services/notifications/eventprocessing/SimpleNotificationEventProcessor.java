@@ -1,6 +1,5 @@
 package org.prosolo.services.notifications.eventprocessing;
 
-import org.hibernate.Session;
 import org.prosolo.common.domainmodel.user.notifications.Notification1;
 import org.prosolo.common.domainmodel.user.notifications.NotificationType;
 import org.prosolo.common.domainmodel.user.notifications.ResourceType;
@@ -17,17 +16,14 @@ import java.util.List;
 public abstract class SimpleNotificationEventProcessor implements NotificationEventProcessor {
 
     protected Event event;
-    protected Session session;
     protected NotificationManager notificationManager;
     private NotificationsSettingsManager notificationsSettingsManager;
     protected UrlIdEncoder idEncoder;
 
-    public SimpleNotificationEventProcessor(Event event, Session session,
-                                            NotificationManager notificationManager,
+    public SimpleNotificationEventProcessor(Event event, NotificationManager notificationManager,
                                             NotificationsSettingsManager notificationsSettingsManager,
                                             UrlIdEncoder idEncoder) {
         this.event = event;
-        this.session = session;
         this.notificationManager = notificationManager;
         this.notificationsSettingsManager = notificationsSettingsManager;
         this.idEncoder = idEncoder;
@@ -37,6 +33,7 @@ public abstract class SimpleNotificationEventProcessor implements NotificationEv
     public List<Notification1> getNotificationList() {
         List<Notification1> notifications = new ArrayList<>();
         List<NotificationReceiverData> receivers = getReceiversData();
+
         if (!receivers.isEmpty()) {
             NotificationSenderData sender = getSenderData();
             NotificationType notificationType = getNotificationType();
@@ -60,9 +57,8 @@ public abstract class SimpleNotificationEventProcessor implements NotificationEv
                             targetType,
                             receiver.getNotificationLink(),
                             notificationsSettingsManager
-                                    .shouldUserReceiveEmail(receiver.getReceiverId(), notificationType, session),
+                                    .shouldUserReceiveEmail(receiver.getReceiverId(), notificationType),
                             receiver.isObjectOwner(),
-                            session,
                             receiver.getPageSection());
 
                     notifications.add(notification);

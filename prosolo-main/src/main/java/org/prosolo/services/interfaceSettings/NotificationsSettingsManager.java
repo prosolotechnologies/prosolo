@@ -3,7 +3,6 @@
  */
 package org.prosolo.services.interfaceSettings;
 
-import org.hibernate.Session;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.interfacesettings.NotificationSettings;
 import org.prosolo.common.domainmodel.user.notifications.NotificationType;
@@ -18,16 +17,13 @@ import java.util.List;
  */
 public interface NotificationsSettingsManager extends AbstractManager {
 
-	List<NotificationSettings> getAllUserNotificationsSettings(long userId, Session session);
+	List<NotificationSettings> getAllUserNotificationsSettings(long userId);
 
 	NotificationSettings getNotificationSettings(long userId, NotificationType type);
 
-	boolean shouldUserReceiveEmail(long userId, NotificationType type, Session session)
-			throws DbConnectionException;
+	boolean shouldUserReceiveEmail(long userId, NotificationType type) throws DbConnectionException;
 
 	List<NotificationSettingsData> getOrCreateNotificationsSettings(long userId);
-
-	List<NotificationSettingsData> getOrCreateNotificationsSettings(long userId, Session session);
 
 	void updateNotificationSettings(long userId, List<NotificationSettingsData> updatedNotificationSettings);
 

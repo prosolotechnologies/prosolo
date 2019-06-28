@@ -105,14 +105,14 @@ public class NotificationManagerImpl extends AbstractManagerImpl implements Noti
 	public Notification1 createNotification(long actorId, NotificationActorRole actorRole,
 			boolean anonymizedActor, long receiverId, NotificationType type, Date date,
 			long objectId, ResourceType objectType, long targetId, ResourceType targetType, String link,
-			boolean notifyByEmail, boolean isObjectOwner, Session session, PageSection section) throws DbConnectionException {
+			boolean notifyByEmail, boolean isObjectOwner, PageSection section) throws DbConnectionException {
 		try {
-			User receiver = (User) session.load(User.class, receiverId);
+			User receiver = loadResource(User.class, receiverId);
 			Notification1 notification = new Notification1();
 			notification.setNotifyByEmail(notifyByEmail);
 			notification.setDateCreated(date);
 			if (actorId > 0) {
-				notification.setActor((User) session.load(User.class, actorId));
+				notification.setActor((User) loadResource(User.class, actorId));
 			}
 			notification.setNotificationActorRole(actorRole);
 			notification.setAnonymizedActor(anonymizedActor);
@@ -127,7 +127,7 @@ public class NotificationManagerImpl extends AbstractManagerImpl implements Noti
 			notification.setObjectOwner(isObjectOwner);
 			notification.setSection(notificationSectionDataFactory.getSection(section));
 
-			session.save(notification);
+			saveEntity(notification);
 
 			return notification;
 		} catch(Exception e) {
