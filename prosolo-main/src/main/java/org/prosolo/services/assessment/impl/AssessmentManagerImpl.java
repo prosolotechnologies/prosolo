@@ -5,14 +5,17 @@ import org.apache.log4j.Logger;
 import org.hibernate.LockOptions;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.hibernate.Transaction;
 import org.hibernate.exception.ConstraintViolationException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
+import org.prosolo.bigdata.dal.persistence.HibernateUtil;
 import org.prosolo.common.domainmodel.assessment.*;
 import org.prosolo.common.domainmodel.credential.GradingMode;
 import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.events.EventType;
+import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.organization.settings.AssessmentTokensPlugin;
 import org.prosolo.common.domainmodel.rubric.*;
 import org.prosolo.common.domainmodel.user.User;
@@ -3771,7 +3774,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
         if (loadOnlyApproved) {
             q += "AND ca.status = :submitted ";
         }
-        q += "ORDER BY ca.dateCreated DESC";
+        q += "ORDER BY ca.dateCreated DESC, ca.id DESC";
 
         Query query = persistence.currentManager().createQuery(q)
                 .setLong("compId", compId)
@@ -4397,6 +4400,34 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
         AssessmentTokensPlugin assessmentTokensPlugin = organizationManager.getOrganizationPlugin(AssessmentTokensPlugin.class, organizationId);
         if (assessmentTokensPlugin.isEnabled()) {
             assessment.getStudent().setNumberOfTokens(assessment.getStudent().getNumberOfTokens() + assessment.getNumberOfTokensSpent());
+        }
+    }
+
+    @Override
+    @Transactional
+    public Result<Void> expireCompetenceAssessmentRequestAndGetEvents(long competenceAssessmentId, UserContextData context) throws IllegalDataStateException {
+        try {
+            Result<Void> res = new Result<>();
+            CompetenceAssessment ca = (CompetenceAssessment) persistence.currentManager().load(CompetenceAssessment.class, competenceAssessmentId);
+            if (ca.getStatus() != AssessmentStatus.REQUESTED) {
+                throw new IllegalDataStateException("Assessment not in Requested status");
+            }
+            ca.setStatus(AssessmentStatus.REQUEST_EXPIRED);
+            ca.setQuitDate(new Date());
+            AssessmentTokensPlugin assessmentTokensPlugin = organizationManager.getOrganizationPlugin(AssessmentTokensPlugin.class, context.getOrganizationId());
+            if (assessmentTokensPlugin.isEnabled()) {
+                ca.getStudent().setNumberOfTokens(ca.getStudent().getNumberOfTokens() + ca.getNumberOfTokensSpent());
+            }
+
+            CompetenceAssessment eventObj = new CompetenceAssessment();
+            eventObj.setId(competenceAssessmentId);
+            res.appendEvent(eventFactory.generateEventData(EventType.ASSESSMENT_REQUEST_EXPIRED, context, eventObj, null, null, null));
+            return res;
+        } catch (IllegalDataStateException e) {
+            throw e;
+        } catch (Exception e) {
+            logger.error("error", e);
+            throw new DbConnectionException("Error expiring competency assessment");
         }
     }
 

@@ -389,6 +389,14 @@ public interface CredentialManager extends AbstractManager {
 	
 	ResourceAccessData getResourceAccessData(long credId, long userId, ResourceAccessRequirements req) 
 			throws DbConnectionException;
+
+	/**
+	 * Returns ids of all competencies that are part of the credential with given id.
+	 * 
+	 * @param credId
+	 * @return
+	 */
+	List<Long> getIdsOfAllCompetencesInACredential(long credId);
 	
 	List<Long> getIdsOfAllCompetencesInACredential(long credId, Session session) throws DbConnectionException;
 	

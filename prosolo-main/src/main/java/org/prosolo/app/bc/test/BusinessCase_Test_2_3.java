@@ -263,30 +263,30 @@ public class BusinessCase_Test_2_3 extends BaseBusinessCase5 {
         ////////////////////////////////
         // ask for competence assessment
         ////////////////////////////////
-        CompetenceAssessment peerComp2AssessmentByHelen = askPeerForCompetenceAssessment(events, credential1Delivery1.getId(), credential1Delivery1Comp2Target.getCompetence().getId(), userKevinHall, userHelenCampbell.getId());
+        CompetenceAssessment peerComp2AssessmentByHelen = askPeerForCompetenceAssessment(events, credential1Delivery1.getId(), credential1Delivery1Comp2Target.getCompetence().getId(), userKevinHall, userHelenCampbell.getId(), 0);
         updateCompetenceBlindAssessmentMode(events, credential1Delivery1Comp2Target.getCompetence().getId(), BlindAssessmentMode.BLIND, userNickPowell);
         //accept assessment request
         extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(AssessmentManager.class).acceptCompetenceAssessmentRequestAndGetEvents(
                 peerComp2AssessmentByHelen.getId(),
                 UserContextData.ofActor(userHelenCampbell.getId())));
-        CompetenceAssessment peerComp2AssessmentByRichard = askPeerForCompetenceAssessment(events, credential1Delivery1.getId(), credential1Delivery1Comp2Target.getCompetence().getId(), userKevinHall, userRichardAnderson.getId());
+        CompetenceAssessment peerComp2AssessmentByRichard = askPeerForCompetenceAssessment(events, credential1Delivery1.getId(), credential1Delivery1Comp2Target.getCompetence().getId(), userKevinHall, userRichardAnderson.getId(), 0);
         updateCompetenceBlindAssessmentMode(events, credential1Delivery1Comp2Target.getCompetence().getId(), BlindAssessmentMode.OFF, userNickPowell);
         //accept assessment request
         extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(AssessmentManager.class).acceptCompetenceAssessmentRequestAndGetEvents(
                 peerComp2AssessmentByRichard.getId(),
                 UserContextData.ofActor(userRichardAnderson.getId())));
 
-        CompetenceAssessment peerComp4AssessmentByRichard = askPeerForCompetenceAssessment(events, credential1Delivery1.getId(), credential1Delivery1Comp4Target.getCompetence().getId(), userKevinHall, userRichardAnderson.getId());
+        CompetenceAssessment peerComp4AssessmentByRichard = askPeerForCompetenceAssessment(events, credential1Delivery1.getId(), credential1Delivery1Comp4Target.getCompetence().getId(), userKevinHall, userRichardAnderson.getId(), 0);
         //accept assessment request
         extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(AssessmentManager.class).acceptCompetenceAssessmentRequestAndGetEvents(
                 peerComp4AssessmentByRichard.getId(),
                 UserContextData.ofActor(userRichardAnderson.getId())));
-        CompetenceAssessment peerComp4AssessmentBySteven = askPeerForCompetenceAssessment(events, credential1Delivery1.getId(), credential1Delivery1Comp4Target.getCompetence().getId(), userKevinHall, userStevenTurner.getId());
+        CompetenceAssessment peerComp4AssessmentBySteven = askPeerForCompetenceAssessment(events, credential1Delivery1.getId(), credential1Delivery1Comp4Target.getCompetence().getId(), userKevinHall, userStevenTurner.getId(), 0);
         updateCompetenceBlindAssessmentMode(events, credential1Delivery1Comp4Target.getCompetence().getId(), BlindAssessmentMode.DOUBLE_BLIND, userNickPowell);
         extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(AssessmentManager.class).acceptCompetenceAssessmentRequestAndGetEvents(
                 peerComp4AssessmentBySteven.getId(),
                 UserContextData.ofActor(userStevenTurner.getId())));
-        CompetenceAssessment peerComp4AssessmentByHelen = askPeerForCompetenceAssessment(events, credential1Delivery1.getId(), credential1Delivery1Comp4Target.getCompetence().getId(), userKevinHall, userHelenCampbell.getId());
+        CompetenceAssessment peerComp4AssessmentByHelen = askPeerForCompetenceAssessment(events, credential1Delivery1.getId(), credential1Delivery1Comp4Target.getCompetence().getId(), userKevinHall, userHelenCampbell.getId(), 0);
         updateCompetenceBlindAssessmentMode(events, credential1Delivery1Comp4Target.getCompetence().getId(), BlindAssessmentMode.OFF, userNickPowell);
         extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(AssessmentManager.class).acceptCompetenceAssessmentRequestAndGetEvents(
                 peerComp4AssessmentByHelen.getId(),
