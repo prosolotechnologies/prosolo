@@ -249,13 +249,13 @@ public class BusinessCase5_Tutorial extends BaseBusinessCase5 {
 //
 //		AssessmentDataFull instructorCredentialAssessmentData = getCredentialAssessmentData(credential1Delivery1HelenCampbellInstructorAssessmentId, userPhilArmstrong.getId(), AssessmentType.INSTRUCTOR_ASSESSMENT);
 //
-//		gradeCompetenceAssessmentByRubric(events, instructorCredentialAssessmentData.getCompetenceAssessmentData().get(0), userPhilArmstrong, 5);
-//		gradeCompetenceAssessmentByRubric(events, instructorCredentialAssessmentData.getCompetenceAssessmentData().get(1), userPhilArmstrong, 3);
-//		gradeCompetenceAssessmentByRubric(events, instructorCredentialAssessmentData.getCompetenceAssessmentData().get(2), userPhilArmstrong, 4);
-//		gradeCompetenceAssessmentByRubric(events, instructorCredentialAssessmentData.getCompetenceAssessmentData().get(3), userPhilArmstrong, 5);
-//		gradeCompetenceAssessmentByRubric(events, instructorCredentialAssessmentData.getCompetenceAssessmentData().get(4), userPhilArmstrong, 5);
-//		gradeCompetenceAssessmentByRubric(events, instructorCredentialAssessmentData.getCompetenceAssessmentData().get(5), userPhilArmstrong, 4);
-//		gradeCredentialAssessmentByRubric(events, instructorCredentialAssessmentData, userPhilArmstrong, 3);
+//		gradeCompetenceAssessmentWithRubric(events, instructorCredentialAssessmentData.getCompetenceAssessmentData().get(0), userPhilArmstrong, 5);
+//		gradeCompetenceAssessmentWithRubric(events, instructorCredentialAssessmentData.getCompetenceAssessmentData().get(1), userPhilArmstrong, 3);
+//		gradeCompetenceAssessmentWithRubric(events, instructorCredentialAssessmentData.getCompetenceAssessmentData().get(2), userPhilArmstrong, 4);
+//		gradeCompetenceAssessmentWithRubric(events, instructorCredentialAssessmentData.getCompetenceAssessmentData().get(3), userPhilArmstrong, 5);
+//		gradeCompetenceAssessmentWithRubric(events, instructorCredentialAssessmentData.getCompetenceAssessmentData().get(4), userPhilArmstrong, 5);
+//		gradeCompetenceAssessmentWithRubric(events, instructorCredentialAssessmentData.getCompetenceAssessmentData().get(5), userPhilArmstrong, 4);
+//		gradeCredentialAssessmentWithRubric(events, instructorCredentialAssessmentData, userPhilArmstrong, 3);
 //		approveCredentialAssessment(events, instructorCredentialAssessmentData.getCredAssessmentId(), userPhilArmstrong);
 
 		/////////////////////////////

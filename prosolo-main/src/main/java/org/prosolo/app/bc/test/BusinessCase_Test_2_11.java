@@ -82,13 +82,8 @@ public class BusinessCase_Test_2_11 extends BaseBusinessCase5 {
         attachExistingEvidenceToCompetence(evidence3Helen.getId(), credential1Comp2Target.getId(), "Contains structure of the new version of a teaching program.");
         attachExistingEvidenceToCompetence(evidence3Helen.getId(), credential1Comp3Target.getId(), "Includes teaching strategies that have been designed and implemented based on the identified learning strengths and needs of students from diverse linguistic backgrounds.");
 
-        markCompetenciesAsCompleted(
-                events,
-                List.of(
-                        credential1Comp2Target.getId(),
-                        credential1Comp4Target.getId()
-                ),
-                userHelenCampbell);
+        markCompetencyAsCompleted(events, credential1Comp2Target.getId(), credential1CompetenciesHelenCampbell.get(1).getCompetenceId(), credential1Delivery1.getId(), userHelenCampbell);
+        markCompetencyAsCompleted(events, credential1Comp4Target.getId(), credential1CompetenciesHelenCampbell.get(3).getCompetenceId(), credential1Delivery1.getId(), userHelenCampbell);
 
         //grade and approve instructor assessment
         long selfAssessmentId = ServiceLocator.getInstance().getService(AssessmentManager.class)
@@ -106,7 +101,7 @@ public class BusinessCase_Test_2_11 extends BaseBusinessCase5 {
                 lvl = rubricData.getLevels().get(0).getId();
             }
             if (lvl > 0) {
-                gradeCompetenceAssessmentByRubric(events, competenceAssessmentData, userHelenCampbell, lvl);
+                gradeCompetenceAssessmentWithRubric(events, competenceAssessmentData, userHelenCampbell, lvl);
             }
             if (competenceAssessmentData.getTargetCompetenceId() == credential1Comp2Target.getId()) {
                 approveCompetenceAssessment(events, competenceAssessmentData.getCompetenceAssessmentId(), userHelenCampbell);
@@ -139,21 +134,16 @@ public class BusinessCase_Test_2_11 extends BaseBusinessCase5 {
 
         ServiceLocator.getInstance().getService(Competence1Manager.class).saveEvidenceSummary(credential6Comp2Target.getId(), "Evidence Summary from Helen Campbell for focus area 6.2 Engage in professional learning and improve practice");
 
-        markCompetenciesAsCompleted(
-                events,
-                List.of(
-                        credential6Comp1Target.getId(),
-                        credential6Comp2Target.getId(),
-                        credential6Comp3Target.getId(),
-                        credential6Comp4Target.getId()
-                ),
-                userHelenCampbell);
+        markCompetencyAsCompleted(events, credential6Comp1Target.getId(), credential6CompetenciesHelenCampbell.get(0).getCompetenceId(), credential6Delivery1.getId(), userHelenCampbell);
+        markCompetencyAsCompleted(events, credential6Comp2Target.getId(), credential6CompetenciesHelenCampbell.get(1).getCompetenceId(), credential6Delivery1.getId(), userHelenCampbell);
+        markCompetencyAsCompleted(events, credential6Comp3Target.getId(), credential6CompetenciesHelenCampbell.get(2).getCompetenceId(), credential6Delivery1.getId(), userHelenCampbell);
+        markCompetencyAsCompleted(events, credential6Comp4Target.getId(), credential6CompetenciesHelenCampbell.get(3).getCompetenceId(), credential6Delivery1.getId(), userHelenCampbell);
 
         //grade and approve instructor assessment
         long selfAssessmentId = ServiceLocator.getInstance().getService(AssessmentManager.class)
                 .getSelfCredentialAssessmentId(credential6Delivery1.getId(), userHelenCampbell.getId()).get();
         AssessmentDataFull assessment = getCredentialAssessmentData(selfAssessmentId, userHelenCampbell.getId(), AssessmentType.SELF_ASSESSMENT);
-        gradeCredentialAssessmentByRubric(events, assessment, userHelenCampbell, rubricData.getLevels().get(2).getId());
+        gradeCredentialAssessmentWithRubric(events, assessment, userHelenCampbell, AssessmentType.INSTRUCTOR_ASSESSMENT, rubricData.getLevels().get(2).getId());
         for (CompetenceAssessmentDataFull competenceAssessmentData : assessment.getCompetenceAssessmentData()) {
             long lvl = 0;
             if (competenceAssessmentData.getTargetCompetenceId() == credential6Comp1Target.getId()) {
@@ -165,7 +155,7 @@ public class BusinessCase_Test_2_11 extends BaseBusinessCase5 {
             } else if (competenceAssessmentData.getTargetCompetenceId() == credential6Comp4Target.getId()) {
                 lvl = rubricData.getLevels().get(0).getId();
             }
-            gradeCompetenceAssessmentByRubric(events, competenceAssessmentData, userHelenCampbell, lvl);
+            gradeCompetenceAssessmentWithRubric(events, competenceAssessmentData, userHelenCampbell, lvl);
         }
         approveCredentialAssessment(events, assessment.getCredAssessmentId(), userHelenCampbell);
     }

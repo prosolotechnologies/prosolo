@@ -10,7 +10,6 @@ import org.prosolo.common.domainmodel.credential.BlindAssessmentMode;
 import org.prosolo.common.domainmodel.credential.LearningEvidence;
 import org.prosolo.common.domainmodel.credential.LearningEvidenceType;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
-import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.event.EventQueue;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.core.db.hibernate.HibernateUtil;
@@ -311,20 +310,16 @@ public class BusinessCase_Test_2_13 extends BaseBusinessCase5 {
 
         ServiceLocator.getInstance().getService(Competence1Manager.class).saveEvidenceSummary(credential6Comp1Target.getId(), "Evidence Summary from Helen Campbell for focus area 6.1");
 
-        markCompetenciesAsCompleted(
-                events,
-                List.of(
-                        credential6Comp1Target.getId()),
-                userHelenCampbell);
+        markCompetencyAsCompleted(events, credential6Comp1Target.getId(), credential6CompetenciesHelenCampbell.get(0).getCompetenceId(), credential6Delivery1.getId(), userHelenCampbell);
 
         CompetenceAssessment competenceAssessment1 = askPeerFromPoolForCompetenceAssessment(events, credential6Delivery1.getId(), credential6CompetenciesHelenCampbell.get(0).getCompetenceId(), userHelenCampbell, tokensSpentPerRequest, true);
         extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(AssessmentManager.class).acceptCompetenceAssessmentRequestAndGetEvents(competenceAssessment1.getId(), createUserContext(userRichardAnderson)));
-        gradeCompetenceAssessmentByRubric(events, competenceAssessment1.getId(), AssessmentType.PEER_ASSESSMENT, userRichardAnderson, rubricData.getLevels().get(2).getId());
+        this.gradeCompetenceAssessmentWithRubric(events, competenceAssessment1.getId(), AssessmentType.PEER_ASSESSMENT, userRichardAnderson, rubricData.getLevels().get(2).getId());
         approveCompetenceAssessment(events, competenceAssessment1.getId(), userRichardAnderson);
 
         CompetenceAssessment competenceAssessment2 = askPeerFromPoolForCompetenceAssessment(events, credential6Delivery1.getId(), credential6CompetenciesHelenCampbell.get(0).getCompetenceId(), userHelenCampbell, tokensSpentPerRequest, true);
         extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(AssessmentManager.class).acceptCompetenceAssessmentRequestAndGetEvents(competenceAssessment2.getId(), createUserContext(userStevenTurner)));
-        gradeCompetenceAssessmentByRubric(events, competenceAssessment2.getId(), AssessmentType.PEER_ASSESSMENT, userStevenTurner, rubricData.getLevels().get(3).getId());
+        this.gradeCompetenceAssessmentWithRubric(events, competenceAssessment2.getId(), AssessmentType.PEER_ASSESSMENT, userStevenTurner, rubricData.getLevels().get(3).getId());
         addCommentToCompetenceAssessmentDiscussion(events, competenceAssessment2.getId(), userStevenTurner, "More evidence is needed");
 
         CompetenceAssessment competenceAssessment3 = askPeerFromPoolForCompetenceAssessment(events, credential6Delivery1.getId(), credential6CompetenciesHelenCampbell.get(0).getCompetenceId(), userHelenCampbell, tokensSpentPerRequest, true);
@@ -340,7 +335,7 @@ public class BusinessCase_Test_2_13 extends BaseBusinessCase5 {
 
         CompetenceAssessment competenceAssessment7 = askPeerFromPoolForCompetenceAssessment(events, credential6Delivery1.getId(), credential6CompetenciesHelenCampbell.get(0).getCompetenceId(), userHelenCampbell, tokensSpentPerRequest, true);
         extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(AssessmentManager.class).acceptCompetenceAssessmentRequestAndGetEvents(competenceAssessment7.getId(), createUserContext(userAnthonyMoore)));
-        gradeCompetenceAssessmentByRubric(events, competenceAssessment7.getId(), AssessmentType.PEER_ASSESSMENT, userAnthonyMoore, rubricData.getLevels().get(0).getId());
+        this.gradeCompetenceAssessmentWithRubric(events, competenceAssessment7.getId(), AssessmentType.PEER_ASSESSMENT, userAnthonyMoore, rubricData.getLevels().get(0).getId());
         extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(AssessmentManager.class).declinePendingCompetenceAssessmentAndGetEvents(competenceAssessment7.getId(), createUserContext(userAnthonyMoore)));
 
         CompetenceAssessment competenceAssessment8 = askPeerFromPoolForCompetenceAssessment(events, credential6Delivery1.getId(), credential6CompetenciesHelenCampbell.get(0).getCompetenceId(), userHelenCampbell, tokensSpentPerRequest, true);

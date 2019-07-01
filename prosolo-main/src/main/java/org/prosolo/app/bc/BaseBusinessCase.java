@@ -582,6 +582,7 @@ public abstract class BaseBusinessCase implements BusinessCase {
         extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).completeCompetenceAndGetEvents(targetCompetenceId, createUserContext(user, context)));
     }
 
+
     protected void assignCategoryToCredential(EventQueue events, long credId, CredentialCategoryData category, User user) throws Exception {
         CredentialManager credManager = ServiceLocator.getInstance().getService(CredentialManager.class);
         CredentialData credentialData = credManager.getCredentialDataForEdit(credId);
@@ -626,13 +627,13 @@ public abstract class BaseBusinessCase implements BusinessCase {
         return credentialAssessmentData;
     }
 
-    protected void gradeCredentialAssessmentWithRubric(EventQueue events, long credentialAssessmentId, AssessmentType assessmentType, User actor, long... lvls) {
+    protected void gradeCredentialAssessmentWithRubric(EventQueue events, long credentialAssessmentId, AssessmentType assessmentType, User actor, long... lvls) throws Exception {
         AssessmentDataFull credAssessmentData = getCredentialAssessmentData(credentialAssessmentId, actor.getId(), assessmentType);
         gradeCredentialAssessmentWithRubric(events, credAssessmentData, actor, assessmentType, lvls);
     }
 
     protected void gradeCredentialAssessmentWithRubric(EventQueue events, AssessmentDataFull credentialAssessmentData, User actor, AssessmentType assessmentType, long... lvls) {
-        updateGradeDataByRubric(credentialAssessmentData.getGradeData(), lvls);
+        gradeWithRubric(credentialAssessmentData.getGradeData(), lvls);
 
         ApplicationPage page;
         if (assessmentType == AssessmentType.PEER_ASSESSMENT) {
@@ -666,8 +667,14 @@ public abstract class BaseBusinessCase implements BusinessCase {
         gradeCompetenceAssessmentWithRubric(events, competenceAssessmentData, actor, assessmentType, lvls);
     }
 
+    protected void gradeCompetenceAssessmentWithRubric(EventQueue events, CompetenceAssessmentDataFull competenceAssessmentData, User actor, long... lvls) throws Exception {
+        gradeWithRubric(competenceAssessmentData.getGradeData(), lvls);
+        extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(AssessmentManager.class)
+                .updateGradeForCompetenceAssessmentAndGetEvents(competenceAssessmentData.getCompetenceAssessmentId(), competenceAssessmentData.getGradeData(), createUserContext(actor)));
+    }
+
     protected void gradeCompetenceAssessmentWithRubric(EventQueue events, CompetenceAssessmentDataFull competenceAssessmentData, User actor, AssessmentType assessmentType, long... lvls) throws Exception {
-        updateGradeDataByRubric(competenceAssessmentData.getGradeData(), lvls);
+        gradeWithRubric(competenceAssessmentData.getGradeData(), lvls);
 
         ApplicationPage page;
         if (assessmentType == AssessmentType.PEER_ASSESSMENT) {
@@ -682,7 +689,7 @@ public abstract class BaseBusinessCase implements BusinessCase {
                 .updateGradeForCompetenceAssessmentAndGetEvents(competenceAssessmentData.getCompetenceAssessmentId(), competenceAssessmentData.getGradeData(), createUserContext(actor, new PageContextData(page.getUrl(), null, null))));
     }
 
-    protected void updateGradeDataByRubric(GradeData gradeData, long... lvls) {
+    protected void gradeWithRubric(GradeData gradeData, long... lvls) {
         if (gradeData.getGradingMode() == org.prosolo.services.assessment.data.grading.GradingMode.MANUAL_RUBRIC) {
             RubricGradeData<? extends RubricCriteriaGradeData<? extends RubricCriterionGradeData>> rubricGradeData = (RubricGradeData) gradeData;
             List<? extends RubricCriterionGradeData> criteria = rubricGradeData.getRubricCriteria().getCriteria();
@@ -697,6 +704,11 @@ public abstract class BaseBusinessCase implements BusinessCase {
             ManualSimpleGradeData manualGrade = (ManualSimpleGradeData) gradeData;
             manualGrade.setNewGrade(grade);
         }
+    }
+
+    protected void approveCredentialAssessment(EventQueue events, long credentialAssessmentId, User actor) throws Exception {
+        extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(AssessmentManager.class)
+                .approveCredentialAndGetEvents(credentialAssessmentId, "Review", createUserContext(actor)));
     }
 
     protected void approveCredentialAssessment(EventQueue events, long credentialAssessmentId, long credentialId, User actor) throws Exception {
@@ -715,6 +727,11 @@ public abstract class BaseBusinessCase implements BusinessCase {
 
         extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(AssessmentManager.class)
                 .approveCompetenceAndGetEvents(competenceAssessmentId, true, createUserContext(actor, context)));
+    }
+
+    protected void approveCompetenceAssessment(EventQueue events, long competenceAssessmentId, User actor) {
+        extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(AssessmentManager.class)
+                .approveCompetenceAndGetEvents(competenceAssessmentId, true, createUserContext(actor)));
     }
 
     protected void completeActivity(EventQueue events, long targetCompetenceId, long targetActivityId, User actor) {

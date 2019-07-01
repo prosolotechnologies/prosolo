@@ -10,7 +10,6 @@ import org.prosolo.common.domainmodel.credential.BlindAssessmentMode;
 import org.prosolo.common.domainmodel.credential.LearningEvidence;
 import org.prosolo.common.domainmodel.credential.LearningEvidenceType;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
-import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.event.EventQueue;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.core.db.hibernate.HibernateUtil;
@@ -259,7 +258,7 @@ public class BusinessCase_Test_2_14 extends BaseBusinessCase5 {
 
         CompetenceAssessment competenceAssessment = askPeerForCompetenceAssessment(events, credential6Delivery1.getId(), credential6Competencies.get(0).getCompetenceId(), userKennethCarter, userRichardAnderson.getId(), tokensSpentPerRequest);
         extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(AssessmentManager.class).acceptCompetenceAssessmentRequestAndGetEvents(competenceAssessment.getId(), createUserContext(userRichardAnderson)));
-        gradeCompetenceAssessmentByRubric(events, competenceAssessment.getId(), AssessmentType.PEER_ASSESSMENT, userRichardAnderson, rubricData.getLevels().get(0).getId());
+        this.gradeCompetenceAssessmentWithRubric(events, competenceAssessment.getId(), AssessmentType.PEER_ASSESSMENT, userRichardAnderson, rubricData.getLevels().get(0).getId());
         addCommentToCompetenceAssessmentDiscussion(events, competenceAssessment.getId(), userKennethCarter, "I plan to upload more evidence soon");
         extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(AssessmentManager.class).declinePendingCompetenceAssessmentAndGetEvents(competenceAssessment.getId(), createUserContext(userRichardAnderson)));
     }
@@ -295,7 +294,7 @@ public class BusinessCase_Test_2_14 extends BaseBusinessCase5 {
 
         CompetenceAssessment competenceAssessment = askPeerForCompetenceAssessment(events, credential6Delivery1.getId(), credential6Competencies.get(0).getCompetenceId(), userAnthonyMoore, userRichardAnderson.getId(), tokensSpentPerRequest);
         extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(AssessmentManager.class).acceptCompetenceAssessmentRequestAndGetEvents(competenceAssessment.getId(), createUserContext(userRichardAnderson)));
-        gradeCompetenceAssessmentByRubric(events, competenceAssessment.getId(), AssessmentType.PEER_ASSESSMENT, userRichardAnderson, rubricData.getLevels().get(2).getId());
+        this.gradeCompetenceAssessmentWithRubric(events, competenceAssessment.getId(), AssessmentType.PEER_ASSESSMENT, userRichardAnderson, rubricData.getLevels().get(2).getId());
         approveCompetenceAssessment(events, competenceAssessment.getId(), userRichardAnderson);
     }
 
@@ -346,7 +345,7 @@ public class BusinessCase_Test_2_14 extends BaseBusinessCase5 {
 
         CompetenceAssessment competenceAssessment = askPeerForCompetenceAssessment(events, credential6Delivery1.getId(), credential6Competencies.get(0).getCompetenceId(), userTaniaCortese, userRichardAnderson.getId(), tokensSpentPerRequest);
         extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(AssessmentManager.class).acceptCompetenceAssessmentRequestAndGetEvents(competenceAssessment.getId(), createUserContext(userRichardAnderson)));
-        gradeCompetenceAssessmentByRubric(events, competenceAssessment.getId(), AssessmentType.PEER_ASSESSMENT, userRichardAnderson, rubricData.getLevels().get(1).getId());
+        this.gradeCompetenceAssessmentWithRubric(events, competenceAssessment.getId(), AssessmentType.PEER_ASSESSMENT, userRichardAnderson, rubricData.getLevels().get(1).getId());
         addCommentToCompetenceAssessmentDiscussion(events, competenceAssessment.getId(), userTaniaCortese, "I plan to upload more evidence soon");
     }
 
@@ -414,11 +413,7 @@ public class BusinessCase_Test_2_14 extends BaseBusinessCase5 {
 
         ServiceLocator.getInstance().getService(Competence1Manager.class).saveEvidenceSummary(credential6Comp1Target.getId(), "Evidence Summary from Helen Campbell for focus area 6.1");
 
-        markCompetenciesAsCompleted(
-                events,
-                List.of(
-                        credential6Comp1Target.getId()),
-                userHelenCampbell);
+        markCompetencyAsCompleted(events, credential6Comp1Target.getId(), credential6CompetenciesHelenCampbell.get(0).getCompetenceId(), credential6Delivery1.getId(), userHelenCampbell);
 
         CompetenceAssessment competenceAssessment = askPeerForCompetenceAssessment(events, credential6Delivery1.getId(), credential6CompetenciesHelenCampbell.get(0).getCompetenceId(), userHelenCampbell, userRichardAnderson.getId(), tokensSpentPerRequest);
     }
