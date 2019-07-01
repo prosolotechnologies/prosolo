@@ -82,6 +82,7 @@ public class PasswordResetManagerImpl extends AbstractManagerImpl implements Pas
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public boolean checkIfResetKeyIsValid(String resetKey) throws ResetKeyDoesNotExistException, ResetKeyInvalidatedException, ResetKeyExpiredException {
 		ResetKey result = getResetKey(resetKey);
 		
@@ -109,7 +110,7 @@ public class PasswordResetManagerImpl extends AbstractManagerImpl implements Pas
 		return key.getUser();
 	}
 
-	public ResetKey getResetKey(String resetKey) {
+	private ResetKey getResetKey(String resetKey) {
 		Session session = persistence.currentManager();
 		
 		String query = 
@@ -146,6 +147,7 @@ public class PasswordResetManagerImpl extends AbstractManagerImpl implements Pas
 	}
 	
 	@Override
+	@Transactional
 	public void invalidateResetKey(String resetKey) {
 		ResetKey resetK = getResetKey(resetKey);
 		

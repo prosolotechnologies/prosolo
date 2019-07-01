@@ -71,22 +71,22 @@ public class BusinessCase_Test_2_8 extends BaseBusinessCase5 {
                 "Learning plan incorporating teaching strategies.",
                 credential2Delivery1Comp1Target.getId(),
                 userGeorgeYoung);
-        markCompetencyAsCompleted(events, credential2Delivery1Comp1Target.getId(), userGeorgeYoung);
+        markCompetencyAsCompleted(events, credential2Delivery1Comp1Target.getId(), credential2Delivery1Competences.get(0).getCompetenceId(),credential2Delivery1.getId(), userGeorgeYoung);
 
         List<CompetenceData1> credential6Delivery1Competences = ServiceLocator.getInstance().getService(Competence1Manager.class)
                 .getCompetencesForCredential(credential6Delivery1.getId(), userGeorgeYoung.getId(), new CompetenceLoadConfig.CompetenceLoadConfigBuilder().create());
         TargetCompetence1 credential6Delivery1Comp1Target = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(credential6Delivery1.getId(), credential6Delivery1Competences.get(0).getCompetenceId(), userGeorgeYoung.getId(), createUserContext(userGeorgeYoung)));
         attachExistingEvidenceToCompetence(ev1.getId(), credential6Delivery1Comp1Target.getId(), "Includes teaching strategies that have been designed and implemented based on the identified learning strengths and needs of students from diverse linguistic backgrounds.");
-        markCompetencyAsCompleted(events, credential6Delivery1Comp1Target.getId(), userGeorgeYoung);
+        markCompetencyAsCompleted(events, credential6Delivery1Comp1Target.getId(), credential6Delivery1Competences.get(0).getCompetenceId(), credential6Delivery1.getId(), userGeorgeYoung);
         TargetCompetence1 credential6Delivery1Comp2Target = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(credential6Delivery1.getId(), credential6Delivery1Competences.get(1).getCompetenceId(), userGeorgeYoung.getId(), createUserContext(userGeorgeYoung)));
         attachExistingEvidenceToCompetence(ev1.getId(), credential6Delivery1Comp2Target.getId(), "Includes teaching strategies that have been designed and implemented based on the identified learning strengths and needs of students from diverse linguistic backgrounds.");
-        markCompetencyAsCompleted(events, credential6Delivery1Comp2Target.getId(), userGeorgeYoung);
+        markCompetencyAsCompleted(events, credential6Delivery1Comp2Target.getId(), credential6Delivery1Competences.get(1).getCompetenceId(), credential6Delivery1.getId(), userGeorgeYoung);
         TargetCompetence1 credential6Delivery1Comp3Target = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(credential6Delivery1.getId(), credential6Delivery1Competences.get(2).getCompetenceId(), userGeorgeYoung.getId(), createUserContext(userGeorgeYoung)));
         attachExistingEvidenceToCompetence(ev1.getId(), credential6Delivery1Comp3Target.getId(), "Includes teaching strategies that have been designed and implemented based on the identified learning strengths and needs of students from diverse linguistic backgrounds.");
-        markCompetencyAsCompleted(events, credential6Delivery1Comp3Target.getId(), userGeorgeYoung);
+        markCompetencyAsCompleted(events, credential6Delivery1Comp3Target.getId(), credential6Delivery1Competences.get(2).getCompetenceId(), credential6Delivery1.getId(), userGeorgeYoung);
         TargetCompetence1 credential6Delivery1Comp4Target = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(credential6Delivery1.getId(), credential6Delivery1Competences.get(3).getCompetenceId(), userGeorgeYoung.getId(), createUserContext(userGeorgeYoung)));
         attachExistingEvidenceToCompetence(ev1.getId(), credential6Delivery1Comp4Target.getId(), "Includes teaching strategies that have been designed and implemented based on the identified learning strengths and needs of students from diverse linguistic backgrounds.");
-        markCompetencyAsCompleted(events, credential6Delivery1Comp4Target.getId(), userGeorgeYoung);
+        markCompetencyAsCompleted(events, credential6Delivery1Comp4Target.getId(), credential6Delivery1Competences.get(3).getCompetenceId(), credential6Delivery1.getId(), userGeorgeYoung);
         ///////////////////////////
         // bookmark credentials
         ///////////////////////////

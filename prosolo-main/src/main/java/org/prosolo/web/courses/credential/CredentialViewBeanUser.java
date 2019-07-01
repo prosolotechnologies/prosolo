@@ -6,7 +6,6 @@ import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
-import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.assessment.data.AssessmentRequestData;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.AnnouncementManager;
@@ -52,8 +51,6 @@ public class CredentialViewBeanUser implements Serializable {
 	private Activity1Manager activityManager;
 	@Inject
 	private UrlIdEncoder idEncoder;
-	@Inject
-	private AssessmentManager assessmentManager;
 	@Inject
 	private Competence1Manager compManager;
 	@Inject

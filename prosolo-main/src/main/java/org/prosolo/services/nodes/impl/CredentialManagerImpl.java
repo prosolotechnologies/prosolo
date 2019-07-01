@@ -2279,7 +2279,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@Transactional(readOnly = true)
 	public StudentData getCredentialStudentsData(long credId, long studentId) throws DbConnectionException {
 		try {
-			TargetCredential1 tc = getTargetCredentialForStudentAndCredential(credId, studentId, persistence.currentManager());
+			TargetCredential1 tc = getTargetCredentialForStudentAndCredential(credId, studentId);
 
 			if (tc != null) {
 				StudentData sd = new StudentData(tc.getUser());
@@ -3113,6 +3113,12 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			logger.error(e);
 			throw new DbConnectionException("Error trying to retrieve credential ids");
 		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<Long> getIdsOfAllCompetencesInACredential(long credId) {
+		return getIdsOfAllCompetencesInACredential(credId, persistence.currentManager());
 	}
 
 	@Override
@@ -4093,14 +4099,14 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	}
 
 	@Override
-	@Transactional
-	public TargetCredential1 getTargetCredentialForStudentAndCredential(long credentialId, long studentId, Session session) {
+	@Transactional (readOnly = true)
+	public TargetCredential1 getTargetCredentialForStudentAndCredential(long credentialId, long studentId) {
 		try {
 			String q =
 					"SELECT tc FROM TargetCredential1 tc " +
 							"WHERE tc.credential.id = :credId " +
 							"AND tc.user.id = :studentId";
-			return (TargetCredential1) session.createQuery(q)
+			return (TargetCredential1) persistence.currentManager().createQuery(q)
 					.setLong("credId", credentialId)
 					.setLong("studentId", studentId)
 					.uniqueResult();

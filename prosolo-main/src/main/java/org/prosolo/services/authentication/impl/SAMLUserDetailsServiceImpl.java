@@ -30,6 +30,7 @@ import org.prosolo.services.authentication.UserAuthenticationService;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.user.UserManager;
+import org.prosolo.services.user.data.UserData;
 import org.prosolo.services.util.roles.SystemRoleNames;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -41,6 +42,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -56,7 +58,6 @@ public class SAMLUserDetailsServiceImpl implements SAMLUserDetailsService {
 	@Inject private UserAuthenticationService authService;
 
 	@Override
-	@Transactional
 	public Object loadUserBySAML(SAMLCredential credential)
 			throws UsernameNotFoundException {
 
@@ -85,9 +86,9 @@ public class SAMLUserDetailsServiceImpl implements SAMLUserDetailsService {
 			logger.info("SAML RETURNED:email:" + email + " firstname:" + firstname + " lastname:" + lastname + " nameID:" + credential.getNameID().getValue());
 
 			//try to log in as regular user
-			User user = userManager.getUser(email);
-
-			if (user == null) {
+			Optional<UserData> userOpt = userManager.getUserData(email);
+			UserData user = null;
+			if (userOpt.isEmpty()) {
 				logger.info("User with email: " + email + " does not exist");
 				if (provider.createAccountForNonexistentUser) {
 				    logger.info("New account for user with email: " + email + " will be created");
@@ -96,12 +97,13 @@ public class SAMLUserDetailsServiceImpl implements SAMLUserDetailsService {
                     String fName = firstname != null && !firstname.isEmpty() ? firstname : "Name";
                     String lName = lastname != null && !lastname.isEmpty() ? lastname : "Lastname";
 
-                    user = userManager.createNewUser(1, fName,
+                    user = userManager.createNewUserAndReturnData(1, fName,
                             lName, email, true, UUID.randomUUID().toString(), null, null, null, Arrays.asList(role.getId()), false);
 
                     logger.info("NEW USER THROUGH SAML WITH EMAIL " + email + " is logged in");
                 }
 			} else {
+				user = userOpt.get();
 			    logger.info("Existing user with email " + email + " is logged in through SAML");
             }
 			return authService.authenticateUser(user);

@@ -82,9 +82,15 @@ public class CompetenceViewBeanManager implements Serializable {
 				 * check if user has instructor privilege and if has, we should mark his comments as
 				 * instructor comments
 				 */
-				commentsData = new CommentsData(CommentedResourceType.Competence, 
-						competenceData.getCompetenceId(), access.isCanInstruct(), true);
-				commentsData.setCommentId(idEncoder.decodeId(commentId));
+				commentsData = CommentsData
+						.builder()
+						.resourceType(CommentedResourceType.Competence)
+						.resourceId(competenceData.getCompetenceId())
+						.isInstructor(access.isCanInstruct())
+						.isManagerComment(true)
+						.commentId(idEncoder.decodeId(commentId))
+						.credentialId(decodedCredId)
+						.build();
 				commentBean.loadComments(commentsData);
 
 				credentialIdData = credManager.getCredentialIdData(decodedCredId, null);

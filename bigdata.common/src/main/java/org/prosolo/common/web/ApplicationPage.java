@@ -1,5 +1,8 @@
 package org.prosolo.common.web;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -9,82 +12,74 @@ public enum ApplicationPage {
 	INDEX("/index.xhtml"),
 	ROOT("/root.xhtml"),
 	PROFILE("/profile.xhtml"),
-	PUBLIC_PROFILE("/publicprofile.xhtml"),
 	MESSAGES("/messages.xhtml"),
-	DIGEST("/digest.xhtml"),
-	COMMUNICATIONS("/communications.xhtml"),
-	SEARCH("/search.xhtml"),
-	SETTINGS_OLD("/admin/settings_old.xhtml"),
 	SETTINGS("/settings.xhtml"),
-	REPORTS("/manage/reports.xhtml"),
-	STUDENT_LIST("/manage/credential-students.xhtml"),
-	STUDENT_PROFILE("/manage/studentProfile.xhtml"),
-	EXTERNAL_TOOLS("/manage/tools.xhtml"),
-	EXTERNAL_TOOL_DETAILS("/manage/externalTools/toolDetails.xhtml"),
-	CREDENTIAL_FEEDS("/manage/credential-feeds.xhtml"),
-	ADMIN_EDIT_ORGANIZATION("/admin/organization-settings.xhtml"),
-	ADMIN_EDIT_ADMIN("/admin/adminNew.xhtml"),
-	ADMIN_ORGANIZATIONS("/admin/adminOrganizations.xhtml"),
-	ADMIN_USER_EDIT_PASSWORD("/admin/adminUserEditPassword.xhtml"),
-	ADMIN_USER_NEW("/admin/adminUserNew.xhtml"),
-//	ADMIN_MESSAGES("/admin/messages.xhtml"),
-	ADMIN_OTHER("/admin/other.xhtml"),
-	ADMIN_UNIT_EDIT("/admin/unit-settings.xhtml"),
-	ADMIN_UNITS("/admin/units.xhtml"),
-
-	ROLES1("/admin/roles1.xhtml"),
-	ROLES("/admin/roles.xhtml"),
-	DASHBOARD("/admin/dashboard.xhtml"),
-	ADMIN_SETTINGS("/admin/settings.xhtml"),
-	ANALYTICS_SETTINGS("/admin/analyticsSettings.xhtml"),
-	INSTRUCTOR_LIST("/manage/credential-instructors.xhtml"),
-	MANAGE_CREDENTIAL_ASSESSMENTS("/manage/credential-delivery-assessments.xhtml"),
-	CREDENTIAL_ASSESSMENT_MANAGE("/manage/credential-assessment.xhtml"),
-	CREDENTIAL_ASSESSMENT("/credential-assessment.xhtml"),
-	CREDENTIAL_ANNOUNCEMENTS("/manage/announcements.xhtml"),
+	CREDENTIAL_PEER_ASSESSMENT("/credential-assessment.xhtml"),
+	CREDENTIAL_INSTRUCTOR_ASSESSMENT("/credential-instructor-assessment.xhtml"),
+	CREDENTIAL_SELF_ASSESSMENT("/credential-self-assessment.xhtml"),
+	COMPETENCE_PEER_ASSESSMENT("/competence-peer-assessment.xhtml"),
+	COMPETENCE_INSTRUCTOR_ASSESSMENT("/competence-instructor-assessment.xhtml"),
+	COMPETENCE_SELF_ASSESSMENT("/competence-self-assessment.xhtml"),
 	ANNOUNCEMENT("/announcement.xhtml"),
-	ASSESSMENT("/assessments.xhtml"),
 	LTI_PROVIDER_LAUNCH("/ltiproviderlaunch.xhtml"),
 	EMAIL("/email.xhtml"),
 	USER_CREDENTIAL("/credential.xhtml"),
 	USER_COMPETENCE("/competence.xhtml"),
 	USER_ACTIVITY("/activity.xhtml"),
 	USER_CREDENTIAL_LIBRARY("/credentialLibrary.xhtml"),
-	MANAGER_CREDENTIAL_LIBRARY("/manage/credentialLibrary.xhtml"),
 	EVIDENCES("/evidence-repository.xhtml"),
 	EVIDENCE("/evidence.xhtml"),
 	EVIDENCE_EDIT("/evidence-edit.xhtml"),
-	EVIDENCE_PREVIEW("/evidence-preview.xhtml"),
-
-	MANAGER_CREDENTIAL("/manage/credential.xhtml"),
-	MANAGER_COMPETENCE("/manage/competence.xhtml"),
-	MANAGER_ACTIVITY("/manage/activity.xhtml"),
-	MANAGER_EDIT_CREDENTIAL("/manage/credential-create.xhtml"),
-	MANAGER__EDIT_COMPETENCE("/manage/create-competence.xhtml"),
-	MANAGER_EDIT_ACTIVITY("/manage/create-activity.xhtml"),
 	USER_EDIT_CREDENTIAL("/credential-create.xhtml"),
 	USER__EDIT_COMPETENCE("/create-competence.xhtml"),
 	USER_EDIT_ACTIVITY("/create-activity.xhtml"),
 	PEOPLE("/people.xhtml"),
 	RESULTS("/activity-responses.xhtml"),
 	USER_COMPETENCE_LIBRARY("/competenceLibrary.xhtml"),
-	MY_ASSESSMENTS_CREDENTIAL("my-assessments-credentials"),
-	MANAGER_COMPETENCE_LIBRARY("/manage/competenceLibrary.xhtml"),
-	MANAGER_COMPETENCE_STUDENTS("/manage/competence-students.xhtml"),
-	MANAGER_CREDENTIAL_DELIVERIES("/manage/credential-deliveries.xhtml"),
-	MANAGER_COMPETENCE_VISIBILITY("/manage/competence-who-can-learn.xhtml"),
-	MANAGER_COMPETENCE_EDITORS("/manage/competence-editors.xhtml"),
-	MANAGER_CREDENTIAL_EDITORS("/manage/credential-editors.xhtml"),
-	MANAGER_CREDENTIAL_VISIBILITY("/manage/credential-who-can-learn.xhtml"),
-	MANAGER_CREDENTIAL_PRIVACY("/manage/credential-privacy.xhtml"),
-	MANAGER_COMPETENCE_PRIVACY("/manage/competence-privacy.xhtml"),
-	MANAGER_RUBRIC_LIBRARY("/manage/rubricLibrary.xhtml"),
-	MANAGER_RUBRIC_SETTINGS("/manage/rubricEdit.xhtml"),
-	MANAGER_RUBRIC_PRIVACY("/manage/rubric-privacy.xhtml"),
-	MANAGER_RUBRIC_CRITERIA("/manage/rubric-criteria.xhtml"),
-	MANAGER_CREDENTIAL_ACTIVITY_ASSESSMENTS("/manage/credential-delivery-assessments-activity.xhtml"),
-	MANAGER_EVIDENCE_PREVIEW("/manage/evidence-preview.xhtml"),
+	MY_ASSESSMENTS_CREDENTIAL("/my-assessments-credentials.xhtml"),
+	MY_ASSESSMENTS_CREDENTIAL_ASSESSMENT("/my-assessments-credentials.xhtml"),
+	MY_ASSESSMENTS_COMPETENCES("/my-assessments-competences.xhtml"),
+	MY_ASSESSMENTS_COMPETENCE_ASSESSMENT("/my-assessments-competences-assessment.xhtml"),
+	EVIDENCE_PREVIEW("/evidence-preview.xhtml"),
 
+	MANAGE_CREDENTIAL_LIBRARY("/manage/credentialLibrary.xhtml"),
+	MANAGE_CREDENTIAL("/manage/credential.xhtml"),
+	MANAGE_COMPETENCE("/manage/competence.xhtml"),
+	MANAGE_ACTIVITY("/manage/activity.xhtml"),
+	MANAGE_EDIT_CREDENTIAL("/manage/credential-create.xhtml"),
+	MANAGE_EDIT_COMPETENCE("/manage/create-competence.xhtml"),
+	MANAGE_EDIT_ACTIVITY("/manage/create-activity.xhtml"),
+	MANAGE_COMPETENCE_LIBRARY("/manage/competenceLibrary.xhtml"),
+	MANAGE_COMPETENCE_STUDENTS("/manage/competence-students.xhtml"),
+	MANAGE_CREDENTIAL_DELIVERIES("/manage/credential-deliveries.xhtml"),
+	MANAGE_COMPETENCE_VISIBILITY("/manage/competence-who-can-learn.xhtml"),
+	MANAGE_COMPETENCE_EDITORS("/manage/competence-editors.xhtml"),
+	MANAGE_CREDENTIAL_EDITORS("/manage/credential-editors.xhtml"),
+	MANAGE_CREDENTIAL_VISIBILITY("/manage/credential-who-can-learn.xhtml"),
+	MANAGE_CREDENTIAL_PRIVACY("/manage/credential-privacy.xhtml"),
+	MANAGE_COMPETENCE_PRIVACY("/manage/competence-privacy.xhtml"),
+	MANAGE_CREDENTIAL_ANNOUNCEMENTS("/manage/announcements.xhtml"),
+	MANAGE_DELIVERY_INSTRUCTOR_LIST("/manage/credential-instructors.xhtml"),
+	MANAGE_CREDENTIAL_DELIVERY_ASSESSMENTS("/manage/credential-delivery-assessments.xhtml"),
+	MANAGE_CREDENTIAL_ASSESSMENT("/manage/credential-assessment.xhtml"),
+	MANAGE_RUBRIC_LIBRARY("/manage/rubricLibrary.xhtml"),
+	MANAGE_RUBRIC_SETTINGS("/manage/rubricEdit.xhtml"),
+	MANAGE_RUBRIC_PRIVACY("/manage/rubric-privacy.xhtml"),
+	MANAGE_RUBRIC_CRITERIA("/manage/rubric-criteria.xhtml"),
+	MANAGE_CREDENTIAL_ACTIVITY_ASSESSMENTS("/manage/credential-delivery-assessments-activity.xhtml"),
+	MANAGE_EVIDENCE_PREVIEW("/manage/evidence-preview.xhtml"),
+
+
+	ROLES("/admin/roles.xhtml"),
+	ADMIN_SETTINGS("/admin/settings.xhtml"),
+	ADMIN_EDIT_ORGANIZATION("/admin/organization-settings.xhtml"),
+	ADMIN_EDIT_ADMIN("/admin/adminNew.xhtml"),
+	ADMIN_ORGANIZATIONS("/admin/adminOrganizations.xhtml"),
+	ADMIN_USER_EDIT_PASSWORD("/admin/adminUserEditPassword.xhtml"),
+	ADMIN_USER_NEW("/admin/adminUserNew.xhtml"),
+	ADMIN_OTHER("/admin/other.xhtml"),
+	ADMIN_UNIT_EDIT("/admin/unit-settings.xhtml"),
+	ADMIN_UNITS("/admin/units.xhtml"),
 	ADMIN_ORGANIZATION_USERS("/admin/organizationUsers.xhtml"),
 	ADMIN_ORGANIZATION_USER_EDIT("/admin/organizationUserEdit.xhtml"),
 	ADMIN_UNIT_TEACHERS("/admin/unit-teachers.xhtml"),
@@ -99,29 +94,22 @@ public enum ApplicationPage {
 	ADMIN_ACTIVITY("/admin/activity.xhtml"),
 	ADMIN_DATA_INIT("/admin/data-init.xhtml");
 
-    private String uri;
+	@Getter @Setter
+    private String url;
 	private static Map<String,ApplicationPage> inversePageMap;
 
 	public static ApplicationPage getPageForURI(String uri) {
 		if (inversePageMap == null) {
 			inversePageMap = new HashMap<>();
 			for (ApplicationPage ap : ApplicationPage.values()) {
-				inversePageMap.put(ap.getUri(), ap);
+				inversePageMap.put(ap.getUrl(), ap);
 			}
 		}
 		return inversePageMap.get(uri);
 	}
     
-    ApplicationPage(String uri) {
-        this.uri = uri;
+    ApplicationPage(String url) {
+        this.url = url;
     }
 
-	public String getUri() {
-		return uri;
-	}
-
-	public void setUri(String uri) {
-		this.uri = uri;
-	}
-    
 }
