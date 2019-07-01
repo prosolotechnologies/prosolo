@@ -79,7 +79,7 @@ public class BusinessCase_Test_2_15 extends BaseBusinessCase5 {
             if (lvl > 0) {
                 gradeCompetenceAssessmentByRubric(events, competenceAssessmentData, userHelenCampbell, lvl);
             }
-            if (competenceAssessmentData.getTargetCompetenceId() == credential6Comp1Target.getId()) {
+            if (competenceAssessmentData.getTargetCompetenceId() == credential6Comp2Target.getId()) {
                 addCommentToCompetenceAssessmentDiscussion(events, competenceAssessmentData.getCompetenceAssessmentId(), userHelenCampbell, "Reminder: upload more evidence");
             }
             if (competenceAssessmentData.getTargetCompetenceId() == credential6Comp3Target.getId()) {
