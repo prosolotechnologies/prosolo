@@ -157,30 +157,21 @@ public class BusinessCase_Test_3_3 extends BusinessCase_Test_3 {
         //////////////////////////////////////
         // Complete competencies
         //////////////////////////////////////
-        markCompetenciesAsCompleted(
-                events,
-                List.of(
-                        credential1Delivery1Comp1TargetHelen.getId(),
-                        credential1Delivery1Comp2TargetHelen.getId(),
-                        credential1Delivery1Comp3TargetHelen.getId(),
-                        credential1Delivery1Comp4TargetHelen.getId(),
-                        credential1Delivery1Comp5TargetHelen.getId(),
-                        credential1Delivery1Comp6TargetHelen.getId()
-                ),
-                userHelenCampbell);
+        markCompetencyAsCompleted(events, credential1Delivery1Comp1TargetHelen.getId(), credential1Delivery1CompetencesHelen.get(0).getCompetenceId(), credential1Delivery1.getId(), userHelenCampbell);
+        markCompetencyAsCompleted(events, credential1Delivery1Comp2TargetHelen.getId(), credential1Delivery1CompetencesHelen.get(1).getCompetenceId(), credential1Delivery1.getId(), userHelenCampbell);
+        markCompetencyAsCompleted(events, credential1Delivery1Comp3TargetHelen.getId(), credential1Delivery1CompetencesHelen.get(2).getCompetenceId(), credential1Delivery1.getId(), userHelenCampbell);
+        markCompetencyAsCompleted(events, credential1Delivery1Comp4TargetHelen.getId(), credential1Delivery1CompetencesHelen.get(3).getCompetenceId(), credential1Delivery1.getId(), userHelenCampbell);
+        markCompetencyAsCompleted(events, credential1Delivery1Comp5TargetHelen.getId(), credential1Delivery1CompetencesHelen.get(4).getCompetenceId(), credential1Delivery1.getId(), userHelenCampbell);
+        markCompetencyAsCompleted(events, credential1Delivery1Comp6TargetHelen.getId(), credential1Delivery1CompetencesHelen.get(5).getCompetenceId(), credential1Delivery1.getId(), userHelenCampbell);
 
-        markCompetenciesAsCompleted(
-                events,
-                List.of(
-                        credential1Delivery1Comp1TargetRichard.getId()
-                ),
-                userRichardAnderson);
+
+        markCompetencyAsCompleted(events, credential1Delivery1Comp1TargetRichard.getId(), credential1Delivery1CompetencesRichard.get(0).getCompetenceId(), credential1Delivery1.getId(), userRichardAnderson);
 
         // grade and approve instructor assessment
         long credential1Delivery1HelenCampbellInstructorAssessmentId = ServiceLocator.getInstance().getService(AssessmentManager.class)
                 .getActiveInstructorCredentialAssessmentId(credential1Delivery1.getId(), userHelenCampbell.getId()).get();
         AssessmentDataFull instructorCredentialAssessmentData = getCredentialAssessmentData(credential1Delivery1HelenCampbellInstructorAssessmentId, userAnnaHallowell.getId(), AssessmentType.INSTRUCTOR_ASSESSMENT);
-        gradeCredentialAssessmentByRubric(events, instructorCredentialAssessmentData, userAnnaHallowell, rubricData.getLevels().get(2).getId());
+        gradeCredentialAssessmentWithRubric(events, instructorCredentialAssessmentData, userAnnaHallowell, AssessmentType.INSTRUCTOR_ASSESSMENT, rubricData.getLevels().get(2).getId());
         for (CompetenceAssessmentDataFull competenceAssessmentData : instructorCredentialAssessmentData.getCompetenceAssessmentData()) {
             long lvl = 0;
             if (competenceAssessmentData.getTargetCompetenceId() == credential1Delivery1Comp1TargetHelen.getId()) {
@@ -196,9 +187,9 @@ public class BusinessCase_Test_3_3 extends BusinessCase_Test_3 {
             } else if (competenceAssessmentData.getTargetCompetenceId() == credential1Delivery1Comp6TargetHelen.getId()) {
                 lvl = rubricData.getLevels().get(2).getId();
             }
-            gradeCompetenceAssessmentByRubric(events, competenceAssessmentData, userAnnaHallowell, lvl);
+            gradeCompetenceAssessmentWithRubric(events, competenceAssessmentData, userAnnaHallowell, AssessmentType.INSTRUCTOR_ASSESSMENT, lvl);
         }
-        approveCredentialAssessment(events, instructorCredentialAssessmentData.getCredAssessmentId(), userAnnaHallowell);
+        approveCredentialAssessment(events, instructorCredentialAssessmentData.getCredAssessmentId(), instructorCredentialAssessmentData.getCredentialId(), userAnnaHallowell);
 
 
         /////////////////////////////////

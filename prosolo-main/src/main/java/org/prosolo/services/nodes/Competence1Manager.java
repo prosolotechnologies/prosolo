@@ -397,37 +397,25 @@ public interface Competence1Manager {
 			 throws DbConnectionException;
 
 	/**
-	 * Marks target competence as completed. Id of the credential (to be used for generated events) will be extracted
-	 * based on the target credential id and student id (available from the context).
-	 *
-	 * @param targetCompId target competence id
-	 * @param context context sent with events
-	 * @return void result with events
-	 * @throws DbConnectionException
-	 */
-	Result<Void> completeCompetenceAndGetEvents(long targetCompId, UserContextData context) throws DbConnectionException;
-
-	/**
 	 * Marks target competence as completed. Id of the credential and context are sent with generated events.
+	 * Id of the credential should be present in the context.
 	 *
 	 * @param targetCompetenceId target competence id
-	 * @param credentialId id of the credential the target competence belongs to
 	 * @param context context sent with events
 	 * @return void result with events
 	 * @throws DbConnectionException
 	 */
-	Result<Void> completeCompetenceAndGetEvents(long targetCompetenceId, long credentialId, UserContextData context)
+	Result<Void> completeCompetenceAndGetEvents(long targetCompetenceId, UserContextData context)
 			throws DbConnectionException;
 
 	/**
-	 * Marks target competence as completed. Id of the credential and context are sent with generated events.
+	 * Marks target competence as completed. Id of the credential should be present in the context.
 	 *
 	 * @param targetCompetenceId
-	 * @param credentialId
 	 * @param context
 	 * @throws DbConnectionException
 	 */
-	void completeCompetence(long targetCompetenceId, long credentialId, UserContextData context) throws DbConnectionException;
+	void completeCompetence(long targetCompetenceId, UserContextData context) throws DbConnectionException;
 
 	TargetCompetence1 getTargetCompetence(long compId, long userId) throws DbConnectionException;
 

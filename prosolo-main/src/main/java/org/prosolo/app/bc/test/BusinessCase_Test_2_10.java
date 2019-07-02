@@ -71,21 +71,16 @@ public class BusinessCase_Test_2_10 extends BaseBusinessCase5 {
 
         ServiceLocator.getInstance().getService(Competence1Manager.class).saveEvidenceSummary(credential6Comp2Target.getId(), "Evidence Summary from Helen Campbell for focus area 6.2 Engage in professional learning and improve practice");
 
-        markCompetenciesAsCompleted(
-                events,
-                List.of(
-                        credential6Comp1Target.getId(),
-                        credential6Comp2Target.getId(),
-                        credential6Comp3Target.getId(),
-                        credential6Comp4Target.getId()
-                ),
-                userHelenCampbell);
+        markCompetencyAsCompleted(events, credential6Comp1Target.getId(), credential6CompetenciesHelenCampbell.get(0).getCompetenceId(), credential6Delivery1.getId(), userHelenCampbell);
+        markCompetencyAsCompleted(events, credential6Comp2Target.getId(), credential6CompetenciesHelenCampbell.get(1).getCompetenceId(), credential6Delivery1.getId(), userHelenCampbell);
+        markCompetencyAsCompleted(events, credential6Comp3Target.getId(), credential6CompetenciesHelenCampbell.get(2).getCompetenceId(), credential6Delivery1.getId(), userHelenCampbell);
+        markCompetencyAsCompleted(events, credential6Comp4Target.getId(), credential6CompetenciesHelenCampbell.get(3).getCompetenceId(), credential6Delivery1.getId(), userHelenCampbell);
 
         //grade and approve instructor assessment
         long credential6Delivery1HelenCampbellInstructorAssessmentId = ServiceLocator.getInstance().getService(AssessmentManager.class)
                 .getActiveInstructorCredentialAssessmentId(credential6Delivery1.getId(), userHelenCampbell.getId()).get();
         AssessmentDataFull instructorCredentialAssessmentData = getCredentialAssessmentData(credential6Delivery1HelenCampbellInstructorAssessmentId, userPhilArmstrong.getId(), AssessmentType.INSTRUCTOR_ASSESSMENT);
-        gradeCredentialAssessmentByRubric(events, instructorCredentialAssessmentData, userPhilArmstrong, rubricData.getLevels().get(2).getId());
+        gradeCredentialAssessmentWithRubric(events, instructorCredentialAssessmentData, userPhilArmstrong, AssessmentType.INSTRUCTOR_ASSESSMENT, rubricData.getLevels().get(2).getId());
         for (CompetenceAssessmentDataFull competenceAssessmentData : instructorCredentialAssessmentData.getCompetenceAssessmentData()) {
             long lvl = 0;
             if (competenceAssessmentData.getTargetCompetenceId() == credential6Comp1Target.getId()) {
@@ -97,7 +92,7 @@ public class BusinessCase_Test_2_10 extends BaseBusinessCase5 {
             } else if (competenceAssessmentData.getTargetCompetenceId() == credential6Comp4Target.getId()) {
                 lvl = rubricData.getLevels().get(0).getId();
             }
-            gradeCompetenceAssessmentByRubric(events, competenceAssessmentData, userPhilArmstrong, lvl);
+            gradeCompetenceAssessmentWithRubric(events, competenceAssessmentData, userPhilArmstrong, lvl);
         }
         approveCredentialAssessment(events, instructorCredentialAssessmentData.getCredAssessmentId(), userPhilArmstrong);
     }
@@ -196,13 +191,8 @@ public class BusinessCase_Test_2_10 extends BaseBusinessCase5 {
         attachExistingEvidenceToCompetence(evidence3George.getId(), credential1Comp2Target.getId(), "Contains structure of the new version of a teaching program.");
         attachExistingEvidenceToCompetence(evidence3George.getId(), credential1Comp3Target.getId(), "Includes teaching strategies that have been designed and implemented based on the identified learning strengths and needs of students from diverse linguistic backgrounds.");
 
-        markCompetenciesAsCompleted(
-                events,
-                List.of(
-                        credential1Comp2Target.getId(),
-                        credential1Comp3Target.getId()
-                ),
-                userGeorgeYoung);
+        markCompetencyAsCompleted(events, credential1Comp2Target.getId(), credential1Competencies.get(1).getCompetenceId(), credential1Delivery1.getId(), userGeorgeYoung);
+        markCompetencyAsCompleted(events, credential1Comp3Target.getId(), credential1Competencies.get(2).getCompetenceId(), credential1Delivery1.getId(), userGeorgeYoung);
 
         long credential1Delivery1InstructorAssessmentId = ServiceLocator.getInstance().getService(AssessmentManager.class)
                 .getActiveInstructorCredentialAssessmentId(credential1Delivery1.getId(), userGeorgeYoung.getId()).get();
@@ -219,7 +209,7 @@ public class BusinessCase_Test_2_10 extends BaseBusinessCase5 {
                 } else if (competenceAssessmentData.getTargetCompetenceId() == credential1Comp4Target.getId()) {
                     lvl = rubricData.getLevels().get(0).getId();
                 }
-                gradeCompetenceAssessmentByRubric(events, competenceAssessmentData, userPhilArmstrong, lvl);
+                gradeCompetenceAssessmentWithRubric(events, competenceAssessmentData, userPhilArmstrong, lvl);
                 if (competenceAssessmentData.getTargetCompetenceId() == credential1Comp2Target.getId()) {
                     approveCompetenceAssessment(events, competenceAssessmentData.getCompetenceAssessmentId(), userGeorgeYoung);
                 }

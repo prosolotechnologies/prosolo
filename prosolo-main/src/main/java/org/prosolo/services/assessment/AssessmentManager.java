@@ -580,4 +580,15 @@ public interface AssessmentManager {
 	 */
 	void declinePendingCompetenceAssessment(long compAssessmentId, UserContextData context) throws IllegalDataStateException;
 
+	/**
+	 * Expires a competency assessment and returns events to be generated.
+	 *
+	 * @param competenceAssessmentId
+	 * @param context
+	 * @return
+	 * @throws IllegalDataStateException
+	 * @throws DbConnectionException
+	 */
+	Result<Void> expireCompetenceAssessmentRequestAndGetEvents(long competenceAssessmentId, UserContextData context) throws IllegalDataStateException;
+
 }

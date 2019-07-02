@@ -61,14 +61,9 @@ public class BusinessCase_Test_2_12 extends BaseBusinessCase5 {
 
         ServiceLocator.getInstance().getService(Competence1Manager.class).saveEvidenceSummary(credential6Comp2Target.getId(), "Evidence Summary from Helen Campbell for focus area 6.2 Engage in professional learning and improve practice");
 
-        markCompetenciesAsCompleted(
-                events,
-                List.of(
-                        credential6Comp1Target.getId(),
-                        credential6Comp2Target.getId(),
-                        credential6Comp3Target.getId()
-                ),
-                userHelenCampbell);
+        markCompetencyAsCompleted(events, credential6Comp1Target.getId(), credential6CompetenciesHelenCampbell.get(0).getCompetenceId(), credential6Delivery1.getId(), userHelenCampbell);
+        markCompetencyAsCompleted(events, credential6Comp2Target.getId(), credential6CompetenciesHelenCampbell.get(1).getCompetenceId(), credential6Delivery1.getId(), userHelenCampbell);
+        markCompetencyAsCompleted(events, credential6Comp3Target.getId(), credential6CompetenciesHelenCampbell.get(2).getCompetenceId(), credential6Delivery1.getId(), userHelenCampbell);
 
         long credential6Delivery1HelenCampbellInstructorAssessmentId = ServiceLocator.getInstance().getService(AssessmentManager.class)
                 .getActiveInstructorCredentialAssessmentId(credential6Delivery1.getId(), userHelenCampbell.getId()).get();
@@ -81,7 +76,7 @@ public class BusinessCase_Test_2_12 extends BaseBusinessCase5 {
                 lvl = rubricData.getLevels().get(2).getId();
             }
             if (lvl > 0) {
-                gradeCompetenceAssessmentByRubric(events, competenceAssessmentData, userPhilArmstrong, lvl);
+                gradeCompetenceAssessmentWithRubric(events, competenceAssessmentData, userPhilArmstrong, lvl);
             }
             if (competenceAssessmentData.getTargetCompetenceId() == credential6Comp1Target.getId()) {
                 addCommentToCompetenceAssessmentDiscussion(events, competenceAssessmentData.getCompetenceAssessmentId(), userPhilArmstrong, "More evidence is needed.");

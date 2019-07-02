@@ -23,8 +23,8 @@ public class CompetenceObjectSocialActivityProcessor extends SocialActivityProce
 
 	@Override
 	public void createOrDeleteSocialActivity() {
-		SocialActivity1 act = null;
-		long studentId = 0;
+		SocialActivity1 act;
+		long studentId;
 
 		switch (event.getAction()) {
 			case Completion:

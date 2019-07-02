@@ -2480,14 +2480,14 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 
 	@Override
 	//nt
-	public void completeCompetence(long targetCompetenceId, long credentialId, UserContextData context) throws DbConnectionException {
-		Result<Void> res = self.completeCompetenceAndGetEvents(targetCompetenceId, credentialId, context);
+	public void completeCompetence(long targetCompetenceId, UserContextData context) throws DbConnectionException {
+		Result<Void> res = self.completeCompetenceAndGetEvents(targetCompetenceId, context);
 		eventFactory.generateAndPublishEvents(res.getEventQueue());
 	}
 
 	@Override
 	@Transactional
-	public Result<Void> completeCompetenceAndGetEvents(long targetCompetenceId, long credentialId, UserContextData context)
+	public Result<Void> completeCompetenceAndGetEvents(long targetCompetenceId, UserContextData context)
 			throws DbConnectionException {
 		try {
 			Date dateCompleted = new Date();
@@ -2503,7 +2503,6 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 
 			Map<String, String> params = new HashMap<>();
 			params.put("dateCompleted", DateUtil.getMillisFromDate(dateCompleted) + "");
-			params.put("credId", credentialId+"");
 
 			res.appendEvent(eventFactory.generateEventData(
 					EventType.Completion, context, tComp, null, null, params));
@@ -2518,42 +2517,6 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			res.appendEvents(credentialManager.updateCredentialProgress(targetCompetenceId, context));
 
 			return res;
-		} catch (DbConnectionException e) {
-			throw e;
-		} catch (Exception e) {
-			logger.error("Error", e);
-			throw new DbConnectionException("Error marking the competence as completed");
-		}
-	}
-
-	@Override
-	@Transactional
-	public Result<Void> completeCompetenceAndGetEvents(long targetCompetenceId, UserContextData context)
-			throws DbConnectionException {
-		try {
-			String query =
-					"SELECT cred.id " +
-					"FROM TargetCompetence1 tComp " +
-					"LEFT JOIN tComp.competence comp " +
-					"LEFT JOIN comp.credentialCompetences credComp " +
-					"LEFT JOIN credComp.credential cred " +
-					"LEFT JOIN cred.targetCredentials tCred " +
-					"LEFT JOIN tCred.user user " +
-					"WHERE tComp.id = :targetCompId " +
-						"AND user.id = :studentId ";
-
-			@SuppressWarnings("unchecked")
-			Long credentialId = (Long) persistence.currentManager()
-					.createQuery(query)
-					.setLong("targetCompId", targetCompetenceId)
-					.setLong("studentId", context.getActorId())
-					.uniqueResult();
-
-			if (credentialId > 0) {
-				return completeCompetenceAndGetEvents(targetCompetenceId, credentialId, context);
-			} else {
-				throw new RuntimeException("Error finding credential isd for the Target Comeptence " + targetCompetenceId);
-			}
 		} catch (DbConnectionException e) {
 			throw e;
 		} catch (Exception e) {
