@@ -19,9 +19,9 @@ import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import java.util.List;
 
 /**
- * @author Nikola Milikic
- * @date 2019-01-22
- * @since 1.3
+ * @author stefanvuckovic
+ * @date 2019-06-07
+ * @since 1.3.2
  */
 public class BusinessCase_Test_2_10 extends BaseBusinessCase5 {
 

@@ -10,7 +10,6 @@ import org.prosolo.common.domainmodel.credential.BlindAssessmentMode;
 import org.prosolo.common.domainmodel.credential.LearningEvidence;
 import org.prosolo.common.domainmodel.credential.LearningEvidenceType;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
-import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.event.EventQueue;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.core.db.hibernate.HibernateUtil;

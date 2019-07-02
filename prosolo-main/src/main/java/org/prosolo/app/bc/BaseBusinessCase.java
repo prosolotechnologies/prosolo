@@ -584,6 +584,7 @@ public abstract class BaseBusinessCase implements BusinessCase {
         extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).completeCompetenceAndGetEvents(targetCompetenceId, createUserContext(user, context)));
     }
 
+
     protected void assignCategoryToCredential(EventQueue events, long credId, CredentialCategoryData category, User user) throws Exception {
         CredentialManager credManager = ServiceLocator.getInstance().getService(CredentialManager.class);
         CredentialData credentialData = credManager.getCredentialDataForEdit(credId);
@@ -630,7 +631,7 @@ public abstract class BaseBusinessCase implements BusinessCase {
         return credentialAssessmentData;
     }
 
-    protected void gradeCredentialAssessmentWithRubric(EventQueue events, long credentialAssessmentId, AssessmentType assessmentType, User actor, long... lvls) {
+    protected void gradeCredentialAssessmentWithRubric(EventQueue events, long credentialAssessmentId, AssessmentType assessmentType, User actor, long... lvls) throws Exception {
         AssessmentDataFull credAssessmentData = getCredentialAssessmentData(credentialAssessmentId, actor.getId(), assessmentType);
         gradeCredentialAssessmentWithRubric(events, credAssessmentData, actor, assessmentType, lvls);
     }
