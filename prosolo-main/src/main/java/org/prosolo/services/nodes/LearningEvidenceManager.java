@@ -9,6 +9,7 @@ import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.nodes.data.BasicObjectInfo;
+import org.prosolo.services.nodes.data.CompetencyBasicObjectInfo;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceData;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceLoadConfig;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
@@ -44,7 +45,7 @@ public interface LearningEvidenceManager {
 
     PaginatedResult<LearningEvidenceData> getPaginatedUserEvidences(long userId, int offset, int limit) throws DbConnectionException;
 
-    List<BasicObjectInfo> getCompetencesWithAddedEvidence(long evidenceId) throws DbConnectionException;
+    List<CompetencyBasicObjectInfo> getCompetencesWithAddedEvidence(long evidenceId) throws DbConnectionException;
 
     List<String> getKeywordsFromAllUserEvidences(long userId) throws DbConnectionException;
 

@@ -2663,7 +2663,8 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 					"WITH cred.type = :type " +
 					"LEFT JOIN cred.targetCredentials tc " +
 					"WITH tc.user.id = :userId " +
-					"WHERE cc.competence.id = :compId";
+					"WHERE cc.competence.id = :compId " +
+					"ORDER BY tc.id NULLS LAST";
 
 			List<Object[]> res = (List<Object[]>) persistence.currentManager()
 					.createQuery(query)

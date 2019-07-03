@@ -4,7 +4,7 @@ import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.credential.CompetenceEvidence;
 import org.prosolo.common.domainmodel.credential.LearningEvidence;
 import org.prosolo.common.util.date.DateUtil;
-import org.prosolo.services.nodes.data.BasicObjectInfo;
+import org.prosolo.services.nodes.data.CompetencyBasicObjectInfo;
 import org.prosolo.util.nodes.AnnotationUtil;
 import org.springframework.stereotype.Component;
 
@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 @Component
 public class LearningEvidenceDataFactory {
 
-    public LearningEvidenceData getCompetenceLearningEvidenceData(LearningEvidence evidence, CompetenceEvidence competenceEvidence, Set<Tag> tags, List<BasicObjectInfo> competences, LearningEvidenceLoadConfig loadConfig) {
+    public LearningEvidenceData getCompetenceLearningEvidenceData(LearningEvidence evidence, CompetenceEvidence competenceEvidence, Set<Tag> tags, List<CompetencyBasicObjectInfo> competences, LearningEvidenceLoadConfig loadConfig) {
         LearningEvidenceData evidenceData = new LearningEvidenceData();
         evidenceData.setId(evidence.getId());
         evidenceData.setUserId(evidence.getUser().getId());

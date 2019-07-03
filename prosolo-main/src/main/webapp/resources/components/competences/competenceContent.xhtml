@@ -132,6 +132,7 @@
                                                         <h:link outcome="/competence"
                                                                 value="#{c.title}">
                                                             <f:param name="compId" value="#{util:encodeId(c.id)}"/>
+															<f:param name="credId" value="#{cc.attrs.bean.competenceData.competenceId eq c.id ? param['credId'] : util:encodeId(c.credentialId)}"/>
                                                         </h:link>
                                                         - #{c.description}
                                                         <ui:fragment rendered="#{status.index + 1 ne ev.competences.size()}"><br/></ui:fragment>
