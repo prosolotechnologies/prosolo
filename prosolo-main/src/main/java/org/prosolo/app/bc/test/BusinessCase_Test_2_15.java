@@ -72,10 +72,10 @@ public class BusinessCase_Test_2_15 extends BaseBusinessCase5 {
                 lvl = rubricData.getLevels().get(2).getId();
             }
             if (lvl > 0) {
-                gradeCompetenceAssessmentWithRubric(events, competenceAssessmentData, userHelenCampbell, AssessmentType.INSTRUCTOR_ASSESSMENT, lvl);
+                gradeCompetenceAssessmentWithRubric(events, competenceAssessmentData, userHelenCampbell, lvl);
             }
             if (competenceAssessmentData.getTargetCompetenceId() == credential6Comp2Target.getId()) {
-                addCommentToCompetenceAssessmentDiscussion(events, competenceAssessmentData.getCompetenceAssessmentId(), userHelenCampbell, "Reminder: upload more evidence");
+                addCommentToCompetenceAssessmentDiscussion(events, competenceAssessmentData.getCompetenceAssessmentId(), AssessmentType.SELF_ASSESSMENT, userHelenCampbell, "Reminder: upload more evidence");
             }
             if (competenceAssessmentData.getTargetCompetenceId() == credential6Comp3Target.getId()) {
                approveCompetenceAssessment(events, competenceAssessmentData.getCompetenceAssessmentId(), competenceAssessmentData.getCredentialId(), competenceAssessmentData.getCompetenceId(), userHelenCampbell);
@@ -112,7 +112,7 @@ public class BusinessCase_Test_2_15 extends BaseBusinessCase5 {
 
     @Override
     protected String getBusinessCaseInitLog() {
-        return "Initializing business case - test 2.11";
+        return "Initializing business case - test 2.15";
     }
 
     @Override

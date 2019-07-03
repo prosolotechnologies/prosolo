@@ -225,7 +225,7 @@ public class BusinessCase_Test_2_14 extends BaseBusinessCase5 {
 
         CompetenceAssessmentData competenceAssessment = askPeerForCompetenceAssessment(events, credential6Delivery1.getId(), credential6Competencies.get(0).getCompetenceId(), userKevinHall, userRichardAnderson.getId(), tokensSpentPerRequest);
         extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(AssessmentManager.class).acceptCompetenceAssessmentRequestAndGetEvents(competenceAssessment.getAssessmentId(), createUserContext(userRichardAnderson)));
-        addCommentToCompetenceAssessmentDiscussion(events, competenceAssessment.getAssessmentId(), userKevinHall, "I plan to upload more evidence soon");
+        addCommentToCompetenceAssessmentDiscussion(events, competenceAssessment.getAssessmentId(), AssessmentType.PEER_ASSESSMENT, userKevinHall, "I plan to upload more evidence soon");
     }
 
     private void enrollKennethCarterToDelivery6(EventQueue events) throws Exception {
@@ -260,7 +260,7 @@ public class BusinessCase_Test_2_14 extends BaseBusinessCase5 {
         CompetenceAssessmentData competenceAssessment = askPeerForCompetenceAssessment(events, credential6Delivery1.getId(), credential6Competencies.get(0).getCompetenceId(), userKennethCarter, userRichardAnderson.getId(), tokensSpentPerRequest);
         extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(AssessmentManager.class).acceptCompetenceAssessmentRequestAndGetEvents(competenceAssessment.getAssessmentId(), createUserContext(userRichardAnderson)));
         this.gradeCompetenceAssessmentWithRubric(events, competenceAssessment.getAssessmentId(), AssessmentType.PEER_ASSESSMENT, userRichardAnderson, rubricData.getLevels().get(0).getId());
-        addCommentToCompetenceAssessmentDiscussion(events, competenceAssessment.getAssessmentId(), userKennethCarter, "I plan to upload more evidence soon");
+        addCommentToCompetenceAssessmentDiscussion(events, competenceAssessment.getAssessmentId(), AssessmentType.PEER_ASSESSMENT, userKennethCarter, "I plan to upload more evidence soon");
         extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(AssessmentManager.class).declinePendingCompetenceAssessmentAndGetEvents(competenceAssessment.getAssessmentId(), createUserContext(userRichardAnderson)));
     }
 
@@ -347,7 +347,7 @@ public class BusinessCase_Test_2_14 extends BaseBusinessCase5 {
         CompetenceAssessmentData competenceAssessment = askPeerForCompetenceAssessment(events, credential6Delivery1.getId(), credential6Competencies.get(0).getCompetenceId(), userTaniaCortese, userRichardAnderson.getId(), tokensSpentPerRequest);
         extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(AssessmentManager.class).acceptCompetenceAssessmentRequestAndGetEvents(competenceAssessment.getAssessmentId(), createUserContext(userRichardAnderson)));
         this.gradeCompetenceAssessmentWithRubric(events, competenceAssessment.getAssessmentId(), AssessmentType.PEER_ASSESSMENT, userRichardAnderson, rubricData.getLevels().get(1).getId());
-        addCommentToCompetenceAssessmentDiscussion(events, competenceAssessment.getAssessmentId(), userTaniaCortese, "I plan to upload more evidence soon");
+        addCommentToCompetenceAssessmentDiscussion(events, competenceAssessment.getAssessmentId(), AssessmentType.PEER_ASSESSMENT, userTaniaCortese, "I plan to upload more evidence soon");
     }
 
     private void enrollSonyaElstonToDelivery6(EventQueue events) throws Exception {
@@ -421,7 +421,7 @@ public class BusinessCase_Test_2_14 extends BaseBusinessCase5 {
 
     @Override
     protected String getBusinessCaseInitLog() {
-        return "Initializing business case - test 2.10";
+        return "Initializing business case - test 2.14";
     }
 
     @Override

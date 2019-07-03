@@ -214,11 +214,11 @@ public class BusinessCase_Test_2_10 extends BaseBusinessCase5 {
                     approveCompetenceAssessment(events, competenceAssessmentData.getCompetenceAssessmentId(), userKarenWhite);
                 }
                 if (competenceAssessmentData.getTargetCompetenceId() == credential1Comp5Target.getId()) {
-                    addCommentToCompetenceAssessmentDiscussion(events, competenceAssessmentData.getCompetenceAssessmentId(), userKarenWhite, "More evidence is needed");
+                    addCommentToCompetenceAssessmentDiscussion(events, competenceAssessmentData.getCompetenceAssessmentId(), AssessmentType.INSTRUCTOR_ASSESSMENT, userKarenWhite, "More evidence is needed");
                 }
             }
         }
-        addCommentToCredentialAssessmentDiscussion(events, instructorCredentialAssessmentData.getCredAssessmentId(), userKarenWhite, "All focus areas need to be completed");
+        addCommentToCredentialAssessmentDiscussion(events, instructorCredentialAssessmentData.getCredAssessmentId(), AssessmentType.INSTRUCTOR_ASSESSMENT, userKarenWhite, "All focus areas need to be completed");
 
     }
 

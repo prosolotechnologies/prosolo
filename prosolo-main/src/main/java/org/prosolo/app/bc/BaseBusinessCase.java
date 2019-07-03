@@ -593,9 +593,7 @@ public abstract class BaseBusinessCase implements BusinessCase {
     }
 
     protected CompetenceAssessmentData askPeerForCompetenceAssessment(EventQueue events, long deliveryId, long compId, User student, long peerId, int numberOfTokensToSpend) throws Exception {
-        CompetenceAssessment competenceAssessment = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(AssessmentManager.class).requestCompetenceAssessmentAndGetEvents(deliveryId, compId, student.getId(), peerId, numberOfTokensToSpend, createUserContext(student)));
-
-        return ServiceLocator.getInstance().getService(AssessmentDataFactory.class).getCompetenceAssessmentData(competenceAssessment, competenceAssessment.getStudent(), competenceAssessment.getAssessor());
+        return extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(AssessmentManager.class).requestCompetenceAssessmentGetEventsAndReturnCompetenceAssessmentData(deliveryId, compId, student.getId(), peerId, numberOfTokensToSpend, createUserContext(student)));
     }
 
     protected void updateCompetenceBlindAssessmentMode(EventQueue events, long compId, BlindAssessmentMode blindAssessmentMode, User userEditor) throws Exception {
@@ -639,17 +637,22 @@ public abstract class BaseBusinessCase implements BusinessCase {
     protected void gradeCredentialAssessmentWithRubric(EventQueue events, AssessmentDataFull credentialAssessmentData, User actor, AssessmentType assessmentType, long... lvls) {
         gradeWithRubric(credentialAssessmentData.getGradeData(), lvls);
 
+        ApplicationPage page = getApplicationPageForCredentialAssessmentType(assessmentType);
+
+        extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(AssessmentManager.class)
+                .updateGradeForCredentialAssessmentAndGetEvents(credentialAssessmentData.getCredAssessmentId(), credentialAssessmentData.getGradeData(), createUserContext(actor, new PageContextData(page.getUrl(), null, null))));
+    }
+
+    private ApplicationPage getApplicationPageForCredentialAssessmentType(AssessmentType type) {
         ApplicationPage page;
-        if (assessmentType == AssessmentType.PEER_ASSESSMENT) {
+        if (type == AssessmentType.PEER_ASSESSMENT) {
             page = ApplicationPage.MY_ASSESSMENTS_CREDENTIAL_ASSESSMENT;
-        } else if (assessmentType == AssessmentType.INSTRUCTOR_ASSESSMENT) {
+        } else if (type == AssessmentType.INSTRUCTOR_ASSESSMENT) {
             page = ApplicationPage.MANAGE_CREDENTIAL_ASSESSMENT;
         } else {
             page = ApplicationPage.CREDENTIAL_SELF_ASSESSMENT;
         }
-
-        extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(AssessmentManager.class)
-                .updateGradeForCredentialAssessmentAndGetEvents(credentialAssessmentData.getCredAssessmentId(), credentialAssessmentData.getGradeData(), createUserContext(actor, new PageContextData(page.getUrl(), null, null))));
+        return page;
     }
 
     protected CompetenceAssessmentDataFull getCompetenceAssessmentData(long compAssessmentId, long actorId, AssessmentType assessmentType) {
@@ -668,29 +671,28 @@ public abstract class BaseBusinessCase implements BusinessCase {
 
     protected void gradeCompetenceAssessmentWithRubric(EventQueue events, long competenceAssessmentId, AssessmentType assessmentType, User actor, long... lvls) throws Exception {
         CompetenceAssessmentDataFull competenceAssessmentData = getCompetenceAssessmentData(competenceAssessmentId, actor.getId(), assessmentType);
-        gradeCompetenceAssessmentWithRubric(events, competenceAssessmentData, actor, assessmentType, lvls);
+        gradeCompetenceAssessmentWithRubric(events, competenceAssessmentData, actor, lvls);
     }
 
     protected void gradeCompetenceAssessmentWithRubric(EventQueue events, CompetenceAssessmentDataFull competenceAssessmentData, User actor, long... lvls) throws Exception {
         gradeWithRubric(competenceAssessmentData.getGradeData(), lvls);
+
+        ApplicationPage page = getApplicationPageForCompetencyAssessmentType(competenceAssessmentData.getType());
+
         extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(AssessmentManager.class)
-                .updateGradeForCompetenceAssessmentAndGetEvents(competenceAssessmentData.getCompetenceAssessmentId(), competenceAssessmentData.getGradeData(), createUserContext(actor)));
+                .updateGradeForCompetenceAssessmentAndGetEvents(competenceAssessmentData.getCompetenceAssessmentId(), competenceAssessmentData.getGradeData(), createUserContext(actor, new PageContextData(page.getUrl(), null, null))));
     }
 
-    protected void gradeCompetenceAssessmentWithRubric(EventQueue events, CompetenceAssessmentDataFull competenceAssessmentData, User actor, AssessmentType assessmentType, long... lvls) throws Exception {
-        gradeWithRubric(competenceAssessmentData.getGradeData(), lvls);
-
+    private ApplicationPage getApplicationPageForCompetencyAssessmentType(AssessmentType type) {
         ApplicationPage page;
-        if (assessmentType == AssessmentType.PEER_ASSESSMENT) {
+        if (type == AssessmentType.PEER_ASSESSMENT) {
             page = ApplicationPage.MY_ASSESSMENTS_COMPETENCE_ASSESSMENT;
-        } else if (assessmentType == AssessmentType.INSTRUCTOR_ASSESSMENT) {
+        } else if (type == AssessmentType.INSTRUCTOR_ASSESSMENT) {
             page = ApplicationPage.MANAGE_CREDENTIAL_ASSESSMENT;
         } else {
             page = ApplicationPage.CREDENTIAL_SELF_ASSESSMENT;
         }
-
-        extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(AssessmentManager.class)
-                .updateGradeForCompetenceAssessmentAndGetEvents(competenceAssessmentData.getCompetenceAssessmentId(), competenceAssessmentData.getGradeData(), createUserContext(actor, new PageContextData(page.getUrl(), null, null))));
+        return page;
     }
 
     protected void gradeWithRubric(GradeData gradeData, long... lvls) {
@@ -775,24 +777,26 @@ public abstract class BaseBusinessCase implements BusinessCase {
         }
     }
 
-    protected void addCommentToCredentialAssessmentDiscussion(EventQueue events, long credentialAssessmentId, User sender, String comment) {
+    protected void addCommentToCredentialAssessmentDiscussion(EventQueue events, long credentialAssessmentId, AssessmentType type, User sender, String comment) {
+        ApplicationPage page = getApplicationPageForCredentialAssessmentType(type);
         extractResultAndAddEvents(
                 events,
                 ServiceLocator.getInstance().getService(AssessmentManager.class).addCommentToCredentialAssessmentAndGetEvents(
                         credentialAssessmentId,
                         sender.getId(),
                         comment,
-                        createUserContext(sender)));
+                        createUserContext(sender, new PageContextData(page.getUrl(), null, null))));
     }
 
-    protected void addCommentToCompetenceAssessmentDiscussion(EventQueue events, long compAssessmentId, User sender, String comment) {
+    protected void addCommentToCompetenceAssessmentDiscussion(EventQueue events, long compAssessmentId, AssessmentType type, User sender, String comment) {
+        ApplicationPage page = getApplicationPageForCompetencyAssessmentType(type);
         extractResultAndAddEvents(
                 events,
                 ServiceLocator.getInstance().getService(AssessmentManager.class).addCommentToCompetenceAssessmentAndGetEvents(
                         compAssessmentId,
                         sender.getId(),
                         comment,
-                        createUserContext(sender)));
+                        createUserContext(sender, new PageContextData(page.getUrl(), null, null))));
     }
 
     protected void enableTokensPlugin(int initialNumberOfTokens, int tokensSpentPerRequest, int tokensEarnedPerAssessment) {

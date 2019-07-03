@@ -322,7 +322,7 @@ public class BusinessCase_Test_2_13 extends BaseBusinessCase5 {
         CompetenceAssessmentData competenceAssessment2 = askPeerFromPoolForCompetenceAssessment(events, credential6Delivery1.getId(), credential6CompetenciesHelenCampbell.get(0).getCompetenceId(), userHelenCampbell, tokensSpentPerRequest, true);
         extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(AssessmentManager.class).acceptCompetenceAssessmentRequestAndGetEvents(competenceAssessment2.getAssessmentId(), createUserContext(userStevenTurner)));
         this.gradeCompetenceAssessmentWithRubric(events, competenceAssessment2.getAssessmentId(), AssessmentType.PEER_ASSESSMENT, userStevenTurner, rubricData.getLevels().get(3).getId());
-        addCommentToCompetenceAssessmentDiscussion(events, competenceAssessment2.getAssessmentId(), userStevenTurner, "More evidence is needed");
+        addCommentToCompetenceAssessmentDiscussion(events, competenceAssessment2.getAssessmentId(), AssessmentType.PEER_ASSESSMENT, userStevenTurner, "More evidence is needed");
 
         CompetenceAssessmentData competenceAssessment3 = askPeerFromPoolForCompetenceAssessment(events, credential6Delivery1.getId(), credential6CompetenciesHelenCampbell.get(0).getCompetenceId(), userHelenCampbell, tokensSpentPerRequest, true);
         extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(AssessmentManager.class).declineCompetenceAssessmentRequestAndGetEvents(competenceAssessment3.getAssessmentId(), createUserContext(userJosephGarcia)));
@@ -367,7 +367,7 @@ public class BusinessCase_Test_2_13 extends BaseBusinessCase5 {
 
     @Override
     protected String getBusinessCaseInitLog() {
-        return "Initializing business case - test 2.10";
+        return "Initializing business case - test 2.13";
     }
 
     @Override

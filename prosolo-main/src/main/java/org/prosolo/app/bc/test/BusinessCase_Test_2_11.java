@@ -107,10 +107,10 @@ public class BusinessCase_Test_2_11 extends BaseBusinessCase5 {
                 approveCompetenceAssessment(events, competenceAssessmentData.getCompetenceAssessmentId(), userHelenCampbell);
             }
             if (competenceAssessmentData.getTargetCompetenceId() == credential1Comp1Target.getId()) {
-                addCommentToCompetenceAssessmentDiscussion(events, competenceAssessmentData.getCompetenceAssessmentId(), userHelenCampbell, "Reminder: upload more evidence");
+                addCommentToCompetenceAssessmentDiscussion(events, competenceAssessmentData.getCompetenceAssessmentId(), AssessmentType.SELF_ASSESSMENT, userHelenCampbell, "Reminder: upload more evidence");
             }
         }
-        addCommentToCredentialAssessmentDiscussion(events, selfAssessmentId, userHelenCampbell, "Reminder: upload more evidence for competency 1");
+        addCommentToCredentialAssessmentDiscussion(events, selfAssessmentId, AssessmentType.SELF_ASSESSMENT, userHelenCampbell, "Reminder: upload more evidence for competency 1");
     }
 
     private void enrollHelenCampbellToDelivery6(EventQueue events) throws Exception {
@@ -162,7 +162,7 @@ public class BusinessCase_Test_2_11 extends BaseBusinessCase5 {
 
     @Override
     protected String getBusinessCaseInitLog() {
-        return "Initializing business case - test 2.10";
+        return "Initializing business case - test 2.11";
     }
 
     @Override
