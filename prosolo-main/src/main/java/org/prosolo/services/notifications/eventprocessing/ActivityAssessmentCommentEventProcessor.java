@@ -84,7 +84,7 @@ public class ActivityAssessmentCommentEventProcessor extends AssessmentCommentEv
             case INSTRUCTOR_ASSESSMENT: {
                 switch (page) {
                     // by the instructor (assessor)
-                    case CREDENTIAL_ASSESSMENT_MANAGE:
+                    case MANAGE_CREDENTIAL_ASSESSMENT:
                         return AssessmentLinkUtil.getCredentialAssessmentUrlForAssessedStudent(
                                 idEncoder.encodeId(credentialId),
                                 idEncoder.encodeId(activityAssessment.getCredentialAssessmentId()),
@@ -113,7 +113,7 @@ public class ActivityAssessmentCommentEventProcessor extends AssessmentCommentEv
                                 PageSection.STUDENT);
 
                     // by the peer assessor, as a part of the competency assessment
-                    case MY_ASSESSMENTS_COMPETENCES:
+                    case MY_ASSESSMENTS_COMPETENCE_ASSESSMENT:
                         return AssessmentLinkUtil.getCompetenceAssessmentUrlForAssessedStudent(
                                 idEncoder.encodeId(credentialId),
                                 idEncoder.encodeId(competenceId),

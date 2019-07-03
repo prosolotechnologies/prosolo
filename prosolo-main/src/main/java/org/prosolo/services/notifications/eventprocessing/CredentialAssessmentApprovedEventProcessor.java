@@ -89,7 +89,8 @@ public class CredentialAssessmentApprovedEventProcessor extends AssessmentNotifi
                         section);
             }
             default:
-                throw new IllegalArgumentException("Cannot generate notification link for the assessmentType " + assessmentType);
+                logger.debug("Do not support generating notification link for the assessmentType " + assessmentType);
+                return null;
         }
     }
 

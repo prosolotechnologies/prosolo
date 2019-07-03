@@ -64,7 +64,7 @@ public class CompetenceGradeAddedEventProcessor extends GradeAddedEventProcessor
             case INSTRUCTOR_ASSESSMENT:
                 switch (page) {
                     // by the instructor (assessor)
-                    case CREDENTIAL_ASSESSMENT_MANAGE:
+                    case MANAGE_CREDENTIAL_ASSESSMENT:
                         return AssessmentLinkUtil.getCredentialAssessmentUrlForAssessedStudent(
                                 idEncoder.encodeId(credentialId),
                                 idEncoder.encodeId(competenceAssessment.getCredentialAssessmentId()),
