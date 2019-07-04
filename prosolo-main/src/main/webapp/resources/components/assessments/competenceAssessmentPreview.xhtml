@@ -222,6 +222,15 @@
                                     </div>
                                 </ui:fragment>
 
+                                <ui:fragment rendered="#{competenceAssessmentBean.competenceAssessmentData.status eq 'SUBMITTED'}">
+                                    <div class="sidebarBlock">
+                                        <h2>#{msg['label.enum.AssessmentStatus.'.concat(competenceAssessmentBean.competenceAssessmentData.status.name())]}</h2>
+                                        <p><utilcomp:convertTimeOutput
+                                                millis="#{competenceAssessmentBean.competenceAssessmentData.dateSubmitted}"
+                                                format="MMMM DD, YYYY" /></p>
+                                    </div>
+                                </ui:fragment>
+
                                 <c:if test="#{competenceAssessmentBean.competenceAssessmentData.status eq 'PENDING' and competenceAssessmentBean.isUserAssessedStudentInCurrentContext()}">
                                     <p:commandLink
                                             styleClass="btn btn-green"

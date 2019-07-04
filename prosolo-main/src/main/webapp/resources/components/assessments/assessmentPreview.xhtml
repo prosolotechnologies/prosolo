@@ -538,6 +538,14 @@
 										format="MMMM DD, YYYY" /></p>
 							</div>
 						</ui:fragment>
+						<ui:fragment rendered="#{cc.attrs.bean.fullAssessmentData.status eq 'SUBMITTED'}">
+							<div class="sidebarBlock">
+								<h2>#{msg['label.enum.AssessmentStatus.'.concat(cc.attrs.bean.fullAssessmentData.status.name())]}</h2>
+								<p><utilcomp:convertTimeOutput
+										millis="#{cc.attrs.bean.fullAssessmentData.dateSubmitted}"
+										format="MMMM DD, YYYY" /></p>
+							</div>
+						</ui:fragment>
 						<c:if test="#{cc.attrs.bean.fullAssessmentData.status eq 'PENDING' and cc.attrs.bean.isUserAssessedStudentInCurrentContext()}">
 							<p:commandLink
 									styleClass="btn btn-green"
