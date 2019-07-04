@@ -82,11 +82,13 @@
 										outcome="/competence"
 										value="#{c.title}">
 										<f:param name="compId" value="#{util:encodeId(c.id)}"/>
+										<f:param name="credId" value="#{util:encodeId(c.credentialId)}"/>
 									</h:link>
 									<h:link rendered="#{cc.attrs.role == 'MANAGER'}"
 											outcome="/manage/competence"
 											value="#{c.title}">
 										<f:param name="compId" value="#{util:encodeId(c.id)}"/>
+										<f:param name="credId" value="#{util:encodeId(c.credentialId)}"/>
 									</h:link>
 									- #{c.description}
 									<ui:fragment rendered="#{status.index + 1 ne cc.attrs.evidence.competences.size()}"><br/></ui:fragment>

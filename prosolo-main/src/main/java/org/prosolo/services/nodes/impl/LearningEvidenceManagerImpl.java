@@ -16,9 +16,10 @@ import org.prosolo.services.annotation.TagManager;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
+import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.LearningEvidenceManager;
 import org.prosolo.services.nodes.UnitManager;
-import org.prosolo.services.nodes.data.BasicObjectInfo;
+import org.prosolo.services.nodes.data.CompetencyBasicObjectInfo;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceData;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceDataFactory;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceLoadConfig;
@@ -48,6 +49,7 @@ public class LearningEvidenceManagerImpl extends AbstractManagerImpl implements 
     @Inject private LearningEvidenceManager self;
     @Inject private LearningEvidenceDataFactory learningEvidenceDataFactory;
     @Inject private UnitManager unitManager;
+    @Inject private Competence1Manager competenceManager;
 
     @Override
     //nt
@@ -283,14 +285,15 @@ public class LearningEvidenceManagerImpl extends AbstractManagerImpl implements 
 
     @Transactional (readOnly = true)
     @Override
-    public List<BasicObjectInfo> getCompetencesWithAddedEvidence(long evidenceId) throws DbConnectionException {
+    public List<CompetencyBasicObjectInfo> getCompetencesWithAddedEvidence(long evidenceId) throws DbConnectionException {
         try {
             String query =
-                    "SELECT comp, ce.description " +
+                    "SELECT comp, ce.description, ev.user.id " +
                     "FROM CompetenceEvidence ce " +
                     "INNER JOIN ce.competence tc " +
                     "INNER JOIN tc.competence comp " +
-                    "WHERE ce.evidence.id = :evId " +
+                    "INNER JOIN ce.evidence ev " +
+                    "WHERE ev.id = :evId " +
                         "AND ce.deleted IS FALSE";
 
             @SuppressWarnings("unchecked")
@@ -299,10 +302,12 @@ public class LearningEvidenceManagerImpl extends AbstractManagerImpl implements 
                     .setLong("evId", evidenceId)
                     .list();
 
-            List<BasicObjectInfo> comps = new ArrayList<>();
+            List<CompetencyBasicObjectInfo> comps = new ArrayList<>();
             for (Object[] row : competences) {
                 Competence1 comp = (Competence1) row[0];
-                comps.add(new BasicObjectInfo(comp.getId(), comp.getTitle(), (String) row[1]));
+                long userId = (long) row[2];
+                long credId = competenceManager.getIdOfFirstCredentialCompetenceIsAddedToAndStudentHasLearnPrivilegeFor(comp.getId(), userId);
+                comps.add(new CompetencyBasicObjectInfo(comp.getId(), comp.getTitle(), (String) row[1], credId));
             }
             return comps;
         } catch (Exception e) {
@@ -357,7 +362,7 @@ public class LearningEvidenceManagerImpl extends AbstractManagerImpl implements 
             }
 
             Set<Tag> tags = loadConfig.isLoadTags() ? evidence.getTags() : null;
-            List<BasicObjectInfo> competences = loadConfig.isLoadCompetences() ? getCompetencesWithAddedEvidence(evidence.getId()) : Collections.emptyList();
+            List<CompetencyBasicObjectInfo> competences = loadConfig.isLoadCompetences() ? getCompetencesWithAddedEvidence(evidence.getId()) : Collections.emptyList();
             return learningEvidenceDataFactory.getCompetenceLearningEvidenceData(evidence, null, tags, competences, loadConfig);
         } catch (Exception e) {
             logger.error("Error", e);
