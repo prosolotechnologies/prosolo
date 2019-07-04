@@ -308,7 +308,12 @@
 
 						<ui:fragment rendered="#{cc.attrs.bean.fullAssessmentData.status eq 'REQUESTED'}">
 							<div class="alert alert-warning" role="alert">
-								This is the assessment request. If the assessment is not started within the 14 days since requested, it will automatically expire.
+								<ui:fragment rendered="#{cc.attrs.bean.fullAssessmentData.assessorId gt 0}">
+									This is an assessment request. If the assessment is not started within the 14 days since requested, it will automatically expire.
+								</ui:fragment>
+								<ui:fragment rendered="#{cc.attrs.bean.fullAssessmentData.assessorId le 0}">
+									This is an assessment request. Currently, there is no assessor assigned. When a new asssessor is available, they will be automatically assigned to this assessment request.
+								</ui:fragment>
 							</div>
 						</ui:fragment>
 						<ui:fragment rendered="#{cc.attrs.bean.fullAssessmentData.status eq 'REQUEST_DECLINED'}">
