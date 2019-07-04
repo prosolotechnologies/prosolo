@@ -373,6 +373,17 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
     }
 
     @Override
+    @Transactional
+    public Result<CompetenceAssessmentData> requestCompetenceAssessmentGetEventsAndReturnCompetenceAssessmentData(long credentialId, long competenceId, long studentId, long assessorId, int numberOfTokensForAssessmentRequest, UserContextData context) throws DbConnectionException, IllegalDataStateException {
+        Result<CompetenceAssessment> res = requestCompetenceAssessmentAndGetEvents(credentialId, competenceId, studentId, assessorId, numberOfTokensForAssessmentRequest, context);
+        Result<CompetenceAssessmentData> result = new Result<>();
+        result.appendEvents(res.getEventQueue());
+        CompetenceAssessment competenceAssessment = res.getResult();
+        result.setResult(competenceAssessment == null ? null : assessmentDataFactory.getCompetenceAssessmentData(competenceAssessment, competenceAssessment.getStudent(), competenceAssessment.getAssessor()));
+        return result;
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public Result<CompetenceAssessment> getOrCreateCompetenceAssessmentAndGetEvents(
             long credentialId, CompetenceData1 comp, long studentId, long assessorId, AssessmentType type,

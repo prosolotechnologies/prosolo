@@ -3,7 +3,6 @@ package org.prosolo.app.bc.test;
 import org.apache.log4j.Logger;
 import org.prosolo.app.bc.BaseBusinessCase5;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
-import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
 import org.prosolo.common.domainmodel.credential.BlindAssessmentMode;
 import org.prosolo.common.domainmodel.credential.LearningEvidenceType;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
@@ -326,7 +325,7 @@ public class BusinessCase_Test_2_3 extends BaseBusinessCase5 {
             } else if (competenceAssessmentData.getTargetCompetenceId() == credential1Delivery1Comp6Target.getId()) {
                 lvl = rubricData.getLevels().get(2).getId();
             }
-            gradeCompetenceAssessmentWithRubric(events, competenceAssessmentData, userPhilArmstrong, AssessmentType.INSTRUCTOR_ASSESSMENT, lvl);
+            gradeCompetenceAssessmentWithRubric(events, competenceAssessmentData, userPhilArmstrong, lvl);
         }
         approveCredentialAssessment(events, instructorCredentialAssessmentData.getCredAssessmentId(), instructorCredentialAssessmentData.getCredentialId(), userPhilArmstrong);
 
@@ -350,7 +349,7 @@ public class BusinessCase_Test_2_3 extends BaseBusinessCase5 {
             } else if (competenceAssessmentData.getTargetCompetenceId() == credential1Delivery1Comp6Target.getId()) {
                 lvl = rubricData.getLevels().get(1).getId();
             }
-            gradeCompetenceAssessmentWithRubric(events, competenceAssessmentData, userKevinHall, AssessmentType.SELF_ASSESSMENT, lvl);
+            gradeCompetenceAssessmentWithRubric(events, competenceAssessmentData, userKevinHall, lvl);
         }
         approveCredentialAssessment(events, selfCredentialAssessmentData.getCredAssessmentId(), selfCredentialAssessmentData.getCredentialId(), userKevinHall);
     }

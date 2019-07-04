@@ -250,6 +250,8 @@ public interface AssessmentManager {
 	long requestCompetenceAssessment(AssessmentRequestData assessmentRequestData, UserContextData context)
 			throws DbConnectionException, IllegalDataStateException;
 
+	Result<CompetenceAssessmentData> requestCompetenceAssessmentGetEventsAndReturnCompetenceAssessmentData(long credentialId, long competenceId, long studentId, long assessorId, int numberOfTokensForAssessmentRequest, UserContextData context) throws DbConnectionException, IllegalDataStateException;
+
 	Result<CompetenceAssessment> requestCompetenceAssessmentAndGetEvents(long credentialId, long competenceId, long studentId, long assessorId, int numberOfTokensForAssessmentRequest, UserContextData context) throws DbConnectionException, IllegalDataStateException;
 
 	Result<CompetenceAssessment> createSelfCompetenceAssessmentAndGetEvents(long credentialId, long competenceId, long studentId, UserContextData context) throws DbConnectionException, IllegalDataStateException;

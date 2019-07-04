@@ -187,7 +187,7 @@ public class BusinessCase_Test_3_3 extends BusinessCase_Test_3 {
             } else if (competenceAssessmentData.getTargetCompetenceId() == credential1Delivery1Comp6TargetHelen.getId()) {
                 lvl = rubricData.getLevels().get(2).getId();
             }
-            gradeCompetenceAssessmentWithRubric(events, competenceAssessmentData, userAnnaHallowell, AssessmentType.INSTRUCTOR_ASSESSMENT, lvl);
+            gradeCompetenceAssessmentWithRubric(events, competenceAssessmentData, userAnnaHallowell, lvl);
         }
         approveCredentialAssessment(events, instructorCredentialAssessmentData.getCredAssessmentId(), instructorCredentialAssessmentData.getCredentialId(), userAnnaHallowell);
 

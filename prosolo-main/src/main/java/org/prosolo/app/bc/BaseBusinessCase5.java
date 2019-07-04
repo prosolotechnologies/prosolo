@@ -514,6 +514,10 @@ public abstract class BaseBusinessCase5 extends BaseBusinessCase {
         assignInstructorToStudent(events, instructor, List.of(student), delivery);
     }
 
+    protected void withdrawFromBeingInstructor(EventQueue events, long credentialId, long studentId, User instructorUser) throws IllegalDataStateException {
+        extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CredentialInstructorManager.class).withdrawFromBeingInstructorAndGetEvents(credentialId, studentId, createUserContext(instructorUser)));
+    }
+
     protected CommentData createNewComment(EventQueue events, User user, String text, long commentedResourceId, CommentedResourceType commentedResourceType, CommentData parent, boolean isManagerComment, long credentialId) throws IllegalDataStateException {
         CommentData newComment = new CommentData();
         newComment.setCommentedResourceId(commentedResourceId);
