@@ -593,4 +593,26 @@ public interface AssessmentManager {
 	 */
 	Result<Void> expireCompetenceAssessmentRequestAndGetEvents(long competenceAssessmentId, UserContextData context) throws IllegalDataStateException;
 
+	/**
+	 * Returns assessment status for active credential assessment for given type, credential id, student and assessor ids
+	 *
+	 * @param assessmentType
+	 * @param credentialId
+	 * @param studentId
+	 * @param assessorId
+	 * @return
+	 */
+	Optional<AssessmentStatus> getActiveCredentialAssessmentStatus(AssessmentType assessmentType, long credentialId, long studentId, long assessorId);
+
+	/**
+	 * Returns assessment status for active competency assessment for given type, credential id, competency id, student and assessor ids
+	 *
+	 * @param assessmentType
+	 * @param credentialId
+	 * @param competencyId
+	 * @param studentId
+	 * @param assessorId
+	 * @return
+	 */
+	Optional<AssessmentStatus> getActiveCompetencyAssessmentStatus(AssessmentType assessmentType, long credentialId, long competencyId, long studentId, long assessorId);
 }

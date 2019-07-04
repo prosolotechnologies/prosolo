@@ -177,13 +177,19 @@
 								</div>
 							</ui:fragment>
 
+							<ui:fragment rendered="#{cc.attrs.bean.assessmentSubmitted}">
+								<div class="alert alert-danger" role="alert">
+									You cannot send a notification to the assessor since the assessment has already been submitted.
+								</div>
+							</ui:fragment>
+
 							<p>
 								<ui:param name="peerBlindAssessment" value="#{cc.attrs.bean.isPeerBlindAssessment()}"/>
-								<ui:param name="existingAssessmentWithAssessorSet" value="#{cc.attrs.bean.assessmentRequestData.assessorSet and not cc.attrs.bean.assessmentRequestData.newAssessment}"/>
+								<ui:param name="existingNotSubmittedAssessmentWithAssessorSet" value="#{cc.attrs.bean.assessmentRequestData.assessorSet and not cc.attrs.bean.assessmentRequestData.newAssessment and not cc.attrs.bean.assessmentSubmitted}"/>
 								<ui:fragment rendered="#{peerBlindAssessment}">
 									All peer assessments are blinded (peer assessor identity is hidden to you).
 								</ui:fragment>
-								<ui:fragment rendered="#{existingAssessmentWithAssessorSet}">
+								<ui:fragment rendered="#{existingNotSubmittedAssessmentWithAssessorSet}">
 									<ui:fragment rendered="#{cc.attrs.bean.assessmentType eq 'INSTRUCTOR_ASSESSMENT'}">
 										Are you sure you want to notify your #{msg['label.instructor'].toLowerCase()} to assess your #{msg['label.'.concat(cc.attrs.resource.toLowerCase())].toLowerCase()}?
 									</ui:fragment>
@@ -221,7 +227,7 @@
 									</ui:fragment>
 								</ui:fragment>
 								<ui:fragment rendered="#{cc.attrs.bean.isValidRequest() and cc.attrs.bean.remindStudentToSubmitEvidenceSummary}">
-									<ui:fragment rendered="#{peerBlindAssessment or existingAssessmentWithAssessorSet}">
+									<ui:fragment rendered="#{peerBlindAssessment or existingNotSubmittedAssessmentWithAssessorSet}">
 										<br/><br/>
 									</ui:fragment>
 									<ui:fragment rendered="#{cc.attrs.resource eq 'COMPETENCE'}">

@@ -61,6 +61,7 @@ public abstract class AskForAssessmentBean implements Serializable {
     protected List<Long> usersToExcludeFromPeerSearch;
     protected AssessmentRequestData assessmentRequestData = new AssessmentRequestData();
     protected BlindAssessmentMode blindAssessmentMode;
+    protected boolean assessmentSubmitted;
     protected PaginationData paginationData = new PaginationData();
     protected boolean remindStudentToSubmitEvidenceSummary;
     private UserAssessmentTokenExtendedData userAssessmentTokenData;
@@ -85,7 +86,14 @@ public abstract class AskForAssessmentBean implements Serializable {
             //if student can choose assessor we do not set assessor but assessment is treated as new, at least until assessor is set
             assessmentRequestData.setNewAssessment(true);
         }
+        setAssessmentSubmitted();
     }
+
+    protected void setAssessmentSubmitted() {
+        assessmentSubmitted = !assessmentRequestData.isNewAssessment() && assessmentRequestData.isAssessorSet() && checkIfAssessmentIsSubmitted();
+    }
+
+    protected abstract boolean checkIfAssessmentIsSubmitted();
 
     private boolean isAssessorPredetermined() {
         return assessmentType == AssessmentType.PEER_ASSESSMENT &&
@@ -194,6 +202,7 @@ public abstract class AskForAssessmentBean implements Serializable {
         assessmentRequestData.setAssessorAvatarUrl(assessorData.getAvatarUrl());
         assessmentRequestData.setNewAssessment(assessmentType == AssessmentType.PEER_ASSESSMENT
                 && !existingPeerAssessors.contains(assessmentRequestData.getAssessorId()));
+        setAssessmentSubmitted();
     }
 
     public void setPeerAssessorFromThePool() {
@@ -222,7 +231,7 @@ public abstract class AskForAssessmentBean implements Serializable {
     public boolean isValidRequest() {
         return
                 //for assessment notification
-                (!assessmentRequestData.isNewAssessment() && assessmentRequestData.isAssessorSet())
+                (!assessmentRequestData.isNewAssessment() && assessmentRequestData.isAssessorSet() && !assessmentSubmitted)
                         //for new assessment request when assessor is not set
                         || isValidAssessmentRequestWithoutAssessorSet()
                         //for new assessment request when assessor is set
@@ -345,5 +354,9 @@ public abstract class AskForAssessmentBean implements Serializable {
 
     public UserAssessmentTokenExtendedData getUserAssessmentTokenData() {
         return userAssessmentTokenData;
+    }
+
+    public boolean isAssessmentSubmitted() {
+        return assessmentSubmitted;
     }
 }

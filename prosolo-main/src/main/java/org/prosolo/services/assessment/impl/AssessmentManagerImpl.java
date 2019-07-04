@@ -4442,4 +4442,18 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
         }
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<AssessmentStatus> getActiveCredentialAssessmentStatus(AssessmentType assessmentType, long credentialId, long studentId, long assessorId) {
+        Optional<CredentialAssessment> credentialAssessment = getCredentialAssessment(credentialId, studentId, assessorId, assessmentType, AssessmentStatus.getActiveStatuses());
+        return credentialAssessment.isPresent() ? Optional.of(credentialAssessment.get().getStatus()) : Optional.empty();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<AssessmentStatus> getActiveCompetencyAssessmentStatus(AssessmentType assessmentType, long credentialId, long competencyId, long studentId, long assessorId) {
+        Optional<CompetenceAssessment> competencyAssessment = getActiveCompetenceAssessment(credentialId, competencyId, studentId, assessorId, assessmentType);
+        return competencyAssessment.isPresent() ? Optional.of(competencyAssessment.get().getStatus()) : Optional.empty();
+    }
+
 }

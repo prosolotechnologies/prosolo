@@ -2,6 +2,7 @@ package org.prosolo.web.assessments;
 
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
+import org.prosolo.common.domainmodel.assessment.AssessmentStatus;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.credential.BlindAssessmentMode;
 import org.prosolo.search.impl.PaginatedResult;
@@ -125,5 +126,15 @@ public class AskForCredentialAssessmentBean extends AskForAssessmentBean impleme
     protected Set<Long> getExistingPeerAssessors() {
         return new HashSet<>(assessmentManager
                 .getPeerAssessorIdsForCredential(resourceId, loggedUser.getUserId()));
+    }
+
+    @Override
+    protected boolean checkIfAssessmentIsSubmitted() {
+        Optional<AssessmentStatus> activeCredentialAssessmentStatus = assessmentManager.getActiveCredentialAssessmentStatus(
+                assessmentType,
+                assessmentRequestData.getResourceId(),
+                assessmentRequestData.getStudentId(),
+                assessmentRequestData.getAssessorId());
+        return activeCredentialAssessmentStatus.isPresent() && activeCredentialAssessmentStatus.get() == AssessmentStatus.SUBMITTED;
     }
 }

@@ -19,6 +19,6 @@ public class UserAssessmentTokenExtendedData extends UserAssessmentTokenData {
     }
 
     public boolean doesUserHaveEnoughTokensForOneRequest() {
-        return getNumberOfTokensAvailable() > getNumberOfTokensSpentPerRequest();
+        return getNumberOfTokensAvailable() >= getNumberOfTokensSpentPerRequest();
     }
 }
