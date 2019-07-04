@@ -56,6 +56,7 @@ public class CompetenceAssessmentDataFull {
 	private AssessmentType type;
 	private AssessmentStatus status;
 	private long quitDate;
+	private long dateSubmitted;
 	private LearningPathType learningPathType;
 	private String evidenceSummary;
 	private BlindAssessmentMode blindAssessmentMode;
@@ -81,6 +82,7 @@ public class CompetenceAssessmentDataFull {
 		data.setType(compAssessment.getType());
 		data.setStatus(compAssessment.getStatus());
 		data.setQuitDate(DateUtil.getMillisFromDate(compAssessment.getQuitDate()));
+		data.setDateSubmitted(DateUtil.getMillisFromDate(compAssessment.getDateApproved()));
 		data.setCompetenceId(cd.getCompetenceId());
 		data.setTargetCompetenceId(cd.getTargetCompId());
 		if (compAssessment.getAssessor() != null) {
@@ -446,5 +448,13 @@ public class CompetenceAssessmentDataFull {
 
 	public void setQuitDate(long quitDate) {
 		this.quitDate = quitDate;
+	}
+
+	public long getDateSubmitted() {
+		return dateSubmitted;
+	}
+
+	public void setDateSubmitted(long dateSubmitted) {
+		this.dateSubmitted = dateSubmitted;
 	}
 }

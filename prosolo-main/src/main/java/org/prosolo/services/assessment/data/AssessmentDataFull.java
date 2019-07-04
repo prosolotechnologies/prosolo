@@ -43,6 +43,7 @@ public class AssessmentDataFull {
 	private AssessmentType type;
 	private AssessmentStatus status;
 	private long quitDate;
+	private long dateSubmitted;
 	private GradeData gradeData;
 	private List<AssessmentDiscussionMessageData> messages = new LinkedList<>();
 	private boolean allRead = true; 	// whether user has read all the messages in the thread
@@ -85,6 +86,7 @@ public class AssessmentDataFull {
 		data.setType(assessment.getType());
 		data.setStatus(assessment.getStatus());
 		data.setQuitDate(DateUtil.getMillisFromDate(assessment.getQuitDate()));
+		data.setDateSubmitted(DateUtil.getMillisFromDate(assessment.getDateApproved()));
 
 		if (data.isAssessmentInitialized()) {
 			data.setAssessorNotified(assessment.isAssessorNotified());
@@ -436,6 +438,14 @@ public class AssessmentDataFull {
 
 	public void setQuitDate(long quitDate) {
 		this.quitDate = quitDate;
+	}
+
+	public long getDateSubmitted() {
+		return dateSubmitted;
+	}
+
+	public void setDateSubmitted(long dateSubmitted) {
+		this.dateSubmitted = dateSubmitted;
 	}
 
 	public long getInstructorUserId() {
