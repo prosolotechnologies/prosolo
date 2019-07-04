@@ -54,8 +54,11 @@
 
                         <div class="discussion">
                             <div class="comments">
-                                <ui:fragment rendered="#{not empty cc.attrs.messages}">
-                                    <ul class="media-list">
+                                <ul class="media-list">
+                                    <ui:fragment rendered="#{empty cc.attrs.messages}">
+                                        <li class="noPeople">No comments.</li>
+                                    </ui:fragment>
+                                    <ui:fragment rendered="#{not empty cc.attrs.messages}">
                                         <ui:repeat id="commentList" var="activityMessageData" value="#{cc.attrs.messages}" varStatus="status">
                                             <li class="media">
                                                 <div class="media-left">
@@ -163,8 +166,8 @@
                                                 </div>
                                             </li>
                                         </ui:repeat>
-                                    </ul>
-                                </ui:fragment>
+                                    </ui:fragment>
+                                </ul>
                             </div>
 
                             <ui:fragment rendered="#{not cc.attrs.readOnly}">
