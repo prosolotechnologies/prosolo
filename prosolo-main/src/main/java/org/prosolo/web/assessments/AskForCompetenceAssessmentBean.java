@@ -2,6 +2,7 @@ package org.prosolo.web.assessments;
 
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
+import org.prosolo.common.domainmodel.assessment.AssessmentStatus;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.assessment.AssessorAssignmentMethod;
 import org.prosolo.common.domainmodel.credential.BlindAssessmentMode;
@@ -152,6 +153,17 @@ public class AskForCompetenceAssessmentBean extends AskForAssessmentBean impleme
     protected boolean shouldStudentBeRemindedToSubmitEvidenceSummary() {
         //student should be reminded if competency is evidence based
         return compManager.getCompetenceLearningPathType(resourceId) == LearningPathType.EVIDENCE;
+    }
+
+    @Override
+    protected boolean checkIfAssessmentIsSubmitted() {
+        Optional<AssessmentStatus> activeCompetencyAssessmentStatus = assessmentManager.getActiveCompetencyAssessmentStatus(
+                assessmentType,
+                assessmentRequestData.getCredentialId(),
+                assessmentRequestData.getResourceId(),
+                assessmentRequestData.getStudentId(),
+                assessmentRequestData.getAssessorId());
+        return activeCompetencyAssessmentStatus.isPresent() && activeCompetencyAssessmentStatus.get() == AssessmentStatus.SUBMITTED;
     }
 
     @Override
