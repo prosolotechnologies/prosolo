@@ -29,6 +29,7 @@ import org.prosolo.web.util.pagination.PaginationData;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import javax.faces.bean.ManagedBean;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import java.io.Serializable;
@@ -37,6 +38,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@ManagedBean(name = "competenceLibraryBean")
 @Component("competenceLibraryBean")
 @Scope("view")
 public class CompetenceLibraryBean implements Serializable, Paginable {
@@ -71,8 +73,16 @@ public class CompetenceLibraryBean implements Serializable, Paginable {
 	private final CompetenceSearchConfig config = CompetenceSearchConfig.of(
 			true, true, false, true, LearningResourceType.USER_CREATED);
 
+	@Getter
+	@Setter
+	private int page;
+
 	public void init() {
 		searchFilters = CompetenceLibrarySearchFilter.values();
+
+		if (page > 0) {
+			paginationData.setPage(page);
+		}
 
 		try {
 			Long userRoleId = roleManager.getRoleIdByName(SystemRoleNames.USER);

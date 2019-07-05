@@ -67,11 +67,17 @@ public class AnnouncementBeanManager implements Serializable, Paginable {
     @Getter
     private ResourceAccessData access;
 
-    public void init() {
+    @Getter
+    @Setter
+    private int page;
 
+    public void init() {
         decodedCredentialId = idEncoder.decodeId(credentialId);
 
         if (decodedCredentialId > 0) {
+            if (page > 0) {
+                paginationData.setPage(page);
+            }
             try {
                 access = credManager.getResourceAccessData(decodedCredentialId, loggedUser.getUserId(),
                         ResourceAccessRequirements.of(AccessMode.MANAGER)

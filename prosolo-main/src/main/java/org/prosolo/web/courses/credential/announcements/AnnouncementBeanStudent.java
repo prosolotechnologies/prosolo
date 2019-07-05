@@ -54,10 +54,17 @@ public class AnnouncementBeanStudent implements Serializable, Paginable {
 
     private PaginationData paginationData = new PaginationData();
 
+    @Getter
+    @Setter
+    private int page;
+
     public void init() {
         decodedCredentialId = idEncoder.decodeId(credentialId);
 
         if (decodedCredentialId > 0) {
+            if (page > 0) {
+                paginationData.setPage(page);
+            }
             try {
                 boolean userEnrolled = credManager.isUserEnrolled(decodedCredentialId, loggedUser.getUserId());
 
@@ -194,4 +201,5 @@ public class AnnouncementBeanStudent implements Serializable, Paginable {
     public long getDecodedCredentialId() {
         return decodedCredentialId;
     }
+
 }

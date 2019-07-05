@@ -1,5 +1,7 @@
 package org.prosolo.web.administration;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.log4j.Logger;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.nodes.OrganizationManager;
@@ -35,7 +37,14 @@ public class OrganizationsBean implements Serializable,Paginable {
     private PaginationData paginationData = new PaginationData();
     private OrganizationData organizationToDelete;
 
+    @Getter
+    @Setter
+    private int page;
+
     public void init(){
+        if (page > 0) {
+            paginationData.setPage(page);
+        }
         loadOrganizations();
     }
 

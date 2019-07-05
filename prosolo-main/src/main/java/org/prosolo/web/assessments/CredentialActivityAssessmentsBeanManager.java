@@ -1,5 +1,7 @@
 package org.prosolo.web.assessments;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
@@ -71,11 +73,18 @@ public class CredentialActivityAssessmentsBeanManager implements Serializable, P
 
 	private ResourceAccessData access;
 
+	@Getter
+	@Setter
+	private int page;
+
 	public void init() {
 		decodedActId = idEncoder.decodeId(actId);
 		decodedCredId = idEncoder.decodeId(credId);
 
 		if (decodedActId > 0 && decodedCredId > 0) {
+			if (page > 0) {
+				paginationData.setPage(page);
+			}
 			try {
 				/*
 				 * check if user has instructor privilege for this resource and if has, we should mark his comments as

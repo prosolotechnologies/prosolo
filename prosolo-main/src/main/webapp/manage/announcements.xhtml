@@ -17,7 +17,7 @@
 	<ui:define name="metadata">
 		<f:metadata>
 			<f:viewParam name="id" value="#{announcementBeanManager.credentialId}" default="null" />
-			<f:viewParam name="p" value="#{announcementBeanManager.paginationData.pageString}" default="1" />
+			<f:viewParam name="p" value="#{announcementBeanManager.page}" default="1" />
 			<f:viewAction action="#{announcementBeanManager.init()}" />
 		</f:metadata>
 	</ui:define>
