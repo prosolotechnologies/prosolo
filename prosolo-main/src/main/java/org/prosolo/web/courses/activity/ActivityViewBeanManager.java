@@ -1,5 +1,7 @@
 package org.prosolo.web.courses.activity;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
@@ -42,27 +44,27 @@ public class ActivityViewBeanManager implements Serializable {
 	@Inject private CredentialManager credManager;
 	@Inject private Competence1Manager compManager;
 
-	private String actId;
-	private long decodedActId;
-	private String compId;
-	private long decodedCompId;
-	private String credId;
-	private long decodedCredId;
-	private String commentId;
-	
-	private CompetenceData1 competenceData;
-	private ResourceAccessData access;
-	private CommentsData commentsData;
+	@Getter	@Setter	private String actId;
+	@Getter	@Setter	private String compId;
+	@Getter	@Setter	private String credId;
+	@Getter	@Setter	private String commentId;
 
-	private CredentialIdData credentialIdData;
+	private long decodedActId;
+	@Getter private long decodedCompId;
+	@Getter private long decodedCredId;
+
+	@Getter private CompetenceData1 competenceData;
+	@Getter private ResourceAccessData access;
+	@Getter private CommentsData commentsData;
+
+	@Getter private CredentialIdData credentialIdData;
 
 	public void init() {	
 		decodedActId = idEncoder.decodeId(actId);
 		decodedCompId = idEncoder.decodeId(compId);
-		if (decodedActId > 0 && decodedCompId > 0) {
-			if(credId != null) {
-				decodedCredId = idEncoder.decodeId(credId);
-			}
+		decodedCredId = idEncoder.decodeId(credId);
+
+		if (decodedActId > 0 && decodedCompId > 0 && decodedCredId > 0) {
 			try {
 				ResourceAccessRequirements req = ResourceAccessRequirements
 						.of(AccessMode.MANAGER)
@@ -76,13 +78,21 @@ public class ActivityViewBeanManager implements Serializable {
 				if (!access.isCanRead()) {
 					PageUtil.accessDenied();
 				} else {
-					competenceData = activityManager
-							.getCompetenceActivitiesWithSpecifiedActivityInFocus(
+					// check if credential, competency and activity are mutually connected
+					activityManager.checkIfActivityAndCompetenceArePartOfCredential(decodedCredId, decodedCompId, decodedActId);
+
+					competenceData = activityManager.getCompetenceActivitiesWithSpecifiedActivityInFocus(
 									decodedCredId, decodedCompId, decodedActId);
-					commentsData = new CommentsData(CommentedResourceType.Activity, 
-							competenceData.getActivityToShowWithDetails().getActivityId(), 
-							access.isCanInstruct(), true);
-					commentsData.setCommentId(idEncoder.decodeId(commentId));
+					commentsData = CommentsData
+							.builder()
+							.resourceType(CommentedResourceType.Activity)
+							.resourceId(competenceData.getActivityToShowWithDetails().getActivityId())
+							.isInstructor(access.isCanInstruct())
+							.isManagerComment(true)
+							.commentId(idEncoder.decodeId(commentId))
+							.credentialId(decodedCredId)
+							.build();
+
 					commentBean.loadComments(commentsData);
 					
 					ActivityUtil.createTempFilesAndSetUrlsForCaptions(
@@ -106,12 +116,10 @@ public class ActivityViewBeanManager implements Serializable {
 	private void loadCompetenceAndCredentialTitle() {
 		String compTitle = compManager.getCompetenceTitle(decodedCompId);
 		competenceData.setTitle(compTitle);
-		if (decodedCredId > 0) {
-			credentialIdData = credManager.getCredentialIdData(decodedCredId, null);
-			competenceData.setCredentialId(decodedCredId);
-			competenceData.setCredentialTitle(credentialIdData.getTitle());
-		}
-		
+
+		credentialIdData = credManager.getCredentialIdData(decodedCredId, null);
+		competenceData.setCredentialId(decodedCredId);
+		competenceData.setCredentialTitle(credentialIdData.getTitle());
 	}
 
 	public boolean isActivityActive(ActivityData act) {
@@ -122,87 +130,4 @@ public class ActivityViewBeanManager implements Serializable {
 		return competenceData.getActivityToShowWithDetails().getCreatorId() == loggedUser.getUserId();
 	}
 	
-	/*
-	 * GETTERS / SETTERS
-	 */
-
-	public CompetenceData1 getCompetenceData() {
-		return competenceData;
-	}
-
-	public String getActId() {
-		return actId;
-	}
-
-	public void setActId(String actId) {
-		this.actId = actId;
-	}
-
-	public long getDecodedActId() {
-		return decodedActId;
-	}
-
-	public void setDecodedActId(long decodedActId) {
-		this.decodedActId = decodedActId;
-	}
-
-	public String getCompId() {
-		return compId;
-	}
-
-	public void setCompId(String compId) {
-		this.compId = compId;
-	}
-
-	public long getDecodedCompId() {
-		return decodedCompId;
-	}
-
-	public void setDecodedCompId(long decodedCompId) {
-		this.decodedCompId = decodedCompId;
-	}
-
-	public String getCredId() {
-		return credId;
-	}
-
-	public void setCredId(String credId) {
-		this.credId = credId;
-	}
-
-	public long getDecodedCredId() {
-		return decodedCredId;
-	}
-
-	public void setDecodedCredId(long decodedCredId) {
-		this.decodedCredId = decodedCredId;
-	}
-
-	public void setCompetenceData(CompetenceData1 competenceData) {
-		this.competenceData = competenceData;
-	}
-
-	public CommentsData getCommentsData() {
-		return commentsData;
-	}
-
-	public void setCommentsData(CommentsData commentsData) {
-		this.commentsData = commentsData;
-	}
-
-	public String getCommentId() {
-		return commentId;
-	}
-
-	public void setCommentId(String commentId) {
-		this.commentId = commentId;
-	}
-
-	public ResourceAccessData getAccess() {
-		return access;
-	}
-
-	public CredentialIdData getCredentialIdData() {
-		return credentialIdData;
-	}
 }

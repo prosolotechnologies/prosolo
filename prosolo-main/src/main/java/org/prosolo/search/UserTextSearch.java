@@ -12,6 +12,7 @@ import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.user.data.StudentData;
 import org.prosolo.services.user.data.UserData;
 import org.prosolo.services.nodes.data.instructor.InstructorData;
+import org.prosolo.web.administration.data.RoleData;
 
 import java.util.Collection;
 import java.util.List;
@@ -25,7 +26,7 @@ public interface UserTextSearch extends AbstractManager {
 
 	PaginatedResult<UserData> searchUsers(long orgId, String searchString,
 										  int page, int limit, boolean loadOneMore,
-										  Collection<Long> excludeUserIds);
+										  Collection<Long> includeUserIds, Collection<Long> excludeUserIds);
 	
 	/**
 	 * Returns list of students currently learning credential specified by {@code credId}.
@@ -48,8 +49,7 @@ public interface UserTextSearch extends AbstractManager {
 			InstructorSortOption sortOption, List<Long> excludedIds);
 
 	PaginatedResult<UserData> searchUsersWithInstructorRole (long orgId, String searchTerm,
-															 long credId, long roleId, List<Long> unitIds,
-															 List<Long> excludedUserIds);
+															 long credId, long roleId, List<Long> unitIds);
 	
 	PaginatedResult<StudentData> searchUnassignedAndStudentsAssignedToInstructor(
 			long orgId, String searchTerm, long credId, long instructorId, StudentAssignSearchFilter.SearchFilter filter,
@@ -74,7 +74,7 @@ public interface UserTextSearch extends AbstractManager {
 	 * @return
 	 */
 	PaginatedResult<UserData> getUsersWithRoles(
-			String term, int page, int limit, boolean paginate, long roleId, List<Role> adminRoles,
+			String term, int page, int limit, boolean paginate, long roleId, List<RoleData> adminRoles,
 			boolean includeSystemUsers, List<Long> excludeIds, long organizationId);
 	
 	PaginatedResult<StudentData> searchCredentialMembersWithLearningStatusFilter (

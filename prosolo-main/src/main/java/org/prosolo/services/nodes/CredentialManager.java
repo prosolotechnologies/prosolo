@@ -9,15 +9,16 @@ import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.assessment.AssessorAssignmentMethod;
 import org.prosolo.common.domainmodel.credential.*;
+import org.prosolo.common.event.EventQueue;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.search.util.credential.CredentialDeliverySortOption;
 import org.prosolo.search.util.credential.CredentialMembersSearchFilter;
 import org.prosolo.search.util.credential.CredentialSearchFilterManager;
+import org.prosolo.search.util.credential.CredentialStudentsInstructorFilter;
 import org.prosolo.services.assessment.data.AssessmentTypeConfig;
 import org.prosolo.services.common.data.SortOrder;
 import org.prosolo.services.data.Result;
-import org.prosolo.services.event.EventQueue;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.nodes.config.credential.CredentialLoadConfig;
 import org.prosolo.services.nodes.data.*;
@@ -271,12 +272,30 @@ public interface CredentialManager extends AbstractManager {
 	long getTargetCredentialNextCompToLearn(long credId, long userId) throws DbConnectionException;
 	
 	long getNumberOfUsersLearningCredential(long credId) throws DbConnectionException;
-	
-	List<StudentData> getCredentialStudentsData(long credId, int limit) throws DbConnectionException;
+
+	/**
+	 * Returns students enrolled in credential, taking into account {@code limit} (max number of students returned) and instructor filter.
+	 *
+	 * @param credId
+	 * @param instructorFilter
+	 * @param limit
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	List<StudentData> getCredentialStudentsData(long credId, CredentialStudentsInstructorFilter instructorFilter, int limit) throws DbConnectionException;
 
 	StudentData getCredentialStudentsData(long credId, long studentId) throws DbConnectionException;
-	
-	CredentialMembersSearchFilter[] getFiltersWithNumberOfStudentsBelongingToEachCategory(long credId)
+
+	/**
+	 * Returns filters populated with number of students belonging to each filter/category, taking into
+	 * account instructor filter
+	 *
+	 * @param credId
+	 * @param instructorFilter
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	CredentialMembersSearchFilter[] getFiltersWithNumberOfStudentsBelongingToEachCategory(long credId, CredentialStudentsInstructorFilter instructorFilter)
 			throws DbConnectionException;
 	
 	List<Credential1> getAllCredentials(long orgId, Session session) throws DbConnectionException;
@@ -289,8 +308,8 @@ public interface CredentialManager extends AbstractManager {
     		UserContextData context) throws DbConnectionException;
 	
 	EventQueue updateCredentialVisibilityAndGetEvents(long credId, List<ResourceVisibilityMember> groups,
-    		List<ResourceVisibilityMember> users, boolean visibleToAll, boolean visibleToAllChanged,
-    		UserContextData context) throws DbConnectionException;
+													  List<ResourceVisibilityMember> users, boolean visibleToAll, boolean visibleToAllChanged,
+													  UserContextData context) throws DbConnectionException;
 	
 	boolean isVisibleToAll(long credId) throws DbConnectionException;
 
@@ -370,6 +389,14 @@ public interface CredentialManager extends AbstractManager {
 	
 	ResourceAccessData getResourceAccessData(long credId, long userId, ResourceAccessRequirements req) 
 			throws DbConnectionException;
+
+	/**
+	 * Returns ids of all competencies that are part of the credential with given id.
+	 * 
+	 * @param credId
+	 * @return
+	 */
+	List<Long> getIdsOfAllCompetencesInACredential(long credId);
 	
 	List<Long> getIdsOfAllCompetencesInACredential(long credId, Session session) throws DbConnectionException;
 	
@@ -452,11 +479,10 @@ public interface CredentialManager extends AbstractManager {
 	 *
 	 * @param credentialId
 	 * @param studentId
-	 * @param session
 	 * @return
 	 * @throws DbConnectionException
 	 */
-	TargetCredential1 getTargetCredentialForStudentAndCredential(long credentialId, long studentId, Session session);
+	TargetCredential1 getTargetCredentialForStudentAndCredential(long credentialId, long studentId);
 
 	/**
 	 * Returns true if there is at least one competency in credential with evidence learning path enabled

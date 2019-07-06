@@ -16,6 +16,7 @@ import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.services.util.roles.SystemRoleNames;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.PageAccessRightsResolver;
+import org.prosolo.web.administration.data.RoleData;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -78,7 +79,7 @@ public class UserEditBean implements Serializable {
 	private UserData newOwner = new UserData();
 	private List<UserData> users;
 	private String searchTerm;
-	private List<Role> allRoles;
+	private List<RoleData> allRoles;
 	private List<RoleCheckboxData> allRolesCheckBoxData;
 	private List<UserData> usersToExclude = new ArrayList<>();
 
@@ -173,8 +174,8 @@ public class UserEditBean implements Serializable {
 			allRolesCheckBoxData = new ArrayList<>();
 			if (allRoles != null) {
 				for (int i = 0; i < allRoles.size(); i++) {
-					Role r = allRoles.get(i);
-					RoleCheckboxData roleCheckboxData = new RoleCheckboxData(r.getTitle(), this.user.hasRole(r.getId()), r.getId());
+					RoleData r = allRoles.get(i);
+					RoleCheckboxData roleCheckboxData = new RoleCheckboxData(r.getName(), this.user.hasRole(r.getId()), r.getId());
 					allRolesCheckBoxData.add(roleCheckboxData);
 				}
 			}
@@ -231,8 +232,9 @@ public class UserEditBean implements Serializable {
 					false,
 					this.user.getPassword(),
 					this.user.getPosition(),
+					this.user.getNumberOfTokens(),
 					getSelectedRoles(),
-					allRoles.stream().map(Role::getId).collect(Collectors.toList()),
+					allRoles.stream().map(RoleData::getId).collect(Collectors.toList()),
 					loggedUser.getUserContext(decodedOrgId));
 
 			logger.debug("Admin user (" + updatedUser.getId() + ") updated by the user " + loggedUser.getUserId());

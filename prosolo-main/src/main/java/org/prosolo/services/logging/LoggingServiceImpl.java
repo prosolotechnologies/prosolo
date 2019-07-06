@@ -55,8 +55,6 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 	@Inject 
 	private LogsDataManager logsDataManager;
 	@Inject
-	private ContextJsonParserService contextJsonParserService;
-	@Inject
 	private EventFactory eventFactory;
 	@Inject @Qualifier("taskExecutor")
 	private ThreadPoolTaskExecutor taskExecutor;
@@ -112,7 +110,7 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 							 String targetType, Map<String, String> params, String ipAddress) throws LoggingException {
 		LearningContext learningContext = null;
 		if (context.getContext() != null) {
-			learningContext = contextJsonParserService
+			learningContext = ContextJsonParserService
 					.parseCustomContextString(context.getContext().getPage(), context.getContext().getLearningContext(),
 							context.getContext().getService());
 		}
@@ -130,7 +128,7 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 		parameters.put("objectType", "page");
 		parameters.put("link", link);
 
-		eventFactory.generateEvent(EventType.NAVIGATE, context, null, null,null, parameters);
+		eventFactory.generateAndPublishEvent(EventType.NAVIGATE, context, null, null,null, parameters);
 	}
 	
 	@Override
@@ -143,7 +141,7 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 		parameters.put("objectType", "email");
 		parameters.put("link", link);
 		
-		eventFactory.generateEvent(EventType.NAVIGATE, context, null, null, null, parameters);
+		eventFactory.generateAndPublishEvent(EventType.NAVIGATE, context, null, null, null, parameters);
 	}
 
 	@Override
@@ -276,7 +274,10 @@ public class LoggingServiceImpl extends AbstractDB implements LoggingService {
 	}
 
  	private Long extractCourseIdForUsedResource(LearningContext learningContext) {
-		Long courseId = Context.getIdFromSubContextWithName(learningContext.getContext(), ContextName.CREDENTIAL);
+		long courseId = Context.getIdFromSubContextWithName(learningContext.getContext(), ContextName.DELIVERY);
+
+		if (courseId == 0)
+			courseId = Context.getIdFromSubContextWithName(learningContext.getContext(), ContextName.CREDENTIAL);
 		/*if(learningContext != null && learningContext.getContext() != null) {
 			if(learningContext.getContext().getContext().getName().equals(ContextName.CREDENTIAL)){
 					courseId=learningContext.getContext().getContext().getId();

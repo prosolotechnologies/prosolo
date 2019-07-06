@@ -1,76 +1,74 @@
 package org.prosolo.services.notifications.eventprocessing;
 
 import org.apache.log4j.Logger;
-import org.hibernate.Session;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
-import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
-import org.prosolo.common.domainmodel.credential.BlindAssessmentMode;
 import org.prosolo.common.domainmodel.user.notifications.NotificationType;
 import org.prosolo.common.domainmodel.user.notifications.ResourceType;
-import org.prosolo.common.event.context.Context;
-import org.prosolo.common.event.context.ContextName;
+import org.prosolo.common.event.Event;
 import org.prosolo.services.assessment.AssessmentManager;
-import org.prosolo.services.context.ContextJsonParserService;
-import org.prosolo.services.event.Event;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
-import org.prosolo.services.nodes.Competence1Manager;
-import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.notifications.NotificationManager;
 import org.prosolo.services.notifications.eventprocessing.data.NotificationReceiverData;
 import org.prosolo.services.notifications.eventprocessing.util.AssessmentLinkUtil;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.util.page.PageSection;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class CompetenceAssessmentRequestEventProcessor extends CompetenceAssessmentNotificationEventProcessor {
 
-	@SuppressWarnings("unused")
-	private static Logger logger = Logger.getLogger(CompetenceAssessmentRequestEventProcessor.class);
+    @SuppressWarnings("unused")
+    private static Logger logger = Logger.getLogger(CompetenceAssessmentRequestEventProcessor.class);
 
-	private AssessmentManager assessmentManager;
-
-	public CompetenceAssessmentRequestEventProcessor(Event event, Session session, NotificationManager notificationManager,
+	public CompetenceAssessmentRequestEventProcessor(Event event, NotificationManager notificationManager,
 													 NotificationsSettingsManager notificationsSettingsManager, UrlIdEncoder idEncoder,
-													 ContextJsonParserService ctxJsonParserService, AssessmentManager assessmentManager,
-													 CredentialManager credentialManager, Competence1Manager competenceManager) {
-		super(event, session, notificationManager, notificationsSettingsManager, idEncoder, ctxJsonParserService, credentialManager, competenceManager);
-		this.assessmentManager = assessmentManager;
+                                                     AssessmentManager assessmentManager) {
+		super(event, event.getObject().getId(), notificationManager, notificationsSettingsManager, idEncoder, assessmentManager);
 	}
 
-	@Override
-	boolean isConditionMet(long sender, long receiver) {
-		return true;
-	}
+    @Override
+    boolean isConditionMet(long sender, long receiver) {
+        return true;
+    }
 
-	@Override
-	List<NotificationReceiverData> getReceiversData() {
-		PageSection section = getAssessment().getType() == AssessmentType.INSTRUCTOR_ASSESSMENT ? PageSection.MANAGE : PageSection.STUDENT;
-		List<NotificationReceiverData> receivers = new ArrayList<>();
-		receivers.add(new NotificationReceiverData(event.getTarget().getId(), getNotificationLink(section),
-				false, section));
-		return receivers;
-	}
+    @Override
+    List<NotificationReceiverData> getReceiversData() {
+        PageSection section = competenceAssessment.getType() == AssessmentType.INSTRUCTOR_ASSESSMENT ? PageSection.MANAGE : PageSection.STUDENT;
 
-	@Override
-	NotificationType getNotificationType() {
-		return NotificationType.Assessment_Requested;
-	}
+        return List.of(new NotificationReceiverData(event.getTarget().getId(), getNotificationLink(),false, section));
+    }
 
-	@Override
-	ResourceType getObjectType() {
-		return ResourceType.Competence;
-	}
+    @Override
+    NotificationType getNotificationType() {
+        return NotificationType.Assessment_Requested;
+    }
 
-	@Override
-	long getObjectId() {
-		return getAssessment().getCompetence().getId();
-	}
+    @Override
+    ResourceType getObjectType() {
+        return ResourceType.Competence;
+    }
 
-	private String getNotificationLink(PageSection section) {
-		return AssessmentLinkUtil.getAssessmentNotificationLink(
-				getContext(), getCredentialId(), getAssessment().getCompetence().getId(), getAssessment().getId(), getAssessment().getType(), assessmentManager, idEncoder, session, section);
+    @Override
+    long getObjectId() {
+        return competenceId;
+    }
+
+    private String getNotificationLink() {
+        AssessmentType assessmentType = competenceAssessment.getType();
+
+        switch (assessmentType) {
+            case INSTRUCTOR_ASSESSMENT:
+                return AssessmentLinkUtil.getCredentialAssessmentUrlForAssessedStudent(
+                        idEncoder.encodeId(credentialId),
+                        idEncoder.encodeId(competenceAssessment.getCredentialAssessmentId()),
+                        assessmentType,
+                        PageSection.MANAGE);
+            case PEER_ASSESSMENT:
+                return AssessmentLinkUtil.getCompetenceAssessmentUrlForStudentPeerAssessor(
+                        idEncoder.encodeId(competenceAssessment.getCompetenceAssessmentId()));
+            default:
+                throw new IllegalArgumentException("Cannot generate notification link for the assessment type " + assessmentType);
+        }
 	}
 
 }

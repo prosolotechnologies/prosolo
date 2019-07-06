@@ -16,10 +16,15 @@ public enum NotificationType {
 	Comment_Like,
 	Social_Activity_Like,
 	Mention,
+	AnnouncementPublished,
+	GradeAdded,
 	Assessment_Requested,
 	Assessment_Approved,
 	Assessment_Comment,
-	//Started_Learning, 
-	AnnouncementPublished,
-	GradeAdded;
+	ASSESSMENT_REQUEST_ACCEPTED,
+	ASSESSMENT_REQUEST_DECLINED,
+	ASSESSOR_WITHDREW_FROM_ASSESSMENT,
+	ASSESSOR_ASSIGNED_TO_ASSESSMENT,
+	ASSIGNED_TO_ASSESSMENT_AS_ASSESSOR,
+	ASSESSMENT_REQUEST_EXPIRED
 }

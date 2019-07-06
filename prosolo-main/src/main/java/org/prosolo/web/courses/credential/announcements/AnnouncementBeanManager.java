@@ -1,12 +1,13 @@
 package org.prosolo.web.courses.credential.announcements;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+import org.prosolo.common.domainmodel.credential.AnnouncementPublishMode;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.UserContextData;
-import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.nodes.AnnouncementManager;
-import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.AnnouncementData;
 import org.prosolo.services.nodes.data.credential.CredentialData;
@@ -19,16 +20,13 @@ import org.prosolo.web.util.page.PageUtil;
 import org.prosolo.web.util.pagination.Paginable;
 import org.prosolo.web.util.pagination.PaginationData;
 import org.springframework.context.annotation.Scope;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
 import javax.faces.bean.ManagedBean;
-import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @ManagedBean(name = "announcementBeanManager")
 @Component("announcementBeanManager")
@@ -47,28 +45,30 @@ public class AnnouncementBeanManager implements Serializable, Paginable {
     private UrlIdEncoder idEncoder;
     @Inject
     private CredentialManager credManager;
-    @Inject
-    private ThreadPoolTaskExecutor taskExecutor;
-    @Inject
-    private AssessmentManager assessmentManager;
 
     //credential related data
+    @Getter @Setter
     private String credentialId;
+    @Getter
     private long decodedCredentialId;
+    @Getter
+    private AnnouncementData newAnnouncement;
 
+    @Getter
     private List<AnnouncementData> announcements = new ArrayList<>();
+    @Getter
     private CredentialData credentialData;
 
-    //new announcement related data
-    private String newAnnouncementTitle;
-    private String newAnnouncementText;
-    private AnnouncementPublishMode newAnouncementPublishMode = AnnouncementPublishMode.ACTIVE_STUDENTS;
-
+    @Getter
+    private AnnouncementPublishModeDescription[] allPublishModes = AnnouncementPublishModeDescription.values();
+    @Getter
     private PaginationData paginationData = new PaginationData();
 
+    @Getter
     private ResourceAccessData access;
 
     public void init() {
+
         decodedCredentialId = idEncoder.decodeId(credentialId);
 
         if (decodedCredentialId > 0) {
@@ -82,7 +82,11 @@ public class AnnouncementBeanManager implements Serializable, Paginable {
                     PageUtil.accessDenied();
                 } else {
                     this.credentialData = credManager.getFullTargetCredentialOrCredentialData(decodedCredentialId, loggedUser.getUserId());
-                    initializeCredentialData(this.credentialData);
+
+                    resetNewAnnouncementValues();
+
+                    announcements = announcementManager.getAllAnnouncementsForCredential(decodedCredentialId, paginationData.getPage() - 1, paginationData.getLimit());
+                    paginationData.update(announcementManager.numberOfAnnouncementsForCredential(idEncoder.decodeId(credentialId)));
                 }
             } catch (Exception e) {
                 PageUtil.fireErrorMessage("Error loading credential data");
@@ -92,23 +96,16 @@ public class AnnouncementBeanManager implements Serializable, Paginable {
         }
     }
 
-    private void initializeCredentialData(CredentialData credentialData) throws ResourceCouldNotBeLoadedException {
-        announcements = announcementManager
-                .getAllAnnouncementsForCredential(decodedCredentialId, paginationData.getPage() - 1, paginationData.getLimit());
-        paginationData.update(announcementManager.numberOfAnnouncementsForCredential(
-                idEncoder.decodeId(credentialId)));
-    }
-
     private void resetNewAnnouncementValues() {
-        newAnnouncementTitle = "";
-        newAnnouncementText = "";
+        this.newAnnouncement = new AnnouncementData();
+        newAnnouncement.setPublishMode(AnnouncementPublishModeDescription.values()[0].getAnnouncementPublishMode());
     }
 
     public void publishAnnouncement() {
         try {
             UserContextData context = loggedUser.getUserContext();
-            announcementManager.createAnnouncement(idEncoder.decodeId(credentialId), newAnnouncementTitle,
-                    newAnnouncementText, loggedUser.getUserId(), newAnouncementPublishMode, context);
+            announcementManager.createAnnouncement(idEncoder.decodeId(credentialId), newAnnouncement.getTitle(),
+                    newAnnouncement.getText(), loggedUser.getUserId(), newAnnouncement.getPublishMode(), context);
 
             PageUtil.fireSuccessfulInfoMessage("The announcement has been published");
             resetNewAnnouncementValues();
@@ -119,67 +116,8 @@ public class AnnouncementBeanManager implements Serializable, Paginable {
         }
     }
 
-    public void setPublishMode() {
-        Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
-        String publishModeValue = params.get("value");
-        if (StringUtils.isBlank(publishModeValue)) {
-            logger.error("User " + loggedUser.getUserId() + " has sent blank publish value");
-        } else {
-            newAnouncementPublishMode = AnnouncementPublishMode.fromString(publishModeValue);
-        }
-    }
-
-    public String getAssessmentIdForUser() {
-        return idEncoder.encodeId(
-                assessmentManager.getAssessmentIdForUser(loggedUser.getUserId(), credentialData.getTargetCredId()));
-    }
-
-    public void setPaginationData(PaginationData paginationData) {
-        this.paginationData = paginationData;
-    }
-
-    public void setAccess(ResourceAccessData access) {
-        this.access = access;
-    }
-
-    public CredentialData getCredentialData() {
-        return credentialData;
-    }
-
-    public ResourceAccessData getAccess() {
-        return access;
-    }
-
     public boolean canEdit() {
         return access != null && access.isCanEdit();
-    }
-
-    public String getCredentialId() {
-        return credentialId;
-    }
-
-    public void setCredentialId(String credentialId) {
-        this.credentialId = credentialId;
-    }
-
-    public List<AnnouncementData> getAnnouncements() {
-        return announcements;
-    }
-
-    public String getNewAnnouncementTitle() {
-        return newAnnouncementTitle;
-    }
-
-    public void setNewAnnouncementTitle(String newAnnouncementTitle) {
-        this.newAnnouncementTitle = newAnnouncementTitle;
-    }
-
-    public String getNewAnnouncementText() {
-        return newAnnouncementText;
-    }
-
-    public void setNewAnnouncementText(String newAnnouncementText) {
-        this.newAnnouncementText = newAnnouncementText;
     }
 
     @Override
@@ -190,11 +128,14 @@ public class AnnouncementBeanManager implements Serializable, Paginable {
         }
     }
 
-    public PaginationData getPaginationData() {
-        return paginationData;
+    public void updatePublishMode() {
+        String publishModeValue = PageUtil.getPostParameter("value");
+
+        if (StringUtils.isBlank(publishModeValue)) {
+            logger.error("User " + loggedUser.getUserId() + " has sent blank publish value");
+        } else {
+            newAnnouncement.setPublishMode(AnnouncementPublishMode.valueOf(publishModeValue));
+        }
     }
 
-    public long getDecodedCredentialId() {
-        return decodedCredentialId;
-    }
 }

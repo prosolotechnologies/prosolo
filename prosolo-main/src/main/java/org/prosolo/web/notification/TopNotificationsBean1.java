@@ -1,7 +1,6 @@
 package org.prosolo.web.notification;
 
 import org.apache.log4j.Logger;
-import org.hibernate.Session;
 import org.prosolo.app.Settings;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.config.CommonSettings;
@@ -71,7 +70,7 @@ public abstract class TopNotificationsBean1 {
 		}
 	}
 
-	public synchronized void addNotification(NotificationData notificationData, Session session) {
+	public synchronized void addNotification(NotificationData notificationData) {
 		if (this.notificationData == null) {
 			fetchNotifications();
 		} else {

@@ -64,4 +64,8 @@ public class StringUtils {
 		return str;
 	}
 
+	public static String stripNonAlphanumericCharacters(String text) {
+		return text.replaceAll("[^a-zA-Z]", "");
+	}
+
 }

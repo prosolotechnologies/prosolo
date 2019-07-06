@@ -42,6 +42,9 @@ public class Notification1 extends BaseEntity {
 	private boolean notifyByEmail;
 	private NotificationSection section;
 
+	/*
+	currently this flag refers to all users in notification: actor, object, target
+	 */
 	private boolean anonymizedActor;
 	private NotificationActorRole notificationActorRole = NotificationActorRole.OTHER;
 	

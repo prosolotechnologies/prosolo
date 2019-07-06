@@ -61,7 +61,7 @@ public class UserSearchBean implements Serializable {
  
 	private void fetchUsers(String query, List<Long> excludeUsers) {
 		PaginatedResult<UserData> usersResponse = userTextSearch.searchUsers(loggedUser.getOrganizationId(), query,
-		0, 0, false, excludeUsers);
+		0, 0, false, null, excludeUsers);
 
 		if (usersResponse != null) {
 			this.userSize = (int) usersResponse.getHitsNumber();

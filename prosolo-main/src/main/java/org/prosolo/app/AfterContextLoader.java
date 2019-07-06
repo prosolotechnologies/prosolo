@@ -3,7 +3,6 @@ package org.prosolo.app;
 import org.apache.log4j.Logger;
 import org.prosolo.app.bc.*;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
-import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
 import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.elasticsearch.ElasticSearchConnector;
@@ -14,16 +13,15 @@ import org.prosolo.config.observation.ObservationConfigLoaderService;
 import org.prosolo.config.security.SecurityService;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.admin.ResourceSettingsManager;
+import org.prosolo.services.datainit.StaticDataInitManager;
+import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.importing.DataGenerator;
 import org.prosolo.services.indexing.ESAdministration;
+import org.prosolo.services.messaging.rabbitmq.impl.AppEventMessageWorker;
 import org.prosolo.services.messaging.rabbitmq.impl.DefaultMessageWorker;
-import org.prosolo.services.nodes.RoleManager;
-import org.prosolo.services.user.UserManager;
-import org.prosolo.services.util.roles.SystemRoleNames;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
-import java.util.Arrays;
 
 public class AfterContextLoader implements ServletContextListener {
 
@@ -68,8 +66,13 @@ public class AfterContextLoader implements ServletContextListener {
 			logger.debug("Initializing static data!");
 			boolean oldEmailNotifierVal = CommonSettings.getInstance().config.emailNotifier.activated;
 			CommonSettings.getInstance().config.emailNotifier.activated = false;
-			
-			initStaticData();
+
+			try {
+				ServiceLocator.getInstance().getService(StaticDataInitManager.class).initStaticData();
+			} catch (Exception e) {
+				logger.error("error", e);
+				throw new RuntimeException("Error initializing static data");
+			}
 			logger.debug("Static data initialised!");
 		
 			if (settings.config.init.bc != null) {
@@ -132,8 +135,8 @@ public class AfterContextLoader implements ServletContextListener {
 		if (CommonSettings.getInstance().config.rabbitMQConfig.distributed) {
 
 			systemConsumer = new ReliableConsumerImpl();
-			systemConsumer.setWorker(new DefaultMessageWorker());
-			systemConsumer.setQueue(QueueNames.SYSTEM.name().toLowerCase());
+			systemConsumer.setWorker(new AppEventMessageWorker(ServiceLocator.getInstance().getService(EventFactory.class)));
+			systemConsumer.setQueue(QueueNames.APP_EVENT.name().toLowerCase());
 			systemConsumer.StartAsynchronousConsumer();
 			sessionConsumer = new ReliableConsumerImpl();
 			sessionConsumer.setWorker(new DefaultMessageWorker());
@@ -148,27 +151,6 @@ public class AfterContextLoader implements ServletContextListener {
 			if (CommonSettings.getInstance().config.rabbitMQConfig.masterNode) {
 				System.out.println("Init MasterNodeReliableConsumer...");
 			}
-		}
-	}
-	
-	private void initStaticData() {
-		Long superAdminRoleId = ServiceLocator.getInstance().getService(RoleManager.class).getRoleIdByName(SystemRoleNames.SUPER_ADMIN);
-
-		try {
-			ServiceLocator.getInstance().getService(UserManager.class).createNewUser(
-                    0,
-                    Settings.getInstance().config.init.defaultUser.name,
-                    Settings.getInstance().config.init.defaultUser.lastname,
-                    Settings.getInstance().config.init.defaultUser.email,
-                    true,
-                    Settings.getInstance().config.init.defaultUser.pass,
-                    null,
-                    null,
-                    null,
-                    Arrays.asList(superAdminRoleId),
-                    true);
-		} catch (IllegalDataStateException e) {
-			logger.error(e);
 		}
 	}
 

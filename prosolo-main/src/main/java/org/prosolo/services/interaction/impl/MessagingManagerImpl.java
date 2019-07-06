@@ -7,7 +7,6 @@ import org.hibernate.Session;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.messaging.Message;
-import org.prosolo.common.domainmodel.messaging.MessageParticipant;
 import org.prosolo.common.domainmodel.messaging.MessageThread;
 import org.prosolo.common.domainmodel.messaging.ThreadParticipant;
 import org.prosolo.common.domainmodel.user.User;
@@ -47,7 +46,7 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 	public MessageData sendMessage(long threadId, long senderId, long receiverId, String text, UserContextData contextData)
 			throws DbConnectionException {
 		Result<Pair<MessageData, MessageThreadData>> result = self.sendMessageAndGetEvents(threadId, senderId, receiverId, text, contextData);
-		eventFactory.generateEvents(result.getEventQueue());
+		eventFactory.generateAndPublishEvents(result.getEventQueue());
 		return result.getResult().getFirst();
 	}
 
@@ -56,7 +55,7 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 	public Pair<MessageData, MessageThreadData> sendMessageAndReturnMessageAndThread(long threadId, long senderId, long receiverId, String msg, UserContextData contextData)
 			throws DbConnectionException {
 		Result<Pair<MessageData, MessageThreadData>> result = self.sendMessageAndGetEvents(threadId, senderId, receiverId, msg, contextData);
-		eventFactory.generateEvents(result.getEventQueue());
+		eventFactory.generateAndPublishEvents(result.getEventQueue());
 		return result.getResult();
 	}
 
@@ -229,7 +228,7 @@ public class MessagingManagerImpl extends AbstractManagerImpl implements Messagi
 	// nt
 	public MessageThreadData markThreadAsRead(long threadId, long userId, UserContextData context) throws DbConnectionException {
 		Result<MessageThreadData> res = self.markThreadAsReadAndGetEvents(threadId, userId, context);
-		eventFactory.generateEvents(res.getEventQueue());
+		eventFactory.generateAndPublishEvents(res.getEventQueue());
 		return res.getResult();
 	}
 

@@ -68,13 +68,13 @@
 	
 	<function>
 		<function-name>addSubContext</function-name>
-		<function-class>org.prosolo.web.util.LearningContextUtil</function-class>
+		<function-class>org.prosolo.services.context.ContextJsonParserService</function-class>
 		<function-signature>java.lang.String addSubContext(java.lang.String, java.lang.String)</function-signature>
 	</function>
 	
 	<function>
 		<function-name>addSubService</function-name>
-		<function-class>org.prosolo.web.util.LearningContextUtil</function-class>
+		<function-class>org.prosolo.services.context.ContextJsonParserService</function-class>
 		<function-signature>java.lang.String addSubService(java.lang.String, java.lang.String)</function-signature>
 	</function>
 	
@@ -129,6 +129,6 @@
 	<function>
 		<function-name>isCompetenceFullyGraded</function-name>
 		<function-class>org.prosolo.web.assessments.util.AssessmentUtil</function-class>
-		<function-signature>org.prosolo.web.assessments.util.AssessmentDisabledIndicator isCompetenceFullyGraded(org.prosolo.services.assessment.data.CompetenceAssessmentData)</function-signature>
+		<function-signature>org.prosolo.web.assessments.util.AssessmentDisabledIndicator isCompetenceFullyGraded(org.prosolo.services.assessment.data.CompetenceAssessmentDataFull)</function-signature>
 	</function>
 </facelet-taglib>

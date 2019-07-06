@@ -1,17 +1,21 @@
 package org.prosolo.services.interaction.data;
 
+import lombok.Getter;
+import lombok.Setter;
+import org.prosolo.common.domainmodel.credential.CommentedResourceType;
+import org.prosolo.common.util.date.DateUtil;
+import org.prosolo.services.user.data.UserData;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
-import org.prosolo.common.util.date.DateUtil;
-import org.prosolo.services.user.data.UserData;
 
 public class CommentData {
 
 	private long commentId;
 	private CommentData parent;
 	private long commentedResourceId;
+	private CommentedResourceType commentedResourceType;
 	private String comment;
 	private UserData creator;
 	private boolean isInstructor;
@@ -24,6 +28,8 @@ public class CommentData {
 	//text of a comment that represents reply to this comment
 	private String replyToComment;
 	private int numberOfReplies;
+	@Getter @Setter
+	private long credentialId;
 	
 	
 	public CommentData() {
@@ -109,6 +115,14 @@ public class CommentData {
 		this.commentedResourceId = commentedResourceId;
 	}
 
+	public CommentedResourceType getCommentedResourceType() {
+		return commentedResourceType;
+	}
+
+	public void setCommentedResourceType(CommentedResourceType commentedResourceType) {
+		this.commentedResourceType = commentedResourceType;
+	}
+
 	public Date getDateCreated() {
 		return dateCreated;
 	}
@@ -140,5 +154,5 @@ public class CommentData {
 	public void setManagerComment(boolean isManagerComment) {
 		this.isManagerComment = isManagerComment;
 	}
-	
+
 }

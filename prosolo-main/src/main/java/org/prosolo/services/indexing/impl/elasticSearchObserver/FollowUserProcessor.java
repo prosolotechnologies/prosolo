@@ -1,7 +1,7 @@
 package org.prosolo.services.indexing.impl.elasticSearchObserver;
 
 import org.hibernate.Session;
-import org.prosolo.services.event.Event;
+import org.prosolo.common.event.Event;
 import org.prosolo.services.indexing.UserEntityESService;
 
 public class FollowUserProcessor implements NodeChangeProcessor {

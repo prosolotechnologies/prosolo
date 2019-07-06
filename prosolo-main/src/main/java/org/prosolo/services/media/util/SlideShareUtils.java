@@ -3,8 +3,8 @@ package org.prosolo.services.media.util;
 import org.apache.log4j.Logger;
 import org.primefaces.json.JSONException;
 import org.primefaces.json.JSONObject;
-import org.prosolo.services.nodes.data.activity.attachmentPreview.MediaData;
-import org.prosolo.services.nodes.data.activity.attachmentPreview.MediaType1;
+import org.prosolo.services.nodes.data.statusWall.MediaData;
+import org.prosolo.services.nodes.data.statusWall.MediaType1;
 import org.prosolo.services.util.GetRequestClient;
 import org.prosolo.services.util.impl.GetRequestClientImpl;
 

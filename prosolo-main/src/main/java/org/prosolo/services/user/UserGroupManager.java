@@ -35,7 +35,13 @@ public interface UserGroupManager extends AbstractManager {
 
 	UserGroup updateJoinUrl(long id, boolean joinUrlActive, String joinUrlPassword, UserContextData context);
 
+	Result<UserGroup> updateJoinUrlAndGetEvents(long groupId, boolean joinUrlActive, String joinUrlPassword,
+												UserContextData context);
+
 	void deleteUserGroup(long id, UserContextData context) throws DbConnectionException;
+
+	Result<Void> deleteUserGroupAndGetEvents(long id, UserContextData context)
+			throws DbConnectionException;
 
 	Result<Void> addUserToTheGroupAndGetEvents(long groupId, long userId, UserContextData context)
 			throws DbConnectionException;

@@ -29,14 +29,9 @@ public class FlywayConfig {
         boolean formatDb = Settings.getInstance().config.init.formatDB;
         List<String> migrations = new ArrayList<>();
         migrations.add("classpath:db/migration/schema");
-        if (!formatDb) {
-            //if formatDB false, add data migrations: common always and deployment specific if exist
-            migrations.add("classpath:db/migration/data/common");
-            migrations.add("classpath:org/prosolo/db/migration/data/common");
-            if (CommonSettings.getInstance().config.appConfig.deployment == AppConfig.Deployment.UNISA) {
-                migrations.add("classpath:db/migration/data/unisa");
-                migrations.add("classpath:org/prosolo/db/migration/data/unisa");
-            }
+        migrations.add("classpath:org/prosolo/db/migration/data/common");
+        if (CommonSettings.getInstance().config.appConfig.deployment != AppConfig.Deployment.LOCAL) {
+            migrations.add("classpath:org/prosolo/db/migration/data/" + CommonSettings.getInstance().config.appConfig.deployment.name().toLowerCase());
         }
         FluentConfiguration flywayConf = Flyway
                 .configure()
@@ -44,7 +39,7 @@ public class FlywayConfig {
                 .locations(migrations.toArray(new String[0]));
         if (!formatDb) {
             /*
-            only if formatDB is false baseline is use, if databse is empty (formatDB is true)
+            only if formatDB is false baseline is used, if database is empty (formatDB is true)
             there is no need to use baseline
              */
             /*
@@ -67,7 +62,7 @@ public class FlywayConfig {
                     .baselineOnMigrate(true)
                     .baselineDescription("Current state");
         }
-        return new DefaultFlywayMigrationStrategy(flywayConf.load(), formatDb);
+        return new DefaultFlywayMigrationStrategy(flywayConf.load());
     }
 
 }

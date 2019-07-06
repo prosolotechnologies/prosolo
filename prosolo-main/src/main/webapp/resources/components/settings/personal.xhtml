@@ -34,7 +34,7 @@
 									<div class="formLineRight">
 										<h:inputText id="editName" class="editName"
 													 placeholder="Enter your first name"
-													 value="#{profileSettings.accountData.name}" />
+													 value="#{personalInfoSettingsBean.accountData.name}" />
 									</div>
 								</div>
 								
@@ -43,7 +43,7 @@
 									<div class="formLineRight">
 										<h:inputText id="editLastName" class="editLastName"
 													 placeholder="Enter your last name"
-													 value="#{profileSettings.accountData.lastName}" />
+													 value="#{personalInfoSettingsBean.accountData.lastName}" />
 									</div>
 								</div>
 								
@@ -51,7 +51,7 @@
 									<label>Email</label>
 									<div class="formLineRight">
 										<h:inputText id="editEmail" class="editEmail" disabled="true"
-											value="#{profileSettings.accountData.email}" />
+											value="#{personalInfoSettingsBean.accountData.email}" />
 										<small>Email cannot be changed. Email will not be publicly displayed.</small>
 									</div>
 								</div>
@@ -61,7 +61,7 @@
 									<div class="formLineRight">
 										<h:inputText id="editPosition" class="editPosition"
 													 placeholder="Enter a position"
-													 value="#{profileSettings.accountData.position}" />
+													 value="#{personalInfoSettingsBean.accountData.position}" />
 									</div>
 								</div>
 								
@@ -69,11 +69,11 @@
 									<label>Location</label>
 									<h:panelGroup layout="block" id="location" class="location formLineRight">
 										<h:inputText id="editLocationName"
-											value="#{profileSettings.accountData.locationName}"
+											value="#{personalInfoSettingsBean.accountData.locationName}"
 											class="searchLocationTextField"
 											size="50" />
-										<h:inputText value="#{profileSettings.accountData.latitude}" class="latitude" style="display: none;" />
-										<h:inputText value="#{profileSettings.accountData.longitude}" class="longitude" style="display: none;" />
+										<h:inputText value="#{personalInfoSettingsBean.accountData.latitude}" class="latitude" style="display: none;" />
+										<h:inputText value="#{personalInfoSettingsBean.accountData.longitude}" class="longitude" style="display: none;" />
 										
 										<f:view contentType="text/html">
 											<div class="map-canvas"></div>
@@ -81,7 +81,7 @@
 										
 										<script>
 											$(function(){
-												initializeMap('#{profileSettings.accountData.locationName}', '#{profileSettings.accountData.latitude}', '#{profileSettings.accountData.longitude}');
+												initializeMap('#{personalInfoSettingsBean.accountData.locationName}', '#{personalInfoSettingsBean.accountData.latitude}', '#{personalInfoSettingsBean.accountData.longitude}');
 											});
 										</script>
 									</h:panelGroup>
@@ -91,7 +91,7 @@
 									<label>&#160;</label>
 									<div class="formLineRight">
 										<p:commandLink styleClass="btn btn-green" value="Save Changes"
-											action="#{profileSettings.saveAccountChanges}"
+											action="#{personalInfoSettingsBean.saveAccountChanges}"
 											update=":#{cc.clientId}:settingsPersonalForm #{cc.attrs.toUpdate}">
 											<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
 											<f:param name="learningContext" value="#{'name:settings_personal|id:'.concat(loggeduser.userId)}" />
@@ -113,7 +113,7 @@
 									<div class="formLine">
 										<label>LinkedIn profile URL</label>
 										<div class="formLineRight">
-											<h:inputText value="#{profileSettings.userSocialNetworksData.socialNetworkAccountsData['LINKEDIN'].linkEdit}" />
+											<h:inputText value="#{personalInfoSettingsBean.userSocialNetworksData.socialNetworkAccountsData['LINKEDIN'].linkEdit}" />
 										</div>
 									</div>
 									
@@ -121,11 +121,11 @@
 										<label>Twitter profile URL</label>
 										
 										<div class="formLineRight">
-											<h:inputText id="twitterProfileUrl" value="#{profileSettings.userSocialNetworksData.socialNetworkAccountsData['TWITTER'].linkEdit}" />
+											<h:inputText id="twitterProfileUrl" value="#{personalInfoSettingsBean.userSocialNetworksData.socialNetworkAccountsData['TWITTER'].linkEdit}" />
 											
 											<div class="twitterBtnBox">
 												<h:panelGroup id="twitter">
-													<h:panelGroup rendered="#{!profileSettings.connectedToTwitter}">
+													<h:panelGroup rendered="#{!personalInfoSettingsBean.connectedToTwitter}">
 														<p:commandLink styleClass="btn btnTwitterConnect btn-sm"
 															action="#{twitterBean.startTweeterOauthAuthProcess}"
 															update=":#{cc.clientId}:socialNetworksSettingsForm:twitter settingsSocialNetworksGrowl">
@@ -136,7 +136,7 @@
 															your tweets to your ProSolo followers.</small>
 													</h:panelGroup>
 													
-													<h:panelGroup rendered="#{profileSettings.connectedToTwitter}">
+													<h:panelGroup rendered="#{personalInfoSettingsBean.connectedToTwitter}">
 														<p:commandLink styleClass="btn btnTwitterConnect btn-sm"
 															action="#{twitterBean.disconnectUserAccount(true)}"
 															update=":#{cc.clientId}:socialNetworksSettingsForm:twitter settingsSocialNetworksGrowl">
@@ -152,7 +152,7 @@
 														function saveChangesClick() {
 															var newLink = $('##{cc.clientId}\\:socialNetworksSettingsForm\\:twitterProfileUrl').val();
 															console.log(newLink);
-															if(#{!profileSettings.connectedToTwitter} || '#{profileSettings.userSocialNetworksData.socialNetworkAccountsData['TWITTER'].linkEdit}' === newLink) {
+															if(#{!personalInfoSettingsBean.connectedToTwitter} || '#{personalInfoSettingsBean.userSocialNetworksData.socialNetworkAccountsData['TWITTER'].linkEdit}' === newLink) {
 																$('##{cc.clientId}\\:socialNetworksSettingsForm\\:saveChangesLink').click();
 															} else {
 																$('#saveChangesTwitterWarningLink').click();
@@ -167,14 +167,14 @@
 									<div class="formLine">
 										<label>Facebook profile URL</label>
 										<div class="formLineRight">
-											<h:inputText value="#{profileSettings.userSocialNetworksData.socialNetworkAccountsData['FACEBOOK'].linkEdit}" />
+											<h:inputText value="#{personalInfoSettingsBean.userSocialNetworksData.socialNetworkAccountsData['FACEBOOK'].linkEdit}" />
 										</div>
 									</div>
 									
 									<div class="formLine">
 										<label>Blog URL</label>
 										<div class="formLineRight">
-											<h:inputText value="#{profileSettings.userSocialNetworksData.socialNetworkAccountsData['BLOG'].linkEdit}" />
+											<h:inputText value="#{personalInfoSettingsBean.userSocialNetworksData.socialNetworkAccountsData['BLOG'].linkEdit}" />
 										</div>
 									</div>
 									
@@ -185,7 +185,7 @@
 					
 											<p:commandLink id="saveChangesLink" style="display: none;"
 												value="Save Changes"
-												action="#{profileSettings.saveSocialNetworkChanges}"
+												action="#{personalInfoSettingsBean.saveSocialNetworkChanges}"
 												update="settingsSocialNetworksGrowl twitter #{cc.attrs.toUpdate}" />
 											<a id="saveChangesTwitterWarningLink" style="display: none;"
 												onclick="twitterWarningOnClick();">
@@ -209,24 +209,24 @@
 							<p:growl id="settingsAvatarFormGrowl" showDetail="true" enctype="multipart/form-data" />
 							
 							<h:panelGroup layout="block" id="avatar" class="avatar">
-								<h:panelGroup layout="block" id="displayAvatar" class="#{profileSettings.newAvatar != null ? 'hidden' : ''}">
+								<h:panelGroup layout="block" id="displayAvatar" class="#{personalInfoSettingsBean.newAvatar != null ? 'hidden' : ''}">
 
 									<div class="yourPhotoContent">
 										<h:graphicImage styleClass="img-circle"
-											rendered="#{not empty profileSettings.accountData.avatarUrl}"
+											rendered="#{not empty personalInfoSettingsBean.accountData.avatarUrl}"
 											width="100" height="100" alt=""
-											value="#{profileSettings.accountData.avatarUrl}" />
+											value="#{personalInfoSettingsBean.accountData.avatarUrl}" />
 
 										<h:panelGroup
-											rendered="#{empty profileSettings.accountData.avatarUrl}"
+											rendered="#{empty personalInfoSettingsBean.accountData.avatarUrl}"
 											class="letterAvatar letterAvatar100 img-circle">
-											#{util:initials(profileSettings.accountData.name.concat(" ").concat(profileSettings.accountData.lastName))}
+											#{util:initials(personalInfoSettingsBean.accountData.name.concat(" ").concat(personalInfoSettingsBean.accountData.lastName))}
 										</h:panelGroup>
 
 										<div class="chooseBtnBox">
 											<utilcomp:simpleFileUpload id="avatarFileUpload"
 																	   fileUploadListenerMethodName="handleFileUpload"
-																	   fileUploadListenerMethod="#{profileSettings.handleFileUpload}"
+																	   fileUploadListenerMethod="#{personalInfoSettingsBean.handleFileUpload}"
 																	   toUpdate=":#{cc.clientId}:settingsAvatarForm:editAvatar :#{cc.clientId}:settingsAvatarForm:displayAvatar"
 																	   uploadButtonStyle="btn btn-green"
 																	   fileSizeValidationMessageContainer="#avatarFileUploadValidation"
@@ -239,7 +239,7 @@
 									</div>
 								</h:panelGroup>
 
-								<h:panelGroup layout="block" id="editAvatar" class="#{profileSettings.newAvatar == null ? 'hidden' : ''}">
+								<h:panelGroup layout="block" id="editAvatar" class="#{personalInfoSettingsBean.newAvatar == null ? 'hidden' : ''}">
 									<div class="second">
 										<div class="cropperContainer">
 											<div id="croppedImage"></div>
@@ -250,25 +250,25 @@
 										<div class="cropButtons">
 											<p:commandLink styleClass="btn btn-green btn-sm" value="Crop and Save"
 												onclick="$('.avatar .hiddenCoordinates').val(ic.getInfo().t+'_'+ic.getInfo().l+'_'+ic.getInfo().w+'_'+ic.getInfo().h);"
-												action="#{profileSettings.crop()}"
+												action="#{personalInfoSettingsBean.crop()}"
 												process="hiddenCoordinates"
 												update=":#{cc.clientId}:settingsAvatarForm:avatar :#{cc.clientId}:settingsAvatarForm:settingsAvatarFormGrowl :userMenuForm" />
 	
 											<p:commandLink styleClass="btn btn-default btn-sm" value="Cancel"
-												action="#{profileSettings.cancelCrop()}"
+												action="#{personalInfoSettingsBean.cancelCrop()}"
 												update=":#{cc.clientId}:settingsAvatarForm:avatar" />
 										</div>
 
 										<h:inputText id="hiddenCoordinates" class="hiddenCoordinates"
 											style="display:none;"
-											value="#{profileSettings.cropCoordinates}" />
+											value="#{personalInfoSettingsBean.cropCoordinates}" />
 
 										<script type="text/javascript">
 										var ic = new ICropper('croppedImage',{
 											minWidth: 100,
 											minHeight: 100,
 											keepSquare: true,
-											image: '#{profileSettings.newAvatar}'
+											image: '#{personalInfoSettingsBean.newAvatar}'
 										});
 										</script>
 									</div>
@@ -297,12 +297,12 @@
 	                      <p>Your Twitter account is connected to ProSolo. If you change your Twitter profile URL, you will need to connect the new account to ProSolo. Are you sure you want to continue?</p>
 	                  </div>
 	                  <div class="modal-footer">
-	                  	  <h:inputHidden id="twitterProfileUrl" value="#{profileSettings.userSocialNetworksData.socialNetworkAccountsData['TWITTER'].linkEdit}" />
+	                  	  <h:inputHidden id="twitterProfileUrl" value="#{personalInfoSettingsBean.userSocialNetworksData.socialNetworkAccountsData['TWITTER'].linkEdit}" />
 	                  	  <p:commandLink
 	                  	  	value="Save Changes"
 	                  	  	styleClass="btn btn-green"
 	                  	  	actionListener="#{twitterBean.disconnectUserAccount(false)}"
-	                  	  	action="#{profileSettings.saveSocialNetworkChanges}"
+	                  	  	action="#{personalInfoSettingsBean.saveSocialNetworkChanges}"
 							update=":#{cc.clientId}:socialNetworksSettingsForm:settingsSocialNetworksGrowl #{cc.clientId}:socialNetworksSettingsForm:twitter #{cc.attrs.toUpdate}"
 	                  	  	oncomplete="$('#twitterWarning').modal('hide');">
 	                  	  </p:commandLink>

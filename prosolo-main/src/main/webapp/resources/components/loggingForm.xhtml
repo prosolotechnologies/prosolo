@@ -1,113 +1,51 @@
-<ui:composition
-	xmlns:ui="http://java.sun.com/jsf/facelets"
-	xmlns:h="http://java.sun.com/jsf/html"
-	xmlns:f="http://java.sun.com/jsf/core"
-	xmlns:p="http://primefaces.org/ui">
+<ui:composition xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:p="http://primefaces.org/ui">
 
-	<h:form id="logging_form" style="display: none">
-		<h:inputText value="#{loggingBean.userId}"
-			id="loggingPageUserId" styleClass="loggingPageUserId" />
+    <h:form id="logging_form_page_navigation" style="display: none">
+        <h:inputText value="#{loggingBean.link}" styleClass="link"/>
 
-		<h:inputText value="#{loggingBean.link}"
-			id="loggingPageUrlFieldValue" styleClass="loggingPageUrlFieldValue" />
-			
-		<h:inputText value="#{loggingBean.page}"
-			id="loggingCancelCommentPage" styleClass="loggingPage" />
-			
-		<h:inputText value="#{loggingBean.learningContext}"
-			id="loggingCancelCommentLearningContext" styleClass="loggingContext" />
-			
-		<h:inputText value="#{loggingBean.service}"
-			id="loggingCancelCommentService" styleClass="loggingService" />
+        <h:inputText value="#{loggingBean.page}" styleClass="page"/>
 
-		<h:inputText value="#{loggingBean.context}"
-			id="loggingPageContextFieldValue"
-			styleClass="loggingPageContextFieldValue" />
+        <h:inputText value="#{loggingBean.learningContext}" styleClass="learningContext"/>
 
-		<h:inputText value="#{loggingBean.component}"
-			id="loggingComponentNameFieldValue"
-			styleClass="loggingComponentNameFieldValue" />
+        <h:inputText value="#{loggingBean.service}" styleClass="service"/>
 
-		<h:inputText value="#{loggingBean.parameters}"
-			id="loggingParametersFieldValue"
-			styleClass="loggingParametersFieldValue" />
+        <h:inputText value="#{loggingBean.component}" styleClass="component"/>
 
-		<h:commandLink id="loggingPageSubmitButton"
-			styleClass="loggingPageSubmitButton"  value="submit">
-			<f:ajax event="click" execute="@form"
-				listener="#{loggingBean.submitPageNavigation()}">
-			</f:ajax>
-		</h:commandLink>
+        <h:inputText value="#{loggingBean.parameters}" styleClass="parameters"/>
 
-		<p:commandLink 
-			id="loggingTabButton"
-			styleClass="loggingTabButton"
-			action="#{loggingBean.submitTabNavigation()}" />
-			
-		<script>
-			$('.loggingTabButton').click(function(e){
-				e.stopPropagation();
-			});
-		</script>
-	</h:form>
+        <p:commandLink styleClass="submitButton"
+                       action="#{loggingBean.submitPageNavigation()}" />
 
-	<h:form id="logging_serviceuse_form" style="display: none">
-		<h:inputText value="#{loggingBean.userId}"
-			id="loggingServiceUseUserId" styleClass="loggingServiceUseUserId" />
-			
-		<h:inputText value="#{loggingBean.page}"
-			id="loggingServiceUsePage" styleClass="loggingServiceUsePage" />
-			
-		<h:inputText value="#{loggingBean.learningContext}"
-			id="loggingServiceUseLearningContext" styleClass="loggingServiceUseLearningContext" />
-			
-		<h:inputText value="#{loggingBean.service}"
-			id="loggingServiceUseService" styleClass="loggingServiceUseService" />
-		
-		<h:inputText value="#{loggingBean.component}"
-			id="loggingComponentNameFieldValue"
-			styleClass="loggingComponentNameFieldValue" />
-			
-		<h:inputText value="#{loggingBean.parameters}"
-			id="loggingParametersFieldValue"
-			styleClass="loggingParametersFieldValue" />
-			
-		<p:commandLink 
-			id="loggingServiceUseSubmitButton"
-			styleClass="loggingServiceUseSubmitButton"
-			action="#{loggingBean.submitServiceUse()}" />
-		
-		<script>
-			$('.loggingServiceUseSubmitButton').click(function(e){
-				e.stopPropagation();
-			});
-		</script>
-	</h:form>
-	
-	<h:form id="logging_cancelcomment_form" style="display: none">
-			
-		<h:inputText value="#{loggingBean.page}"
-			id="loggingCancelCommentPage" styleClass="loggingCancelCommentPage" />
-			
-		<h:inputText value="#{loggingBean.learningContext}"
-			id="loggingCancelCommentLearningContext" styleClass="loggingCancelCommentLearningContext" />
-			
-		<h:inputText value="#{loggingBean.service}"
-			id="loggingCancelCommentService" styleClass="loggingCancelCommentService" />
-		
-		<h:inputText value="#{loggingBean.component}"
-			id="loggingComponentNameFieldValue"
-			styleClass="loggingComponentNameFieldValue" />
-			
-		<p:commandLink 
-			id="loggingCancelCommentSubmitButton"
-			styleClass="loggingCancelCommentSubmitButton"
-			action="#{loggingBean.submitCancelComment()}" />
-		
-		<script>
-			$('.loggingCancelCommentSubmitButton').click(function(e){
-				e.stopPropagation();
-			});
-		</script>
-	</h:form>
+        <p:commandLink styleClass="loggingTabButton"
+                       action="#{loggingBean.submitTabNavigation()}"/>
+
+        <script>
+            $('#logging_form_page_navigation .submitButton, #logging_form_page_navigation .loggingTabButton').click(function (e) {
+                e.stopPropagation();
+            });
+        </script>
+    </h:form>
+
+    <h:form id="logging_form_serviceuse" style="display: none">
+        <h:inputText value="#{loggingBean.page}" styleClass="page"/>
+
+        <h:inputText value="#{loggingBean.learningContext}" styleClass="learningContext"/>
+
+        <h:inputText value="#{loggingBean.service}" styleClass="service"/>
+
+        <h:inputText value="#{loggingBean.component}" styleClass="component"/>
+
+        <h:inputText value="#{loggingBean.parameters}" styleClass="parameters"/>
+
+        <p:commandLink styleClass="submitButton"
+                       action="#{loggingBean.submitServiceUse()}"/>
+
+        <script>
+            $('#logging_serviceuse_form .submitButton').click(function (e) {
+                e.stopPropagation();
+            });
+        </script>
+    </h:form>
 </ui:composition>

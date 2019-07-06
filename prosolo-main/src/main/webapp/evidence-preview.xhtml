@@ -1,0 +1,53 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="#{loggeduser.getPublicTemplateForUser()}"
+                xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:evidence="http://java.sun.com/jsf/composite/components/evidence"
+>
+
+    <utilcomp:messagesBundle var="msg" />
+
+    <ui:define name="windowTitle">
+        #{evidencePreviewBean.evidence.title} - Evidence - ProSolo
+    </ui:define>
+
+    <ui:define name="metadata">
+        <f:metadata>
+            <f:viewParam name="competenceEvidenceId" value="#{evidencePreviewBean.competenceEvidenceId}" default="null"/>
+            <f:viewAction action="#{evidencePreviewBean.initStudent()}" />
+        </f:metadata>
+    </ui:define>
+
+    <ui:define name="resourceTitle">
+        <h1>#{evidencePreviewBean.evidence.title}</h1>
+    </ui:define>
+
+    <ui:define name="content">
+
+        <div class="whiteBar">
+        </div>
+
+        <div class="container">
+            <ol class="breadcrumb">
+                <li>Evidence</li>
+                <li class="active">#{evidencePreviewBean.evidence.title}</li>
+            </ol>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <p>
+                        Evidence details in relation to the #{msg['label.competence'].toLowerCase()} <b>#{evidencePreviewBean.evidence.competenceTitle}</b>.
+                    </p>
+                </div>
+                <div class="col-md-12">
+                    <evidence:evidenceForCompetence
+                            evidence="#{evidencePreviewBean.evidence}" />
+                </div>
+            </div>
+        </div>
+    </ui:define>
+</ui:composition>

@@ -43,9 +43,12 @@ import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.data.instructor.InstructorData;
 import org.prosolo.services.user.UserManager;
+import org.prosolo.services.user.data.StudentAssessmentInfo;
 import org.prosolo.services.user.data.StudentData;
 import org.prosolo.services.user.data.UserData;
+import org.prosolo.web.administration.data.RoleData;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -74,9 +77,10 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 	@Inject private UserManager userManager;
 
 	@Override
+    @Transactional (readOnly = true)
 	public PaginatedResult<UserData> searchUsers(
 			long orgId, String searchString, int page, int limit, boolean loadOneMore,
-			Collection<Long> excludeUserIds) {
+			Collection<Long> includeUserIds, Collection<Long> excludeUserIds) {
 		
 		PaginatedResult<UserData> response = new PaginatedResult<>();
 		
@@ -90,12 +94,20 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 					.field("name").field("lastname");
 			
 			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
-			bQueryBuilder.should(qb);
+			bQueryBuilder.filter(qb);
 
 			if (orgId > 0) {
 				bQueryBuilder.mustNot(termQuery("system", true));
 			}
-			
+
+			if (includeUserIds != null) {
+				BoolQueryBuilder includeUsersQueryBuilder = QueryBuilders.boolQuery();
+				for (Long userId : includeUserIds) {
+					includeUsersQueryBuilder.should(termQuery("id", userId));
+				}
+				bQueryBuilder.filter(includeUsersQueryBuilder);
+			}
+
 			if (excludeUserIds != null) {
 				for (Long exUserId : excludeUserIds) {
 					bQueryBuilder.mustNot(termQuery("id", exUserId));
@@ -144,7 +156,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 
 	@Override
 	public PaginatedResult<UserData> getUsersWithRoles(
-			String term, int page, int limit, boolean paginate, long roleId, List<Role> roles,
+			String term, int page, int limit, boolean paginate, long roleId, List<RoleData> roles,
 			boolean includeSystemUsers, List<Long> excludeIds, long organizationId) {
 
 		PaginatedResult<UserData> response =
@@ -199,7 +211,8 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 
 			if (roles != null && !roles.isEmpty()) {
 				BoolQueryBuilder bqb1 = QueryBuilders.boolQuery();
-				for(Role r : roles) {
+
+				for (RoleData r : roles) {
 					bqb1.should(termQuery("roles.id", r.getId()));
 				}
 				if (organizationId > 0) {
@@ -229,12 +242,9 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 
 			if (sResponse != null) {
 				response.setHitsNumber(sResponse.getHits().getTotalHits());
-				List<Role> listRoles;
 
 				if (roles == null || roles.isEmpty()){
-					listRoles = roleManager.getAllRoles();
-				} else {
-					listRoles = roles;
+					roles = roleManager.getAllRoles();
 				}
 
 				for (SearchHit sh : sResponse.getHits()) {
@@ -248,12 +258,15 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 					user.setEmail(userManager.getUserEmail(user.getId()));
 					@SuppressWarnings("unchecked")
 					List<Map<String, Object>> rolesList = (List<Map<String, Object>>) fields.get("roles");
-					List<Role> userRoles = new ArrayList<>();
-					if(rolesList != null) {
-						for(Map<String, Object> map : rolesList) {
-							Role r = getRoleDataForId(listRoles, Long.parseLong(map.get("id") + ""));
-							if(r != null) {
-								userRoles.add(r);
+					List<RoleData> userRoles = new ArrayList<>();
+
+					if (rolesList != null) {
+						for (Map<String, Object> map : rolesList) {
+							long rid = Long.parseLong(map.get("id") + "");
+							Optional<RoleData> r = roles.stream().filter(role -> role.getId() == rid).findAny();
+
+							if (r.isPresent()) {
+								userRoles.add(r.get());
 							}
 						}
 					}
@@ -277,13 +290,14 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 				RoleFilter defaultFilter = new RoleFilter(0, "All", docCount.getValue());
 				roleFilters.add(defaultFilter);
 				RoleFilter selectedFilter = defaultFilter;
-				for(Role role : listRoles) {
+
+				for(RoleData role : roles) {
 					Terms.Bucket bucket = getBucketForRoleId(role.getId(), buckets);
 					int number = 0;
 					if(bucket != null) {
 						number = (int) bucket.getDocCount();
 					}
-					RoleFilter rf = new RoleFilter(role.getId(), role.getTitle(), number);
+					RoleFilter rf = new RoleFilter(role.getId(), role.getName(), number);
 					roleFilters.add(rf);
 					if(role.getId() == roleId) {
 						selectedFilter = rf;
@@ -314,18 +328,6 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 		return null;
 	}
 
-	private Role getRoleDataForId(List<Role> roles,
-			long roleId) {
-		if(roles != null) {
-			for(Role r : roles) {
-				if(roleId == r.getId()) {
-					return r;
-				}
-			}
-		}
-		return null;
-	}
-	
 	private int setStart(int page, int limit){
 		int start = 0;
 		if (page >= 0 && limit > 0) {
@@ -462,11 +464,13 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 									student.setProgress(Integer.parseInt(
 											credential.get("progress").toString()));
 									Optional<Long> credAssessmentId = assessmentManager
-											.getInstructorCredentialAssessmentId(credId, user.getId());
+											.getActiveInstructorCredentialAssessmentId(credId, user.getId());
 									if (credAssessmentId.isPresent()) {
-										student.setAssessmentId(credAssessmentId.get());
+										student.setStudentAssessmentInfo(
+												new StudentAssessmentInfo(
+														credAssessmentId.get(),
+														Boolean.parseBoolean(credential.get("assessorNotified").toString())));
 									}
-									student.setSentAssessmentNotification(Boolean.parseBoolean(credential.get("assessorNotified").toString()));
 //									@SuppressWarnings("unchecked")
 //									Map<String, Object> profile = (Map<String, Object>) course.get("profile");
 //								    if(profile != null && !profile.isEmpty()) {
@@ -619,8 +623,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 	
 	@Override
 	public PaginatedResult<UserData> searchUsersWithInstructorRole (long orgId, String searchTerm,
-																	long credId, long roleId, List<Long> unitIds,
-																	List<Long> excludedUserIds) {
+																	long credId, long roleId, List<Long> unitIds) {
 		PaginatedResult<UserData> response = new PaginatedResult<>();
 		try {
 			if (unitIds == null || unitIds.isEmpty()) {
@@ -648,10 +651,6 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 
 			NestedQueryBuilder nestedFilter = QueryBuilders.nestedQuery("roles", unitRoleFilter, ScoreMode.None);
 			bQueryBuilder.filter(nestedFilter);
-			
-			for (Long id : excludedUserIds) {
-				bQueryBuilder.mustNot(termQuery("id", id));
-			}
 			
 			//bQueryBuilder.minimumNumberShouldMatch(1);
 			
@@ -1258,7 +1257,9 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 				
 				if (searchHits != null) {
 					for (SearchHit sh : searchHits) {
-						response.addFoundNode(getUserDataFromSearchHit(sh));
+						UserData userData = getUserDataFromSearchHit(sh);
+						userData.setEmail(userManager.getUserEmail(userData.getId()));
+						response.addFoundNode(userData);
 					}
 				}
 			}
@@ -1722,7 +1723,9 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 
 				if (searchHits != null) {
 					for (SearchHit sh : searchHits) {
-						response.addFoundNode(getUserDataFromSearchHit(sh));
+						UserData userData = getUserDataFromSearchHit(sh);
+						userData.setEmail(userManager.getUserEmail(userData.getId()));
+						response.addFoundNode(userData);
 					}
 				}
 			}

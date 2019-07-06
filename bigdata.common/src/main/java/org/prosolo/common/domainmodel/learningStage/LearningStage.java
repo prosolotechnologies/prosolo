@@ -4,6 +4,7 @@ import org.prosolo.common.domainmodel.credential.Competence1;
 import org.prosolo.common.domainmodel.credential.Credential1;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.organization.Organization;
+import org.prosolo.common.domainmodel.organization.settings.LearningStagesPlugin;
 
 import javax.persistence.*;
 import java.util.Set;
@@ -22,6 +23,8 @@ public class LearningStage extends BaseEntity {
 
     private Set<Credential1> credentials;
     private Set<Competence1> competences;
+
+    private LearningStagesPlugin learningStagesPlugin;
 
     @Column(name = "learning_stage_order")
     public int getOrder() {
@@ -58,5 +61,15 @@ public class LearningStage extends BaseEntity {
 
     public void setCompetences(Set<Competence1> competences) {
         this.competences = competences;
+    }
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(nullable = false)
+    public LearningStagesPlugin getLearningStagesPlugin() {
+        return learningStagesPlugin;
+    }
+
+    public void setLearningStagesPlugin(LearningStagesPlugin learningStagesPlugin) {
+        this.learningStagesPlugin = learningStagesPlugin;
     }
 }

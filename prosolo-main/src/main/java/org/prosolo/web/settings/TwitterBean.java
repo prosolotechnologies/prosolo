@@ -55,7 +55,7 @@ public class TwitterBean implements Serializable {
 	@Inject
 	private SocialNetworksManager socialNetworksManager;
 	@Inject
-	private ProfileSettingsBean profileSettingsBean;
+	private PersonalInfoSettingsBean personalInfoSettingsBean;
 
 	private OauthAccessToken accessToken = null;
 
@@ -156,7 +156,7 @@ public class TwitterBean implements Serializable {
 		long deletedUserId = userOauthTokensManager.deleteUserOauthAccessToken(loggedUser.getUserId(), ServiceType.TWITTER);
 		analyticalServiceCollector.updateTwitterUser(loggedUser.getUserId(),deletedUserId, false);
 		
-		profileSettingsBean.setConnectedToTwitter(false);
+		personalInfoSettingsBean.setConnectedToTwitter(false);
 		
 		if(showSuccessMsg) {
 			PageUtil.fireSuccessfulInfoMessage("socialNetworksSettingsForm:socialNetworksFormGrowl",

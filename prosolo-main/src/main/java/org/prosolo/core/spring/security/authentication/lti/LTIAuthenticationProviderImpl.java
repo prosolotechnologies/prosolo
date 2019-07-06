@@ -1,11 +1,11 @@
 package org.prosolo.core.spring.security.authentication.lti;
 
 import org.apache.log4j.Logger;
-import org.prosolo.common.domainmodel.lti.LtiTool;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.core.spring.security.authentication.lti.authenticationtoken.LTIAuthenticationToken;
 import org.prosolo.services.lti.LtiUserManager;
+import org.prosolo.services.lti.data.LTIToolData;
 import org.prosolo.services.util.roles.SystemRoleNames;
 import org.prosolo.web.lti.LTIToProSoloRoleMapper;
 import org.prosolo.web.lti.message.LTILaunchMessage;
@@ -19,6 +19,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
+import java.util.Optional;
 
 /**
  * Expects authentication token of type #{@link LTIAuthenticationToken} with populated preauthentication token
@@ -47,13 +48,13 @@ public class LTIAuthenticationProviderImpl implements LTIAuthenticationProvider 
         }
         try {
             // fetching or creating a user
-            User user = getUserForLaunch(token.getLtiTool(), token.getLaunchMessage());
+            Optional<String> user = getUserForLaunch(token.getLtiTool(), token.getLaunchMessage());
 
-            if (user == null) {
+            if (user.isEmpty()) {
                 logger.info("LTI launch: user is null");
                 throw new UsernameNotFoundException("User with given credentials not found");
             }
-            return retrieveAuthentication(user.getEmail(), token);
+            return retrieveAuthentication(user.get(), token);
         } catch (AuthenticationException e) {
             logger.error("Error", e);
             throw e;
@@ -68,21 +69,21 @@ public class LTIAuthenticationProviderImpl implements LTIAuthenticationProvider 
         return new LTIAuthenticationToken(userDetails, preauthenticationToken, userDetails.getAuthorities());
     }
 
-    private User getUserForLaunch(LtiTool tool, LTILaunchMessage msg) throws Exception {
-        UserContextData contextData = UserContextData.ofOrganization(tool.getOrganization().getId());
+    private Optional<String> getUserForLaunch(LTIToolData tool, LTILaunchMessage msg) throws Exception {
+        UserContextData contextData = UserContextData.ofOrganization(tool.getOrganizationId());
 
         // get role from the LTI message if present
         String roles = msg.getRoles();	// it more roles are present, fetch only the first one (for now)
         String roleName = roles != null ? roles.split(",")[0] : SystemRoleNames.USER;
         return ltiUserManager.getUserForLaunch(
-                tool.getToolSet().getConsumer().getId(),
+                tool.getConsumer().getId(),
                 msg.getUserID(),
                 msg.getUserFirstName(),
                 msg.getUserLastName(),
                 msg.getUserEmail(),
-                tool.getUnit() != null ? tool.getUnit().getId() : 0,
+                tool.getUnitId(),
                 LTIToProSoloRoleMapper.getRole(roleName),
-                tool.getUserGroup() != null ? tool.getUserGroup().getId() : 0,
+                tool.getUserGroupId(),
                 contextData);
     }
 

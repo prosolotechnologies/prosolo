@@ -2,6 +2,7 @@ package org.prosolo.app.bc;
 
 import org.apache.commons.lang3.time.DateUtils;
 import org.hibernate.Session;
+import org.hibernate.Transaction;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.OperationForbiddenException;
 import org.prosolo.common.domainmodel.activitywall.PostSocialActivity1;
@@ -16,6 +17,7 @@ import org.prosolo.common.domainmodel.rubric.RubricType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroup;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
+import org.prosolo.common.event.EventQueue;
 import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.util.date.DateUtil;
@@ -23,17 +25,16 @@ import org.prosolo.core.db.hibernate.HibernateUtil;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.activityWall.SocialActivityManager;
 import org.prosolo.services.activityWall.impl.data.SocialActivityData1;
-import org.prosolo.services.event.EventQueue;
 import org.prosolo.services.interaction.CommentManager;
 import org.prosolo.services.interaction.data.CommentData;
 import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.data.ObjectStatus;
-import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview1;
-import org.prosolo.services.nodes.data.activity.attachmentPreview.MediaType1;
 import org.prosolo.services.nodes.data.organization.LearningStageData;
 import org.prosolo.services.nodes.data.rubrics.RubricCriterionData;
 import org.prosolo.services.nodes.data.rubrics.RubricData;
 import org.prosolo.services.nodes.data.rubrics.RubricLevelData;
+import org.prosolo.services.nodes.data.statusWall.AttachmentPreview;
+import org.prosolo.services.nodes.data.statusWall.MediaType1;
 import org.prosolo.services.user.UserGroupManager;
 import org.prosolo.services.user.data.UserData;
 
@@ -424,12 +425,15 @@ public abstract class BaseBusinessCase5 extends BaseBusinessCase {
 
         // explicitly generate welcome post social activity at this point to have the earliest timestamp
         Session session1 = (Session) ServiceLocator.getInstance().getService(DefaultManager.class).getPersistence().openSession();
+        Transaction transaction = null;
         try {
+            transaction = session1.beginTransaction();
             ServiceLocator.getInstance().getService(SocialActivityManager.class).saveUnitWelcomePostSocialActivityIfNotExists(unitSchoolOfEducation.getId(), session1);
             ServiceLocator.getInstance().getService(SocialActivityManager.class).saveUnitWelcomePostSocialActivityIfNotExists(unitOfNursingAndMidwifery.getId(), session1);
+            transaction.commit();
         } catch (Exception e) {
-            e.printStackTrace();
             getLogger().error("Error", e);
+            transaction.rollback();
         } finally {
             HibernateUtil.close(session1);
         }
@@ -465,7 +469,7 @@ public abstract class BaseBusinessCase5 extends BaseBusinessCase {
         newSocialActivity.setText(text);
 
         if (attachmentUrl != null) {
-            AttachmentPreview1 uploadedFilePreview = new AttachmentPreview1();
+            AttachmentPreview uploadedFilePreview = new AttachmentPreview();
             uploadedFilePreview.setInitialized(true);
             uploadedFilePreview.setMediaType(MediaType1.File_Other);
             uploadedFilePreview.setContentType(ContentType1.FILE);
@@ -510,14 +514,20 @@ public abstract class BaseBusinessCase5 extends BaseBusinessCase {
         assignInstructorToStudent(events, instructor, List.of(student), delivery);
     }
 
-    protected CommentData createNewComment(EventQueue events, User user, String text, long commentedResourceId, CommentedResourceType commentedResourceType, CommentData parent, boolean isManagerComment) {
+    protected void withdrawFromBeingInstructor(EventQueue events, long credentialId, long studentId, User instructorUser) throws IllegalDataStateException {
+        extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CredentialInstructorManager.class).withdrawFromBeingInstructorAndGetEvents(credentialId, studentId, createUserContext(instructorUser)));
+    }
+
+    protected CommentData createNewComment(EventQueue events, User user, String text, long commentedResourceId, CommentedResourceType commentedResourceType, CommentData parent, boolean isManagerComment, long credentialId) throws IllegalDataStateException {
         CommentData newComment = new CommentData();
         newComment.setCommentedResourceId(commentedResourceId);
+        newComment.setCommentedResourceType(commentedResourceType);
         newComment.setDateCreated(new Date());
         newComment.setComment(text);
         newComment.setCreator(new UserData(user));
         newComment.setParent(parent);
         newComment.setManagerComment(isManagerComment);
+        newComment.setCredentialId(credentialId);
 
         Comment1 comment = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).saveNewCommentAndGetEvents(newComment,
                 commentedResourceType, UserContextData.of(user.getId(), user.getOrganization().getId(), null, null, null)));

@@ -41,6 +41,7 @@ public class CommentBean implements Serializable, ICommentBean {
 	@Inject private SocialActivityManager socialActivityManager;
 	@Inject @Qualifier("taskExecutor") private ThreadPoolTaskExecutor taskExecutor;
 	@Inject private CommentDataFactory commentDataFactory;
+
 	private CommentSortOption[] sortOptions;
 	private int limit = 2;
 	
@@ -64,21 +65,15 @@ public class CommentBean implements Serializable, ICommentBean {
 			CommentSortData csd = getCommentSortData(commentsData);
 			List<CommentData> comments = null;
 
-			//TODO hack - if it is competency or activity comment and it is Student,
-			// load comments only if from same deliveries user is learning and all manager comments
-			boolean loadCommentsFromSameDeliveries =
-					(commentsData.getResourceType() == CommentedResourceType.Activity
-							|| commentsData.getResourceType() == CommentedResourceType.Competence)
-							&& !commentsData.isManagerComment();
 			if(commentsData.getCommentId() > 0) {
 				comments = commentManager.getAllFirstLevelCommentsAndSiblingsOfSpecifiedComment(
 						commentsData.getResourceType(), commentsData.getResourceId(), csd, 
-						commentsData.getCommentId(), loggedUser.getUserId(), loadCommentsFromSameDeliveries);
+						commentsData.getCommentId(), loggedUser.getUserId(), commentsData.getCredentialId());
 				commentsData.setNumberOfComments(comments.size());
 			} else {
 				comments = commentManager.getComments(commentsData.getResourceType(), 
 						commentsData.getResourceId(), true, limit, csd, 
-						CommentReplyFetchMode.FetchNumberOfReplies, loggedUser.getUserId(), loadCommentsFromSameDeliveries);
+						CommentReplyFetchMode.FetchNumberOfReplies, loggedUser.getUserId(), commentsData.getCredentialId());
 				
 				int commentsNumber = comments.size();
 				if(commentsNumber == limit + 1) {
@@ -91,7 +86,7 @@ public class CommentBean implements Serializable, ICommentBean {
 			Collections.reverse(comments);
 			return comments;
 		} catch(Exception e) {
-			logger.error(e);
+			logger.error("error", e);
 			return null;
 		}
 	}
@@ -146,6 +141,7 @@ public class CommentBean implements Serializable, ICommentBean {
 		try {
 			CommentData newComment = new CommentData();
 			CommentData realParent = null;
+
 			if (parent == null) {
 				newComment.setComment(commentsData.getTopLevelComment());
 				commentsData.setTopLevelComment(null);
@@ -159,11 +155,10 @@ public class CommentBean implements Serializable, ICommentBean {
 				newComment.setParent(realParent);
 				newComment.setComment(parent.getReplyToComment());
 			}
-			newComment.setCommentedResourceId(commentsData.getResourceId());
-			newComment.setDateCreated(new Date());
 
-			// strip all tags except <br>
-			newComment.setComment(HTMLUtil.cleanHTMLTagsExceptBrA(newComment.getComment()));
+			newComment.setCommentedResourceId(commentsData.getResourceId());
+			newComment.setCommentedResourceType(commentsData.getResourceType());
+			newComment.setDateCreated(new Date());
 
 			UserData creator = new UserData(
 					loggedUser.getUserId(),
@@ -177,16 +172,17 @@ public class CommentBean implements Serializable, ICommentBean {
 			newComment.setCreator(creator);
 			newComment.setInstructor(commentsData.isInstructor());
 			newComment.setManagerComment(commentsData.isManagerComment());
+			newComment.setCredentialId(commentsData.getCredentialId());
 			
     		Comment1 comment = null;
-    		if(commentsData.getResourceType() == CommentedResourceType.SocialActivity) {
-    			comment = socialActivityManager.saveSocialActivityComment(
-    					commentsData.getResourceId(), newComment,
-    					commentsData.getResourceType(), loggedUser.getUserContext());
-    		} else {
-    			comment = commentManager.saveNewComment(newComment, commentsData.getResourceType(),
+			if (commentsData.getResourceType() == CommentedResourceType.SocialActivity) {
+				comment = socialActivityManager.saveSocialActivityComment(
+						commentsData.getResourceId(), newComment,
+						commentsData.getResourceType(), loggedUser.getUserContext());
+			} else {
+				comment = commentManager.saveNewComment(newComment, commentsData.getResourceType(),
 						loggedUser.getUserContext());
-    		}
+			}
     		
         	newComment.setCommentId(comment.getId());
         	commentsData.setNewestCommentId(newComment.getCommentId());
@@ -208,48 +204,39 @@ public class CommentBean implements Serializable, ICommentBean {
 				commentsData.addComment(newComment);
 				commentsData.incrementNumberOfComments();
         	}
+
+			// delete the input text, prepare for the next comment
+			if (parent == null) {
+				commentsData.setTopLevelComment(null);
+			} else if (parent.getParent() != null) {
+				parent.getParent().setReplyToComment(null);
+			} else {
+				parent.setReplyToComment(null);
+			}
+
         	PageUtil.fireSuccessfulInfoMessage("Your comment is posted");
     	} catch (Exception e) {
-    		logger.error(e);
+    		logger.error("Error", e);
     		PageUtil.fireErrorMessage("Error posting a comment");
     	}
-		
-//		taskExecutor.execute(new Runnable() {
-//            @Override
-//            public void run() {	
-//            	try {
-//            		PageContextData context = new PageContextData(page, lContext, service);
-//            		Comment1 comment = commentManager.saveNewComment(editComment, loggedUser.getUser().getId(), 
-//            				resourceType, context);
-//	            	
-//	            	editComment.setCommentId(comment.getId());
-//	            	
-//            	} catch (DbConnectionException e) {
-//            		logger.error(e);
-//            	}
-//            }
-//        });
 	}
 	
-	public void editComment(CommentData comment, CommentsData commentsData) {
-		UserContextData context = loggedUser.getUserContext();
-		taskExecutor.execute(() -> {
-			try {
-				if(commentsData.getResourceType() == CommentedResourceType.SocialActivity) {
-					socialActivityManager.updateSocialActivityComment(
-							commentsData.getResourceId(), comment, context);
-				} else {
-					commentManager.updateComment(comment, context);
-				}
-			} catch (DbConnectionException e) {
-				logger.error(e);
+	public void editComment(CommentData comment, CommentsData allCommentsData) {
+		try {
+			if (allCommentsData.getResourceType() == CommentedResourceType.SocialActivity) {
+				socialActivityManager.updateSocialActivityComment(
+						allCommentsData.getResourceId(), comment, loggedUser.getUserContext());
+			} else {
+				commentManager.updateComment(comment, loggedUser.getUserContext());
 			}
-        });
+		} catch (DbConnectionException e) {
+			logger.error("Error", e);
+		}
 	}
-	
+
 	public void likeAction(CommentData data) {
 		UserContextData context = loggedUser.getUserContext();
-		
+
 		//we can trade off accuracy for performance here
 		boolean liked = !data.isLikedByCurrentUser();
 		data.setLikedByCurrentUser(liked);
@@ -258,7 +245,7 @@ public class CommentBean implements Serializable, ICommentBean {
 		} else {
 			data.setLikeCount(data.getLikeCount() - 1);
 		}
-		
+
 		taskExecutor.execute(() -> {
 			try {
 				if(liked) {

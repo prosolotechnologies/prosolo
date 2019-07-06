@@ -19,24 +19,30 @@ package org.prosolo.services.authentication.impl;
 import org.apache.log4j.Logger;
 import org.opensaml.saml2.core.Attribute;
 import org.opensaml.xml.XMLObject;
+import org.opensaml.xml.schema.XSAny;
 import org.opensaml.xml.schema.XSString;
+import org.prosolo.app.Settings;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.context.data.UserContextData;
+import org.prosolo.config.app.SAMLIdentityProviderInfo;
 import org.prosolo.services.authentication.UserAuthenticationService;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.user.UserManager;
+import org.prosolo.services.user.data.UserData;
 import org.prosolo.services.util.roles.SystemRoleNames;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.saml.SAMLCredential;
 import org.springframework.security.saml.userdetails.SAMLUserDetailsService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -56,66 +62,50 @@ public class SAMLUserDetailsServiceImpl implements SAMLUserDetailsService {
 			throws UsernameNotFoundException {
 
 		try {
-			logger.info("Authentication through SAML requested; SAML Credential Name Id: " + credential.getNameID());
+			logger.info("Authentication through SAML requested; Remote entity id: " + credential.getRemoteEntityID() + "; SAML Credential Name Id: " + credential.getNameID());
 			//Gson g=new Gson();
 			//System.out.println("LOAD USER BY SAML:"+g.toJson(credential));
+			String nameId = null;
+			if (credential.getNameID() != null) {
+				nameId = credential.getNameID().getValue();
+			}
+			logger.debug("NameID:" + nameId);
 			List<Attribute> attributes = credential.getAttributes();
-			System.out.println("ATTRIBUTES FOUND:" + attributes.size());
-			//System.out.println("ADDITIONAL DATA FOUND:"+credential.getAdditionalData().toString());
-			//System.out.println("ADD:"+g.toJson(credential.getAdditionalData()));
 			for (Attribute attribute : attributes) {
-				logger.info("SAML attribute:" + attribute.getName() + " friendly name:" + attribute.getFriendlyName());
-				//logger.info("ATTR:"+g.toJson(attribute));
+				logger.debug("SAML attribute: " + attribute.getName() + " friendly name: " + attribute.getFriendlyName());
 				for (XMLObject value : attribute.getAttributeValues()) {
-					logger.info("has value:" + ((XSString) value).getValue());
-					//logger.info("ATTR:"+g.toJson(value));
-
+					logger.debug("has value: " + getStringValueFromXmlObject(value));
 				}
 			}
-			String email = credential.getNameID().getValue();
-			//String email = credential.getAttributeAsString("email");
-			//String eduPersonPrincipalName=credential.getAttributeAsString("eduPersonPrincipalName");
-//			String email=credential.getAttributeAsString("urn:oid:0.9.2342.19200300.100.1.3");//should be email attribute
-//			if(email==null || email.length()<5){
-//				//dirty hack as temporary solution since UTA is not providing emails for test accounts as email attribute, but as eduPersonPrincipalName
-//				email = credential.getAttributeAsString("urn:oid:1.3.6.1.4.1.5923.1.1.1.6");//eduPersonPrincipalName
-//				logger.info("Email is returned as eduPersonPrincipalName:" + email);
-//			}
 
-			String firstname = credential.getAttributeAsString("urn:oid:2.5.4.42");
-			String lastname = credential.getAttributeAsString("urn:oid:2.5.4.4");
+			SAMLIdentityProviderInfo provider = getIdentityProviderUsedForAuthentication(credential.getRemoteEntityID());
+            logger.info("Identity provider that issued authentication: " + provider.getEntityId());
+			String email = credential.getAttributeAsString(provider.emailAttribute);
+			String firstname = credential.getAttributeAsString(provider.firstNameAttribute);
+			String lastname = credential.getAttributeAsString(provider.lastNameAttribute);
 			logger.info("SAML RETURNED:email:" + email + " firstname:" + firstname + " lastname:" + lastname + " nameID:" + credential.getNameID().getValue());
 
 			//try to log in as regular user
-			User user = userManager.getUser(email);
+			Optional<UserData> userOpt = userManager.getUserData(email);
+			UserData user = null;
+			if (userOpt.isEmpty()) {
+				logger.info("User with email: " + email + " does not exist");
+				if (provider.createAccountForNonexistentUser) {
+				    logger.info("New account for user with email: " + email + " will be created");
+                    //if email does not exist, create new user account;
+                    Role role = roleManager.getRoleByName(SystemRoleNames.USER);
+                    String fName = firstname != null && !firstname.isEmpty() ? firstname : "Name";
+                    String lName = lastname != null && !lastname.isEmpty() ? lastname : "Lastname";
 
-			if (user == null) {
-				logger.info("User with email: " + email + " does not exist so new account will be created");
-				//if email does not exist, create new user account;
-				Role role = roleManager.getRoleByName(SystemRoleNames.USER);
-				//String firstname = credential.getAttributeAsString("givenName");
-				//String lastname = credential.getAttributeAsString("sn");
-				String fName = firstname != null && !firstname.isEmpty() ? firstname : "Name";
-				String lName = lastname != null && !lastname.isEmpty() ? lastname : "Lastname";
+                    user = userManager.createNewUserAndReturnData(1, fName,
+                            lName, email, true, UUID.randomUUID().toString(), null, null, null, Arrays.asList(role.getId()), false);
 
-				user = userManager.createNewUser(1, fName,
-						lName, email, true, UUID.randomUUID().toString(), null, null, null, Arrays.asList(role.getId()), false);
-
-				//TODO observer refactor migrate to sequential event processing when there is a possibility to test UTA login
-				try {
-					Thread.sleep(1000);
-				} catch (InterruptedException ie) {
-					logger.error("Error", ie);
-				}
-
-				unitManager.addUserToUnitWithRole(user.getId(), 1, role.getId(), UserContextData.empty());
-
-				logger.info("NEW USER THROUGH SAML WITH EMAIL " + email + " is logged in");
-			}
-			//this check is added because for SAML authentication spring does not do these checks
-			if (user.isDeleted()) {
-				throw new LockedException("User account is locked");
-			}
+                    logger.info("NEW USER THROUGH SAML WITH EMAIL " + email + " is logged in");
+                }
+			} else {
+				user = userOpt.get();
+			    logger.info("Existing user with email " + email + " is logged in through SAML");
+            }
 			return authService.authenticateUser(user);
 		} catch (LockedException|UsernameNotFoundException e) {
 			throw e;
@@ -124,5 +114,20 @@ public class SAMLUserDetailsServiceImpl implements SAMLUserDetailsService {
 			throw new UsernameNotFoundException("Error occurred while logging. Please try again.");
 		}
 	}
+
+	private String getStringValueFromXmlObject(XMLObject xmlObj) {
+		if (xmlObj instanceof XSString) {
+			return ((XSString) xmlObj).getValue();
+		} else if (xmlObj instanceof XSAny) {
+			return ((XSAny) xmlObj).getTextContent();
+		} else {
+			return null;
+		}
+	}
+
+    private SAMLIdentityProviderInfo getIdentityProviderUsedForAuthentication(String entityId) {
+        List<SAMLIdentityProviderInfo> samlProviders = Settings.getInstance().config.application.registration.samlConfig.samlProviders;
+        return samlProviders.stream().filter(p -> p.getEntityId().equals(entityId)).findFirst().get();
+    }
 
 }

@@ -3,12 +3,13 @@
  */
 package org.prosolo.services.event;
 
+import org.apache.log4j.Logger;
+import org.prosolo.common.event.EventObserver;
+
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-
-import org.apache.log4j.Logger;
 
 class EventThreadPoolExecutor {
 

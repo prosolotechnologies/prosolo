@@ -12,13 +12,11 @@ import java.io.Serializable;
 public class NotificationSenderData implements Serializable {
 
     private final long senderId;
-    private  final NotificationActorRole actorRole;
-    private final boolean anonymizedRole;
+    private final NotificationActorRole actorRole;
 
-    public NotificationSenderData(long senderId, NotificationActorRole actorRole, boolean anonymizedRole) {
+    public NotificationSenderData(long senderId, NotificationActorRole actorRole) {
         this.senderId = senderId;
         this.actorRole = actorRole;
-        this.anonymizedRole = anonymizedRole;
     }
 
     public long getSenderId() {
@@ -29,7 +27,4 @@ public class NotificationSenderData implements Serializable {
         return actorRole;
     }
 
-    public boolean isAnonymizedRole() {
-        return anonymizedRole;
-    }
 }

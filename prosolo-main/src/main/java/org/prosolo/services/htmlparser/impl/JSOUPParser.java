@@ -3,30 +3,18 @@
  */
 package org.prosolo.services.htmlparser.impl;
 
-import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.imageio.ImageIO;
 
 import org.apache.log4j.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
-import org.prosolo.common.domainmodel.content.ContentType1;
-import org.prosolo.common.domainmodel.content.ImageSize;
 import org.prosolo.common.util.net.HTTPSConnectionValidator;
 import org.prosolo.services.htmlparser.HTMLParser;
-import org.prosolo.services.htmlparser.Image;
-import org.prosolo.services.nodes.data.activity.attachmentPreview.AttachmentPreview1;
-import org.prosolo.services.util.url.URLUtil;
 import org.springframework.stereotype.Service;
 
 /**

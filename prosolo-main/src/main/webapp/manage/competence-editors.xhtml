@@ -29,7 +29,7 @@
 	 <ui:define name="navLinks">
          <mngComp:competenceHeaderNavLinks
 				 id="headerNavLinks"
-				 compId="#{competenceUserPrivilegeBean.compId}"
+				 compId="#{competenceUserPrivilegeBean.decodedCompId}"
 				 encodedCredId="#{competenceUserPrivilegeBean.credId}"
          />
 	</ui:define>
@@ -97,7 +97,7 @@
                                     bean="#{competenceUserPrivilegeBean}"
                                     toUpdate=":growlMain :formMain:userPrivileges:panelExistingMembers"
 									makeOwnerModalId="mkOwner"
-									learningContext="name:COMPETENCE|id:#{competenceUserPrivilegeBean.compId}"
+									learningContext="name:COMPETENCE|id:#{competenceUserPrivilegeBean.decodedCompId}"
                             />
                         </h:form>
                     </div>
@@ -111,7 +111,7 @@
 				makeOwnerActionName="makeOwner"
 				resource="#{msg['label.competence'].toLowerCase()}"
 				update=":growlMain :formMain:userPrivileges:panelExistingMembers"
-				learningContext="name:COMPETENCE|id:#{competenceUserPrivilegeBean.compId}"
+				learningContext="name:COMPETENCE|id:#{competenceUserPrivilegeBean.decodedCompId}"
 		/>
 	</ui:define>
 </ui:composition>

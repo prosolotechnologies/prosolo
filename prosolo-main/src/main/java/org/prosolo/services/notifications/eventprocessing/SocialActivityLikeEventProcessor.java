@@ -1,88 +1,84 @@
 package org.prosolo.services.notifications.eventprocessing;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.log4j.Logger;
-import org.hibernate.Session;
-import org.prosolo.common.domainmodel.activitywall.SocialActivity1;
 import org.prosolo.common.domainmodel.user.notifications.NotificationActorRole;
 import org.prosolo.common.domainmodel.user.notifications.NotificationType;
 import org.prosolo.common.domainmodel.user.notifications.ResourceType;
-import org.prosolo.services.event.Event;
+import org.prosolo.common.event.Event;
+import org.prosolo.services.activityWall.SocialActivityManager;
+import org.prosolo.services.activityWall.impl.data.SocialActivityData1;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
-import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.notifications.NotificationManager;
 import org.prosolo.services.notifications.eventprocessing.data.NotificationReceiverData;
 import org.prosolo.services.notifications.eventprocessing.data.NotificationSenderData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.util.page.PageSection;
 
-public class SocialActivityLikeEventProcessor extends NotificationEventProcessor {
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
 
-	private static Logger logger = Logger.getLogger(SocialActivityLikeEventProcessor.class);
+public class SocialActivityLikeEventProcessor extends SimpleNotificationEventProcessor {
 
-	private SocialActivity1 socialActivity;
-	
-	public SocialActivityLikeEventProcessor(Event event, Session session,
-			NotificationManager notificationManager,
-			NotificationsSettingsManager notificationsSettingsManager,
-			Activity1Manager activityManager,
-			UrlIdEncoder idEncoder) {
-		super(event, session, notificationManager, notificationsSettingsManager, idEncoder);
-		setResource();
-	}
+    private static Logger logger = Logger.getLogger(SocialActivityLikeEventProcessor.class);
 
-	protected void setResource() {
-		this.socialActivity = (SocialActivity1) session.load(event.getObject().getClass(), event.getObject().getId());
-	}
-	
-	@Override
-	List<NotificationReceiverData> getReceiversData() {
-		List<NotificationReceiverData> receivers = new ArrayList<>();
-		try {
-			Long resCreatorId = socialActivity.getActor().getId();
-			receivers.add(new NotificationReceiverData(resCreatorId, getNotificationLink(), false, PageSection.STUDENT));
-			return receivers;
-		} catch(Exception e) {
-			logger.error(e);
-			return new ArrayList<>();
-		}
-	}
+    private SocialActivityData1 socialActivity;
 
-	@Override
-	NotificationSenderData getSenderData() {
-		return new NotificationSenderData(event.getActorId(), NotificationActorRole.OTHER, false);
-	}
+    public SocialActivityLikeEventProcessor(Event event, NotificationManager notificationManager,
+                                            NotificationsSettingsManager notificationsSettingsManager,
+                                            UrlIdEncoder idEncoder, SocialActivityManager socialActivityManager) {
+        super(event, notificationManager, notificationsSettingsManager, idEncoder);
 
-	@Override
-	boolean isConditionMet(long sender, long receiver) {
-		if (receiver != 0 && sender != receiver) {
-			return true;
-		} else {
-			logger.error("Error determining condition for sending nitification when liking a social activity. Sender: " + sender + ", receiver: " + receiver);
-			return false;
-		}
-	}
+        Optional<SocialActivityData1> socialActivityData = socialActivityManager.getSocialActivityById(event.getObject().getId(), event.getActorId(), Locale.getDefault());
 
-	@Override
-	NotificationType getNotificationType() {
-		return NotificationType.Social_Activity_Like;
-	}
+        if (socialActivityData.isPresent()) {
+            socialActivity = socialActivityData.get();
+        }
+    }
 
-	@Override
-	ResourceType getObjectType() {
-		return ResourceType.SocialActivity;
-	}
+    @Override
+    List<NotificationReceiverData> getReceiversData() {
+        Long resCreatorId = socialActivity.getActor().getId();
+        return List.of(new NotificationReceiverData(resCreatorId, getNotificationLink(), false, PageSection.STUDENT));
+    }
 
-	@Override
-	long getObjectId() {
-		return socialActivity.getId();
-	}
+    @Override
+    NotificationSenderData getSenderData() {
+        return new NotificationSenderData(event.getActorId(), NotificationActorRole.OTHER);
+    }
 
-	private String getNotificationLink() {
-		return "/posts/" +
-				idEncoder.encodeId(socialActivity.getId());
-	}
+    @Override
+    boolean isAnonymizedActor() {
+        return false;
+    }
+
+    @Override
+    boolean isConditionMet(long sender, long receiver) {
+        if (receiver != 0 && sender != receiver) {
+            return true;
+        } else {
+            logger.error("Error determining condition for sending nitification when liking a social activity. Sender: " + sender + ", receiver: " + receiver);
+            return false;
+        }
+    }
+
+    @Override
+    NotificationType getNotificationType() {
+        return NotificationType.Social_Activity_Like;
+    }
+
+    @Override
+    ResourceType getObjectType() {
+        return ResourceType.SocialActivity;
+    }
+
+    @Override
+    long getObjectId() {
+        return socialActivity.getId();
+    }
+
+    private String getNotificationLink() {
+        return "/posts/" + idEncoder.encodeId(socialActivity.getId());
+    }
 
 }

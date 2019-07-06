@@ -4,25 +4,36 @@ import org.hibernate.Session;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.common.domainmodel.annotation.Tag;
-import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.preferences.UserPreference;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
-
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.general.AbstractManager;
+import org.prosolo.services.user.data.UserAssessmentTokenData;
+import org.prosolo.services.user.data.UserAssessmentTokenExtendedData;
 import org.prosolo.services.user.data.UserCreationData;
 import org.prosolo.services.user.data.UserData;
+import org.prosolo.web.administration.data.RoleData;
 
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 public interface UserManager extends AbstractManager {
 
 	User getUser(String email) throws DbConnectionException;
+
+	/**
+	 * Returns user data for user with given email. Data returned includes user roles.
+	 *
+	 * @param email
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	Optional<UserData> getUserData(String email);
 
 	User getUserIfNotDeleted(String email) throws DbConnectionException;
 
@@ -39,6 +50,48 @@ public interface UserManager extends AbstractManager {
 	User createNewUser(long organizationId, String name, String lastname, String emailAddress, boolean emailVerified,
 			String password, String position, InputStream avatarStream, 
 			String avatarFilename, List<Long> roles, boolean isSystem) throws DbConnectionException, IllegalDataStateException;
+
+	/**
+	 * Creates new user, returns user data ({@link UserData} and events to be generated
+	 *
+	 * @param organizationId
+	 * @param name
+	 * @param lastname
+	 * @param emailAddress
+	 * @param emailVerified
+	 * @param password
+	 * @param position
+	 * @param avatarStream
+	 * @param avatarFilename
+	 * @param roles
+	 * @param isSystem
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	Result<UserData> createNewUserAndGetUserDataAndEvents(long organizationId, String name, String lastname, String emailAddress, boolean emailVerified,
+														  String password, String position, InputStream avatarStream,
+														  String avatarFilename, List<Long> roles, boolean isSystem);
+
+	/**
+	 * Creates new user, generates events and returns user data ({@link UserData}
+	 *
+	 * @param organizationId
+	 * @param name
+	 * @param lastname
+	 * @param emailAddress
+	 * @param emailVerified
+	 * @param password
+	 * @param position
+	 * @param avatarStream
+	 * @param avatarFilename
+	 * @param roles
+	 * @param isSystem
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	UserData createNewUserAndReturnData(long organizationId, String name, String lastname, String emailAddress, boolean emailVerified,
+										String password, String position, InputStream avatarStream,
+										String avatarFilename, List<Long> roles, boolean isSystem);
 
 	Result<User> createNewUserAndGetEvents(long organizationId, String name, String lastname, String emailAddress, boolean emailVerified,
 										   String password, String position, InputStream avatarStream,
@@ -109,12 +162,12 @@ public interface UserManager extends AbstractManager {
 
 	User updateUser(long userId, String name, String lastName, String email,
 			boolean emailVerified, boolean changePassword, String password, 
-			String position, List<Long> roles, List<Long> rolesToUpdate, UserContextData context)
+			String position, int numberOfTokens, List<Long> roles, List<Long> rolesToUpdate, UserContextData context)
 			throws DbConnectionException;
 
 	Result<User> updateUserAndGetEvents(long userId, String name, String lastName, String email,
 					boolean emailVerified, boolean changePassword, String password,
-					String position, List<Long> roles, List<Long> rolesToUpdate, UserContextData context) throws DbConnectionException;
+					String position, int numberOfTokens, List<Long> roles, List<Long> rolesToUpdate, UserContextData context) throws DbConnectionException;
 
 	List<User> getUsers(Long[] toExclude, int limit);
 
@@ -147,7 +200,7 @@ public interface UserManager extends AbstractManager {
 	 * @return
 	 * @throws DbConnectionException
 	 */
-	PaginatedResult<UserData> getUsersWithRoles(int page, int limit, long roleId, List<Role> roles, long organizationId)
+	PaginatedResult<UserData> getUsersWithRoles(int page, int limit, long roleId, List<RoleData> roles, long organizationId)
 			throws DbConnectionException;
 
 	void setOrganizationForUsers(List<UserData> users,Long organizationId);
@@ -204,4 +257,31 @@ public interface UserManager extends AbstractManager {
 
 	Result<Void> saveAccountChangesAndGetEvents(UserData accountData, UserContextData contextData)
 			throws DbConnectionException, ResourceCouldNotBeLoadedException;
+
+	/**
+	 *
+	 * @param userId
+	 * @return
+	 *
+	 * @throws DbConnectionException
+	 */
+	UserAssessmentTokenData getUserAssessmentTokenData(long userId);
+
+	/**
+	 *
+	 * @param userId
+	 * @return
+	 *
+	 * @throws DbConnectionException
+	 */
+	UserAssessmentTokenExtendedData getUserAssessmentTokenExtendedData(long userId);
+
+	/**
+	 *
+	 * @param userId
+	 * @param availableForAssessments
+	 *
+	 * @throws DbConnectionException
+	 */
+	void updateAssessmentAvailability(long userId, boolean availableForAssessments);
 }

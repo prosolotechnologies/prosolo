@@ -54,28 +54,23 @@ public class CompetenceViewBeanAdmin implements Serializable {
 		decodedOrgId = idEncoder.decodeId(orgId);
 		decodedUnitId = idEncoder.decodeId(unitId);
 		decodedCompId = idEncoder.decodeId(compId);
+		decodedCredId = idEncoder.decodeId(credId);
 
 		if (pageAccessRightsResolver.getAccessRightsForOrganizationPage(decodedOrgId).isCanAccess()) {
-			if (decodedOrgId > 0 && decodedUnitId > 0 && decodedCompId > 0) {
-				if (credId != null) {
-					decodedCredId = idEncoder.decodeId(credId);
-				}
+			if (decodedOrgId > 0 && decodedUnitId > 0 && decodedCompId > 0 && decodedCredId > 0) {
 				try {
+					// check if credential and competency are connected
+					competenceManager.checkIfCompetenceIsPartOfACredential(decodedCredId, decodedCompId);
+
 					TitleData td = unitManager.getOrganizationAndUnitTitle(decodedOrgId, decodedUnitId);
-				/*
-				if credential id is passed we check if credential is connected to unit because if admin
-				comes to this page from credential page he should always see competency details - not found
-				page would be confusing for him.
-				 */
-					boolean connectedToUnit = decodedCredId > 0
-							? unitManager.isCredentialConnectedToUnit(decodedCredId, decodedUnitId)
-							: unitManager.isCompetenceConnectedToUnit(decodedCompId, decodedUnitId);
+
+					boolean connectedToUnit = unitManager.isCredentialConnectedToUnit(decodedCredId, decodedUnitId);
+
 					if (td != null && connectedToUnit) {
 						organizationTitle = td.getOrganizationTitle();
 						unitTitle = td.getUnitTitle();
 
-						competenceData = competenceManager.getCompetenceData(
-								decodedCredId, decodedCompId, true, false, true, true,
+						competenceData = competenceManager.getCompetenceData(decodedCompId, true, false, true, true,
 								false);
 
 						if (decodedCredId > 0) {

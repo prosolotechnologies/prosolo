@@ -1,18 +1,17 @@
 package org.prosolo.services.notifications.eventprocessing;
 
 import org.apache.log4j.Logger;
-import org.hibernate.Session;
-import org.prosolo.common.domainmodel.assessment.ActivityAssessment;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.credential.BlindAssessmentMode;
 import org.prosolo.common.domainmodel.credential.GradingMode;
 import org.prosolo.common.domainmodel.user.notifications.ResourceType;
-import org.prosolo.common.event.context.Context;
-import org.prosolo.common.event.context.ContextName;
+import org.prosolo.common.event.Event;
+import org.prosolo.common.web.ApplicationPage;
 import org.prosolo.services.assessment.AssessmentManager;
-import org.prosolo.services.context.ContextJsonParserService;
-import org.prosolo.services.event.Event;
+import org.prosolo.services.assessment.data.AssessmentBasicData;
 import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
+import org.prosolo.services.nodes.Activity1Manager;
+import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.notifications.NotificationManager;
 import org.prosolo.services.notifications.eventprocessing.util.AssessmentLinkUtil;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
@@ -20,62 +19,89 @@ import org.prosolo.web.util.page.PageSection;
 
 public class ActivityGradeAddedEventProcessor extends GradeAddedEventProcessor {
 
-	private static Logger logger = Logger.getLogger(ActivityGradeAddedEventProcessor.class);
+    private static Logger logger = Logger.getLogger(ActivityGradeAddedEventProcessor.class);
 
-	private ContextJsonParserService contextJsonParserService;
-	private AssessmentManager assessmentManager;
+    private AssessmentBasicData activityAssessment;
+    private AssessmentBasicData competenceAssessment;
+    private long credentialId;
+    private long competenceId;
+    private ActivityData activityData;
 
-	private ActivityAssessment assessment;
-	private long credentialId;
-	private long competenceId;
-	private Context context;
+    public ActivityGradeAddedEventProcessor(Event event, NotificationManager notificationManager,
+                                            NotificationsSettingsManager notificationsSettingsManager, UrlIdEncoder idEncoder,
+                                            AssessmentManager assessmentManager, Activity1Manager activityManager) {
+        super(event, notificationManager, notificationsSettingsManager, idEncoder);
 
-	public ActivityGradeAddedEventProcessor(Event event, Session session, NotificationManager notificationManager,
-											NotificationsSettingsManager notificationsSettingsManager, UrlIdEncoder idEncoder,
-											ContextJsonParserService contextJsonParserService, AssessmentManager assessmentManager) {
-		super(event, session, notificationManager, notificationsSettingsManager, idEncoder);
-		this.contextJsonParserService = contextJsonParserService;
-		this.assessmentManager = assessmentManager;
-		context = contextJsonParserService.parseContext(event.getContext());
-		credentialId = Context.getIdFromSubContextWithName(context, ContextName.CREDENTIAL);
-		competenceId = Context.getIdFromSubContextWithName(context, ContextName.COMPETENCE);
-		assessment = (ActivityAssessment) session.load(ActivityAssessment.class, event.getObject().getId());
-	}
+        activityAssessment = assessmentManager.getBasicAssessmentInfoForActivityAssessment(event.getObject().getId());
+        competenceAssessment = assessmentManager.getBasicAssessmentInfoForCompetenceAssessment(activityAssessment.getCompetenceAssessmentId());
 
-	@Override
-	protected boolean shouldNotificationBeGenerated() {
-		//notification should not be generated for self assessment and auto graded assessment
-		return assessment.getType() != AssessmentType.SELF_ASSESSMENT && assessment.getActivity().getGradingMode() != GradingMode.AUTOMATIC;
-	}
+        credentialId = activityAssessment.getCredentialId();
+        competenceId = activityAssessment.getCompetenceId();
+        long activityId = activityAssessment.getActivityId();
 
-	@Override
-	protected long getStudentId() {
-		return assessment.getAssessment().getStudent().getId();
-	}
+        activityData = activityManager.getActivityData(credentialId, competenceId, activityId, false, false);
+    }
 
-	@Override
-	protected BlindAssessmentMode getBlindAssessmentMode() {
-		return assessment.getAssessment().getBlindAssessmentMode();
-	}
+    @Override
+    protected boolean shouldNotificationBeGenerated() {
+        //notification should not be generated for self assessment and auto graded assessment
+        return activityAssessment.getType() != AssessmentType.SELF_ASSESSMENT && activityData.getAssessmentSettings().getGradingMode() != GradingMode.AUTOMATIC;
+    }
 
-	@Override
-	protected long getAssessorId() {
-		return assessment.getAssessment().getAssessor() != null
-				? assessment.getAssessment().getAssessor().getId()
-				: 0;
-	}
+    @Override
+    protected long getStudentId() {
+        return activityAssessment.getStudentId();
+    }
 
-	@Override
-	protected String getNotificationLink() {
-		long competenceAssessmentId = Context.getIdFromSubContextWithName(context, ContextName.COMPETENCE_ASSESSMENT);
-		return AssessmentLinkUtil.getAssessmentNotificationLink(
-				context, credentialId, competenceId, competenceAssessmentId, assessment.getType(), assessmentManager, idEncoder,
-				session, PageSection.STUDENT);
-	}
+    @Override
+    protected BlindAssessmentMode getBlindAssessmentMode() {
+        return competenceAssessment.getBlindAssessmentMode();
+    }
 
-	@Override
-	ResourceType getObjectType() {
-		return ResourceType.ActivityAssessment;
-	}
+    @Override
+    protected long getAssessorId() {
+        return activityAssessment.getAssessorId();
+    }
+
+    @Override
+    protected String getNotificationLink() {
+        ApplicationPage page = ApplicationPage.getPageForURI(event.getPage());
+
+        AssessmentType assessmentType = activityAssessment.getType();
+
+        switch (assessmentType) {
+            case INSTRUCTOR_ASSESSMENT:
+                return AssessmentLinkUtil.getCredentialAssessmentUrlForAssessedStudent(
+                        idEncoder.encodeId(credentialId),
+                        idEncoder.encodeId(activityAssessment.getCredentialAssessmentId()),
+                        activityAssessment.getType(),
+                        PageSection.STUDENT);
+            case PEER_ASSESSMENT:
+                switch (page) {
+                    // if grade is added to a competency assessment is a part of the credential assessment
+                    case MY_ASSESSMENTS_CREDENTIAL_ASSESSMENT:
+                        return AssessmentLinkUtil.getCredentialAssessmentUrlForAssessedStudent(
+                                idEncoder.encodeId(credentialId),
+                                idEncoder.encodeId(activityAssessment.getCredentialAssessmentId()),
+                                activityAssessment.getType(),
+                                PageSection.STUDENT);
+                    // if grade is added to a competency assessment is a part of the competency assessment
+                    case MY_ASSESSMENTS_COMPETENCE_ASSESSMENT:
+                        return AssessmentLinkUtil.getCompetenceAssessmentUrlForAssessedStudent(
+                                idEncoder.encodeId(credentialId),
+                                idEncoder.encodeId(competenceId),
+                                idEncoder.encodeId(competenceAssessment.getCompetenceAssessmentId()),
+                                activityAssessment.getType(),
+                                PageSection.STUDENT);
+                }
+            default:
+                throw new IllegalArgumentException("Cannot generate notification link for the assessment type " + assessmentType);
+        }
+    }
+
+    @Override
+    ResourceType getObjectType() {
+        return ResourceType.ActivityAssessment;
+    }
 
 }
