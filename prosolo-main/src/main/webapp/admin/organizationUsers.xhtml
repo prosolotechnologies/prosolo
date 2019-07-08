@@ -13,7 +13,7 @@
 	<ui:define name="metadata">
 		<f:metadata>
 			<f:viewParam name="orgId" value="#{usersBean.orgId}" />
-			<f:viewParam name="p" value="#{usersBean.paginationData.pageString}" default="1" />
+			<f:viewParam name="p" value="#{usersBean.page}" default="1" />
 			<f:viewParam name="role" value="#{usersBean.roleId}" default="null" />
 			<f:viewParam name="error" value="#{usersBean.error}"/>
 			<f:viewAction action="#{usersBean.initOrgUsers()}" />

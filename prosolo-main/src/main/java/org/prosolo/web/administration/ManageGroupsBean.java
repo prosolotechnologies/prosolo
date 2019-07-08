@@ -1,5 +1,7 @@
 package org.prosolo.web.administration;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.search.UserGroupTextSearch;
@@ -57,10 +59,16 @@ public class ManageGroupsBean implements Serializable, Paginable {
 	
 	private PaginationData paginationData = new PaginationData();
 
+	@Getter
+	@Setter
+	private int page;
+
 	public void init() {
 		decodedOrgId = idEncoder.decodeId(orgId);
 		decodedUnitId = idEncoder.decodeId(unitId);
-
+		if (page > 0) {
+			paginationData.setPage(page);
+		}
 		if (pageAccessRightsResolver.getAccessRightsForOrganizationPage(decodedOrgId).isCanAccess()) {
 			if (decodedOrgId > 0 && decodedUnitId > 0) {
 				unitTitle = unitManager.getUnitTitle(decodedOrgId, decodedUnitId);

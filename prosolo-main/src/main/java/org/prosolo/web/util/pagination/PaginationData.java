@@ -164,20 +164,5 @@ public class PaginationData {
 	public List<PaginationLink> getLinks() {
 		return links;
 	}
-	
-	/*
-	 * UTILITY
-	 */
 
-
-	public String getPageString() {
-		return String.valueOf(page);
-	}
-
-	public void setPageString(String pageString) {
-		try {
-			page = Integer.parseInt(pageString);
-		} catch (Exception e) {
-		}
-	}
 }

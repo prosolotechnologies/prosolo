@@ -3,6 +3,8 @@
  */
 package org.prosolo.web.courses.credential;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.credential.CredentialType;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
@@ -89,11 +91,18 @@ public class CredentialMembersBean implements Serializable, Paginable, Instructo
 
 	private StudentData selectedStudent;
 
+	@Getter
+	@Setter
+	private int page;
+
 	public void init() {
 		sortOptions = CredentialMembersSortOption.values();
 		//searchFilters = InstructorAssignFilterValue.values();
 		decodedId = idEncoder.decodeId(id);
 		if (decodedId > 0) {
+			if (page > 0) {
+				paginationData.setPage(page);
+			}
 			context = "name:CREDENTIAL|id:" + decodedId + "|context:/name:STUDENTS/";
 			try {
 				credentialIdData = credManager.getCredentialIdData(decodedId, CredentialType.Delivery);

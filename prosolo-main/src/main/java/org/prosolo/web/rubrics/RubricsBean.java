@@ -1,5 +1,7 @@
 package org.prosolo.web.rubrics;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.log4j.Logger;
 import org.hibernate.exception.ConstraintViolationException;
 import org.prosolo.common.domainmodel.rubric.Rubric;
@@ -55,7 +57,14 @@ public class RubricsBean implements Serializable, Paginable {
     private String searchTerm = "";
     private String rubricName = "";
 
+    @Getter
+    @Setter
+    private int page;
+
     public void init() {
+        if (page > 0) {
+            paginationData.setPage(page);
+        }
         loadRubrics();
     }
 
@@ -161,4 +170,5 @@ public class RubricsBean implements Serializable, Paginable {
     public void setSearchTerm(String searchTerm) {
         this.searchTerm = searchTerm;
     }
+
 }

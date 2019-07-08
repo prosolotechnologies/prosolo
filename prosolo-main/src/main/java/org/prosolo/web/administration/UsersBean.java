@@ -1,5 +1,7 @@
 package org.prosolo.web.administration;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
@@ -78,10 +80,16 @@ public class UsersBean implements Serializable,Paginable{
 	private List<RoleFilter> filters;
 	
 	private PaginationData paginationData = new PaginationData();
-	
+
+	@Getter
+	@Setter
+	private int page;
 
 	public void initAdmins(){
 		logger.info("initializing users");
+		if (page > 0) {
+			paginationData.setPage(page);
+		}
 		rolesArray = new String[]{SystemRoleNames.ADMIN, SystemRoleNames.SUPER_ADMIN};
 		roles = roleManager.getRolesByNames(rolesArray);
 		filter = getDefaultRoleFilter();
@@ -102,6 +110,9 @@ public class UsersBean implements Serializable,Paginable{
 
 	public void initOrgUsers() {
 		logger.info("initializing organization users");
+		if (page > 0) {
+			paginationData.setPage(page);
+		}
 		decodedOrgId = idEncoder.decodeId(orgId);
 		if (pageAccessRightsResolver.getAccessRightsForOrganizationPage(decodedOrgId).isCanAccess()) {
 			if (decodedOrgId > 0) {
@@ -284,4 +295,5 @@ public class UsersBean implements Serializable,Paginable{
 	public void setError(String error) {
 		this.error = error;
 	}
+
 }

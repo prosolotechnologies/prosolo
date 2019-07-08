@@ -19,7 +19,7 @@
         <f:metadata>
             <f:viewParam name="orgId" value="#{manageGroupsBean.orgId}" />
             <f:viewParam name="id" value="#{manageGroupsBean.unitId}" />
-            <f:viewParam name="p" value="#{manageGroupsBean.paginationData.pageString}" default="1" />
+            <f:viewParam name="p" value="#{manageGroupsBean.page}" default="1" />
             <f:viewAction action="#{manageGroupsBean.init()}" />
         </f:metadata>
     </ui:define>

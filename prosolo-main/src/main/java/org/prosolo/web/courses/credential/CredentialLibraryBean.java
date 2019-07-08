@@ -3,6 +3,8 @@
  */
 package org.prosolo.web.courses.credential;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.event.context.data.PageContextData;
@@ -70,8 +72,15 @@ public class CredentialLibraryBean implements Serializable, Paginable {
 	//list of unit ids where user has student role
 	private List<Long> unitIds = new ArrayList<>();
 
+	@Getter
+	@Setter
+	private int page;
+
 	public void init() {
 		searchFilters = CredentialSearchFilterUser.values();
+		if (page > 0) {
+			paginationData.setPage(page);
+		}
 
 		try {
 			Long userRoleId = roleManager.getRoleIdByName(SystemRoleNames.USER);
@@ -210,4 +219,5 @@ public class CredentialLibraryBean implements Serializable, Paginable {
 	public List<CredentialCategoryData> getFilterCategories() {
 		return filterCategories;
 	}
+
 }

@@ -3,6 +3,8 @@
  */
 package org.prosolo.web.courses.credential;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.event.context.data.PageContextData;
@@ -60,8 +62,15 @@ public class CredentialLibraryBeanManager implements Serializable, Paginable {
 
 	private String context = "name:library";
 
+	@Getter
+	@Setter
+	private int page;
+
 	public void init() {
 		searchFilters = CredentialSearchFilterManager.values();
+		if (page > 0) {
+			paginationData.setPage(page);
+		}
 		try {
 			initCategoryFilters();
 			searchCredentials(false);

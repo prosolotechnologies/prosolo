@@ -14,7 +14,7 @@
 
 	<ui:define name="metadata">
 		<f:metadata>
-			<f:viewParam name="p" value="#{competenceLibraryBean.paginationData.pageString}" default="1" />
+			<f:viewParam name="p" value="#{competenceLibraryBean.page}" default="1" />
 			<f:viewAction action="#{competenceLibraryBean.init()}" />
 		</f:metadata>
 	</ui:define>
