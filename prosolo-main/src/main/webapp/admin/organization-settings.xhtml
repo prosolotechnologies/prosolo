@@ -588,23 +588,25 @@
                     </div>
                 </div>
 
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="whiteBox adminIndexesBox">
-                            <h3>Reindex the following resources:</h3>
-                            <p:commandLink value="Users"
-                                           styleClass="btn btn-green"
-                                           action="#{bulkDataAdministration.deleteAndReindexUsers(organizationEditBean.decodedId)}"	/>
-                            <p:commandLink value="Content"
-                                           styleClass="btn btn-green"
-                                           action="#{bulkDataAdministration.deleteAndReindexLearningContent(organizationEditBean.decodedId)}"	/>
-                            <p:commandLink value="#{msg['label.rubric.plural']}"
-                                           styleClass="btn btn-green"
-                                           action="#{bulkDataAdministration.deleteAndReindexRubrics(organizationEditBean.decodedId)}" />
-                            <div class="clear top30"></div>
+                <ui:fragment rendered="#{request.isUserInRole('ADMIN.ADVANCED')}">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="whiteBox adminIndexesBox">
+                                <h3>Reindex the following resources:</h3>
+                                <p:commandLink value="Users"
+                                               styleClass="btn btn-green"
+                                               action="#{bulkDataAdministration.deleteAndReindexUsers(organizationEditBean.decodedId)}"	/>
+                                <p:commandLink value="Content"
+                                               styleClass="btn btn-green"
+                                               action="#{bulkDataAdministration.deleteAndReindexLearningContent(organizationEditBean.decodedId)}"	/>
+                                <p:commandLink value="#{msg['label.rubric.plural']}"
+                                               styleClass="btn btn-green"
+                                               action="#{bulkDataAdministration.deleteAndReindexRubrics(organizationEditBean.decodedId)}" />
+                                <div class="clear top30"></div>
+                            </div>
                         </div>
                     </div>
-                </div>
+                </ui:fragment>
             </ui:fragment>
         </div>
 
