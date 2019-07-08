@@ -66,6 +66,7 @@ public class StyleUtilBean implements Serializable {
 			case ASSESSOR_ASSIGNED_TO_ASSESSMENT:
 			case ASSIGNED_TO_ASSESSMENT_AS_ASSESSOR:
 			case ASSESSMENT_REQUEST_EXPIRED:
+			case ASSESSMENT_TOKENS_NUMBER_UPDATED:
 				return "notifAssessment";
 			case Mention:
 				return "notifMention";

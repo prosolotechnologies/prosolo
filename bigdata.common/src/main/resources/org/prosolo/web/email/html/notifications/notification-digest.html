@@ -593,6 +593,30 @@
                                                         <br />
 
                                                         {{/hasSocialActivityLiked}}
+                                                        {{#hasAssessmentTokensUpdated}}
+                                                        <br />
+                                                        Your assessment tokens number has been updated <strong>{{assessmentTokensUpdatedCount}} time(s)</strong>
+
+                                                        <br />
+                                                        <table border="0" cellpadding="0" cellspacing="0">
+                                                            {{#assessmentTokensUpdated}}
+                                                            <tr>
+                                                                <td valign="top">
+                                                                    <a href="{{link}}">{{predicate}}</a>
+                                                                </td>
+                                                            </tr>
+                                                            {{/assessmentTokensUpdated}}
+                                                            {{#hasMoreAssessmentTokensUpdated}}
+                                                            <tr>
+                                                                <td valign="top" style="padding-top:10px;">
+                                                                    <a href="{{notificationsLink}}?filters=assessment_tokens_number_updated">View all assessment tokens updates</a>
+                                                                </td>
+                                                            </tr>
+                                                            {{/hasMoreAssessmentTokensUpdated}}
+                                                        </table>
+                                                        <br />
+
+                                                        {{/hasAssessmentTokensUpdated}}
                                                         </br>
                                                         <table border="0" cellpadding="0" cellspacing="0">
                                                             <tr>
