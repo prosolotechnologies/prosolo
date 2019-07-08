@@ -132,6 +132,7 @@
 												   update=":assessmentPreview:commentModal:formPrivateConversation:panelModalPrivateConversation"
 												   oncomplete="$('#assessmentCommentsModal1').modal('show');">
 										#{cc.attrs.bean.fullAssessmentData.numberOfMessages}
+										<p:resetInput target=":assessmentPreview:commentModal:formPrivateConversation:panelModalPrivateConversation" />
 									</p:commandLink>
 									<assessment:gradeLabel
 											assessment="#{cc.attrs.bean.fullAssessmentData}"
@@ -413,6 +414,7 @@
 															   update=":assessmentPreview:commentModal:formPrivateConversation:panelModalPrivateConversation"
 															   oncomplete="$('#assessmentCommentsModal1').modal('show');">
 													#{cc.attrs.bean.fullAssessmentData.numberOfMessages}
+													<p:resetInput target=":assessmentPreview:commentModal:formPrivateConversation:panelModalPrivateConversation" />
 												</p:commandLink>
 												<assessment:gradeLabel
 														assessment="#{cc.attrs.bean.fullAssessmentData}"

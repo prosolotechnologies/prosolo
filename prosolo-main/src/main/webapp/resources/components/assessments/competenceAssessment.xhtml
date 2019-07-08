@@ -129,6 +129,7 @@
 									   update="#{cc.attrs.toUpdatePrivateConversationModal}"
 									   oncomplete="$('#assessmentCommentsModal1').modal('show');">
 							#{cc.attrs.competenceAssessment.numberOfMessages}
+							<p:resetInput target="#{cc.attrs.toUpdatePrivateConversationModal}" />
 						</p:commandLink>
 
 						<assessment:gradeLabel
@@ -223,6 +224,7 @@
 													   update="#{cc.attrs.toUpdatePrivateConversationModal}"
 													   oncomplete="$('#assessmentCommentsModal1').modal('show');">
 											#{activityAssessment.numberOfMessages}
+											<p:resetInput target="#{cc.attrs.toUpdatePrivateConversationModal}" />
 										</p:commandLink>
 
 										<assessment:gradeLabel
