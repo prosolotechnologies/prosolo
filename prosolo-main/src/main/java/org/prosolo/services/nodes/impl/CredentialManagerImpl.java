@@ -745,6 +745,13 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 					CredentialAssessmentConfig cac = (CredentialAssessmentConfig) persistence.currentManager().load(CredentialAssessmentConfig.class, atc.getId());
 					cac.setEnabled(atc.isEnabled());
 					cac.setBlindAssessmentMode(atc.getBlindAssessmentMode());
+					if (credToUpdate.getType() == CredentialType.Delivery && cac.getAssessmentType() == AssessmentType.SELF_ASSESSMENT && cac.isEnabled()) {
+						List<TargetCredential1> targetCredentials = getTargetCredentialsForCredential(credToUpdate.getId(), false);
+                        for (TargetCredential1 tc : targetCredentials) {
+							Result<Long> selfAssessment = assessmentManager.createSelfAssessmentAndGetEvents(tc, context);
+							res.appendEvents(selfAssessment.getEventQueue());
+						}
+					}
 				}
 			}
 		}
@@ -1285,8 +1292,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			}
 			return res;
 		} catch (Exception e) {
-			logger.error(e);
-			e.printStackTrace();
+			logger.error("error", e);
 			throw new DbConnectionException("Error loading user credentials");
 		}
 	}
@@ -4154,6 +4160,31 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		} catch (Exception e) {
 			logger.error("Error", e);
 			throw new DbConnectionException("Error loading assessor assignment method");
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<Long> getIdsOfCredentialDeliveriesHavingCompetencyAndUserIsEnrolledTo(long compId, long studentId) {
+		try {
+			String query = "SELECT cred.id " +
+					"FROM CredentialCompetence1 cc " +
+					"INNER JOIN cc.credential cred " +
+					"WITH cred.type = :type " +
+					"INNER JOIN cred.targetCredentials tc " +
+					"WITH tc.user.id = :userId " +
+					"WHERE cc.competence.id = :compId";
+
+
+			return (List<Long>) persistence.currentManager()
+					.createQuery(query)
+					.setLong("userId", studentId)
+					.setLong("compId", compId)
+					.setString("type", CredentialType.Delivery.name())
+					.list();
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error loading credential ids");
 		}
 	}
 
