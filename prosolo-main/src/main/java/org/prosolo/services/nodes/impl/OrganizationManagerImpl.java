@@ -633,23 +633,38 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
     }
 
     @Override
+    public void resetTokensForAllOrganizationUsers(long organizationId, int numberOfTokens, UserContextData context) {
+        Result<Void> res = self.resetTokensForAllOrganizationUsersAndGetEvents(organizationId, numberOfTokens, context);
+        eventFactory.generateAndPublishEvents(res.getEventQueue());
+    }
+
+    @Override
     @Transactional
-    public void resetTokensForAllOrganizationUsers(long organizationId, int numberOfTokens) {
+    public Result<Void> resetTokensForAllOrganizationUsersAndGetEvents(long organizationId, int numberOfTokens, UserContextData context) {
         try {
+            //retrieve all users not having specified number of tokens since only those users will have number of tokens changed and we should notify them
+            List<Long> students = userManager.getIdsOfActiveStudentsNotHavingSpecifiedNumberOfTokens(organizationId, numberOfTokens);
             String query =
                     "UPDATE user u " +
-                    "INNER JOIN user_user_role uur " +
-                    "ON uur.user = u.id " +
-                    "INNER JOIN role r " +
-                    "ON r.id = uur.roles " +
-                    "AND r.title = :studentRoleName " +
-                    "SET u.number_of_tokens = :numberOfTokens WHERE u.organization = :orgId";
+                            "INNER JOIN user_user_role uur " +
+                            "ON uur.user = u.id " +
+                            "INNER JOIN role r " +
+                            "ON r.id = uur.roles " +
+                            "AND r.title = :studentRoleName " +
+                            "SET u.number_of_tokens = :numberOfTokens WHERE u.organization = :orgId";
             persistence.currentManager()
                     .createSQLQuery(query)
                     .setInteger("numberOfTokens", numberOfTokens)
                     .setLong("orgId", organizationId)
                     .setString("studentRoleName", SystemRoleNames.USER)
                     .executeUpdate();
+            Result<Void> res = new Result<>();
+            for (long student : students) {
+                User eventObj = new User();
+                eventObj.setId(student);
+                res.appendEvent(eventFactory.generateEventData(EventType.ASSESSMENT_TOKENS_NUMBER_UPDATED, context, eventObj, null, null, null));
+            }
+            return res;
         } catch (Exception e){
             logger.error("Error", e);
             throw new DbConnectionException("Error resetting tokens for organization (" + organizationId + ") users");
@@ -657,23 +672,38 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
     }
 
     @Override
+    public void addTokensToAllOrganizationUsers(long organizationId, int numberOfTokens, UserContextData context) {
+        Result<Void> res = self.addTokensToAllOrganizationUsersAndGetEvents(organizationId, numberOfTokens, context);
+        eventFactory.generateAndPublishEvents(res.getEventQueue());
+    }
+
+    @Override
     @Transactional
-    public void addTokensToAllOrganizationUsers(long organizationId, int numberOfTokens) {
+    public Result<Void> addTokensToAllOrganizationUsersAndGetEvents(long organizationId, int numberOfTokens, UserContextData context) {
         try {
             String query =
                     "UPDATE user u " +
-                    "INNER JOIN user_user_role uur " +
-                    "ON uur.user = u.id " +
-                    "INNER JOIN role r " +
-                    "ON r.id = uur.roles " +
-                    "AND r.title = :studentRoleName " +
-                    "SET u.number_of_tokens = u.number_of_tokens + :numberOfTokens WHERE u.organization = :orgId";
+                            "INNER JOIN user_user_role uur " +
+                            "ON uur.user = u.id " +
+                            "INNER JOIN role r " +
+                            "ON r.id = uur.roles " +
+                            "AND r.title = :studentRoleName " +
+                            "SET u.number_of_tokens = u.number_of_tokens + :numberOfTokens WHERE u.organization = :orgId";
             persistence.currentManager()
                     .createSQLQuery(query)
                     .setInteger("numberOfTokens", numberOfTokens)
                     .setLong("orgId", organizationId)
                     .setString("studentRoleName", SystemRoleNames.USER)
                     .executeUpdate();
+
+            List<Long> students = userManager.getIdsOfActiveStudentsFromOrganization(organizationId);
+            Result<Void> res = new Result<>();
+            for (long student : students) {
+                User eventObj = new User();
+                eventObj.setId(student);
+                res.appendEvent(eventFactory.generateEventData(EventType.ASSESSMENT_TOKENS_NUMBER_UPDATED, context, eventObj, null, null, null));
+            }
+            return res;
         } catch (Exception e){
             logger.error("Error", e);
             throw new DbConnectionException("Error adding tokens to organization (" + organizationId + ") users");

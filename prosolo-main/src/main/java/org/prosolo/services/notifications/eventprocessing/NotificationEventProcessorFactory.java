@@ -124,6 +124,8 @@ public class NotificationEventProcessorFactory {
                 return new AssessorAssignedToExistingCompetenceAssessmenEventProcessor(event, notificationManager, notificationsSettingsManager, idEncoder, assessmentManager);
             case ASSESSMENT_REQUEST_EXPIRED:
                 return new CompetenceAssessmentRequestExpiredNotificationEventProcessor(event, notificationManager, notificationsSettingsManager, idEncoder, assessmentManager);
+            case ASSESSMENT_TOKENS_NUMBER_UPDATED:
+                return new AssessmentTokensUpdatedEventProcessor(event, notificationManager, notificationsSettingsManager, idEncoder);
             default:
                 return null;
         }

@@ -115,6 +115,11 @@ class NotificationsDigestEmailGenerator(
   def socialActivityLike:java.util.List[Notification]=getNotificationsByType(NotificationType.Social_Activity_Like)
   def hasMoreSocialActivityLikes:Boolean=hasMore(socialActivityLikeCount)
 
+  def hasAssessmentTokensUpdated():Boolean= hasNotificationType(NotificationType.ASSESSMENT_TOKENS_NUMBER_UPDATED)
+  def assessmentTokensUpdatedCount():Int= getNotificationTypeCount(NotificationType.ASSESSMENT_TOKENS_NUMBER_UPDATED)
+  def assessmentTokensUpdated():java.util.List[Notification]= getNotificationsByType(NotificationType.ASSESSMENT_TOKENS_NUMBER_UPDATED)
+  def hasMoreAssessmentTokensUpdated:Boolean=hasMore(assessmentTokensUpdatedCount)
+
   def hasNotificationType(notificationType:NotificationType):Boolean= notificationTypesCounts.getOrElse(notificationType.toString,0)>0
   def getNotificationTypeCount(notificationType:NotificationType):Int= notificationTypesCounts.getOrElse(notificationType.toString,0)
   def getNotificationsByType(notificationType:NotificationType):java.util.List[Notification] = notificationsByType.get(notificationType.name).get.toList

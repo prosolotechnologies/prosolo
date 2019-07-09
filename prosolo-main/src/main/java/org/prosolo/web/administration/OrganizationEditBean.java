@@ -393,7 +393,7 @@ public class OrganizationEditBean implements Serializable {
      */
     public void resetTokensForOrganizationUsers() {
         try {
-            organizationManager.resetTokensForAllOrganizationUsers(organization.getId(), tokensToReset);
+            organizationManager.resetTokensForAllOrganizationUsers(organization.getId(), tokensToReset, loggedUser.getUserContext());
 
             logger.debug("Tokens reset for all users in organization " + organization.getTitle());
             PageUtil.fireSuccessfulInfoMessage("Assessment Tokens have been reset for all students");
@@ -405,7 +405,7 @@ public class OrganizationEditBean implements Serializable {
 
     public void addTokensToOrganizationUsers() {
         try {
-            organizationManager.addTokensToAllOrganizationUsers(organization.getId(), tokensToAdd);
+            organizationManager.addTokensToAllOrganizationUsers(organization.getId(), tokensToAdd, loggedUser.getUserContext());
 
             logger.debug("Tokens added to all users in organization " + organization.getTitle());
             PageUtil.fireSuccessfulInfoMessage("Assessment Tokens have been successfully added to students");

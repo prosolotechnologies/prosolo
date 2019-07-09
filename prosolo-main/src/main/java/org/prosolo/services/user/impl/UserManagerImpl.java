@@ -597,11 +597,13 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 											   List<Long> allRoles, UserContextData context) throws DbConnectionException {
 		Result<User> result = new Result<>();
 		try {
+			boolean numberOfTokensChanged;
 			User user = loadResource(User.class, userId);
 			user.setName(name);
 			user.setLastname(lastName);
 			user.setEmail(email);
 			user.setPosition(position);
+			numberOfTokensChanged = user.getNumberOfTokens() != numberOfTokens;
 			user.setNumberOfTokens(numberOfTokens);
 			user.setVerified(true);
 
@@ -633,12 +635,21 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 
 			result.setResult(user);
 
+			if (numberOfTokensChanged) {
+				boolean hasStudentRole = user.getRoles().stream().anyMatch(role -> role.getTitle().equalsIgnoreCase(SystemRoleNames.USER));
+				if (hasStudentRole) {
+					//if user has student role and number of tokens is changed generate notification
+					User eventObj = new User();
+					eventObj.setId(user.getId());
+					result.appendEvent(eventFactory.generateEventData(EventType.ASSESSMENT_TOKENS_NUMBER_UPDATED, context, eventObj, null, null, null));
+				}
+			}
+
 			result.appendEvent(eventFactory.generateEventData(EventType.Edit_Profile, context, user, null, null, null));
 
 			return result;
 		} catch(Exception e) {
-			e.printStackTrace();
-			logger.error(e);
+			logger.error("error", e);
 			throw new DbConnectionException("Error updating user data");
 		}
 	}
@@ -1366,5 +1377,49 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 			throw new DbConnectionException("Error updating assessment availability");
 		}
 	}
+
+	@Override
+	@Transactional
+	public List<Long> getIdsOfActiveStudentsNotHavingSpecifiedNumberOfTokens(long organizationId, int numberOfTokens) {
+		try {
+			String q =
+					"SELECT u.id FROM User u " +
+							"INNER JOIN u.roles role " +
+							"WITH role.title = :studentRoleName " +
+							"WHERE u.deleted IS FALSE " +
+							"AND u.organization.id = :orgId " +
+							"AND u.numberOfTokens != :numberOfTokens";
+			return (List<Long>) persistence.currentManager()
+					.createQuery(q)
+					.setString("studentRoleName", SystemRoleNames.USER)
+					.setLong("orgId", organizationId)
+					.setInteger("numberOfTokens", numberOfTokens)
+					.list();
+		} catch (Exception e) {
+			logger.error("error", e);
+			throw new DbConnectionException("Error in method getIdsOfActiveStudentsNotHavingSpecifiedNumberOfTokens(long organizationId, int numberOfTokens)");
+		}
+	}
+
+    @Override
+    @Transactional
+    public List<Long> getIdsOfActiveStudentsFromOrganization(long organizationId) {
+        try {
+            String q =
+                    "SELECT u.id FROM User u " +
+                            "INNER JOIN u.roles role " +
+                            "WITH role.title = :studentRoleName " +
+                            "WHERE u.deleted IS FALSE " +
+                            "AND u.organization.id = :orgId";
+            return (List<Long>) persistence.currentManager()
+                    .createQuery(q)
+                    .setString("studentRoleName", SystemRoleNames.USER)
+                    .setLong("orgId", organizationId)
+                    .list();
+        } catch (Exception e) {
+            logger.error("error", e);
+            throw new DbConnectionException("Error in method getIdsOfActiveStudentsFromOrganization(long organizationId)");
+        }
+    }
 
 }

@@ -146,22 +146,49 @@ public interface OrganizationManager extends AbstractManager {
     void updateAssessmentTokensPlugin(AssessmentTokensPluginData pluginData);
 
     /**
+     * Resets tokens for all organization users with student role and generates events
      *
      * @param organizationId
      * @param numberOfTokens
+     * @param context
      *
      * @throws DbConnectionException
      */
-    void resetTokensForAllOrganizationUsers(long organizationId, int numberOfTokens);
+    void resetTokensForAllOrganizationUsers(long organizationId, int numberOfTokens, UserContextData context);
 
     /**
+     * Resets tokens for all organization users with student role and returns events to be generated
      *
      * @param organizationId
      * @param numberOfTokens
+     * @param context
+     * @return
+     * @throws DbConnectionException
+     */
+    Result<Void> resetTokensForAllOrganizationUsersAndGetEvents(long organizationId, int numberOfTokens, UserContextData context);
+
+    /**
+     * Adds specified number of tokens to all organization users with student role and generates events.
+     *
+     * @param organizationId
+     * @param numberOfTokens
+     * @param context
      *
      * @throws DbConnectionException
      */
-    void addTokensToAllOrganizationUsers(long organizationId, int numberOfTokens);
+    void addTokensToAllOrganizationUsers(long organizationId, int numberOfTokens, UserContextData context);
+
+    /**
+     * Adds specified number of tokens to all organization users with student role and returns events to be generated.
+     *
+     * @param organizationId
+     * @param numberOfTokens
+     * @param context
+     * @return
+     *
+     * @throws DbConnectionException
+     */
+    Result<Void> addTokensToAllOrganizationUsersAndGetEvents(long organizationId, int numberOfTokens, UserContextData context);
 
     /**
      * Loads plugin information of a given type.
@@ -179,5 +206,6 @@ public interface OrganizationManager extends AbstractManager {
      * @return
      */
     List<OrganizationPlugin> getAllOrganizationPlugins(long organizationId);
+
 }
 

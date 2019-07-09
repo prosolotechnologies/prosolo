@@ -19,7 +19,8 @@ public enum NotificationFilterType {
 	Assessor_Withdrew_From_Assessment(NotificationType.ASSESSOR_WITHDREW_FROM_ASSESSMENT, "Withdrawn assessments by assessor"),
 	Assessor_Assigned_To_Assessment(NotificationType.ASSESSOR_ASSIGNED_TO_ASSESSMENT, "Assessors assigned to your assessment requests"),
 	Assigned_To_Assessment_As_Assessor(NotificationType.ASSIGNED_TO_ASSESSMENT_AS_ASSESSOR, "Assigned as assessor to assessment requests"),
-	Assessment_Request_Expired(NotificationType.ASSESSMENT_REQUEST_EXPIRED, "Assessment requests expired");
+	Assessment_Request_Expired(NotificationType.ASSESSMENT_REQUEST_EXPIRED, "Assessment requests expired"),
+	Assessment_Tokens_Number_Updated(NotificationType.ASSESSMENT_TOKENS_NUMBER_UPDATED, "Assessment tokens number updates");
 
 
 	private NotificationType notificationType;

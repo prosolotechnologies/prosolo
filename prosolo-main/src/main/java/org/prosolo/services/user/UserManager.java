@@ -284,4 +284,23 @@ public interface UserManager extends AbstractManager {
 	 * @throws DbConnectionException
 	 */
 	void updateAssessmentAvailability(long userId, boolean availableForAssessments);
+
+	/**
+	 * Returns ids of not deleted users with student role belonging to the specified organization who does not have specified number of assessment tokens
+	 *
+	 * @param organizationId
+	 * @param numberOfTokens
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	List<Long> getIdsOfActiveStudentsNotHavingSpecifiedNumberOfTokens(long organizationId, int numberOfTokens);
+
+    /**
+     * Returns ids of not deleted users with student role belonging to the specified organization
+     *
+     * @param organizationId
+     * @return
+     * @throws DbConnectionException
+     */
+    List<Long> getIdsOfActiveStudentsFromOrganization(long organizationId);
 }
