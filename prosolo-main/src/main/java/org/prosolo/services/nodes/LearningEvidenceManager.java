@@ -84,11 +84,12 @@ public interface LearningEvidenceManager {
     LearningEvidenceData getCompetenceEvidenceData(long compEvidenceId, LearningEvidenceLoadConfig loadConfig);
 
     /**
-     * Updates relation to competency of a provided competenceEvidence object (join class between a competency and
-     * an evidence).
+     * Updates relation to the competency of a provided evidence for the user.
      *
-     * @param competenceEvidenceId
-     * @param newRelationText
+     * @param evidenceId
+     * @param competenceId
+     * @param userId
+     * @param newRelation
      */
-    void updateRelationToCompetency(long competenceEvidenceId, String newRelationText);
+    void updateRelationToCompetency(long evidenceId, long competenceId, long userId, String newRelation);
 }

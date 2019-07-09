@@ -7,7 +7,8 @@
                 xmlns:p="http://primefaces.org/ui"
                 xmlns:h="http://java.sun.com/jsf/html"
                 xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
-                xmlns:evidence="http://java.sun.com/jsf/composite/components/evidence">
+                xmlns:evidence="http://java.sun.com/jsf/composite/components/evidence"
+                xmlns:dialogEvidence="http://java.sun.com/jsf/composite/components/dialogs/evidence">
 
     <utilcomp:messagesBundle var="msg" />
 
@@ -41,7 +42,7 @@
                                 <p:remoteCommand
                                         name="execSearchEvidences"
                                         process="inputSearchEvidences"
-                                        update=":panelEvidences :pagination"
+                                        update=":panelEvidenceList :pagination"
                                         action="#{evidenceRepositoryBean.searchEvidences()}">
                                 </p:remoteCommand>
 
@@ -72,7 +73,7 @@
                                                 process="@this"
                                                 value="#{sortOption.label}"
                                                 action="#{evidenceRepositoryBean.applySortOption(sortOption)}"
-                                                update=":panelEvidences :pagination linkSortOption">
+                                                update=":panelEvidenceList :pagination linkSortOption">
                                         </p:commandLink>
                                     </li>
                                 </ui:repeat>
@@ -94,7 +95,7 @@
                                                 process="@this"
                                                 value="#{filter.label}"
                                                 action="#{evidenceRepositoryBean.applySearchFilter(filter)}"
-                                                update=":panelEvidences :pagination linkSearchFilter">
+                                                update=":panelEvidenceList :pagination linkSearchFilter">
                                         </p:commandLink>
                                     </li>
                                 </ui:repeat>
@@ -113,7 +114,7 @@
 
         <div class="container">
             <div class="row">
-                <h:panelGroup id="panelEvidences" styleClass="#{evidenceRepositoryBean.evidenceRepositoryPluginData.keywordsEnabled ? 'col-md-8' : 'col-md-12'}">
+                <h:panelGroup id="panelEvidenceList" styleClass="#{evidenceRepositoryBean.evidenceRepositoryPluginData.keywordsEnabled ? 'col-md-8' : 'col-md-12'}">
                     <ui:fragment rendered="#{empty evidenceRepositoryBean.evidences}">
                         <div class="noContentMessage">
                             <p>
@@ -122,7 +123,7 @@
                         </div>
                     </ui:fragment>
 
-                    <ui:repeat value="#{evidenceRepositoryBean.evidences}" var="evidence">
+                    <ui:repeat value="#{evidenceRepositoryBean.evidences}" var="evidence" varStatus="status">
                         <evidence:evidence id="evidence"
                                            evidence="#{evidence}"
                                            showDetails="false"
@@ -131,15 +132,13 @@
                                            role="USER"
                                            titleIsClickable="true"
                                            keywordsEnabled="#{evidenceRepositoryBean.evidenceRepositoryPluginData.keywordsEnabled}"
-                        />
+                                           editRelationForm=":editRelation:formEditRelation"/>
                     </ui:repeat>
 
-                    <utilcomp:pagination
-                            id="pagination"
-                            bean="#{evidenceRepositoryBean}"
-                            updateUrl="true"
-                            toUpdate=":panelEvidences"
-                    />
+                    <utilcomp:pagination id="pagination"
+                                         bean="#{evidenceRepositoryBean}"
+                                         updateUrl="true"
+                                         toUpdate=":panelEvidenceList"/>
                 </h:panelGroup>
 
                 <c:if test="#{evidenceRepositoryBean.evidenceRepositoryPluginData.keywordsEnabled}">
@@ -167,5 +166,8 @@
                 </c:if>
             </div>
         </div>
+
+        <dialogEvidence:editRelationToCompetency id="editRelation"
+                                                 toUpdate=":growlMain :panelEvidenceList" />
     </ui:define>
 </ui:composition>

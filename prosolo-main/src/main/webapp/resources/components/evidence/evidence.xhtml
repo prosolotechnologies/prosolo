@@ -19,6 +19,8 @@
 		<composite:attribute name="showCompetences" default="true" type="java.lang.Boolean"/>
 		<composite:attribute name="titleIsClickable" default="true"/>
 		<composite:attribute name="keywordsEnabled" required="true"/>
+		<composite:attribute name="toUpdate"/>
+		<composite:attribute name="editRelationForm" />
 	</composite:interface>
 	
 	<composite:implementation>
@@ -77,7 +79,7 @@
 								<span class="lightText">no #{msg['label.competence.plural'].toLowerCase()}</span>
 							</ui:fragment>
 							<ui:repeat value="#{cc.attrs.evidence.competences}" var="c" varStatus="status">
-								<p class="#{!cc.attrs.showDetails ? 'textLimit4' : ''}">
+								<p class="bottom5 #{!cc.attrs.showDetails ? 'textLimit4' : ''}">
 									<h:link rendered="#{cc.attrs.role == 'USER'}"
 										outcome="/competence"
 										value="#{c.title}">
@@ -93,6 +95,13 @@
 									- #{c.description}
 									<ui:fragment rendered="#{status.index + 1 ne cc.attrs.evidence.competences.size()}"><br/></ui:fragment>
 								</p>
+
+								<p:commandLink id="editRelation"
+											   action="#{editEvidenceRelationToCompetencyDialogBean.setEvidenceToEditRelation(cc.attrs.evidence, c)}"
+											   update="#{cc.attrs.editRelationForm}"
+											   oncomplete="$('#editRelationModal').modal('show');">
+									Edit
+								</p:commandLink>
 							</ui:repeat>
 						</td>
 					</tr>
