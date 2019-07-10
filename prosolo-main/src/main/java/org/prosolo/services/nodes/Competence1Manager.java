@@ -291,16 +291,6 @@ public interface Competence1Manager {
 	List<TargetCompetence1> getTargetCompetencesForCompetence(long compId, 
 			boolean justUncompleted) throws DbConnectionException;
 
-	/**
-	 * Returns ids of all students enrolled in a specified competency.
-	 *
-	 * @param compId
-	 * @return
-	 *
-	 * @throws DbConnectionException
-	 */
-	List<Long> getIdsOfUsersLearningCompetency(long compId);
-
 	TargetCompetence1 enrollInCompetence(long credId, long compId, long userId, UserContextData context)
 			throws DbConnectionException;
 

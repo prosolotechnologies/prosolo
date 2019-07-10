@@ -504,15 +504,4 @@ public interface CredentialManager extends AbstractManager {
 	 */
 	List<CredentialIdData> getCompletedCredentialsBasicDataForCredentialsNotAddedToProfile(long userId);
 
-	/**
-	 * Returns ids of deliveries student is enrolled to and which have specified competency.
-	 *
-	 * @param compId
-	 * @param studentId
-	 * @return
-	 *
-	 * @throws DbConnectionException
-	 */
-	List<Long> getIdsOfCredentialDeliveriesHavingCompetencyAndUserIsEnrolledTo(long compId, long studentId);
-
 }

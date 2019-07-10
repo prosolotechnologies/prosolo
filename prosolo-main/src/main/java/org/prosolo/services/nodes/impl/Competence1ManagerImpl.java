@@ -12,7 +12,6 @@ import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
-import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.events.EventType;
@@ -539,8 +538,7 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 		IllegalDataStateException {
 		Competence1 compToUpdate = (Competence1) persistence.currentManager()
 				.load(Competence1.class, data.getCompetenceId(), LockOptions.UPGRADE);
-
-		Result<Competence1> result = new Result<>();
+		
 		/* this check is needed to find out if competence is changed from the moment competence data
 		 * is loaded for edit to the moment update request is sent
 		 */
@@ -576,17 +574,6 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 					CompetenceAssessmentConfig cac = (CompetenceAssessmentConfig) persistence.currentManager().load(CompetenceAssessmentConfig.class, atc.getId());
 					cac.setEnabled(atc.isEnabled());
 					cac.setBlindAssessmentMode(atc.getBlindAssessmentMode());
-					if (cac.getAssessmentType() == AssessmentType.SELF_ASSESSMENT && cac.isEnabled()) {
-						List<Long> studentsEnrolled = getIdsOfUsersLearningCompetency(compToUpdate.getId());
-						for (long student : studentsEnrolled) {
-							List<Long> enrolledCredentials = credentialManager.getIdsOfCredentialDeliveriesHavingCompetencyAndUserIsEnrolledTo(compToUpdate.getId(), student);
-							for (long credId : enrolledCredentials) {
-								//for each credential with this competency student is enrolled to, create self-assessment if it does not exist already
-								Result<CompetenceAssessment> selfAssessment = assessmentManager.createSelfCompetenceAssessmentAndGetEvents(credId, compToUpdate.getId(), student, context);
-								result.appendEvents(selfAssessment.getEventQueue());
-							}
-						}
-					}
 				}
 			}
 		}
@@ -651,6 +638,8 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			setAssessmentRelatedData(compToUpdate, data, data.getAssessmentSettings().isRubricChanged());
     	}
 
+
+	    Result<Competence1> result = new Result<>();
     	result.appendEvent(fireCompEditEvent(data, compToUpdate, context));
     	result.setResult(compToUpdate);
 	    return result;
@@ -1601,27 +1590,9 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			}
 			return res;
 		} catch(Exception e) {
-			logger.error("error", e);
+			logger.error(e);
+			e.printStackTrace();
 			throw new DbConnectionException("Error loading user competences");
-		}
-	}
-
-	@Transactional(readOnly = true)
-	@Override
-	public List<Long> getIdsOfUsersLearningCompetency(long compId) {
-		try {
-			String q =
-					"SELECT comp.user.id " +
-					"FROM TargetCompetence1 comp " +
-					"WHERE comp.competence.id = :compId";
-
-			return (List<Long>) persistence.currentManager()
-							.createQuery(q)
-							.setLong("compId", compId)
-							.list();
-		} catch(Exception e) {
-			logger.error("error", e);
-			throw new DbConnectionException("Error loading users learning competency");
 		}
 	}
 	
