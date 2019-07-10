@@ -44,7 +44,7 @@ public class NotificationBean implements Serializable, Paginable {
 
 	public void init() {
 		filters = new LinkedList<>();
-		for (NotificationFilterType notificationFilterType : NotificationFilterType.values()) {
+		for (NotificationFilterType notificationFilterType : NotificationFilterType.getFiltersForSection(PageUtil.getSectionForView())) {
 			filters.add(new NotificationFilter(notificationFilterType, true));
 		}
 
