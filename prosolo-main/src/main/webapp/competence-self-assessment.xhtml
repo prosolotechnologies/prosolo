@@ -5,7 +5,9 @@
                 template="templates/masterLayout2.xhtml"
                 xmlns:assessments="http://java.sun.com/jsf/composite/components/assessments"
                 xmlns:competence="http://java.sun.com/jsf/composite/components/competences"
-                xmlns:util="http://www.prosolo.com/util">
+                xmlns:util="http://www.prosolo.com/util"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+>
 
     <ui:param name="bodyClass" value="cbp-spmenu-push"/>
 
@@ -22,7 +24,7 @@
     </ui:define>
 
     <ui:define name="resourceTitle">
-        <h1>#{competenceAssessmentBean.competenceAssessmentData.title}</h1>
+        <h1>#{competenceAssessmentBean.competenceTitle}</h1>
     </ui:define>
 
     <ui:define name="navLinks">
@@ -49,7 +51,7 @@
                     </h:link>
                 </li>
                 <li>
-                    <h:link value="#{util:shortenAndAddDots(competenceAssessmentBean.competenceAssessmentData.title)}"
+                    <h:link value="#{util:shortenAndAddDots(competenceAssessmentBean.competenceTitle)}"
                             outcome="competence">
                         <f:param name="credId" value="#{param.credId}"/>
                         <f:param name="compId" value="#{param.compId}"/>
@@ -67,8 +69,30 @@
             </ol>
         </div>
 
-        <assessments:competenceAssessmentPreview
-                credentialId="#{competenceAssessmentBean.competenceAssessmentData.credentialId}"
-                learningContext="name:CREDENTIAL|id:#{competenceAssessmentBean.decodedCredId}" />
+        <c:if test="#{not empty competenceAssessmentBean.competenceAssessmentData}">
+            <assessments:competenceAssessmentPreview
+                    credentialId="#{competenceAssessmentBean.competenceAssessmentData.credentialId}"
+                    learningContext="name:CREDENTIAL|id:#{competenceAssessmentBean.decodedCredId}" />
+        </c:if>
+
+        <c:if test="#{empty competenceAssessmentBean.competenceAssessmentData}">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12">
+                        <assessments:competenceAssessmentStudentTabs
+                                selfAssessmentEnabled="#{competenceAssessmentBean.selfAssessmentEnabled}"
+                                peerAssessmentEnabled="#{competenceAssessmentBean.peerAssessmentEnabled}"
+                        />
+                        <div class="row">
+                            <div class="col-md-9 mandatoryFlow">
+                                <div class="noContentMessage">
+                                    <p>No assessments.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </c:if>
     </ui:define>
 </ui:composition>

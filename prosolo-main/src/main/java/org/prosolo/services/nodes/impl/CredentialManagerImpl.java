@@ -997,14 +997,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				result.appendEvents(res.getEventQueue());
 			}
 
-			//create self assessment if enabled
-			if (cred.getAssessmentConfig()
-					.stream()
-					.filter(config -> config.getAssessmentType() == AssessmentType.SELF_ASSESSMENT)
-					.findFirst().get()
-					.isEnabled()) {
-				result.appendEvents(assessmentManager.createSelfAssessmentAndGetEvents(targetCred, context).getEventQueue());
-			}
+			//create self assessment no matter if self-assessment type is enabled - this way self-assessment will exist in case it is disabled when student enrolls but it gets enabled after that
+			result.appendEvents(assessmentManager.createSelfAssessmentAndGetEvents(targetCred, context).getEventQueue());
 
 			//generate completion event if progress is 100
 			if (targetCred.getProgress() == 100) {
