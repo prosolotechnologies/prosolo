@@ -342,7 +342,9 @@ ul {
 
 .tagApproved,
 .tagPending,
-.tagDeclined {
+.tagDeclined,
+.tagQuit,
+.tagExpired {
   line-height: 24px;
   color: #859095;
   font-size: 13px;
@@ -352,7 +354,9 @@ ul {
   background: url("../images2/icon-approved.svg") no-repeat right center; }
   .tagApproved.left,
   .tagPending.left,
-  .tagDeclined.left {
+  .tagDeclined.left,
+  .tagQuit.left,
+  .tagExpired.left {
     padding-right: 0;
     padding-left: 34px; }
 
@@ -370,6 +374,16 @@ ul {
   background: url("../images2/icon-declined.svg") no-repeat right center; }
   .tagDeclined.left {
     background: url("../images2/icon-declined.svg") no-repeat left center; }
+
+.tagQuit {
+  background: url("../images2/icon-quit.svg") no-repeat right center; }
+  .tagQuit.left {
+    background: url("../images2/icon-quit.svg") no-repeat left center; }
+
+.tagExpired {
+  background: url("../images2/icon-expired.svg") no-repeat right center; }
+  .tagExpired.left {
+    background: url("../images2/icon-expired.svg") no-repeat left center; }
 
 h1, h2, h3, h1 a, h2 a, h3 a, h1 a:focus, h2 a:focus, h3 a:focus {
   margin-bottom: 30px;
@@ -4782,7 +4796,9 @@ header {
   padding-bottom: 30px; }
 
 .assessmentItem .tagApproved,
-.assessmentItem .tagPending {
+.assessmentItem .tagPending,
+.assessmentItem .tagExpired,
+.assessmentItem .tagQuit {
   float: right;
   margin-top: 3px; }
 
@@ -5279,6 +5295,9 @@ header {
       .evidenceBox .evidenceTop .evidenceTopRight .btn {
         width: 100px;
         margin-left: 30px; }
+  .evidenceBox .editRelationBtn {
+    display: inline-block;
+    margin-bottom: 20px; }
   .evidenceBox.evidenceBoxSmall .evidenceTop {
     margin-bottom: 0; }
   .evidenceBox table {
@@ -5680,7 +5699,7 @@ header {
           .peopleList > li .peopleListRight .studentFollowOpt > .btn.btn-default {
             margin-right: 0; }
       .peopleList > li .peopleListRight .userEditOpt {
-        width: 50%; }
+        width: 60%; }
         .peopleList > li .peopleListRight .userEditOpt > .btn,
         .peopleList > li .peopleListRight .userEditOpt > a {
           margin-right: 20px;
