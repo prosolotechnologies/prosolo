@@ -181,6 +181,7 @@ public class ActivityEditBean extends LearningResourceAssessmentSettingsBean imp
 	private void initializeValues() {
 		activityTypes = ActivityType.values();
 		resultTypes = ActivityResultType.values();
+		rubricVisibilityTypes = ActivityRubricVisibilityDescription.values();
 	}
 
 	private void loadCompAndCredTitle() {

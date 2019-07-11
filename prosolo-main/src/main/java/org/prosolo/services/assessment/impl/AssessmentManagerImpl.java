@@ -586,7 +586,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		 */
         if (!shouldCredentialAssessmentDataBeLoaded(assessment, loadConfig)) {
             AssessmentDataFull data = new AssessmentDataFull();
-            data.setApproved(assessment.isApproved());
+            data.setApproved(assessment.getStatus() == AssessmentStatus.SUBMITTED);
             data.setTitle(assessment.getTargetCredential().getCredential().getTitle());
             data.setStudentFullName(assessment.getStudent().getName() + " " + assessment.getStudent().getLastname());
             data.setAssessedStudentId(assessment.getStudent().getId());
@@ -2523,7 +2523,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
                     assessmentData.setEncodedCredentialId(encoder.encodeId(credentialId));
                     assessmentData.setType(assessment.getType());
                     assessmentData.setStatus(assessment.getStatus());
-                    assessmentData.setApproved(assessment.isApproved());
+                    assessmentData.setApproved(assessment.getStatus() == AssessmentStatus.SUBMITTED);
 
                     if (assessment.getAssessor() != null) {
                         assessmentData.setAssessorAvatarUrl(AvatarUtils.getAvatarUrlInFormat(assessment.getAssessor().getAvatarUrl(), ImageFormat.size120x120));
@@ -3658,7 +3658,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			 */
             if (!loadConfig.isLoadDataIfAssessmentNotApproved() && !ca.isApproved()) {
                 CompetenceAssessmentDataFull data = new CompetenceAssessmentDataFull();
-                data.setApproved(ca.isApproved());
+                data.setApproved(ca.getStatus() == AssessmentStatus.SUBMITTED);
                 data.setTitle(ca.getCompetence().getTitle());
                 data.setStudentFullName(ca.getStudent().getName() + " " + ca.getStudent().getLastname());
                 data.setStudentId(ca.getStudent().getId());

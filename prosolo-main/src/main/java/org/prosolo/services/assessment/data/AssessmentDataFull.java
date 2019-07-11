@@ -91,7 +91,7 @@ public class AssessmentDataFull {
 		if (data.isAssessmentInitialized()) {
 			data.setAssessorNotified(assessment.isAssessorNotified());
 			data.setLastAskedForAssessment(DateUtil.getMillisFromDate(assessment.getLastAskedForAssessment()));
-			data.setApproved(assessment.isApproved());
+			data.setApproved(assessment.getStatus() == AssessmentStatus.SUBMITTED);
 			data.setReview(assessment.getReview());
 			data.setMandatoryFlow(assessment.getTargetCredential().getCredential().isCompetenceOrderMandatory());
 			data.setDuration(assessment.getTargetCredential().getCredential().getDuration());

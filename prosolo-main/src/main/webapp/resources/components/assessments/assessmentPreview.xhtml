@@ -144,13 +144,10 @@
 											gradeLinkSelectorId="credential"
 											toUpdateGradePanel=":#{cc.clientId}:gradePanelContainer"
 											gradePanelSidebarId="gradeSidebar"
-											toUpdateRubricPanelForStudent=":#{cc.clientId}:rubricAssessmentPreview:panelRubricAssessment"
+											toUpdateReadonlyRubricPanel=":#{cc.clientId}:rubricAssessmentPreview:panelRubricAssessment"
 											growlToUpdate=":#{cc.clientId}:growlMain"
-											role="#{cc.attrs.role}"
-											learningContext="#{learningContext}"
 											learningResource="CREDENTIAL"
-											approved="#{cc.attrs.bean.fullAssessmentData.approved}"
-											readOnly="#{not cc.attrs.bean.fullAssessmentData.assessmentActive}"
+											assessmentStatus="#{cc.attrs.bean.fullAssessmentData.status}"
 									/>
 								</h:form>
 							</div>
@@ -426,13 +423,10 @@
 														gradeLinkSelectorId="credential"
 														toUpdateGradePanel=":#{cc.clientId}:gradePanelContainer"
 														gradePanelSidebarId="gradeSidebar"
-														toUpdateRubricPanelForStudent=":#{cc.clientId}:rubricAssessmentPreview:panelRubricAssessment"
+														toUpdateReadonlyRubricPanel=":#{cc.clientId}:rubricAssessmentPreview:panelRubricAssessment"
 														growlToUpdate=":#{cc.clientId}:growlMain"
-														role="#{cc.attrs.role}"
-														learningContext="#{learningContext}"
-														readOnly="#{not cc.attrs.bean.fullAssessmentData.assessmentActive}"
+														assessmentStatus="#{cc.attrs.bean.fullAssessmentData.status}"
 														learningResource="CREDENTIAL"
-														approved="#{cc.attrs.bean.fullAssessmentData.approved}"
 												/>
 											</div>
 										</div>
@@ -452,7 +446,7 @@
 												growlToUpdate=":#{cc.clientId}:growlMain"
 												toUpdateGradePanel=":#{cc.clientId}:gradePanelContainer"
 												gradePanelSidebarId="gradeSidebar"
-												toUpdateRubricPanelForStudent=":#{cc.clientId}:rubricAssessmentPreview:panelRubricAssessment"
+												toUpdateReadonlyRubricPanel=":#{cc.clientId}:rubricAssessmentPreview:panelRubricAssessment"
 												toUpdatePrivateConversationModal=":assessmentPreview:commentModal:formPrivateConversation:panelModalPrivateConversation"
 												currentUserAssessor="#{cc.attrs.bean.isUserAssessorInCurrentContext()}"
 												currentUserAssessedStudent="#{cc.attrs.bean.isUserAssessedStudentInCurrentContext()}"
@@ -587,13 +581,14 @@
 						: learningContext}"
 		/>
 
+		<assessment:rubricAssessmentPreview
+				id="rubricAssessmentPreview"
+				grade="#{cc.attrs.bean.currentGradeData}"
+				resourceType="#{cc.attrs.bean.currentResType}"
+				resourceTitle="#{cc.attrs.bean.currentResTitle}"
+		/>
+
 		<c:if test="#{cc.attrs.bean.isUserAssessedStudentInCurrentContext() and not cc.attrs.bean.isUserAssessorInCurrentContext()}">
-			<assessment:rubricAssessmentPreview
-					id="rubricAssessmentPreview"
-					grade="#{cc.attrs.bean.currentGradeData}"
-					resourceType="#{cc.attrs.bean.currentResType}"
-					resourceTitle="#{cc.attrs.bean.currentResTitle}"
-			/>
 
 			<c:if test="#{cc.attrs.bean.fullAssessmentData.type ne 'SELF_ASSESSMENT'}">
 				<h:form id="formAskForAssessment">

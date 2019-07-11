@@ -134,7 +134,7 @@
                                                 growlToUpdate=":#{cc.clientId}:growlMain"
                                                 toUpdateGradePanel=":#{cc.clientId}:gradePanelContainer"
                                                 gradePanelSidebarId="gradeSidebar"
-                                                toUpdateRubricPanelForStudent=":#{cc.clientId}:rubricAssessmentPreview:panelRubricAssessment"
+                                                toUpdateReadonlyRubricPanel=":#{cc.clientId}:rubricAssessmentPreview:panelRubricAssessment"
                                                 toUpdatePrivateConversationModal=":#{cc.clientId}:commentModal:formPrivateConversation:panelModalPrivateConversation"
                                                 currentUserAssessor="#{competenceAssessmentBean.isUserAssessorInCurrentContext()}"
                                                 currentUserAssessedStudent="#{competenceAssessmentBean.isUserAssessedStudentInCurrentContext()}"
@@ -271,13 +271,15 @@
 					: util:addSubContext(cc.attrs.learningContext, 'name:competence|id:'.concat(competenceAssessmentBean.competenceAssessmentData.competenceId).concat('|context:/name:COMPETENCE_ASSESSMENT|id:').concat(competenceAssessmentBean.competenceAssessmentData.competenceAssessmentId).concat('/'))}"
 		/>
 
-		<c:if test="#{competenceAssessmentBean.competenceAssessmentData.assessmentActive and competenceAssessmentBean.isUserAssessedStudentInCurrentContext() and not competenceAssessmentBean.isUserAssessorInCurrentContext()}">
-			<assessment:rubricAssessmentPreview
-					id="rubricAssessmentPreview"
-					grade="#{competenceAssessmentBean.currentGradeData}"
-					resourceType="#{competenceAssessmentBean.currentResType}"
-					resourceTitle="#{competenceAssessmentBean.currentResTitle}"
-			/>
+        <assessment:rubricAssessmentPreview
+                id="rubricAssessmentPreview"
+                grade="#{competenceAssessmentBean.currentGradeData}"
+                resourceType="#{competenceAssessmentBean.currentResType}"
+                resourceTitle="#{competenceAssessmentBean.currentResTitle}"
+        />
+
+
+        <c:if test="#{competenceAssessmentBean.competenceAssessmentData.assessmentActive and competenceAssessmentBean.isUserAssessedStudentInCurrentContext() and not competenceAssessmentBean.isUserAssessorInCurrentContext()}">
 
 			<c:if test="#{competenceAssessmentBean.competenceAssessmentData.type ne 'SELF_ASSESSMENT'}">
 				<h:form id="formAskForAssessment">
