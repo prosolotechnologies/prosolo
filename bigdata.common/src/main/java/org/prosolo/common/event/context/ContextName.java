@@ -96,7 +96,7 @@ public enum ContextName {
     DELIVERY_INSTRUCTORS,
     DELIVERY_INSTRUCTORS_REMOVE(CredentialInstructor.class),
     DELIVERY_INSTRUCTORS_ADD(User.class),
-    ;
+    INSTRUCTOR_DIALOG(CredentialInstructor.class);
 
     private Class objectType;
 
