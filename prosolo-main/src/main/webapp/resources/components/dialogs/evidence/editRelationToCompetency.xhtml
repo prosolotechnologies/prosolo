@@ -39,12 +39,12 @@
 							</script>
 						</div>
 						<div class="modal-footer alignLeft">
-							<p:commandLink styleClass="btn btn-green"
-										   value="Save Changes"
-										   process="textareaRelationToCompetency"
-										   action="#{editEvidenceRelationToCompetencyDialogBean.saveEvidenceRelationToCompetence()}"
-										   update="#{cc.attrs.toUpdate} :#{cc.clientId}:formEditRelation:textareaRelationToCompetencyValidationMsg"
-										   oncomplete="if (args &amp;&amp; !args.validationFailed) { $('#editRelationModal').modal('hide') }" />
+							<utilcomp:singleClickLink styleClass="btn btn-green"
+													  value="Save Changes"
+													  process="textareaRelationToCompetency"
+													  action="#{editEvidenceRelationToCompetencyDialogBean.saveEvidenceRelationToCompetence()}"
+													  update="#{cc.attrs.toUpdate} :#{cc.clientId}:formEditRelation:textareaRelationToCompetencyValidationMsg"
+													  oncomplete="if (args &amp;&amp; !args.validationFailed) { $('#editRelationModal').modal('hide') }" />
 							<a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
 						</div>
 					</div>

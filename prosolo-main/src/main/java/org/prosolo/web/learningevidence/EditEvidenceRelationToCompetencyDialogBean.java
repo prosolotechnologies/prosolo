@@ -78,7 +78,7 @@ public class EditEvidenceRelationToCompetencyDialogBean implements Serializable 
                 evidenceToEditRelationCompetency = null;
                 PageUtil.fireSuccessfulInfoMessage("Relation to " + ResourceBundleUtil.getLabel("competence").toLowerCase() + " is updated");
             } else {
-                logger.debug("Evidence whose relation should be edited is null which means that user double-clicked the remove evidence button");
+                logger.debug("Evidence whose relation should be edited is null which means that user double-clicked the Save Changes button");
             }
         } catch (DbConnectionException e) {
             logger.error("Error", e);
