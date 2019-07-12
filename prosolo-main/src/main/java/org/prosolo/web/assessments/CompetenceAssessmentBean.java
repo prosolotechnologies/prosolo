@@ -83,7 +83,7 @@ public abstract class CompetenceAssessmentBean extends LearningResourceAssessmen
 	}
 
 	public void initSelfAssessment() {
-		initAssessment(AssessmentType.SELF_ASSESSMENT, true);
+		initAssessment(AssessmentType.SELF_ASSESSMENT, false);
 	}
 
 	public void initPeerAssessment() {

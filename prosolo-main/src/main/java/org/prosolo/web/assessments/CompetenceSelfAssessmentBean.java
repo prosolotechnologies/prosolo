@@ -30,11 +30,8 @@ public abstract class CompetenceSelfAssessmentBean implements Serializable {
 
 		if (decodedCompId > 0 && decodedCredId > 0) {
 			Optional<Long> optAssessmentId = assessmentManager.getSelfCompetenceAssessmentId(decodedCredId, decodedCompId, getStudentId());
-			if (optAssessmentId.isPresent()) {
-				getCompetenceAssessmentBean().initSelfAssessment(id, idEncoder.encodeId(optAssessmentId.get()), this.credId);
-			} else {
-				PageUtil.notFound();
-			}
+			long competenceAssessmentId = optAssessmentId.isPresent() ? optAssessmentId.get() : 0;
+			getCompetenceAssessmentBean().initSelfAssessment(id, idEncoder.encodeId(competenceAssessmentId), this.credId);
 		} else {
 			PageUtil.notFound();
 		}

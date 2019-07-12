@@ -11,7 +11,6 @@ import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.annotation.Tag;
-import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.events.EventType;
@@ -52,7 +51,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
-import java.math.BigInteger;
 import java.util.*;
 
 @Service("org.prosolo.services.nodes.Competence1Manager")
@@ -355,14 +353,8 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			res.setResult(targetComp);
 			res.appendEvent(eventFactory.generateEventData(EventType.ENROLL_COMPETENCE, context, competence, null, null, params));
 
-			//create self assessment if enabled
-			if (comp.getAssessmentConfig()
-					.stream()
-					.filter(config -> config.getAssessmentType() == AssessmentType.SELF_ASSESSMENT)
-					.findFirst().get()
-					.isEnabled()) {
-				res.appendEvents(assessmentManager.createSelfCompetenceAssessmentAndGetEvents(credId, compId, userId, context).getEventQueue());
-			}
+			//create self assessment no matter if self-assessment type is enabled - this way self-assessment will exist in case it is disabled when student enrolls but it gets enabled after that
+			res.appendEvents(assessmentManager.createSelfCompetenceAssessmentAndGetEvents(credId, compId, userId, context).getEventQueue());
 
 			return res;
 		} catch(Exception e) {
