@@ -13,6 +13,7 @@ import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.assessment.data.AssessmentDataFull;
 import org.prosolo.services.assessment.data.CompetenceAssessmentData;
 import org.prosolo.services.assessment.data.CompetenceAssessmentDataFull;
+import org.prosolo.services.interaction.FollowResourceManager;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.config.competence.CompetenceLoadConfig;
@@ -352,6 +353,12 @@ public class BusinessCase_Test_2_3 extends BaseBusinessCase5 {
             gradeCompetenceAssessmentWithRubric(events, competenceAssessmentData, userKevinHall, lvl);
         }
         approveCredentialAssessment(events, selfCredentialAssessmentData.getCredAssessmentId(), selfCredentialAssessmentData.getCredentialId(), userKevinHall);
+
+        ////////////////////////////////
+        // Add follow relations
+        ////////////////////////////////
+        extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(FollowResourceManager.class).followUserAndGetEvents(userHelenCampbell.getId(), createUserContext(userRichardAnderson)));
+
     }
 
     @Override
