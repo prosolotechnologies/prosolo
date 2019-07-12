@@ -126,7 +126,9 @@
 											#{cc.attrs.bean.fullAssessmentData.gradeData.currentGrade} /
 											#{cc.attrs.bean.fullAssessmentData.gradeData.maxGrade}</div>
 									</ui:remove>
-									<p:commandLink styleClass="item commentsIcon #{(!cc.attrs.bean.fullAssessmentData.participantInDiscussion or cc.attrs.bean.fullAssessmentData.allRead or cc.attrs.bean.fullAssessmentData.numberOfMessages eq 0) ? '' : 'hasNewComments'}" pt:data-toggle="modal"
+									<p:commandLink styleClass="item commentsIcon #{(!cc.attrs.bean.fullAssessmentData.participantInDiscussion or cc.attrs.bean.fullAssessmentData.allRead or cc.attrs.bean.fullAssessmentData.numberOfMessages eq 0) ? '' : 'hasNewComments'}"
+												   pt:data-toggle="modal"
+												   rendered="#{cc.attrs.bean.isUserAssessedStudentInCurrentContext() or cc.attrs.bean.isUserAssessorInCurrentContext()}"
 												   onclick="markDiscussionAsSeen('#{util:encodeId(cc.attrs.bean.fullAssessmentData.credAssessmentId)}', this, 'CREDENTIAL')"
 												   action="#{cc.attrs.bean.prepareLearningResourceAssessmentForCommenting()}"
 												   update=":assessmentPreview:commentModal:formPrivateConversation:panelModalPrivateConversation"
@@ -406,6 +408,7 @@
 														#{cc.attrs.bean.fullAssessmentData.gradeData.maxGrade}</div>
 												</ui:remove>
 												<p:commandLink styleClass="commentsIcon" pt:data-toggle="modal"
+															   rendered="#{cc.attrs.bean.isUserAssessedStudentInCurrentContext() or cc.attrs.bean.isUserAssessorInCurrentContext()}"
 															   onclick="markDiscussionAsSeen('#{util:encodeId(cc.attrs.bean.fullAssessmentData.credAssessmentId)}', this.parentElement.parentElement, 'CREDENTIAL')"
 															   action="#{cc.attrs.bean.prepareLearningResourceAssessmentForCommenting()}"
 															   update=":assessmentPreview:commentModal:formPrivateConversation:panelModalPrivateConversation"

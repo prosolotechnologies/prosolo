@@ -124,6 +124,7 @@
 							$("[data-toggle='tooltip']").tooltip();
 						</script>
 						<p:commandLink styleClass="commentsIcon" pt:data-toggle="modal"
+									   rendered="#{cc.attrs.currentUserAssessedStudent or cc.attrs.currentUserAssessor}"
 									   onclick="markDiscussionAsSeen('#{util:encodeId(cc.attrs.competenceAssessment.competenceAssessmentId)}', this.parentElement.parentElement, 'COMPETENCE')"
 									   action="#{cc.attrs.bean.prepareLearningResourceAssessmentForCommenting(cc.attrs.competenceAssessment)}"
 									   update="#{cc.attrs.toUpdatePrivateConversationModal}"
@@ -216,6 +217,7 @@
 											</h:link>
 										</ui:fragment>
 										<p:commandLink styleClass="commentsIcon" pt:data-toggle="modal"
+													   rendered="#{cc.attrs.currentUserAssessedStudent or cc.attrs.currentUserAssessor}"
 													   onclick="markDiscussionAsSeen('#{activityAssessment.encodedActivityAssessmentId}',this.parentElement.parentElement, 'ACTIVITY')"
 													   action="#{cc.attrs.bean.prepareLearningResourceAssessmentForCommenting(activityAssessment)}"
 													   update="#{cc.attrs.toUpdatePrivateConversationModal}"
@@ -325,12 +327,6 @@
 										<f:param name="credId" value="#{util:encodeId(cc.attrs.credentialId)}"
 												 disable="#{empty cc.attrs.credentialId}" />
 									</h:link>
-
-									<div class="activityOptions">
-										<div class="disabledOverlay"></div>
-										<a href="javascript:void(0);" class="commentsIcon">0</a>
-										<a href="javascript:void(0);" class="grade">- / #{activityAssessment.grade.maxGrade}</a>
-									</div>
 								</li>
 							</ui:repeat>
 
