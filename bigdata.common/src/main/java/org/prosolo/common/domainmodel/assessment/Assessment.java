@@ -20,6 +20,7 @@ public class Assessment extends BaseEntity {
 
     private TargetCredential1 targetCredential;
 
+    @Deprecated
     private boolean approved;
     private Date dateApproved;
     //date used for specifying when was assessment declined, expired or quit

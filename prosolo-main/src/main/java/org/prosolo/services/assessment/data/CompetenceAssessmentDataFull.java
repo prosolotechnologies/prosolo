@@ -166,6 +166,11 @@ public class CompetenceAssessmentDataFull {
 		durationString = TimeUtil.getHoursAndMinutesInString(this.duration);
 	}
 
+	public void markAssessmentAsSubmitted() {
+		this.approved = true;
+		this.status = AssessmentStatus.SUBMITTED;
+	}
+
 	public String getTitle() {
 		return title;
 	}
