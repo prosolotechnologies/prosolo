@@ -61,29 +61,16 @@ public class OrganizationEditBean implements Serializable {
     @Inject
     private OrganizationManager organizationManager;
     @Inject
-    private UserTextSearch userTextSearch;
-    @Inject
-    private RoleManager roleManager;
-    @Inject
     private PageAccessRightsResolver pageAccessRightsResolver;
     @Inject
     private ApplicationBean appBean;
 
-
     @Getter
     private OrganizationData organization;
-    @Getter
-    private List<UserData> admins;
     @Getter @Setter
     private String id;
     @Getter
     private long decodedId;
-
-    @Getter @Setter
-    private String searchTerm;
-    private String[] rolesArray;
-    private List<RoleData> adminRoles;
-    private List<Long> adminRolesIds = new ArrayList<>();
 
     @Getter
     private LearningStageData selectedLearningStage;
@@ -100,22 +87,14 @@ public class OrganizationEditBean implements Serializable {
 
     public void init() {
         logger.debug("initializing");
-        admins = new ArrayList<>();
         try {
             decodedId = idEncoder.decodeId(id);
 
             if (pageAccessRightsResolver.getAccessRightsForOrganizationPage(decodedId).isCanAccess()) {
-                rolesArray = new String[] {SystemRoleNames.ADMIN, SystemRoleNames.SUPER_ADMIN};
-                adminRoles = roleManager.getRolesByNames(rolesArray);
-
-                for(RoleData r : adminRoles){
-                    adminRolesIds.add(r.getId());
-                }
                 if (decodedId > 0) {
                     initOrgData();
                 } else {
                     organization = new OrganizationData();
-                    this.organization.setAdmins(new ArrayList<>());
                 }
             } else {
                 PageUtil.accessDenied();
@@ -127,7 +106,7 @@ public class OrganizationEditBean implements Serializable {
     }
 
     private void initOrgData() {
-        this.organization = organizationManager.getOrganizationForEdit(decodedId, adminRoles.stream().map(RoleData::getId).collect(Collectors.toList()));
+        this.organization = organizationManager.getOrganizationForEdit(decodedId);
 
         if (organization == null) {
             this.organization = new OrganizationData();
@@ -137,17 +116,13 @@ public class OrganizationEditBean implements Serializable {
 
     public void createNewOrganization(){
         try {
-            if(this.organization.getAdmins() != null && !this.organization.getAdmins().isEmpty()) {
-                Organization organization = organizationManager.createNewOrganization(this.organization.getBasicData(), loggedUser.getUserContext(decodedId));
+            Organization organization = organizationManager.createNewOrganization(this.organization.getBasicData(), loggedUser.getUserContext(decodedId));
 
-                logger.debug("New Organization (" + organization.getTitle() + ")");
+            logger.debug("New Organization (" + organization.getTitle() + ")");
 
-                PageUtil.fireSuccessfulInfoMessageAcrossPages("New organization has been created");
-                PageUtil.redirect("/admin/organizations/" + idEncoder.encodeId(organization.getId()) + "/settings");
-            }else{
-                PageUtil.fireErrorMessage("Error creating new organization");
-            }
-        } catch (ConstraintViolationException | DataIntegrityViolationException e){
+            PageUtil.fireSuccessfulInfoMessageAcrossPages("New organization has been created");
+            PageUtil.redirect("/admin/organizations/" + idEncoder.encodeId(organization.getId()) + "/settings");
+        } catch (ConstraintViolationException | DataIntegrityViolationException e) {
             logger.error("Error", e);
             FacesContext.getCurrentInstance().validationFailed();
             /* TODO exception - pay attention to this case - we can have several constraints violated
@@ -172,25 +147,6 @@ public class OrganizationEditBean implements Serializable {
         }
     }
 
-    public void setAdministrator(UserData userData) {
-        Optional<UserData> removedUserOpt = getUserIfPreviouslyRemoved(userData.getId());
-
-        if(removedUserOpt.isPresent()){
-            removedUserOpt.get().setObjectStatus(ObjectStatus.UP_TO_DATE);
-        }else{
-            userData.setObjectStatus(ObjectStatus.CREATED);
-            this.organization.getAdmins().add(userData);
-            sortOrganizationAdmins();
-        }
-        searchTerm = "";
-    }
-
-    private void sortOrganizationAdmins() {
-        Comparator<UserData> comparator = Comparator.comparing(admin -> admin.getLastName());
-        comparator = comparator.thenComparing(admin -> admin.getName());
-        this.organization.getAdmins().sort(comparator);
-    }
-
     public void updateOrganizationBasicInfo() {
         try {
             organizationManager.updateOrganizationBasicInfo(organization.getId(), organization.getBasicData(), loggedUser.getUserContext(decodedId));
@@ -203,53 +159,6 @@ public class OrganizationEditBean implements Serializable {
             PageUtil.fireErrorMessage("Error updating the organization details");
         }
     }
-
-    public void loadUsers() {
-        this.admins = null;
-        if (searchTerm == null || searchTerm.isEmpty()) {
-            admins = null;
-        } else {
-            try {
-                List<UserData> usersToExclude = this.organization.getAdmins().stream()
-                        .filter(userData -> userData.getObjectStatus() != ObjectStatus.REMOVED)
-                        .collect(Collectors.toList());
-
-                PaginatedResult<UserData> result = userTextSearch.searchUsers(0, searchTerm, 3, usersToExclude, this.adminRolesIds);
-
-                admins = result.getFoundNodes();
-            } catch (Exception e) {
-                logger.error(e);
-            }
-        }
-    }
-
-    public boolean isAdminChosenListEmpty(){
-        return this.organization.getAdmins().stream()
-                .anyMatch(userData -> userData.getObjectStatus() != ObjectStatus.REMOVED);
-    }
-
-    public void userReset(UserData admin) {
-        searchTerm = "";
-        removeUser(admin);
-    }
-
-    public Optional<UserData> getUserIfPreviouslyRemoved(long userId) {
-        return this.organization.getAdmins().stream()
-                .filter(user -> user.getObjectStatus() == ObjectStatus.REMOVED && user.getId() == userId)
-                .findFirst();
-    }
-
-    public void removeUser(UserData userData) {
-        userData.setObjectStatus(ObjectStatusTransitions.removeTransition(userData.getObjectStatus()));
-        if (userData.getObjectStatus() != ObjectStatus.REMOVED) {
-            this.organization.getAdmins().remove(userData);
-        }
-    }
-
-    public void resetAndSearch() {
-        loadUsers();
-    }
-
 
     /*
      *  Learning Stages Plugin

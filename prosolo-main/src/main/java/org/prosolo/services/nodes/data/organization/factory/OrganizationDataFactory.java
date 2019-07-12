@@ -20,12 +20,11 @@ public class OrganizationDataFactory {
 
     public OrganizationData getOrganizationData(Organization organization, List<User> users, List<LearningStageData> learningStages, List<CredentialCategoryData> credentialCategories) throws NullPointerException {
         List<UserData> userDataList = new ArrayList<>();
-        if (users == null) {
-            throw new NullPointerException("Users cannot be null");
-        }
-        for (User u : users) {
-            UserData ud = new UserData(u);
-            userDataList.add(ud);
+        if (users != null) {
+            for (User u : users) {
+                UserData ud = new UserData(u);
+                userDataList.add(ud);
+            }
         }
         OrganizationData organizationData = new OrganizationData(organization, userDataList);
 

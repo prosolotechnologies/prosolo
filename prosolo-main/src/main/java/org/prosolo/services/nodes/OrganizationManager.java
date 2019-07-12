@@ -84,7 +84,7 @@ public interface OrganizationManager extends AbstractManager {
      */
     void updateCredentialCategoriesPlugin(long orgId, CredentialCategoriesPluginData credentialCategoriesPluginData);
 
-    OrganizationData getOrganizationForEdit(long organizationId, List<Long> roleIds) throws DbConnectionException;
+    OrganizationData getOrganizationForEdit(long organizationId) throws DbConnectionException;
 
     Organization updateOrganizationBasicInfo(long organizationid, OrganizationBasicData org, UserContextData context)
             throws DbConnectionException, ConstraintViolationException, DataIntegrityViolationException;

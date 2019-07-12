@@ -246,7 +246,7 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
 
     @Override
     @Transactional (readOnly = true)
-    public OrganizationData getOrganizationForEdit(long organizationId, List<Long> roleIds) throws DbConnectionException {
+    public OrganizationData getOrganizationForEdit(long organizationId) throws DbConnectionException {
         try{
             String query =
                     "SELECT organization " +
@@ -263,10 +263,9 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
                 return null;
             }
 
-            List<User> chosenAdmins = getOrganizationUsers(organization.getId(),false,persistence.currentManager(), roleIds);
             List<LearningStageData> learningStages = getOrganizationLearningStagesData(organizationId);
             List<CredentialCategoryData> credentialCategories = getOrganizationCredentialCategoriesData(organizationId, true, true);
-            OrganizationData od = organizationDataFactory.getOrganizationData(organization, chosenAdmins, learningStages, credentialCategories);
+            OrganizationData od = organizationDataFactory.getOrganizationData(organization, null, learningStages, credentialCategories);
 
             return od;
         } catch (Exception e) {
