@@ -1,5 +1,7 @@
 package org.prosolo.web.courses.competence;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.AccessDeniedException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
@@ -11,6 +13,8 @@ import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.LearningEvidenceManager;
+import org.prosolo.services.nodes.data.BasicObjectInfo;
+import org.prosolo.services.nodes.data.CompetencyBasicObjectInfo;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
@@ -62,7 +66,7 @@ public class CompetenceViewBeanUser implements Serializable {
 
     private LearningEvidenceData evidenceToRemove;
 
-    private long nextCompToLearn;
+	private long nextCompToLearn;
     private boolean mandatoryOrder;
 
     private String credentialTitle;

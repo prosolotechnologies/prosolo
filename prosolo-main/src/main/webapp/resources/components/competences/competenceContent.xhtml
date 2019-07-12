@@ -10,7 +10,8 @@
 		xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
 		xmlns:f="http://java.sun.com/jsf/core"
 		xmlns:evidence="http://java.sun.com/jsf/composite/components/evidence"
-		xmlns:assessment="http://java.sun.com/jsf/composite/components/assessments">
+		xmlns:assessment="http://java.sun.com/jsf/composite/components/assessments"
+		xmlns:dialogEvidence="http://java.sun.com/jsf/composite/components/dialogs/evidence">
 
 	<composite:interface>
 		<composite:attribute name="bean" required="true"/>
@@ -54,13 +55,13 @@
 								id="submitEvidence"
 								bean="#{cc.attrs.bean}"
 								addEvidenceToCompetence="true"
-								update="#{cc.attrs.growlToUpdate} :#{cc.clientId}:panelEvidences #{cc.attrs.toUpdateOnEvidencePost}"
+								update="#{cc.attrs.growlToUpdate} :#{cc.clientId}:panelEvidenceList #{cc.attrs.toUpdateOnEvidencePost}"
 								learningContext="#{cc.attrs.learningContext}"
 								submitButtonText="Submit"
 						/>
 
 						<h2>Added Evidence</h2>
-						<h:panelGroup id="panelEvidences">
+						<h:panelGroup id="panelEvidenceList">
 							<h:panelGroup id="panelEvidenceSummary">
 								<h:panelGroup layout="block" rendered="#{not empty cc.attrs.bean.competenceData.evidences}" styleClass="evidenceSummary">
 									<div class="text">
@@ -128,7 +129,7 @@
                                                     <span class="lightText">no #{msg['label.competence.plural'].toLowerCase()}</span>
                                                 </ui:fragment>
                                                 <ui:repeat value="#{ev.competences}" var="c" varStatus="status">
-                                                    <p class="textLimit4">
+                                                    <p class="bottom5 textLimit4">
                                                         <h:link outcome="/competence"
                                                                 value="#{c.title}">
                                                             <f:param name="compId" value="#{util:encodeId(c.id)}"/>
@@ -137,7 +138,14 @@
                                                         - #{c.description}
                                                         <ui:fragment rendered="#{status.index + 1 ne ev.competences.size()}"><br/></ui:fragment>
                                                     </p>
-                                                </ui:repeat>
+
+													<p:commandLink id="editRelation"
+																   action="#{editEvidenceRelationToCompetencyDialogBean.setEvidenceToEditRelation(ev, c)}"
+																   update=":#{cc.clientId}:editRelation:formEditRelation"
+																   oncomplete="$('#editRelationModal').modal('show');">
+														Edit
+													</p:commandLink>
+												</ui:repeat>
 											</td>
 										</tr>
 										<tr>
@@ -301,7 +309,7 @@
 							<p:commandLink styleClass="btn btn-red"
 							   	process="@this"
 								action="#{cc.attrs.bean.removeEvidenceFromCompetence()}"
-								update="#{cc.attrs.growlToUpdate} :#{cc.clientId}:panelEvidences :#{cc.clientId}:submitEvidence:panelExistingEvidence #{cc.attrs.toUpdateOnEvidencePost}"
+								update="#{cc.attrs.growlToUpdate} :#{cc.clientId}:panelEvidenceList :#{cc.clientId}:submitEvidence:panelExistingEvidence #{cc.attrs.toUpdateOnEvidencePost}"
 								oncomplete="$('#deleteEvidence').modal('hide')">
 								Remove
 							</p:commandLink>
@@ -310,6 +318,11 @@
 					</div>
 				</div>
 			</div>
+		</ui:fragment>
+
+		<ui:fragment rendered="#{cc.attrs.startedLearning and cc.attrs.bean.competenceData.learningPathType eq 'EVIDENCE'}">
+			<dialogEvidence:editRelationToCompetency id="editRelation"
+													 toUpdate="#{cc.attrs.growlToUpdate} :#{cc.clientId}:panelEvidenceList" />
 		</ui:fragment>
 
 		<ui:fragment rendered="#{cc.attrs.startedLearning and cc.attrs.bean.competenceData.learningPathType eq 'EVIDENCE'}">
@@ -323,9 +336,10 @@
 							</div>
 							<div class="modal-body alignLeft">
 								<h:inputTextarea id="textareaEvidenceSummary"
-										label="Evidence summary"
-										placeholder="Type a summary..."
-										value="#{cc.attrs.bean.competenceData.evidenceSummary}">
+												 label="Evidence summary"
+												 placeholder="Type a summary..."
+												 required="true"
+												 value="#{cc.attrs.bean.competenceData.evidenceSummary}">
 									<f:validateLength maximum="9000"/>
 								</h:inputTextarea>
 								<small class="redText bottom30 displayBlock"><h:message id="textareaEvidenceSummaryValidationMsg" for="textareaEvidenceSummary"></h:message></small>
