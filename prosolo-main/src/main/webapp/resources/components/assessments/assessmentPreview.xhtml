@@ -297,8 +297,9 @@
 																actorType="ASSESSOR"
 														/>
 													</ui:fragment>
-													<span class="#{otherAssessment.approved ? 'approved' : 'pending'}">#{otherAssessment.approved
-														? 'Submitted' : 'Pending'}</span>
+													<span class="#{otherAssessment.status eq 'SUBMITTED'? 'approved' : 'pending'}">
+														#{msg['label.enum.AssessmentStatus.'.concat(otherAssessment.status.name())]}
+													</span>
 												</h:outputLink>
 											</li>
 										</ui:repeat>
