@@ -41,7 +41,7 @@
 						<div class="modal-footer alignLeft">
 							<utilcomp:singleClickLink styleClass="btn btn-green"
 													  value="Save Changes"
-													  process="textareaRelationToCompetency"
+													  process=":#{cc.clientId}:formEditRelation:textareaRelationToCompetency"
 													  action="#{editEvidenceRelationToCompetencyDialogBean.saveEvidenceRelationToCompetence()}"
 													  update="#{cc.attrs.toUpdate} :#{cc.clientId}:formEditRelation:textareaRelationToCompetencyValidationMsg"
 													  oncomplete="if (args &amp;&amp; !args.validationFailed) { $('#editRelationModal').modal('hide') }" />
