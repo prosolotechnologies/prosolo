@@ -27,7 +27,8 @@ public class ProfileDataFactory {
                 userBasicDataFactory.getBasicUserData(ca.getAssessor()),
                 ca.getBlindAssessmentMode(),
                 DateUtil.getMillisFromDate(ca.getDateApproved()),
-                gradeSummary);
+                gradeSummary,
+                ca.getReview());
     }
 
     protected AssessmentProfileData getCompetenceAssessmentProfileData(CompetenceAssessment ca, GradeData gradeSummary) {
@@ -36,7 +37,8 @@ public class ProfileDataFactory {
                 userBasicDataFactory.getBasicUserData(ca.getAssessor()),
                 ca.getBlindAssessmentMode(),
                 DateUtil.getMillisFromDate(ca.getDateApproved()),
-                gradeSummary);
+                gradeSummary,
+                null);
     }
 
     protected CompetenceEvidenceProfileData getCompetenceEvidenceProfileData(CompetenceEvidence ce) {

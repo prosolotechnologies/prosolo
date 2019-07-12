@@ -115,6 +115,7 @@
 										   update="#{cc.attrs.toUpdateApproveModal}"
 										   oncomplete="$('##{cc.attrs.approveModalId}').modal('show')">
 								Submit<span></span>
+								<p:resetInput target="#{cc.attrs.toUpdateApproveModal}"/>
 							</p:commandLink>
 						</ui:fragment>
 						<ui:fragment rendered="#{cc.attrs.competenceAssessment.status eq 'PENDING' and cc.attrs.currentUserAssessor and competenceAssessmentDisabledIndicator != 'NONE'}">
