@@ -15,17 +15,21 @@ import javax.persistence.Enumerated;
  */
 @Entity
 @NoArgsConstructor
-public class AssessmentTokensPlugin extends OrganizationPlugin {
+public class AssessmentsPlugin extends OrganizationPlugin {
 
+    private boolean assessmentTokensEnabled;
+    private boolean privateDiscussionEnabled;
     private int initialNumberOfTokensGiven;
     private int numberOfSpentTokensPerRequest;
     private int numberOfEarnedTokensPerAssessment;
 
     @Builder
-    public AssessmentTokensPlugin(long id, boolean enabled, OrganizationPluginType type, Organization organization,
-                                  int initialNumberOfTokensGiven, int numberOfSpentTokensPerRequest,
-                                  int numberOfEarnedTokensPerAssessment) {
+    public AssessmentsPlugin(long id, boolean enabled, OrganizationPluginType type, Organization organization,
+                             boolean assessmentTokensEnabled, boolean privateDiscussionEnabled, int initialNumberOfTokensGiven,
+                             int numberOfSpentTokensPerRequest, int numberOfEarnedTokensPerAssessment) {
         super(id, enabled, type, organization);
+        this.assessmentTokensEnabled = assessmentTokensEnabled;
+        this.privateDiscussionEnabled = privateDiscussionEnabled;
         this.initialNumberOfTokensGiven = initialNumberOfTokensGiven;
         this.numberOfSpentTokensPerRequest = numberOfSpentTokensPerRequest;
         this.numberOfEarnedTokensPerAssessment = numberOfEarnedTokensPerAssessment;
@@ -55,4 +59,19 @@ public class AssessmentTokensPlugin extends OrganizationPlugin {
         this.numberOfEarnedTokensPerAssessment = numberOfEarnedTokensPerAssessment;
     }
 
+    public boolean isAssessmentTokensEnabled() {
+        return assessmentTokensEnabled;
+    }
+
+    public void setAssessmentTokensEnabled(boolean assessmentTokensEnabled) {
+        this.assessmentTokensEnabled = assessmentTokensEnabled;
+    }
+
+    public boolean isPrivateDiscussionEnabled() {
+        return privateDiscussionEnabled;
+    }
+
+    public void setPrivateDiscussionEnabled(boolean privateDiscussionEnabled) {
+        this.privateDiscussionEnabled = privateDiscussionEnabled;
+    }
 }

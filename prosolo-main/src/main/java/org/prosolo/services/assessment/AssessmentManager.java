@@ -357,8 +357,6 @@ public interface AssessmentManager {
 			long credId, long compId, long userId, boolean countOnlyAssessmentsWhereUserIsAssessor, List<AssessmentFilter> filters, int limit, int offset)
 			throws DbConnectionException, ResourceNotFoundException;
 
-	Optional<CompetenceAssessmentDataFull> getInstructorCompetenceAssessmentForStudent(long credId, long compId, long studentId) throws DbConnectionException;
-
 	Optional<Long> getSelfCompetenceAssessmentId(long credId, long compId, long studentId) throws DbConnectionException;
 
 	CompetenceAssessmentDataFull getCompetenceAssessmentData(long competenceAssessmentId, long userId, AssessmentType assessmentType, AssessmentLoadConfig loadConfig)

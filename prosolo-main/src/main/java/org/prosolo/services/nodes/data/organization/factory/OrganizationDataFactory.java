@@ -46,7 +46,7 @@ public class OrganizationDataFactory {
         organizationData.setCredentialCategoriesPluginData(credentialCategoriesPluginData);
 
         // assessment tokens plugin
-        AssessmentTokensPlugin assessmentTokensPlugin = (AssessmentTokensPlugin) organization.getPlugins().stream().filter(p -> p.getType() == OrganizationPluginType.ASSESSMENT_TOKENS).findAny().get();
+        AssessmentsPlugin assessmentTokensPlugin = (AssessmentsPlugin) organization.getPlugins().stream().filter(p -> p.getType() == OrganizationPluginType.ASSESSMENTS).findAny().get();
         organizationData.setAssessmentTokensPluginData(new AssessmentTokensPluginData(assessmentTokensPlugin));
 
         return organizationData;

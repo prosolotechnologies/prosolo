@@ -11,14 +11,13 @@ import org.prosolo.common.domainmodel.activitywall.PostSocialActivity1;
 import org.prosolo.common.domainmodel.activitywall.SocialActivity1;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.assessment.AssessorAssignmentMethod;
-import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
 import org.prosolo.common.domainmodel.credential.GradingMode;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
 import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.organization.Role;
-import org.prosolo.common.domainmodel.organization.settings.AssessmentTokensPlugin;
+import org.prosolo.common.domainmodel.organization.settings.AssessmentsPlugin;
 import org.prosolo.common.domainmodel.organization.settings.OrganizationPlugin;
 import org.prosolo.common.domainmodel.organization.settings.OrganizationPluginType;
 import org.prosolo.common.domainmodel.rubric.Rubric;
@@ -44,7 +43,6 @@ import org.prosolo.services.assessment.data.AssessmentDataFull;
 import org.prosolo.services.assessment.data.AssessmentTypeConfig;
 import org.prosolo.services.assessment.data.CompetenceAssessmentData;
 import org.prosolo.services.assessment.data.CompetenceAssessmentDataFull;
-import org.prosolo.services.assessment.data.factory.AssessmentDataFactory;
 import org.prosolo.services.assessment.data.grading.*;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventFactory;
@@ -800,9 +798,9 @@ public abstract class BaseBusinessCase implements BusinessCase {
     }
 
     protected void enableTokensPlugin(int initialNumberOfTokens, int tokensSpentPerRequest, int tokensEarnedPerAssessment) {
-        AssessmentTokensPlugin tokensPlugin = ServiceLocator.getInstance().getService(OrganizationManager.class).getOrganizationPlugin(AssessmentTokensPlugin.class, organization.getId());
+        AssessmentsPlugin tokensPlugin = ServiceLocator.getInstance().getService(OrganizationManager.class).getOrganizationPlugin(AssessmentsPlugin.class, organization.getId());
         AssessmentTokensPluginData tokensPluginData = new AssessmentTokensPluginData(tokensPlugin);
-        tokensPluginData.setEnabled(true);
+        tokensPluginData.setAssessmentTokensEnabled(true);
         tokensPluginData.setInitialNumberOfTokensGiven(initialNumberOfTokens);
         tokensPluginData.setNumberOfSpentTokensPerRequest(tokensSpentPerRequest);
         tokensPluginData.setNumberOfEarnedTokensPerAssessment(tokensEarnedPerAssessment);

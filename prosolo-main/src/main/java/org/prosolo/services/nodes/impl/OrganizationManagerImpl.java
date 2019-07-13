@@ -5,13 +5,11 @@ import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.exception.ConstraintViolationException;
-import org.prosolo.app.Settings;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.credential.CredentialCategory;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.learningStage.LearningStage;
 import org.prosolo.common.domainmodel.organization.Organization;
-import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.organization.settings.*;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.EventQueue;
@@ -42,7 +40,6 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -620,9 +617,10 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
     @Transactional
     public void updateAssessmentTokensPlugin(AssessmentTokensPluginData pluginData) {
         try {
-            AssessmentTokensPlugin assessmentTokensPlugin = (AssessmentTokensPlugin) persistence.currentManager().load(AssessmentTokensPlugin.class, pluginData.getPluginId());
+            AssessmentsPlugin assessmentTokensPlugin = (AssessmentsPlugin) persistence.currentManager().load(AssessmentsPlugin.class, pluginData.getPluginId());
 
-            assessmentTokensPlugin.setEnabled(pluginData.isEnabled());
+            assessmentTokensPlugin.setAssessmentTokensEnabled(pluginData.isAssessmentTokensEnabled());
+            assessmentTokensPlugin.setPrivateDiscussionEnabled(pluginData.isPrivateDiscussionEnabled());
             assessmentTokensPlugin.setInitialNumberOfTokensGiven(pluginData.getInitialNumberOfTokensGiven());
             assessmentTokensPlugin.setNumberOfEarnedTokensPerAssessment(pluginData.getNumberOfEarnedTokensPerAssessment());
             assessmentTokensPlugin.setNumberOfSpentTokensPerRequest(pluginData.getNumberOfSpentTokensPerRequest());

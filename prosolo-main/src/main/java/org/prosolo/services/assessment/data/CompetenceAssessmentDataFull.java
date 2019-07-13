@@ -42,6 +42,7 @@ public class CompetenceAssessmentDataFull {
 	private long assessorId;
 	private String assessorFullName;
 	private String assessorAvatarUrl;
+	private boolean privateDiscussionEnabled;
 	private List<AssessmentDiscussionMessageData> messages = new LinkedList<>();
 	private boolean allRead = true; 	// whether user has read all the messages in the thread
 	private boolean participantInDiscussion;
@@ -62,14 +63,14 @@ public class CompetenceAssessmentDataFull {
 	private BlindAssessmentMode blindAssessmentMode;
 
 	public static CompetenceAssessmentDataFull from(StudentCompetenceAndAssessmentData competenceAssessment,
-													CredentialAssessment credAssessment, UrlIdEncoder encoder) {
-		return from(competenceAssessment, credAssessment, null, null, encoder, 0, false);
+													CredentialAssessment credAssessment, boolean privateDiscussionEnabled, UrlIdEncoder encoder) {
+		return from(competenceAssessment, credAssessment, null, null, encoder, 0, false, privateDiscussionEnabled);
 	}
 
 	public static CompetenceAssessmentDataFull from(StudentCompetenceAndAssessmentData competenceAssessment,
 													CredentialAssessment credAssessment, RubricAssessmentGradeSummary rubricGradeSummary,
 													Map<Long, RubricAssessmentGradeSummary> activitiesRubricGradeSummary, UrlIdEncoder encoder,
-													long userId, boolean loadDiscussion) {
+													long userId, boolean loadDiscussion, boolean privateDiscussionEnabled) {
 		CompetenceAssessmentDataFull data = new CompetenceAssessmentDataFull();
 		if (credAssessment != null) {
 			data.setCredentialAssessmentId(credAssessment.getId());
@@ -115,7 +116,7 @@ public class CompetenceAssessmentDataFull {
 				for (ActivityData ad : cd.getActivities()) {
 					ActivityAssessment aa = compAssessment.getDiscussionByActivityId(ad.getActivityId());
 					ActivityAssessmentData assessmentData = ActivityAssessmentData.from(ad, compAssessment,
-							credAssessment, activitiesRubricGradeSummary.get(aa.getId()), encoder, userId, loadDiscussion);
+							credAssessment, activitiesRubricGradeSummary.get(aa.getId()), encoder, userId, loadDiscussion, privateDiscussionEnabled);
 					if (cd.getAssessmentSettings().getGradingMode() == GradingMode.AUTOMATIC) {
 						maxPoints += assessmentData.getGrade().getMaxGrade();
 					}
@@ -146,7 +147,8 @@ public class CompetenceAssessmentDataFull {
 					rubricGradeSummary
 			));
 
-			if (loadDiscussion) {
+			data.setPrivateDiscussionEnabled(privateDiscussionEnabled);
+			if (privateDiscussionEnabled && loadDiscussion) {
 				data.setNumberOfMessages(compAssessment.getMessages().size());
 				CompetenceAssessmentDiscussionParticipant currentParticipant = compAssessment.getParticipantByUserId(userId);
 				if (currentParticipant != null) {
@@ -456,5 +458,13 @@ public class CompetenceAssessmentDataFull {
 
 	public void setDateSubmitted(long dateSubmitted) {
 		this.dateSubmitted = dateSubmitted;
+	}
+
+	public void setPrivateDiscussionEnabled(boolean privateDiscussionEnabled) {
+		this.privateDiscussionEnabled = privateDiscussionEnabled;
+	}
+
+	public boolean isPrivateDiscussionEnabled() {
+		return privateDiscussionEnabled;
 	}
 }
