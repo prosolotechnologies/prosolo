@@ -1,11 +1,9 @@
 package org.prosolo.services.nodes.factory;
 
-import org.prosolo.common.domainmodel.assessment.ActivityAssessment;
 import org.prosolo.common.domainmodel.assessment.ActivityDiscussionMessage;
 import org.prosolo.common.util.ImageFormat;
 import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.assessment.data.AssessmentDiscussionMessageData;
-import org.prosolo.services.assessment.data.ActivityAssessmentData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.util.AvatarUtils;
 import org.springframework.stereotype.Component;
@@ -19,15 +17,6 @@ public class ActivityAssessmentDataFactory implements Serializable {
 	private static final long serialVersionUID = -7880824781151613852L;
 	
 	@Inject private UrlIdEncoder idEncoder;
-
-	public ActivityAssessmentData getActivityAssessmentData(ActivityAssessment assessment, 
-			boolean isReadByCurrentUser, int numberOfMessages) {
-		ActivityAssessmentData ad = new ActivityAssessmentData();
-		ad.setEncodedActivityAssessmentId(idEncoder.encodeId(assessment.getId()));
-		ad.setAllRead(isReadByCurrentUser);
-		ad.setNumberOfMessages(numberOfMessages);
-		return ad;
-	}
 	
 	public AssessmentDiscussionMessageData getActivityDiscussionMessage(ActivityDiscussionMessage msg,
                                                                         long assessorId) {

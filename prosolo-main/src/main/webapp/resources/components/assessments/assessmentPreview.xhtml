@@ -129,7 +129,7 @@
 									</ui:remove>
 									<p:commandLink styleClass="item commentsIcon #{(!cc.attrs.bean.fullAssessmentData.participantInDiscussion or cc.attrs.bean.fullAssessmentData.allRead or cc.attrs.bean.fullAssessmentData.numberOfMessages eq 0) ? '' : 'hasNewComments'}"
 												   pt:data-toggle="modal"
-												   rendered="#{cc.attrs.bean.isUserAssessedStudentInCurrentContext() or cc.attrs.bean.isUserAssessorInCurrentContext()}"
+												   rendered="#{cc.attrs.bean.fullAssessmentData.privateDiscussionEnabled and (cc.attrs.bean.isUserAssessedStudentInCurrentContext() or cc.attrs.bean.isUserAssessorInCurrentContext())}"
 												   onclick="markDiscussionAsSeen('#{util:encodeId(cc.attrs.bean.fullAssessmentData.credAssessmentId)}', this, 'CREDENTIAL')"
 												   action="#{cc.attrs.bean.prepareLearningResourceAssessmentForCommenting()}"
 												   update=":assessmentPreview:commentModal:formPrivateConversation:panelModalPrivateConversation"
@@ -344,7 +344,10 @@
 								<br/><br/>
 								Once all #{msg['label.competence.plural'].toLowerCase()} are assessed, the #{msg['label.credential'].toLowerCase()} assessment can be performed. Submission of the #{msg['label.credential'].toLowerCase()} assessment includes writing the assessment review. The assessment review can be made public on student's profile page if they choose to.
 								<br/><br/>
-								Comments made during the assessment process are private between the student and the assessor.</p>
+								<ui:fragment rendered="#{cc.attrs.bean.fullAssessmentData.privateDiscussionEnabled}">
+									Comments made during the assessment process are private between the student and the assessor.
+								</ui:fragment>
+							</p>
 						</ui:fragment>
 
 						<c:if test="#{cc.attrs.bean.fullAssessmentData.assessmentInitialized}">
@@ -411,7 +414,7 @@
 														#{cc.attrs.bean.fullAssessmentData.gradeData.maxGrade}</div>
 												</ui:remove>
 												<p:commandLink styleClass="commentsIcon" pt:data-toggle="modal"
-															   rendered="#{cc.attrs.bean.isUserAssessedStudentInCurrentContext() or cc.attrs.bean.isUserAssessorInCurrentContext()}"
+															   rendered="#{cc.attrs.bean.fullAssessmentData.privateDiscussionEnabled and (cc.attrs.bean.isUserAssessedStudentInCurrentContext() or cc.attrs.bean.isUserAssessorInCurrentContext())}"
 															   onclick="markDiscussionAsSeen('#{util:encodeId(cc.attrs.bean.fullAssessmentData.credAssessmentId)}', this.parentElement.parentElement, 'CREDENTIAL')"
 															   action="#{cc.attrs.bean.prepareLearningResourceAssessmentForCommenting()}"
 															   update=":assessmentPreview:commentModal:formPrivateConversation:panelModalPrivateConversation"

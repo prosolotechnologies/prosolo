@@ -125,7 +125,7 @@
 							$("[data-toggle='tooltip']").tooltip();
 						</script>
 						<p:commandLink styleClass="commentsIcon" pt:data-toggle="modal"
-									   rendered="#{cc.attrs.currentUserAssessedStudent or cc.attrs.currentUserAssessor}"
+									   rendered="#{cc.attrs.competenceAssessment.privateDiscussionEnabled and (cc.attrs.currentUserAssessedStudent or cc.attrs.currentUserAssessor)}"
 									   onclick="markDiscussionAsSeen('#{util:encodeId(cc.attrs.competenceAssessment.competenceAssessmentId)}', this.parentElement.parentElement, 'COMPETENCE')"
 									   action="#{cc.attrs.bean.prepareLearningResourceAssessmentForCommenting(cc.attrs.competenceAssessment)}"
 									   update="#{cc.attrs.toUpdatePrivateConversationModal}"
@@ -218,7 +218,7 @@
 											</h:link>
 										</ui:fragment>
 										<p:commandLink styleClass="commentsIcon" pt:data-toggle="modal"
-													   rendered="#{cc.attrs.currentUserAssessedStudent or cc.attrs.currentUserAssessor}"
+													   rendered="#{activityAssessment.privateDiscussionEnabled and (cc.attrs.currentUserAssessedStudent or cc.attrs.currentUserAssessor)}"
 													   onclick="markDiscussionAsSeen('#{activityAssessment.encodedActivityAssessmentId}',this.parentElement.parentElement, 'ACTIVITY')"
 													   action="#{cc.attrs.bean.prepareLearningResourceAssessmentForCommenting(activityAssessment)}"
 													   update="#{cc.attrs.toUpdatePrivateConversationModal}"

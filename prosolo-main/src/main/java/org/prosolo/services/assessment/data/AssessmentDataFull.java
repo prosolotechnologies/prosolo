@@ -45,6 +45,7 @@ public class AssessmentDataFull {
 	private long quitDate;
 	private long dateSubmitted;
 	private GradeData gradeData;
+	private boolean privateDiscussionEnabled;
 	private List<AssessmentDiscussionMessageData> messages = new LinkedList<>();
 	private boolean allRead = true; 	// whether user has read all the messages in the thread
 	private boolean participantInDiscussion;
@@ -59,13 +60,13 @@ public class AssessmentDataFull {
 
 	private List<CompetenceAssessmentDataFull> competenceAssessmentData;
 
-	public static AssessmentDataFull fromAssessment(CredentialAssessment assessment, UrlIdEncoder encoder) {
-		return fromAssessment(assessment, 0, null, null, null, null, encoder, 0, false);
+	public static AssessmentDataFull fromAssessment(CredentialAssessment assessment, boolean privateDiscussionEnabled, UrlIdEncoder encoder) {
+		return fromAssessment(assessment, 0, null, null, null, null, encoder, 0, false, privateDiscussionEnabled);
 	}
 
 	public static AssessmentDataFull fromAssessment(CredentialAssessment assessment, int credAssessmentPoints, List<StudentCompetenceAndAssessmentData> competenceAndAssessmentData,
 													RubricAssessmentGradeSummary credAssessmentGradeSummary, Map<Long, RubricAssessmentGradeSummary> compAssessmentsGradeSummary,
-													Map<Long, RubricAssessmentGradeSummary> actAssessmentsGradeSummary, UrlIdEncoder encoder, long userId, boolean loadDiscussion) {
+													Map<Long, RubricAssessmentGradeSummary> actAssessmentsGradeSummary, UrlIdEncoder encoder, long userId, boolean loadDiscussion, boolean privateDiscussionEnabled) {
 		AssessmentDataFull data = new AssessmentDataFull();
 		data.setCredAssessmentId(assessment.getId());
 		data.setAssessedStudentId(assessment.getStudent().getId());
@@ -101,7 +102,7 @@ public class AssessmentDataFull {
 			List<CompetenceAssessmentDataFull> compDatas = new ArrayList<>();
 			for (StudentCompetenceAndAssessmentData competence : competenceAndAssessmentData) {
 				CompetenceAssessmentDataFull cas = CompetenceAssessmentDataFull.from(
-						competence, assessment, compAssessmentsGradeSummary.get(competence.getCompetenceAssessment().getId()), actAssessmentsGradeSummary, encoder, userId, loadDiscussion);
+						competence, assessment, compAssessmentsGradeSummary.get(competence.getCompetenceAssessment().getId()), actAssessmentsGradeSummary, encoder, userId, loadDiscussion, privateDiscussionEnabled);
 				//only for automatic grading max points is sum of competences max points
 				if (assessment.getTargetCredential().getCredential().getGradingMode() == GradingMode.AUTOMATIC) {
 					maxPoints += cas.getGradeData().getMaxGrade();
@@ -129,7 +130,8 @@ public class AssessmentDataFull {
 			));
 			data.setCompetenceAssessmentData(compDatas);
 
-			if (loadDiscussion) {
+			data.setPrivateDiscussionEnabled(privateDiscussionEnabled);
+			if (privateDiscussionEnabled && loadDiscussion) {
 				data.setNumberOfMessages(assessment.getMessages().size());
 				CredentialAssessmentDiscussionParticipant currentParticipant = assessment.getParticipantByUserId(userId);
 				if (currentParticipant != null) {
@@ -459,5 +461,13 @@ public class AssessmentDataFull {
 
 	public void setInstructorUserId(long instructorUserId) {
 		this.instructorUserId = instructorUserId;
+	}
+
+	public void setPrivateDiscussionEnabled(boolean privateDiscussionEnabled) {
+		this.privateDiscussionEnabled = privateDiscussionEnabled;
+	}
+
+	public boolean isPrivateDiscussionEnabled() {
+		return privateDiscussionEnabled;
 	}
 }

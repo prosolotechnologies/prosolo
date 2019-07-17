@@ -30,10 +30,12 @@ public class OrganizationPluginFactory {
                         .type(OrganizationPluginType.CREDENTIAL_CATEGORIES)
                         .enabled(true)
                         .build();
-            case ASSESSMENT_TOKENS:
-                return AssessmentTokensPlugin.builder()
-                        .type(OrganizationPluginType.ASSESSMENT_TOKENS)
+            case ASSESSMENTS:
+                return AssessmentsPlugin.builder()
+                        .type(OrganizationPluginType.ASSESSMENTS)
                         .enabled(true)
+                        .assessmentTokensEnabled(true)
+                        .privateDiscussionEnabled(true)
                         .build();
             default:
                 throw new UnsupportedOperationException("Not supported yet.");

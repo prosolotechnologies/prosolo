@@ -10,7 +10,7 @@ import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.organization.Role;
-import org.prosolo.common.domainmodel.organization.settings.AssessmentTokensPlugin;
+import org.prosolo.common.domainmodel.organization.settings.AssessmentsPlugin;
 import org.prosolo.common.domainmodel.organization.settings.OrganizationPluginType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserType;
@@ -404,7 +404,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 				Organization org = (Organization) persistence.currentManager().load(Organization.class, organizationId);
 				user.setOrganization(org);
 				//setting initial number of tokens no matter if tokens are enabled at the moment
-				AssessmentTokensPlugin assessmentTokensPlugin = (AssessmentTokensPlugin) org.getPlugins().stream().filter(p -> p.getType() == OrganizationPluginType.ASSESSMENT_TOKENS).findAny().get();
+				AssessmentsPlugin assessmentTokensPlugin = (AssessmentsPlugin) org.getPlugins().stream().filter(p -> p.getType() == OrganizationPluginType.ASSESSMENTS).findAny().get();
 
 				user.setNumberOfTokens(assessmentTokensPlugin.getInitialNumberOfTokensGiven());
 			}
@@ -1334,9 +1334,9 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 			boolean tokensEnabled = false;
 
 			if (user.getOrganization() != null) {
-				AssessmentTokensPlugin assessmentTokensPlugin = organizationManager.getOrganizationPlugin(AssessmentTokensPlugin.class, user.getOrganization().getId());
+				AssessmentsPlugin assessmentTokensPlugin = organizationManager.getOrganizationPlugin(AssessmentsPlugin.class, user.getOrganization().getId());
 
-				tokensEnabled = assessmentTokensPlugin.isEnabled();
+				tokensEnabled = assessmentTokensPlugin.isAssessmentTokensEnabled();
 			}
 			return new UserAssessmentTokenData(tokensEnabled, user.isAvailableForAssessments(), user.getNumberOfTokens());
 		} catch (Exception e) {
@@ -1354,9 +1354,9 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 			int numberOfTokensSpentPerRequest = 0;
 
 			if (user.getOrganization() != null) {
-				AssessmentTokensPlugin assessmentTokensPlugin = organizationManager.getOrganizationPlugin(AssessmentTokensPlugin.class, user.getOrganization().getId());
+				AssessmentsPlugin assessmentTokensPlugin = organizationManager.getOrganizationPlugin(AssessmentsPlugin.class, user.getOrganization().getId());
 
-				tokensEnabled = assessmentTokensPlugin.isEnabled();
+				tokensEnabled = assessmentTokensPlugin.isAssessmentTokensEnabled();
 				numberOfTokensSpentPerRequest = assessmentTokensPlugin.getNumberOfSpentTokensPerRequest();
 			}
 			return new UserAssessmentTokenExtendedData(tokensEnabled, user.isAvailableForAssessments(), user.getNumberOfTokens(), numberOfTokensSpentPerRequest);

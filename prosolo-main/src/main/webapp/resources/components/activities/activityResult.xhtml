@@ -96,7 +96,7 @@
 					</ui:fragment>
 
 					<h:panelGroup layout="block" styleClass="resultOptions" rendered="#{cc.attrs.resultData.assessment.credAssessmentId gt 0}">
-						<ui:fragment rendered="#{cc.attrs.bean.isCurrentUserAssessor(cc.attrs.resultData)}">
+						<ui:fragment rendered="#{cc.attrs.bean.isCurrentUserAssessor(cc.attrs.resultData) and cc.attrs.resultData.assessment.privateDiscussionEnabled}">
 							<span>Assessment Comments:</span>
 							<p:commandLink
 								styleClass="commentsIcon #{cc.attrs.privateConvNumberOfMsgsLink}"
@@ -266,7 +266,7 @@
 					</ui:fragment>
 
 					<h:panelGroup layout="block" styleClass="resultOptions" rendered="#{cc.attrs.resultData.assessment.credAssessmentId gt 0}">
-						<ui:fragment rendered="#{cc.attrs.bean.isCurrentUserAssessor(cc.attrs.resultData)}">
+						<ui:fragment rendered="#{cc.attrs.bean.isCurrentUserAssessor(cc.attrs.resultData) and cc.attrs.resultData.assessment.privateDiscussionEnabled}">
 							<span>Assessment Comments:</span>
 							<p:commandLink
 								styleClass="commentsIcon #{cc.attrs.privateConvNumberOfMsgsLink}"
