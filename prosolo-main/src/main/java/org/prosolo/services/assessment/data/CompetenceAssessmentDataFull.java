@@ -99,7 +99,7 @@ public class CompetenceAssessmentDataFull {
 		data.setBlindAssessmentMode(compAssessment.getBlindAssessmentMode());
 
 		if (data.isAssessmentInitialized()) {
-			data.setApproved(compAssessment.isApproved());
+			data.setApproved(compAssessment.getStatus() == AssessmentStatus.SUBMITTED);
 			data.setAssessorNotified(compAssessment.isAssessorNotified());
 			data.setLastAskedForAssessment(DateUtil.getMillisFromDate(compAssessment.getLastAskedForAssessment()));
 			data.setDuration(cd.getDuration());

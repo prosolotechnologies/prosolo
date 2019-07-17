@@ -147,7 +147,7 @@ public class ActivityAssessmentBean extends LearningResourceAssessmentBean {
 					idEncoder.decodeId(activityAssessmentData.getEncodedActivityAssessmentId()),
 					activityAssessmentData.getGrade(), loggedUserBean.getUserContext()));
 
-			if (activityAssessmentData.getCompAssessment() != null
+			if (activityAssessmentData.getCompAssessment() != null && activityAssessmentData.getCompAssessment().getGradeData() != null
 					&& activityAssessmentData.getCompAssessment().getGradeData().getGradingMode() == GradingMode.AUTOMATIC) {
 				activityAssessmentData.getCompAssessment().getGradeData().updateCurrentGrade(
 						assessmentManager.getCompetenceAssessmentScore(

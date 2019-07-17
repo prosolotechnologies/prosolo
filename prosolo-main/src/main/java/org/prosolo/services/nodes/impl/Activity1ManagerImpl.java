@@ -1446,7 +1446,8 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 						//we need info whether competency assessment is approved
 						CompetenceAssessment competenceAssessment = (CompetenceAssessment) persistence.currentManager().load(CompetenceAssessment.class, abd.getCompetenceAssessmentId());
 						CompetenceAssessmentDataFull cad = new CompetenceAssessmentDataFull();
-						cad.setApproved(competenceAssessment.isApproved());
+						cad.setApproved(competenceAssessment.getStatus() == AssessmentStatus.SUBMITTED);
+						cad.setStatus(competenceAssessment.getStatus());
 						ad.setCompAssessment(cad);
 					}
 				}
