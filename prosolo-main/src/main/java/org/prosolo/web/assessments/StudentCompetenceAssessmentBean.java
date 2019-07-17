@@ -108,6 +108,7 @@ public class StudentCompetenceAssessmentBean extends CompetenceAssessmentBean im
             getAssessmentManager().approveCompetence(getCompetenceAssessmentData().getCompetenceAssessmentId(), loggedUserBean.getUserContext());
             getCompetenceAssessmentData().markAssessmentAsSubmitted();
             getCompetenceAssessmentData().setAssessorNotified(false);
+            getCompetenceAssessmentData().setDateSubmitted(DateUtil.getMillisFromDate(new Date()));
 
             PageUtil.fireSuccessfulInfoMessage(ResourceBundleUtil.getMessage("label.competence") + " assessment is submitted");
 

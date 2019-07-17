@@ -476,6 +476,9 @@
                                                             format="MMM DD, YYYY"/>
                                                 </div>
                                             </div>
+                                            <ui:fragment rendered="#{not empty assessment.summary}">
+                                                <p class="top5 bottom20">#{assessment.summary}</p>
+                                            </ui:fragment>
                                         </ui:repeat>
                                     </div>
                                 </div>

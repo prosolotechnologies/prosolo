@@ -111,8 +111,9 @@
 											value="Submit"
 											action="#{cc.attrs.bean.prepareLearningResourceAssessmentForApproving()}"
 											update=":#{cc.clientId}:approveAssessment"
-											oncomplete="$('#submitCredAssessment').modal('show')"
-										/>
+											oncomplete="$('#submitCredAssessment').modal('show')">
+											<p:resetInput target=":#{cc.clientId}:approveAssessment"/>
+										</p:commandLink>
 										<ui:fragment rendered="#{credentialAssessmentDisabledIndicator != 'NONE'}">
 											<span class="disabled btn btn-green btn-sm item" data-toggle="tooltip" title="#{msg['label.enum.AssessmentDisabledIndicator.'.concat(credentialAssessmentDisabledIndicator)]}">Submit</span>
 										</ui:fragment>
@@ -394,6 +395,7 @@
 															update=":#{cc.clientId}:approveAssessment"
 															oncomplete="$('#submitCredAssessment').modal('show')">
 														Submit<span></span>
+														<p:resetInput target=":#{cc.clientId}:approveAssessment"/>
 													</p:commandLink>
 													<ui:fragment rendered="#{credentialAssessmentDisabledIndicator != 'NONE'}">
 														<a class="disabled linkApprove" data-toggle="tooltip" title="#{msg['label.enum.AssessmentDisabledIndicator.'.concat(credentialAssessmentDisabledIndicator)]}">Submit<span></span></a>
