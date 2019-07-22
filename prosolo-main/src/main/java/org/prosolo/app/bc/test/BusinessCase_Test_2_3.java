@@ -327,7 +327,7 @@ public class BusinessCase_Test_2_3 extends BaseBusinessCase5 {
             }
             gradeCompetenceAssessmentWithRubric(events, competenceAssessmentData, userPhilArmstrong, lvl);
         }
-        approveCredentialAssessment(events, instructorCredentialAssessmentData.getCredAssessmentId(), instructorCredentialAssessmentData.getCredentialId(), userPhilArmstrong);
+        approveCredentialAssessment(events, instructorCredentialAssessmentData.getCredAssessmentId(), "Review", instructorCredentialAssessmentData.getCredentialId(), userPhilArmstrong);
 
         //grade and approve self assessment
         long credential1Delivery1KevinHallSelfAssessmentId = ServiceLocator.getInstance().getService(AssessmentManager.class)
@@ -351,7 +351,7 @@ public class BusinessCase_Test_2_3 extends BaseBusinessCase5 {
             }
             gradeCompetenceAssessmentWithRubric(events, competenceAssessmentData, userKevinHall, lvl);
         }
-        approveCredentialAssessment(events, selfCredentialAssessmentData.getCredAssessmentId(), selfCredentialAssessmentData.getCredentialId(), userKevinHall);
+        approveCredentialAssessment(events, selfCredentialAssessmentData.getCredAssessmentId(), "Review", selfCredentialAssessmentData.getCredentialId(), userKevinHall);
     }
 
     @Override

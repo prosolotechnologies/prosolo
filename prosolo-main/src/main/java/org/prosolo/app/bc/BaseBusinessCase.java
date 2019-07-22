@@ -710,18 +710,18 @@ public abstract class BaseBusinessCase implements BusinessCase {
         }
     }
 
-    protected void approveCredentialAssessment(EventQueue events, long credentialAssessmentId, User actor) throws Exception {
+    protected void approveCredentialAssessment(EventQueue events, long credentialAssessmentId, String message, User actor) throws Exception {
         extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(AssessmentManager.class)
-                .approveCredentialAndGetEvents(credentialAssessmentId, "Review", createUserContext(actor)));
+                .approveCredentialAndGetEvents(credentialAssessmentId, message, createUserContext(actor)));
     }
 
-    protected void approveCredentialAssessment(EventQueue events, long credentialAssessmentId, long credentialId, User actor) throws Exception {
+    protected void approveCredentialAssessment(EventQueue events, long credentialAssessmentId, String message, long credentialId, User actor) throws Exception {
         String learningContext= MessageFormat.format("name:CREDENTIAL|id:{0}/context:/name:CREDENTIAL_ASSESSMENT|id:{1}/", credentialId+"", credentialAssessmentId+"");
 
         PageContextData context = new PageContextData("/manage/credential-assessment.xhtml", learningContext, null);
 
         extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(AssessmentManager.class)
-                .approveCredentialAndGetEvents(credentialAssessmentId, "Review", createUserContext(actor, context)));
+                .approveCredentialAndGetEvents(credentialAssessmentId, message, createUserContext(actor, context)));
     }
 
     protected void approveCompetenceAssessment(EventQueue events, long competenceAssessmentId, long credentialId, long competenceId, User actor) {

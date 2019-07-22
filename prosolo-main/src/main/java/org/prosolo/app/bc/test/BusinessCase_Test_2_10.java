@@ -94,7 +94,7 @@ public class BusinessCase_Test_2_10 extends BaseBusinessCase5 {
             }
             gradeCompetenceAssessmentWithRubric(events, competenceAssessmentData, userPhilArmstrong, lvl);
         }
-        approveCredentialAssessment(events, instructorCredentialAssessmentData.getCredAssessmentId(), userPhilArmstrong);
+        approveCredentialAssessment(events, instructorCredentialAssessmentData.getCredAssessmentId(), "Review", userPhilArmstrong);
     }
 
     private void enrollHelenCampbellToDelivery1(EventQueue events) throws Exception {

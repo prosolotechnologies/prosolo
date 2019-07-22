@@ -342,7 +342,7 @@ public class BusinessCase_Test_3_4 extends BaseBusinessCase5 {
                 gradeCompetenceAssessmentWithRubric(events, competenceAssessmentData, userKarenWhite, lvl);
             }
         }
-        approveCredentialAssessment(events, instructorCredentialAssessmentDataKaren.getCredAssessmentId(), userKarenWhite);
+        approveCredentialAssessment(events, instructorCredentialAssessmentDataKaren.getCredAssessmentId(), "Review", userKarenWhite);
 
         withdrawFromBeingInstructor(events, credential1Delivery1.getId(), userGeorgeYoung.getId(), userKarenWhite);
         assignInstructorToStudent(events, credential1Delivery1InstructorPhilArmstrong, List.of(userGeorgeYoung), credential1Delivery1);
@@ -370,7 +370,7 @@ public class BusinessCase_Test_3_4 extends BaseBusinessCase5 {
                 gradeCompetenceAssessmentWithRubric(events, competenceAssessmentData, userPhilArmstrong, lvl);
             }
         }
-        approveCredentialAssessment(events, instructorCredentialAssessmentDataPhil.getCredAssessmentId(), userPhilArmstrong);
+        approveCredentialAssessment(events, instructorCredentialAssessmentDataPhil.getCredAssessmentId(), "Review", userPhilArmstrong);
     }
 
     @Override
