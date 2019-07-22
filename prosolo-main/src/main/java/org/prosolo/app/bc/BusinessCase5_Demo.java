@@ -6,7 +6,6 @@ import org.prosolo.common.domainmodel.credential.BlindAssessmentMode;
 import org.prosolo.common.domainmodel.credential.LearningEvidence;
 import org.prosolo.common.domainmodel.credential.LearningEvidenceType;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
-import org.prosolo.common.domainmodel.organization.settings.AssessmentsPlugin;
 import org.prosolo.common.event.EventQueue;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.core.spring.ServiceLocator;
@@ -26,9 +25,7 @@ import org.prosolo.services.user.StudentProfileManager;
 import org.prosolo.services.user.data.profile.*;
 import org.prosolo.services.user.data.profile.factory.CredentialProfileOptionsFullToBasicFunction;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author Nikola Milikic
@@ -43,9 +40,9 @@ public class BusinessCase5_Demo extends BaseBusinessCase5 {
 	protected void createAdditionalDataBC5(EventQueue events) throws Exception {
 
 		////////////////////////////////////////////////////
-		// Add 20 tokens to each user from the organization
+		// Add 30 tokens to each user from the organization
 		////////////////////////////////////////////////////
-		ServiceLocator.getInstance().getService(OrganizationManager.class).addTokensToAllOrganizationUsersAndGetEvents(organization.getId(), 20, createUserContext(userNickPowell));
+		ServiceLocator.getInstance().getService(OrganizationManager.class).addTokensToAllOrganizationUsersAndGetEvents(organization.getId(), 30, createUserContext(userNickPowell));
 
 
 		////////////////////////////////
@@ -120,6 +117,18 @@ public class BusinessCase5_Demo extends BaseBusinessCase5 {
 		TargetCompetence1 credential1Comp5Target = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(credential1Delivery1.getId(), standard1Competencies.get(4).getCompetenceId(), userHelenCampbell.getId(), createUserContext(userHelenCampbell)));
 		TargetCompetence1 credential1Comp6Target = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(credential1Delivery1.getId(), standard1Competencies.get(5).getCompetenceId(), userHelenCampbell.getId(), createUserContext(userHelenCampbell)));
 
+		List<CompetenceData1> standard1CompetenciesStevenTurner = ServiceLocator.getInstance().getService(Competence1Manager.class).getCompetencesForCredential(credential1Delivery1.getId(), userStevenTurner.getId(), new CompetenceLoadConfig.CompetenceLoadConfigBuilder().create());
+		// we need a reference to the TargetCompetence1
+		TargetCompetence1 credential1Comp1TargetStevenTurner = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(credential1Delivery1.getId(), standard1CompetenciesStevenTurner.get(0).getCompetenceId(), userStevenTurner.getId(), createUserContext(userStevenTurner)));
+		TargetCompetence1 credential1Comp2TargetStevenTurner = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(credential1Delivery1.getId(), standard1CompetenciesStevenTurner.get(1).getCompetenceId(), userStevenTurner.getId(), createUserContext(userStevenTurner)));
+		TargetCompetence1 credential1Comp3TargetStevenTurner = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(credential1Delivery1.getId(), standard1CompetenciesStevenTurner.get(2).getCompetenceId(), userStevenTurner.getId(), createUserContext(userStevenTurner)));
+
+		List<CompetenceData1> standard1CompetenciesTimothyRivera = ServiceLocator.getInstance().getService(Competence1Manager.class).getCompetencesForCredential(credential1Delivery1.getId(), userTimothyRivera.getId(), new CompetenceLoadConfig.CompetenceLoadConfigBuilder().create());
+		// we need a reference to the TargetCompetence1
+		TargetCompetence1 credential1Comp1TargetTimothyRivera = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(credential1Delivery1.getId(), standard1CompetenciesTimothyRivera.get(0).getCompetenceId(), userTimothyRivera.getId(), createUserContext(userTimothyRivera)));
+		TargetCompetence1 credential1Comp2TargetTimothyRivera = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(credential1Delivery1.getId(), standard1CompetenciesTimothyRivera.get(1).getCompetenceId(), userTimothyRivera.getId(), createUserContext(userTimothyRivera)));
+		TargetCompetence1 credential1Comp3TargetTimothyRivera = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(credential1Delivery1.getId(), standard1CompetenciesTimothyRivera.get(2).getCompetenceId(), userTimothyRivera.getId(), createUserContext(userTimothyRivera)));
+
 		// Standard 2
 		List<CompetenceData1> standard2Competencies = ServiceLocator.getInstance().getService(Competence1Manager.class).getCompetencesForCredential(credential2Delivery1.getId(), userHelenCampbell.getId(), new CompetenceLoadConfig.CompetenceLoadConfigBuilder().create());
 		// we need a reference to the TargetCompetence1
@@ -130,7 +139,7 @@ public class BusinessCase5_Demo extends BaseBusinessCase5 {
 		TargetCompetence1 credential2Comp5Target = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(credential2Delivery1.getId(), standard2Competencies.get(4).getCompetenceId(), userHelenCampbell.getId(), createUserContext(userHelenCampbell)));
 		TargetCompetence1 credential2Comp6Target = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(credential2Delivery1.getId(), standard2Competencies.get(5).getCompetenceId(), userHelenCampbell.getId(), createUserContext(userHelenCampbell)));
 
-		// Standard 2
+		// Standard 3
 		List<CompetenceData1> standard3Competencies = ServiceLocator.getInstance().getService(Competence1Manager.class).getCompetencesForCredential(credential3Delivery1.getId(), userHelenCampbell.getId(), new CompetenceLoadConfig.CompetenceLoadConfigBuilder().create());
 		// we need a reference to the TargetCompetence1
 		TargetCompetence1 credential3Comp1Target = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(credential3Delivery1.getId(), standard3Competencies.get(0).getCompetenceId(), userHelenCampbell.getId(), createUserContext(userHelenCampbell)));
@@ -141,8 +150,10 @@ public class BusinessCase5_Demo extends BaseBusinessCase5 {
 		TargetCompetence1 credential3Comp6Target = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(credential3Delivery1.getId(), standard3Competencies.get(5).getCompetenceId(), userHelenCampbell.getId(), createUserContext(userHelenCampbell)));
 		TargetCompetence1 credential3Comp7Target = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(credential3Delivery1.getId(), standard3Competencies.get(6).getCompetenceId(), userHelenCampbell.getId(), createUserContext(userHelenCampbell)));
 
-		// add pieces of evidence to the all competencies
-		LearningEvidence evidence1 = createEvidence(
+		////////////////////////////////////////////////
+		// Add pieces of evidence to the competencies
+        ////////////////////////////////////////////////
+        LearningEvidence evidence1 = createEvidence(
 				events,
 				LearningEvidenceType.LINK,
 				"Learning Plan",
@@ -220,7 +231,34 @@ public class BusinessCase5_Demo extends BaseBusinessCase5 {
 		attachExistingEvidenceToCompetence(evidence6.getId(), credential3Comp5Target.getId(), "Demonstrates the use of several verbal and non-verbal communication strategies in order to support student engagement.");
 		attachExistingEvidenceToCompetence(evidence6.getId(), credential3Comp7Target.getId(), "Contains comments of parents about the course.");
 
-		/////////////////////////////////////////////
+        LearningEvidence evidence1StevenTurner = createEvidence(
+                events,
+                LearningEvidenceType.LINK,
+                "Learning Plan",
+                "Learning plan incorporating teaching strategies that have been selected specifically to address the students’ physical, social or intellectual development and characteristics",
+                PDF_TEST_FILE,
+                "learning plan, teaching strategies",
+                userStevenTurner);
+        attachExistingEvidenceToCompetence(evidence1.getId(), credential1Comp1TargetStevenTurner.getId(), "Learning plan incorporating teaching strategies.");
+
+        LearningEvidence evidence1TimothyRivera = createEvidence(
+                events,
+                LearningEvidenceType.FILE,
+                "Recording of meeting with supervisor",
+                "Recording of the meeting with my supervisor Rick Sanchez from 15 June, 2018.",
+                MOV_TEST_FILE,
+                "meeting logs",
+                userTimothyRivera);
+        attachExistingEvidenceToCompetence(evidence4.getId(), credential1Comp2TargetTimothyRivera.getId(), "Contains feedback on the new version of the teaching program.");
+
+        /////////////////////////////////////////////
+        // complete competencies from the Standard 2
+        /////////////////////////////////////////////
+        markCompetencyAsCompleted(events, credential1Comp1TargetStevenTurner.getId(), standard1CompetenciesStevenTurner.get(0).getCompetenceId(), credential1Delivery1.getId(), userStevenTurner);
+        markCompetencyAsCompleted(events, credential1Comp2TargetTimothyRivera.getId(), standard1CompetenciesTimothyRivera.get(1).getCompetenceId(), credential1Delivery1.getId(), userTimothyRivera);
+
+
+        /////////////////////////////////////////////
 		// complete competencies from the Standard 2
 		/////////////////////////////////////////////
 		markCompetencyAsCompleted(events, credential2Comp1Target.getId(), standard2Competencies.get(0).getCompetenceId(), credential2Delivery1.getId(), userHelenCampbell);
@@ -242,7 +280,24 @@ public class BusinessCase5_Demo extends BaseBusinessCase5 {
 		markCompetencyAsCompleted(events, credential3Comp6Target.getId(), standard3Competencies.get(6).getCompetenceId(), credential3Delivery1.getId(), userHelenCampbell);
 
 		///////////////////////////////////////////////
-		// ask for competence assessment - Standard 2
+		// Ask for competence assessment - Standard 2
+		///////////////////////////////////////////////
+        CompetenceAssessmentData peerAssessmentCred1Comp1ByHelenCampbell = askPeerForCompetenceAssessment(events, credential1Delivery1.getId(), standard1CompetenciesStevenTurner.get(0).getCompetenceId(), userStevenTurner, userHelenCampbell.getId(), 2);
+        updateCompetenceBlindAssessmentMode(events, standard1CompetenciesStevenTurner.get(0).getCompetenceId(), BlindAssessmentMode.BLIND, userNickPowell);
+        //accept assessment request
+        extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(AssessmentManager.class).acceptCompetenceAssessmentRequestAndGetEvents(
+                peerAssessmentCred1Comp1ByHelenCampbell.getAssessmentId(),
+                UserContextData.ofActor(userHelenCampbell.getId())));
+
+        CompetenceAssessmentData peerAssessmentCred1Comp2ByHelenCampbell = askPeerForCompetenceAssessment(events, credential1Delivery1.getId(), standard1CompetenciesTimothyRivera.get(1).getCompetenceId(), userTimothyRivera, userHelenCampbell.getId(), 2);
+        updateCompetenceBlindAssessmentMode(events, standard1CompetenciesTimothyRivera.get(1).getCompetenceId(), BlindAssessmentMode.BLIND, userNickPowell);
+        //accept assessment request
+        extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(AssessmentManager.class).acceptCompetenceAssessmentRequestAndGetEvents(
+                peerAssessmentCred1Comp2ByHelenCampbell.getAssessmentId(),
+                UserContextData.ofActor(userHelenCampbell.getId())));
+
+		///////////////////////////////////////////////
+		// Ask for competence assessment - Standard 2
 		///////////////////////////////////////////////
 
 		CompetenceAssessmentData peerAssessmentCred2Comp1ByRichardAnderson = askPeerForCompetenceAssessment(events, credential2Delivery1.getId(), standard2Competencies.get(0).getCompetenceId(), userHelenCampbell, userRichardAnderson.getId(), 2);
@@ -274,7 +329,7 @@ public class BusinessCase5_Demo extends BaseBusinessCase5 {
 				UserContextData.ofActor(userKevinHall.getId())));
 
 		///////////////////////////////////////////////
-		// ask for competence assessment - Standard 3
+		// Ask for competence assessment - Standard 3
 		///////////////////////////////////////////////
 
 		CompetenceAssessmentData peerAssessmentCred3Comp1ByRichardAnderson = askPeerForCompetenceAssessment(events, credential3Delivery1.getId(), standard3Competencies.get(0).getCompetenceId(), userHelenCampbell, userRichardAnderson.getId(), 2);
@@ -307,7 +362,7 @@ public class BusinessCase5_Demo extends BaseBusinessCase5 {
 
 
 		//////////////////////////////////////////////
-		// grade and approve assessment - Standard 2
+		// Grade and approve assessment - Standard 2
 		//////////////////////////////////////////////
 		gradeCompetenceAssessmentWithRubric(events, peerAssessmentCred2Comp1ByRichardAnderson.getAssessmentId(), AssessmentType.PEER_ASSESSMENT, userRichardAnderson, rubricData.getLevels().get(3).getId());
 		approveCompetenceAssessment(events, peerAssessmentCred2Comp1ByRichardAnderson.getAssessmentId(), credential2Delivery1.getId(),  standard2Competencies.get(0).getCompetenceId(), userRichardAnderson);
@@ -322,7 +377,7 @@ public class BusinessCase5_Demo extends BaseBusinessCase5 {
 		approveCompetenceAssessment(events, peerAssessmentCred2Comp1ByKevinHall.getAssessmentId(), credential2Delivery1.getId(),  standard2Competencies.get(0).getCompetenceId(), userKevinHall);
 
 		//////////////////////////////////////////////
-		// grade and approve assessment - Standard 3
+		// Grade and approve assessment - Standard 3
 		//////////////////////////////////////////////
 		gradeCompetenceAssessmentWithRubric(events, peerAssessmentCred3Comp1ByRichardAnderson.getAssessmentId(), AssessmentType.PEER_ASSESSMENT, userRichardAnderson, rubricData.getLevels().get(2).getId());
 		approveCompetenceAssessment(events, peerAssessmentCred3Comp1ByRichardAnderson.getAssessmentId(), credential3Delivery1.getId(),  standard3Competencies.get(0).getCompetenceId(), userRichardAnderson);
@@ -336,7 +391,7 @@ public class BusinessCase5_Demo extends BaseBusinessCase5 {
 		gradeCompetenceAssessmentWithRubric(events, peerAssessmentCred3Comp1ByKevinHall.getAssessmentId(), AssessmentType.PEER_ASSESSMENT, userKevinHall, rubricData.getLevels().get(1).getId());
 		approveCompetenceAssessment(events, peerAssessmentCred3Comp1ByKevinHall.getAssessmentId(), credential3Delivery1.getId(),  standard3Competencies.get(0).getCompetenceId(), userKevinHall);
 
-		// grade and approve instructor assessment - Standard 2
+		// Instructor assessment - Standard 2
 		long credential2Delivery1HelenCampbellInstructorAssessmentId = ServiceLocator.getInstance().getService(AssessmentManager.class)
 				.getActiveInstructorCredentialAssessmentId(credential2Delivery1.getId(), userHelenCampbell.getId()).get();
 		AssessmentDataFull instructorCredential2AssessmentData = getCredentialAssessmentData(credential2Delivery1HelenCampbellInstructorAssessmentId, userPhilArmstrong.getId(), AssessmentType.INSTRUCTOR_ASSESSMENT);
@@ -363,7 +418,7 @@ public class BusinessCase5_Demo extends BaseBusinessCase5 {
 				"Helen Campbell has shown the mastery in the area of content creation and has a refined teaching skills to complement it.",
 				instructorCredential2AssessmentData.getCredentialId(), userPhilArmstrong);
 
-		// grade and approve instructor assessment - Standard 3
+		// Instructor assessment - Standard 3
 		long credential3Delivery1HelenCampbellInstructorAssessmentId = ServiceLocator.getInstance().getService(AssessmentManager.class)
 				.getActiveInstructorCredentialAssessmentId(credential3Delivery1.getId(), userHelenCampbell.getId()).get();
 		AssessmentDataFull instructorCredential3AssessmentData = getCredentialAssessmentData(credential3Delivery1HelenCampbellInstructorAssessmentId, userPhilArmstrong.getId(), AssessmentType.INSTRUCTOR_ASSESSMENT);
@@ -392,7 +447,7 @@ public class BusinessCase5_Demo extends BaseBusinessCase5 {
 				"Helen Campbell demonstrated an admirable level of knowledge in planning and implementation of effective teaching and learning.",
 				instructorCredential3AssessmentData.getCredentialId(), userPhilArmstrong);
 
-		// grade and approve self assessment - Standard 2
+		// Self-assessment - Standard 2
 		long credential1Delivery1HelenCampbellSelfAssessmentId = ServiceLocator.getInstance().getService(AssessmentManager.class)
 				.getSelfCredentialAssessmentId(credential2Delivery1.getId(), userHelenCampbell.getId()).get();
 		AssessmentDataFull selfCredentialAssessmentData = getCredentialAssessmentData(credential1Delivery1HelenCampbellSelfAssessmentId, userHelenCampbell.getId(), AssessmentType.SELF_ASSESSMENT);

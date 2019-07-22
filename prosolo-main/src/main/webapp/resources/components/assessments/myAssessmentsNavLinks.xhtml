@@ -11,16 +11,6 @@
 	
 	<composite:implementation>
 		<ul class="nav nav-tabs headerSubmenu">
-			<li role="presentation" class="#{cc.attrs.resource eq 'CREDENTIAL' ? 'active' : ''}">
-				<c:choose>
-					<c:when test="#{cc.attrs.resource eq 'COMPETENCE' or cc.attrs.activeLinkClickable}">
-						<h:link outcome="/my-assessments-credentials" value="#{msg['label.credential.plural']}"/>
-					</c:when>
-					<c:otherwise>
-						<a>#{msg['label.credential.plural']}</a>
-					</c:otherwise>
-				</c:choose>
-			</li>
 			<li role="presentation" class="#{cc.attrs.resource eq 'COMPETENCE' ? 'active' : ''}">
 				<c:choose>
 					<c:when test="#{cc.attrs.resource eq 'CREDENTIAL' or cc.attrs.activeLinkClickable}">
@@ -31,6 +21,18 @@
 					</c:otherwise>
 				</c:choose>
 			</li>
+			<ui:remove>
+			<li role="presentation" class="#{cc.attrs.resource eq 'CREDENTIAL' ? 'active' : ''}">
+				<c:choose>
+					<c:when test="#{cc.attrs.resource eq 'COMPETENCE' or cc.attrs.activeLinkClickable}">
+						<h:link outcome="/my-assessments-credentials" value="#{msg['label.credential.plural']}"/>
+					</c:when>
+					<c:otherwise>
+						<a>#{msg['label.credential.plural']}</a>
+					</c:otherwise>
+				</c:choose>
+			</li>
+			</ui:remove>
 		</ul>
 	</composite:implementation>
 </ui:component>
