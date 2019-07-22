@@ -7,6 +7,7 @@ import org.prosolo.common.domainmodel.credential.BlindAssessmentMode;
 import org.prosolo.common.domainmodel.credential.LearningEvidence;
 import org.prosolo.common.domainmodel.credential.LearningEvidenceType;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
+import org.prosolo.common.domainmodel.organization.settings.AssessmentsPlugin;
 import org.prosolo.common.domainmodel.user.socialNetworks.SocialNetworkName;
 import org.prosolo.common.event.EventQueue;
 import org.prosolo.common.event.context.data.UserContextData;
@@ -22,6 +23,7 @@ import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.config.competence.CompetenceLoadConfig;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.credential.CredentialData;
+import org.prosolo.services.nodes.data.organization.AssessmentTokensPluginData;
 import org.prosolo.services.nodes.data.organization.CredentialCategoryData;
 import org.prosolo.services.user.StudentProfileManager;
 import org.prosolo.services.user.UserManager;
@@ -48,8 +50,19 @@ public class BusinessCase5_Tutorial extends BaseBusinessCase5 {
 		////////////////////////////////////////////////////
 		ServiceLocator.getInstance().getService(OrganizationManager.class).addTokensToAllOrganizationUsersAndGetEvents(organization.getId(), 30, createUserContext(userNickPowell));
 
+		enableTokensPlugin(30, 2, 2);
 
-		////////////////////////////////
+        //////////////////////////////////////////////////
+        // Set few student to be available for assessment
+        //////////////////////////////////////////////////
+        ServiceLocator.getInstance().getService(UserManager.class).updateAssessmentAvailability(userHelenCampbell.getId(), true);
+        ServiceLocator.getInstance().getService(UserManager.class).updateAssessmentAvailability(userRichardAnderson.getId(), true);
+        ServiceLocator.getInstance().getService(UserManager.class).updateAssessmentAvailability(userStevenTurner.getId(), true);
+        ServiceLocator.getInstance().getService(UserManager.class).updateAssessmentAvailability(userJosephGarcia.getId(), true);
+        ServiceLocator.getInstance().getService(UserManager.class).updateAssessmentAvailability(userTimothyRivera.getId(), true);
+        ServiceLocator.getInstance().getService(UserManager.class).updateAssessmentAvailability(userKevinHall.getId(), true);
+
+        ////////////////////////////////
 		// Add credential categories
 		////////////////////////////////
 		createCredentialCategories(events, "Professional Knowledge");
