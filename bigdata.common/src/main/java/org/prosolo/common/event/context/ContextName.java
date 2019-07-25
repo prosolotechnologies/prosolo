@@ -93,6 +93,7 @@ public enum ContextName {
     EVIDENCE(LearningEvidence.class),
     NEW_EVIDENCE,
     DELIVERY(Credential1.class),
+    RESUME_LEARNING,
     DELIVERY_INSTRUCTORS,
     DELIVERY_INSTRUCTORS_REMOVE(CredentialInstructor.class),
     DELIVERY_INSTRUCTORS_ADD(User.class),

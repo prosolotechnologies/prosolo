@@ -148,19 +148,22 @@
 												</ui:repeat>
 											</td>
 										</tr>
-										<tr>
-											<td class="col01">Keywords:</td>
-											<td>
-												<ul class="tags">
-													<ui:fragment rendered="#{empty ev.tags}">
-														<span class="lightText">no keywords</span>
-													</ui:fragment>
-													<ui:repeat value="#{ev.tags}" var="kw">
-														<li>#{kw}</li>
-													</ui:repeat>
-												</ul>
-											</td>
-										</tr>
+
+										<c:if test="#{cc.attrs.bean.evidenceRepositoryPluginData.keywordsEnabled}">
+											<tr>
+												<td class="col01">Keywords:</td>
+												<td>
+													<ul class="tags">
+														<ui:fragment rendered="#{empty ev.tags}">
+															<span class="lightText">no keywords</span>
+														</ui:fragment>
+														<ui:repeat value="#{ev.tags}" var="kw">
+															<li>#{kw}</li>
+														</ui:repeat>
+													</ul>
+												</td>
+											</tr>
+										</c:if>
 										<tr>
 											<td class="col01">Created:</td>
 											<td>

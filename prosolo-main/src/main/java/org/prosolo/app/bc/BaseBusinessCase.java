@@ -797,7 +797,7 @@ public abstract class BaseBusinessCase implements BusinessCase {
                         createUserContext(sender, new PageContextData(page.getUrl(), null, null))));
     }
 
-    protected void enableTokensPlugin(int initialNumberOfTokens, int tokensSpentPerRequest, int tokensEarnedPerAssessment) {
+    protected void enableAssessmentTokens(int initialNumberOfTokens, int tokensSpentPerRequest, int tokensEarnedPerAssessment) {
         AssessmentsPlugin tokensPlugin = ServiceLocator.getInstance().getService(OrganizationManager.class).getOrganizationPlugin(AssessmentsPlugin.class, organization.getId());
         AssessmentTokensPluginData tokensPluginData = new AssessmentTokensPluginData(tokensPlugin);
         tokensPluginData.setAssessmentTokensEnabled(true);

@@ -44,7 +44,7 @@ public class BusinessCase_Test_2_14 extends BaseBusinessCase5 {
 
     @Override
     protected void createAdditionalDataBC5(EventQueue events) throws Exception {
-        enableTokensPlugin(10, tokensSpentPerRequest, 2);
+        enableAssessmentTokens(10, tokensSpentPerRequest, 2);
 
         setBlindAssessmentModeForCredentialCompetencies(events, credential6Delivery1.getId(), BlindAssessmentMode.DOUBLE_BLIND, userNickPowell);
 

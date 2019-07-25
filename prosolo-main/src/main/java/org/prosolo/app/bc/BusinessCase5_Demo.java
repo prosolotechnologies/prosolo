@@ -45,7 +45,7 @@ public class BusinessCase5_Demo extends BaseBusinessCase5 {
 		////////////////////////////////////////////////////
 		ServiceLocator.getInstance().getService(OrganizationManager.class).addTokensToAllOrganizationUsersAndGetEvents(organization.getId(), 30, createUserContext(userNickPowell));
 
-        enableTokensPlugin(30, 2, 2);
+        enableAssessmentTokens(30, 2, 2);
 
 		//////////////////////////////////////////////////
         // Set few student to be available for assessment

@@ -1,12 +1,16 @@
 package org.prosolo.web.courses.competence;
 
+import lombok.Getter;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
+import org.prosolo.common.domainmodel.organization.settings.EvidenceRepositoryPlugin;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
+import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.TitleData;
+import org.prosolo.services.nodes.data.organization.EvidenceRepositoryPluginData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.PageAccessRightsResolver;
@@ -33,6 +37,7 @@ public class CompetenceViewBeanAdmin implements Serializable {
 	@Inject private UrlIdEncoder idEncoder;
 	@Inject private UnitManager unitManager;
 	@Inject private PageAccessRightsResolver pageAccessRightsResolver;
+	@Inject private OrganizationManager organizationManager;
 
 	private String orgId;
 	private long decodedOrgId;
@@ -49,6 +54,9 @@ public class CompetenceViewBeanAdmin implements Serializable {
 	private CompetenceData1 competenceData;
 
 	private String credentialTitle;
+
+	@Getter
+	private EvidenceRepositoryPluginData evidenceRepositoryPluginData;
 
 	public void init() {
 		decodedOrgId = idEncoder.decodeId(orgId);
@@ -80,6 +88,10 @@ public class CompetenceViewBeanAdmin implements Serializable {
 					} else {
 						PageUtil.notFound();
 					}
+
+					// load evidence repository plugin data
+					EvidenceRepositoryPlugin evidenceRepositoryPlugin = organizationManager.getOrganizationPlugin(EvidenceRepositoryPlugin.class, loggedUser.getOrganizationId());
+					evidenceRepositoryPluginData = new EvidenceRepositoryPluginData(evidenceRepositoryPlugin);
 				} catch (ResourceNotFoundException rnfe) {
 					PageUtil.notFound();
 				} catch (Exception e) {
