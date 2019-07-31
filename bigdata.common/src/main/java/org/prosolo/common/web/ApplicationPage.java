@@ -82,7 +82,7 @@ public enum ApplicationPage {
 	ADMIN_UNITS("/admin/units.xhtml"),
 	ADMIN_ORGANIZATION_USERS("/admin/organizationUsers.xhtml"),
 	ADMIN_ORGANIZATION_USER_EDIT("/admin/organizationUserEdit.xhtml"),
-	ADMIN_UNIT_TEACHERS("/admin/unit-teachers.xhtml"),
+	ADMIN_UNIT_MANAGERS("/admin/unit-managers.xhtml"),
 	ADMIN_UNIT_STUDENTS("/admin/unit-students.xhtml"),
 	ADMIN_UNIT_INSTRUCTORS("/admin/unit-instructors.xhtml"),
 	ADMIN_UNIT_GROUPS("/admin/unit-groups.xhtml"),

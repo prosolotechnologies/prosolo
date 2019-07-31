@@ -28,7 +28,7 @@
 						</c:if>
 						<c:if test="#{cc.attrs.mode eq 'ORGANIZATION'}">
 							<h:link outcome="/admin/organizationUserEdit" styleClass="btn btn-green btn-sm item">
-								New User
+								New Account
 								<f:param name="orgId" value="#{util:encodeId(cc.attrs.orgId)}" />
 							</h:link>
 							<p:commandLink pt:data-toggle="modal"
@@ -36,7 +36,7 @@
 										   action="#{usersBean.prepareImportingUsers()}"
 										   update=":#{cc.clientId}:importUsers:importUsersForm:importUsersPanel"
 										   oncomplete="$('#importUsersModal').modal('show');">
-								Import users from CSV file
+								Import from CSV file
 							</p:commandLink>
 						</c:if>
 						<div class="searchBox">
@@ -60,9 +60,7 @@
 					</div>
 					<div class="whiteBarRight">
 						<h:panelGroup layout="block" id="panelSearchFilters" styleClass="dropdown showDrop item">
-							<span>Show:</span>
-							<h:link
-									id="linkSearchFilter"
+							<h:link id="linkSearchFilter"
 									pt:data-toggle="dropdown"
 									pt:aria-haspopup="true"
 									pt:aria-expanded="true">
@@ -99,7 +97,7 @@
 							<f:param name="id" value="#{usersBean.orgId}" />
 						</h:link>
 					</li>
-					<li class="active">People</li>
+					<li class="active">Accounts</li>
 				</c:if>
 				<c:if test="#{cc.attrs.mode eq 'ADMIN'}">
 					<li class="active">Admins</li>
@@ -113,7 +111,7 @@
 					<ui:fragment rendered="#{empty usersBean.users}">
 						<div class="noContentMessage">
 							<p>
-								No users.
+								No accounts.
 							</p>
 						</div>
 					</ui:fragment>

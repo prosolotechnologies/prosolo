@@ -1,5 +1,7 @@
 package org.prosolo.web.validators;
 
+import org.apache.commons.validator.routines.EmailValidator;
+
 import javax.faces.validator.ValidatorException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -11,15 +13,16 @@ import java.util.regex.Pattern;
  */
 public class EmailValidatorUtil {
 
-    public static boolean isValid(String email) throws ValidatorException {
-        Pattern pattern = Pattern.compile("^[_A-Za-z0-9-']+(\\."
-                + "[_A-Za-z0-9-']+)*@[A-Za-z0-9]+(\\.[A-Za-z0-9]+)*"
-                + "(\\.[A-Za-z]{2,})$");
-        Matcher matcher = pattern.matcher(email);
+//    private static final String EMAIL_REGEX = "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
 
-        if (matcher.matches()) {
-           return true;
-        }
-        return false;
+    public static boolean isEmailValid(String email) throws ValidatorException {
+//        Pattern pattern = Pattern.compile(EMAIL_REGEX);
+//        Matcher matcher = pattern.matcher(email);
+//
+//        if (matcher.matches()) {
+//           return true;
+//        }
+//        return false;
+        return EmailValidator.getInstance().isValid(email);
     }
 }

@@ -308,7 +308,7 @@
                 <div class="row">
                     <div class="col-md-12">
                         <div class="whiteBox">
-                            <h2>Plugin: Credential Categories</h2>
+                            <h2>Plugin: #{msg['label.credential']} Categories</h2>
                             <div class="formWrapper editOrgForm">
                                 <div class="formLine">
                                     <label>Plugin configuration</label>
@@ -322,7 +322,7 @@
                                             </div>
                                         </ui:remove>
 
-                                        <p class="top10 bottom30">Categories are used to group similar #{msg['label.credential.plural'].toLowerCase()} in the #{msg['label.credential']} Library and Student Profile pages. A #{msg['label.credential'].toLowerCase()} can be a member of only one category.</p>
+                                        <p class="top10 bottom30">Categories are used to group similar #{msg['label.credential.plural'].toLowerCase()} in the #{msg['label.credential']} Library and Student Profile pages. A #{msg['label.credential'].toLowerCase()} can be added only to one category.</p>
 
                                         <h:panelGroup id="panelCredentialCategories">
                                             <ui:fragment rendered="#{empty organizationEditBean.organization.credentialCategories}">

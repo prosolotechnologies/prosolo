@@ -65,14 +65,6 @@
 						<nav>
 							<ul class="nav nav-pills">
 								<ui:fragment rendered="#{request.isUserInRole('ADMIN.ADVANCED')}">
-									<ui:remove>
-										<li role="presentation"
-											class="#{util:getPagePath(view.viewId)  == 'dashboard' ? 'active' : ''}">
-											<h:link
-													onclick="sendLogPageNavigation('dashboard','mainmenu');"
-													value="Dashboard" outcome="/admin/dashboard" />
-										</li>
-									</ui:remove>
 									<li role="presentation"
 										class="#{util:getPagePath(view.viewId) == 'organizations'
 											or util:getPagePath(view.viewId) == 'organization-settings'
@@ -81,7 +73,7 @@
 											or util:getPagePath(view.viewId) == 'userEditPassword'
 											or util:getPagePath(view.viewId) == 'units'
 											or util:getPagePath(view.viewId) == 'unit-credentials'
-											or util:getPagePath(view.viewId) == 'unit-teachers'
+											or util:getPagePath(view.viewId) == 'unit-managers'
 											or util:getPagePath(view.viewId) == 'unit-students'
 											or util:getPagePath(view.viewId) == 'unit-instructors'
 											or util:getPagePath(view.viewId) == 'unit-group-users'
@@ -107,13 +99,6 @@
 										<h:link onclick="sendLogPageNavigation('roles','mainmenu');"
 												value="Roles" outcome="/admin/roles" />
 									</li>
-									<ui:remove>
-										<li role="presentation"
-											class="#{util:getPagePath(view.viewId)  == 'twitter' ? 'active' : ''}">
-											<h:link onclick="sendLogPageNavigation('twitter','mainmenu');	"
-													value="Twitter" outcome="/admin/users" />
-										</li>
-									</ui:remove>
 									<li role="presentation"
 										class="#{util:getPagePath(view.viewId)  == 'other' ? 'active' : ''}">
 										<h:link onclick="sendLogPageNavigation('other','mainmenu');"
@@ -128,7 +113,7 @@
 										or util:getPagePath(view.viewId) == 'unit-instructors'
 										or util:getPagePath(view.viewId) == 'unit-group-users'
 										or util:getPagePath(view.viewId) == 'unit-groups'
-										or util:getPagePath(view.viewId) == 'unit-teachers'
+										or util:getPagePath(view.viewId) == 'unit-managers'
 										or util:getPagePath(view.viewId) == 'unit-credentials'
 										or util:getPagePath(view.viewId) == 'credential'
 										or util:getPagePath(view.viewId) == 'competence'
@@ -149,10 +134,10 @@
 										<h:link rendered="#{not (util:getPagePath(view.viewId) eq 'organizationUsers')}"
 												outcome="/admin/organizationUsers">
 											<f:param name="orgId" value="#{util:encodeId(loggeduser.organizationId)}" />
-											People
+											Accounts
 										</h:link>
 										<ui:fragment rendered="#{util:getPagePath(view.viewId) eq 'organizationUsers'}">
-											<a href="javascript:void(0);">People</a>
+											<a href="javascript:void(0);">Accounts</a>
 										</ui:fragment>
 									</li>
 									<li role="presentation" class="#{util:getPagePath(view.viewId) eq 'organization-settings' ? 'active' : ''}">

@@ -831,7 +831,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 			if (filterByRoleId > 0) {
 				query += "AND user.id IN (SELECT u.id FROM user u INNER JOIN u.roles r WITH r.id = :filterByRoleId) ";
 			} else if (roles != null && !roles.isEmpty()) {
-				query += "AND role IN (:roles) ";
+				query += "AND role.id IN (:roleIds) ";
 			}
 			query += "ORDER BY user.lastname, user.name ASC ";
 
@@ -844,7 +844,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 			if (filterByRoleId > 0) {
 				q.setLong("filterByRoleId", filterByRoleId);
 			} else if (roles != null && !roles.isEmpty()) {
-				q.setParameterList("roles", roles);
+				q.setParameterList("roleIds", roles.stream().map(r -> r.getId()).collect(Collectors.toList()));
 			}
 
 			List<User> users = q

@@ -9,7 +9,7 @@
                 xmlns:util="http://www.prosolo.com/util"
                 xmlns:user="http://java.sun.com/jsf/composite/components/admin/user"
                 xmlns:c="http://java.sun.com/jsp/jstl/core"
->
+                xmlns:org="http://java.sun.com/jsf/composite/components/admin/organization">
     <utilcomp:messagesBundle var="msg" />
 
     <ui:define name="windowTitle" >
@@ -29,6 +29,10 @@
 
     <ui:define name="resourceTitle" >
         <h1>#{groupUsersBean.userGroupTitle}</h1>
+    </ui:define>
+
+    <ui:define name="navLinks">
+        <org:unitHeaderLinks orgId="#{groupUsersBean.decodedOrgId}" unitId="#{groupUsersBean.decodedUnitId}" />
     </ui:define>
 
     <ui:define name="content">
@@ -113,7 +117,7 @@
                                               action="#{groupUsersBean.prepareImportingUsers()}"
                                               update=":importUsers:importUsersForm:importUsersPanel"
                                               oncomplete="$('#importUsersModal').modal('show');">
-                                    Import students from CSV file
+                                    Import from CSV file
                                 </p:commandLink>
                             </p>
                         </div>

@@ -66,7 +66,7 @@ public class UnitUsersBean implements Serializable, Paginable {
 	private String organizationTitle;
 	private String unitTitle;
 
-	public void initTeachers() {
+	public void initManagers() {
 		init(SystemRoleNames.MANAGER);
 	}
 
