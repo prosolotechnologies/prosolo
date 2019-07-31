@@ -142,6 +142,10 @@ public class LearningEvidenceData implements Serializable {
         }
     }
 
+    public void setCompetences(List<CompetencyBasicObjectInfo> competences) {
+        this.competences = competences;
+    }
+
     public void addCompetences(List<CompetencyBasicObjectInfo> competences) {
         this.competences.addAll(competences);
     }

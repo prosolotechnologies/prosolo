@@ -559,7 +559,7 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 				otherAssessments.stream()
 						.filter(ass -> ass.getEncodedAssessmentId().equals(assessmentId))
 						.findFirst()
-						.get().setApproved(true);
+						.get().markAssessmentAsSubmitted();
 			}
 			PageUtil.fireSuccessfulInfoMessage(ResourceBundleUtil.getLabel("credential") + " assessment is submitted");
 		} catch (Exception e) {
@@ -569,12 +569,11 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 	}
 
 	private void markCredentialApproved() {
-		fullAssessmentData.setApproved(true);
-		fullAssessmentData.setStatus(AssessmentStatus.SUBMITTED);
+		fullAssessmentData.markAssessmentAsSubmitted();
 		//remove notification when credential is approved
 		fullAssessmentData.setAssessorNotified(false);
 		for (CompetenceAssessmentDataFull compAssessmentData : fullAssessmentData.getCompetenceAssessmentData()) {
-			compAssessmentData.setApproved(true);
+			compAssessmentData.markAssessmentAsSubmitted();
 			//remove notification when competence is approved
 			compAssessmentData.setAssessorNotified(false);
 		}
@@ -583,7 +582,7 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 	private void markCompetenceApproved(long competenceAssessmentId) {
 		for (CompetenceAssessmentDataFull competenceAssessment : fullAssessmentData.getCompetenceAssessmentData()) {
 			if (competenceAssessment.getCompetenceAssessmentEncodedId().equals(idEncoder.encodeId(competenceAssessmentId))) {
-				competenceAssessment.setApproved(true);
+				competenceAssessment.markAssessmentAsSubmitted();
 				competenceAssessment.setAssessorNotified(false);
 			}
 		}

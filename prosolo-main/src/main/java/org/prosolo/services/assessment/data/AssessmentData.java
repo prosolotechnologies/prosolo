@@ -52,6 +52,11 @@ public class AssessmentData {
 //		return data;
 //	}
 
+	public void markAssessmentAsSubmitted() {
+		this.approved = true;
+		this.status = AssessmentStatus.SUBMITTED;
+	}
+
 	public String getStudentFullName() {
 		return studentFullName;
 	}

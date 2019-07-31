@@ -25,6 +25,7 @@ public class ActivityAssessmentData {
 	private long credentialId;
 	private boolean allRead = true; 	// whether user has read all the messages in the thread
 	private boolean participantInDiscussion; 	// whether user is participant in the discussion
+	private boolean privateDiscussionEnabled;
 	private boolean messagesInitialized;
 	private List<AssessmentDiscussionMessageData> activityDiscussionMessageData = new LinkedList<>();
 	private List<String> downloadResourceUrls;
@@ -48,7 +49,7 @@ public class ActivityAssessmentData {
 
 	public static ActivityAssessmentData from(ActivityData actData, CompetenceAssessment compAssessment,
 											  CredentialAssessment credAssessment, AssessmentGradeSummary rubricGradeSummary,
-											  UrlIdEncoder encoder, long userId, boolean loadDiscussion) {
+											  UrlIdEncoder encoder, long userId, boolean loadDiscussion, boolean privateDiscussionEnabled) {
 		ActivityAssessmentData data = new ActivityAssessmentData();
 		populateTypeSpecificData(data, actData);
 		data.setActivityId(actData.getActivityId());
@@ -77,7 +78,8 @@ public class ActivityAssessmentData {
 		data.setActivityAssessmentId(activityDiscussion.getId());
 		data.setEncodedActivityAssessmentId(encoder.encodeId(activityDiscussion.getId()));
 
-		if (loadDiscussion) {
+		data.setPrivateDiscussionEnabled(privateDiscussionEnabled);
+		if (privateDiscussionEnabled && loadDiscussion) {
 			ActivityDiscussionParticipant currentParticipant = activityDiscussion.getParticipantByUserId(userId);
 
 			if (currentParticipant != null) {
@@ -399,4 +401,11 @@ public class ActivityAssessmentData {
 		this.rubricVisibilityForStudent = rubricVisibilityForStudent;
 	}
 
+	public void setPrivateDiscussionEnabled(boolean privateDiscussionEnabled) {
+		this.privateDiscussionEnabled = privateDiscussionEnabled;
+	}
+
+	public boolean isPrivateDiscussionEnabled() {
+		return privateDiscussionEnabled;
+	}
 }

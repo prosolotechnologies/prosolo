@@ -1,5 +1,7 @@
 package org.prosolo.web.courses.competence;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.AccessDeniedException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
@@ -7,12 +9,17 @@ import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.common.domainmodel.credential.LearningPathType;
+import org.prosolo.common.domainmodel.organization.settings.EvidenceRepositoryPlugin;
 import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.LearningEvidenceManager;
+import org.prosolo.services.nodes.OrganizationManager;
+import org.prosolo.services.nodes.data.BasicObjectInfo;
+import org.prosolo.services.nodes.data.CompetencyBasicObjectInfo;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceData;
+import org.prosolo.services.nodes.data.organization.EvidenceRepositoryPluginData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.RestrictedAccessResult;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
@@ -48,6 +55,7 @@ public class CompetenceViewBeanUser implements Serializable {
     @Inject private LearningEvidenceSearchBean learningEvidenceSearchBean;
     @Inject private SubmitEvidenceBean submitEvidenceBean;
     @Inject private AskForCompetenceAssessmentBean askForAssessmentBean;
+    @Inject private OrganizationManager organizationManager;
 
     private String credId;
     private long decodedCredId;
@@ -62,10 +70,13 @@ public class CompetenceViewBeanUser implements Serializable {
 
     private LearningEvidenceData evidenceToRemove;
 
-    private long nextCompToLearn;
+	private long nextCompToLearn;
     private boolean mandatoryOrder;
 
     private String credentialTitle;
+
+    @Getter
+    private EvidenceRepositoryPluginData evidenceRepositoryPluginData;
 
     public void init() {
         decodedCompId = idEncoder.decodeId(compId);
@@ -109,6 +120,10 @@ public class CompetenceViewBeanUser implements Serializable {
                     PageUtil.fireSuccessfulInfoMessage(
                             "You have started the " + ResourceBundleUtil.getMessage("label.competence").toLowerCase() + " " + competenceData.getTitle());
                 }
+
+                // load evidence repository plugin data
+                EvidenceRepositoryPlugin evidenceRepositoryPlugin = organizationManager.getOrganizationPlugin(EvidenceRepositoryPlugin.class, loggedUser.getOrganizationId());
+                evidenceRepositoryPluginData = new EvidenceRepositoryPluginData(evidenceRepositoryPlugin);
             } catch (AccessDeniedException ade) {
                 PageUtil.accessDenied();
             } catch (ResourceNotFoundException rnfe) {

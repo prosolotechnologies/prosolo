@@ -24,5 +24,6 @@ public class AssessmentProfileData implements Serializable {
     private final BlindAssessmentMode blindAssessmentMode;
     private final long dateApproved;
     private final GradeData assessmentGradeSummary;
+    private final String summary;
 
 }

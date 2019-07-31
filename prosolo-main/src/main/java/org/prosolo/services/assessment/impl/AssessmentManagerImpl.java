@@ -5,18 +5,15 @@ import org.apache.log4j.Logger;
 import org.hibernate.LockOptions;
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.hibernate.Transaction;
 import org.hibernate.exception.ConstraintViolationException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
-import org.prosolo.bigdata.dal.persistence.HibernateUtil;
 import org.prosolo.common.domainmodel.assessment.*;
 import org.prosolo.common.domainmodel.credential.GradingMode;
 import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.events.EventType;
-import org.prosolo.common.domainmodel.organization.Organization;
-import org.prosolo.common.domainmodel.organization.settings.AssessmentTokensPlugin;
+import org.prosolo.common.domainmodel.organization.settings.AssessmentsPlugin;
 import org.prosolo.common.domainmodel.rubric.*;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.event.EventQueue;
@@ -418,7 +415,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
                     }
                 });
             } else {
-                AssessmentTokensPlugin assessmentTokensPlugin = organizationManager.getOrganizationPlugin(AssessmentTokensPlugin.class, context.getOrganizationId());
+                AssessmentsPlugin assessmentTokensPlugin = organizationManager.getOrganizationPlugin(AssessmentsPlugin.class, context.getOrganizationId());
 
                 competenceAssessment = new CompetenceAssessment();
                 User student;
@@ -426,7 +423,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
                 // numberOfTokensForAssessmentRequest is not read form the plugin, but from the method arguments since it is
                 // will be 0 for assessment type where tokens are not used (e.g. tutor assessment or self-assessment)
 
-                if (numberOfTokensForAssessmentRequest > 0 && assessmentTokensPlugin.isEnabled()) {
+                if (numberOfTokensForAssessmentRequest > 0 && assessmentTokensPlugin.isAssessmentTokensEnabled()) {
                     student = (User) persistence.currentManager().load(User.class, studentId, LockOptions.UPGRADE);
                     if (numberOfTokensForAssessmentRequest > student.getNumberOfTokens()) {
                         throw new IllegalDataStateException("Student does not have enough tokens");
@@ -586,7 +583,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 		 */
         if (!shouldCredentialAssessmentDataBeLoaded(assessment, loadConfig)) {
             AssessmentDataFull data = new AssessmentDataFull();
-            data.setApproved(assessment.isApproved());
+            data.setApproved(assessment.getStatus() == AssessmentStatus.SUBMITTED);
             data.setTitle(assessment.getTargetCredential().getCredential().getTitle());
             data.setStudentFullName(assessment.getStudent().getName() + " " + assessment.getStudent().getLastname());
             data.setAssessedStudentId(assessment.getStudent().getId());
@@ -595,6 +592,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
             return data;
         }
 
+        AssessmentsPlugin assessmentsPlugin = organizationManager.getOrganizationPlugin(AssessmentsPlugin.class, assessment.getTargetCredential().getCredential().getOrganization().getId());
         if (isAssessmentInitialized(assessment)) {
             //if assessment is not initialized there is no need to try to load this additional data
             List<StudentCompetenceAndAssessmentData> studentCompetenceAndAssessmentData = getStudentCompetenceAndAssessmentData(assessment);
@@ -610,9 +608,9 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
                             .map(aa -> aa.getId())
                             .collect(Collectors.toList()));
 
-            return AssessmentDataFull.fromAssessment(assessment, currentGrade, studentCompetenceAndAssessmentData, credGradeSummary, compAssessmentsGradeSummary, actAssessmentsGradeSummary, encoder, userId, loadConfig.isLoadDiscussion());
+            return AssessmentDataFull.fromAssessment(assessment, currentGrade, studentCompetenceAndAssessmentData, credGradeSummary, compAssessmentsGradeSummary, actAssessmentsGradeSummary, encoder, userId, loadConfig.isLoadDiscussion(), assessmentsPlugin.isPrivateDiscussionEnabled());
         } else {
-            return AssessmentDataFull.fromAssessment(assessment, encoder);
+            return AssessmentDataFull.fromAssessment(assessment, assessmentsPlugin.isPrivateDiscussionEnabled(), encoder);
         }
     }
 
@@ -1793,8 +1791,8 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
                 if (competenceAssessment.getType() == AssessmentType.PEER_ASSESSMENT) {
                     //if peer assessment check whether assessment tokens are enabled and if yes, award peer assessor with specified number of tokens
-                    AssessmentTokensPlugin assessmentTokensPlugin = organizationManager.getOrganizationPlugin(AssessmentTokensPlugin.class, context.getOrganizationId());
-                    if (assessmentTokensPlugin.isEnabled()) {
+                    AssessmentsPlugin assessmentTokensPlugin = organizationManager.getOrganizationPlugin(AssessmentsPlugin.class, context.getOrganizationId());
+                    if (assessmentTokensPlugin.isAssessmentTokensEnabled()) {
                         competenceAssessment.getAssessor().setNumberOfTokens(competenceAssessment.getAssessor().getNumberOfTokens() + assessmentTokensPlugin.getNumberOfEarnedTokensPerAssessment());
                     }
                 }
@@ -2523,7 +2521,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
                     assessmentData.setEncodedCredentialId(encoder.encodeId(credentialId));
                     assessmentData.setType(assessment.getType());
                     assessmentData.setStatus(assessment.getStatus());
-                    assessmentData.setApproved(assessment.isApproved());
+                    assessmentData.setApproved(assessment.getStatus() == AssessmentStatus.SUBMITTED);
 
                     if (assessment.getAssessor() != null) {
                         assessmentData.setAssessorAvatarUrl(AvatarUtils.getAvatarUrlInFormat(assessment.getAssessor().getAvatarUrl(), ImageFormat.size120x120));
@@ -3484,13 +3482,19 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
             @SuppressWarnings("unchecked")
             List<Object[]> res = q.list();
 
+            boolean privateDiscussionEnabled = organizationManager
+                    .getOrganizationPlugin(
+                            AssessmentsPlugin.class,
+                            ((Credential1) persistence.currentManager().load(Credential1.class, credId))
+                                    .getOrganization().getId()
+                    ).isPrivateDiscussionEnabled();
             List<CompetenceAssessmentDataFull> assessments = new ArrayList<>();
             if (res != null) {
                 for (Object[] row : res) {
                     TargetCompetence1 tc = (TargetCompetence1) row[0];
                     CompetenceAssessment ca = (CompetenceAssessment) row[1];
                     CredentialAssessment credA = (CredentialAssessment) row[2];
-                    assessments.add(getCompetenceAssessmentData(tc, ca, credA, userId));
+                    assessments.add(getCompetenceAssessmentData(tc, ca, credA, userId, privateDiscussionEnabled));
                 }
             }
             return assessments;
@@ -3577,28 +3581,8 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
         }
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public Optional<CompetenceAssessmentDataFull> getInstructorCompetenceAssessmentForStudent(long credId, long compId, long studentId) throws DbConnectionException {
-        try {
-            Long instructorUserId = credManager.getInstructorUserId(studentId, credId, persistence.currentManager());
-            if (instructorUserId == null) {
-                return Optional.empty();
-            }
-            Optional<CompetenceAssessment> activeCompetenceAssessment = getActiveCompetenceAssessment(credId, compId, studentId, instructorUserId, AssessmentType.INSTRUCTOR_ASSESSMENT);
-            if (activeCompetenceAssessment.isEmpty()) {
-                return Optional.empty();
-            }
-            TargetCompetence1 tc = compManager.getTargetCompetence(compId, studentId);
-            return Optional.ofNullable(getCompetenceAssessmentData(tc, activeCompetenceAssessment.get(), activeCompetenceAssessment.get().getCredentialAssessment(), studentId));
-        } catch (Exception e) {
-            logger.error("Error", e);
-            throw new DbConnectionException("Error retrieving competence assessments");
-        }
-    }
-
     private CompetenceAssessmentDataFull getCompetenceAssessmentData(
-            TargetCompetence1 tc, CompetenceAssessment compAssessment, CredentialAssessment credAssessment, long studentId) {
+            TargetCompetence1 tc, CompetenceAssessment compAssessment, CredentialAssessment credAssessment, long studentId, boolean privateDiscussionEnabled) {
         CompetenceData1 cd = compDataFactory.getCompetenceData(null, tc, 0, null, null, null, false);
         if (cd.getLearningPathType() == LearningPathType.ACTIVITY) {
             cd.setActivities(activityManager.getTargetActivitiesData(tc.getId()));
@@ -3607,7 +3591,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
         }
         Map<Long, RubricAssessmentGradeSummary> compRubricGradeSummary = getCompetenceAssessmentsRubricGradeSummary(Arrays.asList(compAssessment.getId()));
         Map<Long, RubricAssessmentGradeSummary> activitiesRubricGradeSummary = getActivityAssessmentsRubricGradeSummary(compAssessment.getActivityDiscussions().stream().map(ActivityAssessment::getId).collect(Collectors.toList()));
-        return CompetenceAssessmentDataFull.from(new StudentCompetenceAndAssessmentData(cd, compAssessment), credAssessment, compRubricGradeSummary.get(compAssessment.getId()), activitiesRubricGradeSummary, encoder, studentId, true);
+        return CompetenceAssessmentDataFull.from(new StudentCompetenceAndAssessmentData(cd, compAssessment), credAssessment, compRubricGradeSummary.get(compAssessment.getId()), activitiesRubricGradeSummary, encoder, studentId, true, privateDiscussionEnabled);
     }
 
     //COMPETENCE ASSESSMENT END
@@ -3658,7 +3642,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 			 */
             if (!loadConfig.isLoadDataIfAssessmentNotApproved() && !ca.isApproved()) {
                 CompetenceAssessmentDataFull data = new CompetenceAssessmentDataFull();
-                data.setApproved(ca.isApproved());
+                data.setApproved(ca.getStatus() == AssessmentStatus.SUBMITTED);
                 data.setTitle(ca.getCompetence().getTitle());
                 data.setStudentFullName(ca.getStudent().getName() + " " + ca.getStudent().getLastname());
                 data.setStudentId(ca.getStudent().getId());
@@ -3673,7 +3657,8 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
             Map<Long, RubricAssessmentGradeSummary> compRubricGradeSummary = getCompetenceAssessmentsRubricGradeSummary(Arrays.asList(ca.getId()));
             Map<Long, RubricAssessmentGradeSummary> activitiesRubricGradeSummary = getActivityAssessmentsRubricGradeSummary(ca.getActivityDiscussions().stream().map(ActivityAssessment::getId).collect(Collectors.toList()));
-            return CompetenceAssessmentDataFull.from(new StudentCompetenceAndAssessmentData(cd, ca), ca.getCredentialAssessment(), compRubricGradeSummary.get(ca.getId()), activitiesRubricGradeSummary, encoder, userId, loadConfig.isLoadDiscussion());
+            AssessmentsPlugin assessmentsPlugin = organizationManager.getOrganizationPlugin(AssessmentsPlugin.class, ca.getCompetence().getOrganization().getId());
+            return CompetenceAssessmentDataFull.from(new StudentCompetenceAndAssessmentData(cd, ca), ca.getCredentialAssessment(), compRubricGradeSummary.get(ca.getId()), activitiesRubricGradeSummary, encoder, userId, loadConfig.isLoadDiscussion(), assessmentsPlugin.isPrivateDiscussionEnabled());
         } catch (Exception e) {
             logger.error("Error", e);
             throw new DbConnectionException("Error loading assessment data");
@@ -4408,8 +4393,8 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
     }
 
     private void returnTokensToStudentIfEnabled(long organizationId, Assessment assessment) {
-        AssessmentTokensPlugin assessmentTokensPlugin = organizationManager.getOrganizationPlugin(AssessmentTokensPlugin.class, organizationId);
-        if (assessmentTokensPlugin.isEnabled()) {
+        AssessmentsPlugin assessmentTokensPlugin = organizationManager.getOrganizationPlugin(AssessmentsPlugin.class, organizationId);
+        if (assessmentTokensPlugin.isAssessmentTokensEnabled()) {
             assessment.getStudent().setNumberOfTokens(assessment.getStudent().getNumberOfTokens() + assessment.getNumberOfTokensSpent());
         }
     }
@@ -4425,8 +4410,8 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
             }
             ca.setStatus(AssessmentStatus.REQUEST_EXPIRED);
             ca.setQuitDate(new Date());
-            AssessmentTokensPlugin assessmentTokensPlugin = organizationManager.getOrganizationPlugin(AssessmentTokensPlugin.class, context.getOrganizationId());
-            if (assessmentTokensPlugin.isEnabled()) {
+            AssessmentsPlugin assessmentTokensPlugin = organizationManager.getOrganizationPlugin(AssessmentsPlugin.class, context.getOrganizationId());
+            if (assessmentTokensPlugin.isAssessmentTokensEnabled()) {
                 ca.getStudent().setNumberOfTokens(ca.getStudent().getNumberOfTokens() + ca.getNumberOfTokensSpent());
             }
 

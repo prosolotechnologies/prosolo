@@ -87,7 +87,7 @@ public class AssessmentDataFactory implements Serializable {
         data.setStatus(assessment.getStatus());
         data.setDateRequested(DateUtil.getMillisFromDate(assessment.getDateCreated()));
         data.setDateQuit(DateUtil.getMillisFromDate(assessment.getQuitDate()));
-        data.setApproved(assessment.isApproved());
+        data.setApproved(assessment.getStatus() == AssessmentStatus.SUBMITTED);
         data.setDateSubmitted(DateUtil.getMillisFromDate(assessment.getDateApproved()));
         if (student != null) {
             data.setStudentFullName(student.getName() + " " + student.getLastname());

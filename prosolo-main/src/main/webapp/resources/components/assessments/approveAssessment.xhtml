@@ -67,8 +67,15 @@
 								</div>
 								<div class="modal-body alignLeft">
 									<h:inputTextarea
+											id="textAreaSummary"
 											placeholder="Type a summary that will be displayed on student's profile..."
-											value="#{cc.attrs.assessmentReviewField}" />
+											label="Summary"
+											value="#{cc.attrs.assessmentReviewField}">
+										<f:validateLength maximum="600"/>
+									</h:inputTextarea>
+									<small class="redText displayBlock">
+                                            <h:message id="textAreaSummaryValidationMsg" for="textAreaSummary"></h:message>
+									</small>
 									<h:panelGroup id="panelCredentialResult">
 										<h:panelGroup layout="block" styleClass="resultLine" rendered="#{cc.attrs.gradeData.gradingMode eq 'NONGRADED' or cc.attrs.gradeData.pointBasedGrading}">
 											Result:
@@ -100,9 +107,9 @@
 							<div class="modal-footer alignLeft">
 								<utilcomp:singleClickLink styleClass="btn btn-green"
 														  value="Submit"
-														  update="#{cc.attrs.toUpdate}"
+														  update="#{cc.attrs.toUpdate} :#{cc.clientId}:formApproveAssessment:textAreaSummaryValidationMsg"
 														  action="#{cc.attrs.approveAction}"
-														  oncomplete="$('#submitCredAssessment').modal('hide')">
+														  oncomplete="if (args &amp;&amp; !args.validationFailed) { $('#submitCredAssessment').modal('hide'); }">
 									<f:param name="page" value="#{facesContext.viewRoot.viewId}"/>
 									<f:param name="learningContext" value="#{cc.attrs.learningContext}"/>
 								</utilcomp:singleClickLink>

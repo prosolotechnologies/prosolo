@@ -57,7 +57,7 @@
 							</ui:repeat>
 						</ul>
 					</h:panelGroup>
-					<c:if test="#{cc.attrs.role eq 'USER' and cc.attrs.bean.competenceData.activityToShowWithDetails.assessmentSettings.gradingMode ne 'NONGRADED'}">
+					<c:if test="#{cc.attrs.role eq 'USER' and cc.attrs.bean.competenceData.activityToShowWithDetails.assessmentSettings.gradingMode ne 'NONGRADED' and (cc.attrs.bean.competenceData.activityToShowWithDetails.assessmentSettings.maxPoints gt 0 or (cc.attrs.bean.competenceData.activityToShowWithDetails.assessmentSettings.rubricId gt 0 and cc.attrs.bean.userAllowedToSeeRubric))}">
 						<div class="sidebarBlock">
 							<p class="sidebarStrokeText">
 								<ui:fragment rendered="#{cc.attrs.bean.competenceData.activityToShowWithDetails.assessmentSettings.maxPoints gt 0}">

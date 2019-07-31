@@ -537,4 +537,31 @@ public class LearningEvidenceManagerImpl extends AbstractManagerImpl implements 
         }
     }
 
+    @Override
+    @Transactional(readOnly = false)
+    public void updateRelationToCompetency(long evidenceId, long competenceId, long userId, String newRelation) {
+        try {
+            String q =
+                "SELECT compEv " +
+                "FROM CompetenceEvidence compEv " +
+                "JOIN compEv.evidence ev " +
+                "JOIN compEv.competence tComp " +
+                "JOIN tComp.competence comp " +
+                "JOIN tComp.user user " +
+                "WHERE ev.id = :evidenceId " +
+                    "AND comp.id = :competenceId " +
+                    "AND user.id = :userId";
+
+            CompetenceEvidence ce = (CompetenceEvidence) persistence.currentManager().createQuery(q)
+                    .setLong("evidenceId", evidenceId)
+                    .setLong("competenceId", competenceId)
+                    .setLong("userId", userId)
+                    .uniqueResult();
+
+            ce.setDescription(newRelation);
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error updating relation to competence");
+        }
+    }
 }

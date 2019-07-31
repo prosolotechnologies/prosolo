@@ -111,8 +111,9 @@
 											value="Submit"
 											action="#{cc.attrs.bean.prepareLearningResourceAssessmentForApproving()}"
 											update=":#{cc.clientId}:approveAssessment"
-											oncomplete="$('#submitCredAssessment').modal('show')"
-										/>
+											oncomplete="$('#submitCredAssessment').modal('show')">
+											<p:resetInput target=":#{cc.clientId}:approveAssessment"/>
+										</p:commandLink>
 										<ui:fragment rendered="#{credentialAssessmentDisabledIndicator != 'NONE'}">
 											<span class="disabled btn btn-green btn-sm item" data-toggle="tooltip" title="#{msg['label.enum.AssessmentDisabledIndicator.'.concat(credentialAssessmentDisabledIndicator)]}">Submit</span>
 										</ui:fragment>
@@ -126,7 +127,9 @@
 											#{cc.attrs.bean.fullAssessmentData.gradeData.currentGrade} /
 											#{cc.attrs.bean.fullAssessmentData.gradeData.maxGrade}</div>
 									</ui:remove>
-									<p:commandLink styleClass="item commentsIcon #{(!cc.attrs.bean.fullAssessmentData.participantInDiscussion or cc.attrs.bean.fullAssessmentData.allRead or cc.attrs.bean.fullAssessmentData.numberOfMessages eq 0) ? '' : 'hasNewComments'}" pt:data-toggle="modal"
+									<p:commandLink styleClass="item commentsIcon #{(!cc.attrs.bean.fullAssessmentData.participantInDiscussion or cc.attrs.bean.fullAssessmentData.allRead or cc.attrs.bean.fullAssessmentData.numberOfMessages eq 0) ? '' : 'hasNewComments'}"
+												   pt:data-toggle="modal"
+												   rendered="#{cc.attrs.bean.fullAssessmentData.privateDiscussionEnabled and (cc.attrs.bean.isUserAssessedStudentInCurrentContext() or cc.attrs.bean.isUserAssessorInCurrentContext())}"
 												   onclick="markDiscussionAsSeen('#{util:encodeId(cc.attrs.bean.fullAssessmentData.credAssessmentId)}', this, 'CREDENTIAL')"
 												   action="#{cc.attrs.bean.prepareLearningResourceAssessmentForCommenting()}"
 												   update=":assessmentPreview:commentModal:formPrivateConversation:panelModalPrivateConversation"
@@ -144,13 +147,10 @@
 											gradeLinkSelectorId="credential"
 											toUpdateGradePanel=":#{cc.clientId}:gradePanelContainer"
 											gradePanelSidebarId="gradeSidebar"
-											toUpdateRubricPanelForStudent=":#{cc.clientId}:rubricAssessmentPreview:panelRubricAssessment"
+											toUpdateReadonlyRubricPanel=":#{cc.clientId}:rubricAssessmentPreview:panelRubricAssessment"
 											growlToUpdate=":#{cc.clientId}:growlMain"
-											role="#{cc.attrs.role}"
-											learningContext="#{learningContext}"
 											learningResource="CREDENTIAL"
-											approved="#{cc.attrs.bean.fullAssessmentData.approved}"
-											readOnly="#{not cc.attrs.bean.fullAssessmentData.assessmentActive}"
+											assessmentStatus="#{cc.attrs.bean.fullAssessmentData.status}"
 									/>
 								</h:form>
 							</div>
@@ -344,7 +344,10 @@
 								<br/><br/>
 								Once all #{msg['label.competence.plural'].toLowerCase()} are assessed, the #{msg['label.credential'].toLowerCase()} assessment can be performed. Submission of the #{msg['label.credential'].toLowerCase()} assessment includes writing the assessment review. The assessment review can be made public on student's profile page if they choose to.
 								<br/><br/>
-								Comments made during the assessment process are private between the student and the assessor.</p>
+								<ui:fragment rendered="#{cc.attrs.bean.fullAssessmentData.privateDiscussionEnabled}">
+									Comments made during the assessment process are private between the student and the assessor.
+								</ui:fragment>
+							</p>
 						</ui:fragment>
 
 						<c:if test="#{cc.attrs.bean.fullAssessmentData.assessmentInitialized}">
@@ -358,9 +361,9 @@
 													format="MMM DD, YYYY [at] hh:mm a"
 											/>
 										</div>
+										<br/>
 									</h:panelGroup>
 								</h:panelGroup>
-								<br/>
 							</c:if>
 
 							<c:if test="#{cc.attrs.bean.isUserAssessedStudentInCurrentContext()}">
@@ -395,6 +398,7 @@
 															update=":#{cc.clientId}:approveAssessment"
 															oncomplete="$('#submitCredAssessment').modal('show')">
 														Submit<span></span>
+														<p:resetInput target=":#{cc.clientId}:approveAssessment"/>
 													</p:commandLink>
 													<ui:fragment rendered="#{credentialAssessmentDisabledIndicator != 'NONE'}">
 														<a class="disabled linkApprove" data-toggle="tooltip" title="#{msg['label.enum.AssessmentDisabledIndicator.'.concat(credentialAssessmentDisabledIndicator)]}">Submit<span></span></a>
@@ -410,6 +414,7 @@
 														#{cc.attrs.bean.fullAssessmentData.gradeData.maxGrade}</div>
 												</ui:remove>
 												<p:commandLink styleClass="commentsIcon" pt:data-toggle="modal"
+															   rendered="#{cc.attrs.bean.fullAssessmentData.privateDiscussionEnabled and (cc.attrs.bean.isUserAssessedStudentInCurrentContext() or cc.attrs.bean.isUserAssessorInCurrentContext())}"
 															   onclick="markDiscussionAsSeen('#{util:encodeId(cc.attrs.bean.fullAssessmentData.credAssessmentId)}', this.parentElement.parentElement, 'CREDENTIAL')"
 															   action="#{cc.attrs.bean.prepareLearningResourceAssessmentForCommenting()}"
 															   update=":assessmentPreview:commentModal:formPrivateConversation:panelModalPrivateConversation"
@@ -427,13 +432,10 @@
 														gradeLinkSelectorId="credential"
 														toUpdateGradePanel=":#{cc.clientId}:gradePanelContainer"
 														gradePanelSidebarId="gradeSidebar"
-														toUpdateRubricPanelForStudent=":#{cc.clientId}:rubricAssessmentPreview:panelRubricAssessment"
+														toUpdateReadonlyRubricPanel=":#{cc.clientId}:rubricAssessmentPreview:panelRubricAssessment"
 														growlToUpdate=":#{cc.clientId}:growlMain"
-														role="#{cc.attrs.role}"
-														learningContext="#{learningContext}"
-														readOnly="#{not cc.attrs.bean.fullAssessmentData.assessmentActive}"
+														assessmentStatus="#{cc.attrs.bean.fullAssessmentData.status}"
 														learningResource="CREDENTIAL"
-														approved="#{cc.attrs.bean.fullAssessmentData.approved}"
 												/>
 											</div>
 										</div>
@@ -453,7 +455,7 @@
 												growlToUpdate=":#{cc.clientId}:growlMain"
 												toUpdateGradePanel=":#{cc.clientId}:gradePanelContainer"
 												gradePanelSidebarId="gradeSidebar"
-												toUpdateRubricPanelForStudent=":#{cc.clientId}:rubricAssessmentPreview:panelRubricAssessment"
+												toUpdateReadonlyRubricPanel=":#{cc.clientId}:rubricAssessmentPreview:panelRubricAssessment"
 												toUpdatePrivateConversationModal=":assessmentPreview:commentModal:formPrivateConversation:panelModalPrivateConversation"
 												currentUserAssessor="#{cc.attrs.bean.isUserAssessorInCurrentContext()}"
 												currentUserAssessedStudent="#{cc.attrs.bean.isUserAssessedStudentInCurrentContext()}"
@@ -588,13 +590,14 @@
 						: learningContext}"
 		/>
 
+		<assessment:rubricAssessmentPreview
+				id="rubricAssessmentPreview"
+				grade="#{cc.attrs.bean.currentGradeData}"
+				resourceType="#{cc.attrs.bean.currentResType}"
+				resourceTitle="#{cc.attrs.bean.currentResTitle}"
+		/>
+
 		<c:if test="#{cc.attrs.bean.isUserAssessedStudentInCurrentContext() and not cc.attrs.bean.isUserAssessorInCurrentContext()}">
-			<assessment:rubricAssessmentPreview
-					id="rubricAssessmentPreview"
-					grade="#{cc.attrs.bean.currentGradeData}"
-					resourceType="#{cc.attrs.bean.currentResType}"
-					resourceTitle="#{cc.attrs.bean.currentResTitle}"
-			/>
 
 			<c:if test="#{cc.attrs.bean.fullAssessmentData.type ne 'SELF_ASSESSMENT'}">
 				<h:form id="formAskForAssessment">

@@ -157,7 +157,7 @@ public class BusinessCase_Test_2_11 extends BaseBusinessCase5 {
             }
             gradeCompetenceAssessmentWithRubric(events, competenceAssessmentData, userHelenCampbell, lvl);
         }
-        approveCredentialAssessment(events, assessment.getCredAssessmentId(), userHelenCampbell);
+        approveCredentialAssessment(events, assessment.getCredAssessmentId(), "Review", userHelenCampbell);
     }
 
     @Override

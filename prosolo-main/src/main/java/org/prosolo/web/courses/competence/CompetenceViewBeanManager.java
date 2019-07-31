@@ -1,15 +1,19 @@
 package org.prosolo.web.courses.competence;
 
+import lombok.Getter;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.AccessDeniedException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
+import org.prosolo.common.domainmodel.organization.settings.EvidenceRepositoryPlugin;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
+import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.credential.CredentialIdData;
+import org.prosolo.services.nodes.data.organization.EvidenceRepositoryPluginData;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
@@ -39,6 +43,7 @@ public class CompetenceViewBeanManager implements Serializable {
 	@Inject private Competence1Manager competenceManager;
 	@Inject private UrlIdEncoder idEncoder;
 	@Inject private CommentBean commentBean;
+	@Inject private OrganizationManager organizationManager;
 
 	private String credId;
 	private long decodedCredId;
@@ -51,6 +56,9 @@ public class CompetenceViewBeanManager implements Serializable {
 	private CommentsData commentsData;
 
 	private CredentialIdData credentialIdData;
+
+	@Getter
+	private EvidenceRepositoryPluginData evidenceRepositoryPluginData;
 
 	public void init() {	
 		decodedCompId = idEncoder.decodeId(compId);
@@ -95,6 +103,10 @@ public class CompetenceViewBeanManager implements Serializable {
 
 				credentialIdData = credManager.getCredentialIdData(decodedCredId, null);
 				competenceData.setCredentialId(decodedCredId);
+
+				// load evidence repository plugin data 
+				EvidenceRepositoryPlugin evidenceRepositoryPlugin = organizationManager.getOrganizationPlugin(EvidenceRepositoryPlugin.class, loggedUser.getOrganizationId());
+				evidenceRepositoryPluginData = new EvidenceRepositoryPluginData(evidenceRepositoryPlugin);
 			} catch (AccessDeniedException ade) {
 				PageUtil.accessDenied();
 			} catch (ResourceNotFoundException rnfe) {

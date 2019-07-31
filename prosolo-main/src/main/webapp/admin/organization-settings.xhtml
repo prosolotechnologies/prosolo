@@ -391,15 +391,19 @@
                 <div class="row">
                     <div class="col-md-12">
                         <div class="whiteBox">
-                            <h2>Plugin: Assessment Tokens</h2>
+                            <h2>Plugin: Assessments</h2>
                             <div class="formWrapper editOrgForm">
                                 <h:form id="formTokens">
                                     <div class="formLine">
                                         <label>Plugin configuration</label>
                                         <div class="formLineRight">
                                             <div class="checkbox checkLine">
-                                                <h:selectBooleanCheckbox id="checkboxTokens" value="#{organizationEditBean.organization.assessmentTokensPluginData.enabled}"/>
-                                                <h:outputLabel for="checkboxTokens" value="Enabled"/>
+                                                <h:selectBooleanCheckbox id="checkboxPrivateDiscussion" value="#{organizationEditBean.organization.assessmentTokensPluginData.privateDiscussionEnabled}"/>
+                                                <h:outputLabel for="checkboxPrivateDiscussion" value="Assessment private discussion enabled"/>
+                                            </div>
+                                            <div class="checkbox checkLine">
+                                                <h:selectBooleanCheckbox id="checkboxTokens" value="#{organizationEditBean.organization.assessmentTokensPluginData.assessmentTokensEnabled}"/>
+                                                <h:outputLabel for="checkboxTokens" value="Assessment tokens enabled"/>
                                             </div>
                                             <p class="top10 bottom30">Students use Assessment Tokens to make #{msg['label.competence'].toLowerCase()} assessment requests from their peers. To make an assessment request, student spends specified number of Assessment Tokens. Tokens are earned by giving assessments to peers.</p>
                                             <div><label>Number of tokens spent per one assessment request:</label></div>

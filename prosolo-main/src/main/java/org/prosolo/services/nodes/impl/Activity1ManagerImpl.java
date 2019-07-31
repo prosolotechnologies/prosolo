@@ -10,6 +10,7 @@ import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
 import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.credential.visitor.ActivityVisitor;
 import org.prosolo.common.domainmodel.events.EventType;
+import org.prosolo.common.domainmodel.organization.settings.AssessmentsPlugin;
 import org.prosolo.common.domainmodel.rubric.Rubric;
 import org.prosolo.common.domainmodel.rubric.RubricType;
 import org.prosolo.common.domainmodel.user.User;
@@ -31,10 +32,7 @@ import org.prosolo.services.interaction.data.CommentReplyFetchMode;
 import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.interaction.data.ResultCommentInfo;
 import org.prosolo.services.interaction.data.factory.CommentDataFactory;
-import org.prosolo.services.nodes.Activity1Manager;
-import org.prosolo.services.nodes.Competence1Manager;
-import org.prosolo.services.nodes.CredentialManager;
-import org.prosolo.services.nodes.ResourceFactory;
+import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.data.ActivityResultType;
 import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
@@ -71,6 +69,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 	@Inject private TagManager tagManager;
 	@Inject private AssessmentDataFactory assessmentDataFactory;
 	@Inject private RubricManager rubricManager;
+	@Inject private OrganizationManager organizationManager;
 
 	@Override
 	//nt
@@ -1374,6 +1373,11 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 
 			List<ActivityResultData> results = new ArrayList<>();
 			if (res != null) {
+				boolean privateDiscussionEnabled = organizationManager.getOrganizationPlugin(
+						AssessmentsPlugin.class,
+						((Credential1) persistence.currentManager()
+								.load(Credential1.class, credId)).getOrganization().getId()
+				).isPrivateDiscussionEnabled();
 				long compId = 0;
 				for (Object[] row : res) {
 					if (compId == 0) {
@@ -1414,6 +1418,7 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 					ad.setCompetenceId(compId);
 					ad.setCredentialId(credId);
 					ad.setType(AssessmentType.INSTRUCTOR_ASSESSMENT);
+					ad.setPrivateDiscussionEnabled(privateDiscussionEnabled);
 
 					ad.setActivityAssessmentId(assessmentId.longValue());
 					ad.setEncodedActivityAssessmentId(idEncoder.encodeId(assessmentId.longValue()));
@@ -1446,7 +1451,8 @@ public class Activity1ManagerImpl extends AbstractManagerImpl implements Activit
 						//we need info whether competency assessment is approved
 						CompetenceAssessment competenceAssessment = (CompetenceAssessment) persistence.currentManager().load(CompetenceAssessment.class, abd.getCompetenceAssessmentId());
 						CompetenceAssessmentDataFull cad = new CompetenceAssessmentDataFull();
-						cad.setApproved(competenceAssessment.isApproved());
+						cad.setApproved(competenceAssessment.getStatus() == AssessmentStatus.SUBMITTED);
+						cad.setStatus(competenceAssessment.getStatus());
 						ad.setCompAssessment(cad);
 					}
 				}

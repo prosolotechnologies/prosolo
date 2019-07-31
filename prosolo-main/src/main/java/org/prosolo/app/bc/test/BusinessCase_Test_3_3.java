@@ -189,7 +189,7 @@ public class BusinessCase_Test_3_3 extends BusinessCase_Test_3 {
             }
             gradeCompetenceAssessmentWithRubric(events, competenceAssessmentData, userAnnaHallowell, lvl);
         }
-        approveCredentialAssessment(events, instructorCredentialAssessmentData.getCredAssessmentId(), instructorCredentialAssessmentData.getCredentialId(), userAnnaHallowell);
+        approveCredentialAssessment(events, instructorCredentialAssessmentData.getCredAssessmentId(), "Review", instructorCredentialAssessmentData.getCredentialId(), userAnnaHallowell);
 
 
         /////////////////////////////////

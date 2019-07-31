@@ -18,7 +18,7 @@
 		<composite:attribute name="growlToUpdate" default="" />
 		<composite:attribute name="toUpdateGradePanel" default="" />
 		<composite:attribute name="gradePanelSidebarId" default="" />
-		<composite:attribute name="toUpdateRubricPanelForStudent" default="" />
+		<composite:attribute name="toUpdateReadonlyRubricPanel" default="" />
 		<composite:attribute name="toUpdatePrivateConversationModal" default="" />
 		<composite:attribute name="displayStudentNameInHeader" default="false" type="java.lang.Boolean" />
 		<composite:attribute name="currentUserAssessedStudent" required="true" type="java.lang.Boolean" />
@@ -115,6 +115,7 @@
 										   update="#{cc.attrs.toUpdateApproveModal}"
 										   oncomplete="$('##{cc.attrs.approveModalId}').modal('show')">
 								Submit<span></span>
+								<p:resetInput target="#{cc.attrs.toUpdateApproveModal}"/>
 							</p:commandLink>
 						</ui:fragment>
 						<ui:fragment rendered="#{cc.attrs.competenceAssessment.status eq 'PENDING' and cc.attrs.currentUserAssessor and competenceAssessmentDisabledIndicator != 'NONE'}">
@@ -124,6 +125,7 @@
 							$("[data-toggle='tooltip']").tooltip();
 						</script>
 						<p:commandLink styleClass="commentsIcon" pt:data-toggle="modal"
+									   rendered="#{cc.attrs.competenceAssessment.privateDiscussionEnabled and (cc.attrs.currentUserAssessedStudent or cc.attrs.currentUserAssessor)}"
 									   onclick="markDiscussionAsSeen('#{util:encodeId(cc.attrs.competenceAssessment.competenceAssessmentId)}', this.parentElement.parentElement, 'COMPETENCE')"
 									   action="#{cc.attrs.bean.prepareLearningResourceAssessmentForCommenting(cc.attrs.competenceAssessment)}"
 									   update="#{cc.attrs.toUpdatePrivateConversationModal}"
@@ -142,13 +144,10 @@
 								gradeLinkSelectorId="competence_#{cc.attrs.competenceAssessment.competenceId}"
 								toUpdateGradePanel="#{cc.attrs.toUpdateGradePanel}"
 								gradePanelSidebarId="#{cc.attrs.gradePanelSidebarId}"
-								toUpdateRubricPanelForStudent="#{cc.attrs.toUpdateRubricPanelForStudent}"
+								toUpdateReadonlyRubricPanel="#{cc.attrs.toUpdateReadonlyRubricPanel}"
 								growlToUpdate="#{cc.attrs.growlToUpdate}"
-								role="#{cc.attrs.role}"
-								learningContext="#{compAssessmentLearningContext}"
-								readOnly="#{not cc.attrs.competenceAssessment.assessmentActive}"
+								assessmentStatus="#{cc.attrs.competenceAssessment.status}"
 								learningResource="COMPETENCE"
-								approved="#{cc.attrs.competenceAssessment.approved}"
 						/>
 					</h:panelGroup>
 				</div>
@@ -219,6 +218,7 @@
 											</h:link>
 										</ui:fragment>
 										<p:commandLink styleClass="commentsIcon" pt:data-toggle="modal"
+													   rendered="#{activityAssessment.privateDiscussionEnabled and (cc.attrs.currentUserAssessedStudent or cc.attrs.currentUserAssessor)}"
 													   onclick="markDiscussionAsSeen('#{activityAssessment.encodedActivityAssessmentId}',this.parentElement.parentElement, 'ACTIVITY')"
 													   action="#{cc.attrs.bean.prepareLearningResourceAssessmentForCommenting(activityAssessment)}"
 													   update="#{cc.attrs.toUpdatePrivateConversationModal}"
@@ -237,13 +237,10 @@
 											gradeLinkSelectorId="activity_#{activityAssessment.activityId}"
 											toUpdateGradePanel="#{cc.attrs.toUpdateGradePanel}"
 											gradePanelSidebarId="#{cc.attrs.gradePanelSidebarId}"
-											toUpdateRubricPanelForStudent="#{cc.attrs.toUpdateRubricPanelForStudent}"
+											toUpdateReadonlyRubricPanel="#{cc.attrs.toUpdateReadonlyRubricPanel}"
 											growlToUpdate="#{cc.attrs.growlToUpdate}"
-											role="#{cc.attrs.role}"
-											learningContext="#{util:addSubContext(compAssessmentLearningContext, 'name:ACTIVITY|id:'.concat(activityAssessment.activityId).concat('|context:/name:ACTIVITY_ASSESSMENT|id:').concat(activityAssessment.activityAssessmentId).concat('/'))}"
-											readOnly="#{not cc.attrs.competenceAssessment.assessmentActive}"
+											assessmentStatus="#{cc.attrs.competenceAssessment.status}"
 											learningResource="ACTIVITY"
-											approved="#{cc.attrs.competenceAssessment.approved}"
 										/>
 									</div>
 								</li>
@@ -331,12 +328,6 @@
 										<f:param name="credId" value="#{util:encodeId(cc.attrs.credentialId)}"
 												 disable="#{empty cc.attrs.credentialId}" />
 									</h:link>
-
-									<div class="activityOptions">
-										<div class="disabledOverlay"></div>
-										<a href="javascript:void(0);" class="commentsIcon">0</a>
-										<a href="javascript:void(0);" class="grade">- / #{activityAssessment.grade.maxGrade}</a>
-									</div>
 								</li>
 							</ui:repeat>
 
