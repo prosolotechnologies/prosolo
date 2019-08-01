@@ -258,6 +258,7 @@ public class ProfileBean {
 		try {
 			if (studentProfileData.getProfileSettings().hasObjectChanged()) {
 				studentProfileManager.updateProfileSettings(studentProfileData.getProfileSettings());
+				studentProfileData.getProfileSettings().startObservingChanges();
 			}
 			PageUtil.fireSuccessfulInfoMessage("Profile settings are updated");
 		} catch (Exception e) {
