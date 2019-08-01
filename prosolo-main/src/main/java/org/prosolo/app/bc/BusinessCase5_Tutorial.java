@@ -86,7 +86,7 @@ public class BusinessCase5_Tutorial extends BaseBusinessCase5 {
 				userTaniaCortese.getId(),
 				userTaniaCortese.getName(),
 				userTaniaCortese.getLastname(),
-				userRachelWiggins.getEmail(),
+				userTaniaCortese.getEmail(),
 				true,
 				false,
 				userTaniaCortese.getPassword(),
