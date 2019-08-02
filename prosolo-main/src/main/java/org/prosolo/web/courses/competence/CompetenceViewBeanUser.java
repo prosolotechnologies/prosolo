@@ -1,7 +1,6 @@
 package org.prosolo.web.courses.competence;
 
 import lombok.Getter;
-import lombok.Setter;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.AccessDeniedException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
@@ -9,14 +8,11 @@ import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.credential.CommentedResourceType;
 import org.prosolo.common.domainmodel.credential.LearningPathType;
-import org.prosolo.common.domainmodel.organization.settings.EvidenceRepositoryPlugin;
 import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.LearningEvidenceManager;
 import org.prosolo.services.nodes.OrganizationManager;
-import org.prosolo.services.nodes.data.BasicObjectInfo;
-import org.prosolo.services.nodes.data.CompetencyBasicObjectInfo;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceData;
 import org.prosolo.services.nodes.data.organization.EvidenceRepositoryPluginData;
@@ -122,8 +118,7 @@ public class CompetenceViewBeanUser implements Serializable {
                 }
 
                 // load evidence repository plugin data
-                EvidenceRepositoryPlugin evidenceRepositoryPlugin = organizationManager.getOrganizationPlugin(EvidenceRepositoryPlugin.class, loggedUser.getOrganizationId());
-                evidenceRepositoryPluginData = new EvidenceRepositoryPluginData(evidenceRepositoryPlugin);
+                evidenceRepositoryPluginData = organizationManager.getOrganizationEvidenceRepositoryPluginData(loggedUser.getOrganizationId());
             } catch (AccessDeniedException ade) {
                 PageUtil.accessDenied();
             } catch (ResourceNotFoundException rnfe) {

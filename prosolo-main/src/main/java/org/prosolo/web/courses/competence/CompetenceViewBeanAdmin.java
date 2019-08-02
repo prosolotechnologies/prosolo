@@ -3,13 +3,12 @@ package org.prosolo.web.courses.competence;
 import lombok.Getter;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
-import org.prosolo.common.domainmodel.organization.settings.EvidenceRepositoryPlugin;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.UnitManager;
-import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.TitleData;
+import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.organization.EvidenceRepositoryPluginData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
@@ -90,8 +89,7 @@ public class CompetenceViewBeanAdmin implements Serializable {
 					}
 
 					// load evidence repository plugin data
-					EvidenceRepositoryPlugin evidenceRepositoryPlugin = organizationManager.getOrganizationPlugin(EvidenceRepositoryPlugin.class, loggedUser.getOrganizationId());
-					evidenceRepositoryPluginData = new EvidenceRepositoryPluginData(evidenceRepositoryPlugin);
+					evidenceRepositoryPluginData = organizationManager.getOrganizationEvidenceRepositoryPluginData(loggedUser.getOrganizationId());
 				} catch (ResourceNotFoundException rnfe) {
 					PageUtil.notFound();
 				} catch (Exception e) {

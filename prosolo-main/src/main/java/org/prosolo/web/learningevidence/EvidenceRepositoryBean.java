@@ -3,7 +3,6 @@ package org.prosolo.web.learningevidence;
 import lombok.Getter;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
-import org.prosolo.common.domainmodel.organization.settings.EvidenceRepositoryPlugin;
 import org.prosolo.search.LearningEvidenceTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.nodes.LearningEvidenceManager;
@@ -20,6 +19,8 @@ import org.springframework.stereotype.Component;
 import javax.faces.bean.ManagedBean;
 import javax.inject.Inject;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -70,15 +71,25 @@ public class EvidenceRepositoryBean implements Serializable, Paginable {
         }
 
         paginationData = PaginationData.forPage(page);
-        filters = LearningEvidenceLabeledSearchFilter.values();
         sortOptions = LearningEvidenceLabeledSortOption.values();
         try {
             loadEvidences();
             keywords = learningEvidenceManager.getKeywordsFromAllUserEvidences(loggedUserBean.getUserId());
 
             // load evidence repository plugin data
-            EvidenceRepositoryPlugin evidenceRepositoryPlugin = organizationManager.getOrganizationPlugin(EvidenceRepositoryPlugin.class, loggedUserBean.getOrganizationId());
-            evidenceRepositoryPluginData = new EvidenceRepositoryPluginData(evidenceRepositoryPlugin);
+            evidenceRepositoryPluginData = organizationManager.getOrganizationEvidenceRepositoryPluginData(loggedUserBean.getOrganizationId());
+            List<LearningEvidenceLabeledSearchFilter> searchFilters = new LinkedList<>();
+            searchFilters.add(LearningEvidenceLabeledSearchFilter.ALL);
+            if (evidenceRepositoryPluginData.isFileEvidenceEnabled()) {
+                searchFilters.add(LearningEvidenceLabeledSearchFilter.FILE);
+            }
+            if (evidenceRepositoryPluginData.isUrlEvidenceEnabled()) {
+                searchFilters.add(LearningEvidenceLabeledSearchFilter.URL);
+            }
+            if (evidenceRepositoryPluginData.isTextEvidenceEnabled()) {
+                searchFilters.add(LearningEvidenceLabeledSearchFilter.TEXT);
+            }
+            filters = searchFilters.stream().toArray(LearningEvidenceLabeledSearchFilter[]::new);
         } catch (DbConnectionException e) {
             logger.error("Error", e);
             PageUtil.fireErrorMessage("Error loading the page");

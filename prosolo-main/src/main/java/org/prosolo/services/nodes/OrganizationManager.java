@@ -207,5 +207,14 @@ public interface OrganizationManager extends AbstractManager {
      */
     List<OrganizationPlugin> getAllOrganizationPlugins(long organizationId);
 
+    /**
+     * Returns evidence repository plugin data for given organization.
+     *
+     * @param organizationId
+     * @return
+     * @throws DbConnectionException
+     */
+    EvidenceRepositoryPluginData getOrganizationEvidenceRepositoryPluginData(long organizationId);
+
 }
 

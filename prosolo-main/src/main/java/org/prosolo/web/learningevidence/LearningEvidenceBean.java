@@ -3,7 +3,6 @@ package org.prosolo.web.learningevidence;
 import lombok.Getter;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
-import org.prosolo.common.domainmodel.organization.settings.EvidenceRepositoryPlugin;
 import org.prosolo.services.nodes.LearningEvidenceManager;
 import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceData;
@@ -68,8 +67,7 @@ public class LearningEvidenceBean implements Serializable {
                     }
 
                     // load evidence repository plugin data
-                    EvidenceRepositoryPlugin evidenceRepositoryPlugin = organizationManager.getOrganizationPlugin(EvidenceRepositoryPlugin.class, loggedUserBean.getOrganizationId());
-                    evidenceRepositoryPluginData = new EvidenceRepositoryPluginData(evidenceRepositoryPlugin);
+                    evidenceRepositoryPluginData = organizationManager.getOrganizationEvidenceRepositoryPluginData(loggedUserBean.getOrganizationId());
                 }
             } else {
                 PageUtil.notFound();
