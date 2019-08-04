@@ -51,6 +51,7 @@
 
     <ui:define name="content">
         <script src="#{request.contextPath}/resources/javascript2/clipboard.js/clipboard.min.js"></script>
+        <h:outputScript library="javascript2" name="autosize.min.js" />
 
         <p:growl id="profileGrowl" widgetVar="profileGrowl" globalOnly="true" showDetail="true" />
 
@@ -69,7 +70,13 @@
                                         oncomplete="$('#addStandard').modal('show');">
                                 </p:commandLink>
                                 <h:link outcome="settings" class="btn btn-green-stroke btn-sm item">Edit Your Info</h:link>
-                                <a href="#" class="btn btn-green-stroke btn-sm" data-toggle="modal" data-target="#profileSettings">Profile Settings</a>
+
+                                <p:commandLink styleClass="btn btn-green-stroke btn-sm"
+                                               update=":formProfileSettings"
+                                               oncomplete="$('#profileSettings').modal('show');">
+                                    Profile Settings
+                                    <p:resetInput target=":formProfileSettings" />
+                                </p:commandLink>
                             </ui:fragment>
 
                             <ui:fragment rendered="#{loggeduser.hasCapability('basic.user.access') and not profileBean.personalProfile}" >
@@ -102,6 +109,7 @@
                                            update="messageDialog:formMessage"
                                            oncomplete="$('#message').modal('show');">
                                 <span></span>Message
+                                <p:resetInput target=":messageDialog" />
                             </p:commandLink>
 
                             <communications:sendMessageDialog id="messageDialog"
@@ -706,9 +714,9 @@
         </div>
 
         <div class="modal fade" id="profileSettings" tabindex="-1" role="dialog" aria-labelledby="profileSettingsModalTitle">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <h:form id="formProfileSettings">
+            <h:form id="formProfileSettings">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
                         <div class="modal-header alignLeft">
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
                             <h2 class="modal-title" id="profileSettingsModalTitle">Profile Settings</h2>
@@ -739,37 +747,41 @@
                         <div class="modal-footer alignLeft">
                             <p:commandLink id="saveProfileSettingsBtn"
                                            styleClass="btn btn-green"
-                                           pt:data-dismiss="modal"
                                            value="Save"
                                            action="#{profileBean.updateProfileSettings}"
-                                           update="@form profileGrowl :container"/>
+                                           update="@form profileGrowl :container"
+                                           oncomplete="if (args &amp;&amp; !args.validationFailed){
+                                                let customUrl = '#{applicationbean.commonConfig.appConfig.domain}p/' + $(escapeColons('#formProfileSettings:customProfileUrl')).val();
+                                                history.replaceState('', $(document).find('title').text(), customUrl);
+                                                $('#profileSettings').modal('hide');
+                                           }" />
                             <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
                         </div>
-                    </h:form>
+                    </div>
                 </div>
-            </div>
-            <script>
-                $(function(){
-                    var enforceModalFocusFn = $.fn.modal.Constructor.prototype.enforceFocus;
+                <script>
+                    $(function(){
+                        var enforceModalFocusFn = $.fn.modal.Constructor.prototype.enforceFocus;
 
-                    $.fn.modal.Constructor.prototype.enforceFocus = function() {};
+                        $.fn.modal.Constructor.prototype.enforceFocus = function() {};
 
-                    $('#profileSettings').on('hidden', function() {
-                        $.fn.modal.Constructor.prototype.enforceFocus = enforceModalFocusFn;
+                        $('#profileSettings').on('hidden', function() {
+                            $.fn.modal.Constructor.prototype.enforceFocus = enforceModalFocusFn;
+                        });
+
+                        new ClipboardJS('#copyProfileUrlBtn', {
+                            text: function() {
+                                PF('profileGrowl').renderMessage({"summary":"Successful",
+                                    "detail":"Your profile URL is copied",
+                                    "severity":"info"});
+
+                                let customUrl = $(escapeColons('#formProfileSettings:customProfileUrl')).val();
+                                return "#{applicationbean.commonConfig.appConfig.domain}p/"+customUrl;
+                            }
+                        });
                     });
-
-                    new ClipboardJS('#copyProfileUrlBtn', {
-                        text: function() {
-                            PF('profileGrowl').renderMessage({"summary":"Successful",
-                                "detail":"Your profile URL is copied",
-                                "severity":"info"});
-
-                            let customUrl = $(escapeColons('#formProfileSettings:customProfileUrl')).val();
-                            return "#{applicationbean.commonConfig.appConfig.domain}p/"+customUrl;
-                        }
-                    });
-                });
-            </script>
+                </script>
+            </h:form>
         </div>
     </ui:define>
 </ui:composition>
