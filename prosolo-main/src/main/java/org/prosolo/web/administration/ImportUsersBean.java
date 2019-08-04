@@ -117,7 +117,7 @@ public class ImportUsersBean implements Serializable {
 					firstLine = false;
 				}
 
-				if (!EmailValidatorUtil.isValid(email)) {
+				if (!EmailValidatorUtil.isEmailValid(email)) {
 					fileContentValid = false;
 					return;
 				}

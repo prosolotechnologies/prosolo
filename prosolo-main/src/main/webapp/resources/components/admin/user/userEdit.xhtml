@@ -38,11 +38,11 @@
 					</li>
 					<li>
 						<h:link outcome="/admin/organizationUsers">
-							People
+							Accounts
 							<f:param name="orgId" value="#{userEditBean.orgId}" />
 						</h:link>
 					</li>
-					<li class="active">#{userEditBean.user.id le 0 ? 'New User' : util:shortenAndAddDots(userEditBean.user.fullName)}</li>
+					<li class="active">#{userEditBean.user.id le 0 ? 'New Account' : util:shortenAndAddDots(userEditBean.user.fullName)}</li>
 				</c:if>
 			</ol>
 		</div>
@@ -52,7 +52,7 @@
 				<div class="col-md-12">
 					<div class="whiteBox">
 						<ui:fragment rendered="#{cc.attrs.showFormTitle and userEditBean.user.id le 0}">
-							<h2>New User</h2>
+							<h2>New Account</h2>
 						</ui:fragment>
 
 						<h:form id="formMain">

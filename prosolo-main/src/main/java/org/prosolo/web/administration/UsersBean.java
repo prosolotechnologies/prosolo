@@ -5,7 +5,6 @@ import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
-import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.search.util.roles.RoleFilter;

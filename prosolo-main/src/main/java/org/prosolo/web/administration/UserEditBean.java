@@ -211,7 +211,7 @@ public class UserEditBean implements Serializable {
 
 			PageUtil.fireSuccessfulInfoMessageAcrossPages("A new user has been created");
 			if (decodedOrgId > 0) {
-				PageUtil.redirect("/admin/organizations/" + orgId + "/users");
+				PageUtil.redirect("/admin/organizations/" + orgId + "/accounts");
 			} else {
 				PageUtil.redirect("/admin/admins");
 			}
@@ -276,7 +276,7 @@ public class UserEditBean implements Serializable {
 				PageUtil.fireSuccessfulInfoMessage("The user has been deleted");
 				userToDelete = null;
 				String url = decodedOrgId > 0
-						? "/admin/organizations/" + orgId + "/users"
+						? "/admin/organizations/" + orgId + "/accounts"
 						: "/admin/admins";
 				PageUtil.redirect(url);
 			} catch (Exception ex) {

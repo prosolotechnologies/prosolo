@@ -24,7 +24,7 @@ public class EmailValidator implements Validator {
 	@Override
 	public void validate(FacesContext context, UIComponent component,
 			Object value) throws ValidatorException {
-		if (!EmailValidatorUtil.isValid(value.toString())) {
+		if (!EmailValidatorUtil.isEmailValid(value.toString())) {
 			FacesMessage msg = new FacesMessage("Invalid email format.");
 			msg.setSeverity(FacesMessage.SEVERITY_ERROR);
 			throw new ValidatorException(msg);

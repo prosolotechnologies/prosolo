@@ -21,7 +21,7 @@ public class HomePageResolver {
     public String getHomeUrl(Collection<GrantedAuthority> authorities) {
         switch (getHighestPriorityCapability(authorities)) {
             case "basic.admin.access":
-                return "/admin/users";
+                return "/admin/accounts";
             case "basic.manager.access":
             case "basic.instructor.access":
                 return "/manage";

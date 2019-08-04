@@ -48,12 +48,64 @@ public class BusinessCase5_Tutorial extends BaseBusinessCase5 {
 	@Override
 	protected void createAdditionalDataBC5(EventQueue events) throws Exception {
 
+		///////////////////////////////////
+		// Set Rachel Wiggins as Admin
+		///////////////////////////////////
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(UserManager.class).updateUserAndGetEvents(
+				userRachelWiggins.getId(),
+				userRachelWiggins.getName(),
+				userRachelWiggins.getLastname(),
+				userRachelWiggins.getEmail(),
+				true,
+				false,
+				userRachelWiggins.getPassword(),
+				"Administrator",
+				20,
+				List.of(roleAdmin.getId()),
+				List.of(),
+				createUserContext(userNickPowell)));
+
+		///////////////////////////////////
+		// Add Manager role to more users
+		///////////////////////////////////
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(UserManager.class).updateUserAndGetEvents(
+				userSonyaElston.getId(),
+				userSonyaElston.getName(),
+				userSonyaElston.getLastname(),
+				userSonyaElston.getEmail(),
+				true,
+				false,
+				userSonyaElston.getPassword(),
+				"Assistant Professor",
+				20,
+				List.of(roleManager.getId()),
+				List.of(),
+				createUserContext(userNickPowell)));
+
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(UserManager.class).updateUserAndGetEvents(
+				userTaniaCortese.getId(),
+				userTaniaCortese.getName(),
+				userTaniaCortese.getLastname(),
+				userTaniaCortese.getEmail(),
+				true,
+				false,
+				userTaniaCortese.getPassword(),
+				"Associate Professor",
+				20,
+				List.of(roleAdmin.getId()),
+				List.of(),
+				createUserContext(userNickPowell)));
+
+
 		////////////////////////////////////////////////////
 		// Add 30 tokens to each user from the organization
 		////////////////////////////////////////////////////
 		ServiceLocator.getInstance().getService(OrganizationManager.class).addTokensToAllOrganizationUsersAndGetEvents(organization.getId(), 30, createUserContext(userNickPowell));
 
 		enableAssessmentTokens(30, 2, 2);
+
+
+
 
 		//////////////////////////////////////////////////////
 		// Set several student to be available for assessment
@@ -65,12 +117,13 @@ public class BusinessCase5_Tutorial extends BaseBusinessCase5 {
 		ServiceLocator.getInstance().getService(UserManager.class).updateAssessmentAvailability(userTimothyRivera.getId(), true);
 		ServiceLocator.getInstance().getService(UserManager.class).updateAssessmentAvailability(userKevinHall.getId(), true);
 
-		////////////////////////////////////////////////////
-		// Disable keywords in Evidence Repository plugin
-		////////////////////////////////////////////////////
+		///////////////////////////////////////////////////////////////////////////////////
+		// Disable keywords in Evidence Repository plugin and disable text-based evidence
+		///////////////////////////////////////////////////////////////////////////////////
         EvidenceRepositoryPlugin evidenceRepositoryPlugin = ServiceLocator.getInstance().getService(OrganizationManager.class).getOrganizationPlugin(EvidenceRepositoryPlugin.class, organization.getId());
         EvidenceRepositoryPluginData evidenceRepositoryPluginData = new EvidenceRepositoryPluginData(evidenceRepositoryPlugin);
         evidenceRepositoryPluginData.setKeywordsEnabled(false);
+        evidenceRepositoryPluginData.setTextEvidenceEnabled(false);
 		ServiceLocator.getInstance().getService(OrganizationManager.class).updateEvidenceRepositoryPlugin(organization.getId(), evidenceRepositoryPluginData);
 
 		///////////////////////////////////////////

@@ -2,11 +2,10 @@
                 xmlns:f="http://java.sun.com/jsf/core"
                 xmlns:ui="http://java.sun.com/jsf/facelets"
                 template="templates/masterLayout2.xhtml"
-                xmlns:org="http://java.sun.com/jsf/composite/components/admin/organization"
->
+                xmlns:org="http://java.sun.com/jsf/composite/components/admin/organization">
 
     <ui:define name="windowTitle" >
-        Teachers - #{unitUsersBean.unitTitle} - #{unitUsersBean.organizationTitle} - ProSolo
+        Managers - #{unitUsersBean.unitTitle} - #{unitUsersBean.organizationTitle} - ProSolo
     </ui:define>
 
     <ui:define name="metadata">
@@ -15,7 +14,7 @@
             <f:viewParam name="id" value="#{unitUsersBean.id}" />
             <f:viewParam name="p" value="#{unitUsersBean.page}" default="1" />
             <f:viewParam name="error" value="#{unitUsersBean.error}"/>
-            <f:viewAction action="#{unitUsersBean.initTeachers()}" />
+            <f:viewAction action="#{unitUsersBean.initManagers()}" />
         </f:metadata>
     </ui:define>
 
@@ -28,6 +27,6 @@
     </ui:define>
 
     <ui:define name="content">
-        <org:unitUsers resource="teacher" resourcePlural="teachers" />
+        <org:unitUsers resource="manager" resourcePlural="managers" />
     </ui:define>
 </ui:composition>
