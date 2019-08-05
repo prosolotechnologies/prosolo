@@ -30,10 +30,10 @@ public class PasswordReset implements Serializable {
 	
 	public void reset() {
 		User user = userManager.getUser(email);
-	
+
 		if (user != null) {
 			boolean resetLinkSent = passwordResetManager.initiatePasswordReset(user, email, CommonSettings.getInstance().config.appConfig.domain + "recovery");
-			
+
 			if (resetLinkSent) {
 				PageUtil.fireSuccessfulInfoMessage("resetMessage", "Reset instructions have been sent to "+email);
 				try {
@@ -42,7 +42,7 @@ public class PasswordReset implements Serializable {
 					logger.error(e);
 				}
 			} else {
-				PageUtil.fireErrorMessage("resetMessage", "Error reseting the password");
+				PageUtil.fireErrorMessage("resetMessage", "Error resetting the password");
 			}
 		} else {
 			PageUtil.fireErrorMessage("resetMessage", "Error",
