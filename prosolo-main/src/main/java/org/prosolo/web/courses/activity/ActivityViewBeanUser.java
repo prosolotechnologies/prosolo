@@ -333,9 +333,14 @@ public class ActivityViewBeanUser implements Serializable {
 	
 	public void handleFileUpload(FileUploadEvent event) {
 		PageContextData pageContextData = PageUtil.extractLearningContextDataFromComponent(event.getComponent());
-		activityResultBean.uploadAssignment(event, 
-				competenceData.getActivityToShowWithDetails().getResultData(), pageContextData);
-		completeActivity(loggedUser.getUserContext(pageContextData));
+		try {
+			activityResultBean.uploadAssignmentAndPropagateExceptions(event,
+					competenceData.getActivityToShowWithDetails().getResultData(), pageContextData);
+			completeActivity(loggedUser.getUserContext(pageContextData));
+		} catch (Exception e) {
+			logger.error("error", e);
+			PageUtil.fireErrorMessage("Error uploading the file");
+		}
 	}
 	
 	public void deleteAssignment() {

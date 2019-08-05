@@ -99,7 +99,7 @@
 				<div role="tabpanel" class="tab-pane fade #{empty submitEvidenceBean.evidence.type or submitEvidenceBean.evidence.type eq 'FILE' ? 'in active' : ''} submitEvidenceTab" id="upload">
 					<h:form id="formFileEvidence" enctype="multipart/form-data">
 						<p:focus/>
-						<p:growl globalOnly="true" showDetail="true" />
+						<p:growl id="growlFileEvidence" globalOnly="true" showDetail="true" />
 
 						<label>Evidence Title:</label>
 
@@ -137,7 +137,7 @@
 													 fileUploadListenerMethodName="handleFileUpload"
 													 fileUploadListenerMethod="#{submitEvidenceBean.handleFileUpload}"
 													 disabled="false"
-													 toUpdate=":#{cc.clientId}:formFileEvidence:panelUploadEvidence"
+													 toUpdate=":#{cc.clientId}:formFileEvidence:panelUploadEvidence :#{cc.clientId}:formFileEvidence:growlFileEvidence"
 													 fileSizeValidationMessageContainer="#evidenceFileUploadValidationError"/>
 							</ui:fragment>
 
