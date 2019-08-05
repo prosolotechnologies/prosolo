@@ -175,7 +175,7 @@ public abstract class CompetenceAssessmentBean extends LearningResourceAssessmen
 	}
 
 	private boolean isCurrentUserAssessedStudent() {
-		return loggedUserBean.getUserId() == competenceAssessmentData.getStudentId();
+		return competenceAssessmentData != null && loggedUserBean.getUserId() == competenceAssessmentData.getStudentId();
 	}
 
 	public boolean isUserAssessedStudentInCurrentContext() {
