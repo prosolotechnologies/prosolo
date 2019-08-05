@@ -857,7 +857,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				}
 			}
     	} else {
-    		updateDeliveryTimes(credToUpdate, data, deliveryStart, deliveryEnd);
+    		updateDeliveryTimes(credToUpdate, data, deliveryStart, deliveryEnd, false);
 		}
 
 		res.appendEvent(fireEditEvent(data, credToUpdate, context));
@@ -3696,15 +3696,15 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 
 	//nt
 	@Override
-	public void updateDeliveryStartAndEnd(CredentialData deliveryData, UserContextData context)
+	public void updateDeliveryStartAndEnd(CredentialData deliveryData, boolean alwaysAllowDeliveryStartChange, UserContextData context)
 			throws StaleDataException, IllegalDataStateException, DbConnectionException {
-		Result<Void> res = self.updateDeliveryStartAndEndAndGetEvents(deliveryData, context);
+		Result<Void> res = self.updateDeliveryStartAndEndAndGetEvents(deliveryData, alwaysAllowDeliveryStartChange, context);
 		eventFactory.generateAndPublishEvents(res.getEventQueue());
 	}
 
 	@Override
 	@Transactional(rollbackFor = Exception.class)
-	public Result<Void> updateDeliveryStartAndEndAndGetEvents(CredentialData deliveryData, UserContextData context)
+	public Result<Void> updateDeliveryStartAndEndAndGetEvents(CredentialData deliveryData, boolean alwaysAllowDeliveryStartChange, UserContextData context)
 			throws StaleDataException, IllegalDataStateException, DbConnectionException {
 		try {
 			Result<Void> res = new Result<>();
@@ -3723,7 +3723,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				throw new IllegalDataStateException("Delivery cannot be ended before it starts");
 			}
 
-			updateDeliveryTimes(delivery, deliveryData, deliveryStart, deliveryEnd);
+			updateDeliveryTimes(delivery, deliveryData, deliveryStart, deliveryEnd, alwaysAllowDeliveryStartChange);
 			persistence.currentManager().flush();
 
 			Credential1 del = new Credential1();
@@ -3743,13 +3743,13 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 
-	private void updateDeliveryTimes(Credential1 delivery, CredentialData deliveryData, Date deliveryStart, Date deliveryEnd) throws IllegalDataStateException {
+	private void updateDeliveryTimes(Credential1 delivery, CredentialData deliveryData, Date deliveryStart, Date deliveryEnd, boolean alwaysAllowDeliveryStartChange) throws IllegalDataStateException {
 		Date now = new Date();
 		if (deliveryData.isDeliveryStartChanged()) {
 			/*
 			 * if delivery start is not set or is in future, changes are allowed
 			 */
-			if (delivery.getDeliveryStart() == null || delivery.getDeliveryStart().after(now)) {
+			if (alwaysAllowDeliveryStartChange || (delivery.getDeliveryStart() == null || delivery.getDeliveryStart().after(now))) {
 				delivery.setDeliveryStart(deliveryStart);
 			} else {
 				throw new IllegalDataStateException("Update failed. Delivery start time cannot be changed because "

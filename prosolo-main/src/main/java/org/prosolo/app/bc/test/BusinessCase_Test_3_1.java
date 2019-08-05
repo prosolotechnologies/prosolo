@@ -2,6 +2,7 @@ package org.prosolo.app.bc.test;
 
 import org.apache.log4j.Logger;
 import org.prosolo.common.event.EventQueue;
+import org.prosolo.common.util.date.DateUtil;
 
 /**
  * @author Nikola Milikic
@@ -13,8 +14,9 @@ public class BusinessCase_Test_3_1 extends BusinessCase_Test_3 {
     private static Logger logger = Logger.getLogger(BusinessCase_Test_3_1.class.getName());
 
     @Override
-    protected void createAdditionalDataTest3(EventQueue events) {
-
+    protected void createAdditionalDataTest3(EventQueue events) throws Exception {
+        updateDeliveryStart(events, credential1Delivery1.getId(), DateUtil.getNDaysBeforeNow(2), userNickPowell);
+        updateDeliveryStart(events, credential4Delivery2.getId(), DateUtil.getNDaysFromNow(7), userNickPowell);
     }
 
     @Override

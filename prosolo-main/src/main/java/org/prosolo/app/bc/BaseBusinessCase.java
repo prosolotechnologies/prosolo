@@ -29,6 +29,7 @@ import org.prosolo.common.event.EventData;
 import org.prosolo.common.event.EventQueue;
 import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.common.event.context.data.UserContextData;
+import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.common.util.string.StringUtil;
 import org.prosolo.common.web.ApplicationPage;
 import org.prosolo.core.db.hibernate.HibernateUtil;
@@ -842,6 +843,12 @@ public abstract class BaseBusinessCase implements BusinessCase {
         }
     }
 
+    protected void updateDeliveryStart(EventQueue events, long deliveryId, Date startDate, User actor) throws IllegalDataStateException {
+        CredentialManager credManager = ServiceLocator.getInstance().getService(CredentialManager.class);
+        CredentialData credentialData = credManager.getCredentialDataForEdit(deliveryId);
+        credentialData.setDeliveryStartTime(DateUtil.getMillisFromDate(startDate));
+        extractResultAndAddEvents(events, credManager.updateDeliveryStartAndEndAndGetEvents(credentialData, true, createUserContext(actor)));
+    }
 
     protected abstract String getBusinessCaseInitLog();
     protected abstract void createAdditionalData(EventQueue events) throws Exception;
