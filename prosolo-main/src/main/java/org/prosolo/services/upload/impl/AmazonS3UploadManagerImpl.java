@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.apache.log4j.Logger;
+import org.prosolo.bigdata.common.exceptions.FileUploadException;
 import org.prosolo.common.config.CommonSettings;
 import org.prosolo.services.upload.AmazonS3Provider;
 import org.prosolo.services.upload.AmazonS3UploadManager;
@@ -51,25 +52,22 @@ public class AmazonS3UploadManagerImpl implements AmazonS3UploadManager {
 			if (fileType != null) {
 				objectMetadata.setContentType(fileType);
 			}
-		} catch (IOException e) {
-			logger.error("AmazonService IOException for bucket:" + bucketName, e);
-		}
-		
-		AmazonS3 s3 = s3Provider.getS3Client();
-		try{
+
+			AmazonS3 s3 = s3Provider.getS3Client();
+
 			PutObjectRequest putObjectRequest=new PutObjectRequest(bucketName,key, sourceInputStream, objectMetadata);
 			putObjectRequest.withCannedAcl(CannedAccessControlList.PublicRead); // public for all
 		    @SuppressWarnings("unused")
 			PutObjectResult result = s3.putObject(putObjectRequest);
-		}catch (AmazonServiceException ase) {
-	        logger.error("AmazonServiceException for bucket:"+bucketName,ase);
-	    } catch (AmazonClientException ace) {
-	    	logger.error("AmazonServiceException for bucket:"+bucketName,ace);
-		} catch(Exception ex){
-			logger.error(ex);
+
+			return key;
+		} catch (IOException | AmazonClientException e) {
+			logger.error("AmazonService exception for bucket:" + bucketName, e);
+			throw new FileUploadException();
+		} catch (Exception ex) {
+			logger.error("error", ex);
+			throw new FileUploadException();
 		}
-		
-		return key;
 	}
 	
 	public InputStream retrieveFile(String key) {

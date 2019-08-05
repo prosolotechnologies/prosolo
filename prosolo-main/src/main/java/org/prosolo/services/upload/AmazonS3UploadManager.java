@@ -1,6 +1,7 @@
 package org.prosolo.services.upload;
 
 import java.io.InputStream;
+import org.prosolo.bigdata.common.exceptions.FileUploadException;
 
 
 /**
@@ -10,6 +11,14 @@ import java.io.InputStream;
  */
 public interface AmazonS3UploadManager {
 
+	/**
+	 *
+	 * @param sourceInputStream
+	 * @param fileName
+	 * @param fileType
+	 * @return
+	 * @throws FileUploadException
+	 */
 	String storeInputStreamByKey( InputStream sourceInputStream, String fileName, String fileType);
 
 	String storeInputStreamByFileName(InputStream sourceInputStream,
