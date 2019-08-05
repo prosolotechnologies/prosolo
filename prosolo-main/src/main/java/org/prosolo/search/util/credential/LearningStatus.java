@@ -2,7 +2,7 @@ package org.prosolo.search.util.credential;
 
 public enum LearningStatus {
 
-	All("All"),
+	All("All students"),
 	Active("Only active");
 	
 	private String label;
