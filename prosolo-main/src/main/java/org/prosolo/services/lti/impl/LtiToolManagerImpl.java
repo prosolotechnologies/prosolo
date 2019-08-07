@@ -6,6 +6,7 @@ import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.lti.LtiConsumer;
 import org.prosolo.common.domainmodel.lti.LtiTool;
 import org.prosolo.common.domainmodel.user.UserGroup;
+import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.lti.LtiToolManager;
 import org.prosolo.services.lti.data.ExternalToolFormData;
@@ -18,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service("org.prosolo.services.lti.LtiToolManager")
 public class LtiToolManagerImpl  extends AbstractManagerImpl implements LtiToolManager {
@@ -123,31 +125,57 @@ public class LtiToolManagerImpl  extends AbstractManagerImpl implements LtiToolM
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	@Transactional(readOnly=true)
-	public List<LtiTool> searchTools(long userId, Map<String,Object> parameters, Filter filter) throws DbConnectionException{
-		try{
-			Map<String, String> aliases = new HashMap<>();
-			aliases.put("LtiTool", "t");
-			
-			String queryString = 
-					"SELECT t " +
-					"FROM LtiTool t " +
-					"LEFT JOIN t.createdBy user " +
-					"WHERE user.id = :id "
-					+ "AND t.deleted = false "
-					+ "AND "+filter.getCondition(aliases);
-				
-			Query query = filter.getQuery(persistence, queryString, parameters);
-			query.setLong("id", userId);
-			
-			return query.list();
-		}catch(Exception e){
+	public PaginatedResult<ExternalToolFormData> getPaginatedTools(long organizationId, long unitId, int limit, int offset) {
+		try {
+			PaginatedResult paginatedResult = new PaginatedResult();
+			paginatedResult.setHitsNumber(countTools(organizationId, unitId));
+			if (paginatedResult.getHitsNumber() > 0) {
+				paginatedResult.setFoundNodes(getToolsData(organizationId, unitId, limit, offset));
+			}
+
+			return paginatedResult;
+		} catch(Exception e) {
+			logger.error("error", e);
 			throw new DbConnectionException("Tools cannot be retrieved at the moment");
 		}
 	}
-	
+
+	private List<ExternalToolFormData> getToolsData(long organizationId, long unitId, int limit, int offset) {
+		String query =
+				"SELECT t " +
+				"FROM LtiTool t " +
+				"WHERE t.organization.id = :orgId " +
+				"AND t.unit.id = :unitId " +
+				"AND t.deleted IS FALSE " +
+				"ORDER BY t.name";
+
+		List<LtiTool> res = (List<LtiTool>) persistence.currentManager()
+				.createQuery(query)
+				.setLong("orgId", organizationId)
+				.setLong("unitId", unitId)
+				.setFirstResult(offset)
+				.setMaxResults(limit)
+				.list();
+		return res.stream().map(tool -> new ExternalToolFormData(tool)).collect(Collectors.toList());
+	}
+
+	private long countTools(long organizationId, long unitId) {
+		String query =
+				"SELECT COUNT(t) " +
+				"FROM LtiTool t " +
+				"WHERE t.organization.id = :orgId " +
+				"AND t.unit.id = :unitId " +
+				"AND t.deleted IS FALSE";
+
+		return (long) persistence.currentManager()
+				.createQuery(query)
+				.setLong("orgId", organizationId)
+				.setLong("unitId", unitId)
+				.uniqueResult();
+	}
+
 	@Override
 	@Transactional(readOnly = true)
 	public LtiTool getLtiToolForLaunch(long toolId) throws DbConnectionException{

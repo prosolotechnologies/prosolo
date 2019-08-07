@@ -10,8 +10,6 @@ import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.lti.ResourceType;
 import org.prosolo.search.UserGroupTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
-import org.prosolo.search.util.users.UserScopeFilter;
-import org.prosolo.search.util.users.UserSearchConfig;
 import org.prosolo.services.lti.LtiToolManager;
 import org.prosolo.services.lti.ToolSetManager;
 import org.prosolo.services.lti.data.ExternalToolFormData;
@@ -19,18 +17,13 @@ import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.data.BasicObjectInfo;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
-import org.prosolo.services.user.data.UserData;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageUtil;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
 import javax.faces.bean.ManagedBean;
 import javax.inject.Inject;
-import javax.persistence.Basic;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -50,8 +43,6 @@ import java.util.List;
 public class LTIExternalToolEditBean implements Serializable {
 
 	private static Logger logger = Logger.getLogger(LTIExternalToolEditBean.class);
-	
-	@Autowired @Qualifier("taskExecutor") private ThreadPoolTaskExecutor taskExecutor;
 	
 	@Inject private LtiToolManager toolManager;
 	@Inject private ToolSetManager tsManager;
@@ -93,26 +84,31 @@ public class LTIExternalToolEditBean implements Serializable {
 		decodedUnitId = idEncoder.decodeId(unitId);
 		decodedId = idEncoder.decodeId(id);
 		if (decodedOrganizationId > 0 && decodedUnitId > 0) {
-			unitTitle = unitManager.getUnitTitle(decodedOrganizationId, decodedUnitId);
-			if (unitTitle != null) {
-				organizationTitle = organizationManager.getOrganizationTitle(decodedOrganizationId);
+			try {
+				unitTitle = unitManager.getUnitTitle(decodedOrganizationId, decodedUnitId);
+				if (unitTitle != null) {
+					organizationTitle = organizationManager.getOrganizationTitle(decodedOrganizationId);
 
-				if (decodedId > 0) {
-					toolData = toolManager.getExternalToolData(decodedId);
-					if (toolData.getOrganizationId() != decodedOrganizationId || toolData.getUnitId() != decodedUnitId) {
-						PageUtil.notFound();
+					if (decodedId > 0) {
+						toolData = toolManager.getExternalToolData(decodedId);
+						if (toolData.getOrganizationId() != decodedOrganizationId || toolData.getUnitId() != decodedUnitId) {
+							PageUtil.notFound();
+						} else {
+							logger.debug("Editing external tool with id " + id);
+						}
 					} else {
-						logger.debug("Editing external tool with id " + id);
+						toolData = new ExternalToolFormData();
+						toolData.setToolType(ResourceType.Global);
+						toolData.setOrganizationId(decodedOrganizationId);
+						toolData.setUnitId(decodedUnitId);
+						logger.debug("Creating new external tool");
 					}
 				} else {
-					toolData = new ExternalToolFormData();
-					toolData.setToolType(ResourceType.Global);
-					toolData.setOrganizationId(decodedOrganizationId);
-					toolData.setUnitId(decodedUnitId);
-					logger.debug("Creating new external tool");
+					PageUtil.notFound();
 				}
-			} else {
-				PageUtil.notFound();
+			} catch (Exception e) {
+				logger.error("error", e);
+				PageUtil.fireErrorMessage("Error loading the page");
 			}
 		} else {
 			PageUtil.notFound();

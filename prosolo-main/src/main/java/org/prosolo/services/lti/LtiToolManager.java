@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.lti.LtiTool;
+import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.lti.data.ExternalToolFormData;
 import org.prosolo.services.lti.data.LTIToolData;
 import org.prosolo.services.lti.filter.Filter;
@@ -35,7 +36,8 @@ public interface LtiToolManager {
 	 * @throws DbConnectionException
 	 */
 	ExternalToolFormData getExternalToolData(long toolId);
-	public List<LtiTool> searchTools(long userId, Map<String,Object> parameters, Filter filter) throws DbConnectionException;
 	public LtiTool getLtiToolForLaunch(long toolId) throws DbConnectionException;
 	public List<LtiTool> getToolsForToolProxy(long toolSetId) throws DbConnectionException;
+
+	PaginatedResult<ExternalToolFormData> getPaginatedTools(long organizationId, long unitId, int limit, int offset);
 }
