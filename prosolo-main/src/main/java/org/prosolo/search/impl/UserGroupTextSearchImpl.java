@@ -17,6 +17,7 @@ import org.prosolo.common.util.ElasticsearchUtil;
 import org.prosolo.search.UserGroupTextSearch;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.indexing.ESIndexer;
+import org.prosolo.services.nodes.data.BasicObjectInfo;
 import org.prosolo.services.nodes.data.ResourceVisibilityMember;
 import org.prosolo.services.user.UserGroupManager;
 import org.prosolo.services.user.data.UserGroupData;
@@ -88,6 +89,33 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 		}
 		return response;
 	}
+
+	@Override
+	public PaginatedResult<BasicObjectInfo> searchUserGroupsAndReturnBasicInfo(
+			long orgId, long unitId, String searchString, int page, int limit) {
+
+		PaginatedResult<BasicObjectInfo> response = new PaginatedResult<>();
+
+		try {
+			List<Long> unitIds = Arrays.asList(unitId);
+			SearchResponse sResponse = getUserGroupsSearchResponse(orgId, unitIds, searchString, page, limit);
+
+			if (sResponse != null) {
+				response.setHitsNumber(sResponse.getHits().getTotalHits());
+
+				for (SearchHit hit : sResponse.getHits()) {
+					long id = Long.parseLong(hit.getSourceAsMap().get("id").toString());
+					String name = (String) hit.getSourceAsMap().get("name");
+					BasicObjectInfo group = new BasicObjectInfo(id, name);
+					response.addFoundNode(group);
+				}
+			}
+		} catch (Exception e) {
+			logger.error("error", e);
+		}
+		return response;
+	}
+
 
 	/**
 	 * This method is used for /manage/students, but for now we are not using that page

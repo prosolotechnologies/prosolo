@@ -5,8 +5,10 @@ import org.hibernate.Query;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.lti.LtiConsumer;
 import org.prosolo.common.domainmodel.lti.LtiTool;
+import org.prosolo.common.domainmodel.user.UserGroup;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.lti.LtiToolManager;
+import org.prosolo.services.lti.data.ExternalToolFormData;
 import org.prosolo.services.lti.data.LTIConsumerData;
 import org.prosolo.services.lti.data.LTIToolData;
 import org.prosolo.services.lti.filter.Filter;
@@ -38,14 +40,16 @@ public class LtiToolManagerImpl  extends AbstractManagerImpl implements LtiToolM
 	
 	@Override
 	@Transactional
-	public LtiTool updateLtiTool(LtiTool tool) throws DbConnectionException{
+	public LtiTool updateLtiTool(ExternalToolFormData tool) throws DbConnectionException{
 		try{
-			LtiTool t = (LtiTool) persistence.currentManager().load(LtiTool.class, tool.getId());
-			t.setName(tool.getName());
+			LtiTool t = (LtiTool) persistence.currentManager().load(LtiTool.class, tool.getToolId());
+			t.setName(tool.getTitle());
 			t.setDescription(tool.getDescription());
-			t.setCustomCss(tool.getCustomCss());
+			t.setUserGroup(tool.getUserGroupData() != null
+					? (UserGroup) persistence.currentManager().load(UserGroup.class, tool.getUserGroupData().getId())
+					: null);
 			return saveEntity(t);
-		}catch(Exception e){
+		}catch(Exception e) {
 			throw new DbConnectionException("Error updating the tool");
 		}
 	}
@@ -106,7 +110,18 @@ public class LtiToolManagerImpl  extends AbstractManagerImpl implements LtiToolM
 			throw new DbConnectionException("Error loading LTI Tool with id " + toolId);
 		}
 	}
-	
+
+	@Override
+	@Transactional(readOnly=true)
+	public ExternalToolFormData getExternalToolData(long toolId) {
+		try {
+			LtiTool ltiTool = (LtiTool) persistence.currentManager().get(LtiTool.class, toolId);
+			return new ExternalToolFormData(ltiTool);
+		} catch (Exception e) {
+			logger.error("error", e);
+			throw new DbConnectionException("Error loading LTI Tool with id " + toolId);
+		}
+	}
 
 	@SuppressWarnings("unchecked")
 	@Override

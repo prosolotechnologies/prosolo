@@ -10,6 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.prosolo.common.domainmodel.lti.LtiTool;
+import org.prosolo.services.lti.data.ExternalToolFormData;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -40,13 +41,12 @@ public class LtiToolManagerTest {
 
 	@Test
 	public void testUpdateLtiTool() throws Exception{
-		LtiTool t = new LtiTool();
-		t.setName("Competence 1");
+		ExternalToolFormData t = new ExternalToolFormData();
+		t.setTitle("Competence 1");
 		t.setDescription("This is a tool for competence 1");
-		t.setCustomCss("#div {color:black}");
-		t.setId(425984);
-		t = toolManager.updateLtiTool(t);
-		assertEquals("Error updating tool", "Competence 1", t.getName());
+		t.setToolId(425984);
+		LtiTool tool = toolManager.updateLtiTool(t);
+		assertEquals("Error updating tool", "Competence 1", tool.getName());
 	}
 
 	@Test

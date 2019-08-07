@@ -14,6 +14,7 @@ import org.prosolo.common.domainmodel.lti.LtiTool;
 import org.prosolo.common.domainmodel.lti.LtiToolSet;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.core.spring.SpringConfig;
+import org.prosolo.services.lti.data.ExternalToolFormData;
 import org.prosolo.services.lti.exceptions.ConsumerAlreadyRegisteredException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.ContextConfiguration;
@@ -35,29 +36,17 @@ public class ToolSetManagerTest {
 
 	@Test
 	public void testSaveToolSet() {
-		LtiTool tool = new LtiTool();
-		tool.setName("Tool 1");
-		tool.setActivityId(1);
-		tool.setCredentialId(1);
-		tool.setCompetenceId(1);
-		User u = new User();
-		u.setId(2);
-	    tool.setCreatedBy(u);
-	    LtiToolSet ts = tsManager.saveToolSet(tool);
-	    assertNotNull("Error saving tool set", ts);
+		ExternalToolFormData tool = new ExternalToolFormData();
+		tool.setTitle("Tool 1");
+	    tool = tsManager.saveToolSet(tool, 2);
+	    assertNotNull("Error saving tool set", tool);
 	}
 	
 	@Test(expected = DataIntegrityViolationException.class)
 	public void testSaveToolSetNonExistingUser() {
-		LtiTool tool = new LtiTool();
-		tool.setName("Tool 1");
-		tool.setActivityId(1);
-		tool.setCredentialId(1);
-		tool.setCompetenceId(1);
-		User u = new User();
-		u.setId(12365);
-	    tool.setCreatedBy(u);
-	    tsManager.saveToolSet(tool);
+		ExternalToolFormData tool = new ExternalToolFormData();
+		tool.setTitle("Tool 1");
+	    tsManager.saveToolSet(tool, 12365);
 	}
 
 	@Test

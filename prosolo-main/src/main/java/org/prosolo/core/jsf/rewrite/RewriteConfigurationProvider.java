@@ -193,6 +193,10 @@ public class RewriteConfigurationProvider extends HttpConfigurationProvider {
 				.addRule(Join.path("/admin/settings").to("/admin/settings.xhtml"))
 				.addRule(Join.path("/admin/settings_old").to("/admin/settings_old.xhtml"))
 				.addRule(Join.path("/admin/other").to("/admin/other.xhtml"))
-				.addRule(Join.path("/admin/data-init").to("/admin/data-init.xhtml"));
+				.addRule(Join.path("/admin/data-init").to("/admin/data-init.xhtml"))
+				.addRule(Join.path("/admin/organizations/{orgId}/units/{unitId}/auto-enrollment").to("/admin/organizations-unit-auto-enrollment.xhtml"))
+				.addRule(Join.path("/admin/organizations/{orgId}/units/{unitId}/auto-enrollment/new").to("/admin/organizations-unit-auto-enrollment-edit.xhtml"))
+				.addRule(Join.path("/admin/organizations/{orgId}/units/{unitId}/auto-enrollment/{toolId}/edit").to("/admin/organizations-unit-auto-enrollment-edit.xhtml"));
+
 	}
 }

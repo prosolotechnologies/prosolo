@@ -92,7 +92,9 @@ public enum ApplicationPage {
 	ADMIN_CREDENTIAL_WHO_CAN_LEARN("/admin/credential-who-can-learn.xhtml"),
 	ADMIN_COMPETENCE("/admin/competence.xhtml"),
 	ADMIN_ACTIVITY("/admin/activity.xhtml"),
-	ADMIN_DATA_INIT("/admin/data-init.xhtml");
+	ADMIN_DATA_INIT("/admin/data-init.xhtml"),
+	ADMIN_ORGANIZATION_UNIT_AUTO_ENROLLMENT_LIST("/admin/organizations-unit-auto-enrollment.xhtml"),
+	ADMIN_ORGANIZATION_UNIT_AUTO_ENROLLMENT_EDIT("/admin/organizations-unit-auto-enrollment-edit.xhtml");
 
 	@Getter @Setter
     private String url;

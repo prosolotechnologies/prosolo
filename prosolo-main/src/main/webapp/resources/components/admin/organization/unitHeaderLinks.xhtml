@@ -72,6 +72,18 @@
 					 <a href="javascript:void(0);">Student Groups</a>
 				 </ui:fragment>
 			 </li>
+			 <li role="presentation" class="#{page eq 'organizations-unit-auto-enrollment'
+			 								or page eq 'organizations-unit-auto-enrollment-edit' ? 'active' : ''}">
+				 <h:link rendered="#{page ne 'organizations-unit-auto-enrollment'}"
+						 outcome="/admin/organizations-unit-auto-enrollment">
+					 <f:param name="orgId" value="#{utilcomp:encodeId(cc.attrs.orgId)}" />
+					 <f:param name="unitId" value="#{utilcomp:encodeId(cc.attrs.unitId)}" />
+					 Auto Enrollment
+				 </h:link>
+				 <ui:fragment rendered="#{page eq 'organizations-unit-auto-enrollment'}">
+					 <a href="javascript:void(0);">Auto Enrollment</a>
+				 </ui:fragment>
+			 </li>
 			 <li role="presentation" class="#{page eq 'unit-settings' ? 'active' : ''}">
 				 <h:link rendered="#{page ne 'unit-settings'}"
 						 outcome="/admin/unit-settings">

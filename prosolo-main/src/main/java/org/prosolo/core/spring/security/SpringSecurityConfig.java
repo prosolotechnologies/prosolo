@@ -312,6 +312,10 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers("/admin/organizations/*/units/*/groups").hasAnyAuthority("ORGANIZATION.UNITS.ADMINISTRATION")
 				.antMatchers("/admin/organizations/*/units/*/groups/*/users").hasAnyAuthority("ORGANIZATION.UNITS.ADMINISTRATION")
 				.antMatchers("/admin/data-init").hasAuthority("TESTDATA.SWITCH")
+				.antMatchers("/admin/organizations/*/units/*/auto-enrollment").hasAnyAuthority("ORGANIZATION.UNITS.ADMINISTRATION")
+				.antMatchers("/admin/organizations/*/units/*/auto-enrollment/new").hasAnyAuthority("ORGANIZATION.UNITS.ADMINISTRATION")
+				.antMatchers("/admin/organizations/*/units/*/auto-enrollment/*/edit").hasAnyAuthority("ORGANIZATION.UNITS.ADMINISTRATION")
+
 				.antMatchers("/manage/**").denyAll()
 				.antMatchers("/admin/**").denyAll()
 				.antMatchers("/**").hasAnyAuthority("BASIC.USER.ACCESS")
