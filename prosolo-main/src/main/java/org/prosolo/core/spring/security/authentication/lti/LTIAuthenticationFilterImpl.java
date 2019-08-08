@@ -132,7 +132,8 @@ public class LTIAuthenticationFilterImpl extends AbstractAuthenticationProcessin
             LTILaunchMessage msg = (LTILaunchMessage) msgE.getLtiMessage(request);
             return msg;
         } catch (Exception e) {
-            throw new Exception("Required parameter missing from launch");
+            logger.error("error", e);
+            throw new Exception("Required parameters missing from launch or not valid");
         }
 
     }

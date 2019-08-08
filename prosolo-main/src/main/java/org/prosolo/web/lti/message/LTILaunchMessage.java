@@ -31,7 +31,6 @@ public class LTILaunchMessage extends LTIMessage {
     //private String toolConsumerInstanceName;
 
     public LTILaunchMessage() {
-        messageType = new LtiMessageParameter(new EmptyValidator(new EqualValuesValidator(null, LTIConstants.MESSAGE_TYPE)));
         messageType = new LtiMessageParameter(new NullValidator(new EmptyValidator(
                 new EqualValuesValidator(null, LTIConstants.MESSAGE_TYPE_LTILAUNCH))));
         consumerKey = new LtiMessageParameter(new NullValidator(new EmptyValidator(null)));
