@@ -2848,6 +2848,11 @@ input[type="password"] {
   input[type="number"].width100,
   input[type="password"].width100 {
     width: 100px !important; }
+  input[type="text"].width450,
+  input[type="email"].width450,
+  input[type="number"].width450,
+  input[type="password"].width450 {
+    width: 450px !important; }
 
 .searchField {
   background: #fff;
@@ -3397,9 +3402,17 @@ header {
       height: 100%;
       cursor: text;
       color: #D5D8DA; }
+  .newWallPost .textAreaWrapper .newPostContent,
+  .sharePostModal .textAreaWrapper .newPostContent {
+    width: 100%;
+    border: none;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none;
+    height: 42px; }
   .newWallPost .textAreaWrapper .searchResultsDrop,
   .sharePostModal .textAreaWrapper .searchResultsDrop {
-    top: 40px; }
+    top: 70px; }
     .newWallPost .textAreaWrapper .searchResultsDrop li a,
     .sharePostModal .textAreaWrapper .searchResultsDrop li a {
       height: 52px; }
