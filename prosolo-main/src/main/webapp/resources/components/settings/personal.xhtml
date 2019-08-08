@@ -27,14 +27,20 @@
 						<h2>Personal Info</h2>
 						<div class="formWrapper">
 							<h:form id="settingsPersonalForm">
-								<p:growl id="settingsPersonalGrowl" showDetail="true"></p:growl>
+								<p:focus context="settingsPersonalForm"/>
+								<p:growl id="settingsPersonalGrowl" globalOnly="true" showDetail="true"></p:growl>
 								
 								<div class="formLine">
 									<label>First name</label>
 									<div class="formLineRight">
 										<h:inputText id="editName" class="editName"
+													 label="First name"
 													 placeholder="Enter your first name"
-													 value="#{personalInfoSettingsBean.accountData.name}" />
+													 value="#{personalInfoSettingsBean.accountData.name}"
+													 required="true">
+											<f:validateLength maximum="180"/>
+										</h:inputText>
+										<small class="redText displayBlock"><h:message for="editName"/></small>
 									</div>
 								</div>
 								
@@ -42,8 +48,13 @@
 									<label>Last name</label>
 									<div class="formLineRight">
 										<h:inputText id="editLastName" class="editLastName"
+													 label="Last name"
 													 placeholder="Enter your last name"
-													 value="#{personalInfoSettingsBean.accountData.lastName}" />
+													 value="#{personalInfoSettingsBean.accountData.lastName}"
+													 required="true">
+											<f:validateLength maximum="180"/>
+										</h:inputText>
+										<small class="redText displayBlock"><h:message for="editLastName"/></small>
 									</div>
 								</div>
 								
@@ -60,8 +71,12 @@
 									<label>Position</label>
 									<div class="formLineRight">
 										<h:inputText id="editPosition" class="editPosition"
+													 label="Position"
 													 placeholder="Enter a position"
-													 value="#{personalInfoSettingsBean.accountData.position}" />
+													 value="#{personalInfoSettingsBean.accountData.position}">
+											<f:validateLength maximum="255"/>
+										</h:inputText>
+										<small class="redText displayBlock"><h:message for="editPosition"/></small>
 									</div>
 								</div>
 								
@@ -69,9 +84,13 @@
 									<label>Location</label>
 									<h:panelGroup layout="block" id="location" class="location formLineRight">
 										<h:inputText id="editLocationName"
-											value="#{personalInfoSettingsBean.accountData.locationName}"
-											class="searchLocationTextField"
-											size="50" />
+													 label="Location"
+													 value="#{personalInfoSettingsBean.accountData.locationName}"
+													 class="searchLocationTextField"
+													 size="50">
+											<f:validateLength maximum="255"/>
+										</h:inputText>
+										<small class="redText displayBlock"><h:message for="editLocationName"/></small>
 										<h:inputText value="#{personalInfoSettingsBean.accountData.latitude}" class="latitude" style="display: none;" />
 										<h:inputText value="#{personalInfoSettingsBean.accountData.longitude}" class="longitude" style="display: none;" />
 										
@@ -107,13 +126,19 @@
 						
 						<div class="formWrapper">
 							<h:form id="socialNetworksSettingsForm">
-								<p:growl id="settingsSocialNetworksGrowl" showDetail="true"></p:growl>
+								<p:focus context="socialNetworksSettingsForm" rendered="#{facesContext.validationFailed}"/>
+								<p:growl id="settingsSocialNetworksGrowl" globalOnly="true" showDetail="true"></p:growl>
 								
 								<h:panelGroup layout="block" id="socialNetworksContainer" class="socialNetworksContainer">
 									<div class="formLine">
 										<label>LinkedIn profile URL</label>
 										<div class="formLineRight">
-											<h:inputText value="#{personalInfoSettingsBean.userSocialNetworksData.socialNetworkAccountsData['LINKEDIN'].linkEdit}" />
+											<h:inputText value="#{personalInfoSettingsBean.userSocialNetworksData.socialNetworkAccountsData['LINKEDIN'].linkEdit}"
+														 id="txtFieldLinkedin"
+														 label="Linkedin Profile URL">
+													<f:validateLength maximum="255"/>
+											</h:inputText>
+											<small class="redText displayBlock"><h:message for="txtFieldLinkedin"/></small>
 										</div>
 									</div>
 									
@@ -121,14 +146,20 @@
 										<label>Twitter profile URL</label>
 										
 										<div class="formLineRight">
-											<h:inputText id="twitterProfileUrl" value="#{personalInfoSettingsBean.userSocialNetworksData.socialNetworkAccountsData['TWITTER'].linkEdit}" />
-											
+											<h:inputText id="twitterProfileUrl"
+														 label="Twitter Profile URL"
+														 value="#{personalInfoSettingsBean.userSocialNetworksData.socialNetworkAccountsData['TWITTER'].linkEdit}">
+													<f:validateLength maximum="255"/>
+											</h:inputText>
+											<small class="redText displayBlock"><h:message id="msgTwitterProfileUrl" for="twitterProfileUrl"/></small>
+
 											<div class="twitterBtnBox">
 												<h:panelGroup id="twitter">
 													<h:panelGroup rendered="#{!personalInfoSettingsBean.connectedToTwitter}">
 														<p:commandLink styleClass="btn btnTwitterConnect btn-sm"
-															action="#{twitterBean.startTweeterOauthAuthProcess}"
-															update=":#{cc.clientId}:socialNetworksSettingsForm:twitter settingsSocialNetworksGrowl">
+																	   process="@this"
+																	   action="#{twitterBean.startTweeterOauthAuthProcess}"
+																	   update=":#{cc.clientId}:socialNetworksSettingsForm:twitter settingsSocialNetworksGrowl">
 															<span></span>Connect to Twitter
 														</p:commandLink>
 														
@@ -138,8 +169,9 @@
 													
 													<h:panelGroup rendered="#{personalInfoSettingsBean.connectedToTwitter}">
 														<p:commandLink styleClass="btn btnTwitterConnect btn-sm"
-															action="#{twitterBean.disconnectUserAccount(true)}"
-															update=":#{cc.clientId}:socialNetworksSettingsForm:twitter settingsSocialNetworksGrowl">
+																	   process="@this"
+																	   action="#{twitterBean.disconnectUserAccount(true)}"
+																	   update=":#{cc.clientId}:socialNetworksSettingsForm:twitter settingsSocialNetworksGrowl">
 															<span></span>Disconnect from Twitter
 														</p:commandLink>
 													</h:panelGroup>
@@ -167,14 +199,24 @@
 									<div class="formLine">
 										<label>Facebook profile URL</label>
 										<div class="formLineRight">
-											<h:inputText value="#{personalInfoSettingsBean.userSocialNetworksData.socialNetworkAccountsData['FACEBOOK'].linkEdit}" />
+											<h:inputText value="#{personalInfoSettingsBean.userSocialNetworksData.socialNetworkAccountsData['FACEBOOK'].linkEdit}"
+														 id="txtFieldFacebookProfileUrl"
+														 label="Facebook Profile URL">
+													<f:validateLength maximum="255"/>
+											</h:inputText>
+											<small class="redText displayBlock"><h:message for="txtFieldFacebookProfileUrl"/></small>
 										</div>
 									</div>
 									
 									<div class="formLine">
 										<label>Blog URL</label>
 										<div class="formLineRight">
-											<h:inputText value="#{personalInfoSettingsBean.userSocialNetworksData.socialNetworkAccountsData['BLOG'].linkEdit}" />
+											<h:inputText value="#{personalInfoSettingsBean.userSocialNetworksData.socialNetworkAccountsData['BLOG'].linkEdit}"
+														 id="txtFieldBlogUrl"
+														 label="Blog URL">
+													<f:validateLength maximum="255"/>
+											</h:inputText>
+											<small class="redText displayBlock"><h:message for="txtFieldBlogUrl"/></small>
 										</div>
 									</div>
 									
@@ -186,7 +228,7 @@
 											<p:commandLink id="saveChangesLink" style="display: none;"
 												value="Save Changes"
 												action="#{personalInfoSettingsBean.saveSocialNetworkChanges}"
-												update="settingsSocialNetworksGrowl twitter #{cc.attrs.toUpdate}" />
+												update="socialNetworksSettingsForm #{cc.attrs.toUpdate}" />
 											<a id="saveChangesTwitterWarningLink" style="display: none;"
 												onclick="twitterWarningOnClick();">
 												Save Changes
