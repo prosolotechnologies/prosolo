@@ -109,7 +109,7 @@ public class PersonalInfoSettingsBean implements Serializable {
 		} catch (IOException ioe) {
 			logger.error(ioe.getMessage());
 
-			PageUtil.fireErrorMessage("The file was not uploaded!");
+			PageUtil.fireErrorMessage("Error uploading the file");
 		}
 	}
 

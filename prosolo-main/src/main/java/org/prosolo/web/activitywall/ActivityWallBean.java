@@ -321,7 +321,7 @@ public class ActivityWallBean implements Serializable {
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 			uploadFile.setInitialized(false);
-			PageUtil.fireErrorMessage("The file was not uploaded!");
+			PageUtil.fireErrorMessage("Error uploading the file");
 		}
     }
 

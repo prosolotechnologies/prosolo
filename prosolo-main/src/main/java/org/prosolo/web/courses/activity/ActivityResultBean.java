@@ -71,7 +71,7 @@ public class ActivityResultBean implements Serializable {
 			PageUtil.fireSuccessfulInfoMessage("The file has been uploaded");
 		} catch (Exception e) {
 			logger.error(e);
-			PageUtil.fireErrorMessage("Error uploading assignment");
+			PageUtil.fireErrorMessage("Error uploading the file");
 		}
 	}
 

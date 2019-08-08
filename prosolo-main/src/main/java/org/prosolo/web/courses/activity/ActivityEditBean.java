@@ -299,7 +299,7 @@ public class ActivityEditBean extends LearningResourceAssessmentSettingsBean imp
 			//activityData.getFiles().add(rl);
 		} catch (Exception e) {
 			logger.error(e.getMessage());
-			PageUtil.fireErrorMessage("The file was not uploaded!");
+			PageUtil.fireErrorMessage("Error uploading the file");
 		}
 	}
 	
