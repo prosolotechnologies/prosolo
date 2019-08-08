@@ -5,6 +5,7 @@ import org.hibernate.exception.ConstraintViolationException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.credential.CompetenceEvidence;
 import org.prosolo.common.domainmodel.credential.LearningEvidence;
+import org.prosolo.common.domainmodel.credential.LearningEvidenceType;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.data.Result;
@@ -92,4 +93,13 @@ public interface LearningEvidenceManager {
      * @param newRelation
      */
     void updateRelationToCompetency(long evidenceId, long competenceId, long userId, String newRelation);
+
+    /**
+     * Returns all types of evidence given user has submitted.
+     *
+     * @param userId
+     * @return
+     * @throws DbConnectionException
+     */
+    List<LearningEvidenceType> getEvidenceTypesForUser(long userId);
 }

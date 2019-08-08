@@ -3,6 +3,7 @@ package org.prosolo.web.learningevidence;
 import lombok.Getter;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.common.domainmodel.credential.LearningEvidenceType;
 import org.prosolo.search.LearningEvidenceTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.nodes.LearningEvidenceManager;
@@ -80,20 +81,25 @@ public class EvidenceRepositoryBean implements Serializable, Paginable {
             evidenceRepositoryPluginData = organizationManager.getOrganizationEvidenceRepositoryPluginData(loggedUserBean.getOrganizationId());
             List<LearningEvidenceLabeledSearchFilter> searchFilters = new LinkedList<>();
             searchFilters.add(LearningEvidenceLabeledSearchFilter.ALL);
-            if (evidenceRepositoryPluginData.isFileEvidenceEnabled()) {
-                searchFilters.add(LearningEvidenceLabeledSearchFilter.FILE);
-            }
-            if (evidenceRepositoryPluginData.isUrlEvidenceEnabled()) {
-                searchFilters.add(LearningEvidenceLabeledSearchFilter.URL);
-            }
-            if (evidenceRepositoryPluginData.isTextEvidenceEnabled()) {
-                searchFilters.add(LearningEvidenceLabeledSearchFilter.TEXT);
-            }
+            List<LearningEvidenceType> evidenceTypes = learningEvidenceManager.getEvidenceTypesForUser(loggedUserBean.getUserId());
+            evidenceTypes.forEach(type -> searchFilters.add(getEvidenceTypeFilterForEvidenceType(type)));
             filters = searchFilters.stream().toArray(LearningEvidenceLabeledSearchFilter[]::new);
         } catch (DbConnectionException e) {
             logger.error("Error", e);
             PageUtil.fireErrorMessage("Error loading the page");
         }
+    }
+
+    private LearningEvidenceLabeledSearchFilter getEvidenceTypeFilterForEvidenceType(LearningEvidenceType type) {
+        switch (type) {
+            case FILE:
+                return LearningEvidenceLabeledSearchFilter.FILE;
+            case LINK:
+                return LearningEvidenceLabeledSearchFilter.URL;
+            case TEXT:
+                return LearningEvidenceLabeledSearchFilter.TEXT;
+        }
+        throw new IllegalArgumentException("Unexpected evidence type argument value");
     }
 
     private void loadEvidences() {
