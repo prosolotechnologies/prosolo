@@ -441,10 +441,21 @@ public interface CredentialManager extends AbstractManager {
 	PaginatedResult<CredentialData> searchCredentialsForAdmin(long unitId, CredentialSearchFilterManager searchFilter, int limit, int page)
 			throws DbConnectionException, NullPointerException;
 
-	void updateDeliveryStartAndEnd(CredentialData deliveryData, UserContextData context)
+	void updateDeliveryStartAndEnd(CredentialData deliveryData, boolean alwaysAllowDeliveryStartChange, UserContextData context)
 			throws StaleDataException, IllegalDataStateException, DbConnectionException;
 
-	Result<Void> updateDeliveryStartAndEndAndGetEvents(CredentialData deliveryData, UserContextData context)
+	/**
+	 * Updates delivery start and end dates.
+	 *
+	 * @param deliveryData
+	 * @param alwaysAllowDeliveryStartChange - if true, no conditions are checked for delivery start and it is updated; otherwise update is not allowed if delivery has already started.
+	 * @param context
+	 * @return
+	 * @throws StaleDataException
+	 * @throws IllegalDataStateException
+	 * @throws DbConnectionException
+	 */
+	Result<Void> updateDeliveryStartAndEndAndGetEvents(CredentialData deliveryData, boolean alwaysAllowDeliveryStartChange, UserContextData context)
 			throws StaleDataException, IllegalDataStateException, DbConnectionException;
 
 	Long getInstructorUserId(long userId, long credId, Session session) throws DbConnectionException;

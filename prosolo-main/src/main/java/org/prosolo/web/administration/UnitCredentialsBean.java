@@ -232,7 +232,7 @@ public class UnitCredentialsBean implements Serializable, Paginable {
 	public void updateDelivery() {
 		if (selectedCred != null) {
 			try {
-				credManager.updateDeliveryStartAndEnd(selectedCred, loggedUserBean.getUserContext(decodedOrgId));
+				credManager.updateDeliveryStartAndEnd(selectedCred, false, loggedUserBean.getUserContext(decodedOrgId));
 				PageUtil.fireSuccessfulInfoMessage("The " + ResourceBundleUtil.getMessage("label.delivery").toLowerCase() + " has been updated");
 			} catch (Exception e) {
 				logger.error("Error", e);

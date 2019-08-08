@@ -452,6 +452,11 @@ public class DateUtil {
 		Instant now = Instant.now();
 		return Date.from(now.minus(Duration.ofDays(n)));
 	}
+
+	public static Date getNDaysFromNow(int n) {
+		Instant now = Instant.now();
+		return Date.from(now.plus(Duration.ofDays(n)));
+	}
 	
 	public static void main(String[] args) {
 		Calendar cal = new GregorianCalendar();
