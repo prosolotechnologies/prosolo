@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 
 import javax.faces.bean.ManagedBean;
 import javax.inject.Inject;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -64,21 +65,35 @@ public class ActivityResultBean implements Serializable {
 		uploadAssignment(event, result, PageUtil.extractLearningContextDataFromComponent(event.getComponent()));
 	}
 
-	public void uploadAssignment(FileUploadEvent event, ActivityResultData result, PageContextData pageContextData) {
-		UploadedFile uploadedFile = event.getFile();
+	private void uploadAssignment(FileUploadEvent event, ActivityResultData result, PageContextData pageContextData) {
 		try {
-			String fileName = uploadedFile.getFileName();
-			String fullPath = uploadManager.storeFile(uploadedFile, fileName);
-			Date postDate = new Date();
-			activityManager.saveResponse(result.getTargetActivityId(), fullPath, postDate,
-					ActivityResultType.FILE_UPLOAD, loggedUser.getUserContext(pageContextData));
-			result.setAssignmentTitle(fileName);
-			result.setResult(fullPath);
-			result.setResultPostDate(postDate);
+			uploadAssignmentAndPropagateExceptions(event, result, pageContextData);
+			PageUtil.fireSuccessfulInfoMessage("The file has been uploaded");
 		} catch (Exception e) {
 			logger.error(e);
-			PageUtil.fireErrorMessage("Error uploading assignment");
+			PageUtil.fireErrorMessage("Error uploading the file");
 		}
+	}
+
+	/**
+	 * Uploads assignment and propagates exceptions generated.
+	 *
+	 * @param event
+	 * @param result
+	 * @param pageContextData
+	 * @throws IOException
+	 * @throws org.prosolo.bigdata.common.exceptions.FileUploadException
+	 */
+	public void uploadAssignmentAndPropagateExceptions(FileUploadEvent event, ActivityResultData result, PageContextData pageContextData) throws IOException {
+		UploadedFile uploadedFile = event.getFile();
+		String fileName = uploadedFile.getFileName();
+		String fullPath = uploadManager.storeFile(uploadedFile, fileName);
+		Date postDate = new Date();
+		activityManager.saveResponse(result.getTargetActivityId(), fullPath, postDate,
+				ActivityResultType.FILE_UPLOAD, loggedUser.getUserContext(pageContextData));
+		result.setAssignmentTitle(fileName);
+		result.setResult(fullPath);
+		result.setResultPostDate(postDate);
 	}
 	
 }

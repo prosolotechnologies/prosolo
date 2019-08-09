@@ -246,8 +246,6 @@ public class ActivityResultsBeanUser implements Serializable {
 	public void handleFileUpload(FileUploadEvent event) {
 		activityResultBean.uploadAssignment(event, 
 				competenceData.getActivityToShowWithDetails().getResultData());
-		
-		PageUtil.fireSuccessfulInfoMessage("The file has been uploaded");
 	}
 	
 	/*
