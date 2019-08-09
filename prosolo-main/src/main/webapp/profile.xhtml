@@ -768,20 +768,24 @@
                         $('#profileSettings').on('hidden', function() {
                             $.fn.modal.Constructor.prototype.enforceFocus = enforceModalFocusFn;
                         });
-
-                        new ClipboardJS('#copyProfileUrlBtn', {
-                            text: function() {
-                                PF('profileGrowl').renderMessage({"summary":"Successful",
-                                    "detail":"Your profile URL is copied",
-                                    "severity":"info"});
-
-                                let customUrl = $(escapeColons('#formProfileSettings:customProfileUrl')).val();
-                                return "#{applicationbean.commonConfig.appConfig.domain}p/"+customUrl;
-                            }
-                        });
                     });
                 </script>
             </h:form>
         </div>
+
+        <script>
+            $(function() {
+                new ClipboardJS('#copyProfileUrlBtn', {
+                    text: function() {
+                        PF('profileGrowl').renderMessage({"summary":"Successful",
+                            "detail":"Your profile URL is copied",
+                            "severity":"info"});
+
+                        let customUrl = $(escapeColons('#formProfileSettings:customProfileUrl')).val();
+                        return "#{applicationbean.commonConfig.appConfig.domain}p/"+customUrl;
+                    }
+                });
+            });
+        </script>
     </ui:define>
 </ui:composition>
