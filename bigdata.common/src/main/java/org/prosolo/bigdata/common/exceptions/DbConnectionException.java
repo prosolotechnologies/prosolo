@@ -8,7 +8,11 @@ public class DbConnectionException extends RuntimeException{
 		this("Database connection error");
 	}
 	
-	public DbConnectionException (String message){
+	public DbConnectionException (String message) {
 		super(message);
+	}
+
+	public DbConnectionException(String message, Throwable cause) {
+		super(message, cause);
 	}
 }

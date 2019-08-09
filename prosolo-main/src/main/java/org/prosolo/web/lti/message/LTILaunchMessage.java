@@ -31,17 +31,17 @@ public class LTILaunchMessage extends LTIMessage {
     //private String toolConsumerInstanceName;
 
     public LTILaunchMessage() {
-        messageType = new LtiMessageParameter(new NullValidator(new EmptyValidator(
+        messageType = new LtiMessageParameter("Message type", new NullValidator(new EmptyValidator(
                 new EqualValuesValidator(null, LTIConstants.MESSAGE_TYPE_LTILAUNCH))));
-        consumerKey = new LtiMessageParameter(new NullValidator(new EmptyValidator(null)));
-        userFirstName = new LtiMessageParameter(null);
-        userLastName = new LtiMessageParameter(null);
-        userEmail = new LtiMessageParameter(new NullValidator(new EmptyValidator(null)));
-        userID = new LtiMessageParameter(new NullValidator(new EmptyValidator(null)));
-        resultUrl = new LtiMessageParameter(null);
-        resultSourcedId = new LtiMessageParameter(null);
-        launchPresentationReturnURL = new LtiMessageParameter(null);
-        roles=new LtiMessageParameter(null);
+        consumerKey = new LtiMessageParameter("Consumer key", new NullValidator(new EmptyValidator(null)));
+        userFirstName = new LtiMessageParameter("First name",null);
+        userLastName = new LtiMessageParameter("Last name", null);
+        userEmail = new LtiMessageParameter("Email", new NullValidator(new EmptyValidator(null)));
+        userID = new LtiMessageParameter("User id", new NullValidator(new EmptyValidator(null)));
+        resultUrl = new LtiMessageParameter("Result URL", null);
+        resultSourcedId = new LtiMessageParameter("Result sourced id", null);
+        launchPresentationReturnURL = new LtiMessageParameter("Launch presentation return URL", null);
+        roles=new LtiMessageParameter("Roles", null);
     }
 
     public String getMessageType() {

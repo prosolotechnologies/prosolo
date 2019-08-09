@@ -147,6 +147,7 @@ public class LTIExternalToolEditBean implements Serializable {
 				logger.info("LTI tool updated");
 				PageUtil.fireSuccessfulInfoMessage("The external tool has been updated");
 			} catch (Exception e) {
+				logger.error("error", e);
 				PageUtil.fireErrorMessage("Error updating the external tool");
 			}
 		} else {
@@ -156,6 +157,7 @@ public class LTIExternalToolEditBean implements Serializable {
 				PageUtil.fireSuccessfulInfoMessageAcrossPages("The external tool has been saved");
 				PageUtil.redirect("/admin/organizations/" + organizationId + "/units/" + unitId + "/auto-enrollment/" + idEncoder.encodeId(toolData.getToolId()) + "/edit");
 			} catch (Exception e) {
+				logger.error("error", e);
 				PageUtil.fireErrorMessage("Error saving the external tool");
 			}
 		}
