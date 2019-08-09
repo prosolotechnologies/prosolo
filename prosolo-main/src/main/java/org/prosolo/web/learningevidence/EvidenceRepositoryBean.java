@@ -3,6 +3,7 @@ package org.prosolo.web.learningevidence;
 import lombok.Getter;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.credential.LearningEvidenceType;
 import org.prosolo.search.LearningEvidenceTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
@@ -83,11 +84,30 @@ public class EvidenceRepositoryBean implements Serializable, Paginable {
             searchFilters.add(LearningEvidenceLabeledSearchFilter.ALL);
             List<LearningEvidenceType> evidenceTypes = learningEvidenceManager.getEvidenceTypesForUser(loggedUserBean.getUserId());
             evidenceTypes.forEach(type -> searchFilters.add(getEvidenceTypeFilterForEvidenceType(type)));
+            searchFilters.sort((type1, type2) -> compareEvidenceTypes(type1, type2));
             filters = searchFilters.stream().toArray(LearningEvidenceLabeledSearchFilter[]::new);
         } catch (DbConnectionException e) {
             logger.error("Error", e);
             PageUtil.fireErrorMessage("Error loading the page");
         }
+    }
+
+    protected int compareEvidenceTypes(LearningEvidenceLabeledSearchFilter type1, LearningEvidenceLabeledSearchFilter type2) {
+        return getSortNumberForEvidenceType(type1) - getSortNumberForEvidenceType(type2);
+    }
+
+    private int getSortNumberForEvidenceType(LearningEvidenceLabeledSearchFilter type) {
+        switch (type) {
+            case ALL:
+                return 1;
+            case FILE:
+                return 2;
+            case URL:
+                return 3;
+            case TEXT:
+                return 4;
+        }
+        throw new IllegalArgumentException("Unexpected argument value");
     }
 
     private LearningEvidenceLabeledSearchFilter getEvidenceTypeFilterForEvidenceType(LearningEvidenceType type) {
