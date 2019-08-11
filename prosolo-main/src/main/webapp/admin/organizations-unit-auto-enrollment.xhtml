@@ -11,7 +11,7 @@
     <utilcomp:messagesBundle var="msg" />
 
     <ui:define name="windowTitle" >
-        Auto Enrollment - #{ltiExternalToolsBean.unitTitle} - #{ltiExternalToolsBean.organizationTitle} - ProSolo
+        Auto-enrollment - #{ltiExternalToolsBean.unitTitle} - #{ltiExternalToolsBean.organizationTitle} - ProSolo
     </ui:define>
 
     <ui:define name="metadata">
@@ -72,62 +72,73 @@
                         <f:param name="unitId" value="#{param.unitId}" />
                     </h:link>
                 </li>
-                <li class="active">Auto Enrollment Links</li>
+                <li class="active">Auto-enrollment Links</li>
             </ol>
         </div>
 
         <div class="container">
             <div class="row">
-                <h:panelGroup layout="block" id="panelTools" styleClass="col-md-12">
-                    <ui:fragment rendered="#{empty ltiExternalToolsBean.tools}">
-                        <div class="noContentMessage">
+                <h:panelGroup layout="block" id="panelTools" styleClass="col-md-12 manageVisibility">
+                    <div class="whiteBox">
+                        <div class="innerWrapper">
+                            <h2>Auto-enrollment Links</h2>
                             <p>
-                                No tools
+                                Auto-enrollment links allow automatic user account creation and association with the organization and the organizational unit. Optionally, a user account can be joined to a learning group. This feature is based on the LTI protocol (both LTI version 1.0 and 2.0 are supported).
                             </p>
                         </div>
-                    </ui:fragment>
-                    <ui:fragment rendered="#{not empty ltiExternalToolsBean.tools}">
-                        <ul class="whiteBox peopleList">
-                            <ui:repeat value="#{ltiExternalToolsBean.tools}" var="tool">
-                                <li>
-                                    <div class="peopleListLeft">
-                                        <div>
-                                            <h2>
+
+                        <ui:fragment rendered="#{empty ltiExternalToolsBean.tools}">
+                            <div class="noContentMessage list hasTopBorder">
+                                <p class="top20">
+                                    No links.
+                                </p>
+                                <div class="clear"></div>
+                            </div>
+                        </ui:fragment>
+
+                        <ui:fragment rendered="#{not empty ltiExternalToolsBean.tools}">
+                            <ul class="peopleList list hasTopBorder">
+                                <ui:repeat value="#{ltiExternalToolsBean.tools}" var="tool">
+                                    <li>
+                                        <div class="peopleListLeft">
+                                            <div>
+                                                <h2>
+                                                    <h:link outcome="/admin/organizations-unit-auto-enrollment-edit"
+                                                            value="#{tool.title}">
+                                                        <f:param name="orgId" value="#{param.orgId}"/>
+                                                        <f:param name="unitId" value="#{param.unitId}"/>
+                                                        <f:param name="toolId" value="#{util:encodeId(tool.toolId)}"/>
+                                                    </h:link>
+                                                </h2>
+                                                <ui:fragment rendered="#{not empty tool.userGroupData}">
+                                                    <span>
+                                                        Student group:
+                                                        <h:link outcome="/admin/unit-group-users">
+                                                            #{tool.userGroupData.title}
+                                                            <f:param name="orgId" value="#{param.orgId}"/>
+                                                            <f:param name="unitId" value="#{param.unitId}"/>
+                                                            <f:param name="id" value="#{util:encodeId(tool.userGroupData.id)}"/>
+                                                        </h:link>
+                                                    </span>
+                                                </ui:fragment>
+                                            </div>
+                                        </div>
+                                        <div class="peopleListRight">
+                                            <div class="userRole"/>
+                                            <div class="userEditOpt">
                                                 <h:link outcome="/admin/organizations-unit-auto-enrollment-edit"
-                                                        value="#{tool.title}">
+                                                        value="Edit">
                                                     <f:param name="orgId" value="#{param.orgId}"/>
                                                     <f:param name="unitId" value="#{param.unitId}"/>
                                                     <f:param name="toolId" value="#{util:encodeId(tool.toolId)}"/>
                                                 </h:link>
-                                            </h2>
-                                            <ui:fragment rendered="#{not empty tool.userGroupData}">
-                                                <span>
-                                                    Student group:
-                                                    <h:link outcome="/admin/unit-group-users">
-                                                        #{tool.userGroupData.title}
-                                                        <f:param name="orgId" value="#{param.orgId}"/>
-                                                        <f:param name="unitId" value="#{param.unitId}"/>
-                                                        <f:param name="id" value="#{util:encodeId(tool.userGroupData.id)}"/>
-                                                    </h:link>
-                                                </span>
-                                            </ui:fragment>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="peopleListRight">
-                                        <div class="userRole"/>
-                                        <div class="userEditOpt">
-                                            <h:link outcome="/admin/organizations-unit-auto-enrollment-edit"
-                                                    value="Edit">
-                                                <f:param name="orgId" value="#{param.orgId}"/>
-                                                <f:param name="unitId" value="#{param.unitId}"/>
-                                                <f:param name="toolId" value="#{util:encodeId(tool.toolId)}"/>
-                                            </h:link>
-                                        </div>
-                                    </div>
-                                </li>
-                            </ui:repeat>
-                        </ul>
-                    </ui:fragment>
+                                    </li>
+                                </ui:repeat>
+                            </ul>
+                        </ui:fragment>
+                    </div>
                 </h:panelGroup>
             </div>
 

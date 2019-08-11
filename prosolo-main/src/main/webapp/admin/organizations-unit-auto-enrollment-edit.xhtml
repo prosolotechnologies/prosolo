@@ -11,7 +11,7 @@
     <utilcomp:messagesBundle var="msg" />
 
     <ui:define name="windowTitle" >
-        Auto Enrollment - #{ltiExternalToolEditBean.unitTitle} - #{ltiExternalToolEditBean.organizationTitle} - ProSolo
+        Auto-enrollment - #{ltiExternalToolEditBean.unitTitle} - #{ltiExternalToolEditBean.organizationTitle} - ProSolo
     </ui:define>
 
     <ui:define name="metadata">
@@ -65,7 +65,7 @@
                 </li>
                 <li>
                     <h:link outcome="/admin/organizations-unit-auto-enrollment">
-                        Auto Enrollment Links
+                        Auto-enrollment Links
                         <f:param name="orgId" value="#{param.orgId}" />
                         <f:param name="unitId" value="#{param.unitId}" />
                     </h:link>
@@ -81,7 +81,7 @@
                 <div class="row">
                     <div class="col-md-12">
                         <div class="whiteBox">
-                            <h2>Auto Enrollment Link Details</h2>
+                            <h2>Auto-enrollment Link Details</h2>
                             <div class="formWrapper editOrgForm">
                                 <div class="formLine">
                                     <label>Title</label>
@@ -118,7 +118,7 @@
                                                              value="#{ltiExternalToolEditBean.searchTerm}"
                                                              onkeyup="searchListener(execSearchUserGroups);"
                                                              autocomplete="off" />
-                                                <small>Auto enrollment link can optionally automatically add students to a group.</small>
+                                                <small>Auto-enrollment link can optionally automatically add students to a group.</small>
 
                                                 <p:remoteCommand name="execSearchUserGroups"
                                                                  process="txtFieldSearchUserGroups"
@@ -167,7 +167,7 @@
                                                 </tr>
                                                 </tbody>
                                             </table>
-                                            <small>Auto enrollment link can optionally automatically add students to a group.</small>
+                                            <small>Auto-enrollment link can optionally add students to a learning group.</small>
                                         </div>
                                     </h:panelGroup>
                                 </h:panelGroup>
@@ -184,7 +184,7 @@
                                             <h:inputText id="txtFieldLaunchUrl" styleClass="width450 bottom20"
                                                          disabled="true"
                                                          value="#{ltiExternalToolEditBean.toolData.launchUrl}"/>
-                                            <a href="#" id="linkCopyLaunchUrl" class="btn btn-green-stroke left10">Copy</a>
+                                            <a id="linkCopyLaunchUrl" class="btn btn-green-stroke left10">Copy</a>
                                         </div>
 
                                         <div><label>Consumer Key:</label></div>
@@ -192,7 +192,7 @@
                                             <h:inputText id="txtFieldConsumerKey" styleClass="width450 bottom20"
                                                          disabled="true"
                                                          value="#{ltiExternalToolEditBean.toolData.consumerKey}"/>
-                                            <a href="#" id="linkCopyConsumerKey" class="btn btn-green-stroke left10">Copy</a>
+                                            <a id="linkCopyConsumerKey" class="btn btn-green-stroke left10">Copy</a>
                                         </div>
 
                                         <div><label>Secret:</label></div>
@@ -200,7 +200,7 @@
                                             <h:inputText id="txtFieldSecret" styleClass="width450 bottom20"
                                                          disabled="true"
                                                          value="#{ltiExternalToolEditBean.toolData.consumerSecret}"/>
-                                            <a href="#" id="linkCopySecret" class="btn btn-green-stroke left10">Copy</a>
+                                            <a id="linkCopySecret" class="btn btn-green-stroke left10">Copy</a>
                                         </div>
 
                                         <p class="bottom20 top20">The following fields are used by the LTI 2.0 consumers:</p>
@@ -210,7 +210,7 @@
                                             <h:inputText id="txtFieldRegistrationUrl" styleClass="width450 bottom20"
                                                          disabled="true"
                                                          value="#{ltiExternalToolEditBean.toolData.regUrl}"/>
-                                            <a href="#" id="linkCopyRegistrationUrl" class="btn btn-green-stroke left10">Copy</a>
+                                            <a id="linkCopyRegistrationUrl" class="btn btn-green-stroke left10">Copy</a>
                                         </div>
                                     </div>
                                 </div>
