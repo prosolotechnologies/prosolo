@@ -6901,6 +6901,10 @@ header {
     margin-right: 20px; }
   .yourPhotoBox .yourPhotoContent .chooseBtnBox .btn {
     margin-bottom: 20px; }
+  .yourPhotoBox .yourPhotoContent .loaderSvg {
+    float: right;
+    margin-left: 10px;
+    margin-top: 5px; }
 
 .yourPhotoBox .cropButtons {
   padding: 30px 0; }
