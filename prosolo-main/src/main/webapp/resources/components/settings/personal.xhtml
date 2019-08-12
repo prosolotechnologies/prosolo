@@ -245,12 +245,16 @@
 					<div class="whiteBox yourPhotoBox">
 						<h2>Your Photo</h2>
 
-						<div class="clear"></div>
-
 						<h:form id="settingsAvatarForm">
 							<p:growl id="settingsAvatarFormGrowl" showDetail="true" enctype="multipart/form-data" />
-							
+
 							<h:panelGroup layout="block" id="avatar" class="avatar">
+								<p:commandLink styleClass="remove redText top5"
+											   value="Remove"
+											   rendered="#{not empty personalInfoSettingsBean.accountData.avatarUrl}"
+											   update=":#{cc.clientId}:panelRemoveAvatar"
+											   oncomplete="$('#removeAvatar').modal('show')"/>
+								<div class="clear"></div>
 								<h:panelGroup layout="block" id="displayAvatar" class="#{personalInfoSettingsBean.newAvatar != null ? 'hidden' : ''}">
 
 									<div class="yourPhotoContent">
@@ -270,7 +274,7 @@
 																	   fileUploadListenerMethodName="handleFileUpload"
 																	   fileUploadListenerMethod="#{personalInfoSettingsBean.handleFileUpload}"
 																	   toUpdate=":#{cc.clientId}:settingsAvatarForm:editAvatar :#{cc.clientId}:settingsAvatarForm:displayAvatar"
-																	   uploadButtonStyle="btn btn-green"
+																	   uploadButtonStyle="btn btn-green btn-sm"
 																	   fileSizeValidationMessageContainer="#avatarFileUploadValidation"
 																	   allowTypes="gif|jpe?g|png"/>
 
@@ -360,5 +364,37 @@
 	          </div>
 	      </div>
 	    </h:form>
+
+		<div class="modal fade" id="removeAvatar" tabindex="-1" role="dialog" aria-labelledby="rmAvatar">
+			<div class="modal-dialog" role="document">
+				<h:panelGroup layout="block" id="panelRemoveAvatar" styleClass="modal-content">
+					<ui:fragment rendered="#{not empty personalInfoSettingsBean.accountData.avatarUrl}">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal"
+									aria-label="Close">
+								<span aria-hidden="true">&#215;</span>
+							</button>
+							<h2 class="modal-title" id="rmAvatar">Remove photo?</h2>
+						</div>
+
+						<div class="modal-body">
+							<p>Are you sure you want to remove your photo?</p>
+						</div>
+
+						<div class="modal-footer">
+							<utilcomp:singleClickLink
+									styleClass="btn btn-red"
+								    process="@this"
+									action="#{personalInfoSettingsBean.removeAvatar()}"
+									update=":#{cc.clientId}:settingsAvatarForm"
+									oncomplete="$('#removeAvatar').modal('hide');">
+								Remove
+							</utilcomp:singleClickLink>
+							<a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+						</div>
+					</ui:fragment>
+				</h:panelGroup>
+			</div>
+		</div>
 	</composite:implementation>
 </ui:component>

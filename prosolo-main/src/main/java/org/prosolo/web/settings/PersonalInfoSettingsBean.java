@@ -148,6 +148,17 @@ public class PersonalInfoSettingsBean implements Serializable {
 		}
 	}
 
+	public void removeAvatar() {
+		try {
+			userManager.changeAvatar(loggedUser.getUserId(), null);
+			accountData.setAvatarUrl(null);
+			PageUtil.fireSuccessfulInfoMessage("Your photo has been successfully removed");
+		} catch (Exception e) {
+			logger.error("error", e);
+			PageUtil.fireErrorMessage("Error removing the photo");
+		}
+	}
+
 	public void saveSocialNetworkChanges() {
 
 		Map<String, SocialNetworkAccountData> newSocialNetworkAccounts = userSocialNetworksData.getSocialNetworkAccountsData();
