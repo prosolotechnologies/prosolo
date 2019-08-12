@@ -3,16 +3,13 @@ package org.prosolo.db.migration.data.unisa;
 import org.flywaydb.core.api.migration.Context;
 import org.prosolo.db.migration.BaseMigration;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.sql.Statement;
 
 /**
- * Migrate assessments plugin name and new columns values.
+ * Migrate object type and id of assessment grade notifications.
  *
  * @author stefanvuckovic
- * @date 2019-07-12
+ * @date 2019-08-12
  * @since 1.3.2
  *
  */
