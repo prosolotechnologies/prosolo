@@ -12,13 +12,10 @@ import org.prosolo.services.lti.LtiToolManager;
 import org.prosolo.services.lti.data.ExternalToolFormData;
 import org.prosolo.services.lti.data.LTIConsumerData;
 import org.prosolo.services.lti.data.LTIToolData;
-import org.prosolo.services.lti.filter.Filter;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service("org.prosolo.services.lti.LtiToolManager")
@@ -43,7 +40,7 @@ public class LtiToolManagerImpl  extends AbstractManagerImpl implements LtiToolM
 	@Override
 	@Transactional
 	public LtiTool updateLtiTool(ExternalToolFormData tool) throws DbConnectionException{
-		try{
+		try {
 			LtiTool t = (LtiTool) persistence.currentManager().load(LtiTool.class, tool.getToolId());
 			t.setName(tool.getTitle());
 			t.setDescription(tool.getDescription());
@@ -51,8 +48,8 @@ public class LtiToolManagerImpl  extends AbstractManagerImpl implements LtiToolM
 					? (UserGroup) persistence.currentManager().load(UserGroup.class, tool.getUserGroupData().getId())
 					: null);
 			return saveEntity(t);
-		}catch(Exception e) {
-			throw new DbConnectionException("Error updating the tool");
+		} catch (Exception e) {
+			throw new DbConnectionException("Error updating the tool", e);
 		}
 	}
 	

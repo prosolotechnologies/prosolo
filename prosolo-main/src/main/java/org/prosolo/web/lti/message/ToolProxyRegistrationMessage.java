@@ -15,12 +15,12 @@ public class ToolProxyRegistrationMessage extends LTIMessage{
 	private LtiMessageParameter messageType;
 	
 	public ToolProxyRegistrationMessage(){
-		regKey = new LtiMessageParameter(new NullValidator(new EmptyValidator(null)));
-		regPassword = new LtiMessageParameter(new NullValidator(new EmptyValidator(null)));
-		tcProfileURL = new LtiMessageParameter(new NullValidator(new EmptyValidator(null)));
-		messageType = new LtiMessageParameter(new NullValidator(new EmptyValidator(
+		regKey = new LtiMessageParameter("Reg key", new NullValidator(new EmptyValidator(null)));
+		regPassword = new LtiMessageParameter("Reg password", new NullValidator(new EmptyValidator(null)));
+		tcProfileURL = new LtiMessageParameter("TC profile URL", new NullValidator(new EmptyValidator(null)));
+		messageType = new LtiMessageParameter("Message type", new NullValidator(new EmptyValidator(
 				new EqualValuesValidator(null, LTIConstants.MESSAGE_TYPE_TPREGISTRATION))));
-		launchPresentationReturnURL = new LtiMessageParameter(new NullValidator(new EmptyValidator(null)));
+		launchPresentationReturnURL = new LtiMessageParameter("Launch presentation return URL", new NullValidator(new EmptyValidator(null)));
 	}
 	
 	public String getRegKey() {
