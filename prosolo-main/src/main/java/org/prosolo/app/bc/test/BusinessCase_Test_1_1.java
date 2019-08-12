@@ -7,6 +7,8 @@ import org.prosolo.common.domainmodel.lti.ResourceType;
 import org.prosolo.common.event.EventQueue;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.lti.ToolSetManager;
+import org.prosolo.services.lti.data.ExternalToolFormData;
+import org.prosolo.services.nodes.data.BasicObjectInfo;
 
 /**
  * @author stefanvuckovic
@@ -22,19 +24,14 @@ public class BusinessCase_Test_1_1 extends BaseBusinessCase5 {
         //////////////////////////////////
         // Create LTI Global tool
         //////////////////////////////////
-        LtiTool tool = new LtiTool();
+        ExternalToolFormData tool = new ExternalToolFormData();
         tool.setToolType(ResourceType.Global);
-        tool.setName("External Tool 1");
-        tool.setCreatedBy(userNickPowell);
-        tool.setCredentialId(0);
-        tool.setCompetenceId(-1);
-        tool.setActivityId(-1);
-        tool.setEnabled(true);
-        tool.setOrganization(organization);
-        tool.setUnit(unitSchoolOfEducation);
-        tool.setUserGroup(userGroupScienceEducationStudents);
+        tool.setTitle("External Tool 1");
+        tool.setOrganizationId(organization.getId());
+        tool.setUnitId(unitSchoolOfEducation.getId());
+        tool.setUserGroupData(new BasicObjectInfo(userGroupScienceEducationStudents.getId(), userGroupScienceEducationStudents.getName()));
 
-        ServiceLocator.getInstance().getService(ToolSetManager.class).saveToolSet(tool, "daa15cb1-ea0c-4409-ad74-ef01990457a2", "78d21840-ae37-4034-8aa8-e605c06f7ef7");
+        ServiceLocator.getInstance().getService(ToolSetManager.class).saveToolSet(tool, "daa15cb1-ea0c-4409-ad74-ef01990457a2", "78d21840-ae37-4034-8aa8-e605c06f7ef7", userNickPowell.getId());
     }
 
     @Override

@@ -10,8 +10,13 @@ import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.lti.LtiConsumer;
 import org.prosolo.common.domainmodel.lti.LtiTool;
 import org.prosolo.common.domainmodel.lti.LtiToolSet;
+import org.prosolo.common.domainmodel.organization.Organization;
+import org.prosolo.common.domainmodel.organization.Unit;
+import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.domainmodel.user.UserGroup;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.lti.ToolSetManager;
+import org.prosolo.services.lti.data.ExternalToolFormData;
 import org.prosolo.services.lti.exceptions.ConsumerAlreadyRegisteredException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,21 +28,34 @@ public class ToolSetManagerImpl extends AbstractManagerImpl implements ToolSetMa
 
 	@Override
 	@Transactional
-	public LtiToolSet saveToolSet(LtiTool tool) throws DbConnectionException{
-		return saveToolSet(tool, UUID.randomUUID().toString(), UUID.randomUUID().toString());
+	public ExternalToolFormData saveToolSet(ExternalToolFormData tool, long actorId) throws DbConnectionException{
+		return saveToolSet(tool, UUID.randomUUID().toString(), UUID.randomUUID().toString(), actorId);
 	}
 
 	@Override
 	@Transactional
-	public LtiToolSet saveToolSet(LtiTool tool, String keyLtiOne, String secretLtiOne) throws DbConnectionException {
-		try{
+	public ExternalToolFormData saveToolSet(ExternalToolFormData tool, String keyLtiOne, String secretLtiOne, long actorId) throws DbConnectionException {
+		try {
+			LtiTool ltiTool = new LtiTool();
+			ltiTool.setToolType(tool.getToolType());
+			ltiTool.setName(tool.getTitle());
+			ltiTool.setDescription(tool.getDescription());
+			ltiTool.setCreatedBy(loadResource(User.class, actorId));
+			ltiTool.setOrganization(loadResource(Organization.class, tool.getOrganizationId()));
+			if (tool.getUnitId() > 0) {
+				ltiTool.setUnit(loadResource(Unit.class, tool.getUnitId()));
+			}
+			if (tool.getUserGroupData() != null) {
+				ltiTool.setUserGroup(loadResource(UserGroup.class, tool.getUserGroupData().getId()));
+			}
+
 			String domain = CommonSettings.getInstance().config.appConfig.domain;
 			LtiToolSet ts = new LtiToolSet();
 			Set<LtiTool> tools = new HashSet<>();
-			tool.setToolSet(ts);
+			ltiTool.setToolSet(ts);
 			String launchUrl = domain+"ltiproviderlaunch.xhtml";
-			tool.setLaunchUrl(launchUrl);
-			tools.add(tool);
+			ltiTool.setLaunchUrl(launchUrl);
+			tools.add(ltiTool);
 			ts.setTools(tools);
 			LtiConsumer consumer = new LtiConsumer();
 			consumer.setKeyLtiOne(keyLtiOne);
@@ -45,8 +63,10 @@ public class ToolSetManagerImpl extends AbstractManagerImpl implements ToolSetMa
 			ts.setConsumer(consumer);
 			String regUrl = domain+"ltitoolproxyregistration.xhtml";
 			ts.setRegistrationUrl(regUrl);
-			return saveEntity(ts);
-		}catch(Exception e){
+			saveEntity(ts);
+			return new ExternalToolFormData(ltiTool);
+		} catch(Exception e) {
+			logger.error("error", e);
 			throw new DbConnectionException("Error saving the tool");
 		}
 	}

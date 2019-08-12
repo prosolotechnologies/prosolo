@@ -1,0 +1,282 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="templates/masterLayout2.xhtml"
+                xmlns:org="http://java.sun.com/jsf/composite/components/admin/organization"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+                xmlns:util="http://www.prosolo.com/util">
+
+    <utilcomp:messagesBundle var="msg" />
+
+    <ui:define name="windowTitle" >
+        Auto-enrollment - #{ltiExternalToolEditBean.unitTitle} - #{ltiExternalToolEditBean.organizationTitle} - ProSolo
+    </ui:define>
+
+    <ui:define name="metadata">
+        <f:metadata>
+            <f:viewParam name="orgId" value="#{ltiExternalToolEditBean.organizationId}" />
+            <f:viewParam name="unitId" value="#{ltiExternalToolEditBean.unitId}" />
+            <f:viewParam name="toolId" value="#{ltiExternalToolEditBean.id}" />
+            <f:viewAction action="#{ltiExternalToolEditBean.init()}" />
+        </f:metadata>
+    </ui:define>
+
+    <ui:define name="resourceTitle" >
+        <h:panelGroup id="panelTitle">
+            <h1>#{ltiExternalToolEditBean.toolData.toolId gt 0 ? ltiExternalToolEditBean.toolData.title : 'New Enrollment Link'}</h1>
+        </h:panelGroup>
+    </ui:define>
+
+    <ui:define name="navLinks">
+        <org:unitHeaderLinks orgId="#{ltiExternalToolEditBean.decodedOrganizationId}" unitId="#{ltiExternalToolEditBean.decodedUnitId}" />
+    </ui:define>
+
+    <ui:define name="content">
+        <h:outputScript library="javascript2" name="search.js" target="head" />
+        <h:outputScript library="javascript2" name="/clipboard.js/clipboard.min.js" target="head"/>
+
+        <div class="whiteBar"/>
+
+        <div class="container">
+            <ol class="breadcrumb">
+                <ui:fragment rendered="#{loggeduser.hasCapability('admin.advanced')}">
+                    <li><h:link outcome="/admin/organizations">Organizations</h:link></li>
+                </ui:fragment>
+                <li>
+                    <h:link outcome="/admin/units">
+                        #{util:shortenAndAddDots(ltiExternalToolEditBean.organizationTitle)}
+                        <f:param name="id" value="#{param.orgId}" />
+                    </h:link>
+                </li>
+                <li>
+                    <h:link outcome="/admin/units">
+                        #{msg['label.unit.plural']}
+                        <f:param name="id" value="#{param.orgId}" />
+                    </h:link>
+                </li>
+                <li>
+                    <h:link outcome="/admin/unit-credentials">
+                        #{util:shortenAndAddDots(ltiExternalToolEditBean.unitTitle)}
+                        <f:param name="id" value="#{param.orgId}" />
+                        <f:param name="unitId" value="#{param.unitId}" />
+                    </h:link>
+                </li>
+                <li>
+                    <h:link outcome="/admin/organizations-unit-auto-enrollment">
+                        Auto-enrollment Links
+                        <f:param name="orgId" value="#{param.orgId}" />
+                        <f:param name="unitId" value="#{param.unitId}" />
+                    </h:link>
+                </li>
+                <li class="active">#{ltiExternalToolEditBean.toolData.toolId gt 0 ? util:shortenAndAddDots(ltiExternalToolEditBean.toolData.title) : 'New Enrollment Link'}</li>
+            </ol>
+        </div>
+
+        <h:form id="formMain">
+            <p:growl id="growlMain" widgetVar="growlMain" showDetail="true" globalOnly="true"/>
+            <p:focus/>
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="whiteBox">
+                            <h2>Auto-enrollment Link Details</h2>
+                            <div class="formWrapper editOrgForm">
+                                <div class="formLine">
+                                    <label>Title</label>
+                                    <div class="formLineRight">
+                                        <h:inputText id="txtFieldTitle"
+                                                     label="Title"
+                                                     value="#{ltiExternalToolEditBean.toolData.title}"
+                                                     required="true"
+                                                     autocomplete="off">
+                                            <f:validateLength maximum="255"/>
+                                        </h:inputText>
+                                        <small class="redText displayBlock"><h:message for="txtFieldTitle"/></small>
+                                    </div>
+                                </div>
+                                <div class="formLine">
+                                    <label>Description</label>
+                                    <div class="formLineRight">
+                                        <h:inputTextarea id="txtFieldDescription"
+                                                         label="Description"
+                                                         value="#{ltiExternalToolEditBean.toolData.description}">
+                                            <f:validateLength maximum="2000"/>
+                                        </h:inputTextarea>
+                                        <small class="redText displayBlock"><h:message for="txtFieldDescription"/></small>
+                                    </div>
+                                </div>
+
+                                <h:panelGroup id="panelUserGroup">
+                                    <h:panelGroup layout="block" styleClass="formLine" rendered="#{empty ltiExternalToolEditBean.toolData.userGroupData}">
+                                        <label>Student Group</label>
+                                        <div class="formLineRight">
+                                            <div class="inputWrapper">
+                                                <h:inputText id="txtFieldSearchUserGroups"
+                                                             placeholder="Type student group title..."
+                                                             value="#{ltiExternalToolEditBean.searchTerm}"
+                                                             onkeyup="searchListener(execSearchUserGroups);"
+                                                             autocomplete="off" />
+                                                <small>Auto-enrollment link can optionally automatically add students to a group.</small>
+
+                                                <p:remoteCommand name="execSearchUserGroups"
+                                                                 process="txtFieldSearchUserGroups"
+                                                                 action="#{ltiExternalToolEditBean.searchGroups()}"
+                                                                 update="userGroupsListPanel" />
+
+                                                <h:panelGroup id="userGroupsListPanel">
+                                                    <ui:fragment rendered="#{not empty ltiExternalToolEditBean.userGroups}">
+                                                        <ul class="dropdown-menu searchResultsDrop"
+                                                            data-toggle="dropdown" aria-haspopup="true"
+                                                            aria-expanded="true" style="display: block;">
+
+                                                            <ui:repeat value="#{ltiExternalToolEditBean.userGroups}" var="group" varStatus="iterator">
+                                                                <li>
+                                                                    <p:commandLink action="#{ltiExternalToolEditBean.selectUserGroup(group)}"
+                                                                                   process="@this"
+                                                                                   update=":formMain:panelUserGroup">
+                                                                        <h3>#{group.title}</h3>
+                                                                    </p:commandLink>
+                                                                </li>
+                                                            </ui:repeat>
+                                                        </ul>
+                                                    </ui:fragment>
+                                                </h:panelGroup>
+                                            </div>
+                                        </div>
+                                    </h:panelGroup>
+
+                                    <h:panelGroup layout="block" styleClass="formLine" rendered="#{not empty ltiExternalToolEditBean.toolData.userGroupData}">
+                                        <label>Student Group</label>
+                                        <div class="formLineRight">
+                                            <table class="bottom10">
+                                                <tbody>
+                                                <tr>
+                                                    <td class="col1">
+                                                        #{ltiExternalToolEditBean.toolData.userGroupData.title}
+                                                    </td>
+                                                    <td class="col2">
+                                                        <p:commandLink styleClass="linkRed"
+                                                                       value="Remove"
+                                                                       process="@this"
+                                                                       action="#{ltiExternalToolEditBean.removeUserGroup()}"
+                                                                       update=":formMain:panelUserGroup"
+                                                        />
+                                                    </td>
+                                                </tr>
+                                                </tbody>
+                                            </table>
+                                            <small>Auto-enrollment link can optionally add students to a learning group.</small>
+                                        </div>
+                                    </h:panelGroup>
+                                </h:panelGroup>
+
+                                <div class="formLine">
+                                    <label>Generated fields</label>
+
+                                    <div class="formLineRight">
+                                        <div class="checkbox checkLine"></div>
+                                        <p class="bottom20">The following fields are used by the LTI 1.0 consumers:</p>
+
+                                        <div><label>Tool URL:</label></div>
+                                        <div>
+                                            <h:inputText id="txtFieldLaunchUrl" styleClass="width450 bottom20"
+                                                         disabled="true"
+                                                         value="#{ltiExternalToolEditBean.toolData.launchUrl}"/>
+                                            <a id="linkCopyLaunchUrl" class="btn btn-green-stroke left10">Copy</a>
+                                        </div>
+
+                                        <div><label>Consumer Key:</label></div>
+                                        <div>
+                                            <h:inputText id="txtFieldConsumerKey" styleClass="width450 bottom20"
+                                                         disabled="true"
+                                                         value="#{ltiExternalToolEditBean.toolData.consumerKey}"/>
+                                            <a id="linkCopyConsumerKey" class="btn btn-green-stroke left10">Copy</a>
+                                        </div>
+
+                                        <div><label>Secret:</label></div>
+                                        <div>
+                                            <h:inputText id="txtFieldSecret" styleClass="width450 bottom20"
+                                                         disabled="true"
+                                                         value="#{ltiExternalToolEditBean.toolData.consumerSecret}"/>
+                                            <a id="linkCopySecret" class="btn btn-green-stroke left10">Copy</a>
+                                        </div>
+
+                                        <p class="bottom20 top20">The following fields are used by the LTI 2.0 consumers:</p>
+
+                                        <div><label>Registration URL:</label></div>
+                                        <div>
+                                            <h:inputText id="txtFieldRegistrationUrl" styleClass="width450 bottom20"
+                                                         disabled="true"
+                                                         value="#{ltiExternalToolEditBean.toolData.regUrl}"/>
+                                            <a id="linkCopyRegistrationUrl" class="btn btn-green-stroke left10">Copy</a>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="formLine">
+                                    <label>&#160;</label>
+                                    <div class="formLineRight">
+                                        <p:commandLink styleClass="btn btn-green"
+                                                       value="Save Changes"
+                                                       action="#{ltiExternalToolEditBean.save()}"
+                                                       update=":formMain :panelTitle"
+                                        />
+                                        <h:link outcome="/admin/organizations-unit-auto-enrollment"
+                                                styleClass="btn btn-green-stroke left10"
+                                                value="Cancel">
+                                            <f:param name="orgId" value="#{param.orgId}" />
+                                            <f:param name="unitId" value="#{param.unitId}" />
+                                        </h:link>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </h:form>
+
+        <script>
+            $(function() {
+                new ClipboardJS('#linkCopyLaunchUrl', {
+                    text: function() {
+                        PF('growlMain').renderMessage({"summary":"Successful",
+                            "detail":"Tool launch URL is copied",
+                            "severity":"info"});
+
+                        return $(escapeColons('#formMain:txtFieldLaunchUrl')).val();
+                    }
+                });
+                new ClipboardJS('#linkCopyConsumerKey', {
+                    text: function() {
+                        PF('growlMain').renderMessage({"summary":"Successful",
+                            "detail":"Consumer key is copied",
+                            "severity":"info"});
+
+                        return $(escapeColons('#formMain:txtFieldConsumerKey')).val();
+                    }
+                });
+                new ClipboardJS('#linkCopySecret', {
+                    text: function() {
+                        PF('growlMain').renderMessage({"summary":"Successful",
+                            "detail":"Consumer secret is copied",
+                            "severity":"info"});
+
+                        return $(escapeColons('#formMain:txtFieldSecret')).val();
+                    }
+                });
+                new ClipboardJS('#linkCopyRegistrationUrl', {
+                    text: function() {
+                        PF('growlMain').renderMessage({"summary":"Successful",
+                            "detail":"Registration URL is copied",
+                            "severity":"info"});
+
+                        return $(escapeColons('#formMain:txtFieldRegistrationUrl')).val();
+                    }
+                });
+            });
+        </script>
+    </ui:define>
+</ui:composition>
