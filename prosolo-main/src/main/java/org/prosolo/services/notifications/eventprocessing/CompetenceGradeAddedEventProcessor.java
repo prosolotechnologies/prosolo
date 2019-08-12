@@ -98,7 +98,11 @@ public class CompetenceGradeAddedEventProcessor extends GradeAddedEventProcessor
 
     @Override
     ResourceType getObjectType() {
-        return ResourceType.CompetenceAssessment;
+        return ResourceType.Competence;
     }
 
+    @Override
+    long getObjectId() {
+        return competenceId;
+    }
 }
