@@ -564,4 +564,23 @@ public class LearningEvidenceManagerImpl extends AbstractManagerImpl implements 
             throw new DbConnectionException("Error updating relation to competence");
         }
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<LearningEvidenceType> getEvidenceTypesForUser(long userId) {
+        try {
+            String query =
+                    "SELECT DISTINCT le.type FROM LearningEvidence le " +
+                    "WHERE le.user.id = :userId " +
+                    "AND le.deleted IS FALSE";
+
+            return (List<LearningEvidenceType>) persistence.currentManager()
+                    .createQuery(query)
+                    .setLong("userId", userId)
+                    .list();
+        } catch (Exception e) {
+            logger.error("Error", e);
+            throw new DbConnectionException("Error loading the user evidence types");
+        }
+    }
 }

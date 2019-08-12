@@ -749,4 +749,11 @@ public class OrganizationManagerImpl extends AbstractManagerImpl implements Orga
         }
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public EvidenceRepositoryPluginData getOrganizationEvidenceRepositoryPluginData(long organizationId) {
+        EvidenceRepositoryPlugin evidenceRepositoryPlugin = getOrganizationPlugin(EvidenceRepositoryPlugin.class, organizationId);
+        return new EvidenceRepositoryPluginData(evidenceRepositoryPlugin);
+    }
+
 }
