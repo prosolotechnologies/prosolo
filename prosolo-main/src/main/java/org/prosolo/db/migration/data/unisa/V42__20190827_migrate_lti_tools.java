@@ -9,11 +9,11 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 /**
- * Migrate assessments plugin name and new columns values.
+ * Migrate existing LTI tools by removing id query param from launch url.
  *
  * @author stefanvuckovic
- * @date 2019-07-12
- * @since 1.3.2
+ * @date 2019-07-27
+ * @since 1.3.3
  *
  */
 public class V42__20190827_migrate_lti_tools extends BaseMigration {
