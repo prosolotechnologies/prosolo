@@ -160,6 +160,15 @@
 						"type": "long"
 					}
 				}
+			},
+
+			"groupsWithInstructorRole": {
+				"properties": {
+					"id": {
+						"store": false,
+						"type": "long"
+					}
+				}
 			}
 			
 		}

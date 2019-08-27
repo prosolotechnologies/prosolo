@@ -18,6 +18,7 @@ import org.prosolo.services.util.roles.SystemRoleNames;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.PageAccessRightsResolver;
 import org.prosolo.web.administration.data.RoleData;
+import org.prosolo.web.administration.usergroupusers.ImportUsersBean;
 import org.prosolo.web.util.page.PageUtil;
 import org.prosolo.web.util.pagination.Paginable;
 import org.prosolo.web.util.pagination.PaginationData;

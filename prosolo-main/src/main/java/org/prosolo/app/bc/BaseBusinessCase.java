@@ -489,7 +489,7 @@ public abstract class BaseBusinessCase implements BusinessCase {
 
         events.appendEvents(ServiceLocator.getInstance().getService(CredentialManager.class).updateCredentialVisibilityAndGetEvents(
                 delivery.getId(), new LinkedList<>(), studentsToAdd,false, false,
-                UserContextData.of(actor.getId(), org.getId(), null, null, null)));
+                Optional.empty(), UserContextData.of(actor.getId(), org.getId(), null, null, null)));
     }
 
     protected void givePrivilegeToGroupOnDelivery(EventQueue events, Credential1 delivery, UserGroupPrivilege userGroupPrivilege, User actor, Organization org, List<UserGroup> groups) {
@@ -503,7 +503,7 @@ public abstract class BaseBusinessCase implements BusinessCase {
 
         events.appendEvents(ServiceLocator.getInstance().getService(CredentialManager.class).updateCredentialVisibilityAndGetEvents(
                 delivery.getId(), groupsToAdd, new LinkedList<>(), false, false,
-                UserContextData.of(actor.getId(), org.getId(), null, null, null)));
+                Optional.empty(), UserContextData.of(actor.getId(), org.getId(), null, null, null)));
     }
 
     protected void givePrivilegeToUsersForCompetency(EventQueue events, long competenceId, UserGroupPrivilege userGroupPrivilege, User actor, List<User> students) {

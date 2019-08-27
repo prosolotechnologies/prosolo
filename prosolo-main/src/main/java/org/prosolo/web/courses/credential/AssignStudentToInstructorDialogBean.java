@@ -19,6 +19,7 @@ import org.springframework.stereotype.Component;
 
 import javax.faces.bean.ManagedBean;
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -53,27 +54,36 @@ public class AssignStudentToInstructorDialogBean {
     private LastAction lastAction;
     private String context;
 
-    public void loadCredentialInstructors(long credentialId, long studentId) {
+    private List<Long> instructorsToExcludeUserIds = new ArrayList<>();
+
+    public void loadCredentialInstructors(long credentialId, long studentId, boolean loadOnlyActiveInstructors) {
         try {
             StudentData student = credentialManager.getCredentialStudentsData(credentialId, studentId);
-            loadCredentialInstructors(credentialId, student);
+            loadCredentialInstructors(credentialId, student, loadOnlyActiveInstructors);
         } catch (DbConnectionException e) {
             logger.error("Error", e);
             PageUtil.fireErrorMessage("Error loading " + ResourceBundleUtil.getLabel("instructor.plural").toLowerCase());
         }
     }
 
-    public void loadCredentialInstructors(long credentialId, StudentData student) {
+    public void loadCredentialInstructors(long credentialId, StudentData student, boolean loadOnlyActiveInstructors) {
         studentToAssignInstructor = student.getUser();
         instructor = student.getInstructor();
+        if (loadOnlyActiveInstructors) {
+            instructorsToExcludeUserIds.clear();
+            instructorsToExcludeUserIds.addAll(credInstructorManager.getInactiveCredentialInstructorUserIds(credentialId));
+            if (instructor != null) {
+                instructorsToExcludeUserIds.remove(instructor.getUser().getId());
+            }
+        }
         setInstructorSearchTerm("");
         context = PageUtil.getPostParameter("context");
-        loadCredentialInstructors(credentialId);
+        searchCredentialInstructors(credentialId);
     }
 
-    public void loadCredentialInstructors(long credentialId) {
+    public void searchCredentialInstructors(long credentialId) {
         PaginatedResult<InstructorData> searchResponse = userTextSearch.searchInstructors(
-                loggedUserBean.getOrganizationId(), instructorSearchTerm, -1, -1, credentialId, InstructorSortOption.Date, null);
+                loggedUserBean.getOrganizationId(), instructorSearchTerm, -1, -1, credentialId, InstructorSortOption.Date, instructorsToExcludeUserIds);
 
         if (searchResponse != null) {
             credentialInstructors = searchResponse.getFoundNodes();

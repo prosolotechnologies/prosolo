@@ -109,7 +109,12 @@ public class ResourceVisibilityUtil implements Serializable {
 			groupsToExclude.remove(member.getGroupId());
 		}
 	}
-	
+
+	public boolean isThereAtLeastOneRemovedGroup() {
+		return existingGroups
+				.stream()
+				.anyMatch(group -> group.getStatus() == ObjectStatus.REMOVED);
+	}
 
 	public String getSearchTerm() {
 		return searchTerm;

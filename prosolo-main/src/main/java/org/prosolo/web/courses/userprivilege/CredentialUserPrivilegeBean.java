@@ -1,5 +1,7 @@
-package org.prosolo.web.courses.credential;
+package org.prosolo.web.courses.userprivilege;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
@@ -10,6 +12,7 @@ import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.UnitManager;
+import org.prosolo.services.nodes.data.LearningResourceType;
 import org.prosolo.services.nodes.data.ResourceVisibilityMember;
 import org.prosolo.services.nodes.data.TitleData;
 import org.prosolo.services.nodes.data.credential.CredentialIdData;
@@ -18,6 +21,7 @@ import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.services.user.UserGroupManager;
+import org.prosolo.services.user.data.UserGroupInstructorRemovalMode;
 import org.prosolo.services.util.roles.SystemRoleNames;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.PageAccessRightsResolver;
@@ -32,11 +36,12 @@ import javax.inject.Inject;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @ManagedBean(name = "credentialUserPrivilegeBean")
 @Component("credentialUserPrivilegeBean")
 @Scope("view")
-public class CredentialUserPrivilegeBean implements Serializable {
+public class CredentialUserPrivilegeBean implements Serializable, ManageUserPrivilegeAware {
 
 	private static final long serialVersionUID = -926922726442064817L;
 
@@ -75,7 +80,11 @@ public class CredentialUserPrivilegeBean implements Serializable {
 
 	private String organizationTitle;
 	private String unitTitle;
-	
+
+	@Getter @Setter
+	private UserGroupInstructorRemovalMode instructorRemovalMode;
+	private boolean deliveryStarted;
+
 	public CredentialUserPrivilegeBean() {
 		this.resVisibilityUtil = new ResourceVisibilityUtil();
 	}
@@ -163,6 +172,7 @@ public class CredentialUserPrivilegeBean implements Serializable {
 				this.creatorId = credManager.getCredentialCreator(credentialId).getId();
 				resVisibilityUtil.initializeValuesForEditPrivilege();
 			} else {
+				deliveryStarted = credManager.hasDeliveryStarted(credentialId);
 				resVisibilityUtil.initializeValuesForLearnPrivilege(credManager.isVisibleToAll(credentialId));
 			}
 
@@ -189,9 +199,11 @@ public class CredentialUserPrivilegeBean implements Serializable {
 			setExistingGroups(userGroupManager.getCredentialVisibilityGroups(credentialId, privilege));
 		}
 		setExistingUsers(userGroupManager.getCredentialVisibilityUsers(credentialId, privilege));
+        getUsersToExclude().clear();
 		for (ResourceVisibilityMember rvm : getExistingUsers()) {
-			getUsersToExclude().add(rvm.getUserId());
+		    getUsersToExclude().add(rvm.getUserId());
 		}
+        getGroupsToExclude().clear();
 		for (ResourceVisibilityMember g : getExistingGroups()) {
 			getGroupsToExclude().add(g.getGroupId());
 		}
@@ -223,20 +235,22 @@ public class CredentialUserPrivilegeBean implements Serializable {
 	public void removeMember(ResourceVisibilityMember member) {
 		resVisibilityUtil.removeMember(member);
 	}
-	
+
+	@Override
 	public void saveVisibilityMembersData() {
 		boolean saved = false;
 		try {
 			credManager.updateCredentialVisibility(credentialId, getExistingGroups(), getExistingUsers(),
-					isVisibleToEveryone(), isVisibleToEveryoneChanged(), loggedUserBean.getUserContext());
+					isVisibleToEveryone(), isVisibleToEveryoneChanged(), Optional.ofNullable(instructorRemovalMode), loggedUserBean.getUserContext());
 			PageUtil.fireSuccessfulInfoMessage("Changes have been saved");
 			saved = true;
 		} catch (DbConnectionException e) {
-			logger.error(e);
+			logger.error("error", e);
 			PageUtil.fireErrorMessage("Error updating user privileges for a " + ResourceBundleUtil.getMessage("label.credential").toLowerCase());
 		}
+        instructorRemovalMode = null;
 
-		if (saved) {
+        if (saved) {
 			try {
 				loadData();
 			} catch (Exception e) {
@@ -244,6 +258,23 @@ public class CredentialUserPrivilegeBean implements Serializable {
 				PageUtil.fireErrorMessage("Error reloading data. Try to refresh the page.");
 			}
 		}
+	}
+
+	@Override
+	public boolean shouldOptionForChoosingUserGroupInstructorRemovalModeBeDisplayed() {
+		return privilege == UserGroupPrivilege.Learn
+				&& deliveryStarted
+				&& resVisibilityUtil.isThereAtLeastOneRemovedGroup();
+	}
+
+	@Override
+	public UserGroupInstructorRemovalMode getUserGroupInstructorRemovalMode() {
+		return instructorRemovalMode;
+	}
+
+	@Override
+	public void setUserGroupInstructorRemovalMode() {
+		this.instructorRemovalMode = instructorRemovalMode;
 	}
 
 	public void prepareOwnerChange(long userId) {

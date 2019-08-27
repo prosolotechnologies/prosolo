@@ -141,6 +141,7 @@ public class UserEntityESServiceImpl extends AbstractESIndexerImpl implements Us
 				addFollowees(builder, user.getId(), session);
 				addCompetences(builder, user.getId(), session);
 				addGroups(builder, user.getId(),session);
+				addGroupsWithInstructorRole(builder, user.getId());
 
 				builder.endObject();
 				String indexType = ESIndexTypes.ORGANIZATION_USER;
@@ -306,6 +307,17 @@ public class UserEntityESServiceImpl extends AbstractESIndexerImpl implements Us
 	private void addGroups(XContentBuilder builder, long userId, Session session) throws IOException {
 		builder.startArray("groups");
 		List<Long> groups = userGroupManager.getUserGroupIds(userId, false,session);
+		for (long id : groups) {
+			builder.startObject();
+			builder.field("id", id);
+			builder.endObject();
+		}
+		builder.endArray();
+	}
+
+	private void addGroupsWithInstructorRole(XContentBuilder builder, long userId) throws IOException {
+		builder.startArray("groupsWithInstructorRole");
+		List<Long> groups = userGroupManager.getIdsOfUserGroupsWhereUserIsInstructor(userId);
 		for (long id : groups) {
 			builder.startObject();
 			builder.field("id", id);
@@ -485,6 +497,21 @@ public class UserEntityESServiceImpl extends AbstractESIndexerImpl implements Us
 			XContentBuilder builder = XContentFactory.jsonBuilder()
 					.startObject();
 			addGroups(builder, userId,session);
+			builder.endObject();
+
+			partialUpdate(ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USERS, orgId), ESIndexTypes.ORGANIZATION_USER,
+					userId + "", builder);
+		} catch (Exception e) {
+			logger.error("Error", e);
+		}
+	}
+
+	@Override
+	public void updateGroupsWithInstructorRole(long orgId, long userId) {
+		try {
+			XContentBuilder builder = XContentFactory.jsonBuilder()
+					.startObject();
+			addGroupsWithInstructorRole(builder, userId);
 			builder.endObject();
 
 			partialUpdate(ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USERS, orgId), ESIndexTypes.ORGANIZATION_USER,

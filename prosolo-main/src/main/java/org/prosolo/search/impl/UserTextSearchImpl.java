@@ -719,7 +719,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 				bQueryBuilder.must(qb);
 			}
 			
-			//we don't want to return user that is actually instructor because we can't assing student to himself
+			//we don't want to return user that is actually instructor because we can't assign student to himself
 			bQueryBuilder.mustNot(termQuery("id", instructorId));
 				
 			//bQueryBuilder.minimumNumberShouldMatch(1);
@@ -1806,5 +1806,199 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 
 		return bQueryBuilder;
 	}
+
+	@Override
+	public PaginatedResult<UserData> searchInstructorsInGroups(
+			long orgId, String searchTerm, int page, int limit, long groupId) {
+		PaginatedResult<UserData> response = new PaginatedResult<>();
+		try {
+			int start = 0;
+			start = setStart(page, limit);
+
+			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
+			if (searchTerm != null && !searchTerm.isEmpty()) {
+				QueryBuilder qb = QueryBuilders
+						.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchTerm.toLowerCase()) + "*")
+						.defaultOperator(Operator.AND)
+						.field("name").field("lastname");
+
+				bQueryBuilder.filter(qb);
+			}
+
+			bQueryBuilder.filter(termQuery("groupsWithInstructorRole.id", groupId));
+
+			String[] includes = {"id", "name", "lastname", "avatar", "position"};
+			SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+			searchSourceBuilder
+					.query(bQueryBuilder)
+					.fetchSource(includes, null)
+					.from(start)
+					.size(limit)
+					.sort("lastname.sort", SortOrder.ASC)
+					.sort("name.sort", SortOrder.ASC);
+
+			String indexName = ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USERS, orgId);
+			SearchResponse sResponse = ElasticSearchConnector.getClient().search(searchSourceBuilder, indexName, ESIndexTypes.ORGANIZATION_USER);
+
+			if (sResponse != null) {
+				SearchHits searchHits = sResponse.getHits();
+				response.setHitsNumber(searchHits.getTotalHits());
+
+				if (searchHits != null) {
+					for (SearchHit sh : searchHits) {
+						UserData userData = getUserDataFromSearchHit(sh);
+						userData.setEmail(userManager.getUserEmail(userData.getId()));
+						response.addFoundNode(userData);
+					}
+				}
+			}
+
+		} catch (Exception e1) {
+			logger.error("error", e1);
+		}
+		return response;
+	}
+
+	@Override
+	public PaginatedResult<UserData> searchCandidatesForAddingToTheGroupAsInstructors(
+			long orgId, long unitId, long roleId, long groupId, String searchTerm, int page, int limit) {
+		PaginatedResult<UserData> response = new PaginatedResult<>();
+		try {
+			int start = 0;
+			start = setStart(page, limit);
+
+			BoolQueryBuilder bQueryBuilder = getUserSearchQueryBuilder(searchTerm);
+
+			BoolQueryBuilder unitRoleFilter = QueryBuilders.boolQuery();
+			unitRoleFilter.filter(termQuery("roles.id", roleId));
+			QueryBuilder qb = termQuery("roles.units.id", unitId);
+			unitRoleFilter.filter(qb);
+
+			NestedQueryBuilder nestedFilter = QueryBuilders.nestedQuery("roles", unitRoleFilter, ScoreMode.None);
+			bQueryBuilder.filter(nestedFilter);
+
+			bQueryBuilder.mustNot(termQuery("groupsWithInstructorRole.id", groupId));
+
+			String[] includes = {"id", "name", "lastname", "avatar", "position"};
+
+			SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+			searchSourceBuilder
+					.query(bQueryBuilder)
+					.fetchSource(includes, null)
+					.sort("lastname.sort", SortOrder.ASC)
+					.sort("name.sort", SortOrder.ASC)
+					.from(start)
+					.size(limit);
+
+			//System.out.println(searchRequestBuilder.toString());
+			String indexName = ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USERS, orgId);
+			SearchResponse sResponse = ElasticSearchConnector.getClient().search(searchSourceBuilder, indexName, ESIndexTypes.ORGANIZATION_USER);
+
+			if (sResponse != null) {
+				SearchHits searchHits = sResponse.getHits();
+				response.setHitsNumber(searchHits.getTotalHits());
+
+				if (searchHits != null) {
+					for (SearchHit sh : searchHits) {
+						response.addFoundNode(getUserDataFromSearchHit(sh));
+					}
+				}
+			}
+
+		} catch (Exception e) {
+			logger.error("error", e);
+		}
+		return response;
+	}
+
+	@Override
+	public PaginatedResult<StudentData> searchCredentialStudentsAssignedToInstructor(
+			long orgId, String searchTerm, long credId, long instructorId, int page, int limit) {
+		PaginatedResult<StudentData> response = new PaginatedResult<>();
+		try {
+			int start = 0;
+			start = setStart(page, limit);
+
+			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
+
+			if (searchTerm != null && !searchTerm.isEmpty()) {
+				QueryBuilder qb = QueryBuilders
+						.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchTerm.toLowerCase()) + "*")
+						.defaultOperator(Operator.AND)
+						.field("name.sort").field("lastname.sort");
+
+				bQueryBuilder.must(qb);
+			}
+
+			BoolQueryBuilder credFilter = QueryBuilders.boolQuery();
+			credFilter.filter(QueryBuilders.termQuery("credentials.id", credId));
+			/*
+			 * unassigned or assigned to instructor specified by instructorId
+			 */
+			credFilter.filter(QueryBuilders.termQuery("credentials.instructorId", instructorId));
+			NestedQueryBuilder nestedCredFilter = QueryBuilders.nestedQuery("credentials", credFilter,
+					ScoreMode.None).innerHit(new InnerHitBuilder());
+
+			BoolQueryBuilder qb = QueryBuilders.boolQuery();
+			qb.must(bQueryBuilder);
+			qb.filter(nestedCredFilter);
+
+			try {
+				String[] includes = {"id", "name", "lastname", "avatar", "position"};
+				SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+				searchSourceBuilder
+						.query(qb)
+						.fetchSource(includes, null)
+						.from(start).size(limit);
+
+				searchSourceBuilder.sort("lastname.sort", SortOrder.ASC);
+				searchSourceBuilder.sort("name.sort", SortOrder.ASC);
+				String indexName = ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USERS, orgId);
+				SearchResponse sResponse = ElasticSearchConnector.getClient().search(searchSourceBuilder, indexName, ESIndexTypes.ORGANIZATION_USER);
+				if (sResponse != null) {
+					SearchHits searchHits = sResponse.getHits();
+					response.setHitsNumber(searchHits.getTotalHits());
+
+					if (searchHits != null) {
+						for (SearchHit sh : searchHits) {
+							Map<String, Object> fields = sh.getSourceAsMap();
+							StudentData student = new StudentData();
+							User user = new User();
+							user.setId(Long.parseLong(fields.get("id") + ""));
+							user.setName((String) fields.get("name"));
+							user.setLastname((String) fields.get("lastname"));
+							user.setAvatarUrl((String) fields.get("avatar"));
+							user.setPosition((String) fields.get("position"));
+							student.setUser(new UserData(user));
+
+							SearchHits innerHits = sh.getInnerHits().get("credentials");
+							long totalInnerHits = innerHits.getTotalHits();
+							if (totalInnerHits == 1) {
+								Map<String, Object> credential = innerHits.getAt(0).getSourceAsMap();
+								student.setProgress(Integer.parseInt(credential.get("progress") + ""));
+								long instId = Long.parseLong(credential.get("instructorId") + "");
+								if (instId != 0) {
+									InstructorData id = new InstructorData(false);
+									UserData ud = new UserData();
+									ud.setId(instId);
+									id.setUser(ud);
+									student.setInstructor(id);
+									student.setAssigned(true);
+								}
+							}
+							response.addFoundNode(student);
+						}
+					}
+				}
+			} catch (SearchPhaseExecutionException spee) {
+				logger.error("error", spee);
+			}
+
+		} catch (Exception e1) {
+			logger.error("error", e1);
+		}
+		return response;
+	}
+
 
 }

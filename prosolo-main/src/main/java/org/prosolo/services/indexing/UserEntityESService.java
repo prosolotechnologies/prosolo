@@ -46,4 +46,6 @@ public interface UserEntityESService extends AbstractESIndexer {
 
 	void updateCredentialAssessmentInfo(long orgId, CredentialAssessment assessment);
 
+	void updateGroupsWithInstructorRole(long orgId, long userId);
+
 }

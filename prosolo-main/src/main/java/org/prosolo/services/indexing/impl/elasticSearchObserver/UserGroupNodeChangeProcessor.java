@@ -105,6 +105,17 @@ public class UserGroupNodeChangeProcessor implements NodeChangeProcessor {
 			for(CompetenceUserGroup g : compGroups) {
 				compESService.updateCompetenceUsersWithPrivileges(event.getOrganizationId(), g.getCompetence().getId(), session);
 			}
+		} else if (type == EventType.ADD_USER_AS_GROUP_INSTRUCTOR || type == EventType.REMOVE_USER_AS_GROUP_INSTRUCTOR) {
+			/*
+			TODO org id should always be extracted from event - for admin section, that does not
+			always work. When that is resolved, remove this hack.
+			 */
+			long orgId = event.getOrganizationId();
+			if (orgId == 0) {
+				orgId = ((User) session.load(User.class, object.getId())).getOrganization().getId();
+			}
+
+			userEntityESService.updateGroupsWithInstructorRole(orgId, object.getId());
 		}
 	}
 

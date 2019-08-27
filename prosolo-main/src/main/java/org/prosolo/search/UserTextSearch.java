@@ -170,4 +170,46 @@ public interface UserTextSearch extends AbstractManager {
 															 long groupId, String searchTerm,
 															 int page, int limit, boolean includeSystemUsers);
 
+	/**
+	 * Returns list of users that are assigned as user group instructors in given group
+	 *
+	 * @param orgId
+	 * @param searchTerm
+	 * @param page
+	 * @param limit
+	 * @param groupId
+	 * @return
+	 */
+	PaginatedResult<UserData> searchInstructorsInGroups(long orgId, String searchTerm, int page, int limit, long groupId);
+
+	/**
+	 * Returns list of candidates for adding to the group as instructors which means users added to given unit
+	 * with given role who are not already assigned to the specified group as instructors
+	 *
+	 * @param orgId
+	 * @param unitId
+	 * @param roleId
+	 * @param groupId
+	 * @param searchTerm
+	 * @param page
+	 * @param limit
+	 * @return
+	 */
+	PaginatedResult<UserData> searchCandidatesForAddingToTheGroupAsInstructors(
+			long orgId, long unitId, long roleId, long groupId, String searchTerm, int page, int limit);
+
+	/**
+	 * Returns paginated list of students learning given credential assigned to given instructor
+	 *
+	 * @param orgId
+	 * @param searchTerm
+	 * @param credId
+	 * @param instructorId
+	 * @param page
+	 * @param limit
+	 * @return
+	 */
+	PaginatedResult<StudentData> searchCredentialStudentsAssignedToInstructor(
+			long orgId, String searchTerm, long credId, long instructorId, int page, int limit);
+
 }

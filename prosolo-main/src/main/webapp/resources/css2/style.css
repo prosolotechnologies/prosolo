@@ -5667,7 +5667,10 @@ header {
       justify-content: center; }
     .peopleList > li:last-child {
       border: none; }
+    .peopleList > li.disabled .disabledOverlay {
+      display: block; }
     .peopleList > li .peopleListLeft {
+      position: relative;
       width: 40%;
       display: flex;
       align-items: center; }
@@ -5681,7 +5684,8 @@ header {
       align-items: center; }
       .peopleList > li .peopleListRight > .progressBar,
       .peopleList > li .peopleListRight .studentsNum {
-        width: 30%;
+        position: relative;
+        width: 19%;
         margin-right: 20px; }
       .peopleList > li .peopleListRight .studentsNum span {
         font-size: 18px;
@@ -6587,9 +6591,11 @@ header {
   margin-bottom: 20px !important; }
 
 .removeInstructorModal .radioGroup {
-  width: 350px;
   text-align: left;
   margin: 0 auto 30px auto; }
+
+.removeInstructorModal .modal-content .modal-body {
+  text-align: left; }
 
 .assessmentCommentsModal .discussion {
   padding: 0 30px 30px 30px; }

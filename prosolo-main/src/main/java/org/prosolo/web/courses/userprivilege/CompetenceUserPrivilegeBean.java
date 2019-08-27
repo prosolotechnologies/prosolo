@@ -1,4 +1,4 @@
-package org.prosolo.web.courses.competence;
+package org.prosolo.web.courses.userprivilege;
 
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
@@ -6,6 +6,7 @@ import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.search.UserGroupTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.nodes.*;
+import org.prosolo.services.nodes.data.LearningResourceType;
 import org.prosolo.services.nodes.data.ResourceVisibilityMember;
 import org.prosolo.services.nodes.data.credential.CredentialIdData;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
@@ -13,6 +14,7 @@ import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.services.user.UserGroupManager;
+import org.prosolo.services.user.data.UserGroupInstructorRemovalMode;
 import org.prosolo.services.util.roles.SystemRoleNames;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.courses.resourceVisibility.ResourceVisibilityUtil;
@@ -31,7 +33,7 @@ import java.util.List;
 @ManagedBean(name = "competenceUserPrivilegeBean")
 @Component("competenceUserPrivilegeBean")
 @Scope("view")
-public class CompetenceUserPrivilegeBean implements Serializable {
+public class CompetenceUserPrivilegeBean implements Serializable, ManageUserPrivilegeAware {
 
 	private static final long serialVersionUID = 6705556179040324163L;
 
@@ -136,9 +138,11 @@ public class CompetenceUserPrivilegeBean implements Serializable {
 			setExistingGroups(userGroupManager.getCompetenceVisibilityGroups(decodedCompId, privilege));
 		}
 		setExistingUsers(userGroupManager.getCompetenceVisibilityUsers(decodedCompId, privilege));
+		getUsersToExclude().clear();
 		for (ResourceVisibilityMember rvm : getExistingUsers()) {
 			getUsersToExclude().add(rvm.getUserId());
 		}
+		getGroupsToExclude().clear();
 		for (ResourceVisibilityMember g : getExistingGroups()) {
 			getGroupsToExclude().add(g.getGroupId());
 		}
@@ -178,6 +182,7 @@ public class CompetenceUserPrivilegeBean implements Serializable {
 		resVisibilityUtil.removeMember(member);
 	}
 
+	@Override
 	public void saveVisibilityMembersData() {
 		boolean saved = false;
 		try {
@@ -199,6 +204,19 @@ public class CompetenceUserPrivilegeBean implements Serializable {
 			}
 		}
 	}
+
+	@Override
+	public boolean shouldOptionForChoosingUserGroupInstructorRemovalModeBeDisplayed() {
+		return false;
+	}
+
+	@Override
+	public UserGroupInstructorRemovalMode getUserGroupInstructorRemovalMode() {
+		return null;
+	}
+
+	@Override
+	public void setUserGroupInstructorRemovalMode() {}
 
 	public void prepareOwnerChange(long userId) {
 		this.newOwnerId = userId;
