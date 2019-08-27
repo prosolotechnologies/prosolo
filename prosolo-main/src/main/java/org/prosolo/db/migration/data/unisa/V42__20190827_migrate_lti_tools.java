@@ -12,7 +12,7 @@ import java.sql.Statement;
  * Migrate existing LTI tools by removing id query param from launch url.
  *
  * @author stefanvuckovic
- * @date 2019-07-27
+ * @date 2019-08-27
  * @since 1.3.3
  *
  */
