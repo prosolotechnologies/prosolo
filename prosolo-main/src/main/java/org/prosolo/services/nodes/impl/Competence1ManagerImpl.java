@@ -1762,8 +1762,10 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			query.append("ORDER BY c.title ASC");
 			
 			Query q = persistence.currentManager()
-						.createQuery(query.toString())
-						.setParameterList("ids", ids);
+					.createQuery(query.toString())
+					.setParameterList("ids", ids)
+					.setMaxResults(limit)
+					.setFirstResult(page * limit);
 					
 			switch (searchFilter) {
 				case ACTIVE:
@@ -1787,12 +1789,13 @@ public class Competence1ManagerImpl extends AbstractManagerImpl implements Compe
 			for(Competence1 c : comps) {
 				CompetenceData1 cd = competenceFactory.getCompetenceData(null, c, null, null, false);
 				cd.setNumberOfStudents(countNumberOfStudentsLearningCompetence(cd.getCompetenceId()));
+				cd.setCredentialId(credentialManager.getIdOfFirstCredentialCompetenceIsAddedToAndUserHasEditPrivilegeFor(
+						cd.getCompetenceId(), userId));
 				res.add(cd);
 			}
 			return res;
 		} catch(Exception e) {
-			logger.error(e);
-			e.printStackTrace();
+			logger.error("error", e);
 			throw new DbConnectionException("Error retrieving competences");
 		}
 	}

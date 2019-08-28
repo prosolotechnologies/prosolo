@@ -1401,7 +1401,7 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	public void updateDurationForCredentialsWithCompetence(long compId, long duration, Operation op)
 			throws DbConnectionException {
 		try {
-			List<Long> credIds = getIdsOfCredentialsWithCompetence(compId);
+			List<Long> credIds = getIdsOfCredentialsWithCompetence(compId, Optional.empty());
 			if (!credIds.isEmpty()) {
 				String opString = op == Operation.Add ? "+" : "-";
 				String query = "UPDATE Credential1 cred SET " +
@@ -1421,28 +1421,28 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		}
 	}
 
-	private List<Long> getIdsOfCredentialsWithCompetence(long compId) {
+	private List<Long> getIdsOfCredentialsWithCompetence(long compId, Optional<CredentialType> type) {
 		try {
 			String query = "SELECT cred.id " +
 					"FROM CredentialCompetence1 credComp " +
 					"INNER JOIN credComp.credential cred " +
-					"WHERE credComp.competence.id = :compId";
+					"WHERE credComp.competence.id = :compId ";
 
-			@SuppressWarnings("unchecked")
-			List<Long> res = persistence.currentManager()
-					.createQuery(query)
-					.setLong("compId", compId)
-					.list();
-
-			if (res == null) {
-				return new ArrayList<>();
+			if (type.isPresent()) {
+				query += "AND cred.type = :type";
 			}
 
-			return res;
+			Query q = persistence.currentManager()
+					.createQuery(query)
+					.setLong("compId", compId);
+			if (type.isPresent()) {
+				q.setString("type", type.get().name());
+			}
+
+			return (List<Long>) q.list();
 		} catch (Exception e) {
-			logger.error(e);
-			e.printStackTrace();
-			throw new DbConnectionException("Error retrieving credential ids");
+			logger.error("error", e);
+			throw new DbConnectionException("Error retrieving credential ids", e);
 		}
 	}
 
@@ -4148,6 +4148,30 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 		} catch (Exception e) {
 			logger.error("Error", e);
 			throw new DbConnectionException("Error loading assessor assignment method");
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public long getIdOfFirstCredentialCompetenceIsAddedToAndUserHasEditPrivilegeFor(long compId, long userId) {
+		try {
+			List<Long> credentialIds = getIdsOfCredentialsWithCompetence(compId, Optional.of(CredentialType.Original));
+
+			for (Long id : credentialIds) {
+				ResourceAccessData resourceAccess = getResourceAccessData(
+						id,
+						userId,
+						ResourceAccessRequirements
+								.of(AccessMode.MANAGER)
+								.addPrivilege(UserGroupPrivilege.Edit));
+				if (resourceAccess.isCanEdit()) {
+					return id;
+				}
+			}
+			return 0L;
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error loading credential id");
 		}
 	}
 

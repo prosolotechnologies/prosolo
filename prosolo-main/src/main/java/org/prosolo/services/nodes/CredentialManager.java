@@ -515,4 +515,15 @@ public interface CredentialManager extends AbstractManager {
 	 */
 	List<CredentialIdData> getCompletedCredentialsBasicDataForCredentialsNotAddedToProfile(long userId);
 
+	/**
+	 * Returns id of the first 'original' credential with given competency for which specified user has
+	 * 'Edit' privilege
+	 *
+	 * @param compId
+	 * @param userId
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	long getIdOfFirstCredentialCompetenceIsAddedToAndUserHasEditPrivilegeFor(long compId, long userId);
+
 }

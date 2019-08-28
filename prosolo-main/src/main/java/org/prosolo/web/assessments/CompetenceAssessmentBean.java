@@ -122,8 +122,12 @@ public abstract class CompetenceAssessmentBean extends LearningResourceAssessmen
 					if (notFoundIfAssessmentNull) {
 						PageUtil.notFound();
 					} else {
-						credentialTitle = credManager.getCredentialTitle(decodedCredId);
-						competenceTitle = compManager.getCompetenceTitle(decodedCompId);
+						if (decodedCredId > 0) {
+							credentialTitle = credManager.getCredentialTitle(decodedCredId);
+						}
+						if (decodedCompId > 0) {
+							competenceTitle = compManager.getCompetenceTitle(decodedCompId);
+						}
 					}
 				} else {
 					if (!canAccessPostLoad()) {
