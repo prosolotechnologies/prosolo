@@ -15,7 +15,6 @@ import org.prosolo.services.user.UserManager;
 import org.prosolo.services.user.data.UserAssessmentTokenExtendedData;
 import org.prosolo.services.user.data.UserData;
 import org.prosolo.services.nodes.data.assessments.AssessmentNotificationData;
-import org.prosolo.web.AssessmentTokenSessionBean;
 import org.prosolo.web.LoggedUserBean;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -105,7 +104,7 @@ public class AskForCompetenceAssessmentBean extends AskForAssessmentBean impleme
             try {
                 if (existingPeerAssessors == null) {
                     existingPeerAssessors = new HashSet<>(assessmentManager
-                            .getPeerAssessorIdsForCompetence(credentialId, resourceId, loggedUser.getUserId()));
+                            .getIdsOfExistingCompetencyPeerAssessorsNotAvailableForNewAssessment(credentialId, resourceId, loggedUser.getUserId()));
                 }
 
                 PaginatedResult<UserData> result = userTextSearch.searchUsers(
@@ -186,7 +185,7 @@ public class AskForCompetenceAssessmentBean extends AskForAssessmentBean impleme
     @Override
     protected Set<Long> getExistingPeerAssessors() {
         return new HashSet<>(assessmentManager
-                .getPeerAssessorIdsForCompetence(credentialId, resourceId, loggedUser.getUserId()));
+                .getIdsOfExistingCompetencyPeerAssessorsNotAvailableForNewAssessment(credentialId, resourceId, loggedUser.getUserId()));
     }
 
     public long getCredentialId() {

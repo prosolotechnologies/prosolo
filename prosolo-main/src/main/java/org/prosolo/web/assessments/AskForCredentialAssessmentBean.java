@@ -64,7 +64,7 @@ public class AskForCredentialAssessmentBean extends AskForAssessmentBean impleme
             try {
                 if (existingPeerAssessors == null) {
                     existingPeerAssessors = new HashSet<>(assessmentManager
-                            .getPeerAssessorIdsForCredential(resourceId, loggedUser.getUserId()));
+                            .getIdsOfExistingCredentialPeerAssessorsNotAvailableForNewAssessment(resourceId, loggedUser.getUserId()));
                 }
 
                 PaginatedResult<UserData> result = userTextSearch.searchCredentialPeers(
@@ -125,7 +125,7 @@ public class AskForCredentialAssessmentBean extends AskForAssessmentBean impleme
     @Override
     protected Set<Long> getExistingPeerAssessors() {
         return new HashSet<>(assessmentManager
-                .getPeerAssessorIdsForCredential(resourceId, loggedUser.getUserId()));
+                .getIdsOfExistingCredentialPeerAssessorsNotAvailableForNewAssessment(resourceId, loggedUser.getUserId()));
     }
 
     @Override

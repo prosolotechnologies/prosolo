@@ -343,9 +343,9 @@ public interface AssessmentManager {
 	 * @param userId user id
 	 * @return list of ids
 	 */
-	List<Long> getPeerAssessorIdsForCredential(long credentialId, long userId);
+	List<Long> getIdsOfExistingCredentialPeerAssessorsNotAvailableForNewAssessment(long credentialId, long userId);
 
-	List<Long> getPeerAssessorIdsForCompetence(long credId, long compId, long userId) throws DbConnectionException;
+	List<Long> getIdsOfExistingCompetencyPeerAssessorsNotAvailableForNewAssessment(long credId, long compId, long userId) throws DbConnectionException;
 
 	long getCredentialAssessmentIdForCompetenceAssessment(long compAssessmentId) throws DbConnectionException;
 
