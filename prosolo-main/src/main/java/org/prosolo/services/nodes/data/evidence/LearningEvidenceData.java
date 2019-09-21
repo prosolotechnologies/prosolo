@@ -5,6 +5,9 @@ import org.prosolo.services.nodes.data.BasicObjectInfo;
 import org.prosolo.services.nodes.data.CompetencyBasicObjectInfo;
 
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -41,7 +44,17 @@ public class LearningEvidenceData implements Serializable {
     }
 
     public String getFileName() {
-        return url != null && !url.isEmpty() ? url.substring(url.lastIndexOf("/") + 1) : null;
+        if (url != null && !url.isEmpty()) {
+            String encodedFileName = url.substring(url.lastIndexOf("/") + 1);
+            try {
+                return URLDecoder.decode(encodedFileName, java.nio.charset.StandardCharsets.UTF_8.toString());
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
+
+        return  null;
     }
 
     public String getTitle() {

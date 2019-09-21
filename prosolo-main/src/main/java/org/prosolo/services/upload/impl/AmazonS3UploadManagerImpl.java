@@ -2,7 +2,10 @@ package org.prosolo.services.upload.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.FileUploadException;
 import org.prosolo.common.config.CommonSettings;
@@ -55,12 +58,13 @@ public class AmazonS3UploadManagerImpl implements AmazonS3UploadManager {
 
 			AmazonS3 s3 = s3Provider.getS3Client();
 
-			PutObjectRequest putObjectRequest=new PutObjectRequest(bucketName,key, sourceInputStream, objectMetadata);
+			PutObjectRequest putObjectRequest=new PutObjectRequest(bucketName, key, sourceInputStream, objectMetadata);
 			putObjectRequest.withCannedAcl(CannedAccessControlList.PublicRead); // public for all
-		    @SuppressWarnings("unused")
-			PutObjectResult result = s3.putObject(putObjectRequest);
+		    s3.putObject(putObjectRequest);
 
-			return key;
+		    // encode the file name in the returned relative file URL
+			String encodeFilenameInUrl = encodeFilenameInUrl(key);
+			return encodeFilenameInUrl;
 		} catch (IOException | AmazonClientException e) {
 			logger.error("AmazonService exception for bucket:" + bucketName, e);
 			throw new FileUploadException();
@@ -75,5 +79,11 @@ public class AmazonS3UploadManagerImpl implements AmazonS3UploadManager {
 		S3Object s3Object = s3.getObject(bucketName, key);
 		return s3Object.getObjectContent();
 	}
-	
+
+	public String encodeFilenameInUrl(String relativeFileUrl) throws UnsupportedEncodingException {
+		int secondSlashIndex = StringUtils.ordinalIndexOf(relativeFileUrl, "/", 2);
+
+		return relativeFileUrl.substring(0, secondSlashIndex+1) + URLEncoder.encode(relativeFileUrl.substring(secondSlashIndex+1), java.nio.charset.StandardCharsets.UTF_8.toString());
+	}
+
 }

@@ -64,9 +64,9 @@ public class UploadManagerImpl implements UploadManager {
 		String key = MD5HashUtility.generateKeyForFilename(fileName);
 		String fileType = FileUtil.getFileType(uploadedFile.getFileName());
 
-		s3Manager.storeInputStreamByKey(uploadedFile.getInputstream(), key,fileType);
+		String fileUrlWithEncodedFilenam = s3Manager.storeInputStreamByKey(uploadedFile.getInputstream(), key, fileType);
 		
-		return AmazonS3Utility.createFullPathFromRelativePath(key);
+		return AmazonS3Utility.createFullPathFromRelativePath(fileUrlWithEncodedFilenam);
 	}
 	
 }
