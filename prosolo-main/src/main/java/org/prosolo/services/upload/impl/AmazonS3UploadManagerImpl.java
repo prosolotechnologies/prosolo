@@ -2,8 +2,12 @@ package org.prosolo.services.upload.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+import org.prosolo.bigdata.common.exceptions.FileUploadException;
 import org.prosolo.common.config.CommonSettings;
 import org.prosolo.services.upload.AmazonS3Provider;
 import org.prosolo.services.upload.AmazonS3UploadManager;
@@ -51,25 +55,23 @@ public class AmazonS3UploadManagerImpl implements AmazonS3UploadManager {
 			if (fileType != null) {
 				objectMetadata.setContentType(fileType);
 			}
-		} catch (IOException e) {
-			logger.error("AmazonService IOException for bucket:" + bucketName, e);
-		}
-		
-		AmazonS3 s3 = s3Provider.getS3Client();
-		try{
-			PutObjectRequest putObjectRequest=new PutObjectRequest(bucketName,key, sourceInputStream, objectMetadata);
+
+			AmazonS3 s3 = s3Provider.getS3Client();
+
+			PutObjectRequest putObjectRequest=new PutObjectRequest(bucketName, key, sourceInputStream, objectMetadata);
 			putObjectRequest.withCannedAcl(CannedAccessControlList.PublicRead); // public for all
-		    @SuppressWarnings("unused")
-			PutObjectResult result = s3.putObject(putObjectRequest);
-		}catch (AmazonServiceException ase) {
-	        logger.error("AmazonServiceException for bucket:"+bucketName,ase);
-	    } catch (AmazonClientException ace) {
-	    	logger.error("AmazonServiceException for bucket:"+bucketName,ace);
-		} catch(Exception ex){
-			logger.error(ex);
+		    s3.putObject(putObjectRequest);
+
+		    // encode the file name in the returned relative file URL
+			String encodeFilenameInUrl = encodeFilenameInUrl(key);
+			return encodeFilenameInUrl;
+		} catch (IOException | AmazonClientException e) {
+			logger.error("AmazonService exception for bucket:" + bucketName, e);
+			throw new FileUploadException();
+		} catch (Exception ex) {
+			logger.error("error", ex);
+			throw new FileUploadException();
 		}
-		
-		return key;
 	}
 	
 	public InputStream retrieveFile(String key) {
@@ -77,5 +79,11 @@ public class AmazonS3UploadManagerImpl implements AmazonS3UploadManager {
 		S3Object s3Object = s3.getObject(bucketName, key);
 		return s3Object.getObjectContent();
 	}
-	
+
+	public String encodeFilenameInUrl(String relativeFileUrl) throws UnsupportedEncodingException {
+		int secondSlashIndex = StringUtils.ordinalIndexOf(relativeFileUrl, "/", 2);
+
+		return relativeFileUrl.substring(0, secondSlashIndex+1) + URLEncoder.encode(relativeFileUrl.substring(secondSlashIndex+1), java.nio.charset.StandardCharsets.UTF_8.toString());
+	}
+
 }

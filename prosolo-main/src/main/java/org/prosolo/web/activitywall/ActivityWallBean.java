@@ -318,8 +318,8 @@ public class ActivityWallBean implements Serializable {
 			if(attachmentPreview != null) {
 				uploadFile = attachmentPreview;
 			}
-		} catch (IOException ioe) {
-			logger.error(ioe.getMessage());
+		} catch (Exception e) {
+			logger.error(e.getMessage());
 			uploadFile.setInitialized(false);
 			PageUtil.fireErrorMessage("The file was not uploaded!");
 		}

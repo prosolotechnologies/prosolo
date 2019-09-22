@@ -8,6 +8,7 @@ import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.UploadedFile;
 import org.prosolo.app.Settings;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.bigdata.common.exceptions.FileUploadException;
 import org.prosolo.common.config.CommonSettings;
 import org.prosolo.common.domainmodel.user.socialNetworks.ServiceType;
 import org.prosolo.common.domainmodel.user.socialNetworks.SocialNetworkAccount;
@@ -141,7 +142,7 @@ public class PersonalInfoSettingsBean implements Serializable {
 			PageUtil.fireSuccessfulInfoMessage(":profileForm:profileFormGrowl", "The profile photo has been updated");
 
 			init();
-		} catch (IOException | ResourceCouldNotBeLoadedException | DbConnectionException e) {
+		} catch (IOException | ResourceCouldNotBeLoadedException | DbConnectionException | FileUploadException e) {
 			logger.error("error", e);
 			PageUtil.fireErrorMessage(":profileForm:profileFormGrowl", "There was an error changing the profile photo.");
 		}

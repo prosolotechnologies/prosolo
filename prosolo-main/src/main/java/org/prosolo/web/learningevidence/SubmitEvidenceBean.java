@@ -13,6 +13,7 @@ import org.prosolo.services.nodes.data.organization.EvidenceRepositoryPluginData
 import org.prosolo.services.upload.UploadManager;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.ResourceBundleUtil;
+import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -78,6 +79,7 @@ public class SubmitEvidenceBean implements Serializable {
             evidence.setUrl(fullPath);
         } catch (Exception e) {
             logger.error("Error", e);
+            PageUtil.fireErrorMessage("Error uploading the file");
         }
     }
 

@@ -345,7 +345,7 @@
 									<utilcomp:simpleFileUpload id="resourceFileUpload"
 															   fileUploadListenerMethodName="handleFileUpload"
 															   fileUploadListenerMethod="#{activityEditBean.handleFileUpload}"
-															   toUpdate=":#{cc.clientId}:formModalUploadFile:panelFileName"
+															   toUpdate=":#{cc.clientId}:formModalUploadFile:panelFileName :#{cc.clientId}:formMain:growlMain"
 															   uploadButtonStyle="btn btn-green btn-sm"
 															   oncomplete="$('#createActivity\\:formModalUploadFile\\:fileUploadMessagePanel').hide();"
 															   fileSizeValidationMessageContainer="#resourceFileUploadValidation"/>

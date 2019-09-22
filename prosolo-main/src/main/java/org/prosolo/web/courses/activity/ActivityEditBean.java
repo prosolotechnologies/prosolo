@@ -297,8 +297,8 @@ public class ActivityEditBean extends LearningResourceAssessmentSettingsBean imp
 			resLinkToAdd.setUrl(fullPath);
 			resLinkToAdd.setFetchedTitle(fileName);
 			//activityData.getFiles().add(rl);
-		} catch (IOException ioe) {
-			logger.error(ioe.getMessage());
+		} catch (Exception e) {
+			logger.error(e.getMessage());
 			PageUtil.fireErrorMessage("The file was not uploaded!");
 		}
 	}
