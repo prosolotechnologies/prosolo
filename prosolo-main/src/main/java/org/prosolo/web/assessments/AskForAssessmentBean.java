@@ -67,6 +67,7 @@ public abstract class AskForAssessmentBean implements Serializable {
     private UserAssessmentTokenExtendedData userAssessmentTokenData;
     protected List<Long> assessorPoolUserIds;
     private boolean unassignedAssessmentExists;
+    private boolean assessorPredetermined;
 
     protected abstract void initInstructorAssessmentAssessor();
     public abstract void searchPeers();
@@ -96,9 +97,10 @@ public abstract class AskForAssessmentBean implements Serializable {
     protected abstract boolean checkIfAssessmentIsSubmitted();
 
     private boolean isAssessorPredetermined() {
-        return assessmentType == AssessmentType.PEER_ASSESSMENT &&
-                ((blindAssessmentMode == BlindAssessmentMode.BLIND || blindAssessmentMode == BlindAssessmentMode.DOUBLE_BLIND)
-                        || userAssessmentTokenData.isAssessmentTokensEnabled());
+        return assessorPredetermined ||
+                (assessmentType == AssessmentType.PEER_ASSESSMENT &&
+                    ((blindAssessmentMode == BlindAssessmentMode.BLIND || blindAssessmentMode == BlindAssessmentMode.DOUBLE_BLIND)
+                        || userAssessmentTokenData.isAssessmentTokensEnabled()));
     }
 
     public boolean canStudentChooseAssessor() {
@@ -143,6 +145,9 @@ public abstract class AskForAssessmentBean implements Serializable {
         //init existing peer assessors if peer assessment
         if (assessmentType == AssessmentType.PEER_ASSESSMENT) {
             existingPeerAssessors = getExistingPeerAssessors();
+        }
+        if (assessor != null) {
+            assessorPredetermined = true;
         }
         initUserAssessmentTokenDataIfNeeded(assessor);
         setOrInitAssessor(assessor);

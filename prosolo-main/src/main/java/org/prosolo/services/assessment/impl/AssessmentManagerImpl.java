@@ -3303,7 +3303,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
     @Override
     @Transactional(readOnly = true)
-    public List<Long> getPeerAssessorIdsForCredential(long credentialId, long userId) {
+    public List<Long> getIdsOfExistingCredentialPeerAssessorsNotAvailableForNewAssessment(long credentialId, long userId) {
         try {
             String query =
                     "SELECT assessment.assessor.id " +
@@ -3313,7 +3313,8 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
                             "WHERE assessment.student.id = :userId " +
                             "AND cred.id = :credId " +
                             "AND assessment.type = :aType " +
-                            "AND assessment.assessor IS NOT NULL ";
+                            "AND assessment.assessor IS NOT NULL " +
+                            "AND (assessment.status IN (:activeStatuses) OR assessment.quitDate > :monthAgo)";
 
             @SuppressWarnings("unchecked")
             List<Long> res = (List<Long>) persistence.currentManager()
@@ -3321,6 +3322,8 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
                     .setLong("userId", userId)
                     .setLong("credId", credentialId)
                     .setString("aType", AssessmentType.PEER_ASSESSMENT.name())
+                    .setParameterList("activeStatuses", AssessmentStatus.getActiveStatuses())
+                    .setTimestamp("monthAgo", DateUtil.getNDaysBeforeNow(30))
                     .list();
 
             if (res != null) {
@@ -3340,7 +3343,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
 
     @Override
     @Transactional(readOnly = true)
-    public List<Long> getPeerAssessorIdsForCompetence(long credId, long compId, long userId) throws DbConnectionException {
+    public List<Long> getIdsOfExistingCompetencyPeerAssessorsNotAvailableForNewAssessment(long credId, long compId, long userId) throws DbConnectionException {
         try {
             String query =
                     "SELECT assessment.assessor.id " +
@@ -3351,7 +3354,8 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
                             "AND comp.id = :compId " +
                             "AND assessment.type = :aType " +
                             "AND tc.credential.id = :credId " +
-                            "AND assessment.assessor IS NOT NULL ";
+                            "AND assessment.assessor IS NOT NULL " +
+                            "AND (assessment.status IN (:activeStatuses) OR assessment.quitDate > :monthAgo)";
 
             @SuppressWarnings("unchecked")
             List<Long> res = (List<Long>) persistence.currentManager()
@@ -3360,6 +3364,8 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
                     .setLong("compId", compId)
                     .setString("aType", AssessmentType.PEER_ASSESSMENT.name())
                     .setLong("credId", credId)
+                    .setParameterList("activeStatuses", AssessmentStatus.getActiveStatuses())
+                    .setTimestamp("monthAgo", DateUtil.getNDaysBeforeNow(30))
                     .list();
 
             return res;

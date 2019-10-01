@@ -85,7 +85,7 @@
         </div>
 
         <assessments:competenceAssessmentPreview
-                credentialId="#{util:decodeId(param.credId)}"
+                credentialId="#{competenceAssessmentBean.decodedCredId}"
                 learningContext="name:CREDENTIAL|id:#{competenceAssessmentBean.decodedCredId}" />
     </ui:define>
 </ui:composition>
