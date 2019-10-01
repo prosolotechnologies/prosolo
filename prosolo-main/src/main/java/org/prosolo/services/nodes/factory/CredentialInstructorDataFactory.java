@@ -19,6 +19,7 @@ public class CredentialInstructorDataFactory {
 		instructor.setMaxNumberOfStudents(credInstructor.getMaxNumberOfStudents());
 		instructor.setNumberOfAssignedStudents(numberOfCurrentlyAssignedStudents);
 		instructor.setUser(new UserData(user));
+		instructor.setStatus(credInstructor.getStatus());
 		if(trackChanges) {
 			instructor.startObservingChanges();
 		}

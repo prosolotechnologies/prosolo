@@ -69,7 +69,12 @@ public class CredentialGradeAddedEventProcessor extends GradeAddedEventProcessor
 
     @Override
     ResourceType getObjectType() {
-        return ResourceType.CredentialAssessment;
+        return ResourceType.Credential;
+    }
+
+    @Override
+    long getObjectId() {
+        return credentialId;
     }
 
 }

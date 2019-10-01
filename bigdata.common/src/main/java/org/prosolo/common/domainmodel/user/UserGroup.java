@@ -18,6 +18,7 @@ public class UserGroup extends BaseEntity {
 	private static final long serialVersionUID = 5056103791488544103L;
 	
 	private List<UserGroupUser> users;
+	private List<UserGroupInstructor> instructors;
 	private String name;
 	private boolean joinUrlActive;
 	private String joinUrlPassword;
@@ -41,7 +42,17 @@ public class UserGroup extends BaseEntity {
 	public void setUsers(List<UserGroupUser> users) {
 		this.users = users;
 	}
-	
+
+	@OneToMany(mappedBy = "group", cascade = CascadeType.REMOVE, orphanRemoval = true)
+	@LazyCollection(LazyCollectionOption.EXTRA)
+	public List<UserGroupInstructor> getInstructors() {
+		return instructors;
+	}
+
+	public void setInstructors(List<UserGroupInstructor> instructors) {
+		this.instructors = instructors;
+	}
+
 	public String getName() {
 		return name;
 	}

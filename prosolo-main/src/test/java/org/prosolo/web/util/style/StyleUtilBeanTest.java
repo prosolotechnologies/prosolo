@@ -19,16 +19,16 @@ public class StyleUtilBeanTest {
 
     @Test
     public void getEvidenceFileTypeIcon() {
-        assertEquals(styleUtilBean.getEvidenceFileTypeIcon("http://example.com/file.txt"), "evidenceText");
-        assertEquals(styleUtilBean.getEvidenceFileTypeIcon("http://example.com/file.pdf"), "evidenceText");
-        assertEquals(styleUtilBean.getEvidenceFileTypeIcon("http://example.com/file.docx"), "evidenceText");
-        assertEquals(styleUtilBean.getEvidenceFileTypeIcon("http://example.com/file.JPG"), "evidenceImage");
-        assertEquals(styleUtilBean.getEvidenceFileTypeIcon("http://example.com/file.png"), "evidenceImage");
-        assertEquals(styleUtilBean.getEvidenceFileTypeIcon("http://example.com/file.mp3"), "evidenceAudio");
-        assertEquals(styleUtilBean.getEvidenceFileTypeIcon("http://example.com/file.mov"), "evidenceVideoAlt");
-        assertEquals(styleUtilBean.getEvidenceFileTypeIcon("http://example.com/file.zip"), "evidenceArchive");
-        assertEquals(styleUtilBean.getEvidenceFileTypeIcon("http://example.com/file.ppt"), "evidenceDoc");
-        assertEquals(styleUtilBean.getEvidenceFileTypeIcon("http://example.com/file.bla"), "evidenceDoc");
-        assertEquals(styleUtilBean.getEvidenceFileTypeIcon("http://example.com/file"), "evidenceDoc");
+        assertEquals("evidenceDoc", styleUtilBean.getEvidenceFileTypeIcon("http://example.com/file.txt"));
+        assertEquals("evidenceDoc", styleUtilBean.getEvidenceFileTypeIcon("http://example.com/file.pdf"));
+        assertEquals("evidenceDoc", styleUtilBean.getEvidenceFileTypeIcon("http://example.com/file.docx"));
+        assertEquals("evidenceImage", styleUtilBean.getEvidenceFileTypeIcon("http://example.com/file.JPG"));
+        assertEquals("evidenceImage", styleUtilBean.getEvidenceFileTypeIcon("http://example.com/file.png"));
+        assertEquals("evidenceAudio", styleUtilBean.getEvidenceFileTypeIcon("http://example.com/file.mp3"));
+        assertEquals("evidenceVideoAlt", styleUtilBean.getEvidenceFileTypeIcon("http://example.com/file.mov"));
+        assertEquals("evidenceArchive", styleUtilBean.getEvidenceFileTypeIcon("http://example.com/file.zip"));
+        assertEquals("evidenceLink", styleUtilBean.getEvidenceFileTypeIcon("http://example.com/file.ppt"));
+        assertEquals("evidenceLink", styleUtilBean.getEvidenceFileTypeIcon("http://example.com/file.bla"));
+        assertEquals("evidenceLink", styleUtilBean.getEvidenceFileTypeIcon("http://example.com/file"));
     }
 }

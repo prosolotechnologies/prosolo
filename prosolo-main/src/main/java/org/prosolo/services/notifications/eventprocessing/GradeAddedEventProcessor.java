@@ -51,9 +51,4 @@ public abstract class GradeAddedEventProcessor extends AssessmentNotificationEve
         return NotificationType.GradeAdded;
     }
 
-    @Override
-    long getObjectId() {
-        return event.getObject().getId();
-    }
-
 }

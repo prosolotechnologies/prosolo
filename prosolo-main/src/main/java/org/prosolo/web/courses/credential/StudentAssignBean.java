@@ -5,6 +5,7 @@ package org.prosolo.web.courses.credential;
 
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
+import org.prosolo.common.domainmodel.credential.CredentialInstructorStatus;
 import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
@@ -122,11 +123,18 @@ public class StudentAssignBean implements Serializable, Paginable {
 	}
 	
 	public void searchStudents() {
-		PaginatedResult<StudentData> result = userTextSearch
-				.searchUnassignedAndStudentsAssignedToInstructor(
-						loggedUserBean.getOrganizationId(), studentSearchTerm, credId,
-						instructorForStudentAssign.getUser().getId(), searchFilter.getFilter(), 
-						paginationData.getPage() - 1, paginationData.getLimit());
+		PaginatedResult<StudentData> result =
+				instructorForStudentAssign.getStatus() == CredentialInstructorStatus.ACTIVE
+						? userTextSearch
+								.searchUnassignedAndStudentsAssignedToInstructor(
+										loggedUserBean.getOrganizationId(), studentSearchTerm, credId,
+										instructorForStudentAssign.getUser().getId(), searchFilter.getFilter(),
+										paginationData.getPage() - 1, paginationData.getLimit())
+						: userTextSearch
+								.searchCredentialStudentsAssignedToInstructor(
+										loggedUserBean.getOrganizationId(), studentSearchTerm, credId,
+										instructorForStudentAssign.getUser().getId(),
+										paginationData.getPage() - 1, paginationData.getLimit());
 		students = result.getFoundNodes();
 		setCurrentlyAssignedAndUnassignedStudents();
 		paginationData.update((int) result.getHitsNumber());
@@ -179,7 +187,7 @@ public class StudentAssignBean implements Serializable, Paginable {
 
 	public void studentAssignChecked(int index) {
 		StudentData sd = students.get(index);
-		if(sd.isAssigned()) {
+		if (sd.isAssigned()) {
 			if(sd.getInstructor() != null) {
 				studentsToUnassign.remove(new Long(sd.getUser().getId()));
 			} else {
@@ -211,10 +219,11 @@ public class StudentAssignBean implements Serializable, Paginable {
 				input.setValid(false);
 				FacesContext.getCurrentInstance().validationFailed();
 			} else {
+
 				instructorForStudentAssign.setMaxNumberOfStudents(maxNumberOfStudents);
 				String page = PageUtil.getPostParameter("page");
 				String service = PageUtil.getPostParameter("service");
-				String lContext = context + "|context:/name:INSTRUCTOR|id:" 
+				String lContext = context + "|context:/name:INSTRUCTOR|id:"
 						+ instructorForStudentAssign.getInstructorId() + "/";
 				PageContextData ctx = new PageContextData(page, lContext, service);
 				List<Long> usersToAssign = null;
@@ -227,7 +236,7 @@ public class StudentAssignBean implements Serializable, Paginable {
 				} else {
 					usersToAssign = studentsToAssign;
 				}
-				credInstructorManager.updateInstructorAndStudentsAssigned(credId, instructorForStudentAssign, 
+				credInstructorManager.updateInstructorAndStudentsAssigned(credId, instructorForStudentAssign,
 						usersToAssign, studentsToUnassign, loggedUserBean.getUserContext(ctx));
 				//fireAssignEvent(instructorForStudentAssign, usersToAssign, page, lContext, service);
 				//fireUnassignEvent(instructorForStudentAssign, studentsToUnassign, page, lContext, service);
@@ -238,9 +247,9 @@ public class StudentAssignBean implements Serializable, Paginable {
 				PageUtil.fireSuccessfulInfoMessage("Changes has been saved");
 			}
 		} catch (DbConnectionException e) {
-			logger.error(e);
+			logger.error("error", e);
 			instructorForStudentAssign.setMaxNumberOfStudentsToOriginalValue();
-			PageUtil.fireErrorMessage(e.getMessage());
+			PageUtil.fireErrorMessage("Error assigning students");
 		}
 	}
 	

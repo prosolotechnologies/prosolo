@@ -150,6 +150,8 @@ public class NodeChangeProcessorFactory {
             case ADD_USER_TO_GROUP:
             case REMOVE_USER_FROM_GROUP:
             case USER_GROUP_CHANGE:
+            case ADD_USER_AS_GROUP_INSTRUCTOR:
+            case REMOVE_USER_AS_GROUP_INSTRUCTOR:
                 return new UserGroupNodeChangeProcessor(event, userGroupESService, credentialESService,
                         userGroupManager, competenceESService, userEntityESService, session);
             case ARCHIVE:

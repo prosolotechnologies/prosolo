@@ -14,8 +14,10 @@ import org.prosolo.services.nodes.data.ResourceVisibilityMember;
 import org.prosolo.services.nodes.data.TitleData;
 import org.prosolo.services.user.data.UserData;
 import org.prosolo.services.user.data.UserGroupData;
+import org.prosolo.services.user.data.UserGroupInstructorRemovalMode;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface UserGroupManager extends AbstractManager {
 
@@ -49,9 +51,54 @@ public interface UserGroupManager extends AbstractManager {
 	void addUserToTheGroup(long groupId, long userId, UserContextData context)
 			throws DbConnectionException;
 
+	/**
+	 * Adds user to the group as group instructor and generates events.
+	 *
+	 * @param groupId
+	 * @param userId
+	 * @param context
+	 * @throws DbConnectionException
+	 */
+	void addInstructorToTheGroup(long groupId, long userId, UserContextData context);
+
+	/**
+	 * Adds user to the group as group instructor and returns events to be generated.
+	 *
+	 * @param groupId
+	 * @param userId
+	 * @param context
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	Result<Void> addInstructorToTheGroupAndGetEvents(long groupId, long userId, UserContextData context);
+
 	void removeUserFromTheGroup(long groupId, long userId, UserContextData context) throws DbConnectionException;
 
 	Result<Void> removeUserFromTheGroupAndGetEvents(long groupId, long userId, UserContextData context) throws DbConnectionException;
+
+	/**
+	 * Removes user from the list of user group instructors and generates events.
+	 *
+	 * @param groupId
+	 * @param userId
+	 * @param instructorRemovalMode
+	 * @param context
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	void removeInstructorFromTheGroup(long groupId, long userId, UserGroupInstructorRemovalMode instructorRemovalMode, UserContextData context);
+
+	/**
+	 * Removes user from the list of user group instructors and returns events to be generated.
+	 *
+	 * @param groupId
+	 * @param userId
+	 * @param instructorRemovalMode
+	 * @param context
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	Result<Void> removeInstructorFromTheGroupAndGetEvents(long groupId, long userId, UserGroupInstructorRemovalMode instructorRemovalMode, UserContextData context);
 
 	Result<Void> addUserToGroups(long userId, List<Long> groupIds) throws DbConnectionException;
 
@@ -109,12 +156,16 @@ public interface UserGroupManager extends AbstractManager {
 	 * @param credId
 	 * @param groups
 	 * @param users
-	 * @param actorId - actor that issued a request
-	 * @param lcd
+	 * @param instructorRemovalMode - applicable only to user groups with learn privilege being removed from credential;
+	 *                              it determines how will credential instructors that are defined as group instructors
+	 *                              be treated; this argument is required only for user groups with learn privilege.
+	 * @param context
 	 * @throws DbConnectionException
 	 */
 	Result<Void> saveCredentialUsersAndGroups(long credId, List<ResourceVisibilityMember> groups,
-											  List<ResourceVisibilityMember> users, UserContextData context) throws DbConnectionException;
+											  List<ResourceVisibilityMember> users,
+											  Optional<UserGroupInstructorRemovalMode> instructorRemovalMode,
+											  UserContextData context) throws DbConnectionException;
 
 	List<CredentialUserGroup> getAllCredentialUserGroups(long credId, Session session)
 			throws DbConnectionException;
@@ -245,10 +296,21 @@ public interface UserGroupManager extends AbstractManager {
 														 boolean isDefault, UserContextData context)
 			throws DbConnectionException;
 
-	UserGroupData getUserCountAndCanBeDeletedGroupData(long groupId) throws DbConnectionException;
+	UserGroupData getUserGroupDataWithUserCountAndCanBeDeletedInfo(long groupId) throws DbConnectionException;
 
 	PaginatedResult<UserData> getPaginatedGroupUsers(long groupId, int limit, int offset)
 			throws DbConnectionException;
+
+	/**
+	 * Returns paginated user group instructors for given group.
+	 *
+	 * @param groupId
+	 * @param limit
+	 * @param offset
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	PaginatedResult<UserData> getPaginatedGroupInstructors(long groupId, int limit, int offset);
 
 	TitleData getUserGroupUnitAndOrganizationTitle(long organizationId, long unitId, long groupId)
 			throws DbConnectionException;
@@ -281,5 +343,14 @@ public interface UserGroupManager extends AbstractManager {
 	Result<UserGroup> saveNewGroupAndGetEvents(long unitId, String name, boolean isDefault, UserContextData context) throws DbConnectionException;
 
 	Result<UserGroup> updateGroupNameAndGetEvents(long groupId, String newName, UserContextData context) throws DbConnectionException;
+
+	/**
+	 * Returns ids of user groups where given user is instructor.
+	 *
+	 * @param userId
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	List<Long> getIdsOfUserGroupsWhereUserIsInstructor(long userId);
 
 }

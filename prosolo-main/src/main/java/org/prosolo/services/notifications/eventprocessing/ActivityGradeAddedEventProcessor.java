@@ -25,6 +25,7 @@ public class ActivityGradeAddedEventProcessor extends GradeAddedEventProcessor {
     private AssessmentBasicData competenceAssessment;
     private long credentialId;
     private long competenceId;
+    private long activityId;
     private ActivityData activityData;
 
     public ActivityGradeAddedEventProcessor(Event event, NotificationManager notificationManager,
@@ -37,7 +38,7 @@ public class ActivityGradeAddedEventProcessor extends GradeAddedEventProcessor {
 
         credentialId = activityAssessment.getCredentialId();
         competenceId = activityAssessment.getCompetenceId();
-        long activityId = activityAssessment.getActivityId();
+        activityId = activityAssessment.getActivityId();
 
         activityData = activityManager.getActivityData(credentialId, competenceId, activityId, false, false);
     }
@@ -101,7 +102,11 @@ public class ActivityGradeAddedEventProcessor extends GradeAddedEventProcessor {
 
     @Override
     ResourceType getObjectType() {
-        return ResourceType.ActivityAssessment;
+        return ResourceType.Activity;
     }
 
+    @Override
+    long getObjectId() {
+        return activityId;
+    }
 }

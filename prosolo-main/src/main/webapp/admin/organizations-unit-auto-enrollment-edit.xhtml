@@ -110,11 +110,11 @@
 
                                 <h:panelGroup id="panelUserGroup">
                                     <h:panelGroup layout="block" styleClass="formLine" rendered="#{empty ltiExternalToolEditBean.toolData.userGroupData}">
-                                        <label>Student Group</label>
+                                        <label>Learning Group</label>
                                         <div class="formLineRight">
                                             <div class="inputWrapper">
                                                 <h:inputText id="txtFieldSearchUserGroups"
-                                                             placeholder="Type student group title..."
+                                                             placeholder="Type learning group title..."
                                                              value="#{ltiExternalToolEditBean.searchTerm}"
                                                              onkeyup="searchListener(execSearchUserGroups);"
                                                              autocomplete="off" />
@@ -148,7 +148,7 @@
                                     </h:panelGroup>
 
                                     <h:panelGroup layout="block" styleClass="formLine" rendered="#{not empty ltiExternalToolEditBean.toolData.userGroupData}">
-                                        <label>Student Group</label>
+                                        <label>Learning Group</label>
                                         <div class="formLineRight">
                                             <table class="bottom10">
                                                 <tbody>

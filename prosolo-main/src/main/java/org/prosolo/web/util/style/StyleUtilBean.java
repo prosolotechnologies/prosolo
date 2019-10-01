@@ -130,6 +130,7 @@ public class StyleUtilBean implements Serializable {
 	}
 
 	public String getEvidenceFileTypeIcon(String url) {
+		//TODO if there is no extension this logic for extracting extension would not work
 		String extension = url.substring(url.lastIndexOf(".") + 1).toLowerCase();
 
 		switch (extension) {

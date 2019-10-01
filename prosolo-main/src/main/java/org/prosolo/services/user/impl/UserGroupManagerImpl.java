@@ -5,31 +5,29 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.exception.ConstraintViolationException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
-import org.prosolo.common.domainmodel.credential.Competence1;
-import org.prosolo.common.domainmodel.credential.CompetenceUserGroup;
-import org.prosolo.common.domainmodel.credential.Credential1;
-import org.prosolo.common.domainmodel.credential.CredentialUserGroup;
+import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
+import org.prosolo.common.domainmodel.assessment.AssessorAssignmentMethod;
+import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.organization.Unit;
-import org.prosolo.common.domainmodel.user.User;
-import org.prosolo.common.domainmodel.user.UserGroup;
-import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
-import org.prosolo.common.domainmodel.user.UserGroupUser;
+import org.prosolo.common.domainmodel.user.*;
 import org.prosolo.common.event.EventData;
 import org.prosolo.common.event.EventQueue;
 import org.prosolo.common.event.context.data.UserContextData;
+import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
+import org.prosolo.services.nodes.CredentialInstructorManager;
 import org.prosolo.services.nodes.CredentialManager;
-import org.prosolo.services.nodes.ResourceFactory;
 import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.ResourceVisibilityMember;
 import org.prosolo.services.nodes.data.TitleData;
 import org.prosolo.services.user.UserGroupManager;
 import org.prosolo.services.user.data.UserData;
 import org.prosolo.services.user.data.UserGroupData;
+import org.prosolo.services.user.data.UserGroupInstructorRemovalMode;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,10 +42,10 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 
 	private static Logger logger = Logger.getLogger(UserGroupManagerImpl.class);
 	
-	@Inject private ResourceFactory resourceFactory;
 	@Inject private EventFactory eventFactory;
 	@Inject private CredentialManager credManager;
 	@Inject private UserGroupManager self;
+	@Inject private CredentialInstructorManager credentialInstructorManager;
 	 
 	@Override
 	@Transactional(readOnly = true)
@@ -142,7 +140,8 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 				groups.add(
 						new UserGroupData(
 								group.getId(), group.getName(),
-								(credGroupsNo + compGroupsNo) == 0, group.getUsers().size()));
+								(credGroupsNo + compGroupsNo) == 0, group.getUsers().size(),
+                                group.getInstructors().size()));
 			}
 			return groups;
 		} catch(Exception e) {
@@ -334,6 +333,82 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	}
 
 	@Override
+	public void removeInstructorFromTheGroup(long groupId, long userId, UserGroupInstructorRemovalMode instructorRemovalMode, UserContextData context) throws DbConnectionException {
+		Result<Void> result = self.removeInstructorFromTheGroupAndGetEvents(groupId, userId, instructorRemovalMode, context);
+		eventFactory.generateAndPublishEvents(result.getEventQueue());
+	}
+
+	@Override
+	@Transactional
+	public Result<Void> removeInstructorFromTheGroupAndGetEvents(long groupId, long userId, UserGroupInstructorRemovalMode instructorRemovalMode, UserContextData context) {
+		try {
+			Optional<UserGroupInstructor> groupInstructor = getUserGroupInstructor(groupId, userId);
+			groupInstructor.ifPresent(this::delete);
+			Result<Void> result = new Result<>();
+			User u = new User();
+			u.setId(userId);
+			UserGroup group = new UserGroup();
+			group.setId(groupId);
+
+            result.appendEvent(eventFactory.generateEventData(EventType.REMOVE_USER_AS_GROUP_INSTRUCTOR,
+					context, u, group, null, null));
+
+			result.appendEvents(handleInstructorStatusInExistingCredentialsWhenInstructorIsRemovedFromGroup(
+					instructorRemovalMode, groupId, userId, context));
+
+			return result;
+		} catch (Exception e) {
+			throw new DbConnectionException("Error removing user as instructor from the group", e);
+		}
+	}
+
+	private EventQueue handleInstructorStatusInExistingCredentialsWhenInstructorIsRemovedFromGroup(UserGroupInstructorRemovalMode instructorRemovalMode,
+																   long groupId, long userId, UserContextData context) throws IllegalDataStateException {
+		EventQueue events = EventQueue.newEventQueue();
+		List<Credential1> notStartedDeliveries = credManager.getDeliveriesWithUserGroupBasedOnStartDate(groupId, false);
+		for (Credential1 cred : notStartedDeliveries) {
+		    //remove user as instructor from all deliveries not yet started no matter which instructor removal mode is passed
+            Optional<Long> credentialInstructorId = credentialInstructorManager.getCredentialInstructorId(cred.getId(), userId);
+            if (credentialInstructorId.isPresent()) {
+                events.appendEvents(credentialInstructorManager.removeInstructorFromCredentialAndGetEvents(
+                        credentialInstructorId.get(),
+                        cred.getId(),
+                        cred.getAssessorAssignmentMethod() == AssessorAssignmentMethod.AUTOMATIC,
+                        context).getEventQueue());
+            }
+        }
+		if (instructorRemovalMode != UserGroupInstructorRemovalMode.LEAVE_AS_INSTRUCTOR) {
+			List<Credential1> startedDeliveries = credManager.getDeliveriesWithUserGroupBasedOnStartDate(groupId, true);
+			for (Credential1 cred : startedDeliveries) {
+				Optional<Long> credentialInstructorId = credentialInstructorManager.getCredentialInstructorId(cred.getId(), userId);
+				if (credentialInstructorId.isPresent()) {
+					credentialInstructorManager.inactivateCredentialInstructor(credentialInstructorId.get());
+					if (instructorRemovalMode == UserGroupInstructorRemovalMode.WITHDRAW_FROM_STUDENTS_WITH_UNSUBMITTED_ASSESSMENT_AND_INACTIVATE) {
+						List<TargetCredential1> tCreds = credManager.getTargetCredentialsWithUnsubmittedInstructorAssessment(cred.getId(), userId);
+						events.appendEvents(credentialInstructorManager.updateInstructorForStudents(cred.getId(), tCreds, credentialInstructorId.get(),
+								cred.getAssessorAssignmentMethod() == AssessorAssignmentMethod.AUTOMATIC, context).getEvents());
+					}
+				}
+			}
+		}
+		return events;
+	}
+
+	private Optional<UserGroupInstructor> getUserGroupInstructor(long groupId, long userId) {
+		String query =
+				"SELECT gi " +
+				"FROM UserGroupInstructor gi " +
+				"WHERE gi.user.id = :userId " +
+				"AND gi.group.id = :groupId";
+		UserGroupInstructor instructor = (UserGroupInstructor) persistence.currentManager()
+				.createQuery(query)
+				.setLong("groupId", groupId)
+				.setLong("userId", userId)
+				.uniqueResult();
+		return Optional.ofNullable(instructor);
+	}
+
+	@Override
 	@Transactional(readOnly = false)
 	public Result<Void> addUserToGroups(long userId, List<Long> groupIds) throws DbConnectionException {
 		try {
@@ -420,12 +495,11 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 
 	@Override
 	@Transactional(readOnly = true)
-	public UserGroupData getUserCountAndCanBeDeletedGroupData(long groupId) throws DbConnectionException {
+	public UserGroupData getUserGroupDataWithUserCountAndCanBeDeletedInfo(long groupId) throws DbConnectionException {
 		try {
 			String query =
-					"SELECT COUNT(distinct user), COUNT(distinct credGroup), COUNT(distinct compGroup) " +
+					"SELECT g, COUNT(distinct credGroup), COUNT(distinct compGroup) " +
 					"FROM UserGroup g " +
-					"LEFT JOIN g.users user " +
 					"LEFT JOIN g.credentialUserGroups credGroup " +
 					"LEFT JOIN g.competenceUserGroups compGroup " +
 					"WHERE g.id = :groupId " +
@@ -436,15 +510,18 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 					.setLong("groupId", groupId)
 					.uniqueResult();
 
-			long userCount = (long) res[0];
+			UserGroup userGroup = (UserGroup) res[0];
 			long credGroupsCount = (long) res[1];
 			long compGroupsCount = (long) res[2];
 
-			UserGroupData ugd = new UserGroupData(userCount, (credGroupsCount + compGroupsCount) == 0);
-			return ugd;
+			return new UserGroupData(
+                    userGroup.getId(),
+                    userGroup.getName(),
+                    (credGroupsCount + compGroupsCount) == 0,
+                    userGroup.getUsers().size(),
+                    userGroup.getInstructors().size());
 		} catch(Exception e) {
-			e.printStackTrace();
-			logger.error(e);
+			logger.error("error", e);
 			throw new DbConnectionException("Error retrieving user group data");
 		}
 	}
@@ -702,14 +779,14 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 	@Override
 	@Transactional(readOnly = false)
     public Result<Void> saveCredentialUsersAndGroups(long credId, List<ResourceVisibilityMember> groups, 
-    		List<ResourceVisibilityMember> users, UserContextData context) throws DbConnectionException {
+    		List<ResourceVisibilityMember> users, Optional<UserGroupInstructorRemovalMode> instructorRemovalMode, UserContextData context) throws DbConnectionException {
     	try {
     		if(groups == null || users == null) {
     			throw new NullPointerException("Invalid argument values");
     		}
     		EventQueue events = EventQueue.newEventQueue();
     		events.appendEvents(saveCredentialUsers(credId, users, context).getEventQueue());
-    		events.appendEvents(saveCredentialGroups(credId, groups, context).getEventQueue());
+    		events.appendEvents(saveCredentialGroups(credId, groups, instructorRemovalMode, context).getEventQueue());
     		Credential1 cred = new Credential1();
     		cred.setId(credId);
     		
@@ -741,9 +818,8 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     	} catch(DbConnectionException dce) {
     		throw dce;
     	} catch(Exception e) {
-    		e.printStackTrace();
-    		logger.error(e);
-    		throw new DbConnectionException("Error saving credential users and groups");
+    		logger.error("error", e);
+    		throw new DbConnectionException("Error saving credential users and groups", e);
     	}
     }
 	
@@ -1042,6 +1118,61 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 		}
 	}
 
+	@Override
+	public void addInstructorToTheGroup(long groupId, long userId, UserContextData context) {
+		Result<Void> result = self.addInstructorToTheGroupAndGetEvents(groupId, userId, context);
+		eventFactory.generateAndPublishEvents(result.getEventQueue());
+	}
+
+	@Override
+	@Transactional
+	public Result<Void> addInstructorToTheGroupAndGetEvents(long groupId, long userId, UserContextData context) {
+		try {
+			UserGroup group = loadResource(UserGroup.class, groupId);
+			User u = loadResource(User.class, userId);
+			UserGroupInstructor groupInstructor = new UserGroupInstructor();
+			groupInstructor.setUser(u);
+			groupInstructor.setGroup(group);
+
+			Result<Void> res = new Result<>();
+			boolean addedToGroup = false;
+			try {
+				saveEntity(groupInstructor);
+
+				UserGroup ug = new UserGroup();
+				ug.setId(groupId);
+				User user = new User();
+				user.setId(userId);
+				res.appendEvent(eventFactory.generateEventData(
+						EventType.ADD_USER_AS_GROUP_INSTRUCTOR, context, user, ug, null, null));
+
+				addedToGroup = true;
+			} catch (ConstraintViolationException e) {
+				//it means that user is already added to that group and that is ok, it should not be considered as en error
+				logger.info("User with id: " + userId + " not added to group as instructor because he is already part of the group");
+			}
+
+			if (addedToGroup) {
+				res.appendEvents(handleInstructorStatusInExistingCredentialsWhenInstructorIsAddedToGroup(
+						groupId, userId, context));
+			}
+			return res;
+		} catch(Exception e) {
+			throw new DbConnectionException("Error adding the user to the group", e);
+		}
+	}
+
+	private EventQueue handleInstructorStatusInExistingCredentialsWhenInstructorIsAddedToGroup(
+			long groupId, long userId, UserContextData context) {
+		EventQueue events = EventQueue.newEventQueue();
+		List<CredentialUserGroup> credentialUserGroups = getCredentialUserGroups(groupId);
+		for (CredentialUserGroup credGroup : credentialUserGroups) {
+			events.appendEvents(credentialInstructorManager.addOrActivateCredentialInstructorAndGetEvents(
+					credGroup.getCredential().getId(), userId, context).getEventQueue());
+		}
+		return events;
+	}
+
 	private Result<Void> removeUserFromGroupAndGetEvents(UserGroupUser userGroupUser,
 														 UserContextData context) {
 		Result<Void> res = new Result<>();
@@ -1084,7 +1215,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     	}
     }
 	
-    private Result<Void> saveCredentialGroups(long credId, List<ResourceVisibilityMember> groups, UserContextData context)
+    private Result<Void> saveCredentialGroups(long credId, List<ResourceVisibilityMember> groups, Optional<UserGroupInstructorRemovalMode> instructorRemovalMode, UserContextData context)
 			throws DbConnectionException {
     	try {
     		Result<Void> res = new Result<>();
@@ -1102,7 +1233,7 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     					break;
     				case REMOVED:
     					res.appendEvents(
-    							removeCredentialUserGroup(credId, group.getId(), group.getGroupId(), context)
+    							removeCredentialUserGroup(credId, group.getId(), group.getGroupId(), instructorRemovalMode, context)
     								.getEventQueue());
     					break;
     				case UP_TO_DATE:
@@ -1112,16 +1243,14 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
     		}
     		return res;
     	} catch(Exception e) {
-    		e.printStackTrace();
-    		logger.error(e);
-    		throw new DbConnectionException("Error saving credential groups");
+    		throw new DbConnectionException("Error saving credential groups", e);
     	}
     }
 	
-	private Result<Void> removeCredentialUserGroup(long credId, long credUserGroupId, long userGroupId, UserContextData context) {
+	private Result<Void> removeCredentialUserGroup(long credId, long credUserGroupId, long userGroupId, Optional<UserGroupInstructorRemovalMode> instructorRemovalMode, UserContextData context) throws ResourceCouldNotBeLoadedException, IllegalDataStateException {
 		CredentialUserGroup credGroup = (CredentialUserGroup) persistence
 				.currentManager().load(CredentialUserGroup.class, credUserGroupId);
-		
+		UserGroupPrivilege privilege = credGroup.getPrivilege();
 		Result<Void> res = new Result<>();
 		UserGroup userGroup = new UserGroup();
 		userGroup.setId(userGroupId);
@@ -1129,33 +1258,54 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 		cred.setId(credId);
 		Map<String, String> params = new HashMap<>();
 		params.put("credentialUserGroupId", credGroup.getId() + "");
-		params.put("privilege", credGroup.getPrivilege().name());
+		params.put("privilege", privilege.name());
 		res.appendEvent(eventFactory.generateEventData(EventType.USER_GROUP_REMOVED_FROM_RESOURCE, context, userGroup, cred, null, params));
 
 		delete(credGroup);
-		
+
+		if (privilege == UserGroupPrivilege.Learn) {
+            //remove or inactivate group instructors as credential instructors if needed; concerns only group with learn privilege
+            res.appendEvents(handleInstructorsStatusInCredentialOnGroupRemove(credId, userGroupId, instructorRemovalMode, context));
+        }
 		return res;
 	}
-	
-//	private Result<Void> changeCredentialUserGroupPrivilege(long credId, long credUserGroupId, UserGroupPrivilege priv,
-//			long userId, PageContextData lcd) {
-//		CredentialUserGroup credGroup = (CredentialUserGroup) persistence
-//				.currentManager().load(CredentialUserGroup.class, credUserGroupId);
-//		credGroup.setPrivilege(priv);
-//
-//		Result<Void> res = new Result<>();
-//		CredentialUserGroup cug = new CredentialUserGroup();
-//		cug.setId(credUserGroupId);
-//		Credential1 cred = new Credential1();
-//		cred.setId(credId);
-//		cug.setCredential(cred);
-//		Map<String, String> params = new HashMap<>();
-//		params.put("privilege", priv.toString());
-//		res.addEvent(eventFactory.generateEventData(EventType.RESOURCE_USER_GROUP_PRIVILEGE_CHANGE, userId, cug, null,
-//				lcd, params));
-//
-//		return res;
-//	}
+
+	private EventQueue handleInstructorsStatusInCredentialOnGroupRemove(
+	        long credentialId, long groupId, Optional<UserGroupInstructorRemovalMode> instructorRemovalMode, UserContextData context) throws ResourceCouldNotBeLoadedException, IllegalDataStateException {
+		EventQueue events = EventQueue.newEventQueue();
+		Credential1 cred = loadResource(Credential1.class, credentialId);
+		//if delivery is not started we should remove instructors from credential
+		if (cred.getDeliveryStart() == null || cred.getDeliveryStart().after(new Date())) {
+			List<Long> groupInstructorsUserIds = getGroupInstructorsUserIds(groupId);
+			for (long userId : groupInstructorsUserIds) {
+				Optional<Long> credentialInstructorId = credentialInstructorManager.getCredentialInstructorId(credentialId, userId);
+				if (credentialInstructorId.isPresent()) {
+					events.appendEvents(credentialInstructorManager.removeInstructorFromCredentialAndGetEvents(
+							credentialInstructorId.get(),
+							credentialId,
+							cred.getAssessorAssignmentMethod() == AssessorAssignmentMethod.AUTOMATIC,
+							context).getEventQueue());
+				}
+			}
+		} else {
+			UserGroupInstructorRemovalMode instructorRemovalModeVal = instructorRemovalMode.get();
+			if (instructorRemovalModeVal != UserGroupInstructorRemovalMode.LEAVE_AS_INSTRUCTOR) {
+				List<Long> groupInstructorsUserIds = getGroupInstructorsUserIds(groupId);
+				for (long userId : groupInstructorsUserIds) {
+					Optional<Long> credentialInstructorId = credentialInstructorManager.getCredentialInstructorId(credentialId, userId);
+					if (credentialInstructorId.isPresent()) {
+						credentialInstructorManager.inactivateCredentialInstructor(credentialInstructorId.get());
+						if (instructorRemovalModeVal == UserGroupInstructorRemovalMode.WITHDRAW_FROM_STUDENTS_WITH_UNSUBMITTED_ASSESSMENT_AND_INACTIVATE) {
+							List<TargetCredential1> tCreds = credManager.getTargetCredentialsWithUnsubmittedInstructorAssessment(cred.getId(), userId);
+							events.appendEvents(credentialInstructorManager.updateInstructorForStudents(cred.getId(), tCreds, credentialInstructorId.get(),
+									cred.getAssessorAssignmentMethod() == AssessorAssignmentMethod.AUTOMATIC, context).getEvents());
+						}
+					}
+				}
+			}
+		}
+		return events;
+	}
 	
 	private Result<CredentialUserGroup> getOrCreateDefaultCredentialUserGroup(long credId, UserGroupPrivilege priv,
 			UserContextData context) {
@@ -1204,13 +1354,42 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 		params.put("default", isDefault + "");
 		params.put("credentialUserGroupId", credGroup.getId() + "");
 		params.put("privilege", priv.name());
-		EventData ev = eventFactory.generateEventData(EventType.USER_GROUP_ADDED_TO_RESOURCE, context, ug, credential, null, params);
-		
 		Result<CredentialUserGroup> res = new Result<>();
+		res.appendEvent(eventFactory.generateEventData(EventType.USER_GROUP_ADDED_TO_RESOURCE, context, ug,
+				credential, null, params));
+
+		if (priv == UserGroupPrivilege.Learn && userGroupId > 0 && !isDefault) {
+			//add group instructors to credential as instructors; concerns only group with learn privilege
+			res.appendEvents(handleInstructorsStatusInCredentialOnGroupAdd(userGroupId, credId, context));
+		}
+
 		res.setResult(credGroup);
-		res.appendEvent(ev);
-		
+
 		return res;
+	}
+
+	private EventQueue handleInstructorsStatusInCredentialOnGroupAdd(
+			long groupId, long credentialId, UserContextData context) {
+		EventQueue events = EventQueue.newEventQueue();
+		List<Long> groupInstructorsUserIds = getGroupInstructorsUserIds(groupId);
+		for (long userId : groupInstructorsUserIds) {
+			events.appendEvents(credentialInstructorManager.addOrActivateCredentialInstructorAndGetEvents(
+					credentialId, userId, context).getEventQueue());
+		}
+		return events;
+	}
+
+	private List<Long> getGroupInstructorsUserIds(long groupId) {
+		String query =
+				"SELECT u.id " +
+				"FROM UserGroupInstructor ugi " +
+				"INNER JOIN ugi.user u " +
+				"WHERE ugi.group.id = :groupId";
+
+		return (List<Long>) persistence.currentManager()
+				.createQuery(query)
+				.setLong("groupId", groupId)
+				.list();
 	}
 	
 	private Optional<CredentialUserGroup> getCredentialDefaultGroup(long credId, UserGroupPrivilege privilege) {
@@ -2105,6 +2284,60 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 
 	@Override
 	@Transactional(readOnly = true)
+	public PaginatedResult<UserData> getPaginatedGroupInstructors(long groupId, int limit, int offset) {
+		try {
+			PaginatedResult<UserData> res = new PaginatedResult<>();
+			res.setHitsNumber(countGroupInstructors(groupId));
+			if (res.getHitsNumber() > 0) {
+				res.setFoundNodes(getGroupInstructors(groupId, limit, offset));
+			}
+
+			return res;
+		} catch(Exception e) {
+			throw new DbConnectionException("Error retrieving user group instructors", e);
+		}
+	}
+
+	private long countGroupInstructors(long groupId) {
+		String query =
+				"SELECT COUNT(ugi) " +
+				"FROM UserGroupInstructor ugi " +
+				"WHERE ugi.group.id = :groupId";
+
+		return (long) persistence.currentManager()
+				.createQuery(query)
+				.setLong("groupId", groupId)
+				.uniqueResult();
+	}
+
+	private List<UserData> getGroupInstructors(long groupId, int limit, int offset) {
+		String query =
+				"SELECT u " +
+				"FROM UserGroupInstructor ugi " +
+				"INNER JOIN ugi.user u " +
+				"WHERE ugi.group.id = :groupId " +
+				"ORDER BY u.lastname ASC, u.name ASC";
+
+		@SuppressWarnings("unchecked")
+		List<User> result = persistence.currentManager()
+				.createQuery(query)
+				.setLong("groupId", groupId)
+				.setFirstResult(offset)
+				.setMaxResults(limit)
+				.list();
+
+		List<UserData> res = new ArrayList<>();
+		if (result != null) {
+			for (User u : result) {
+				res.add(new UserData(u));
+			}
+		}
+
+		return res;
+	}
+
+	@Override
+	@Transactional(readOnly = true)
 	public TitleData getUserGroupUnitAndOrganizationTitle(long organizationId, long unitId, long groupId)
 			throws DbConnectionException {
 		try {
@@ -2299,6 +2532,26 @@ public class UserGroupManagerImpl extends AbstractManagerImpl implements UserGro
 		} catch(Exception e) {
 			logger.error("Error", e);
 			throw new DbConnectionException("Error retrieving credential users");
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<Long> getIdsOfUserGroupsWhereUserIsInstructor(long userId) {
+		try {
+			String q =
+					"SELECT g.id " +
+					"FROM UserGroupInstructor gi " +
+					"INNER JOIN gi.group g " +
+					"WHERE gi.user.id = :userId " +
+					"AND g.deleted IS FALSE ";
+
+			return (List<Long>) persistence.currentManager()
+					.createQuery(q)
+					.setLong("userId", userId)
+					.list();
+		} catch (Exception e) {
+			throw new DbConnectionException("Error retrieving user group ids", e);
 		}
 	}
 

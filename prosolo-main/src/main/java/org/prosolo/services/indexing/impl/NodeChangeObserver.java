@@ -81,7 +81,9 @@ public class NodeChangeObserver extends EventObserver {
 			EventType.AssessmentRequested,
 			EventType.ASSESSED_BY_AUTO_GRADING,
 			EventType.GRADE_ADDED,
-			EventType.AssessmentApproved
+			EventType.AssessmentApproved,
+			EventType.ADD_USER_AS_GROUP_INSTRUCTOR,
+			EventType.REMOVE_USER_AS_GROUP_INSTRUCTOR
 		};
 	}
 

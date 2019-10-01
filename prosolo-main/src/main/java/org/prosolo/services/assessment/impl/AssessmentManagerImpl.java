@@ -2763,7 +2763,7 @@ public class AssessmentManagerImpl extends AbstractManagerImpl implements Assess
             throws DbConnectionException {
         try {
             String query =
-                    "SELECT credAs.id, ca.id, ca.student.id, ca.assessor.id, ca.type, ca.blindAssessmentMode, targetCred.credential.id, ca.competence.id, aas.activity " +
+                    "SELECT credAs.id, ca.id, ca.student.id, ca.assessor.id, ca.type, ca.blindAssessmentMode, targetCred.credential.id, ca.competence.id, aas.activity.id " +
                     "FROM ActivityAssessment aas " +
                     "INNER JOIN aas.assessment ca " +
                     "INNER JOIN ca.targetCredential targetCred " +

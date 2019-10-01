@@ -554,7 +554,7 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
                 "INNER JOIN urm.user user " +
                 "WITH user.deleted IS FALSE " +
                 "LEFT JOIN user.groups userGroupUser " +
-                    "WITH userGroupUser.group.id = :groupId " +
+                "WITH userGroupUser.group.id = :groupId " +
                 "WHERE urm.role.id = :roleId " +
                 "AND urm.unit.id = :unitId " +
                 "AND userGroupUser IS NULL " +
@@ -588,6 +588,74 @@ public class UnitManagerImpl extends AbstractManagerImpl implements UnitManager 
                         "WHERE urm.role.id = :roleId " +
                         "AND urm.unit.id = :unitId " +
                         "AND userGroupUser IS NULL";
+
+        return (long) persistence.currentManager()
+                .createQuery(query)
+                .setLong("unitId", unitId)
+                .setLong("roleId", roleId)
+                .setLong("groupId", groupId)
+                .uniqueResult();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public PaginatedResult<UserData> getPaginatedCandidatesForAddingToGroupAsInstructors(
+            long unitId, long roleId, long groupId, int offset, int limit) {
+        try {
+            PaginatedResult<UserData> res = new PaginatedResult<>();
+            res.setHitsNumber(countCandidatesForAddingToGroupAsInstructors(unitId, roleId, groupId));
+            if (res.getHitsNumber() > 0) {
+                res.setFoundNodes(getCandidatesForAddingToGroupAsInstructors(unitId, roleId, groupId, offset, limit));
+            }
+
+            return res;
+        } catch (Exception e) {
+            throw new DbConnectionException("Error retrieving candidates for adding to group as instructors", e);
+        }
+    }
+
+    private List<UserData> getCandidatesForAddingToGroupAsInstructors(long unitId, long roleId, long groupId,
+                                                             int offset, int limit) {
+        String query =
+                "SELECT user " +
+                "FROM UnitRoleMembership urm " +
+                "INNER JOIN urm.user user " +
+                "WITH user.deleted IS FALSE " +
+                "LEFT JOIN user.groupsWhereUserIsInstructor groupInstructor " +
+                "WITH groupInstructor.group.id = :groupId " +
+                "WHERE urm.role.id = :roleId " +
+                "AND urm.unit.id = :unitId " +
+                "AND groupInstructor IS NULL " +
+                "ORDER BY user.lastname ASC, user.name ASC";
+
+        List<User> result = persistence.currentManager()
+                .createQuery(query)
+                .setLong("unitId", unitId)
+                .setLong("roleId", roleId)
+                .setLong("groupId", groupId)
+                .setMaxResults(limit)
+                .setFirstResult(offset)
+                .list();
+
+        List<UserData> res = new ArrayList<>();
+        for (User u : result) {
+            res.add(new UserData(u));
+        }
+
+        return res;
+    }
+
+    private long countCandidatesForAddingToGroupAsInstructors(long unitId, long roleId, long groupId) {
+        String query =
+                "SELECT count(urm) " +
+                "FROM UnitRoleMembership urm " +
+                "INNER JOIN urm.user user " +
+                "WITH user.deleted IS FALSE " +
+                "LEFT JOIN user.groupsWhereUserIsInstructor groupInstructor " +
+                "WITH groupInstructor.group.id = :groupId " +
+                "WHERE urm.role.id = :roleId " +
+                "AND urm.unit.id = :unitId " +
+                "AND groupInstructor IS NULL";
 
         return (long) persistence.currentManager()
                 .createQuery(query)

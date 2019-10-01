@@ -72,6 +72,22 @@ public interface UnitManager extends AbstractManager{
                                                                          long groupId, int offset, int limit)
             throws DbConnectionException;
 
+    /**
+     * Returns paginated list of candidates for adding to the group as instructors.
+     * This means users that are added to the specified unit with given role
+     * and not already part of the given group as instructors.
+     *
+     * @param unitId
+     * @param roleId
+     * @param groupId
+     * @param offset
+     * @param limit
+     * @return
+     * @throws DbConnectionException
+     */
+    PaginatedResult<UserData> getPaginatedCandidatesForAddingToGroupAsInstructors(
+            long unitId, long roleId, long groupId, int offset, int limit);
+
     void deleteUnit(long unitId) throws DbConnectionException;
 
     boolean isUserAddedToUnitWithRole(long unitId, long userId, long roleId) throws DbConnectionException;
