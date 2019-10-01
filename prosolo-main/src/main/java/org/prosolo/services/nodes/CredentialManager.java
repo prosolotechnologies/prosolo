@@ -27,11 +27,13 @@ import org.prosolo.services.nodes.data.credential.*;
 import org.prosolo.services.nodes.data.resourceAccess.*;
 import org.prosolo.services.user.data.StudentData;
 import org.prosolo.services.user.data.UserData;
+import org.prosolo.services.user.data.UserGroupInstructorRemovalMode;
 import org.prosolo.services.user.data.UserLearningProgress;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 public interface CredentialManager extends AbstractManager {
 
@@ -303,13 +305,13 @@ public interface CredentialManager extends AbstractManager {
 	List<TargetCredential1> getTargetCredentialsForCredential(long credentialId, 
 			boolean justUncompleted) throws DbConnectionException;
 	
-	void updateCredentialVisibility(long credId, List<ResourceVisibilityMember> groups, 
-    		List<ResourceVisibilityMember> users, boolean visibleToAll, boolean visibleToAllChanged,
-    		UserContextData context) throws DbConnectionException;
+	void updateCredentialVisibility(long credId, List<ResourceVisibilityMember> groups,
+									List<ResourceVisibilityMember> users, boolean visibleToAll, boolean visibleToAllChanged,
+									Optional<UserGroupInstructorRemovalMode> instructorRemovalMode, UserContextData context) throws DbConnectionException;
 	
 	EventQueue updateCredentialVisibilityAndGetEvents(long credId, List<ResourceVisibilityMember> groups,
 													  List<ResourceVisibilityMember> users, boolean visibleToAll, boolean visibleToAllChanged,
-													  UserContextData context) throws DbConnectionException;
+													  Optional<UserGroupInstructorRemovalMode> instructorRemovalMode, UserContextData context) throws DbConnectionException;
 	
 	boolean isVisibleToAll(long credId) throws DbConnectionException;
 
@@ -515,4 +517,26 @@ public interface CredentialManager extends AbstractManager {
 	 */
 	List<CredentialIdData> getCompletedCredentialsBasicDataForCredentialsNotAddedToProfile(long userId);
 
+	List<Credential1> getDeliveriesWithUserGroupBasedOnStartDate(long userGroupId, boolean started);
+
+	/**
+	 * Returns target credentials of students from given credential assigned to the given instructor (instructor user id)
+	 * with unsubmitted instructor assessment.
+	 *
+	 * @param credId
+	 * @param instructorUserId
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	List<TargetCredential1> getTargetCredentialsWithUnsubmittedInstructorAssessment(long credId, long instructorUserId);
+
+	/**
+	 * Returns true if delivery has started.
+	 *
+	 * @param credId
+	 * @return
+	 * @throws DbConnectionException
+	 * @throws ResourceNotFoundException
+	 */
+	boolean hasDeliveryStarted(long credId);
 }

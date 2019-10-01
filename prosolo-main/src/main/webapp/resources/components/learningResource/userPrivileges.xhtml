@@ -7,10 +7,12 @@
 			  xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
 
 	<composite:interface>
-		<composite:attribute name="bean" required="true" />
+		<composite:attribute name="bean" type="org.prosolo.web.courses.userprivilege.ManageUserPrivilegeAware" required="true" />
 		<composite:attribute name="makeOwnerModalId" />
 		<composite:attribute name="toUpdate" default=""/>
+		<composite:attribute name="toUpdateSaveChangesModal" default=""/>
 		<composite:attribute name="process" default="" />
+        <composite:attribute name="saveChangesModalId"  default=""/>
 		<composite:attribute name="learningContext" default="" />
 	</composite:interface>
 
@@ -143,18 +145,26 @@
 					</ui:fragment>
 				</ui:repeat>
 			</ul>
-		</h:panelGroup>
 
-		<div class="lastRow">
-			<p:commandLink styleClass="btn btn-green"
-						   action="#{cc.attrs.bean.saveVisibilityMembersData()}"
-						   process="#{cc.attrs.process}"
-						   update="#{cc.attrs.toUpdate}">
-				<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
-				<f:param name="learningContext" value="#{cc.attrs.learningContext}" />
-				Save Changes
-			</p:commandLink>
-		</div>
+            <div class="lastRow">
+                <p:commandLink styleClass="btn btn-green"
+                               rendered="#{not cc.attrs.bean.shouldOptionForChoosingUserGroupInstructorRemovalModeBeDisplayed()}"
+                               action="#{cc.attrs.bean.saveVisibilityMembersData()}"
+                               process="#{cc.attrs.process}"
+                               update="#{cc.attrs.toUpdate} :#{cc.clientId}:panelExistingMembers">
+                    <f:param name="page" value="#{facesContext.viewRoot.viewId}" />
+                    <f:param name="learningContext" value="#{cc.attrs.learningContext}" />
+                    Save Changes
+                </p:commandLink>
+                <ui:fragment rendered="#{cc.attrs.bean.shouldOptionForChoosingUserGroupInstructorRemovalModeBeDisplayed()}">
+                    <p:commandLink styleClass="btn btn-green"
+								   value="Save Changes"
+								   pt:data-toggle="modal"
+								   update="#{cc.attrs.toUpdateSaveChangesModal}"
+								   oncomplete="$('##{cc.attrs.saveChangesModalId}').modal('show')"/>
+                </ui:fragment>
+            </div>
+		</h:panelGroup>
 
 		<script>
 			$('.groupSearchFieldSelector').focus();

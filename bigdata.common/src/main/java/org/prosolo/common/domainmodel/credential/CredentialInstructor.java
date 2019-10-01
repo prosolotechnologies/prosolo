@@ -21,6 +21,7 @@ public class CredentialInstructor {
 	private Credential1 credential;
 	private List<TargetCredential1> assignedStudents;
 	private Date dateAssigned;
+	private CredentialInstructorStatus status = CredentialInstructorStatus.ACTIVE;
 	
 	public CredentialInstructor() {
 		assignedStudents = new ArrayList<>();
@@ -79,5 +80,14 @@ public class CredentialInstructor {
 	public void setDateAssigned(Date dateAssigned) {
 		this.dateAssigned = dateAssigned;
 	}
-	
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    public CredentialInstructorStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(CredentialInstructorStatus status) {
+        this.status = status;
+    }
 }

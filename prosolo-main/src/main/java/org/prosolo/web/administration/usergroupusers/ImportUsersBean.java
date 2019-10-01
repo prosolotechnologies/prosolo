@@ -1,4 +1,4 @@
-package org.prosolo.web.administration;
+package org.prosolo.web.administration.usergroupusers;
 
 import com.google.common.base.CharMatcher;
 import org.apache.commons.lang3.StringUtils;

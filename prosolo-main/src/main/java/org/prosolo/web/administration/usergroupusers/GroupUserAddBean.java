@@ -1,4 +1,4 @@
-package org.prosolo.web.administration;
+package org.prosolo.web.administration.usergroupusers;
 
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
@@ -11,12 +11,14 @@ import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.util.page.PageUtil;
 import org.prosolo.web.util.pagination.Paginable;
 import org.prosolo.web.util.pagination.PaginationData;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import javax.faces.bean.ManagedBean;
 import javax.inject.Inject;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -34,39 +36,43 @@ public class GroupUserAddBean implements Serializable, Paginable {
 
 	protected static Logger logger = Logger.getLogger(GroupUserAddBean.class);
 
-	@Inject private UnitManager unitManager;
 	@Inject private LoggedUserBean loggedUser;
-	@Inject private UserTextSearch userTextSearch;
-	@Inject private UserGroupManager userGroupManager;
+	@Inject private ObjectProvider<GroupUserAddBeanStrategy> groupUserAddBeanStrategyProvider;
 
 	private long orgId;
 	private long unitId;
 	private long groupId;
 	private long roleId;
+	private UserType userType;
 
 	//users available for adding to group
-	private List<UserData> users;
+	private List<UserData> users = new ArrayList<>();
 
 	private String searchTerm = "";
 
 	private PaginationData paginationData = new PaginationData();
 
-	public void init(long orgId, long unitId, long roleId, long groupId) {
+	private GroupUserAddBeanStrategy groupUserAddBeanStrategy;
+
+	public void init(long orgId, long unitId, long roleId, long groupId, UserType userType) {
 		this.orgId = orgId;
 		this.unitId = unitId;
 		this.groupId = groupId;
 		this.roleId = roleId;
+		this.userType = userType;
 
+		groupUserAddBeanStrategy = groupUserAddBeanStrategyProvider.getObject(userType);
+		users.clear();
 		try {
 			loadUsersFromDB();
 		} catch (Exception e) {
-			logger.error(e);
+			logger.error("Error", e);
 			PageUtil.fireErrorMessage("Error loading data");
 		}
 	}
 
 	private void loadUsersFromDB() {
-		extractPaginatedResult(unitManager.getPaginatedUnitUsersInRoleNotAddedToGroup(
+		extractPaginatedResult(groupUserAddBeanStrategy.getCandidatesForAddingToTheGroupFromDb(
 				unitId, roleId, groupId, (paginationData.getPage() - 1) * paginationData.getLimit(),
 				paginationData.getLimit()));
 	}
@@ -77,9 +83,8 @@ public class GroupUserAddBean implements Serializable, Paginable {
 	}
 
 	public void searchUsers() {
-		PaginatedResult<UserData> res = userTextSearch.searchUnitUsersNotAddedToGroup(
-				orgId, unitId, roleId, groupId, searchTerm, paginationData.getPage() - 1,
-				paginationData.getLimit(), false);
+		PaginatedResult<UserData> res = groupUserAddBeanStrategy.searchCandidatesForAddingToTheGroup(
+				orgId, unitId, roleId, groupId, searchTerm, paginationData.getPage() - 1, paginationData.getLimit());
 		extractPaginatedResult(res);
 	}
 
@@ -104,8 +109,7 @@ public class GroupUserAddBean implements Serializable, Paginable {
 
 	public boolean addUser(UserData user, String groupName) {
 		try {
-			userGroupManager.addUserToTheGroup(groupId, user.getId(),
-					loggedUser.getUserContext());
+			groupUserAddBeanStrategy.addUserToTheGroup(groupId, user.getId(), loggedUser.getUserContext());
 			PageUtil.fireSuccessfulInfoMessage("The user " + user.getFullName()
 					+ " has been added to the group " + groupName);
 			resetSearchData();

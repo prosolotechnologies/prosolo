@@ -1,5 +1,7 @@
-package org.prosolo.web.administration;
+package org.prosolo.web.administration.usergroupusers;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
@@ -10,18 +12,20 @@ import org.prosolo.services.user.UserGroupManager;
 import org.prosolo.services.nodes.data.TitleData;
 import org.prosolo.services.user.data.UserData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
-import org.prosolo.services.util.roles.SystemRoleNames;
+import org.prosolo.services.user.data.UserGroupInstructorRemovalMode;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.PageAccessRightsResolver;
 import org.prosolo.web.util.page.PageUtil;
 import org.prosolo.web.util.pagination.Paginable;
 import org.prosolo.web.util.pagination.PaginationData;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import javax.faces.bean.ManagedBean;
 import javax.inject.Inject;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 @ManagedBean(name = "groupUsersBean")
@@ -42,8 +46,10 @@ public class GroupUsersBean implements Serializable, Paginable {
 	@Inject private RoleManager roleManager;
 	@Inject private LoggedUserBean loggedUser;
 	@Inject private PageAccessRightsResolver pageAccessRightsResolver;
-	
-	private List<UserData> users;
+	@Inject private ObjectProvider<GroupUsersBeanStrategy> groupUsersBeanStrategyProvider;
+
+
+	private List<UserData> users = new ArrayList<>();
 
 	private String orgId;
 	private long decodedOrgId;
@@ -53,6 +59,8 @@ public class GroupUsersBean implements Serializable, Paginable {
 	private long decodedGroupId;
 	private int page;
 	private String error;
+	@Getter @Setter
+	private String tab;
 	
 	// used for user search
 	private String searchTerm = "";
@@ -63,6 +71,14 @@ public class GroupUsersBean implements Serializable, Paginable {
 	private String unitTitle;
 	private String userGroupTitle;
 	private long roleId;
+
+	@Getter
+	private UserData selectedUserForRemoval;
+
+	@Getter
+	private UserType userType;
+
+	private GroupUsersBeanStrategy groupUsersBeanStrategy;
 
 	public void init() {
 		decodedOrgId = idEncoder.decodeId(orgId);
@@ -81,8 +97,7 @@ public class GroupUsersBean implements Serializable, Paginable {
 						if (page > 0) {
 							paginationData.setPage(page);
 						}
-						roleId = roleManager.getRoleIdByName(SystemRoleNames.USER);
-						loadUsersFromDB();
+						setUserTypeAndLoadInitialData("instructors".equals(tab) ? UserType.INSTRUCTOR : UserType.STUDENT);
 						fireErrorMsg();
 					} else {
 						PageUtil.notFound();
@@ -99,18 +114,56 @@ public class GroupUsersBean implements Serializable, Paginable {
 		}
 	}
 
+	private void setUserTypeAndLoadInitialData(UserType userType) {
+	    this.userType = userType;
+        groupUsersBeanStrategy = groupUsersBeanStrategyProvider.getObject(userType);
+        users.clear();
+        loadInitialUserDataBasedOnUserType();
+    }
+
+    public void setStudentTab() {
+	    setUserTypeAndLoadInitialData(UserType.STUDENT);
+    }
+
+    public void setInstructorTab() {
+	    setUserTypeAndLoadInitialData(UserType.INSTRUCTOR);
+    }
+
+	private void loadInitialUserDataBasedOnUserType() {
+	    roleId = groupUsersBeanStrategy.getRoleId();
+	    loadUsersFromDB();
+    }
+
 	private void fireErrorMsg() {
 		if (StringUtils.isNotBlank(error)) {
 			PageUtil.fireErrorMessage(error);
 		}
 	}
 
-	public void removeUserFromGroup(UserData user) {
+	public UserGroupInstructorRemovalMode getInstructorRemovalMode() {
+		if (userType == UserType.INSTRUCTOR) {
+			return ((InstructorGroupUsersBeanStrategy) groupUsersBeanStrategy).getInstructorRemovalMode();
+		}
+		return null;
+	}
+
+	public void setInstructorRemovalMode(UserGroupInstructorRemovalMode instructorRemovalMode) {
+		if (userType == UserType.INSTRUCTOR) {
+			((InstructorGroupUsersBeanStrategy) groupUsersBeanStrategy).setInstructorRemovalMode(instructorRemovalMode);
+		}
+	}
+
+	public void selectUserForRemoval(UserData user) {
+		this.selectedUserForRemoval = user;
+		setInstructorRemovalMode(null);
+	}
+
+	public void removeUserFromGroup() {
 		try {
-			userGroupManager.removeUserFromTheGroup(decodedGroupId, user.getId(),loggedUserBean.getUserContext(decodedOrgId));
+		    groupUsersBeanStrategy.removeUserFromTheGroup(decodedGroupId, selectedUserForRemoval.getId(), loggedUserBean.getUserContext(decodedOrgId));
 
-			PageUtil.fireSuccessfulInfoMessage("User " + user.getFullName() + " is removed from the group");
-
+			PageUtil.fireSuccessfulInfoMessage("User " + selectedUserForRemoval.getFullName() + " is removed from the group");
+			selectedUserForRemoval = null;
 			resetSearchData();
 			try {
 				loadUsersFromDB();
@@ -120,7 +173,7 @@ public class GroupUsersBean implements Serializable, Paginable {
 			}
 		} catch (DbConnectionException e) {
 			logger.error("Error", e);
-			PageUtil.fireErrorMessage("Error removing user " + user.getFullName() + " from the group");
+			PageUtil.fireErrorMessage("Error removing user " + selectedUserForRemoval.getFullName() + " from the group");
 		}
 	}
 
@@ -140,7 +193,7 @@ public class GroupUsersBean implements Serializable, Paginable {
 	}
 
 	public void prepareAddingUsers() {
-		groupUserAddBean.init(decodedOrgId, decodedUnitId, roleId, decodedGroupId);
+		groupUserAddBean.init(decodedOrgId, decodedUnitId, roleId, decodedGroupId, userType);
 	}
 
 	public void addUser(UserData userData) {
@@ -176,7 +229,7 @@ public class GroupUsersBean implements Serializable, Paginable {
 
 	public void loadUsersFromDB() {
 		try {
-			PaginatedResult<UserData> res = userGroupManager.getPaginatedGroupUsers(
+			PaginatedResult<UserData> res = groupUsersBeanStrategy.getUsersFromDb(
 					decodedGroupId, paginationData.getLimit(),
 					(paginationData.getPage() - 1) * paginationData.getLimit());
 			this.paginationData.update((int) res.getHitsNumber());
@@ -188,13 +241,13 @@ public class GroupUsersBean implements Serializable, Paginable {
 
 	public void loadUsers() {
 		try {
-			PaginatedResult<UserData> res = userTextSearch.searchUsersInGroups(
-					decodedOrgId, searchTerm,paginationData.getPage() - 1,
-					paginationData.getLimit(), decodedGroupId, false);
+		    PaginatedResult<UserData> res = groupUsersBeanStrategy.searchUsers(
+		            decodedOrgId, searchTerm, paginationData.getPage() - 1,
+                    paginationData.getLimit(), decodedGroupId);
 			this.paginationData.update((int) res.getHitsNumber());
 			users = res.getFoundNodes();
-		} catch(Exception e) {
-			logger.error(e);
+		} catch (Exception e) {
+			logger.error("error", e);
 		}
 	}
 
@@ -281,4 +334,5 @@ public class GroupUsersBean implements Serializable, Paginable {
 	public void setError(String error) {
 		this.error = error;
 	}
+
 }

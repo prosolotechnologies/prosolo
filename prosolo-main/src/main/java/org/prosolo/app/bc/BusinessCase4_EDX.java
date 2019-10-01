@@ -867,7 +867,7 @@ public class BusinessCase4_EDX implements BusinessCase {
 
         events.appendEvents(ServiceLocator.getInstance().getService(CredentialManager.class).updateCredentialVisibilityAndGetEvents(
                 delivery.getId(), new LinkedList<>(), studentsToAdd,false, false,
-                UserContextData.of(actor.getId(), org.getId(), null, null, null)));
+				Optional.empty(), UserContextData.of(actor.getId(), org.getId(), null, null, null)));
     }
 
     private void givePrivilegeToGroupOnDelivery(EventQueue events, Credential1 delivery, UserGroupPrivilege userGroupPrivilege, User actor, Organization org, List<Long> groupIds) {
@@ -881,7 +881,7 @@ public class BusinessCase4_EDX implements BusinessCase {
 
         events.appendEvents(ServiceLocator.getInstance().getService(CredentialManager.class).updateCredentialVisibilityAndGetEvents(
                 delivery.getId(), groupsToAdd, new LinkedList<>(), false, false,
-                UserContextData.of(actor.getId(), org.getId(), null, null, null)));
+				Optional.empty(), UserContextData.of(actor.getId(), org.getId(), null, null, null)));
     }
 
 	private long getDaysFromNow(int days) {

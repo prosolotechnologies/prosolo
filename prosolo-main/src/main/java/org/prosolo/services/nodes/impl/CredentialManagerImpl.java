@@ -55,10 +55,7 @@ import org.prosolo.services.nodes.data.resourceAccess.*;
 import org.prosolo.services.nodes.factory.*;
 import org.prosolo.services.nodes.observers.learningResources.CredentialChangeTracker;
 import org.prosolo.services.user.UserGroupManager;
-import org.prosolo.services.user.data.StudentAssessmentInfo;
-import org.prosolo.services.user.data.StudentData;
-import org.prosolo.services.user.data.UserData;
-import org.prosolo.services.user.data.UserLearningProgress;
+import org.prosolo.services.user.data.*;
 import org.prosolo.services.util.roles.SystemRoleNames;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -2669,11 +2666,11 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@Override
 	public void updateCredentialVisibility(long credId, List<ResourceVisibilityMember> groups,
 										   List<ResourceVisibilityMember> users, boolean visibleToAll, boolean visibleToAllChanged,
-										   UserContextData context) throws DbConnectionException {
+										   Optional<UserGroupInstructorRemovalMode> instructorRemovalMode, UserContextData context) throws DbConnectionException {
 		try {
 			EventQueue events =
 					self.updateCredentialVisibilityAndGetEvents(credId, groups, users, visibleToAll,
-							visibleToAllChanged, context);
+                            visibleToAllChanged, instructorRemovalMode, context);
 			eventFactory.generateAndPublishEvents(events);
 		} catch (DbConnectionException e) {
 			logger.error(e);
@@ -2685,8 +2682,8 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 	@Override
 	@Transactional(readOnly = false)
 	public EventQueue updateCredentialVisibilityAndGetEvents(long credId, List<ResourceVisibilityMember> groups,
-															 List<ResourceVisibilityMember> users, boolean visibleToAll, boolean visibleToAllChanged,
-															 UserContextData context) throws DbConnectionException {
+                                                             List<ResourceVisibilityMember> users, boolean visibleToAll, boolean visibleToAllChanged,
+                                                             Optional<UserGroupInstructorRemovalMode> instructorRemovalMode, UserContextData context) throws DbConnectionException {
 		try {
 			EventQueue events = EventQueue.newEventQueue();
 			if (visibleToAllChanged) {
@@ -2700,12 +2697,11 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 				events.appendEvent(eventFactory.generateEventData(
 						EventType.VISIBLE_TO_ALL_CHANGED, context, credential, null, null,null));
 			}
-			events.appendEvents(userGroupManager.saveCredentialUsersAndGroups(credId, groups, users, context).getEventQueue());
+			events.appendEvents(userGroupManager.saveCredentialUsersAndGroups(credId, groups, users, instructorRemovalMode, context).getEventQueue());
 			return events;
 		} catch (DbConnectionException e) {
-			logger.error(e);
-			e.printStackTrace();
-			throw new DbConnectionException("Error updating credential visibility");
+			logger.error("error", e);
+			throw new DbConnectionException("Error updating credential visibility", e);
 		}
 	}
 
@@ -4150,5 +4146,88 @@ public class CredentialManagerImpl extends AbstractManagerImpl implements Creden
 			throw new DbConnectionException("Error loading assessor assignment method");
 		}
 	}
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Credential1> getDeliveriesWithUserGroupBasedOnStartDate(long userGroupId, boolean started) {
+        try {
+            String query =
+                    "SELECT c " +
+                    "FROM CredentialUserGroup credGroup " +
+                    "INNER JOIN credGroup.userGroup g " +
+                    "WITH g.id = :groupId " +
+                    "INNER JOIN credGroup.credential c " +
+                    "WITH c.type = :deliveryType " +
+                    "AND ";
+            if (started) {
+                query += "(c.deliveryStart IS NOT NULL AND c.deliveryStart <= :now)";
+            } else {
+                query += "(c.deliveryStart IS NULL OR c.deliveryStart > :now)";
+            }
+
+            return (List<Credential1>) persistence.currentManager()
+                    .createQuery(query)
+                    .setLong("groupId", userGroupId)
+                    .setString("deliveryType", CredentialType.Delivery.name())
+                    .setTimestamp("now", new Date())
+                    .list();
+        } catch (Exception e) {
+            throw new DbConnectionException("Error retrieving credential deliveries", e);
+        }
+    }
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<TargetCredential1> getTargetCredentialsWithUnsubmittedInstructorAssessment(long credId, long instructorUserId) {
+		try {
+			String query =
+					"SELECT cred " +
+					"FROM TargetCredential1 cred " +
+					"INNER JOIN cred.instructor inst " +
+							"WITH inst.user.id = :instructorUserId " +
+					"INNER JOIN cred.assessments a " +
+							"WITH a.type = :instructorAssessment " +
+							"AND a.assessor.id = :instructorUserId " +
+							"AND (a.status = :requested OR a.status = :pending) " +
+					"WHERE cred.credential.id = :credId ";
+
+			return (List<TargetCredential1>) persistence.currentManager()
+					.createQuery(query)
+					.setLong("credId", credId)
+					.setLong("instructorUserId", instructorUserId)
+					.setString("instructorAssessment", AssessmentType.INSTRUCTOR_ASSESSMENT.name())
+					.setString("requested", AssessmentStatus.REQUESTED.name())
+					.setString("pending", AssessmentStatus.PENDING.name())
+					.list();
+		} catch (Exception e) {
+			throw new DbConnectionException("Error retrieving target credentials", e);
+		}
+	}
+
+    @Override
+    @Transactional(readOnly = true)
+    public boolean hasDeliveryStarted(long credId) {
+        try {
+            String query =
+                    "SELECT CASE WHEN (del.deliveryStart IS NOT NULL AND del.deliveryStart <= :now) THEN true ELSE false END " +
+                            "FROM Credential1 del " +
+                            "WHERE del.id = :credId";
+
+            Boolean res = (Boolean) persistence.currentManager()
+                    .createQuery(query)
+                    .setLong("credId", credId)
+                    .setTimestamp("now", new Date())
+                    .uniqueResult();
+
+            if (res == null) {
+                throw new ResourceNotFoundException("No credential with given id");
+            }
+            return res.booleanValue();
+        } catch (ResourceNotFoundException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new DbConnectionException("Error retrieving credential info", e);
+        }
+    }
 
 }

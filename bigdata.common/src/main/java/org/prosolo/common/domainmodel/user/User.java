@@ -50,6 +50,7 @@ public class User extends BaseEntity {
 
 	private List<UnitRoleMembership> unitMemberships;
 	private List<UserGroupUser> groups;
+	private List<UserGroupInstructor> groupsWhereUserIsInstructor;
 
 	private List<CompetenceAssessment> competenceAssessmentsWithAssessorRole;
 	
@@ -266,6 +267,15 @@ public class User extends BaseEntity {
 
 	public void setGroups(List<UserGroupUser> groups) {
 		this.groups = groups;
+	}
+
+	@OneToMany(mappedBy = "user")
+	public List<UserGroupInstructor> getGroupsWhereUserIsInstructor() {
+		return groupsWhereUserIsInstructor;
+	}
+
+	public void setGroupsWhereUserIsInstructor(List<UserGroupInstructor> groupsWhereUserIsInstructor) {
+		this.groupsWhereUserIsInstructor = groupsWhereUserIsInstructor;
 	}
 
 	public int getNumberOfTokens() {

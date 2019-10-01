@@ -3,6 +3,7 @@ package org.prosolo.services.user.data;
 import java.io.Serializable;
 import java.util.List;
 
+import lombok.Getter;
 import org.prosolo.common.domainmodel.user.UserGroup;
 
 public class UserGroupData implements Serializable {
@@ -19,16 +20,19 @@ public class UserGroupData implements Serializable {
 	private boolean joinUrlPasswordRequired;
 	private boolean canBeDeleted;
 	private long unitId;
+	@Getter
+	private long instructorCount;
 	
 	public UserGroupData() {
 		
 	}
 	
-	public UserGroupData(long id, String name, boolean canBeDeleted, long userCount) {
+	public UserGroupData(long id, String name, boolean canBeDeleted, long userCount, long instructorCount) {
 		this.id = id;
 		this.name = name;
 		this.userCount = userCount;
 		this.canBeDeleted = canBeDeleted;
+		this.instructorCount = instructorCount;
 	}
 	
 	public UserGroupData(long id, String name, long userCount, boolean isUserInGroup) {
