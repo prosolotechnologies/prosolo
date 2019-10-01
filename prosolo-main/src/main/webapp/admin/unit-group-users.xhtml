@@ -293,7 +293,7 @@
                                 <utilcomp:singleClickLink
                                         styleClass="btn btn-red"
                                         action="#{groupUsersBean.removeUserFromGroup()}"
-                                        update=":panelUsers :growlMain"
+                                        update=":panelUsers :pagination :growlMain"
                                         oncomplete="$('#removeGroupMember').modal('hide')">
                                     Remove
                                     <f:param name="page" value="#{facesContext.viewRoot.viewId}" />
