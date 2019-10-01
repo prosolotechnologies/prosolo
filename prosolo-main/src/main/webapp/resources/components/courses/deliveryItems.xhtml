@@ -67,7 +67,10 @@
 											<f:param name="id" value="#{util:encodeId(delivery.idData.id)}"></f:param>
 										</h:link>
 										<ui:fragment rendered="#{not cc.attrs.bean.canUserNavigateToWhoCanLearnPage()}">
-											all #{msg['label.unit.plural'].toLowerCase()}
+											<a data-toggle="tooltip"
+											   title="#{msg['label.delivery']} is available to all #{msg['label.unit.plural'].toLowerCase()} having access to the #{msg['label.credential'].toLowerCase()}">
+												all #{msg['label.unit.plural'].toLowerCase()}
+											</a>
 										</ui:fragment>
 									</ui:fragment>
 									<ui:fragment rendered="#{delivery.groupsThatCanLearn.count eq 0 and delivery.studentsWhoCanLearn.count eq 0}">
@@ -83,7 +86,11 @@
 											</h:link>
 										</ui:fragment>
 										<ui:fragment rendered="#{not cc.attrs.bean.canUserNavigateToWhoCanLearnPage()}">
-											#{delivery.groupsThatCanLearn.count} #{delivery.groupsThatCanLearn.count gt 1 ? 'groups' : 'group'}
+											<a class="selectorGroupsLink#{delivery.idData.id}"
+											   data-toggle="tooltip"
+											   title="#{cc.attrs.bean.getGroupsThatCanLearnString(delivery)}">
+												#{delivery.groupsThatCanLearn.count} #{delivery.groupsThatCanLearn.count gt 1 ? 'groups' : 'group'}
+											</a>
 										</ui:fragment>
 									</ui:fragment>
 									<ui:fragment rendered="#{delivery.groupsThatCanLearn.count gt 0 and delivery.studentsWhoCanLearn.count gt 0}">
@@ -100,72 +107,74 @@
 											</h:link>
 										</ui:fragment>
 										<ui:fragment rendered="#{not cc.attrs.bean.canUserNavigateToWhoCanLearnPage()}">
-											#{delivery.studentsWhoCanLearn.count} #{delivery.studentsWhoCanLearn.count gt 1 ? 'students' : 'student'}
+											<a class="selectorStudentsLink#{delivery.idData.id}"
+											   data-toggle="tooltip"
+											   title="#{cc.attrs.bean.getStudentsWhoCanLearnString(delivery)}">
+												#{delivery.studentsWhoCanLearn.count} #{delivery.studentsWhoCanLearn.count gt 1 ? 'students' : 'student'}
+											</a>
 										</ui:fragment>
 									</ui:fragment>
 								</div>
-								<ui:fragment rendered="#{cc.attrs.bean.canUserNavigateToWhoCanLearnPage()}">
-									<h:form>
-										<p:remoteCommand name="initGroupTooltipData#{delivery.idData.id}"
-														 process="@this"
-														 action="#{cc.attrs.bean.initGroupsThatCanLearnData(delivery)}"
-														 update="panelGroupsThatCanLearnJS"
-														 oncomplete="$('.selectorGroupsLink#{delivery.idData.id}').tooltip('hide').attr('data-original-title', getGroupsThatCanLearn#{delivery.idData.id}).tooltip('show');">
-										</p:remoteCommand>
+								<h:form>
+									<p:remoteCommand name="initGroupTooltipData#{delivery.idData.id}"
+													 process="@this"
+													 action="#{cc.attrs.bean.initGroupsThatCanLearnData(delivery)}"
+													 update="panelGroupsThatCanLearnJS"
+													 oncomplete="$('.selectorGroupsLink#{delivery.idData.id}').tooltip('hide').attr('data-original-title', getGroupsThatCanLearn#{delivery.idData.id}).tooltip('show');">
+									</p:remoteCommand>
+									<script>
+										var initGroupTooltipFunction#{delivery.idData.id} = function() {
+											initGroupTooltipData#{delivery.idData.id}();
+										}
+									</script>
+									<h:panelGroup id="panelGroupsThatCanLearnJS">
+										<ui:fragment rendered="#{not delivery.groupsThatCanLearn.initialized}">
+											<script>
+												$('.selectorGroupsLink#{delivery.idData.id}').on('mouseenter', initGroupTooltipFunction#{delivery.idData.id});
+											</script>
+										</ui:fragment>
+										<ui:fragment rendered="#{delivery.groupsThatCanLearn.initialized}">
+											<script>
+												$('.selectorGroupsLink#{delivery.idData.id}').off('mouseenter', initGroupTooltipFunction#{delivery.idData.id});
+											</script>
+										</ui:fragment>
 										<script>
-											var initGroupTooltipFunction#{delivery.idData.id} = function() {
-												initGroupTooltipData#{delivery.idData.id}();
+											function getGroupsThatCanLearn#{delivery.idData.id}() {
+												return '#{cc.attrs.bean.getGroupsThatCanLearnString(delivery)}';
 											}
 										</script>
-										<h:panelGroup id="panelGroupsThatCanLearnJS">
-											<ui:fragment rendered="#{not delivery.groupsThatCanLearn.initialized}">
-												<script>
-													$('.selectorGroupsLink#{delivery.idData.id}').on('mouseenter', initGroupTooltipFunction#{delivery.idData.id});
-												</script>
-											</ui:fragment>
-											<ui:fragment rendered="#{delivery.groupsThatCanLearn.initialized}">
-												<script>
-													$('.selectorGroupsLink#{delivery.idData.id}').off('mouseenter', initGroupTooltipFunction#{delivery.idData.id});
-												</script>
-											</ui:fragment>
+									</h:panelGroup>
+								</h:form>
+								<h:form>
+									<p:remoteCommand name="initStudentTooltipData#{delivery.idData.id}"
+													 process="@this"
+													 action="#{cc.attrs.bean.initStudentsWhoCanLearnData(delivery)}"
+													 update="panelStudentsWhoCanLearnJS"
+													 oncomplete="$('.selectorStudentsLink#{delivery.idData.id}').tooltip('hide').attr('data-original-title', getStudentsWhoCanLearn#{delivery.idData.id}).tooltip('show');">
+									</p:remoteCommand>
+									<script>
+										var initStudentsTooltipFunction#{delivery.idData.id} = function() {
+											initStudentTooltipData#{delivery.idData.id}();
+										}
+									</script>
+									<h:panelGroup id="panelStudentsWhoCanLearnJS">
+										<ui:fragment rendered="#{not delivery.studentsWhoCanLearn.initialized}">
 											<script>
-												function getGroupsThatCanLearn#{delivery.idData.id}() {
-													return '#{cc.attrs.bean.getGroupsThatCanLearnString(delivery)}';
-												}
+												$('.selectorStudentsLink#{delivery.idData.id}').on('mouseenter', initStudentsTooltipFunction#{delivery.idData.id});
 											</script>
-										</h:panelGroup>
-									</h:form>
-									<h:form>
-										<p:remoteCommand name="initStudentTooltipData#{delivery.idData.id}"
-														 process="@this"
-														 action="#{cc.attrs.bean.initStudentsWhoCanLearnData(delivery)}"
-														 update="panelStudentsWhoCanLearnJS"
-														 oncomplete="$('.selectorStudentsLink#{delivery.idData.id}').tooltip('hide').attr('data-original-title', getStudentsWhoCanLearn#{delivery.idData.id}).tooltip('show');">
-										</p:remoteCommand>
+										</ui:fragment>
+										<ui:fragment rendered="#{delivery.studentsWhoCanLearn.initialized}">
+											<script>
+												$('.selectorStudentsLink#{delivery.idData.id}').off('mouseenter', initStudentsTooltipFunction#{delivery.idData.id});
+											</script>
+										</ui:fragment>
 										<script>
-											var initStudentsTooltipFunction#{delivery.idData.id} = function() {
-												initStudentTooltipData#{delivery.idData.id}();
+											function getStudentsWhoCanLearn#{delivery.idData.id}() {
+												return '#{cc.attrs.bean.getStudentsWhoCanLearnString(delivery)}';
 											}
 										</script>
-										<h:panelGroup id="panelStudentsWhoCanLearnJS">
-											<ui:fragment rendered="#{not delivery.studentsWhoCanLearn.initialized}">
-												<script>
-													$('.selectorStudentsLink#{delivery.idData.id}').on('mouseenter', initStudentsTooltipFunction#{delivery.idData.id});
-												</script>
-											</ui:fragment>
-											<ui:fragment rendered="#{delivery.studentsWhoCanLearn.initialized}">
-												<script>
-													$('.selectorStudentsLink#{delivery.idData.id}').off('mouseenter', initStudentsTooltipFunction#{delivery.idData.id});
-												</script>
-											</ui:fragment>
-											<script>
-												function getStudentsWhoCanLearn#{delivery.idData.id}() {
-													return '#{cc.attrs.bean.getStudentsWhoCanLearnString(delivery)}';
-												}
-											</script>
-										</h:panelGroup>
-									</h:form>
-								</ui:fragment>
+									</h:panelGroup>
+								</h:form>
 							</div>
 	                    </div>
 	                </div>
