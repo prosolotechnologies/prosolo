@@ -24,6 +24,9 @@ public class V42__20190827_migrate_lti_tools extends BaseMigration {
             statement.executeUpdate(
                     "UPDATE lti_tool lt " +
                     "SET lt.launch_url = REPLACE(lt.launch_url, CONCAT('?id=', lt.id), '')");
+            statement.executeUpdate(
+                    "INSERT INTO hibernate_sequences (sequence_name, sequence_next_hi_value) " +
+                    "VALUES ('lti_consumer', 25), ('lti_tool_set', 25), ('lti_tool', 25); ");
         }
     }
 

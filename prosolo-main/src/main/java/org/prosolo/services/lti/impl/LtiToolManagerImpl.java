@@ -111,7 +111,7 @@ public class LtiToolManagerImpl  extends AbstractManagerImpl implements LtiToolM
 	}
 
 	@Override
-	@Transactional(readOnly=true)
+	@Transactional(readOnly = true)
 	public ExternalToolFormData getExternalToolData(long toolId) {
 		try {
 			LtiTool ltiTool = (LtiTool) persistence.currentManager().get(LtiTool.class, toolId);

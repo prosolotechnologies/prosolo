@@ -11,7 +11,7 @@
     <utilcomp:messagesBundle var="msg" />
 
     <ui:define name="windowTitle" >
-        Auto-enrollment - #{ltiExternalToolEditBean.unitTitle} - #{ltiExternalToolEditBean.organizationTitle} - ProSolo
+        #{ltiExternalToolEditBean.toolData.toolId eq 0 ? "New" : ''} Auto-enrollment - #{ltiExternalToolEditBean.unitTitle} - #{ltiExternalToolEditBean.organizationTitle} - ProSolo
     </ui:define>
 
     <ui:define name="metadata">
@@ -118,7 +118,7 @@
                                                              value="#{ltiExternalToolEditBean.searchTerm}"
                                                              onkeyup="searchListener(execSearchUserGroups);"
                                                              autocomplete="off" />
-                                                <small>Auto-enrollment link can optionally automatically add students to a group.</small>
+                                                <small>Auto-enrollment link can optionally automatically add students to a learning group.</small>
 
                                                 <p:remoteCommand name="execSearchUserGroups"
                                                                  process="txtFieldSearchUserGroups"

@@ -36,6 +36,16 @@ public class ToolSetManagerImpl extends AbstractManagerImpl implements ToolSetMa
 	@Transactional
 	public ExternalToolFormData saveToolSet(ExternalToolFormData tool, String keyLtiOne, String secretLtiOne, long actorId) throws DbConnectionException {
 		try {
+			LtiConsumer consumer = new LtiConsumer();
+			consumer.setKeyLtiOne(keyLtiOne);
+			consumer.setSecretLtiOne(secretLtiOne);
+			consumer = saveEntity(consumer);
+
+			LtiToolSet ts = new LtiToolSet();
+			ts.setConsumer(consumer);
+			ts.setRegistrationUrl(CommonSettings.getInstance().config.appConfig.domain + "ltitoolproxyregistration.xhtml");
+			ts = saveEntity(ts);
+
 			LtiTool ltiTool = new LtiTool();
 			ltiTool.setToolType(tool.getToolType());
 			ltiTool.setName(tool.getTitle());
@@ -49,21 +59,16 @@ public class ToolSetManagerImpl extends AbstractManagerImpl implements ToolSetMa
 				ltiTool.setUserGroup(loadResource(UserGroup.class, tool.getUserGroupData().getId()));
 			}
 
-			String domain = CommonSettings.getInstance().config.appConfig.domain;
-			LtiToolSet ts = new LtiToolSet();
-			Set<LtiTool> tools = new HashSet<>();
 			ltiTool.setToolSet(ts);
-			String launchUrl = domain+"ltiproviderlaunch.xhtml";
-			ltiTool.setLaunchUrl(launchUrl);
+			ltiTool.setLaunchUrl(CommonSettings.getInstance().config.appConfig.domain + "ltiproviderlaunch.xhtml");
+//			ltiTool = saveEntity(ltiTool);
+
+			Set<LtiTool> tools = new HashSet<>();
 			tools.add(ltiTool);
 			ts.setTools(tools);
-			LtiConsumer consumer = new LtiConsumer();
-			consumer.setKeyLtiOne(keyLtiOne);
-			consumer.setSecretLtiOne(secretLtiOne);
-			ts.setConsumer(consumer);
-			String regUrl = domain+"ltitoolproxyregistration.xhtml";
-			ts.setRegistrationUrl(regUrl);
-			saveEntity(ts);
+
+			saveEntity(ltiTool);
+
 			return new ExternalToolFormData(ltiTool);
 		} catch(Exception e) {
 			logger.error("error", e);
