@@ -34,8 +34,8 @@
 	<elastic-search-config>
 		<type>server</type>
 		<aws>
-			<access-key>AKIAICPJOYWQUM7HTXWQ</access-key>
-			<secret-key>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</secret-key>
+			<access-key></access-key>
+			<secret-key></secret-key>
 			<region>us-east-1</region>
 			<groups>ES2</groups>
 		</aws>
@@ -112,12 +112,12 @@
 		<weekly>false</weekly>
 		<monthly>false</monthly>
 		<bcc>false</bcc>
-		<bcc-email>test@prosolo.ca</bcc-email>
+		<bcc-email></bcc-email>
 		<smtp-config>
-			<host>email-smtp.us-east-1.amazonaws.com</host>
-			<user>AKIAIZ7V7VE3IKI7MWNA</user>
-			<full-email>prosolo.webmaster@gmail.com</full-email>
-			<pass>AsHCvu0BkXI0/qUMSs9PyRrbbMW3OFiH2KFZiigX87ek</pass>
+			<host>hostname</host>
+			<user>user</user>
+			<full-email>fullemail</full-email>
+			<pass>password</pass>
 			<port>587</port>
 			<starttls-enable>true</starttls-enable>
 			<auth>true</auth>
@@ -131,8 +131,8 @@
 		</user>
 	</services>
 	<file-store>
-		<virtual-hosting-url>https://devfiles.prosolo.ca</virtual-hosting-url>
-		<file-store-service-url>https://s3.amazonaws.com</file-store-service-url>
-		<file-store-bucket-name>devfiles.prosolo.ca</file-store-bucket-name>
+		<virtual-hosting-url></virtual-hosting-url>
+		<file-store-service-url></file-store-service-url>
+		<file-store-bucket-name></file-store-bucket-name>
 	</file-store>
 </config>

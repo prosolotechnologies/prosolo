@@ -41,15 +41,16 @@
 			<self-registration>true</self-registration>
 			<!-- display name will be shown on login link text and entity id can be found in saml identity provider metadata -->
 			<saml>
-				<provider>
-					<display-name>Sign in with UTA</display-name>
-					<entity-id>https://idp-test.uta.edu/idp/shibboleth</entity-id>
-					<enabled>true</enabled>
-					<style-class>btnUTA</style-class>
-				</provider>
+				<prosolo-metadata-file-name>prosolo-local-metadata.xml</prosolo-metadata-file-name>
 				<provider>
 					<display-name>Sign in with SSO Circle</display-name>
 					<entity-id>https://idp.ssocircle.com</entity-id>
+					<email-attribute>EmailAddress</email-attribute>
+					<first-name-attribute>FirstName</first-name-attribute>
+					<last-name-attribute>LastName</last-name-attribute>
+					<metadata-type>URL</metadata-type><!-- URL or CLASSPATH -->
+					<metadata-path>https://idp.ssocircle.com/idp-meta.xml</metadata-path><!-- if URL based metadata this will be the url to the metadata and if CLASSPATH, this will be the metadata file name on the classpath -->
+					<create-account-for-nonexistent-user>false</create-account-for-nonexistent-user>
 					<enabled>false</enabled>
 					<style-class>btnDefault</style-class>
 				</provider>

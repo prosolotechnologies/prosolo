@@ -1,9 +1,11 @@
-Current date:2018/07/08-08:58:51
-Source branch:1.2.0
-Project version:1
-Git version:
-commit bd2171fb1f01ea9cbb0676df3f1f66786efda5e1
+Current date:2019/10/11-20:39:15
+Source branch:1.3.3
+Project version:1.3.3
+commit 213ff1d8bdeed19c88460cbd58e4edc87feb5a4e
+Merge: 07da8618e cd00bd6c5
 Author: Nikola Milikic <nikola.milikic@gmail.com>
-Date:   Sun Jul 8 17:56:34 2018 +0200
+Date:   Wed Oct 9 12:59:11 2019 +0000
 
-    When creating evidence, tab for selecting Text type of evidence is hidden. Already created text evidence can still be edited. PRS-3211
+    Merged in bugfix/PRS-3805-lti-creation-fails-on-stage-ser (pull request #597)
+    
+    bugfix/PRS-3805-lti-creation-fails-on-stage-server
