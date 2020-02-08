@@ -11,6 +11,7 @@
 		<composite:attribute name="studentId" required="true" type="java.util.Long" />
 		<composite:attribute name="canViewEvidence" required="true" type="java.util.Boolean" />
 		<composite:attribute name="showMessageWhyUserCantViewEvidence" default="true" type="java.lang.Boolean" />
+		<composite:attribute name="role" />
 	</composite:interface>
 
 	<composite:implementation>
@@ -20,9 +21,8 @@
 					<li class="#{ev.type eq 'TEXT' ? 'evidenceText' : styleUtilBean.getEvidenceFileTypeIcon(ev.url)}">
 						<span class="icon iconType"></span>
 						<ui:fragment rendered="#{cc.attrs.canViewEvidence}">
-							<h:link outcome="student-profile-evidence" target="_blank">
+							<h:link outcome="evidence-preview" target="_blank">
 								#{ev.title}
-								<f:param name="studentId" value="#{util:encodeId(cc.attrs.studentId)}"/>
 								<f:param name="competenceEvidenceId" value="#{util:encodeId(ev.competenceEvidenceId)}"/>
 							</h:link>
 						</ui:fragment>
@@ -32,9 +32,8 @@
 
 						<div class="activityOptions">
 							<ui:fragment rendered="#{cc.attrs.canViewEvidence}">
-								<h:link outcome="student-profile-evidence" target="_blank" styleClass="viewResult" pt:data-toggle="tooltip" pt:title="View Evidence">
+								<h:link outcome="evidence-preview" target="_blank" styleClass="viewResult" pt:data-toggle="tooltip" pt:title="View Evidence">
 									View Evidence
-									<f:param name="studentId" value="#{util:encodeId(cc.attrs.studentId)}"/>
 									<f:param name="competenceEvidenceId" value="#{util:encodeId(ev.competenceEvidenceId)}"/>
 								</h:link>
 							</ui:fragment>

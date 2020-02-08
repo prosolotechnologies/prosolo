@@ -18,12 +18,10 @@ import org.springframework.stereotype.Service;
 public class EmailLinkContextParserImpl implements EmailLinkContextParser {
 
 	private UrlIdEncoder idEncoder;
-	private ContextJsonParserService jsonContextParser;
-	
+
 	@Inject
-	public EmailLinkContextParserImpl(UrlIdEncoder idEncoder, ContextJsonParserService jsonContextParser) {
+	public EmailLinkContextParserImpl(UrlIdEncoder idEncoder) {
 		this.idEncoder = idEncoder;
-		this.jsonContextParser = jsonContextParser;
 	}
 	
 	/*
@@ -49,7 +47,7 @@ public class EmailLinkContextParserImpl implements EmailLinkContextParser {
 				if(i == 0) {
 					returnContext = currentCtx;
 				} else {
-					returnContext = jsonContextParser.addSubContext(returnContext, currentCtx);
+					returnContext = ContextJsonParserService.addSubContext(returnContext, currentCtx);
 				}
 				if(i == size - 1) {
 					objData = getObjectDataForTuple(t);

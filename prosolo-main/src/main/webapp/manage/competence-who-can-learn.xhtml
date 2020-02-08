@@ -30,7 +30,7 @@
 	 <ui:define name="navLinks">
          <mngComp:competenceHeaderNavLinks
                  id="headerNavLinks"
-                 compId="#{competenceUserPrivilegeBean.compId}"
+                 compId="#{competenceUserPrivilegeBean.decodedCompId}"
                  encodedCredId="#{competenceUserPrivilegeBean.credId}"
          />
 	</ui:define>
@@ -85,7 +85,7 @@
                     <div class="whiteBox manageVisibility">
                         <div class="innerWrapper">
                             <h2>Who can learn</h2>
-                            <p>Select which students/student groups can enroll the #{msg['label.competence'].toLowerCase()}:</p>
+                            <p>Select which students/learning groups can enroll the #{msg['label.competence'].toLowerCase()}:</p>
                         </div>
 
                         <h:form id="formMain">
@@ -100,7 +100,7 @@
                                     bean="#{competenceUserPrivilegeBean}"
                                     process=":formMain:checkVisibleAll"
                                     toUpdate=":growlMain"
-                                    learningContext="name:COMPETENCE|id:#{competenceUserPrivilegeBean.compId}"
+                                    learningContext="name:COMPETENCE|id:#{competenceUserPrivilegeBean.decodedCompId}"
                             />
                         </h:form>
                     </div>

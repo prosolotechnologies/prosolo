@@ -2,19 +2,22 @@ package org.prosolo.web.assessments;
 
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
+import org.prosolo.common.domainmodel.assessment.AssessmentStatus;
+import org.prosolo.common.domainmodel.assessment.AssessmentType;
+import org.prosolo.common.domainmodel.credential.BlindAssessmentMode;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.LearningResourceType;
-import org.prosolo.services.user.data.UserData;
 import org.prosolo.services.nodes.data.assessments.AssessmentNotificationData;
+import org.prosolo.services.user.data.UserAssessmentTokenExtendedData;
+import org.prosolo.services.user.data.UserData;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import javax.faces.bean.ManagedBean;
 import javax.inject.Inject;
 import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * @author stefanvuckovic
@@ -34,9 +37,18 @@ public class AskForCredentialAssessmentBean extends AskForAssessmentBean impleme
     @Inject
     private CredentialManager credManager;
 
+    public void init(long credentialId, long targetCredentialId, AssessmentType assessmentType, BlindAssessmentMode blindAssessmentMode) {
+        init(credentialId, targetCredentialId, assessmentType, null, blindAssessmentMode);
+    }
+
+    public void init(long credentialId, long targetCredentialId, AssessmentType assessmentType, UserData assessor, BlindAssessmentMode blindAssessmentMode) {
+        initCommonInitialData(credentialId, targetCredentialId, assessmentType, blindAssessmentMode);
+        initOtherCommonData(assessor);
+    }
+
     @Override
     public void initInstructorAssessmentAssessor() {
-        Optional<UserData> assessor = assessmentManager.getInstructorCredentialAssessmentAssessor(getResourceId(), loggedUser.getUserId());
+        Optional<UserData> assessor = assessmentManager.getActiveInstructorCredentialAssessmentAssessor(getResourceId(), loggedUser.getUserId());
         assessor.ifPresent(a -> {
             getAssessmentRequestData().setAssessorId(a.getId());
             getAssessmentRequestData().setAssessorFullName(a.getFullName());
@@ -52,7 +64,7 @@ public class AskForCredentialAssessmentBean extends AskForAssessmentBean impleme
             try {
                 if (existingPeerAssessors == null) {
                     existingPeerAssessors = new HashSet<>(assessmentManager
-                            .getPeerAssessorIdsForUserAndCredential(resourceId, loggedUser.getUserId()));
+                            .getIdsOfExistingCredentialPeerAssessorsNotAvailableForNewAssessment(resourceId, loggedUser.getUserId()));
                 }
 
                 PaginatedResult<UserData> result = userTextSearch.searchCredentialPeers(
@@ -65,8 +77,8 @@ public class AskForCredentialAssessmentBean extends AskForAssessmentBean impleme
     }
 
     @Override
-    public UserData getRandomPeerForAssessor() {
-        return credManager.chooseRandomPeer(resourceId, loggedUser.getUserId());
+    public UserData getPeerAssessorFromAssessorPool() {
+        return null;
     }
 
     @Override
@@ -80,7 +92,7 @@ public class AskForCredentialAssessmentBean extends AskForAssessmentBean impleme
     }
 
     @Override
-    protected void notifyAssessorToAssessResource() {
+    protected void notifyAssessorToAssessResource() throws IllegalDataStateException {
         assessmentManager.notifyAssessorToAssessCredential(
                 AssessmentNotificationData.of(
                         resourceId,
@@ -93,5 +105,36 @@ public class AskForCredentialAssessmentBean extends AskForAssessmentBean impleme
     @Override
     protected boolean shouldStudentBeRemindedToSubmitEvidenceSummary() {
         return credManager.doesCredentialHaveAtLeastOneEvidenceBasedCompetence(resourceId);
+    }
+
+    @Override
+    protected boolean isThereUnassignedAssessmentForThisUser() {
+        return false;
+    }
+
+    @Override
+    protected List<Long> loadAssessorPoolUserIds() {
+        return new ArrayList<>();
+    }
+
+    @Override
+    protected UserAssessmentTokenExtendedData loadUserAssessmentTokenDataAndRefreshInSession() {
+        return new UserAssessmentTokenExtendedData(false, false, 0, 0);
+    }
+
+    @Override
+    protected Set<Long> getExistingPeerAssessors() {
+        return new HashSet<>(assessmentManager
+                .getIdsOfExistingCredentialPeerAssessorsNotAvailableForNewAssessment(resourceId, loggedUser.getUserId()));
+    }
+
+    @Override
+    protected boolean checkIfAssessmentIsSubmitted() {
+        Optional<AssessmentStatus> activeCredentialAssessmentStatus = assessmentManager.getActiveCredentialAssessmentStatus(
+                assessmentType,
+                assessmentRequestData.getResourceId(),
+                assessmentRequestData.getStudentId(),
+                assessmentRequestData.getAssessorId());
+        return activeCredentialAssessmentStatus.isPresent() && activeCredentialAssessmentStatus.get() == AssessmentStatus.SUBMITTED;
     }
 }

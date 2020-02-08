@@ -14,9 +14,7 @@ public class ElasticSearchConfig {
 	@Element(name="type")
 	public String type;
 	
-	@Element(name="aws")
-	public AWSConfig awsConfig;
-	
+
 	 @Element(name = "es-hosts")
 	 public ElasticSearchHostsConfig esHostsConfig; 
 	

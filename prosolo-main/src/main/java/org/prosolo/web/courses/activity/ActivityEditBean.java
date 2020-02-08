@@ -1,5 +1,7 @@
 package org.prosolo.web.courses.activity;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.log4j.Logger;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.UploadedFile;
@@ -15,11 +17,13 @@ import org.prosolo.common.domainmodel.rubric.RubricType;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.common.util.string.StringUtil;
-import org.prosolo.services.assessment.RubricManager;
 import org.prosolo.services.assessment.data.LearningResourceAssessmentSettings;
 import org.prosolo.services.context.ContextJsonParserService;
 import org.prosolo.services.htmlparser.HTMLParser;
-import org.prosolo.services.nodes.*;
+import org.prosolo.services.nodes.Activity1Manager;
+import org.prosolo.services.nodes.Competence1Manager;
+import org.prosolo.services.nodes.CredentialManager;
+import org.prosolo.services.nodes.UnitManager;
 import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.data.credential.CredentialIdData;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
@@ -61,13 +65,12 @@ public class ActivityEditBean extends LearningResourceAssessmentSettingsBean imp
 	@Inject private UploadManager uploadManager;
 	@Inject private HTMLParser htmlParser;
 	@Inject private CredentialManager credManager;
-	@Inject private ContextJsonParserService contextParser;
-	@Inject private RubricManager rubricManager;
 	@Inject private UnitManager unitManager;
 
-	private String id;
-	private String compId;
-	private String credId;
+	@Getter @Setter	private String id;
+	@Getter @Setter	private String compId;
+	@Getter @Setter	private String credId;
+
 	private long decodedId;
 	private long decodedCompId;
 	private long decodedCredId;
@@ -91,19 +94,20 @@ public class ActivityEditBean extends LearningResourceAssessmentSettingsBean imp
 	public void init() {
 		manageSection = PageSection.MANAGE.equals(PageUtil.getSectionForView());
 		initializeValues();
+
 		decodedCredId = idEncoder.decodeId(credId);
+		decodedCompId = idEncoder.decodeId(compId);
+
 		try {
-			if(compId == null) {
-				PageUtil.notFound();
-			} else {
-				decodedCompId = idEncoder.decodeId(compId);
-				if(id == null) {
+			if(decodedCompId > 0 && decodedCredId > 0) {
+				if (id == null) {
 					activityData = new ActivityData(false);
 					//make sure that activity can be created for given competency - that appropriate learning path is set
 					LearningPathType lPath = compManager.getCompetenceLearningPathType(decodedCompId);
+
 					if (lPath != LearningPathType.ACTIVITY) {
 						PageUtil.fireErrorMessageAcrossPages(ResourceBundleUtil.getLabel("competence") + " doesn't support adding activities");
-						PageUtil.redirect("/manage/competences/" + compId + "/edit");
+						PageUtil.redirect("/manage/credentials/"+credId+"/competences/" + compId + "/edit");
 						return;
 					}
 				} else {
@@ -111,10 +115,13 @@ public class ActivityEditBean extends LearningResourceAssessmentSettingsBean imp
 					logger.info("Editing activity with id " + decodedId);
 					loadActivityData(decodedCredId, decodedCompId, decodedId);
 				}
+
 				setContext();
 				activityData.setCompetenceId(decodedCompId);
 				loadCompAndCredTitle();
 				loadAssessmentData();
+			} else {
+				PageUtil.notFound();
 			}
 		} catch(Exception e) {
 			logger.error(e);
@@ -164,16 +171,17 @@ public class ActivityEditBean extends LearningResourceAssessmentSettingsBean imp
 			context = "name:CREDENTIAL|id:" + decodedCredId;
 		}
 		if(decodedCompId > 0) {
-			context = contextParser.addSubContext(context, "name:COMPETENCE|id:" + decodedCompId);
+			context = ContextJsonParserService.addSubContext(context, "name:COMPETENCE|id:" + decodedCompId);
 		}
 		if(decodedId > 0) {
-			context = contextParser.addSubContext(context, "name:ACTIVITY|id:" + decodedId);
+			context = ContextJsonParserService.addSubContext(context, "name:ACTIVITY|id:" + decodedId);
 		}
 	}
 	
 	private void initializeValues() {
 		activityTypes = ActivityType.values();
 		resultTypes = ActivityResultType.values();
+		rubricVisibilityTypes = ActivityRubricVisibilityDescription.values();
 	}
 
 	private void loadCompAndCredTitle() {
@@ -199,9 +207,7 @@ public class ActivityEditBean extends LearningResourceAssessmentSettingsBean imp
 				logger.info("Loaded activity data for activity with id "+ id);
 			}
 		} catch (ResourceNotFoundException rnfe) {
-			logger.error(rnfe);
-			activityData = new ActivityData(false);
-			PageUtil.fireErrorMessage("Activity data can not be found");
+			PageUtil.notFound();
 		}
 	}
 	
@@ -291,19 +297,19 @@ public class ActivityEditBean extends LearningResourceAssessmentSettingsBean imp
 			resLinkToAdd.setUrl(fullPath);
 			resLinkToAdd.setFetchedTitle(fileName);
 			//activityData.getFiles().add(rl);
-		} catch (IOException ioe) {
-			logger.error(ioe.getMessage());
-			PageUtil.fireErrorMessage("The file was not uploaded!");
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+			PageUtil.fireErrorMessage("Error uploading the file");
 		}
 	}
 	
 	public void addUploadedFile() {
-		if(resLinkToAdd.getUrl() == null || resLinkToAdd.getUrl().isEmpty() 
+		if (resLinkToAdd.getUrl() == null || resLinkToAdd.getUrl().isEmpty()
 				|| resLinkToAdd.getLinkName() == null || resLinkToAdd.getLinkName().isEmpty()) {
 			FacesContext.getCurrentInstance().validationFailed();
-			resLinkToAdd.setUrlInvalid(resLinkToAdd.getUrl() == null || 
+			resLinkToAdd.setUrlInvalid(resLinkToAdd.getUrl() == null ||
 					resLinkToAdd.getUrl().isEmpty());
-			resLinkToAdd.setLinkNameInvalid(resLinkToAdd.getLinkName() == null || 
+			resLinkToAdd.setLinkNameInvalid(resLinkToAdd.getLinkName() == null ||
 					resLinkToAdd.getLinkName().isEmpty());
 		} else {
 			activityData.getFiles().add(resLinkToAdd);
@@ -318,13 +324,13 @@ public class ActivityEditBean extends LearningResourceAssessmentSettingsBean imp
 	}
 	
 	public void addUploadedCaption() {
-		if(resLinkToAdd.getUrl() == null || resLinkToAdd.getUrl().isEmpty() 
+		if (resLinkToAdd.getUrl() == null || resLinkToAdd.getUrl().isEmpty()
 				|| resLinkToAdd.getLinkName() == null || resLinkToAdd.getLinkName().isEmpty()
 				|| !resLinkToAdd.getFetchedTitle().endsWith(".srt")) {
 			FacesContext.getCurrentInstance().validationFailed();
-			resLinkToAdd.setUrlInvalid(resLinkToAdd.getUrl() == null || 
+			resLinkToAdd.setUrlInvalid(resLinkToAdd.getUrl() == null ||
 					resLinkToAdd.getUrl().isEmpty() || !resLinkToAdd.getFetchedTitle().endsWith(".srt"));
-			resLinkToAdd.setLinkNameInvalid(resLinkToAdd.getLinkName() == null || 
+			resLinkToAdd.setLinkNameInvalid(resLinkToAdd.getLinkName() == null ||
 					resLinkToAdd.getLinkName().isEmpty());
 		} else {
 			activityData.getCaptions().add(resLinkToAdd);
@@ -364,26 +370,12 @@ public class ActivityEditBean extends LearningResourceAssessmentSettingsBean imp
 	 * ACTIONS
 	 */
 	
-//	public void preview() {
-//		saveActivityData(true);
-//	}
-	
 	public void save() {
 		boolean isNew = activityData.getActivityId() == 0;
 		boolean saved = saveActivityData(!isNew);
 		
 		if (saved && isNew) {
-			/*
-			 * this will not work if there are multiple levels of directories in current view path
-			 * example: /credentials/credential-create will return /credentials as a section but this
-			 * may not be what we really want.
-			 */
-			StringBuilder url = new StringBuilder(PageUtil.getSectionForView().getPrefix() +
-					"/competences/" + compId + "/edit?tab=paths");
-			if (credId != null && !credId.isEmpty()) {
-				url.append("&credId=" + credId);
-			}
-			PageUtil.redirect(url.toString());
+			PageUtil.redirect("/manage/credentials/" + credId + "/competences/" + compId + "/edit?tab=paths");
 		}
 	}
 	
@@ -395,7 +387,7 @@ public class ActivityEditBean extends LearningResourceAssessmentSettingsBean imp
 			String learningContext = context;
 			
 			if (lContext != null && !lContext.isEmpty()) {
-				learningContext = contextParser.addSubContext(context, lContext);
+				learningContext = ContextJsonParserService.addSubContext(context, lContext);
 			}
 			
 			PageContextData lcd = new PageContextData(page, learningContext, service);
@@ -435,25 +427,14 @@ public class ActivityEditBean extends LearningResourceAssessmentSettingsBean imp
 		try {
 			if (activityData.getActivityId() > 0) {
 				activityManager.deleteActivity(decodedId, loggedUser.getUserContext());
-				//activityData = new ActivityData(false);
-				//PageUtil.fireSuccessfulInfoMessage("Changes are saved");
-				/*
-				 * this will not work if there are multiple levels of directories in current view path
-				 * example: /credentials/credential-create will return /credentials as a section but this
-				 * may not be what we really want.
-				 */
-				StringBuilder url = new StringBuilder(PageUtil.getSectionForView().getPrefix() +
-						"/competences/" + compId + "/edit?tab=paths");
-				if (credId != null && !credId.isEmpty()) {
-					url.append("&credId=" + credId);
-				}
-				PageUtil.redirect(url.toString());
+
+				PageUtil.fireSuccessfulInfoMessageAcrossPages("Activity " + activityData.getTitle() + " is deleted.");
+				PageUtil.redirect("/manage/credentials/" + credId + "/competences/" + compId + "/edit?tab=paths");
 			} else {
 				PageUtil.fireErrorMessage("Activity is not saved so it can't be deleted");
 			}
 		} catch(DbConnectionException|IllegalDataStateException e) {
-			logger.error(e);
-			e.printStackTrace();
+			logger.error("Error", e);
 			PageUtil.fireErrorMessage(e.getMessage());
 		}
 	}
@@ -471,21 +452,6 @@ public class ActivityEditBean extends LearningResourceAssessmentSettingsBean imp
 	 * GETTERS / SETTERS
 	 */
 	
-	public String getId() {
-		return id;
-	}
-
-	public void setId(String id) {
-		this.id = id;
-	}
-
-	public String getCompId() {
-		return compId;
-	}
-
-	public void setCompId(String compId) {
-		this.compId = compId;
-	}
 
 	public ActivityData getActivityData() {
 		return activityData;
@@ -509,14 +475,6 @@ public class ActivityEditBean extends LearningResourceAssessmentSettingsBean imp
 
 	public void setResLinkToAdd(ResourceLinkData resLinkToAdd) {
 		this.resLinkToAdd = resLinkToAdd;
-	}
-
-	public String getCredId() {
-		return credId;
-	}
-
-	public void setCredId(String credId) {
-		this.credId = credId;
 	}
 
 	public String getCredentialTitle() {

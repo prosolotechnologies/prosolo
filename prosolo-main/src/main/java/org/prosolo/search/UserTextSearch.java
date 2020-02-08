@@ -12,6 +12,7 @@ import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.user.data.StudentData;
 import org.prosolo.services.user.data.UserData;
 import org.prosolo.services.nodes.data.instructor.InstructorData;
+import org.prosolo.web.administration.data.RoleData;
 
 import java.util.Collection;
 import java.util.List;
@@ -25,7 +26,7 @@ public interface UserTextSearch extends AbstractManager {
 
 	PaginatedResult<UserData> searchUsers(long orgId, String searchString,
 										  int page, int limit, boolean loadOneMore,
-										  Collection<Long> excludeUserIds);
+										  Collection<Long> includeUserIds, Collection<Long> excludeUserIds);
 	
 	/**
 	 * Returns list of students currently learning credential specified by {@code credId}.
@@ -48,8 +49,7 @@ public interface UserTextSearch extends AbstractManager {
 			InstructorSortOption sortOption, List<Long> excludedIds);
 
 	PaginatedResult<UserData> searchUsersWithInstructorRole (long orgId, String searchTerm,
-															 long credId, long roleId, List<Long> unitIds,
-															 List<Long> excludedUserIds);
+															 long credId, long roleId, List<Long> unitIds);
 	
 	PaginatedResult<StudentData> searchUnassignedAndStudentsAssignedToInstructor(
 			long orgId, String searchTerm, long credId, long instructorId, StudentAssignSearchFilter.SearchFilter filter,
@@ -74,7 +74,7 @@ public interface UserTextSearch extends AbstractManager {
 	 * @return
 	 */
 	PaginatedResult<UserData> getUsersWithRoles(
-			String term, int page, int limit, boolean paginate, long roleId, List<Role> adminRoles,
+			String term, int page, int limit, boolean paginate, long roleId, List<RoleData> adminRoles,
 			boolean includeSystemUsers, List<Long> excludeIds, long organizationId);
 	
 	PaginatedResult<StudentData> searchCredentialMembersWithLearningStatusFilter (
@@ -169,5 +169,47 @@ public interface UserTextSearch extends AbstractManager {
 	PaginatedResult<UserData> searchUnitUsersNotAddedToGroup(long orgId, long unitId, long roleId,
 															 long groupId, String searchTerm,
 															 int page, int limit, boolean includeSystemUsers);
+
+	/**
+	 * Returns list of users that are assigned as user group instructors in given group
+	 *
+	 * @param orgId
+	 * @param searchTerm
+	 * @param page
+	 * @param limit
+	 * @param groupId
+	 * @return
+	 */
+	PaginatedResult<UserData> searchInstructorsInGroups(long orgId, String searchTerm, int page, int limit, long groupId);
+
+	/**
+	 * Returns list of candidates for adding to the group as instructors which means users added to given unit
+	 * with given role who are not already assigned to the specified group as instructors
+	 *
+	 * @param orgId
+	 * @param unitId
+	 * @param roleId
+	 * @param groupId
+	 * @param searchTerm
+	 * @param page
+	 * @param limit
+	 * @return
+	 */
+	PaginatedResult<UserData> searchCandidatesForAddingToTheGroupAsInstructors(
+			long orgId, long unitId, long roleId, long groupId, String searchTerm, int page, int limit);
+
+	/**
+	 * Returns paginated list of students learning given credential assigned to given instructor
+	 *
+	 * @param orgId
+	 * @param searchTerm
+	 * @param credId
+	 * @param instructorId
+	 * @param page
+	 * @param limit
+	 * @return
+	 */
+	PaginatedResult<StudentData> searchCredentialStudentsAssignedToInstructor(
+			long orgId, String searchTerm, long credId, long instructorId, int page, int limit);
 
 }

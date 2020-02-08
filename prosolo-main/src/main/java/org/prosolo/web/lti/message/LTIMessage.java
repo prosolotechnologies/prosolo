@@ -11,9 +11,9 @@ public class LTIMessage {
 	//private List<String> roles;
 	
 	
-	public LTIMessage(){
-		ltiVersion = new LtiMessageParameter(new NullValidator (new EmptyValidator(null)));
-		id = new LtiMessageParameter(new NullValidator(new EmptyValidator(new LongValidator(null))));
+	public LTIMessage() {
+		ltiVersion = new LtiMessageParameter("LTI version", new NullValidator (new EmptyValidator(null)));
+		id = new LtiMessageParameter("LTI tool id", new NullValidator(new EmptyValidator(new LongValidator(null))));
 	}
 
 	public String getLtiVersion() {

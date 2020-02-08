@@ -7,10 +7,10 @@ import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroup;
+import org.prosolo.common.event.Event;
 import org.prosolo.common.event.context.Context;
 import org.prosolo.common.event.context.ContextName;
 import org.prosolo.services.context.ContextJsonParserService;
-import org.prosolo.services.event.Event;
 import org.prosolo.services.indexing.CompetenceESService;
 import org.prosolo.services.indexing.CredentialESService;
 import org.prosolo.services.indexing.UserEntityESService;
@@ -28,20 +28,17 @@ public class UserGroupNodeChangeProcessor implements NodeChangeProcessor {
 	private CompetenceESService compESService;
 	private UserEntityESService userEntityESService;
 	private Session session;
-	private ContextJsonParserService ctxJsonParserService;
-	
-	
+
 	public UserGroupNodeChangeProcessor(Event event, UserGroupESService groupESService, 
 			CredentialESService credESService, UserGroupManager userGroupManager, 
 			CompetenceESService compESService, UserEntityESService userEntityESService,
-			ContextJsonParserService ctxJsonParserService, Session session) {
+			Session session) {
 		this.event = event;
 		this.groupESService = groupESService;
 		this.credESService = credESService;
 		this.userGroupManager = userGroupManager;
 		this.compESService = compESService;
 		this.userEntityESService = userEntityESService;
-		this.ctxJsonParserService = ctxJsonParserService;
 		this.session = session;
 	}
 	
@@ -52,7 +49,7 @@ public class UserGroupNodeChangeProcessor implements NodeChangeProcessor {
 		BaseEntity target = event.getTarget();
 		if (type == EventType.Create || type == EventType.Edit || type == EventType.Delete) {
 			long orgId = Context.getIdFromSubContextWithName(
-					ctxJsonParserService.parseContext(event.getContext()), ContextName.ORGANIZATION);
+					ContextJsonParserService.parseContext(event.getContext()), ContextName.ORGANIZATION);
 			UserGroup group = (UserGroup) session.load(UserGroup.class, object.getId());
 			if (type == EventType.Create || type == EventType.Edit) {
 				if (!group.isDefaultGroup()) {
@@ -108,6 +105,17 @@ public class UserGroupNodeChangeProcessor implements NodeChangeProcessor {
 			for(CompetenceUserGroup g : compGroups) {
 				compESService.updateCompetenceUsersWithPrivileges(event.getOrganizationId(), g.getCompetence().getId(), session);
 			}
+		} else if (type == EventType.ADD_USER_AS_GROUP_INSTRUCTOR || type == EventType.REMOVE_USER_AS_GROUP_INSTRUCTOR) {
+			/*
+			TODO org id should always be extracted from event - for admin section, that does not
+			always work. When that is resolved, remove this hack.
+			 */
+			long orgId = event.getOrganizationId();
+			if (orgId == 0) {
+				orgId = ((User) session.load(User.class, object.getId())).getOrganization().getId();
+			}
+
+			userEntityESService.updateGroupsWithInstructorRole(orgId, object.getId());
 		}
 	}
 

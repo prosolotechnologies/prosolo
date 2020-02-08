@@ -27,26 +27,15 @@
 					 <a href="javascript:void(0);">#{msg['label.credential.plural']}</a>
 				 </ui:fragment>
 			 </li>
-			 <li role="presentation" class="#{page eq 'unit-teachers' ? 'active' : ''}">
-				 <h:link rendered="#{page ne 'unit-teachers'}"
-					 outcome="/admin/unit-teachers">
+			 <li role="presentation" class="#{page eq 'unit-managers' ? 'active' : ''}">
+				 <h:link rendered="#{page ne 'unit-managers'}"
+					 outcome="/admin/unit-managers">
 					 <f:param name="orgId" value="#{utilcomp:encodeId(cc.attrs.orgId)}" />
 					 <f:param name="id" value="#{utilcomp:encodeId(cc.attrs.unitId)}" />
-					 Teachers
+					 Managers
 				 </h:link>
-				 <ui:fragment rendered="#{page eq 'unit-teachers'}">
-					 <a href="javascript:void(0);">Teachers</a>
-				 </ui:fragment>
-			 </li>
-			 <li role="presentation" class="#{page eq 'unit-students' ? 'active' : ''}">
-				 <h:link rendered="#{page ne 'unit-students'}"
-						 outcome="/admin/unit-students">
-					 <f:param name="orgId" value="#{utilcomp:encodeId(cc.attrs.orgId)}" />
-					 <f:param name="id" value="#{utilcomp:encodeId(cc.attrs.unitId)}" />
-					 Students
-				 </h:link>
-				 <ui:fragment rendered="#{page eq 'unit-students'}">
-					 <a href="javascript:void(0);">Students</a>
+				 <ui:fragment rendered="#{page eq 'unit-managers'}">
+					 <a href="javascript:void(0);">Managers</a>
 				 </ui:fragment>
 			 </li>
 			 <li role="presentation" class="#{page eq 'unit-instructors' ? 'active' : ''}">
@@ -60,15 +49,39 @@
 					 <a href="javascript:void(0);">#{msg['label.instructor.plural']}</a>
 				 </ui:fragment>
 			 </li>
-			 <li role="presentation" class="#{page eq 'unit-groups' ? 'active' : ''}">
+			 <li role="presentation" class="#{page eq 'unit-students' ? 'active' : ''}">
+				 <h:link rendered="#{page ne 'unit-students'}"
+						 outcome="/admin/unit-students">
+					 <f:param name="orgId" value="#{utilcomp:encodeId(cc.attrs.orgId)}" />
+					 <f:param name="id" value="#{utilcomp:encodeId(cc.attrs.unitId)}" />
+					 Students
+				 </h:link>
+				 <ui:fragment rendered="#{page eq 'unit-students'}">
+					 <a href="javascript:void(0);">Students</a>
+				 </ui:fragment>
+			 </li>
+			 <li role="presentation" class="#{page eq 'unit-groups'
+			 								or page eq 'unit-group-users' ? 'active' : ''}">
 				 <h:link rendered="#{page ne 'unit-groups'}"
 						 outcome="/admin/unit-groups">
 					 <f:param name="orgId" value="#{utilcomp:encodeId(cc.attrs.orgId)}" />
 					 <f:param name="id" value="#{utilcomp:encodeId(cc.attrs.unitId)}" />
-					 Student Groups
+					 Learning Groups
 				 </h:link>
 				 <ui:fragment rendered="#{page eq 'unit-groups'}">
-					 <a href="javascript:void(0);">Student Groups</a>
+					 <a href="javascript:void(0);">Learning Groups</a>
+				 </ui:fragment>
+			 </li>
+			 <li role="presentation" class="#{page eq 'organizations-unit-auto-enrollment'
+			 								or page eq 'organizations-unit-auto-enrollment-edit' ? 'active' : ''}">
+				 <h:link rendered="#{page ne 'organizations-unit-auto-enrollment'}"
+						 outcome="/admin/organizations-unit-auto-enrollment">
+					 <f:param name="orgId" value="#{utilcomp:encodeId(cc.attrs.orgId)}" />
+					 <f:param name="unitId" value="#{utilcomp:encodeId(cc.attrs.unitId)}" />
+					 Auto-enrollment
+				 </h:link>
+				 <ui:fragment rendered="#{page eq 'organizations-unit-auto-enrollment'}">
+					 <a href="javascript:void(0);">Auto-enrollment</a>
 				 </ui:fragment>
 			 </li>
 			 <li role="presentation" class="#{page eq 'unit-settings' ? 'active' : ''}">

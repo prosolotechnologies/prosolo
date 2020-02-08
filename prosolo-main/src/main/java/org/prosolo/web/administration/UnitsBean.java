@@ -69,7 +69,7 @@ public class UnitsBean implements Serializable {
                 PageUtil.accessDenied();
             }
         } catch (Exception e) {
-            logger.error(e);
+            logger.error("error", e);
             PageUtil.fireErrorMessage("Error loading page");
         }
     }
@@ -78,7 +78,7 @@ public class UnitsBean implements Serializable {
         try {
             this.units = unitManager.getUnitsWithSubUnits(this.organizationData.getId());
         } catch (Exception e) {
-            logger.error(e);
+            logger.error("Error", e);
         }
     }
 

@@ -5,6 +5,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
+import org.prosolo.common.domainmodel.assessment.AssessmentStatus;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.credential.BlindAssessmentMode;
 import org.prosolo.common.domainmodel.credential.CredentialType;
@@ -19,6 +20,7 @@ import org.prosolo.services.assessment.data.grading.AutomaticGradeData;
 import org.prosolo.services.assessment.data.grading.GradeData;
 import org.prosolo.services.assessment.data.grading.GradingMode;
 import org.prosolo.services.assessment.data.grading.RubricCriteriaGradeData;
+import org.prosolo.services.nodes.CredentialInstructorManager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.LearningResourceType;
 import org.prosolo.services.nodes.data.credential.CredentialIdData;
@@ -29,7 +31,6 @@ import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.services.user.data.UserBasicData;
 import org.prosolo.services.user.data.UserData;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.assessments.util.AssessmentDisplayMode;
 import org.prosolo.web.assessments.util.AssessmentUtil;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
@@ -40,7 +41,6 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import java.io.Serializable;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -49,7 +49,7 @@ import java.util.Optional;
 @ManagedBean(name = "credentialAssessmentBean")
 @Component("credentialAssessmentBean")
 @Scope("view")
-public class CredentialAssessmentBean extends LearningResourceAssessmentBean implements AssessmentCommentsAware, Serializable {
+public class CredentialAssessmentBean extends LearningResourceAssessmentBean implements AssessmentCommentsAware, InstructorWithdrawAware, Serializable {
 
 	private static final long serialVersionUID = 7344090333263528353L;
 	private static Logger logger = Logger.getLogger(CredentialAssessmentBean.class);
@@ -67,6 +67,7 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 	@Inject private StudentCompetenceAssessmentBean compAssessmentBean;
 	@Inject private RubricManager rubricManager;
 	@Inject private AskForCredentialAssessmentBean askForAssessmentBean;
+	@Inject private CredentialInstructorManager credentialInstructorManager;
 
 	// PARAMETERS
 	private String id;
@@ -84,13 +85,10 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 
 	private List<AssessmentTypeConfig> assessmentTypesConfig;
 
-	private AssessmentDisplayMode displayMode = AssessmentDisplayMode.FULL;
-
 	private ResourceAccessData access;
 
-	public void initSelfAssessment(String encodedCredId, String encodedAssessmentId, AssessmentDisplayMode displayMode) {
+	public void initSelfAssessment(String encodedCredId, String encodedAssessmentId) {
 		setIds(encodedCredId, encodedAssessmentId);
-		this.displayMode = displayMode;
 		initSelfAssessment();
 	}
 
@@ -99,9 +97,8 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 //		initPeerAssessment();
 //	}
 
-	public void initInstructorAssessment(String encodedCredId, String encodedAssessmentId, AssessmentDisplayMode displayMode) {
+	public void initInstructorAssessment(String encodedCredId, String encodedAssessmentId) {
 		setIds(encodedCredId, encodedAssessmentId);
-		this.displayMode = displayMode;
 		initInstructorAssessment();
 	}
 
@@ -125,7 +122,7 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 					PageUtil.accessDenied();
 				} else {
 					fullAssessmentData = assessmentManager.getFullAssessmentData(decodedAssessmentId,
-							loggedUserBean.getUserId(), new SimpleDateFormat("MMMM dd, yyyy"), getLoadConfig());
+							loggedUserBean.getUserId(), AssessmentLoadConfig.of(true, true, true));
 					if (fullAssessmentData == null) {
 						PageUtil.notFound();
 					} else {
@@ -143,7 +140,7 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 	}
 
 	public void initSelfAssessment() {
-		initAssessmentStudent(AssessmentType.SELF_ASSESSMENT);
+		initAssessmentStudent(AssessmentType.SELF_ASSESSMENT, true);
 	}
 
 	public void initPeerAssessment() {
@@ -151,24 +148,32 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 	}
 
 	public boolean initPeerAssessmentAndReturnSuccessMessage() {
-		return initAssessmentStudent(AssessmentType.PEER_ASSESSMENT);
+		return initAssessmentStudent(AssessmentType.PEER_ASSESSMENT, true);
 	}
 
 	public void initInstructorAssessment() {
-		initAssessmentStudent(AssessmentType.INSTRUCTOR_ASSESSMENT);
+		initAssessmentStudent(AssessmentType.INSTRUCTOR_ASSESSMENT, false);
 	}
 
-	public boolean initAssessmentStudent(AssessmentType type) {
+	public boolean initAssessmentStudent(AssessmentType type, boolean notFoundIfAssessmentNull) {
 		decodeCredentialAndAssessmentIds();
 		boolean success = true;
 		try {
 			assessmentTypesConfig = credManager.getCredentialAssessmentTypesConfig(decodedId);
 			if (AssessmentUtil.isAssessmentTypeEnabled(assessmentTypesConfig, type)) {
-				fullAssessmentData = assessmentManager.getFullAssessmentDataForAssessmentType(decodedAssessmentId,
-						loggedUserBean.getUserId(), type, new SimpleDateFormat("MMMM dd, yyyy"), getLoadConfig());
+				if (decodedAssessmentId > 0) {
+					fullAssessmentData = assessmentManager.getFullAssessmentDataForAssessmentType(decodedAssessmentId,
+							loggedUserBean.getUserId(), type, AssessmentLoadConfig.of(true, true, true));
+				}
 				if (fullAssessmentData == null) {
-					PageUtil.notFound();
-					success = false;
+					if (notFoundIfAssessmentNull) {
+						PageUtil.notFound();
+						success = false;
+					} else {
+						credentialIdData = new CredentialIdData(false);
+						credentialIdData.setId(decodedId);
+						credentialIdData.setTitle(credManager.getCredentialTitle(decodedId));
+					}
 				} else {
 					/*
 					if user is not student or assessor, he is not allowed to access this page
@@ -207,19 +212,7 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 		if full display mode user can access page if user is student or assessor in current context
 		and if public display mode user can access page if assessment display is enabled by student
 		 */
-		return displayMode == AssessmentDisplayMode.FULL &&
-				(isUserAssessedStudentInCurrentContext() || isUserAssessorInCurrentContext());
-	}
-
-	private AssessmentLoadConfig getLoadConfig() {
-		//assessment data should be loaded only if full display mode
-		//also assessment discussion should be loaded only if full display mode
-		boolean fullDisplay = displayMode == AssessmentDisplayMode.FULL;
-		return AssessmentLoadConfig.of(fullDisplay, fullDisplay, fullDisplay);
-	}
-
-	public boolean isFullDisplayMode() {
-		return displayMode == AssessmentDisplayMode.FULL;
+		return isUserAssessedStudentInCurrentContext() || isUserAssessorInCurrentContext();
 	}
 
 	public boolean isPeerAssessmentEnabled() {
@@ -230,7 +223,7 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 		return AssessmentUtil.isSelfAssessmentEnabled(assessmentTypesConfig);
 	}
 
-	public void prepareLearningResourceAssessmentForGrading(CompetenceAssessmentData assessment) {
+	public void prepareLearningResourceAssessmentForGrading(CompetenceAssessmentDataFull assessment) {
 		compAssessmentBean.prepareLearningResourceAssessmentForGrading(assessment);
 		currentResType = LearningResourceType.COMPETENCE;
 	}
@@ -246,7 +239,7 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 		currentResType = LearningResourceType.ACTIVITY;
 	}
 
-	public void prepareLearningResourceAssessmentForCommenting(CompetenceAssessmentData assessment) {
+	public void prepareLearningResourceAssessmentForCommenting(CompetenceAssessmentDataFull assessment) {
 		compAssessmentBean.prepareLearningResourceAssessmentForCommenting(assessment);
 		currentResType = LearningResourceType.COMPETENCE;
 	}
@@ -257,7 +250,7 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 		currentResType = LearningResourceType.CREDENTIAL;
 	}
 
-	public void prepareLearningResourceAssessmentForApproving(CompetenceAssessmentData assessment) {
+	public void prepareLearningResourceAssessmentForApproving(CompetenceAssessmentDataFull assessment) {
 		compAssessmentBean.prepareLearningResourceAssessmentForApproving(assessment);
 		currentResType = LearningResourceType.COMPETENCE;
 	}
@@ -348,6 +341,21 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 				return fullAssessmentData.getMessages();
 		}
 		return null;
+	}
+
+	public boolean isCurrentAssessmentReadOnly() {
+		if (currentResType == null) {
+			return true;
+		}
+		switch (currentResType) {
+			case ACTIVITY:
+				return !activityAssessmentBean.getActivityAssessmentData().getCompAssessment().isAssessmentActive();
+			case COMPETENCE:
+				return !compAssessmentBean.getCompetenceAssessmentData().isAssessmentActive();
+			case CREDENTIAL:
+				return !fullAssessmentData.isAssessmentActive();
+		}
+		return false;
 	}
 
 	@Override
@@ -517,11 +525,11 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 	//LearningResourceAssessmentBean impl end
 
 	public boolean isUserAllowedToSeeRubric(GradeData gradeData, LearningResourceType resourceType) {
-		return isFullDisplayMode() && AssessmentUtil.isUserAllowedToSeeRubric(gradeData, resourceType);
+		return AssessmentUtil.isUserAllowedToSeeRubric(gradeData, resourceType);
 	}
 
 	public boolean allCompetencesStarted() {
-		for (CompetenceAssessmentData cad : fullAssessmentData.getCompetenceAssessmentData()) {
+		for (CompetenceAssessmentDataFull cad : fullAssessmentData.getCompetenceAssessmentData()) {
 			if (cad.isReadOnly()) {
 				return false;
 			}
@@ -551,7 +559,7 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 				otherAssessments.stream()
 						.filter(ass -> ass.getEncodedAssessmentId().equals(assessmentId))
 						.findFirst()
-						.get().setApproved(true);
+						.get().markAssessmentAsSubmitted();
 			}
 			PageUtil.fireSuccessfulInfoMessage(ResourceBundleUtil.getLabel("credential") + " assessment is submitted");
 		} catch (Exception e) {
@@ -561,20 +569,20 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 	}
 
 	private void markCredentialApproved() {
-		fullAssessmentData.setApproved(true);
+		fullAssessmentData.markAssessmentAsSubmitted();
 		//remove notification when credential is approved
 		fullAssessmentData.setAssessorNotified(false);
-		for (CompetenceAssessmentData compAssessmentData : fullAssessmentData.getCompetenceAssessmentData()) {
-			compAssessmentData.setApproved(true);
+		for (CompetenceAssessmentDataFull compAssessmentData : fullAssessmentData.getCompetenceAssessmentData()) {
+			compAssessmentData.markAssessmentAsSubmitted();
 			//remove notification when competence is approved
 			compAssessmentData.setAssessorNotified(false);
 		}
 	}
 
 	private void markCompetenceApproved(long competenceAssessmentId) {
-		for (CompetenceAssessmentData competenceAssessment : fullAssessmentData.getCompetenceAssessmentData()) {
+		for (CompetenceAssessmentDataFull competenceAssessment : fullAssessmentData.getCompetenceAssessmentData()) {
 			if (competenceAssessment.getCompetenceAssessmentEncodedId().equals(idEncoder.encodeId(competenceAssessmentId))) {
-				competenceAssessment.setApproved(true);
+				competenceAssessment.markAssessmentAsSubmitted();
 				competenceAssessment.setAssessorNotified(false);
 			}
 		}
@@ -593,9 +601,9 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 	}
 
 	private Optional<ActivityAssessmentData> getActivityAssessmentByEncodedId(String encodedActivityDiscussionId) {
-		List<CompetenceAssessmentData> competenceAssessmentData = fullAssessmentData.getCompetenceAssessmentData();
+		List<CompetenceAssessmentDataFull> competenceAssessmentData = fullAssessmentData.getCompetenceAssessmentData();
 		if (CollectionUtils.isNotEmpty(competenceAssessmentData)) {
-			for (CompetenceAssessmentData comp : competenceAssessmentData) {
+			for (CompetenceAssessmentDataFull comp : competenceAssessmentData) {
 				if (comp.getActivityAssessmentData() != null) {
 					for (ActivityAssessmentData act : comp.getActivityAssessmentData()) {
 						if (encodedActivityDiscussionId.equals(act.getEncodedActivityAssessmentId())) {
@@ -615,7 +623,7 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 			long assessmentId = idEncoder.decodeId(encodedAssessmentId);
 			assessmentManager.markCompetenceAssessmentDiscussionAsSeen(loggedUserBean.getUserId(),
 					assessmentId);
-			Optional<CompetenceAssessmentData> compAssessment = getCompetenceAssessmentById(
+			Optional<CompetenceAssessmentDataFull> compAssessment = getCompetenceAssessmentById(
 					assessmentId);
 			compAssessment.ifPresent(data -> data.setAllRead(true));
 		}
@@ -632,10 +640,10 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 		}
 	}
 
-	private Optional<CompetenceAssessmentData> getCompetenceAssessmentById(long assessmentId) {
-		List<CompetenceAssessmentData> competenceAssessmentData = fullAssessmentData.getCompetenceAssessmentData();
+	private Optional<CompetenceAssessmentDataFull> getCompetenceAssessmentById(long assessmentId) {
+		List<CompetenceAssessmentDataFull> competenceAssessmentData = fullAssessmentData.getCompetenceAssessmentData();
 		if (CollectionUtils.isNotEmpty(competenceAssessmentData)) {
-			for (CompetenceAssessmentData ca : competenceAssessmentData) {
+			for (CompetenceAssessmentDataFull ca : competenceAssessmentData) {
 				if (assessmentId == ca.getCompetenceAssessmentId()) {
 					return Optional.of(ca);
 				}
@@ -735,10 +743,23 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 			boolean success = askForAssessmentBean.submitAssessmentRequestAndReturnStatus();
 			if (success) {
 				fullAssessmentData.setAssessorNotified(true);
+				fullAssessmentData.setLastAskedForAssessment(new Date().getTime());
 			}
 		} catch (Exception e) {
 			logger.error("Error", e);
 			PageUtil.fireErrorMessage("Error sending the assessment request");
+		}
+	}
+
+	@Override
+	public void withdrawInstructor() {
+		try {
+			credentialInstructorManager.withdrawFromBeingInstructor(fullAssessmentData.getTargetCredentialId(), loggedUserBean.getUserContext());
+			PageUtil.fireSuccessfulInfoMessageAcrossPages("You have withdrawn from being " + ResourceBundleUtil.getLabel("instructor").toLowerCase() + " to " + fullAssessmentData.getStudentFullName());
+			PageUtil.redirect("/manage/credentials/" + id + "/students");
+		} catch (Exception e) {
+			logger.error("error", e);
+			PageUtil.fireErrorMessage("Error withdrawing from being " + ResourceBundleUtil.getLabel("instructor"));
 		}
 	}
 	//STUDENT ONLY CODE
@@ -799,7 +820,4 @@ public class CredentialAssessmentBean extends LearningResourceAssessmentBean imp
 		return idEncoder;
 	}
 
-	protected void setDisplayMode(AssessmentDisplayMode displayMode) {
-		this.displayMode = displayMode;
-	}
 }

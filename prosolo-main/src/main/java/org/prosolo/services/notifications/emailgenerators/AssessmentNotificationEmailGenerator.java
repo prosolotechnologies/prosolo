@@ -36,6 +36,12 @@ public class AssessmentNotificationEmailGenerator extends NotificationEmailGener
 		case GradeAdded:
 			this.subject = "You got a new grade";
 			break;
+		case ASSESSMENT_REQUEST_ACCEPTED:
+			this.subject = "Your assessment request has been accepted";
+			break;
+		case ASSESSMENT_REQUEST_DECLINED:
+			this.subject = "Your assessment request has been declined";
+			break;
 		default:
 			break;
 		}

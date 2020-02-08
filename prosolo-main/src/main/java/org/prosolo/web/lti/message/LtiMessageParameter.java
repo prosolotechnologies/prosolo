@@ -4,10 +4,12 @@ import org.prosolo.web.validator.Validator;
 
 public class LtiMessageParameter {
 
+	private String parameterName;
 	private String parameter;
 	private Validator validator;
 
-	public LtiMessageParameter(Validator validator){
+	public LtiMessageParameter(String parameterName, Validator validator) {
+		this.parameterName = parameterName;
 		this.validator = validator;
 	}
 	
@@ -16,8 +18,8 @@ public class LtiMessageParameter {
 	}
 
 	public void setParameter(String parameter) throws Exception {
-		if(validator != null){
-			validator.performValidation(parameter, "Required parameter missing or not valid");
+		if (validator != null) {
+			validator.performValidation(parameter, "Required parameter (" + parameterName + ") missing or not valid");
 		}
 		this.parameter = parameter;
 	}

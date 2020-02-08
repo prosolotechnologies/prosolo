@@ -51,6 +51,10 @@
                             <small class="redText bottom30 displayBlock">
                                 <h:message for="messageContentTextarea"></h:message>
                             </small>
+
+                            <script>
+                                autosize($(escapeColons('##{cc.clientId}:formMessage:messageContentTextarea')));
+                            </script>
                         </div>
                         <div class="modal-footer alignLeft">
                             <utilcomp:singleClickLink action="#{sendMessageBean.sendMessage(cc.attrs.receiverId)}"
@@ -62,6 +66,7 @@
                                 <f:param name="page" value="#{facesContext.viewRoot.viewId}"></f:param>
                                 Send
                             </utilcomp:singleClickLink>
+                            <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
                         </div>
                     </div>
                 </div>

@@ -3,6 +3,8 @@
  */
 package org.prosolo.web.courses.competence;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
@@ -23,6 +25,7 @@ import org.prosolo.web.util.pagination.PaginationData;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import javax.faces.bean.ManagedBean;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import java.io.Serializable;
@@ -30,6 +33,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@ManagedBean(name = "competenceLibraryBeanManager")
 @Component("competenceLibraryBeanManager")
 @Scope("view")
 public class CompetenceLibraryBeanManager implements Serializable, Paginable {
@@ -57,8 +61,15 @@ public class CompetenceLibraryBeanManager implements Serializable, Paginable {
 	
 	private String context = "name:library";
 
+	@Getter
+	@Setter
+	private int page;
+
 	public void init() {
 		searchFilters = CompetenceSearchFilter.values();
+		if (page > 0) {
+			paginationData.setPage(page);
+		}
 		searchCompetences(false);
 	}
 

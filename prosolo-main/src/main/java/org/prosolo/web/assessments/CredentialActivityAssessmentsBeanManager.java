@@ -1,5 +1,7 @@
 package org.prosolo.web.assessments;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
@@ -71,10 +73,18 @@ public class CredentialActivityAssessmentsBeanManager implements Serializable, P
 
 	private ResourceAccessData access;
 
+	@Getter
+	@Setter
+	private int page;
+
 	public void init() {
 		decodedActId = idEncoder.decodeId(actId);
 		decodedCredId = idEncoder.decodeId(credId);
+
 		if (decodedActId > 0 && decodedCredId > 0) {
+			if (page > 0) {
+				paginationData.setPage(page);
+			}
 			try {
 				/*
 				 * check if user has instructor privilege for this resource and if has, we should mark his comments as
@@ -88,6 +98,9 @@ public class CredentialActivityAssessmentsBeanManager implements Serializable, P
 				if (!access.isCanAccess()) {
 					PageUtil.accessDenied();
 				} else {
+					// check if activity and credential are connected
+					activityManager.checkIfActivityIsPartOfACredential(decodedCredId, decodedActId);
+
 					assessmentsSummary = activityManager
 							.getActivityAssessmentsDataForInstructorCredentialAssessment(
 									decodedCredId, decodedActId, access, loggedUserBean.getUserId(), paginate,
@@ -103,7 +116,6 @@ public class CredentialActivityAssessmentsBeanManager implements Serializable, P
 					}
 				}
 			} catch (ResourceNotFoundException rnfe) {
-				logger.error("Error", rnfe);
 				PageUtil.notFound();
 			} catch(Exception e) {
 				logger.error("Error", e);
@@ -122,6 +134,7 @@ public class CredentialActivityAssessmentsBeanManager implements Serializable, P
 		decodedActId = idEncoder.decodeId(actId);
 		decodedCredId = idEncoder.decodeId(credId);
 		decodedTargetActId = idEncoder.decodeId(targetActId);
+
 		if (decodedCredId > 0 && decodedActId > 0 && decodedTargetActId > 0) {
 			try {
 				/*
@@ -136,6 +149,9 @@ public class CredentialActivityAssessmentsBeanManager implements Serializable, P
 				if (!access.isCanAccess()) {
 					PageUtil.accessDenied();
 				} else {
+					// check if activity and credential are connected
+					activityManager.checkIfActivityIsPartOfACredential(decodedCredId, decodedActId);
+
 					assessmentsSummary = activityManager
 							.getActivityAssessmentDataForDefaultCredentialAssessment(
 									decodedCredId, decodedActId, decodedTargetActId, access.isCanInstruct(), !access.isCanEdit(), loggedUserBean.getUserId());
@@ -157,7 +173,6 @@ public class CredentialActivityAssessmentsBeanManager implements Serializable, P
 					}
 				}
 			} catch (ResourceNotFoundException rnfe) {
-				logger.error(rnfe);
 				PageUtil.notFound();
 			} catch (Exception e) {
 				logger.error(e);
@@ -358,14 +373,6 @@ public class CredentialActivityAssessmentsBeanManager implements Serializable, P
 
 	public ActivityResultData getActivityResultWithOtherComments() {
 		return activityResultWithOtherComments;
-	}
-
-	public String getTargetActId() {
-		return targetActId;
-	}
-
-	public void setTargetActId(String targetActId) {
-		this.targetActId = targetActId;
 	}
 
 	public long getDecodedTargetActId() {

@@ -1,7 +1,11 @@
 package org.prosolo.services.nodes.data.instructor;
 
+import java.util.List;
 import java.util.Optional;
 
+import lombok.Getter;
+import lombok.Setter;
+import org.prosolo.common.domainmodel.credential.CredentialInstructorStatus;
 import org.prosolo.services.common.observable.StandardObservable;
 import org.prosolo.services.user.data.UserData;
 
@@ -11,6 +15,10 @@ public class InstructorData extends StandardObservable {
 	private long instructorId;
 	private int maxNumberOfStudents;
 	private int numberOfAssignedStudents;
+	//ids of students for which instructor has withdrawn
+	private List<Long> withdrawList;
+	@Getter @Setter
+	private CredentialInstructorStatus status;
 
 	public InstructorData(boolean listenChanges) {
 		this.listenChanges = listenChanges;
@@ -80,4 +88,11 @@ public class InstructorData extends StandardObservable {
 		}
 	}
 
+	public List<Long> getWithdrawList() {
+		return withdrawList;
+	}
+
+	public void setWithdrawList(List<Long> withdrawList) {
+		this.withdrawList = withdrawList;
+	}
 }

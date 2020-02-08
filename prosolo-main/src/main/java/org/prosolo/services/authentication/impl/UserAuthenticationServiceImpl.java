@@ -2,26 +2,21 @@ package org.prosolo.services.authentication.impl;
 
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
-import org.prosolo.common.domainmodel.interfacesettings.FilterType;
 import org.prosolo.common.domainmodel.interfacesettings.UserSettings;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.ImageFormat;
 import org.prosolo.core.spring.security.authentication.sessiondata.ProsoloUserDetails;
-import org.prosolo.services.activityWall.filters.Filter;
 import org.prosolo.services.authentication.UserAuthenticationService;
 import org.prosolo.services.interfaceSettings.InterfaceSettingsManager;
-import org.prosolo.services.interfaceSettings.NotificationsSettingsManager;
 import org.prosolo.services.logging.AccessResolver;
 import org.prosolo.services.nodes.RoleManager;
+import org.prosolo.services.user.data.UserData;
+import org.prosolo.web.administration.data.RoleData;
 import org.prosolo.web.util.AvatarUtils;
-import org.springframework.context.MessageSource;
-import org.springframework.context.MessageSourceAware;
-import org.springframework.context.support.MessageSourceAccessor;
+import org.prosolo.web.util.ResourceBundleUtil;
 import org.springframework.security.authentication.LockedException;
-import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,19 +48,21 @@ public class UserAuthenticationServiceImpl implements UserAuthenticationService 
 
     @Override
     @Transactional
-    public ProsoloUserDetails authenticateUser(User user) throws UsernameNotFoundException, DbConnectionException {
+    public ProsoloUserDetails authenticateUser(UserData user) throws UsernameNotFoundException, LockedException, DbConnectionException {
         if (user == null) {
             throw new UsernameNotFoundException("There is no user with this email");
         }
+        if (user.isDeleted()) {
+            throw new LockedException(ResourceBundleUtil.getSpringMessage("AbstractUserDetailsAuthenticationProvider.locked"));
+        }
         try {
             //load other user data needed for principal object
-            String avatar = initializeAvatar(user.getAvatarUrl());
             UserSettings userSettings = interfaceSettingsManager.getOrCreateUserSettings(user.getId());
             String ipAddress = accessResolver.findRemoteIPAddress(httpServletRequest);
 
             Collection<SimpleGrantedAuthority> userAuthorities = new ArrayList<>();
-            for (Role role : user.getRoles()) {
-                List<String> capabilities = roleManager.getNamesOfRoleCapabilities(role.getId());
+            for (long role : user.getRoleIds()) {
+                List<String> capabilities = roleManager.getNamesOfRoleCapabilities(role);
                 if (capabilities != null) {
                     for (String cap : capabilities) {
                         userAuthorities.add(new SimpleGrantedAuthority(cap.toUpperCase()));
@@ -85,10 +82,7 @@ public class UserAuthenticationServiceImpl implements UserAuthenticationService 
             if (password == null) {
                 password = "";
             }
-            long orgId = 0;
-            if (user.getOrganization() != null) {
-                orgId = user.getOrganization().getId();
-            }
+
             ProsoloUserDetails.Builder userDetailsBuilder = ProsoloUserDetails.builder();
             userDetailsBuilder
                     .email(user.getEmail())
@@ -99,10 +93,10 @@ public class UserAuthenticationServiceImpl implements UserAuthenticationService 
                     .accountNonLocked(!user.isDeleted())
                     .credentialsNonExpired(credentialsNonExpired)
                     .userId(user.getId())
-                    .organizationId(orgId)
+                    .organizationId(user.getOrganizationId())
                     .firstName(user.getName())
-                    .lastName(user.getLastname())
-                    .avatar(avatar)
+                    .lastName(user.getLastName())
+                    .avatar(user.getAvatarUrl())
                     .position(user.getPosition())
                     .ipAddress(ipAddress)
                     .sessionId(httpServletRequest.getSession().getId())
@@ -113,9 +107,5 @@ public class UserAuthenticationServiceImpl implements UserAuthenticationService 
             logger.error("error", e);
             throw new DbConnectionException("Error loading the user session data during authentication for user: " + user.getId());
         }
-    }
-
-    private String initializeAvatar(String avatarUrl) {
-        return AvatarUtils.getAvatarUrlInFormat(avatarUrl, ImageFormat.size120x120);
     }
 }

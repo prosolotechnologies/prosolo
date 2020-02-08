@@ -10,6 +10,8 @@ import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.organization.Role;
+import org.prosolo.common.domainmodel.organization.settings.AssessmentsPlugin;
+import org.prosolo.common.domainmodel.organization.settings.OrganizationPluginType;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserType;
 import org.prosolo.common.domainmodel.user.preferences.TopicPreference;
@@ -24,12 +26,15 @@ import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventFactory;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.*;
+import org.prosolo.services.user.data.UserAssessmentTokenData;
+import org.prosolo.services.user.data.UserAssessmentTokenExtendedData;
 import org.prosolo.services.user.data.UserCreationData;
 import org.prosolo.services.user.data.UserData;
 import org.prosolo.services.upload.AvatarProcessor;
 import org.prosolo.services.user.UserGroupManager;
 import org.prosolo.services.user.UserManager;
 import org.prosolo.services.util.roles.SystemRoleNames;
+import org.prosolo.web.administration.data.RoleData;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,6 +43,7 @@ import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service("org.prosolo.services.user.UserManager")
 public class UserManagerImpl extends AbstractManagerImpl implements UserManager {
@@ -66,6 +72,8 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	private EventFactory eventFactory;
 	@Inject
 	private RoleManager roleManager;
+	@Inject
+	private OrganizationManager organizationManager;
 	@Inject private PasswordResetManager passwordResetManager;
 	@Inject private AuthenticatedUserService authenticatedUserService;
 
@@ -73,6 +81,13 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	@Transactional (readOnly = true)
 	public User getUser(String email) throws DbConnectionException {
 		return getUser(email, false);
+	}
+
+	@Override
+	@Transactional (readOnly = true)
+	public Optional<UserData> getUserData(String email) {
+		User user = getUser(email);
+		return user != null ? Optional.of(new UserData(user)) : Optional.empty();
 	}
 
 	@Override
@@ -221,6 +236,52 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 
 	@Override
 	//nt
+	public UserData createNewUserAndReturnData(long organizationId, String name, String lastname, String emailAddress, boolean emailVerified,
+							  String password, String position, InputStream avatarStream,
+							  String avatarFilename, List<Long> roles, boolean isSystem) {
+		Result<UserData> res = self.createNewUserAndGetUserDataAndEvents(
+				organizationId,
+				name,
+				lastname,
+				emailAddress,
+				emailVerified,
+				password,
+				position,
+				avatarStream,
+				avatarFilename,
+				roles,
+				isSystem);
+
+		eventFactory.generateAndPublishEvents(res.getEventQueue());
+
+		return res.getResult();
+	}
+
+	@Override
+	@Transactional
+	public Result<UserData> createNewUserAndGetUserDataAndEvents(long organizationId, String name, String lastname, String emailAddress, boolean emailVerified,
+											   String password, String position, InputStream avatarStream,
+											   String avatarFilename, List<Long> roles, boolean isSystem) {
+		Result<User> res = createNewUserAndGetEvents(
+				organizationId,
+				name,
+				lastname,
+				emailAddress,
+				emailVerified,
+				password,
+				position,
+				avatarStream,
+				avatarFilename,
+				roles,
+				isSystem);
+		Result<UserData> result = new Result<>();
+		result.setResult(new UserData(res.getResult()));
+		result.appendEvents(res.getEventQueue());
+		return result;
+	}
+
+	@Override
+	//nt
 	public User createNewUser(long organizationId, String name, String lastname, String emailAddress, boolean emailVerified,
 							  String password, String position, InputStream avatarStream,
 							  String avatarFilename, List<Long> roles, boolean isSystem) throws DbConnectionException, IllegalDataStateException {
@@ -237,10 +298,11 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 				roles,
 				isSystem);
 
-		eventFactory.generateEvents(res.getEventQueue());
+		eventFactory.generateAndPublishEvents(res.getEventQueue());
 
 		return res.getResult();
 	}
+
 
 	@Override
 	public User createNewUserAndSendEmail(long organizationId, String name, String lastname, String emailAddress, boolean emailVerified,
@@ -259,7 +321,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 				roles,
 				isSystem);
 
-		eventFactory.generateEvents(res.getEventQueue());
+		eventFactory.generateAndPublishEvents(res.getEventQueue());
 
 		return res.getResult();
 	}
@@ -282,23 +344,25 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 				roles,
 				isSystem);
 
-		//send email to new user for password recovery
-		sendNewPassword(res.getResult());
+		if (CommonSettings.getInstance().config.emailNotifier.activated) {
+			//send email to new user for password recovery
+			try {
+				sendNewPassword(res.getResult());
+			} catch (Exception e) {
+				logger.error("error sending the password reset email", e);
+				//don't throw exception since we don't want to rollback the transaction just because email could not be sent.
+			}
+		}
 		return res;
 	}
 
 	private void sendNewPassword(User user) {
-		try {
-			boolean resetLinkSent = passwordResetManager.initiatePasswordReset(user, user.getEmail(),
-					CommonSettings.getInstance().config.appConfig.domain + "recovery", persistence.currentManager());
-			if (resetLinkSent) {
-				logger.info("Password instructions have been sent");
-			} else {
-				logger.error("Error sending password instruction");
-			}
-		} catch (Exception e) {
-			logger.error("Error", e);
-			throw new DbConnectionException("Error sending the password to the new user");
+		boolean resetLinkSent = passwordResetManager.initiatePasswordReset(user, user.getEmail(),
+				CommonSettings.getInstance().config.appConfig.domain + "recovery", persistence.currentManager());
+		if (resetLinkSent) {
+			logger.info("Password instructions have been sent");
+		} else {
+			logger.error("Error sending password instruction");
 		}
 	}
 
@@ -307,69 +371,81 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	@Transactional (readOnly = false)
 	public Result<User> createNewUserAndGetEvents(long organizationId, String name, String lastname, String emailAddress, boolean emailVerified,
 			String password, String position, InputStream avatarStream,
-			String avatarFilename, List<Long> roles, boolean isSystem) throws DbConnectionException, IllegalDataStateException {
+			String avatarFilename, List<Long> roles, boolean isSystem) throws DbConnectionException {
 
 		Result<User> result = new Result<>();
 
-		if (checkIfUserExists(emailAddress)) {
-			User user = getUser(emailAddress);
-
-			// if user was deleted, revoke his account
-			if (user.isDeleted()) {
-				user.setDeleted(false);
-				saveEntity(user);
-			}
-			result.setResult(user);
-
-			return result;
-		}
-
-		emailAddress = emailAddress.toLowerCase();
-
-		User user = new User();
-		user.setName(name);
-		user.setLastname(lastname);
-
-		user.setEmail(emailAddress);
-		user.setVerified(emailVerified);
-		user.setVerificationKey(UUID.randomUUID().toString().replace("-", ""));
-
-		if (organizationId > 0) {
-			user.setOrganization((Organization) persistence.currentManager().load(Organization.class, organizationId));
-		}
-
-		if (password != null) {
-			user.setPassword(passwordEncoder.encode(password));
-			user.setPasswordLength(password.length());
-		}
-
-		user.setSystem(isSystem);
-		user.setPosition(position);
-
-		user.setUserType(UserType.REGULAR_USER);
-		if(roles == null) {
-			user.addRole(roleManager.getRoleByName(SystemRoleNames.USER));
-		} else {
-			for(Long id : roles) {
-				Role role = (Role) persistence.currentManager().load(Role.class, id);
-				user.addRole(role);
-			}
-		}
-		user = saveEntity(user);
-
 		try {
-			if (avatarStream != null) {
-				user.setAvatarUrl(avatarProcessor.storeUserAvatar(user.getId(), avatarStream, avatarFilename, true));
-				user = saveEntity(user);
+
+			if (checkIfUserExists(emailAddress)) {
+				User user = getUser(emailAddress);
+
+				// if user was deleted, revoke his account
+				if (user.isDeleted()) {
+					user.setDeleted(false);
+					saveEntity(user);
+				}
+				result.setResult(user);
+
+				return result;
 			}
-		} catch (IOException e) {
-			logger.error(e);
+
+			emailAddress = emailAddress.toLowerCase();
+
+			User user = new User();
+			user.setName(name);
+			user.setLastname(lastname);
+
+			user.setEmail(emailAddress);
+			user.setVerified(emailVerified);
+			user.setVerificationKey(UUID.randomUUID().toString().replace("-", ""));
+
+			if (organizationId > 0) {
+				Organization org = (Organization) persistence.currentManager().load(Organization.class, organizationId);
+				user.setOrganization(org);
+				//setting initial number of tokens no matter if tokens are enabled at the moment
+				AssessmentsPlugin assessmentTokensPlugin = (AssessmentsPlugin) org.getPlugins().stream().filter(p -> p.getType() == OrganizationPluginType.ASSESSMENTS).findAny().get();
+
+				user.setNumberOfTokens(assessmentTokensPlugin.getInitialNumberOfTokensGiven());
+			}
+
+			if (password != null) {
+				user.setPassword(passwordEncoder.encode(password));
+				user.setPasswordLength(password.length());
+			}
+
+			user.setSystem(isSystem);
+			user.setPosition(position);
+
+			user.setUserType(UserType.REGULAR_USER);
+
+			if(roles == null) {
+				user.addRole(roleManager.getRoleByName(SystemRoleNames.USER));
+			} else {
+				for(Long id : roles) {
+					Role role = (Role) persistence.currentManager().load(Role.class, id);
+					user.addRole(role);
+				}
+			}
+			user = saveEntity(user);
+
+			try {
+				if (avatarStream != null) {
+					user.setAvatarUrl(avatarProcessor.storeUserAvatar(user.getId(), avatarStream, avatarFilename, true));
+					user = saveEntity(user);
+				}
+			} catch (IOException e) {
+				logger.error(e);
+			}
+
+			result.appendEvent(eventFactory.generateEventData(
+					EventType.Registered, UserContextData.ofActor(user.getId()),null, null, null, null));
+
+			result.setResult(user);
+		} catch (Exception e) {
+			logger.error("Error", e);
+			throw new DbConnectionException("Error saving new user account");
 		}
-
-		result.appendEvent(eventFactory.generateEventData(
-				EventType.Registered, UserContextData.ofActor(user.getId()),null, null, null, null));
-
-		result.setResult(user);
 		return result;
 	}
 
@@ -437,7 +513,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	}
 
 	@Override
-	@Transactional (readOnly = false)
+	@Transactional
 	public String changePasswordWithResetKey(String resetKey, String newPassword) {
 		String newPassEncrypted = passwordEncoder.encode(newPassword);
 
@@ -503,12 +579,12 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	// nt
 	public User updateUser(long userId, String name, String lastName, String email,
 						   boolean emailVerified, boolean changePassword, String password,
-						   String position, List<Long> newRoleList, List<Long> allRoles, UserContextData context)
+						   String position, int numberOfTokens, List<Long> newRoleList, List<Long> allRoles, UserContextData context)
 			throws DbConnectionException {
 		Result<User> result = self.updateUserAndGetEvents(userId, name, lastName, email, emailVerified,
-				changePassword, password, position, newRoleList, allRoles, context);
+				changePassword, password, position, numberOfTokens, newRoleList, allRoles, context);
 
-		eventFactory.generateEvents(result.getEventQueue());
+		eventFactory.generateAndPublishEvents(result.getEventQueue());
 
 		return result.getResult();
 	}
@@ -517,14 +593,18 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	@Transactional (readOnly = false)
 	public Result<User> updateUserAndGetEvents(long userId, String name, String lastName, String email,
 											   boolean emailVerified, boolean changePassword, String password,
-											   String position, List<Long> newRoleList, List<Long> allRoles, UserContextData context) throws DbConnectionException {
+											   String position, int numberOfTokens, List<Long> newRoleList,
+											   List<Long> allRoles, UserContextData context) throws DbConnectionException {
 		Result<User> result = new Result<>();
 		try {
+			boolean numberOfTokensChanged;
 			User user = loadResource(User.class, userId);
 			user.setName(name);
 			user.setLastname(lastName);
-			user.setPosition(position);
 			user.setEmail(email);
+			user.setPosition(position);
+			numberOfTokensChanged = user.getNumberOfTokens() != numberOfTokens;
+			user.setNumberOfTokens(numberOfTokens);
 			user.setVerified(true);
 
 			if (changePassword) {
@@ -555,12 +635,21 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 
 			result.setResult(user);
 
+			if (numberOfTokensChanged) {
+				boolean hasStudentRole = user.getRoles().stream().anyMatch(role -> role.getTitle().equalsIgnoreCase(SystemRoleNames.USER));
+				if (hasStudentRole) {
+					//if user has student role and number of tokens is changed generate notification
+					User eventObj = new User();
+					eventObj.setId(user.getId());
+					result.appendEvent(eventFactory.generateEventData(EventType.ASSESSMENT_TOKENS_NUMBER_UPDATED, context, eventObj, null, null, null));
+				}
+			}
+
 			result.appendEvent(eventFactory.generateEventData(EventType.Edit_Profile, context, user, null, null, null));
 
 			return result;
 		} catch(Exception e) {
-			e.printStackTrace();
-			logger.error(e);
+			logger.error("error", e);
 			throw new DbConnectionException("Error updating user data");
 		}
 	}
@@ -624,7 +713,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 
 			User user = (User) q.uniqueResult();
 
-			return new UserData(user, user.getRoles());
+			return new UserData(user, user.getRoles().stream().map(r -> new RoleData(r)).collect(Collectors.toList()));
 		} catch(Exception e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -678,7 +767,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	public void deleteUser(long oldCreatorId, long newCreatorId, UserContextData context)
 			throws DbConnectionException {
 		Result<Void> result = self.deleteUserAndGetEvents(oldCreatorId, newCreatorId, context);
-		eventFactory.generateEvents(result.getEventQueue());
+		eventFactory.generateAndPublishEvents(result.getEventQueue());
 	}
 
 	@Override
@@ -725,7 +814,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 
 	@Override
 	@Transactional(readOnly = true)
-	public PaginatedResult<UserData> getUsersWithRoles(int page, int limit, long filterByRoleId, List<Role> roles,
+	public PaginatedResult<UserData> getUsersWithRoles(int page, int limit, long filterByRoleId, List<RoleData> roles,
 													   long organizationId) throws  DbConnectionException {
 		try {
 			PaginatedResult<UserData> response = new PaginatedResult<>();
@@ -740,9 +829,9 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 				query += "AND user.organization.id = :orgId ";
 			}
 			if (filterByRoleId > 0) {
-				query += "AND role.id = :filterByRoleId ";
+				query += "AND user.id IN (SELECT u.id FROM user u INNER JOIN u.roles r WITH r.id = :filterByRoleId) ";
 			} else if (roles != null && !roles.isEmpty()) {
-				query += "AND role IN (:roles) ";
+				query += "AND role.id IN (:roleIds) ";
 			}
 			query += "ORDER BY user.lastname, user.name ASC ";
 
@@ -755,7 +844,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 			if (filterByRoleId > 0) {
 				q.setLong("filterByRoleId", filterByRoleId);
 			} else if (roles != null && !roles.isEmpty()) {
-				q.setParameterList("roles", roles);
+				q.setParameterList("roleIds", roles.stream().map(r -> r.getId()).collect(Collectors.toList()));
 			}
 
 			List<User> users = q
@@ -764,13 +853,18 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 					.list();
 
 			for (User u : users) {
-				List<Role> userRoles = new LinkedList<>(u.getRoles());
-				UserData userData = new UserData(u, userRoles);
+				UserData userData = new UserData(u, u.getRoles().stream().map(r -> new RoleData(r)).collect(Collectors.toList()));
 				response.addFoundNode(userData);
 			}
 
-			response.setAdditionalInfo(setFilter(organizationId, roles, filterByRoleId));
-			response.setHitsNumber(setUsersCountForFiltering(organizationId, roles, filterByRoleId));
+			List<Long> roleIds = null;
+
+			if (roles != null) {
+				roleIds = roles.stream().map(RoleData::getId).collect(Collectors.toList());
+			}
+
+			response.setAdditionalInfo(setFilter(organizationId, roleIds, filterByRoleId));
+			response.setHitsNumber(setUsersCountForFiltering(organizationId, roleIds, filterByRoleId));
 
 			return response;
 		} catch (Exception e) {
@@ -787,7 +881,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 		}
 	}
 
-	private Long setUsersCountForFiltering(long organizationId, List<Role> roles, long filterByRoleId){
+	private Long setUsersCountForFiltering(long organizationId, List<Long> roleIds, long filterByRoleId){
 		String countQuery =
 				"SELECT COUNT (DISTINCT user) " +
 				"FROM User user " +
@@ -800,8 +894,8 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 
 		if (filterByRoleId > 0) {
 			countQuery += "AND role.id = :filterByRoleId";
-		} else if (roles != null && !roles.isEmpty()) {
-			countQuery += "AND role IN (:roles)";
+		} else if (roleIds != null && !roleIds.isEmpty()) {
+			countQuery += "AND role.id IN (:roleIds)";
 		}
 
 		Query result1 = persistence.currentManager().createQuery(countQuery);
@@ -812,14 +906,14 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 
 		if (filterByRoleId > 0){
 			result1.setLong("filterByRoleId", filterByRoleId);
-		} else if (roles != null && !roles.isEmpty()) {
-			result1.setParameterList("roles", roles);
+		} else if (roleIds != null && !roleIds.isEmpty()) {
+			result1.setParameterList("roleIds", roleIds);
 		}
 
 		return (Long) result1.uniqueResult();
 	}
 
-	private Map<String,Object> setFilter(long organizationId, List<Role> roles, long filterByRoleId){
+	private Map<String,Object> setFilter(long organizationId, List<Long> roleIds, long filterByRoleId){
 		String countQuery =
 				"SELECT COUNT (DISTINCT user) " +
 				"FROM User user " +
@@ -830,8 +924,8 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 			countQuery += "AND user.organization.id = :orgId ";
 		}
 
-		if (roles != null && !roles.isEmpty()) {
-			countQuery += "AND role IN (:roles) ";
+		if (roleIds != null && !roleIds.isEmpty()) {
+			countQuery += "AND role.id IN (:roleIds) ";
 		}
 
 		Query q = persistence.currentManager().createQuery(countQuery);
@@ -840,8 +934,8 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 			q.setLong("orgId", organizationId);
 		}
 
-		if (roles != null && !roles.isEmpty()) {
-			q.setParameterList("roles", roles);
+		if (roleIds != null && !roleIds.isEmpty()) {
+			q.setParameterList("roleIds", roleIds);
 		}
 
 		long count = (long) q.uniqueResult();
@@ -856,8 +950,8 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 				"FROM User user "+
 				"INNER JOIN user.roles role ";
 
-		if (roles != null && !roles.isEmpty()) {
-			query += "WITH role in (:roles) ";
+		if (roleIds != null && !roleIds.isEmpty()) {
+			query += "WITH role.id IN (:roleIds) ";
 		}
 
 		query += "WHERE user.deleted IS false ";
@@ -873,8 +967,8 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 			q1.setLong("orgId", organizationId);
 		}
 
-		if (roles != null && !roles.isEmpty()) {
-			q1.setParameterList("roles", roles);
+		if (roleIds != null && !roleIds.isEmpty()) {
+			q1.setParameterList("roleIds", roleIds);
 		}
 
 		List<Object[]> result = q1.list();
@@ -1000,7 +1094,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 				userGroupId, context);
 
 		if (res.getResult() != null) {
-			eventFactory.generateEvents(res.getEventQueue());
+			eventFactory.generateAndPublishEvents(res.getEventQueue());
 			return res.getResult().getUser();
 		}
 		return null;
@@ -1046,79 +1140,6 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 		}
 	}
 
-	/*
-	TODO merge this with resource factory createNewUser method when we agree on exact implementation
-	and when there is time for refactoring
-	 */
-	private Result<User> createNewUser(long organizationId, String name, String lastname, String emailAddress, boolean emailVerified,
-							   String password, String position, boolean system, InputStream avatarStream,
-						       String avatarFilename, List<Long> roles, UserContextData context)
-			throws DbConnectionException {
-
-		Result<User> res = new Result<>();
-		try {
-			if (checkIfUserExists(emailAddress, false)) {
-				User user = getUser(emailAddress);
-
-				// if user was deleted, revoke his account
-				if (user.isDeleted()) {
-					user.setDeleted(false);
-					saveEntity(user);
-				}
-
-				res.setResult(user);
-				return res;
-			}
-
-			emailAddress = emailAddress.toLowerCase();
-
-			User user = new User();
-			user.setName(name);
-			user.setLastname(lastname);
-
-			user.setEmail(emailAddress);
-			user.setVerified(emailVerified);
-			user.setVerificationKey(UUID.randomUUID().toString().replace("-", ""));
-
-			if (organizationId > 0) {
-				user.setOrganization((Organization) persistence.currentManager().load(Organization.class, organizationId));
-			}
-
-			if (password != null) {
-				user.setPassword(passwordEncoder.encode(password));
-				user.setPasswordLength(password.length());
-			}
-
-			user.setSystem(system);
-			user.setPosition(position);
-
-			user.setUserType(UserType.REGULAR_USER);
-
-			if (roles != null) {
-				for (Long id : roles) {
-					Role role = (Role) persistence.currentManager().load(Role.class, id);
-					user.addRole(role);
-				}
-			}
-			user = saveEntity(user);
-
-			try {
-				if (avatarStream != null) {
-					user.setAvatarUrl(avatarProcessor.storeUserAvatar(
-							user.getId(), avatarStream, avatarFilename, true));
-				}
-			} catch (IOException e) {
-				logger.error(e);
-			}
-			res.setResult(user);
-			res.appendEvent(eventFactory.generateEventData(EventType.Registered, context, user, null, null, null));
-		} catch (Exception e) {
-			logger.error("Error", e);
-			throw new DbConnectionException("Error saving new user account");
-		}
-		return res;
-	}
-
 	/**
 	 * Creates or updates user and retrieves it with information if user account is just created.
 	 *
@@ -1153,8 +1174,8 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 				roleIds.add(roleId);
 			}
 			if (!checkIfUserExists(emailAddress)) {
-				Result<User> newUserRes = createNewUser(context.getOrganizationId(), name, lastname, emailAddress, emailVerified,
-						password, position, system, avatarStream, avatarFilename, roleIds, context);
+				Result<User> newUserRes = createNewUserAndGetEvents(context.getOrganizationId(), name, lastname, emailAddress, emailVerified,
+						password, position, avatarStream, avatarFilename, roleIds, system);
 				Result<UserCreationData> res = new Result<>();
 				res.setResult(new UserCreationData(newUserRes.getResult(), true));
 				res.appendEvents(newUserRes.getEventQueue());
@@ -1264,7 +1285,7 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 	public void saveAccountChanges(UserData accountData, UserContextData contextData)
 			throws DbConnectionException, ResourceCouldNotBeLoadedException {
 		Result<Void> result = self.saveAccountChangesAndGetEvents(accountData,contextData);
-		eventFactory.generateEvents(result.getEventQueue());
+		eventFactory.generateAndPublishEvents(result.getEventQueue());
 	}
 
 	@Override
@@ -1304,5 +1325,101 @@ public class UserManagerImpl extends AbstractManagerImpl implements UserManager 
 			throw new DbConnectionException("Error updating account data for user: " + accountData.getId());
 		}
 	}
+
+	@Override
+	@Transactional (readOnly = true)
+	public UserAssessmentTokenData getUserAssessmentTokenData(long userId) {
+		try {
+			User user = (User) persistence.currentManager().load(User.class, userId);
+			boolean tokensEnabled = false;
+
+			if (user.getOrganization() != null) {
+				AssessmentsPlugin assessmentTokensPlugin = organizationManager.getOrganizationPlugin(AssessmentsPlugin.class, user.getOrganization().getId());
+
+				tokensEnabled = assessmentTokensPlugin.isAssessmentTokensEnabled();
+			}
+			return new UserAssessmentTokenData(tokensEnabled, user.isAvailableForAssessments(), user.getNumberOfTokens());
+		} catch (Exception e) {
+			logger.error("error", e);
+			throw new DbConnectionException("Error loading user assessment tokens data");
+		}
+	}
+
+	@Override
+	@Transactional (readOnly = true)
+	public UserAssessmentTokenExtendedData getUserAssessmentTokenExtendedData(long userId) {
+		try {
+			User user = (User) persistence.currentManager().load(User.class, userId);
+			boolean tokensEnabled = false;
+			int numberOfTokensSpentPerRequest = 0;
+
+			if (user.getOrganization() != null) {
+				AssessmentsPlugin assessmentTokensPlugin = organizationManager.getOrganizationPlugin(AssessmentsPlugin.class, user.getOrganization().getId());
+
+				tokensEnabled = assessmentTokensPlugin.isAssessmentTokensEnabled();
+				numberOfTokensSpentPerRequest = assessmentTokensPlugin.getNumberOfSpentTokensPerRequest();
+			}
+			return new UserAssessmentTokenExtendedData(tokensEnabled, user.isAvailableForAssessments(), user.getNumberOfTokens(), numberOfTokensSpentPerRequest);
+		} catch (Exception e) {
+			logger.error("error", e);
+			throw new DbConnectionException("Error loading user assessment tokens data");
+		}
+	}
+
+	@Override
+	@Transactional
+	public void updateAssessmentAvailability(long userId, boolean availableForAssessments) {
+		try {
+			User user = (User) persistence.currentManager().load(User.class, userId);
+			user.setAvailableForAssessments(availableForAssessments);
+		} catch (Exception e) {
+			logger.error("error", e);
+			throw new DbConnectionException("Error updating assessment availability");
+		}
+	}
+
+	@Override
+	@Transactional
+	public List<Long> getIdsOfActiveStudentsNotHavingSpecifiedNumberOfTokens(long organizationId, int numberOfTokens) {
+		try {
+			String q =
+					"SELECT u.id FROM User u " +
+							"INNER JOIN u.roles role " +
+							"WITH role.title = :studentRoleName " +
+							"WHERE u.deleted IS FALSE " +
+							"AND u.organization.id = :orgId " +
+							"AND u.numberOfTokens != :numberOfTokens";
+			return (List<Long>) persistence.currentManager()
+					.createQuery(q)
+					.setString("studentRoleName", SystemRoleNames.USER)
+					.setLong("orgId", organizationId)
+					.setInteger("numberOfTokens", numberOfTokens)
+					.list();
+		} catch (Exception e) {
+			logger.error("error", e);
+			throw new DbConnectionException("Error in method getIdsOfActiveStudentsNotHavingSpecifiedNumberOfTokens(long organizationId, int numberOfTokens)");
+		}
+	}
+
+    @Override
+    @Transactional
+    public List<Long> getIdsOfActiveStudentsFromOrganization(long organizationId) {
+        try {
+            String q =
+                    "SELECT u.id FROM User u " +
+                            "INNER JOIN u.roles role " +
+                            "WITH role.title = :studentRoleName " +
+                            "WHERE u.deleted IS FALSE " +
+                            "AND u.organization.id = :orgId";
+            return (List<Long>) persistence.currentManager()
+                    .createQuery(q)
+                    .setString("studentRoleName", SystemRoleNames.USER)
+                    .setLong("orgId", organizationId)
+                    .list();
+        } catch (Exception e) {
+            logger.error("error", e);
+            throw new DbConnectionException("Error in method getIdsOfActiveStudentsFromOrganization(long organizationId)");
+        }
+    }
 
 }

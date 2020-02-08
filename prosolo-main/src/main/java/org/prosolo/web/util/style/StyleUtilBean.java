@@ -1,5 +1,6 @@
 package org.prosolo.web.util.style;
 
+import org.prosolo.common.domainmodel.assessment.AssessmentStatus;
 import org.prosolo.common.domainmodel.content.ImageSize;
 import org.prosolo.common.domainmodel.user.notifications.NotificationType;
 import org.prosolo.common.domainmodel.user.socialNetworks.SocialNetworkName;
@@ -8,7 +9,7 @@ import org.prosolo.services.assessment.data.grading.GradeData;
 import org.prosolo.services.assessment.data.grading.GradingMode;
 import org.prosolo.services.assessment.data.grading.RubricAssessmentGradeSummary;
 import org.prosolo.services.nodes.data.ActivityType;
-import org.prosolo.services.nodes.data.activity.attachmentPreview.MediaType1;
+import org.prosolo.services.nodes.data.statusWall.MediaType1;
 import org.prosolo.services.nodes.data.credential.CredentialDeliveryStatus;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.springframework.context.annotation.Scope;
@@ -59,6 +60,13 @@ public class StyleUtilBean implements Serializable {
 			case Assessment_Comment:
 			case Assessment_Requested:
 			case GradeAdded:
+			case ASSESSMENT_REQUEST_ACCEPTED:
+			case ASSESSMENT_REQUEST_DECLINED:
+			case ASSESSOR_WITHDREW_FROM_ASSESSMENT:
+			case ASSESSOR_ASSIGNED_TO_ASSESSMENT:
+			case ASSIGNED_TO_ASSESSMENT_AS_ASSESSOR:
+			case ASSESSMENT_REQUEST_EXPIRED:
+			case ASSESSMENT_TOKENS_NUMBER_UPDATED:
 				return "notifAssessment";
 			case Mention:
 				return "notifMention";
@@ -122,6 +130,7 @@ public class StyleUtilBean implements Serializable {
 	}
 
 	public String getEvidenceFileTypeIcon(String url) {
+		//TODO if there is no extension this logic for extracting extension would not work
 		String extension = url.substring(url.lastIndexOf(".") + 1).toLowerCase();
 
 		switch (extension) {
@@ -242,6 +251,30 @@ public class StyleUtilBean implements Serializable {
 				return "linkedIn";
 			case TWITTER:
 				return "twitter";
+			default:
+				return "";
+		}
+	}
+
+	public String getIconClassForAssessmentStatus(AssessmentStatus status) {
+		if (status == null) {
+			return "";
+		}
+		switch (status) {
+			case REQUESTED:
+				return "tagPending";
+			case REQUEST_EXPIRED:
+				return "tagDeclined";
+			case REQUEST_DECLINED:
+				return "tagDeclined";
+			case PENDING:
+				return "tagPending";
+			case SUBMITTED:
+				return "tagApproved";
+			case ASSESSMENT_QUIT:
+				return "tagDeclined";
+			case SUBMITTED_ASSESSMENT_QUIT:
+				return "tagDeclined";
 			default:
 				return "";
 		}

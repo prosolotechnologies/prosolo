@@ -12,9 +12,7 @@ public class BasicObjectInfo {
     private final String description;
 
     public BasicObjectInfo(long id, String title) {
-        this.id = id;
-        this.title = title;
-        this.description = null;
+        this(id, title, null);
     }
 
     public BasicObjectInfo(long id, String title, String description) {
@@ -34,4 +32,5 @@ public class BasicObjectInfo {
     public String getDescription() {
         return description;
     }
+
 }

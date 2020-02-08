@@ -8,11 +8,11 @@ import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.general.BaseEntity;
 import org.prosolo.common.domainmodel.interfacesettings.UserSettings;
 import org.prosolo.common.domainmodel.user.notifications.Notification1;
+import org.prosolo.common.event.Event;
+import org.prosolo.common.event.EventObserver;
 import org.prosolo.common.messaging.data.ServiceType;
 import org.prosolo.core.db.hibernate.HibernateUtil;
 import org.prosolo.services.event.CentralEventDispatcher;
-import org.prosolo.services.event.Event;
-import org.prosolo.services.event.EventObserver;
 import org.prosolo.services.interaction.AnalyticalServiceCollector;
 import org.prosolo.services.interfaceSettings.InterfaceSettingsManager;
 import org.prosolo.services.messaging.SessionMessageDistributer;
@@ -65,6 +65,12 @@ public class NotificationObserver extends EventObserver {
 				EventType.AssessmentComment,
 				EventType.AnnouncementPublished,
 				EventType.GRADE_ADDED,
+				EventType.ASSESSMENT_REQUEST_ACCEPTED,
+				EventType.ASSESSMENT_REQUEST_DECLINED,
+				EventType.ASSESSOR_WITHDREW_FROM_ASSESSMENT,
+				EventType.ASSESSOR_ASSIGNED_TO_ASSESSMENT,
+				EventType.ASSESSMENT_REQUEST_EXPIRED,
+				EventType.ASSESSMENT_TOKENS_NUMBER_UPDATED
 		};
 	}
 
@@ -74,16 +80,12 @@ public class NotificationObserver extends EventObserver {
 	}
 
 	public void handleEvent(Event event) {
-		Session session = (Session) defaultManager.getPersistence().openSession();
-		
 		try {
 			NotificationEventProcessor processor = notificationEventProcessorFactory
-					.getNotificationEventProcessor(event, session);
+					.getNotificationEventProcessor(event);
 			if (processor != null) {
 				List<Notification1> notifications = processor.getNotificationList();
-				// make sure all data is persisted to the database
-				session.flush();
-				
+
 				/*
 				 * After all notifications have been generated, send them to their
 				 * receivers. If those users are logged in, their notification cache
@@ -102,25 +104,21 @@ public class NotificationObserver extends EventObserver {
 						} else {
 							Set<HttpSession> userSessions = activeUsersSessionRegistry.getAllUserSessions(notification.getReceiver().getId());
 							for (HttpSession httpSession : userSessions) {
-								notificationCacheUpdater.updateNotificationData(
-										notification.getId(),
-										httpSession,
-										session);
+								notificationCacheUpdater.updateNotificationData(notification.getId(), httpSession);
 							}
 						}
 					 				
 						if (notification.isNotifyByEmail() && CommonSettings.getInstance().config.emailNotifier.activated) {
 							try {
 								UserSettings userSettings = interfaceSettingsManager.
-										getOrCreateUserSettings(notification.getReceiver().getId(), session);
+										getOrCreateUserSettings(notification.getReceiver().getId());
 								Locale locale = getLocale(userSettings);
 								/*
-								 * get all notification data in one query insted of issuing session.update
+								 * get all notification data in one query instead of issuing session.update
 								 * for sender and receiver - all in order to avoid lazy initialization exception
 								 */
 								NotificationData notificationData = notificationManager
-										.getNotificationData(notification.getId(), true, 
-												session, locale);
+										.getNotificationData(notification.getId(), true, locale);
 								String domain = CommonSettings.getInstance().config.appConfig.domain;
 								
 								if (domain.endsWith("/")) {
@@ -158,8 +156,7 @@ public class NotificationObserver extends EventObserver {
 									}
 								});
 							} catch (Exception e) {
-								logger.error(e);
-								e.printStackTrace();
+								logger.error("error", e);
 							}
 						}
 					}
@@ -168,12 +165,7 @@ public class NotificationObserver extends EventObserver {
 				logger.debug("This notification is not supported by any notification processor." + event);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
-			logger.error(e);
-		} finally {
-			if(session != null && session.isOpen()) {
-				HibernateUtil.close(session);
-			}
+			logger.error("Error", e);
 		}
 	}
 	

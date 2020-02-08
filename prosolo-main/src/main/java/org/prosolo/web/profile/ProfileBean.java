@@ -1,14 +1,13 @@
 package org.prosolo.web.profile;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
-import org.prosolo.common.domainmodel.messaging.Message;
-import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.services.common.data.SelectableData;
-import org.prosolo.services.interaction.MessagingManager;
 import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.data.LearningResourceType;
 import org.prosolo.services.nodes.data.credential.CredentialIdData;
@@ -18,7 +17,6 @@ import org.prosolo.services.user.data.UserData;
 import org.prosolo.services.user.data.profile.*;
 import org.prosolo.services.user.data.profile.factory.CredentialProfileOptionsFullToBasicFunction;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.web.messaging.data.MessageData;
 import org.prosolo.web.profile.data.UserSocialNetworksData;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
@@ -33,6 +31,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+/**
+ * This class was introduced to serve the custom profile URL scheme. It serves the page profile-new.xhtml.
+ */
 @ManagedBean(name = "profileBean")
 @Component("profileBean")
 @Scope("view")
@@ -48,35 +49,37 @@ public class ProfileBean {
 	private UrlIdEncoder idEncoder;
 	@Inject
 	private StudentProfileManager studentProfileManager;
-	@Inject 
-	private MessagingManager messagingManager;
-	@Inject private CredentialProfileOptionsFullToBasicFunction credentialProfileOptionsFullToBasicFunction;
+	@Inject
+	private CredentialProfileOptionsFullToBasicFunction credentialProfileOptionsFullToBasicFunction;
 
+	@Getter @Setter
+	private String customProfileId;
+	@Getter @Setter
+	private String message;
+	@Getter
+	private long studentId;
+
+	@Getter
 	private StudentProfileData studentProfileData;
+	@Getter
 	private List<SelectableData<CredentialIdData>> credentialsToAdd = new ArrayList<>();
 
-	/* parameter that can be provided in the via UI*/
-	private String studentId;
-	private long decodedStudentId;
-	private String message;
-
-	private long ownerOfAProfileUserId;
-
 	private CredentialProfileData credentialToRemove;
+	@Getter
 	private CredentialProfileOptionsData credentialForEdit;
 
 	private CredentialProfileData selectedCredentialProfileData;
 	private CompetenceProfileData selectedCompetenceProfileData;
+	@Getter
 	private LearningResourceType selectedResourceType;
 
 	public void init() {
-		decodedStudentId = idEncoder.decodeId(studentId);
-		ownerOfAProfileUserId = StringUtils.isNotBlank(studentId) ? decodedStudentId : loggedUserBean.getUserId();
-		if (ownerOfAProfileUserId > 0) {
+		if (!StringUtils.isBlank(customProfileId)) {
 		    try {
-                Optional<StudentProfileData> studentProfileDataOpt = studentProfileManager.getStudentProfileData(ownerOfAProfileUserId);
+                Optional<StudentProfileData> studentProfileDataOpt = studentProfileManager.getStudentProfileData(customProfileId);
                 if (studentProfileDataOpt.isPresent()) {
                     studentProfileData = studentProfileDataOpt.get();
+					studentId = studentProfileData.getStudentData().getId();
                 } else {
                     PageUtil.notFound();
                 }
@@ -146,7 +149,7 @@ public class ProfileBean {
 	public void prepareAddingCredentials() {
 		try {
 			credentialsToAdd.clear();
-			List<CredentialIdData> completedCredentialsBasicData = credentialManager.getCompletedCredentialsBasicDataForCredentialsNotAddedToProfile(ownerOfAProfileUserId);
+			List<CredentialIdData> completedCredentialsBasicData = credentialManager.getCompletedCredentialsBasicDataForCredentialsNotAddedToProfile(studentId);
 			completedCredentialsBasicData.forEach(cred -> credentialsToAdd.add(new SelectableData<>(cred)));
 		} catch (DbConnectionException e) {
 			logger.error("error", e);
@@ -163,7 +166,7 @@ public class ProfileBean {
                     .collect(Collectors.toList());
             int numberOfCredentialsToAdd = idsOfTargetCredentialsToAdd.size();
 		    if (numberOfCredentialsToAdd > 0) {
-                studentProfileManager.addCredentialsToProfile(ownerOfAProfileUserId, idsOfTargetCredentialsToAdd);
+                studentProfileManager.addCredentialsToProfile(studentId, idsOfTargetCredentialsToAdd);
                 boolean success = refreshProfile();
                 if (success) {
 					PageUtil.fireSuccessfulInfoMessage((numberOfCredentialsToAdd == 1 ? ResourceBundleUtil.getLabel("credential") : ResourceBundleUtil.getLabel("credential.plural")) + " added");
@@ -180,7 +183,7 @@ public class ProfileBean {
 	private boolean refreshProfile() {
 		//reload credentials
 		try {
-			studentProfileData.setProfileLearningData(studentProfileManager.getProfileLearningData(ownerOfAProfileUserId));
+			studentProfileData.setProfileLearningData(studentProfileManager.getProfileLearningData(studentId));
 			return true;
 		} catch (Exception e) {
 			logger.error("error", e);
@@ -195,7 +198,7 @@ public class ProfileBean {
 
 	public void removeCredentialFromProfile() {
 		try {
-			studentProfileManager.removeCredentialFromProfile(ownerOfAProfileUserId, credentialToRemove.getTargetCredentialId());
+			studentProfileManager.removeCredentialFromProfile(studentId, credentialToRemove.getTargetCredentialId());
 			boolean success = refreshProfile();
 			if (success) {
 				PageUtil.fireSuccessfulInfoMessage(ResourceBundleUtil.getLabel("credential") + " successfully removed from profile");
@@ -251,36 +254,25 @@ public class ProfileBean {
 		}
 	}
 
+	public void updateProfileSettings() {
+		try {
+			if (studentProfileData.getProfileSettings().hasObjectChanged()) {
+				studentProfileManager.updateProfileSettings(studentProfileData.getProfileSettings());
+				studentProfileData.getProfileSettings().startObservingChanges();
+			}
+			PageUtil.fireSuccessfulInfoMessage("Profile settings are updated");
+		} catch (Exception e) {
+			logger.error("Error", e);
+			PageUtil.fireErrorMessage("Error updating profile settings");
+		}
+	}
+
 	/*
 	 * GETTERS / SETTERS
 	 */
 
-	public String getStudentId() {
-		return studentId;
-	}
-
 	public boolean isPersonalProfile() {
-		return ownerOfAProfileUserId == loggedUserBean.getUserId();
-	}
-
-	public String getMessage() {
-		return message;
-	}
-
-	public void setStudentId(String studentId) {
-		this.studentId = studentId;
-	}
-
-	public void setMessage(String message) {
-		this.message = message;
-	}
-
-	public long getDecodedStudentId() {
-		return decodedStudentId;
-	}
-
-	public StudentProfileData getStudentProfileData() {
-		return studentProfileData;
+		return studentId == loggedUserBean.getUserId();
 	}
 
 	public UserData getUserData() {
@@ -291,20 +283,12 @@ public class ProfileBean {
 		return studentProfileData != null ? studentProfileData.getSocialNetworks() : null;
 	}
 
-	public List<SelectableData<CredentialIdData>> getCredentialsToAdd() {
-		return credentialsToAdd;
-	}
-
 	public List<CategorizedCredentialsProfileData> getCredentialProfileData() {
 	    return studentProfileData != null ? studentProfileData.getProfileLearningData().getCredentialProfileData() : null;
     }
 
 	public ProfileSummaryData getProfileSummaryData() {
 		return studentProfileData != null ? studentProfileData.getProfileLearningData().getProfileSummaryData() : null;
-	}
-
-	public CredentialProfileOptionsData getCredentialForEdit() {
-		return credentialForEdit;
 	}
 
 	public String getSelectedResourceTitle() {
@@ -319,10 +303,6 @@ public class ProfileBean {
 		return selectedCompetenceProfileData != null
 				? selectedCompetenceProfileData.getEvidence().getData()
 				: Collections.emptyList();
-	}
-
-	public LearningResourceType getSelectedResourceType() {
-		return selectedResourceType;
 	}
 
 	public List<AssessmentByTypeProfileData> getSelectedResourceAssessmentsByType() {
@@ -341,11 +321,7 @@ public class ProfileBean {
 	    return false;
     }
 
-    public String getFormattedStatsNumber(long number) {
-        return String.format("%02d", number);
-    }
-
 	public long getOwnerOfAProfileUserId() {
-		return ownerOfAProfileUserId;
+		return studentId;
 	}
 }

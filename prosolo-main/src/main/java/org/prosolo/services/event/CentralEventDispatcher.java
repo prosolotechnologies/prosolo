@@ -5,6 +5,8 @@ package org.prosolo.services.event;
 
 import org.apache.log4j.Logger;
 import org.prosolo.common.domainmodel.events.EventType;
+import org.prosolo.common.event.Event;
+import org.prosolo.common.event.EventObserver;
 import org.prosolo.services.activityWall.observer.SocialStreamObserver;
 import org.prosolo.services.interaction.impl.MessagesObserver;
 import org.prosolo.services.logging.LoggingEventsObserver;
@@ -13,7 +15,7 @@ import org.prosolo.services.nodes.observers.complex.IndexingComplexSequentialObs
 import org.prosolo.services.nodes.observers.credential.CredentialLastActionObserver;
 import org.prosolo.services.notifications.NotificationObserver;
 import org.prosolo.services.reporting.TwitterHashtagStatisticsObserver;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.prosolo.services.user.ProfileSettingsObserver;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -34,18 +36,19 @@ public class CentralEventDispatcher {
 	private Set<EventObserver> observers;
 	private EventThreadPoolExecutor tpe = new EventThreadPoolExecutor();
 	
-	@Autowired private SocialStreamObserver socialStreamObserver;
-	@Autowired private NotificationObserver notificationObserver;
-	@Autowired private MessagesObserver messagesObserver;
-	@Autowired private LoggingEventsObserver loggingEventsObserver;
-	@Autowired private TwitterHashtagStatisticsObserver twitterHashtagStatisticsObserver;
+	@Inject private SocialStreamObserver socialStreamObserver;
+	@Inject private NotificationObserver notificationObserver;
+	@Inject private MessagesObserver messagesObserver;
+	@Inject private LoggingEventsObserver loggingEventsObserver;
+	@Inject private TwitterHashtagStatisticsObserver twitterHashtagStatisticsObserver;
 	@Inject private CredentialLastActionObserver credentialLastActionObserver;
 	@Inject private ActivityAssessmentAutogradeObserver autogradeObserver;
 	@Inject private IndexingComplexSequentialObserver indexingComplexObserver;
+	@Inject private ProfileSettingsObserver profileSettingsObserver;
 
 	private Collection<EventObserver> getObservers() {
 		if (observers == null) {
-			observers = new HashSet<EventObserver>();
+			observers = new HashSet<>();
 			observers.add(socialStreamObserver);
 			observers.add(notificationObserver);
 			observers.add(messagesObserver);
@@ -54,6 +57,7 @@ public class CentralEventDispatcher {
 			observers.add(credentialLastActionObserver);
 			observers.add(autogradeObserver);
 			observers.add(indexingComplexObserver);
+			observers.add(profileSettingsObserver);
 		}
 		return observers;
 	}

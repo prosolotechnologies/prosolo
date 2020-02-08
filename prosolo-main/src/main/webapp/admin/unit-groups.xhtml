@@ -12,14 +12,14 @@
     <utilcomp:messagesBundle var="msg" />
 
     <ui:define name="windowTitle" >
-        Student Groups - #{manageGroupsBean.unitTitle} - #{manageGroupsBean.organizationTitle} - ProSolo
+        Learning Groups - #{manageGroupsBean.unitTitle} - #{manageGroupsBean.organizationTitle} - ProSolo
     </ui:define>
 
     <ui:define name="metadata">
         <f:metadata>
             <f:viewParam name="orgId" value="#{manageGroupsBean.orgId}" />
             <f:viewParam name="id" value="#{manageGroupsBean.unitId}" />
-            <f:viewParam name="p" value="#{manageGroupsBean.paginationData.pageString}" default="1" />
+            <f:viewParam name="p" value="#{manageGroupsBean.page}" default="1" />
             <f:viewAction action="#{manageGroupsBean.init()}" />
         </f:metadata>
     </ui:define>
@@ -94,7 +94,7 @@
                     <f:param name="unitId" value="#{param.id}" />
                 </h:link>
             </li>
-            <li class="active">Student Groups</li>
+            <li class="active">Learning Groups</li>
         </ol>
     </div>
 
@@ -124,11 +124,14 @@
                                 </div>
                                 <div class="peopleListRight">
                                     <div class="studentsNum">
-                                        Users: <span>#{group.userCount}</span>
+                                        Students: <span>#{group.userCount}</span>
+                                    </div>
+                                    <div class="studentsNum">
+                                        #{msg['label.instructor.plural']}: <span>#{group.instructorCount}</span>
                                     </div>
                                     <div class="userEditOpt">
                                         <h:link outcome="/admin/unit-group-users">
-                                            Manage Users
+                                            Members
                                             <f:param name="orgId" value="#{param.orgId}" />
                                             <f:param name="unitId" value="#{param.id}" />
                                             <f:param name="id" value="#{util:encodeId(group.id)}" />

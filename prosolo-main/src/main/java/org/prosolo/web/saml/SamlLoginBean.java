@@ -26,7 +26,7 @@ public class SamlLoginBean implements Serializable {
 
 	@PostConstruct
 	public void init() {
-		identityProviders = Settings.getInstance().config.application.registration.samlProviders.samlProviders;
+		identityProviders = Settings.getInstance().config.application.registration.samlConfig.samlProviders;
 
 		if (identityProviders == null) {
 			identityProviders = new ArrayList<>();

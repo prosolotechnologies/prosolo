@@ -33,8 +33,15 @@ public interface SocialActivityManager {
     PostSocialActivity1 updatePost(long postId, String newText,
                                    UserContextData context) throws DbConnectionException;
 
+    Result<PostSocialActivity1> updatePostAndGetEvents(long postId, String newText,
+                                                       UserContextData context) throws DbConnectionException;
+
     Comment1 saveSocialActivityComment(long socialActivityId, CommentData data,
                                        CommentedResourceType resource, UserContextData context) throws DbConnectionException;
+
+    Result<Comment1> saveSocialActivityCommentAndGetEvents(long socialActivityId, CommentData data,
+                                                   CommentedResourceType resource, UserContextData context)
+            throws DbConnectionException;
 
     void updateSocialActivityComment(long id, CommentData data, UserContextData context)
             throws DbConnectionException;
@@ -42,11 +49,20 @@ public interface SocialActivityManager {
     void likeSocialActivity(long socialActivityId, UserContextData context)
             throws DbConnectionException;
 
+    Result<Void> likeSocialActivityAndGetEvents(long socialActivityId, UserContextData context)
+            throws DbConnectionException;
+
     void unlikeSocialActivity(long socialActivityId, UserContextData context)
+            throws DbConnectionException;
+
+    Result<Void> unlikeSocialActivityAndGetEvents(long socialActivityId, UserContextData context)
             throws DbConnectionException;
 
     PostReshareSocialActivity sharePost(String text, long originalPostId,
                                         UserContextData context) throws DbConnectionException;
+
+    Result<PostReshareSocialActivity> sharePostAndGetEvents(String text, long originalPostId, UserContextData context)
+            throws DbConnectionException;
 
     Optional<SocialActivityData1> getSocialActivityById(long socialActivityId, long userId, Locale locale)
             throws DbConnectionException;
@@ -57,4 +73,11 @@ public interface SocialActivityManager {
 
     void deleteUnitWelcomePostSocialActivityIfExists(long unitId, Session session) throws DbConnectionException;
 
+    /**
+     * Returns an id of the social activity actor.
+     *
+     * @param socialActivityId id of the social activity
+     * @return
+     */
+    long getSocialActivityActorId(long socialActivityId);
 }

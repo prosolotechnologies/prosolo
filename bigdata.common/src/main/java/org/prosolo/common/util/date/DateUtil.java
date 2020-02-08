@@ -447,6 +447,16 @@ public class DateUtil {
 	public static long getMillisFromDate(Date date) {
 		return date != null ? date.getTime() : -1;
 	}
+
+	public static Date getNDaysBeforeNow(int n) {
+		Instant now = Instant.now();
+		return Date.from(now.minus(Duration.ofDays(n)));
+	}
+
+	public static Date getNDaysFromNow(int n) {
+		Instant now = Instant.now();
+		return Date.from(now.plus(Duration.ofDays(n)));
+	}
 	
 	public static void main(String[] args) {
 		Calendar cal = new GregorianCalendar();
@@ -488,5 +498,7 @@ public class DateUtil {
 		System.out.println("INSTANT NOW: " + Instant.now());
 
 		System.out.println("NOW AT ZONE: " + LocalDateTime.now().atZone(TimeZone.getTimeZone("UTC").toZoneId()));
+
+		System.out.println(getNDaysBeforeNow(30));
 	}
 }

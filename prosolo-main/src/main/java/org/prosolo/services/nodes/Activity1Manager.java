@@ -11,9 +11,11 @@ import org.prosolo.services.nodes.data.ActivityResultType;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.assessment.data.ActivityAssessmentsSummaryData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 public interface Activity1Manager extends AbstractManager {
 
@@ -37,6 +39,8 @@ public interface Activity1Manager extends AbstractManager {
 	 * @throws IllegalDataStateException
 	 */
 	Activity1 deleteActivity(long activityId, UserContextData context) throws DbConnectionException, IllegalDataStateException;
+
+	Result<Activity1> deleteActivityAndGetEvents(long activityId, UserContextData context) throws DbConnectionException, IllegalDataStateException;
 
 	List<ActivityData> getCompetenceActivitiesData(long competenceId) throws DbConnectionException;
 
@@ -76,6 +80,9 @@ public interface Activity1Manager extends AbstractManager {
 	 */
 	Activity1 updateActivity(ActivityData data, UserContextData context) throws DbConnectionException, StaleDataException, IllegalDataStateException;
 
+	Result<Activity1> updateActivityAndGetEvents(ActivityData data, UserContextData context)
+			throws DbConnectionException, StaleDataException, IllegalDataStateException;
+
 	/**
 	 * Updates activity.
 	 *
@@ -105,7 +112,13 @@ public interface Activity1Manager extends AbstractManager {
 	void saveResponse(long targetActId, String path, Date postDate, ActivityResultType resType,
 					  UserContextData context) throws DbConnectionException;
 
+	Result<Void> saveResponseAndGetEvents(long targetActId, String path, Date postDate,
+										  ActivityResultType resType, UserContextData context) throws DbConnectionException;
+
 	void updateTextResponse(long targetActId, String path, UserContextData context)
+			throws DbConnectionException;
+
+	Result<Void> updateTextResponseAndGetEvents(long targetActId, String path, UserContextData context)
 			throws DbConnectionException;
 
 	/**
@@ -128,7 +141,19 @@ public interface Activity1Manager extends AbstractManager {
 														long actId, long userId, boolean isManager)
 			throws DbConnectionException, ResourceNotFoundException, IllegalArgumentException;
 
+	/**
+	 * Returns an id of the user who is the owner of the target activity.
+	 *
+	 * @param targetActivityId target activity id
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	long getTargetActivityOwnerId(long targetActivityId) throws DbConnectionException;
+
 	void deleteAssignment(long targetActivityId, UserContextData context)
+			throws DbConnectionException;
+
+	Result<Void> deleteAssignmentAndGetEvents(long targetActivityId, UserContextData context)
 			throws DbConnectionException;
 
 	Long getCompetenceIdForActivity(long actId) throws DbConnectionException;
@@ -255,5 +280,24 @@ public interface Activity1Manager extends AbstractManager {
 	void updateActivityCreator(long newCreatorId, long oldCreatorId) throws DbConnectionException;
 
 	List<Long> getIdsOfCredentialsWithActivity(long actId, CredentialType type) throws DbConnectionException;
+
+	/**
+	 * Checks if the activity is a part of the competence, and in the competence is a part of the credential. If not, throws {@link ResourceNotFoundException}.
+	 *
+	 * @param credId id of the credential
+	 * @param compId id of the competence
+	 * @param actId id of the activity
+	 * @throws ResourceNotFoundException
+	 */
+	void checkIfActivityAndCompetenceArePartOfCredential(long credId, long compId, long actId) throws ResourceNotFoundException;
+
+	/**
+	 * Checks if the activity is a part of the credential. If not, the method throws {@link ResourceNotFoundException}.
+	 *
+	 * @param credId credential id
+	 * @param actId activity id
+	 * @throws ResourceNotFoundException
+	 */
+	void checkIfActivityIsPartOfACredential(long credId, long actId) throws ResourceNotFoundException;
 
 }

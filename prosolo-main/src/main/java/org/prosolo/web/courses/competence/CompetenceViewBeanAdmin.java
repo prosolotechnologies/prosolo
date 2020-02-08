@@ -1,12 +1,15 @@
 package org.prosolo.web.courses.competence;
 
+import lombok.Getter;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
+import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.UnitManager;
-import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.TitleData;
+import org.prosolo.services.nodes.data.competence.CompetenceData1;
+import org.prosolo.services.nodes.data.organization.EvidenceRepositoryPluginData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.PageAccessRightsResolver;
@@ -33,6 +36,7 @@ public class CompetenceViewBeanAdmin implements Serializable {
 	@Inject private UrlIdEncoder idEncoder;
 	@Inject private UnitManager unitManager;
 	@Inject private PageAccessRightsResolver pageAccessRightsResolver;
+	@Inject private OrganizationManager organizationManager;
 
 	private String orgId;
 	private long decodedOrgId;
@@ -50,32 +54,30 @@ public class CompetenceViewBeanAdmin implements Serializable {
 
 	private String credentialTitle;
 
+	@Getter
+	private EvidenceRepositoryPluginData evidenceRepositoryPluginData;
+
 	public void init() {
 		decodedOrgId = idEncoder.decodeId(orgId);
 		decodedUnitId = idEncoder.decodeId(unitId);
 		decodedCompId = idEncoder.decodeId(compId);
+		decodedCredId = idEncoder.decodeId(credId);
 
 		if (pageAccessRightsResolver.getAccessRightsForOrganizationPage(decodedOrgId).isCanAccess()) {
-			if (decodedOrgId > 0 && decodedUnitId > 0 && decodedCompId > 0) {
-				if (credId != null) {
-					decodedCredId = idEncoder.decodeId(credId);
-				}
+			if (decodedOrgId > 0 && decodedUnitId > 0 && decodedCompId > 0 && decodedCredId > 0) {
 				try {
+					// check if credential and competency are connected
+					competenceManager.checkIfCompetenceIsPartOfACredential(decodedCredId, decodedCompId);
+
 					TitleData td = unitManager.getOrganizationAndUnitTitle(decodedOrgId, decodedUnitId);
-				/*
-				if credential id is passed we check if credential is connected to unit because if admin
-				comes to this page from credential page he should always see competency details - not found
-				page would be confusing for him.
-				 */
-					boolean connectedToUnit = decodedCredId > 0
-							? unitManager.isCredentialConnectedToUnit(decodedCredId, decodedUnitId)
-							: unitManager.isCompetenceConnectedToUnit(decodedCompId, decodedUnitId);
+
+					boolean connectedToUnit = unitManager.isCredentialConnectedToUnit(decodedCredId, decodedUnitId);
+
 					if (td != null && connectedToUnit) {
 						organizationTitle = td.getOrganizationTitle();
 						unitTitle = td.getUnitTitle();
 
-						competenceData = competenceManager.getCompetenceData(
-								decodedCredId, decodedCompId, true, false, true, true,
+						competenceData = competenceManager.getCompetenceData(decodedCompId, true, false, true, true,
 								false);
 
 						if (decodedCredId > 0) {
@@ -85,6 +87,9 @@ public class CompetenceViewBeanAdmin implements Serializable {
 					} else {
 						PageUtil.notFound();
 					}
+
+					// load evidence repository plugin data
+					evidenceRepositoryPluginData = organizationManager.getOrganizationEvidenceRepositoryPluginData(loggedUser.getOrganizationId());
 				} catch (ResourceNotFoundException rnfe) {
 					PageUtil.notFound();
 				} catch (Exception e) {

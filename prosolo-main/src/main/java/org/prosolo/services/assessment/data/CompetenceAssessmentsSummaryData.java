@@ -22,7 +22,7 @@ public class CompetenceAssessmentsSummaryData implements Serializable {
     private long numberOfNotifications;
     private boolean gradingEnabled;
     private List<ActivityAssessmentsSummaryData> activitiesAssessmentSummaryData;
-    private PaginatedResult<CompetenceAssessmentData> assessments;
+    private PaginatedResult<CompetenceAssessmentDataFull> assessments;
 
     public CompetenceAssessmentsSummaryData() {
         this.activitiesAssessmentSummaryData = new ArrayList<>();
@@ -88,11 +88,11 @@ public class CompetenceAssessmentsSummaryData implements Serializable {
         return gradingEnabled;
     }
 
-    public PaginatedResult<CompetenceAssessmentData> getAssessments() {
+    public PaginatedResult<CompetenceAssessmentDataFull> getAssessments() {
         return assessments;
     }
 
-    public void setAssessments(PaginatedResult<CompetenceAssessmentData> assessments) {
+    public void setAssessments(PaginatedResult<CompetenceAssessmentDataFull> assessments) {
         this.assessments = assessments;
     }
 }

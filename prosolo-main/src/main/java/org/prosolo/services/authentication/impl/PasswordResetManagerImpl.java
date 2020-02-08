@@ -55,33 +55,36 @@ public class PasswordResetManagerImpl extends AbstractManagerImpl implements Pas
 
 		// first invalidate all other user's request key
 		invalidateUserRequestKeys(user,session);
-
+		logger.debug("Previous user's request keys invalidated");
 		ResetKey key = new ResetKey();
 		key.setUser(user);
 		key.setDateCreated(new Date());
 		key.setUid(UUID.randomUUID().toString().replace("-", ""));
 		saveEntity(key,session);
+		logger.debug("User's request key saved");
 
 		try {
 			String resetAddress = serverAddress + "/" + key.getUid();
 			PasswordResetEmailContentGenerator contentGenerator = new PasswordResetEmailContentGenerator(user.getName(), resetAddress);
 			emailSender.sendEmail(contentGenerator,  email);
+			logger.debug("Password reset email sent");
 			return true;
 		} catch (AddressException e) {
-			logger.error(e);
+			logger.error("error", e);
 		} catch (MessagingException e) {
-			logger.error(e);
+			logger.error("error", e);
 		} catch (UnsupportedEncodingException e) {
-			logger.error(e);
+			logger.error("error", e);
 		} catch (FileNotFoundException e) {
-			logger.error(e);
+			logger.error("error", e);
 		} catch (IOException e) {
-			logger.error(e);
+			logger.error("error", e);
 		}
 		return false;
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public boolean checkIfResetKeyIsValid(String resetKey) throws ResetKeyDoesNotExistException, ResetKeyInvalidatedException, ResetKeyExpiredException {
 		ResetKey result = getResetKey(resetKey);
 		
@@ -109,7 +112,7 @@ public class PasswordResetManagerImpl extends AbstractManagerImpl implements Pas
 		return key.getUser();
 	}
 
-	public ResetKey getResetKey(String resetKey) {
+	private ResetKey getResetKey(String resetKey) {
 		Session session = persistence.currentManager();
 		
 		String query = 
@@ -146,6 +149,7 @@ public class PasswordResetManagerImpl extends AbstractManagerImpl implements Pas
 	}
 	
 	@Override
+	@Transactional
 	public void invalidateResetKey(String resetKey) {
 		ResetKey resetK = getResetKey(resetKey);
 		

@@ -25,6 +25,7 @@ import org.prosolo.search.util.credential.CompetenceLibrarySearchFilter;
 import org.prosolo.search.util.credential.CompetenceSearchConfig;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.Competence1Manager;
+import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.factory.CompetenceDataFactory;
@@ -56,6 +57,7 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 	@Inject private Competence1Manager compManager;
 	@Inject private CompetenceDataFactory compFactory;
 	@Inject private OrganizationManager orgManager;
+	@Inject private CredentialManager credentialManager;
 	
 	@Override
 	public PaginatedResult<CompetenceData1> searchCompetencesForAddingToCredential(long organizationId, long userId,
@@ -147,7 +149,7 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 						/*
 						 * access rights are already checked when querying ES, so we don't need to do that again
 						 */
-						CompetenceData1 res = compManager.getCompetenceData(0, id, false, false, false, false, false);
+						CompetenceData1 res = compManager.getCompetenceData(id, false, false, false, false, false);
 						
 						if (res != null) {
 							response.addFoundNode(res);
@@ -381,6 +383,10 @@ public class CompetenceTextSearchImpl extends AbstractManagerImpl implements Com
 						if (lStageId > 0) {
 							cd.setLearningStage(orgManager.getLearningStageData(lStageId));
 						}
+						//TODO hack - get id of a first 'original' credential where this competency is used and
+						//user has 'Edit' privilege for so we can have relation to credential which is necessary.
+						cd.setCredentialId(credentialManager
+								.getIdOfFirstCredentialCompetenceIsAddedToAndUserHasEditPrivilegeFor(id, userId));
 
 						response.addFoundNode(cd);
 					}

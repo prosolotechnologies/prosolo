@@ -3,25 +3,24 @@ package org.prosolo.app.bc.test;
 import org.apache.log4j.Logger;
 import org.prosolo.app.bc.BaseBusinessCase5;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
-import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
 import org.prosolo.common.domainmodel.credential.BlindAssessmentMode;
 import org.prosolo.common.domainmodel.credential.LearningEvidenceType;
 import org.prosolo.common.domainmodel.credential.TargetCompetence1;
+import org.prosolo.common.event.EventQueue;
+import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.core.spring.ServiceLocator;
 import org.prosolo.services.assessment.AssessmentManager;
 import org.prosolo.services.assessment.data.AssessmentDataFull;
 import org.prosolo.services.assessment.data.CompetenceAssessmentData;
-import org.prosolo.services.event.EventQueue;
+import org.prosolo.services.assessment.data.CompetenceAssessmentDataFull;
+import org.prosolo.services.interaction.FollowResourceManager;
 import org.prosolo.services.nodes.Competence1Manager;
-import org.prosolo.services.nodes.CredentialInstructorManager;
-import org.prosolo.services.nodes.CredentialManager;
 import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.config.competence.CompetenceLoadConfig;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceData;
 import org.prosolo.services.nodes.data.organization.CredentialCategoryData;
 
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -63,36 +62,36 @@ public class BusinessCase_Test_2_3 extends BaseBusinessCase5 {
         ////////////////////////////
         //enroll steven turner
         List<CompetenceData1> credential1Delivery1CompetencesSteven = compManager.getCompetencesForCredential(credential1Delivery1.getId(), userStevenTurner.getId(), new CompetenceLoadConfig.CompetenceLoadConfigBuilder().create());
-        enrollToCompetencies(events, credential1Delivery1CompetencesSteven, userStevenTurner);
+        enrollToCompetencies(events, credential1Delivery1.getId(), credential1Delivery1CompetencesSteven, userStevenTurner);
 
         //enroll helen campbell
         List<CompetenceData1> credential1Delivery1CompetencesHelen = compManager.getCompetencesForCredential(credential1Delivery1.getId(), userHelenCampbell.getId(), new CompetenceLoadConfig.CompetenceLoadConfigBuilder().create());
-        enrollToCompetencies(events, credential1Delivery1CompetencesHelen, userHelenCampbell);
+        enrollToCompetencies(events, credential1Delivery1.getId(), credential1Delivery1CompetencesHelen, userHelenCampbell);
         //enroll kevin hall
         List<CompetenceData1> credential1Delivery1Competences = compManager.getCompetencesForCredential(credential1Delivery1.getId(), userKevinHall.getId(), new CompetenceLoadConfig.CompetenceLoadConfigBuilder().create());
-        TargetCompetence1 credential1Delivery1Comp1Target = extractResultAndAddEvents(events, compManager.enrollInCompetenceAndGetEvents(credential1Delivery1Competences.get(0).getCompetenceId(), userKevinHall.getId(), createUserContext(userKevinHall)));
-        TargetCompetence1 credential1Delivery1Comp2Target = extractResultAndAddEvents(events, compManager.enrollInCompetenceAndGetEvents(credential1Delivery1Competences.get(1).getCompetenceId(), userKevinHall.getId(), createUserContext(userKevinHall)));
-        TargetCompetence1 credential1Delivery1Comp3Target = extractResultAndAddEvents(events, compManager.enrollInCompetenceAndGetEvents(credential1Delivery1Competences.get(2).getCompetenceId(), userKevinHall.getId(), createUserContext(userKevinHall)));
-        TargetCompetence1 credential1Delivery1Comp4Target = extractResultAndAddEvents(events, compManager.enrollInCompetenceAndGetEvents(credential1Delivery1Competences.get(3).getCompetenceId(), userKevinHall.getId(), createUserContext(userKevinHall)));
-        TargetCompetence1 credential1Delivery1Comp5Target = extractResultAndAddEvents(events, compManager.enrollInCompetenceAndGetEvents(credential1Delivery1Competences.get(4).getCompetenceId(), userKevinHall.getId(), createUserContext(userKevinHall)));
-        TargetCompetence1 credential1Delivery1Comp6Target = extractResultAndAddEvents(events, compManager.enrollInCompetenceAndGetEvents(credential1Delivery1Competences.get(5).getCompetenceId(), userKevinHall.getId(), createUserContext(userKevinHall)));
+        TargetCompetence1 credential1Delivery1Comp1Target = extractResultAndAddEvents(events, compManager.enrollInCompetenceAndGetEvents(credential1Delivery1.getId(), credential1Delivery1Competences.get(0).getCompetenceId(), userKevinHall.getId(), createUserContext(userKevinHall)));
+        TargetCompetence1 credential1Delivery1Comp2Target = extractResultAndAddEvents(events, compManager.enrollInCompetenceAndGetEvents(credential1Delivery1.getId(), credential1Delivery1Competences.get(1).getCompetenceId(), userKevinHall.getId(), createUserContext(userKevinHall)));
+        TargetCompetence1 credential1Delivery1Comp3Target = extractResultAndAddEvents(events, compManager.enrollInCompetenceAndGetEvents(credential1Delivery1.getId(), credential1Delivery1Competences.get(2).getCompetenceId(), userKevinHall.getId(), createUserContext(userKevinHall)));
+        TargetCompetence1 credential1Delivery1Comp4Target = extractResultAndAddEvents(events, compManager.enrollInCompetenceAndGetEvents(credential1Delivery1.getId(), credential1Delivery1Competences.get(3).getCompetenceId(), userKevinHall.getId(), createUserContext(userKevinHall)));
+        TargetCompetence1 credential1Delivery1Comp5Target = extractResultAndAddEvents(events, compManager.enrollInCompetenceAndGetEvents(credential1Delivery1.getId(), credential1Delivery1Competences.get(4).getCompetenceId(), userKevinHall.getId(), createUserContext(userKevinHall)));
+        TargetCompetence1 credential1Delivery1Comp6Target = extractResultAndAddEvents(events, compManager.enrollInCompetenceAndGetEvents(credential1Delivery1.getId(), credential1Delivery1Competences.get(5).getCompetenceId(), userKevinHall.getId(), createUserContext(userKevinHall)));
 
         List<CompetenceData1> credential2Delivery1Competences = compManager.getCompetencesForCredential(credential2Delivery1.getId(), userKevinHall.getId(), new CompetenceLoadConfig.CompetenceLoadConfigBuilder().create());
-        TargetCompetence1 credential2Delivery1Comp1Target = extractResultAndAddEvents(events, compManager.enrollInCompetenceAndGetEvents(credential2Delivery1Competences.get(0).getCompetenceId(), userKevinHall.getId(), createUserContext(userKevinHall)));
-        TargetCompetence1 credential2Delivery1Comp2Target = extractResultAndAddEvents(events, compManager.enrollInCompetenceAndGetEvents(credential2Delivery1Competences.get(1).getCompetenceId(), userKevinHall.getId(), createUserContext(userKevinHall)));
-        TargetCompetence1 credential2Delivery1Comp3Target = extractResultAndAddEvents(events, compManager.enrollInCompetenceAndGetEvents(credential2Delivery1Competences.get(2).getCompetenceId(), userKevinHall.getId(), createUserContext(userKevinHall)));
-        TargetCompetence1 credential2Delivery1Comp4Target = extractResultAndAddEvents(events, compManager.enrollInCompetenceAndGetEvents(credential2Delivery1Competences.get(3).getCompetenceId(), userKevinHall.getId(), createUserContext(userKevinHall)));
-        TargetCompetence1 credential2Delivery1Comp5Target = extractResultAndAddEvents(events, compManager.enrollInCompetenceAndGetEvents(credential2Delivery1Competences.get(4).getCompetenceId(), userKevinHall.getId(), createUserContext(userKevinHall)));
-        TargetCompetence1 credential2Delivery1Comp6Target = extractResultAndAddEvents(events, compManager.enrollInCompetenceAndGetEvents(credential2Delivery1Competences.get(5).getCompetenceId(), userKevinHall.getId(), createUserContext(userKevinHall)));
+        TargetCompetence1 credential2Delivery1Comp1Target = extractResultAndAddEvents(events, compManager.enrollInCompetenceAndGetEvents(credential2Delivery1.getId(), credential2Delivery1Competences.get(0).getCompetenceId(), userKevinHall.getId(), createUserContext(userKevinHall)));
+        TargetCompetence1 credential2Delivery1Comp2Target = extractResultAndAddEvents(events, compManager.enrollInCompetenceAndGetEvents(credential2Delivery1.getId(), credential2Delivery1Competences.get(1).getCompetenceId(), userKevinHall.getId(), createUserContext(userKevinHall)));
+        TargetCompetence1 credential2Delivery1Comp3Target = extractResultAndAddEvents(events, compManager.enrollInCompetenceAndGetEvents(credential2Delivery1.getId(), credential2Delivery1Competences.get(2).getCompetenceId(), userKevinHall.getId(), createUserContext(userKevinHall)));
+        TargetCompetence1 credential2Delivery1Comp4Target = extractResultAndAddEvents(events, compManager.enrollInCompetenceAndGetEvents(credential2Delivery1.getId(), credential2Delivery1Competences.get(3).getCompetenceId(), userKevinHall.getId(), createUserContext(userKevinHall)));
+        TargetCompetence1 credential2Delivery1Comp5Target = extractResultAndAddEvents(events, compManager.enrollInCompetenceAndGetEvents(credential2Delivery1.getId(), credential2Delivery1Competences.get(4).getCompetenceId(), userKevinHall.getId(), createUserContext(userKevinHall)));
+        TargetCompetence1 credential2Delivery1Comp6Target = extractResultAndAddEvents(events, compManager.enrollInCompetenceAndGetEvents(credential2Delivery1.getId(), credential2Delivery1Competences.get(5).getCompetenceId(), userKevinHall.getId(), createUserContext(userKevinHall)));
 
         List<CompetenceData1> credential3Delivery1Competences = compManager.getCompetencesForCredential(credential3Delivery1.getId(), userKevinHall.getId(), new CompetenceLoadConfig.CompetenceLoadConfigBuilder().create());
-        TargetCompetence1 credential3Delivery1Comp1Target = extractResultAndAddEvents(events, compManager.enrollInCompetenceAndGetEvents(credential3Delivery1Competences.get(0).getCompetenceId(), userKevinHall.getId(), createUserContext(userKevinHall)));
-        TargetCompetence1 credential3Delivery1Comp2Target = extractResultAndAddEvents(events, compManager.enrollInCompetenceAndGetEvents(credential3Delivery1Competences.get(1).getCompetenceId(), userKevinHall.getId(), createUserContext(userKevinHall)));
-        TargetCompetence1 credential3Delivery1Comp3Target = extractResultAndAddEvents(events, compManager.enrollInCompetenceAndGetEvents(credential3Delivery1Competences.get(2).getCompetenceId(), userKevinHall.getId(), createUserContext(userKevinHall)));
-        TargetCompetence1 credential3Delivery1Comp4Target = extractResultAndAddEvents(events, compManager.enrollInCompetenceAndGetEvents(credential3Delivery1Competences.get(3).getCompetenceId(), userKevinHall.getId(), createUserContext(userKevinHall)));
-        TargetCompetence1 credential3Delivery1Comp5Target = extractResultAndAddEvents(events, compManager.enrollInCompetenceAndGetEvents(credential3Delivery1Competences.get(4).getCompetenceId(), userKevinHall.getId(), createUserContext(userKevinHall)));
-        TargetCompetence1 credential3Delivery1Comp6Target = extractResultAndAddEvents(events, compManager.enrollInCompetenceAndGetEvents(credential3Delivery1Competences.get(5).getCompetenceId(), userKevinHall.getId(), createUserContext(userKevinHall)));
-        TargetCompetence1 credential3Delivery1Comp7Target = extractResultAndAddEvents(events, compManager.enrollInCompetenceAndGetEvents(credential3Delivery1Competences.get(6).getCompetenceId(), userKevinHall.getId(), createUserContext(userKevinHall)));
+        TargetCompetence1 credential3Delivery1Comp1Target = extractResultAndAddEvents(events, compManager.enrollInCompetenceAndGetEvents(credential3Delivery1.getId(), credential3Delivery1Competences.get(0).getCompetenceId(), userKevinHall.getId(), createUserContext(userKevinHall)));
+        TargetCompetence1 credential3Delivery1Comp2Target = extractResultAndAddEvents(events, compManager.enrollInCompetenceAndGetEvents(credential3Delivery1.getId(), credential3Delivery1Competences.get(1).getCompetenceId(), userKevinHall.getId(), createUserContext(userKevinHall)));
+        TargetCompetence1 credential3Delivery1Comp3Target = extractResultAndAddEvents(events, compManager.enrollInCompetenceAndGetEvents(credential3Delivery1.getId(), credential3Delivery1Competences.get(2).getCompetenceId(), userKevinHall.getId(), createUserContext(userKevinHall)));
+        TargetCompetence1 credential3Delivery1Comp4Target = extractResultAndAddEvents(events, compManager.enrollInCompetenceAndGetEvents(credential3Delivery1.getId(), credential3Delivery1Competences.get(3).getCompetenceId(), userKevinHall.getId(), createUserContext(userKevinHall)));
+        TargetCompetence1 credential3Delivery1Comp5Target = extractResultAndAddEvents(events, compManager.enrollInCompetenceAndGetEvents(credential3Delivery1.getId(), credential3Delivery1Competences.get(4).getCompetenceId(), userKevinHall.getId(), createUserContext(userKevinHall)));
+        TargetCompetence1 credential3Delivery1Comp6Target = extractResultAndAddEvents(events, compManager.enrollInCompetenceAndGetEvents(credential3Delivery1.getId(), credential3Delivery1Competences.get(5).getCompetenceId(), userKevinHall.getId(), createUserContext(userKevinHall)));
+        TargetCompetence1 credential3Delivery1Comp7Target = extractResultAndAddEvents(events, compManager.enrollInCompetenceAndGetEvents(credential3Delivery1.getId(), credential3Delivery1Competences.get(6).getCompetenceId(), userKevinHall.getId(), createUserContext(userKevinHall)));
 
         ///////////////////////////
         // add evidence to competencies
@@ -240,106 +239,125 @@ public class BusinessCase_Test_2_3 extends BaseBusinessCase5 {
         //////////////////////////////////////
         // complete competencies
         //////////////////////////////////////
-        markCompetenciesAsCompleted(
-                events,
-                List.of(
-                        credential1Delivery1Comp1Target.getId(),
-                        credential1Delivery1Comp2Target.getId(),
-                        credential1Delivery1Comp3Target.getId(),
-                        credential1Delivery1Comp4Target.getId(),
-                        credential1Delivery1Comp5Target.getId(),
-                        credential1Delivery1Comp6Target.getId(),
-                        credential2Delivery1Comp1Target.getId(),
-                        credential2Delivery1Comp2Target.getId(),
-                        credential2Delivery1Comp3Target.getId(),
-                        credential2Delivery1Comp4Target.getId(),
-                        credential2Delivery1Comp5Target.getId(),
-                        credential2Delivery1Comp6Target.getId(),
-                        credential3Delivery1Comp1Target.getId(),
-                        credential3Delivery1Comp2Target.getId(),
-                        credential3Delivery1Comp3Target.getId(),
-                        credential3Delivery1Comp4Target.getId(),
-                        credential3Delivery1Comp5Target.getId(),
-                        credential3Delivery1Comp6Target.getId(),
-                        credential3Delivery1Comp7Target.getId()
-                ),
-                userKevinHall);
+        markCompetencyAsCompleted(events, credential1Delivery1Comp1Target.getId(), credential1Delivery1Competences.get(0).getCompetenceId(), credential1Delivery1.getId(), userKevinHall);
+        markCompetencyAsCompleted(events, credential1Delivery1Comp2Target.getId(), credential1Delivery1Competences.get(1).getCompetenceId(), credential1Delivery1.getId(), userKevinHall);
+        markCompetencyAsCompleted(events, credential1Delivery1Comp3Target.getId(), credential1Delivery1Competences.get(2).getCompetenceId(), credential1Delivery1.getId(), userKevinHall);
+        markCompetencyAsCompleted(events, credential1Delivery1Comp4Target.getId(), credential1Delivery1Competences.get(3).getCompetenceId(), credential1Delivery1.getId(), userKevinHall);
+        markCompetencyAsCompleted(events, credential1Delivery1Comp5Target.getId(), credential1Delivery1Competences.get(4).getCompetenceId(), credential1Delivery1.getId(), userKevinHall);
+        markCompetencyAsCompleted(events, credential1Delivery1Comp6Target.getId(), credential1Delivery1Competences.get(5).getCompetenceId(), credential1Delivery1.getId(), userKevinHall);
+
+        markCompetencyAsCompleted(events, credential2Delivery1Comp1Target.getId(), credential2Delivery1Competences.get(0).getCompetenceId(), credential2Delivery1.getId(), userKevinHall);
+        markCompetencyAsCompleted(events, credential2Delivery1Comp2Target.getId(), credential2Delivery1Competences.get(1).getCompetenceId(), credential2Delivery1.getId(), userKevinHall);
+        markCompetencyAsCompleted(events, credential2Delivery1Comp3Target.getId(), credential2Delivery1Competences.get(2).getCompetenceId(), credential2Delivery1.getId(), userKevinHall);
+        markCompetencyAsCompleted(events, credential2Delivery1Comp4Target.getId(), credential2Delivery1Competences.get(3).getCompetenceId(), credential2Delivery1.getId(), userKevinHall);
+        markCompetencyAsCompleted(events, credential2Delivery1Comp5Target.getId(), credential2Delivery1Competences.get(4).getCompetenceId(), credential2Delivery1.getId(), userKevinHall);
+        markCompetencyAsCompleted(events, credential2Delivery1Comp6Target.getId(), credential2Delivery1Competences.get(5).getCompetenceId(), credential2Delivery1.getId(), userKevinHall);
+
+        markCompetencyAsCompleted(events, credential3Delivery1Comp1Target.getId(), credential3Delivery1Competences.get(0).getCompetenceId(), credential3Delivery1.getId(), userKevinHall);
+        markCompetencyAsCompleted(events, credential3Delivery1Comp2Target.getId(), credential3Delivery1Competences.get(1).getCompetenceId(), credential3Delivery1.getId(), userKevinHall);
+        markCompetencyAsCompleted(events, credential3Delivery1Comp3Target.getId(), credential3Delivery1Competences.get(2).getCompetenceId(), credential3Delivery1.getId(), userKevinHall);
+        markCompetencyAsCompleted(events, credential3Delivery1Comp4Target.getId(), credential3Delivery1Competences.get(3).getCompetenceId(), credential3Delivery1.getId(), userKevinHall);
+        markCompetencyAsCompleted(events, credential3Delivery1Comp5Target.getId(), credential3Delivery1Competences.get(4).getCompetenceId(), credential3Delivery1.getId(), userKevinHall);
+        markCompetencyAsCompleted(events, credential3Delivery1Comp6Target.getId(), credential3Delivery1Competences.get(5).getCompetenceId(), credential3Delivery1.getId(), userKevinHall);
+        markCompetencyAsCompleted(events, credential3Delivery1Comp7Target.getId(), credential3Delivery1Competences.get(6).getCompetenceId(), credential3Delivery1.getId(), userKevinHall);
 
         ////////////////////////////////
         // ask for competence assessment
         ////////////////////////////////
-        CompetenceAssessment peerComp2AssessmentByHelen = askPeerForCompetenceAssessment(events, credential1Delivery1Comp2Target.getCompetence().getId(), userKevinHall, userHelenCampbell.getId());
+        CompetenceAssessmentData peerComp2AssessmentByHelen = askPeerForCompetenceAssessment(events, credential1Delivery1.getId(), credential1Delivery1Comp2Target.getCompetence().getId(), userKevinHall, userHelenCampbell.getId(), 0);
         updateCompetenceBlindAssessmentMode(events, credential1Delivery1Comp2Target.getCompetence().getId(), BlindAssessmentMode.BLIND, userNickPowell);
-        CompetenceAssessment peerComp2AssessmentByRichard = askPeerForCompetenceAssessment(events, credential1Delivery1Comp2Target.getCompetence().getId(), userKevinHall, userRichardAnderson.getId());
+        //accept assessment request
+        extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(AssessmentManager.class).acceptCompetenceAssessmentRequestAndGetEvents(
+                peerComp2AssessmentByHelen.getAssessmentId(),
+                UserContextData.ofActor(userHelenCampbell.getId())));
+        CompetenceAssessmentData peerComp2AssessmentByRichard = askPeerForCompetenceAssessment(events, credential1Delivery1.getId(), credential1Delivery1Comp2Target.getCompetence().getId(), userKevinHall, userRichardAnderson.getId(), 0);
         updateCompetenceBlindAssessmentMode(events, credential1Delivery1Comp2Target.getCompetence().getId(), BlindAssessmentMode.OFF, userNickPowell);
+        //accept assessment request
+        extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(AssessmentManager.class).acceptCompetenceAssessmentRequestAndGetEvents(
+                peerComp2AssessmentByRichard.getAssessmentId(),
+                UserContextData.ofActor(userRichardAnderson.getId())));
 
-        CompetenceAssessment peerComp4AssessmentByRichard = askPeerForCompetenceAssessment(events, credential1Delivery1Comp4Target.getCompetence().getId(), userKevinHall, userRichardAnderson.getId());
-        CompetenceAssessment peerComp4AssessmentBySteven = askPeerForCompetenceAssessment(events, credential1Delivery1Comp4Target.getCompetence().getId(), userKevinHall, userStevenTurner.getId());
+        CompetenceAssessmentData peerComp4AssessmentByRichard = askPeerForCompetenceAssessment(events, credential1Delivery1.getId(), credential1Delivery1Comp4Target.getCompetence().getId(), userKevinHall, userRichardAnderson.getId(), 0);
+        //accept assessment request
+        extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(AssessmentManager.class).acceptCompetenceAssessmentRequestAndGetEvents(
+                peerComp4AssessmentByRichard.getAssessmentId(),
+                UserContextData.ofActor(userRichardAnderson.getId())));
+        CompetenceAssessmentData peerComp4AssessmentBySteven = askPeerForCompetenceAssessment(events, credential1Delivery1.getId(), credential1Delivery1Comp4Target.getCompetence().getId(), userKevinHall, userStevenTurner.getId(), 0);
         updateCompetenceBlindAssessmentMode(events, credential1Delivery1Comp4Target.getCompetence().getId(), BlindAssessmentMode.DOUBLE_BLIND, userNickPowell);
-        CompetenceAssessment peerComp4AssessmentByHelen = askPeerForCompetenceAssessment(events, credential1Delivery1Comp4Target.getCompetence().getId(), userKevinHall, userHelenCampbell.getId());
+        extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(AssessmentManager.class).acceptCompetenceAssessmentRequestAndGetEvents(
+                peerComp4AssessmentBySteven.getAssessmentId(),
+                UserContextData.ofActor(userStevenTurner.getId())));
+        CompetenceAssessmentData peerComp4AssessmentByHelen = askPeerForCompetenceAssessment(events, credential1Delivery1.getId(), credential1Delivery1Comp4Target.getCompetence().getId(), userKevinHall, userHelenCampbell.getId(), 0);
         updateCompetenceBlindAssessmentMode(events, credential1Delivery1Comp4Target.getCompetence().getId(), BlindAssessmentMode.OFF, userNickPowell);
-
+        extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(AssessmentManager.class).acceptCompetenceAssessmentRequestAndGetEvents(
+                peerComp4AssessmentByHelen.getAssessmentId(),
+                UserContextData.ofActor(userHelenCampbell.getId())));
         ////////////////////////////////
         // grade and approve assessment
         ////////////////////////////////
-        gradeCompetenceAssessmentByRubric(events, peerComp2AssessmentByHelen.getId(), AssessmentType.PEER_ASSESSMENT, userHelenCampbell, 3);
-        approveCompetenceAssessment(events, peerComp2AssessmentByHelen.getId(), userHelenCampbell);
-        gradeCompetenceAssessmentByRubric(events, peerComp2AssessmentByRichard.getId(), AssessmentType.PEER_ASSESSMENT, userRichardAnderson, 4);
-        approveCompetenceAssessment(events, peerComp2AssessmentByRichard.getId(), userRichardAnderson);
+        gradeCompetenceAssessmentWithRubric(events, peerComp2AssessmentByHelen.getAssessmentId(), AssessmentType.PEER_ASSESSMENT, userHelenCampbell, rubricData.getLevels().get(2).getId());
+        approveCompetenceAssessment(events, peerComp2AssessmentByHelen.getAssessmentId(), credential1Delivery1.getId(), credential1Delivery1Comp2Target.getCompetence().getId(), userHelenCampbell);
+        gradeCompetenceAssessmentWithRubric(events, peerComp2AssessmentByRichard.getAssessmentId(), AssessmentType.PEER_ASSESSMENT, userRichardAnderson, rubricData.getLevels().get(3).getId());
+        approveCompetenceAssessment(events, peerComp2AssessmentByRichard.getAssessmentId(), credential1Delivery1.getId(), credential1Delivery1Comp2Target.getCompetence().getId(), userRichardAnderson);
 
-        gradeCompetenceAssessmentByRubric(events, peerComp4AssessmentByRichard.getId(), AssessmentType.PEER_ASSESSMENT, userRichardAnderson, 2);
-        approveCompetenceAssessment(events, peerComp4AssessmentByRichard.getId(), userRichardAnderson);
-        gradeCompetenceAssessmentByRubric(events, peerComp4AssessmentByHelen.getId(), AssessmentType.PEER_ASSESSMENT, userHelenCampbell, 1);
-        approveCompetenceAssessment(events, peerComp4AssessmentByHelen.getId(), userHelenCampbell);
-        gradeCompetenceAssessmentByRubric(events, peerComp4AssessmentBySteven.getId(), AssessmentType.PEER_ASSESSMENT, userStevenTurner, 3);
+        gradeCompetenceAssessmentWithRubric(events, peerComp4AssessmentByRichard.getAssessmentId(), AssessmentType.PEER_ASSESSMENT, userRichardAnderson, rubricData.getLevels().get(1).getId());
+        approveCompetenceAssessment(events, peerComp4AssessmentByRichard.getAssessmentId(), credential1Delivery1.getId(), credential1Delivery1Comp4Target.getCompetence().getId(), userRichardAnderson);
+        gradeCompetenceAssessmentWithRubric(events, peerComp4AssessmentByHelen.getAssessmentId(), AssessmentType.PEER_ASSESSMENT, userHelenCampbell, rubricData.getLevels().get(0).getId());
+        approveCompetenceAssessment(events, peerComp4AssessmentByHelen.getAssessmentId(), credential1Delivery1.getId(), credential1Delivery1Comp4Target.getCompetence().getId(), userHelenCampbell);
+        gradeCompetenceAssessmentWithRubric(events, peerComp4AssessmentBySteven.getAssessmentId(), AssessmentType.PEER_ASSESSMENT, userStevenTurner, rubricData.getLevels().get(2).getId());
 
         //grade and approve instructor assessment
         long credential1Delivery1KevinHallInstructorAssessmentId = ServiceLocator.getInstance().getService(AssessmentManager.class)
-                .getInstructorCredentialAssessmentId(credential1Delivery1.getId(), userKevinHall.getId()).get();
+                .getActiveInstructorCredentialAssessmentId(credential1Delivery1.getId(), userKevinHall.getId()).get();
         AssessmentDataFull instructorCredentialAssessmentData = getCredentialAssessmentData(credential1Delivery1KevinHallInstructorAssessmentId, userPhilArmstrong.getId(), AssessmentType.INSTRUCTOR_ASSESSMENT);
-        gradeCredentialAssessmentByRubric(events, instructorCredentialAssessmentData, userPhilArmstrong, 3);
-        for (CompetenceAssessmentData competenceAssessmentData : instructorCredentialAssessmentData.getCompetenceAssessmentData()) {
-            int lvl = 0;
+        gradeCredentialAssessmentWithRubric(events, instructorCredentialAssessmentData, userPhilArmstrong, AssessmentType.INSTRUCTOR_ASSESSMENT, rubricData.getLevels().get(2).getId());
+        for (CompetenceAssessmentDataFull competenceAssessmentData : instructorCredentialAssessmentData.getCompetenceAssessmentData()) {
+            long lvl = 0;
             if (competenceAssessmentData.getTargetCompetenceId() == credential1Delivery1Comp1Target.getId()) {
-                lvl = 2;
+                lvl = rubricData.getLevels().get(1).getId();
             } else if (competenceAssessmentData.getTargetCompetenceId() == credential1Delivery1Comp2Target.getId()) {
-                lvl = 4;
+                lvl = rubricData.getLevels().get(3).getId();
             } else if (competenceAssessmentData.getTargetCompetenceId() == credential1Delivery1Comp3Target.getId()) {
-                lvl = 2;
+                lvl = rubricData.getLevels().get(1).getId();
             } else if (competenceAssessmentData.getTargetCompetenceId() == credential1Delivery1Comp4Target.getId()) {
-                lvl = 1;
+                lvl = rubricData.getLevels().get(0).getId();
             } else if (competenceAssessmentData.getTargetCompetenceId() == credential1Delivery1Comp5Target.getId()) {
-                lvl = 4;
+                lvl = rubricData.getLevels().get(3).getId();
             } else if (competenceAssessmentData.getTargetCompetenceId() == credential1Delivery1Comp6Target.getId()) {
-                lvl = 3;
+                lvl = rubricData.getLevels().get(2).getId();
             }
-            gradeCompetenceAssessmentByRubric(events, competenceAssessmentData, userPhilArmstrong, lvl);
+            gradeCompetenceAssessmentWithRubric(events, competenceAssessmentData, userPhilArmstrong, lvl);
         }
-        approveCredentialAssessment(events, instructorCredentialAssessmentData.getCredAssessmentId(), userPhilArmstrong);
+        approveCredentialAssessment(events, instructorCredentialAssessmentData.getCredAssessmentId(), "Review", instructorCredentialAssessmentData.getCredentialId(), userPhilArmstrong);
 
         //grade and approve self assessment
         long credential1Delivery1KevinHallSelfAssessmentId = ServiceLocator.getInstance().getService(AssessmentManager.class)
                 .getSelfCredentialAssessmentId(credential1Delivery1.getId(), userKevinHall.getId()).get();
         AssessmentDataFull selfCredentialAssessmentData = getCredentialAssessmentData(credential1Delivery1KevinHallSelfAssessmentId, userKevinHall.getId(), AssessmentType.SELF_ASSESSMENT);
-        gradeCredentialAssessmentByRubric(events, selfCredentialAssessmentData, userKevinHall, 2);
-        for (CompetenceAssessmentData competenceAssessmentData : selfCredentialAssessmentData.getCompetenceAssessmentData()) {
-            int lvl = 0;
+        gradeCredentialAssessmentWithRubric(events, selfCredentialAssessmentData, userKevinHall, AssessmentType.SELF_ASSESSMENT, rubricData.getLevels().get(1).getId());
+        for (CompetenceAssessmentDataFull competenceAssessmentData : selfCredentialAssessmentData.getCompetenceAssessmentData()) {
+            long lvl = 0;
             if (competenceAssessmentData.getTargetCompetenceId() == credential1Delivery1Comp1Target.getId()) {
-                lvl = 1;
+                lvl = rubricData.getLevels().get(0).getId();
             } else if (competenceAssessmentData.getTargetCompetenceId() == credential1Delivery1Comp2Target.getId()) {
-                lvl = 3;
+                lvl = rubricData.getLevels().get(2).getId();
             } else if (competenceAssessmentData.getTargetCompetenceId() == credential1Delivery1Comp3Target.getId()) {
-                lvl = 4;
+                lvl = rubricData.getLevels().get(3).getId();
             } else if (competenceAssessmentData.getTargetCompetenceId() == credential1Delivery1Comp4Target.getId()) {
-                lvl = 2;
+                lvl = rubricData.getLevels().get(1).getId();
             } else if (competenceAssessmentData.getTargetCompetenceId() == credential1Delivery1Comp5Target.getId()) {
-                lvl = 1;
+                lvl = rubricData.getLevels().get(0).getId();
             } else if (competenceAssessmentData.getTargetCompetenceId() == credential1Delivery1Comp6Target.getId()) {
-                lvl = 2;
+                lvl = rubricData.getLevels().get(1).getId();
             }
-            gradeCompetenceAssessmentByRubric(events, competenceAssessmentData, userKevinHall, lvl);
+            gradeCompetenceAssessmentWithRubric(events, competenceAssessmentData, userKevinHall, lvl);
         }
-        approveCredentialAssessment(events, selfCredentialAssessmentData.getCredAssessmentId(), userKevinHall);
+        approveCredentialAssessment(events, selfCredentialAssessmentData.getCredAssessmentId(), "Review", selfCredentialAssessmentData.getCredentialId(), userKevinHall);
+
+        ////////////////////////////////
+        // Add follow relations
+        ////////////////////////////////
+        extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(FollowResourceManager.class).followUserAndGetEvents(userHelenCampbell.getId(), createUserContext(userRichardAnderson)));
     }
 
     @Override

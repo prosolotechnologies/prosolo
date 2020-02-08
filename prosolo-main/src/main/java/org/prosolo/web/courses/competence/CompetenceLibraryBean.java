@@ -3,6 +3,8 @@
  */
 package org.prosolo.web.courses.competence;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
@@ -27,6 +29,7 @@ import org.prosolo.web.util.pagination.PaginationData;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import javax.faces.bean.ManagedBean;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import java.io.Serializable;
@@ -35,6 +38,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@ManagedBean(name = "competenceLibraryBean")
 @Component("competenceLibraryBean")
 @Scope("view")
 public class CompetenceLibraryBean implements Serializable, Paginable {
@@ -51,24 +55,34 @@ public class CompetenceLibraryBean implements Serializable, Paginable {
 	@Inject private RoleManager roleManager;
 	@Inject private UnitManager unitManager;
 
+	@Getter @Setter
 	private List<CompetenceData1> competences;
-	
-	//search
-	private String searchTerm = "";
+	@Getter @Setter
 	private CompetenceLibrarySearchFilter searchFilter = CompetenceLibrarySearchFilter.ALL_COMPETENCES;
-	private PaginationData paginationData = new PaginationData();
-	
+	@Getter
 	private CompetenceLibrarySearchFilter[] searchFilters;
-	
+
+	//search
+	@Getter @Setter
+	private String searchTerm = "";
+	private PaginationData paginationData = new PaginationData();
+
+	private String context = "name:library";
+	private List<Long> unitIds = new ArrayList<>();
+
 	private final CompetenceSearchConfig config = CompetenceSearchConfig.of(
 			true, true, false, true, LearningResourceType.USER_CREATED);
 
-	private String context = "name:library";
-
-	private List<Long> unitIds = new ArrayList<>();
+	@Getter
+	@Setter
+	private int page;
 
 	public void init() {
 		searchFilters = CompetenceLibrarySearchFilter.values();
+
+		if (page > 0) {
+			paginationData.setPage(page);
+		}
 
 		try {
 			Long userRoleId = roleManager.getRoleIdByName(SystemRoleNames.USER);
@@ -141,49 +155,13 @@ public class CompetenceLibraryBean implements Serializable, Paginable {
 	
 	public void enrollInCompetence(CompetenceData1 comp) {
 		try {
-			compManager.enrollInCompetence(comp.getCompetenceId(), loggedUserBean.getUserId(), loggedUserBean.getUserContext());
+			compManager.enrollInCompetence(comp.getCredentialId(), comp.getCompetenceId(), loggedUserBean.getUserId(), loggedUserBean.getUserContext());
 
-			if (comp.getCredentialId() > 0) {
-				PageUtil.redirect("/credentials/" + idEncoder.encodeId(comp.getCredentialId()) + "/" + idEncoder.encodeId(comp.getCompetenceId()) + "?justEnrolled=true");
-			} else {
-				PageUtil.redirect("/competences/" + idEncoder.encodeId(comp.getCompetenceId()) + "?justEnrolled=true");
-			}
+			PageUtil.redirect("/credentials/" + idEncoder.encodeId(comp.getCredentialId()) + "/competences/" + idEncoder.encodeId(comp.getCompetenceId()) + "?justEnrolled=true");
 		} catch(DbConnectionException e) {
 			logger.error("Error", e);
 			PageUtil.fireErrorMessage("Error enrolling in a " + ResourceBundleUtil.getMessage("label.competence").toLowerCase());
 		}
-	}
-
-	/*
-	 * GETTERS / SETTERS
-	 */
-
-	public String getSearchTerm() {
-		return searchTerm;
-	}
-
-	public void setSearchTerm(String searchTerm) {
-		this.searchTerm = searchTerm;
-	}
-
-	public List<CompetenceData1> getCompetences() {
-		return competences;
-	}
-
-	public void setCompetences(List<CompetenceData1> competences) {
-		this.competences = competences;
-	}
-
-	public CompetenceLibrarySearchFilter getSearchFilter() {
-		return searchFilter;
-	}
-
-	public void setSearchFilter(CompetenceLibrarySearchFilter searchFilter) {
-		this.searchFilter = searchFilter;
-	}
-
-	public CompetenceLibrarySearchFilter[] getSearchFilters() {
-		return searchFilters;
 	}
 
 }

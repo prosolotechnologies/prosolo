@@ -43,9 +43,12 @@ import org.prosolo.services.nodes.DefaultManager;
 import org.prosolo.services.nodes.RoleManager;
 import org.prosolo.services.nodes.data.instructor.InstructorData;
 import org.prosolo.services.user.UserManager;
+import org.prosolo.services.user.data.StudentAssessmentInfo;
 import org.prosolo.services.user.data.StudentData;
 import org.prosolo.services.user.data.UserData;
+import org.prosolo.web.administration.data.RoleData;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -74,9 +77,10 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 	@Inject private UserManager userManager;
 
 	@Override
+    @Transactional (readOnly = true)
 	public PaginatedResult<UserData> searchUsers(
 			long orgId, String searchString, int page, int limit, boolean loadOneMore,
-			Collection<Long> excludeUserIds) {
+			Collection<Long> includeUserIds, Collection<Long> excludeUserIds) {
 		
 		PaginatedResult<UserData> response = new PaginatedResult<>();
 		
@@ -90,12 +94,20 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 					.field("name").field("lastname");
 			
 			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
-			bQueryBuilder.should(qb);
+			bQueryBuilder.filter(qb);
 
 			if (orgId > 0) {
 				bQueryBuilder.mustNot(termQuery("system", true));
 			}
-			
+
+			if (includeUserIds != null) {
+				BoolQueryBuilder includeUsersQueryBuilder = QueryBuilders.boolQuery();
+				for (Long userId : includeUserIds) {
+					includeUsersQueryBuilder.should(termQuery("id", userId));
+				}
+				bQueryBuilder.filter(includeUsersQueryBuilder);
+			}
+
 			if (excludeUserIds != null) {
 				for (Long exUserId : excludeUserIds) {
 					bQueryBuilder.mustNot(termQuery("id", exUserId));
@@ -144,7 +156,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 
 	@Override
 	public PaginatedResult<UserData> getUsersWithRoles(
-			String term, int page, int limit, boolean paginate, long roleId, List<Role> roles,
+			String term, int page, int limit, boolean paginate, long roleId, List<RoleData> roles,
 			boolean includeSystemUsers, List<Long> excludeIds, long organizationId) {
 
 		PaginatedResult<UserData> response =
@@ -199,7 +211,8 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 
 			if (roles != null && !roles.isEmpty()) {
 				BoolQueryBuilder bqb1 = QueryBuilders.boolQuery();
-				for(Role r : roles) {
+
+				for (RoleData r : roles) {
 					bqb1.should(termQuery("roles.id", r.getId()));
 				}
 				if (organizationId > 0) {
@@ -229,12 +242,9 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 
 			if (sResponse != null) {
 				response.setHitsNumber(sResponse.getHits().getTotalHits());
-				List<Role> listRoles;
 
 				if (roles == null || roles.isEmpty()){
-					listRoles = roleManager.getAllRoles();
-				} else {
-					listRoles = roles;
+					roles = roleManager.getAllRoles();
 				}
 
 				for (SearchHit sh : sResponse.getHits()) {
@@ -248,12 +258,15 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 					user.setEmail(userManager.getUserEmail(user.getId()));
 					@SuppressWarnings("unchecked")
 					List<Map<String, Object>> rolesList = (List<Map<String, Object>>) fields.get("roles");
-					List<Role> userRoles = new ArrayList<>();
-					if(rolesList != null) {
-						for(Map<String, Object> map : rolesList) {
-							Role r = getRoleDataForId(listRoles, Long.parseLong(map.get("id") + ""));
-							if(r != null) {
-								userRoles.add(r);
+					List<RoleData> userRoles = new ArrayList<>();
+
+					if (rolesList != null) {
+						for (Map<String, Object> map : rolesList) {
+							long rid = Long.parseLong(map.get("id") + "");
+							Optional<RoleData> r = roles.stream().filter(role -> role.getId() == rid).findAny();
+
+							if (r.isPresent()) {
+								userRoles.add(r.get());
 							}
 						}
 					}
@@ -277,13 +290,14 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 				RoleFilter defaultFilter = new RoleFilter(0, "All", docCount.getValue());
 				roleFilters.add(defaultFilter);
 				RoleFilter selectedFilter = defaultFilter;
-				for(Role role : listRoles) {
+
+				for(RoleData role : roles) {
 					Terms.Bucket bucket = getBucketForRoleId(role.getId(), buckets);
 					int number = 0;
 					if(bucket != null) {
 						number = (int) bucket.getDocCount();
 					}
-					RoleFilter rf = new RoleFilter(role.getId(), role.getTitle(), number);
+					RoleFilter rf = new RoleFilter(role.getId(), role.getName(), number);
 					roleFilters.add(rf);
 					if(role.getId() == roleId) {
 						selectedFilter = rf;
@@ -314,18 +328,6 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 		return null;
 	}
 
-	private Role getRoleDataForId(List<Role> roles,
-			long roleId) {
-		if(roles != null) {
-			for(Role r : roles) {
-				if(roleId == r.getId()) {
-					return r;
-				}
-			}
-		}
-		return null;
-	}
-	
 	private int setStart(int page, int limit){
 		int start = 0;
 		if (page >= 0 && limit > 0) {
@@ -462,11 +464,13 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 									student.setProgress(Integer.parseInt(
 											credential.get("progress").toString()));
 									Optional<Long> credAssessmentId = assessmentManager
-											.getInstructorCredentialAssessmentId(credId, user.getId());
+											.getActiveInstructorCredentialAssessmentId(credId, user.getId());
 									if (credAssessmentId.isPresent()) {
-										student.setAssessmentId(credAssessmentId.get());
+										student.setStudentAssessmentInfo(
+												new StudentAssessmentInfo(
+														credAssessmentId.get(),
+														Boolean.parseBoolean(credential.get("assessorNotified").toString())));
 									}
-									student.setSentAssessmentNotification(Boolean.parseBoolean(credential.get("assessorNotified").toString()));
 //									@SuppressWarnings("unchecked")
 //									Map<String, Object> profile = (Map<String, Object>) course.get("profile");
 //								    if(profile != null && !profile.isEmpty()) {
@@ -619,8 +623,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 	
 	@Override
 	public PaginatedResult<UserData> searchUsersWithInstructorRole (long orgId, String searchTerm,
-																	long credId, long roleId, List<Long> unitIds,
-																	List<Long> excludedUserIds) {
+																	long credId, long roleId, List<Long> unitIds) {
 		PaginatedResult<UserData> response = new PaginatedResult<>();
 		try {
 			if (unitIds == null || unitIds.isEmpty()) {
@@ -648,10 +651,6 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 
 			NestedQueryBuilder nestedFilter = QueryBuilders.nestedQuery("roles", unitRoleFilter, ScoreMode.None);
 			bQueryBuilder.filter(nestedFilter);
-			
-			for (Long id : excludedUserIds) {
-				bQueryBuilder.mustNot(termQuery("id", id));
-			}
 			
 			//bQueryBuilder.minimumNumberShouldMatch(1);
 			
@@ -720,7 +719,7 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 				bQueryBuilder.must(qb);
 			}
 			
-			//we don't want to return user that is actually instructor because we can't assing student to himself
+			//we don't want to return user that is actually instructor because we can't assign student to himself
 			bQueryBuilder.mustNot(termQuery("id", instructorId));
 				
 			//bQueryBuilder.minimumNumberShouldMatch(1);
@@ -1258,7 +1257,9 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 				
 				if (searchHits != null) {
 					for (SearchHit sh : searchHits) {
-						response.addFoundNode(getUserDataFromSearchHit(sh));
+						UserData userData = getUserDataFromSearchHit(sh);
+						userData.setEmail(userManager.getUserEmail(userData.getId()));
+						response.addFoundNode(userData);
 					}
 				}
 			}
@@ -1722,7 +1723,9 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 
 				if (searchHits != null) {
 					for (SearchHit sh : searchHits) {
-						response.addFoundNode(getUserDataFromSearchHit(sh));
+						UserData userData = getUserDataFromSearchHit(sh);
+						userData.setEmail(userManager.getUserEmail(userData.getId()));
+						response.addFoundNode(userData);
 					}
 				}
 			}
@@ -1803,5 +1806,199 @@ public class UserTextSearchImpl extends AbstractManagerImpl implements UserTextS
 
 		return bQueryBuilder;
 	}
+
+	@Override
+	public PaginatedResult<UserData> searchInstructorsInGroups(
+			long orgId, String searchTerm, int page, int limit, long groupId) {
+		PaginatedResult<UserData> response = new PaginatedResult<>();
+		try {
+			int start = 0;
+			start = setStart(page, limit);
+
+			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
+			if (searchTerm != null && !searchTerm.isEmpty()) {
+				QueryBuilder qb = QueryBuilders
+						.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchTerm.toLowerCase()) + "*")
+						.defaultOperator(Operator.AND)
+						.field("name").field("lastname");
+
+				bQueryBuilder.filter(qb);
+			}
+
+			bQueryBuilder.filter(termQuery("groupsWithInstructorRole.id", groupId));
+
+			String[] includes = {"id", "name", "lastname", "avatar", "position"};
+			SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+			searchSourceBuilder
+					.query(bQueryBuilder)
+					.fetchSource(includes, null)
+					.from(start)
+					.size(limit)
+					.sort("lastname.sort", SortOrder.ASC)
+					.sort("name.sort", SortOrder.ASC);
+
+			String indexName = ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USERS, orgId);
+			SearchResponse sResponse = ElasticSearchConnector.getClient().search(searchSourceBuilder, indexName, ESIndexTypes.ORGANIZATION_USER);
+
+			if (sResponse != null) {
+				SearchHits searchHits = sResponse.getHits();
+				response.setHitsNumber(searchHits.getTotalHits());
+
+				if (searchHits != null) {
+					for (SearchHit sh : searchHits) {
+						UserData userData = getUserDataFromSearchHit(sh);
+						userData.setEmail(userManager.getUserEmail(userData.getId()));
+						response.addFoundNode(userData);
+					}
+				}
+			}
+
+		} catch (Exception e1) {
+			logger.error("error", e1);
+		}
+		return response;
+	}
+
+	@Override
+	public PaginatedResult<UserData> searchCandidatesForAddingToTheGroupAsInstructors(
+			long orgId, long unitId, long roleId, long groupId, String searchTerm, int page, int limit) {
+		PaginatedResult<UserData> response = new PaginatedResult<>();
+		try {
+			int start = 0;
+			start = setStart(page, limit);
+
+			BoolQueryBuilder bQueryBuilder = getUserSearchQueryBuilder(searchTerm);
+
+			BoolQueryBuilder unitRoleFilter = QueryBuilders.boolQuery();
+			unitRoleFilter.filter(termQuery("roles.id", roleId));
+			QueryBuilder qb = termQuery("roles.units.id", unitId);
+			unitRoleFilter.filter(qb);
+
+			NestedQueryBuilder nestedFilter = QueryBuilders.nestedQuery("roles", unitRoleFilter, ScoreMode.None);
+			bQueryBuilder.filter(nestedFilter);
+
+			bQueryBuilder.mustNot(termQuery("groupsWithInstructorRole.id", groupId));
+
+			String[] includes = {"id", "name", "lastname", "avatar", "position"};
+
+			SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+			searchSourceBuilder
+					.query(bQueryBuilder)
+					.fetchSource(includes, null)
+					.sort("lastname.sort", SortOrder.ASC)
+					.sort("name.sort", SortOrder.ASC)
+					.from(start)
+					.size(limit);
+
+			//System.out.println(searchRequestBuilder.toString());
+			String indexName = ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USERS, orgId);
+			SearchResponse sResponse = ElasticSearchConnector.getClient().search(searchSourceBuilder, indexName, ESIndexTypes.ORGANIZATION_USER);
+
+			if (sResponse != null) {
+				SearchHits searchHits = sResponse.getHits();
+				response.setHitsNumber(searchHits.getTotalHits());
+
+				if (searchHits != null) {
+					for (SearchHit sh : searchHits) {
+						response.addFoundNode(getUserDataFromSearchHit(sh));
+					}
+				}
+			}
+
+		} catch (Exception e) {
+			logger.error("error", e);
+		}
+		return response;
+	}
+
+	@Override
+	public PaginatedResult<StudentData> searchCredentialStudentsAssignedToInstructor(
+			long orgId, String searchTerm, long credId, long instructorId, int page, int limit) {
+		PaginatedResult<StudentData> response = new PaginatedResult<>();
+		try {
+			int start = 0;
+			start = setStart(page, limit);
+
+			BoolQueryBuilder bQueryBuilder = QueryBuilders.boolQuery();
+
+			if (searchTerm != null && !searchTerm.isEmpty()) {
+				QueryBuilder qb = QueryBuilders
+						.queryStringQuery(ElasticsearchUtil.escapeSpecialChars(searchTerm.toLowerCase()) + "*")
+						.defaultOperator(Operator.AND)
+						.field("name.sort").field("lastname.sort");
+
+				bQueryBuilder.must(qb);
+			}
+
+			BoolQueryBuilder credFilter = QueryBuilders.boolQuery();
+			credFilter.filter(QueryBuilders.termQuery("credentials.id", credId));
+			/*
+			 * unassigned or assigned to instructor specified by instructorId
+			 */
+			credFilter.filter(QueryBuilders.termQuery("credentials.instructorId", instructorId));
+			NestedQueryBuilder nestedCredFilter = QueryBuilders.nestedQuery("credentials", credFilter,
+					ScoreMode.None).innerHit(new InnerHitBuilder());
+
+			BoolQueryBuilder qb = QueryBuilders.boolQuery();
+			qb.must(bQueryBuilder);
+			qb.filter(nestedCredFilter);
+
+			try {
+				String[] includes = {"id", "name", "lastname", "avatar", "position"};
+				SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+				searchSourceBuilder
+						.query(qb)
+						.fetchSource(includes, null)
+						.from(start).size(limit);
+
+				searchSourceBuilder.sort("lastname.sort", SortOrder.ASC);
+				searchSourceBuilder.sort("name.sort", SortOrder.ASC);
+				String indexName = ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USERS, orgId);
+				SearchResponse sResponse = ElasticSearchConnector.getClient().search(searchSourceBuilder, indexName, ESIndexTypes.ORGANIZATION_USER);
+				if (sResponse != null) {
+					SearchHits searchHits = sResponse.getHits();
+					response.setHitsNumber(searchHits.getTotalHits());
+
+					if (searchHits != null) {
+						for (SearchHit sh : searchHits) {
+							Map<String, Object> fields = sh.getSourceAsMap();
+							StudentData student = new StudentData();
+							User user = new User();
+							user.setId(Long.parseLong(fields.get("id") + ""));
+							user.setName((String) fields.get("name"));
+							user.setLastname((String) fields.get("lastname"));
+							user.setAvatarUrl((String) fields.get("avatar"));
+							user.setPosition((String) fields.get("position"));
+							student.setUser(new UserData(user));
+
+							SearchHits innerHits = sh.getInnerHits().get("credentials");
+							long totalInnerHits = innerHits.getTotalHits();
+							if (totalInnerHits == 1) {
+								Map<String, Object> credential = innerHits.getAt(0).getSourceAsMap();
+								student.setProgress(Integer.parseInt(credential.get("progress") + ""));
+								long instId = Long.parseLong(credential.get("instructorId") + "");
+								if (instId != 0) {
+									InstructorData id = new InstructorData(false);
+									UserData ud = new UserData();
+									ud.setId(instId);
+									id.setUser(ud);
+									student.setInstructor(id);
+									student.setAssigned(true);
+								}
+							}
+							response.addFoundNode(student);
+						}
+					}
+				}
+			} catch (SearchPhaseExecutionException spee) {
+				logger.error("error", spee);
+			}
+
+		} catch (Exception e1) {
+			logger.error("error", e1);
+		}
+		return response;
+	}
+
 
 }

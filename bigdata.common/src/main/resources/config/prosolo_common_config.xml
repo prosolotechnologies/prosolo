@@ -4,7 +4,7 @@
 	<app-config>
 		<app-name>prosolo</app-name>
 		<project-mode>DEV</project-mode> <!-- DEV or PROD -->
-		<deployment>LOCAL</deployment> <!-- LOCAL or UNISA -->
+		<deployment>LOCAL</deployment> <!-- LOCAL or UNISA; for each deployment other than 'LOCAL' all data migrations specific to that deployment should be created in package 'org.prosolo.db.migration.data.{lowercased_deployment}' (example: for deployment UNISA migrations should go to package 'org.prosolo.db.migration.data.unisa'). -->
 		<developer-email>name.lastname@gmail.com</developer-email>
 		<support-email>administrator@prosolo.ca</support-email>
 		<maintenance>false</maintenance>
@@ -33,12 +33,6 @@
 	</rabbitmq-config>
 	<elastic-search-config>
 		<type>server</type>
-		<aws>
-			<access-key>AKIAICPJOYWQUM7HTXWQ</access-key>
-			<secret-key>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</secret-key>
-			<region>us-east-1</region>
-			<groups>ES2</groups>
-		</aws>
 		<es-hosts>
 			<es-host>
 				<host>192.168.2.219</host>
@@ -112,12 +106,12 @@
 		<weekly>false</weekly>
 		<monthly>false</monthly>
 		<bcc>false</bcc>
-		<bcc-email>test@prosolo.ca</bcc-email>
+		<bcc-email>sample@sample.com</bcc-email>
 		<smtp-config>
-			<host>email-smtp.us-east-1.amazonaws.com</host>
-			<user>AKIAIZ7V7VE3IKI7MWNA</user>
-			<full-email>prosolo.webmaster@gmail.com</full-email>
-			<pass>AsHCvu0BkXI0/qUMSs9PyRrbbMW3OFiH2KFZiigX87ek</pass>
+			<host>hostname</host>
+			<user>user</user>
+			<full-email>fullemail</full-email>
+			<pass>password</pass>
 			<port>587</port>
 			<starttls-enable>true</starttls-enable>
 			<auth>true</auth>
@@ -131,8 +125,8 @@
 		</user>
 	</services>
 	<file-store>
-		<virtual-hosting-url>https://devfiles.prosolo.ca</virtual-hosting-url>
-		<file-store-service-url>https://s3.amazonaws.com</file-store-service-url>
-		<file-store-bucket-name>devfiles.prosolo.ca</file-store-bucket-name>
+		<virtual-hosting-url>hosting-url</virtual-hosting-url>
+		<file-store-service-url>url</file-store-service-url>
+		<file-store-bucket-name>name</file-store-bucket-name>
 	</file-store>
 </config>

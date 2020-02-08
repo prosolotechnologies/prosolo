@@ -101,8 +101,7 @@
 										or util:getPagePath(view.viewId)  == 'competence-privacy'
 										or util:getPagePath(view.viewId)  == 'create-activity'
 										or util:getPagePath(view.viewId)  == 'activity'
-										or util:getPagePath(view.viewId)  == 'credential-delivery-'
-										or util:getPagePath(view.viewId)  == 'credential-delivery-activity-assessment' ? 'active' : ''}">
+										or util:getPagePath(view.viewId)  == 'credential-delivery-' ? 'active' : ''}">
 								<h:link onclick="sendLogPageNavigation('manage-credentialLibrary','mainmenu');"
 									outcome="/manage/library"
 									value="Library" />
@@ -125,38 +124,38 @@
 					<h:panelGroup rendered="#{request.isUserInRole('MANAGE.CONTENT.EDIT')}" styleClass="dropdown createMenu">
 						<a class="btn btn-orange btn-sm" data-toggle="dropdown"
 							aria-haspopup="true" aria-expanded="true">Create</a>
+
 						<ul class="dropdown-menu bullet pull-center" aria-labelledby="dropdownMenu1">
-							<li><h:link value="New #{msg['label.credential']}"
-									outcome="/manage/credential-create.xhtml" /></li>
-							<li><h:link value="New #{msg['label.competence']}"
-								    outcome="/manage/create-competence.xhtml" /></li>
+							<li>
+								<h:link value="New #{msg['label.credential']}"
+										outcome="/manage/credential-create.xhtml"/>
+							</li>
 						</ul>
 					</h:panelGroup>
 
 					<div class="dropdown notificationsMenu">
 						<p:commandLink id="iconNotificationsId"
-							styleClass="iconNotifications #{managerNotificationsBean.unreadNotificationsNo > 0 ? 'active' : ''}"
-							pt:data-toggle="dropdown" 
-							pt:aria-haspopup="true" 
-							pt:aria-expanded="true"
-							action="#{managerNotificationsBean.markNotificationsAsRead}"
-							process="@this"
-							update="notificationLoop @this">
-							
+									   styleClass="iconNotifications #{managerNotificationsBean.unreadNotificationsNo > 0 ? 'active' : ''}"
+									   pt:data-toggle="dropdown"
+									   pt:aria-haspopup="true"
+									   pt:aria-expanded="true"
+									   action="#{managerNotificationsBean.markNotificationsAsRead}"
+									   process="@this"
+									   update="notificationLoop @this">
+
 							Notifications
-							
-							<h:panelGroup id="unreadNotificationsDot"  >
+
+							<h:panelGroup id="unreadNotificationsDot">
 								<span id="unreadNotificationsSpanId"
-									class="#{managerNotificationsBean.unreadNotificationsNo > 0 ? 'unreadDot' : ''}">unreadDot</span>
+									  class="#{managerNotificationsBean.unreadNotificationsNo > 0 ? 'unreadDot' : ''}">unreadDot</span>
 							</h:panelGroup>
 						</p:commandLink>
 					
-						<div class="dropdown-menu bullet pull-center"
-							aria-labelledby="dropdownMenuNotifications">
-
+						<div class="dropdown-menu bullet pull-center" aria-labelledby="dropdownMenuNotifications">
 							<h:panelGroup id="notificationsContainer">
+								<ui:repeat id="notificationLoop" var="notificationData"
+										   value="#{managerNotificationsBean.notificationData}">
 
-								<ui:repeat id="notificationLoop" var="notificationData" value="#{managerNotificationsBean.notificationData}">
 									<li class="#{styleUtilBean.getStyleClassBasedOnNotificationType(notificationData.notificationType)}">
 										<h:outputLink value="#{managerNotificationsBean.domainPrefix}#{notificationData.link}">
 											<span class="icon"></span>
@@ -168,8 +167,7 @@
 											<span class="timestamp">
 												<utilcomp:convertTimeOutput
 														millis="#{notificationData.notificationTime}"
-														format="rel"
-												/>
+														format="rel"/>
 											</span>
 										</h:outputLink>
 									</li>
@@ -177,8 +175,8 @@
 
 								<li class="linkAllNotifications">
 									<h:link value="View all"
-										onclick="sendLogPageNavigation('notifications','mainmenu');"
-										outcome="/manage/notifications" />
+											onclick="sendLogPageNavigation('notifications','mainmenu');"
+											outcome="/manage/notifications"/>
 								</li>
 							</h:panelGroup>
 						</div>
@@ -187,27 +185,27 @@
 					<h:form id="userMenuForm">
 						<div class="dropdown userMenu">
 							<a data-toggle="dropdown" aria-haspopup="true"
-								aria-expanded="true"> 
+							   aria-expanded="true">
 								<utilcomp:userAvatar
-									avatar="#{loggeduser.avatar}"
-									fullName="#{loggeduser.fullName}"	
+										avatar="#{loggeduser.avatar}"
+										fullName="#{loggeduser.fullName}"
 								/>
 								<span class="arrowDown">arrowDown</span>
 							</a>
 
-							<ul class="dropdown-menu dropdown-menu-right bullet pull-right" aria-labelledby="dropdownMenu1">
+							<ul class="dropdown-menu dropdown-menu-right bullet pull-right"
+								aria-labelledby="dropdownMenu1">
 								<li>
 									<h:link onclick="sendLogPageNavigation('settings','mainmenu');"
-										value="Account Settings" 
-										outcome="/manage/settings" />
+											value="Account Settings"
+											outcome="/manage/settings"/>
 								</li>
 								<li>
-									<h:commandLink id="userLogout" 
-										value="Sign Out"
-										action="#{loggeduser.userLogout()}" />
+									<h:commandLink id="userLogout"
+												   value="Sign Out"
+												   action="#{loggeduser.userLogout()}"/>
 								</li>
 							</ul>
-
 						</div>
 					</h:form>
 				</div>

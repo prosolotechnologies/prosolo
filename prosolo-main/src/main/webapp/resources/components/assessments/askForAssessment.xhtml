@@ -38,7 +38,7 @@
 			}
 		</script>
 
-		<div class="modal fade" id="askAssessment" tabindex="-1" role="dialog"
+		<div class="modal fade" id="askAssessmentPeer" tabindex="-1" role="dialog"
 			aria-labelledby="askForAssessment">
 			<div class="modal-dialog" role="document">
 				<h:panelGroup layout="block" id="askForAssessmentPanel" styleClass="modal-content">
@@ -58,12 +58,11 @@
 							</div>
 						</div>
 
-						<h:panelGroup layout="block" rendered="#{cc.attrs.bean.assessmentRequestData.assessorSet or cc.attrs.bean.assessmentType ne 'INSTRUCTOR_ASSESSMENT'}" styleClass="assessmentModalMetaLine">
+						<h:panelGroup layout="block" styleClass="assessmentModalMetaLine">
 							<div class="assessmentModalMetaLeft">Ask to:</div>
 							<h:panelGroup layuot="block" id="selectAssessor"
 								class="assessmentModalMetaRight">
-								<h:panelGroup
-									rendered="#{cc.attrs.bean.assessmentRequestData.assessorSet}">
+								<ui:fragment rendered="#{cc.attrs.bean.assessmentRequestData.assessorSet}">
 									<assessments:assessmentActorAvatar
 											actorId="#{cc.attrs.bean.assessmentRequestData.assessorId}"
 											avatarUrl="#{cc.attrs.bean.assessmentRequestData.assessorAvatarUrl}"
@@ -81,9 +80,16 @@
 											displayAnonymousActorUniqueId="false"
 										/>
 									</h3>
-								</h:panelGroup>
-
-								<ui:fragment rendered="#{cc.attrs.bean.assessmentType eq 'PEER_ASSESSMENT' and cc.attrs.bean.blindAssessmentMode eq 'OFF'}">
+									<p:commandLink rendered="#{cc.attrs.bean.canStudentChooseAssessor()}" styleClass="removeX" process="@this"
+												   action="#{cc.attrs.bean.resetPeerAssessor()}"
+												   update=":#{cc.clientId}:selectAssessor :#{cc.clientId}:askForAssessmentPanelContent">
+										Remove
+									</p:commandLink>
+								</ui:fragment>
+								<ui:fragment rendered="#{not cc.attrs.bean.isAssessorAvailable()}">
+									No assessor available
+								</ui:fragment>
+								<ui:fragment rendered="#{cc.attrs.bean.isAssessorAvailableThroughSearch()}">
 									<h:inputText rendered="#{not cc.attrs.bean.assessmentRequestData.assessorSet}"
 												 onkeyup="searchListener(execSearchUsers);"
 												 value="#{cc.attrs.bean.peerSearchTerm}" id="newAssessorName"
@@ -97,12 +103,12 @@
 
 									<p:commandLink styleClass="btn btn-green-stroke btn-sm"
 												   rendered="#{not cc.attrs.bean.assessmentRequestData.assessorSet}"
-												   value="Choose random"
-												   action="#{cc.attrs.bean.chooseRandomPeerForAssessor()}"
+												   value="Assign me assessor"
+												   action="#{cc.attrs.bean.setPeerAssessorFromThePool()}"
 												   update="selectAssessor :#{cc.clientId}:askForAssessmentPanelContent"/>
 
 									<h:panelGroup id="usersListPanel">
-										<h:panelGroup rendered="#{not cc.attrs.bean.assessmentRequestData.assessorSet and cc.attrs.bean.peersForAssessment != null and cc.attrs.bean.peersForAssessment.size() > 0}">
+										<h:panelGroup rendered="#{not cc.attrs.bean.assessmentRequestData.assessorSet and not empty cc.attrs.bean.peersForAssessment}">
 											<ul id="usersList" class="dropdown-menu searchResultsDrop"
 												style="display: block;">
 												<ui:repeat value="#{cc.attrs.bean.peersForAssessment}"
@@ -125,28 +131,105 @@
 					</div>
 
 					<h:panelGroup id="askForAssessmentPanelContent">
-						<h:panelGroup id="randomUserErrorMessage">
-							<ui:fragment rendered="#{cc.attrs.bean.noRandomAssessor}">
-								<div class="alert alert-warning" role="alert">There is no
-									peer available to ask for assessment.</div>
+						<div class="modal-body alignLeft top30">
+
+							<ui:fragment rendered="#{cc.attrs.bean.userAssessmentTokenData.assessmentTokensEnabled and cc.attrs.bean.assessmentRequestData.newAssessment}">
+								<div class="tokensWrapper">
+									This assessment request costs <div class="tokensNr">#{cc.attrs.bean.userAssessmentTokenData.numberOfTokensSpentPerRequest}</div> Assessment #{cc.attrs.bean.userAssessmentTokenData.numberOfTokensSpentPerRequest eq 1 ? 'Token' : 'Tokens'}.
+								</div>
+
+								<ui:fragment rendered="#{not cc.attrs.bean.userAssessmentTokenData.doesUserHaveEnoughTokensForOneRequest()}">
+									<div class="alert alert-danger" role="alert">
+										You don't have enough Assessment Tokens to send the assessment request<ui:fragment rendered="#{not cc.attrs.bean.assessmentRequestData.assessorSet}">. </ui:fragment>
+										<ui:fragment rendered="#{cc.attrs.bean.assessmentRequestData.assessorSet}">
+											to
+											<assessments:assessmentActorName
+													actorId="#{cc.attrs.bean.assessmentRequestData.assessorId}"
+													actorFullName="#{cc.attrs.bean.assessmentRequestData.assessorFullName}"
+													blindAssessmentMode="#{cc.attrs.bean.blindAssessmentMode}"
+													actorType="ASSESSOR"
+													displayAnonymousActorUniqueId="false"
+											/>.
+										</ui:fragment>
+										<h:link outcome="/my-assessments-competences" value="Click here"/> for more info.
+									</div>
+								</ui:fragment>
 							</ui:fragment>
-						</h:panelGroup>
 
-						<h:panelGroup layout="block"
-									  styleClass="modal-body alignLeft top30"
-									  rendered="#{cc.attrs.bean.assessmentType eq 'PEER_ASSESSMENT' and
-													not cc.attrs.bean.assessmentRequestData.assessorSet and
-													not cc.attrs.bean.noRandomAssessor}"/>
+							<ui:fragment rendered="#{cc.attrs.bean.isNewAssessmentWithAvailableAssessorsNotYetChosen()}">
+								<div class="alert alert-danger" role="alert">
+									You need to select the assessor. Please use the search box or the Assign me assessor button to find one.
+								</div>
+							</ui:fragment>
 
-						<h:panelGroup layout="block"
-									  styleClass="modal-body alignLeft top30"
-									  rendered="#{cc.attrs.bean.assessmentType eq 'PEER_ASSESSMENT' and
-													cc.attrs.bean.assessmentRequestData.assessorSet and
-													cc.attrs.bean.assessmentRequestData.newAssessment}">
+							<ui:fragment rendered="#{cc.attrs.bean.isValidAssessmentRequestWithoutAssessorSet()}">
+								<div class="alert alert-warning" role="alert">
+									There are no available assessors at the moment. You can still submit an unassigned assessment request that will be assigned to the first available assessor when one appears.
+									<ui:fragment rendered="#{cc.attrs.bean.userAssessmentTokenData.assessmentTokensEnabled}">
+										By submitting this request you will still spend #{cc.attrs.bean.userAssessmentTokenData.numberOfTokensSpentPerRequest} #{cc.attrs.bean.userAssessmentTokenData.numberOfTokensSpentPerRequest eq 1 ? 'token' : 'tokens'}.
+									</ui:fragment>
+								</div>
+							</ui:fragment>
+
+							<ui:fragment rendered="#{cc.attrs.bean.isNewAssessmentRequestWithoutAvailableAssessorWithExistingUnassignedAssessment()}">
+								<div class="alert alert-danger" role="alert">
+									You cannot submit the assessment request. There are no available assessors at the moment, and you have already submitted an unassigned assessment request that will be assigned to the first available assessor when one appears. After this request is assigned to an assessor, you can make a new assessment request.
+								</div>
+							</ui:fragment>
+
+							<ui:fragment rendered="#{cc.attrs.bean.assessmentSubmitted}">
+								<div class="alert alert-danger" role="alert">
+									You cannot send a notification to the assessor since the assessment has already been submitted.
+								</div>
+							</ui:fragment>
+
 							<p>
-								Are you sure you want to send an assessment request to your peer?
-								<ui:fragment rendered="#{cc.attrs.bean.remindStudentToSubmitEvidenceSummary}">
-									<br/><br/>
+								<ui:param name="peerBlindAssessment" value="#{cc.attrs.bean.isPeerBlindAssessment()}"/>
+								<ui:param name="existingNotSubmittedAssessmentWithAssessorSet" value="#{cc.attrs.bean.assessmentRequestData.assessorSet and not cc.attrs.bean.assessmentRequestData.newAssessment and not cc.attrs.bean.assessmentSubmitted}"/>
+								<ui:fragment rendered="#{peerBlindAssessment}">
+									All peer assessments are blinded (peer assessor identity is hidden to you).
+								</ui:fragment>
+								<ui:fragment rendered="#{existingNotSubmittedAssessmentWithAssessorSet}">
+									<ui:fragment rendered="#{cc.attrs.bean.assessmentType eq 'INSTRUCTOR_ASSESSMENT'}">
+										Are you sure you want to notify your #{msg['label.instructor'].toLowerCase()} to assess your #{msg['label.'.concat(cc.attrs.resource.toLowerCase())].toLowerCase()}?
+									</ui:fragment>
+									<ui:fragment rendered="#{cc.attrs.bean.assessmentType eq 'PEER_ASSESSMENT'}">
+										<ui:fragment rendered="#{peerBlindAssessment}">
+											<br/><br/>
+										</ui:fragment>
+										You have already sent an assessment request to
+										<assessments:assessmentActorName
+												actorId="#{cc.attrs.bean.assessmentRequestData.assessorId}"
+												actorFullName="#{cc.attrs.bean.assessmentRequestData.assessorFullName}"
+												blindAssessmentMode="#{cc.attrs.bean.blindAssessmentMode}"
+												actorType="ASSESSOR"
+												displayAnonymousActorUniqueId="false"
+										/>
+										and the request is pending. Clicking the Submit button will send a notification to
+										<assessments:assessmentActorName
+												actorId="#{cc.attrs.bean.assessmentRequestData.assessorId}"
+												actorFullName="#{cc.attrs.bean.assessmentRequestData.assessorFullName}"
+												blindAssessmentMode="#{cc.attrs.bean.blindAssessmentMode}"
+												actorType="ASSESSOR"
+												displayAnonymousActorUniqueId="false"
+										/>
+										that you want the assessment to be completed.
+									</ui:fragment>
+								</ui:fragment>
+								<ui:fragment rendered="#{not cc.attrs.bean.assessmentRequestData.assessorSet and cc.attrs.bean.assessmentType eq 'INSTRUCTOR_ASSESSMENT'}">
+									You don't have a #{msg['label.instructor'].toLowerCase()} assigned yet.
+									<ui:fragment rendered="#{cc.attrs.resource eq 'COMPETENCE' and cc.attrs.bean.isStudentCanChooseInstructor()}">
+										Go to the
+										<h:link outcome="/credential" value="#{msg['label.credential'].toLowerCase()} page">
+											<f:param name="id" value="#{util:encodeId(cc.attrs.bean.credentialId)}"/>
+										</h:link>
+										and choose your #{msg['label.instructor'].toLowerCase()}.
+									</ui:fragment>
+								</ui:fragment>
+								<ui:fragment rendered="#{cc.attrs.bean.isValidRequest() and cc.attrs.bean.remindStudentToSubmitEvidenceSummary}">
+									<ui:fragment rendered="#{peerBlindAssessment or existingNotSubmittedAssessmentWithAssessorSet}">
+										<br/><br/>
+									</ui:fragment>
 									<ui:fragment rendered="#{cc.attrs.resource eq 'COMPETENCE'}">
 										Make sure you have added an appropriate summary of your evidence on the
 										<h:link outcome="/competence"
@@ -155,71 +238,29 @@
 											<f:param name="credId" value="#{util:encodeId(cc.attrs.bean.credentialId gt 0 ? cc.attrs.bean.credentialId : cc.attrs.credentialId)}" disable="#{cc.attrs.bean.credentialId eq 0 and cc.attrs.credentialId eq 0}"/>
 											<f:param name="compId" value="#{util:encodeId(cc.attrs.bean.resourceId)}"/>
 										</h:link>
-										that will be visible to the assessor.
+										that will be visible to the assessor during the assessment.
 									</ui:fragment>
 									<ui:fragment rendered="#{cc.attrs.resource eq 'CREDENTIAL'}">
-										Make sure you have added an appropriate summary of your evidence for all #{msg['label.competence.plural'].toLowerCase()} that will be visible to the assessor.
+										Make sure you have added an appropriate summary of your evidence for all #{msg['label.competence.plural'].toLowerCase()} that will be visible to the assessor during the assessment.
 									</ui:fragment>
 								</ui:fragment>
 							</p>
-						</h:panelGroup>
-
-						<h:panelGroup layout="block"
-									  styleClass="modal-body alignLeft top30"
-									  rendered="#{not cc.attrs.bean.assessmentRequestData.assessorSet and cc.attrs.bean.assessmentType eq 'INSTRUCTOR_ASSESSMENT'}">
-							<p>
-								You don't have a #{msg['label.instructor'].toLowerCase()} assigned yet.
-								<ui:fragment rendered="#{cc.attrs.resource eq 'COMPETENCE' and cc.attrs.bean.isStudentCanChooseInstructor()}">
-									Go to the
-									<h:link outcome="/credential" value="#{msg['label.credential'].toLowerCase()} page">
-										<f:param name="id" value="#{util:encodeId(cc.attrs.bean.credentialId)}"/>
-									</h:link>
-									and choose your #{msg['label.instructor'].toLowerCase()}.
-								</ui:fragment>
-
-							</p>
-						</h:panelGroup>
-
-						<h:panelGroup layout="block" rendered="#{cc.attrs.bean.assessmentRequestData.assessorSet and not cc.attrs.bean.assessmentRequestData.newAssessment}" styleClass="modal-body alignLeft top30">
-							<p>
-								<ui:fragment rendered="#{cc.attrs.bean.assessmentType eq 'INSTRUCTOR_ASSESSMENT'}">
-									Are you sure you want to notify your #{msg['label.instructor'].toLowerCase()} to assess your #{msg['label.'.concat(cc.attrs.resource.toLowerCase())].toLowerCase()}?
-								</ui:fragment>
-								<ui:fragment rendered="#{cc.attrs.bean.assessmentType eq 'PEER_ASSESSMENT'}">
-									There is already an assessment request sent to this peer. Are you sure you want to notify the peer to assess your #{msg['label.'.concat(cc.attrs.resource.toLowerCase())].toLowerCase()}?
-								</ui:fragment>
-								<ui:fragment rendered="#{cc.attrs.bean.remindStudentToSubmitEvidenceSummary}">
-									<br/><br/>
-									<ui:fragment rendered="#{cc.attrs.resource eq 'COMPETENCE'}">
-										Make sure you have added an appropriate summary of your evidence on the
-										<h:link outcome="/competence"
-												target="_blank"
-												value="#{msg['label.competence'].toLowerCase()} page">
-											<f:param name="credId" value="#{util:encodeId(cc.attrs.bean.credentialId gt 0 ? cc.attrs.bean.credentialId : cc.attrs.credentialId)}" disable="#{cc.attrs.bean.credentialId eq 0 and cc.attrs.credentialId eq 0}"/>
-											<f:param name="compId" value="#{util:encodeId(cc.attrs.bean.resourceId)}"/>
-										</h:link>
-										that will be visible to the assessor.
-									</ui:fragment>
-									<ui:fragment rendered="#{cc.attrs.resource eq 'CREDENTIAL'}">
-										Make sure you have added an appropriate summary of your evidence for all #{msg['label.competence.plural'].toLowerCase()} that will be visible to the assessor.
-									</ui:fragment>
-								</ui:fragment>
-							</p>
-						</h:panelGroup>
+						</div>
 
 						<div class="modal-footer alignLeft">
-							<p:commandLink
-								rendered="#{cc.attrs.bean.assessmentRequestData.assessorSet}"
-								process="@this"
-								update="#{cc.attrs.toUpdate}"
-								action="#{cc.attrs.submitAssessmentRequestAction}"
-								styleClass="btn btn-green"
-								oncomplete="hideAssesmentDialog('askAssessment')">
+							<utilcomp:singleClickLink
+									rendered="#{cc.attrs.bean.isValidRequest()}"
+									process="@this"
+									onclick="showLoaderNextToElem(this, '#{request.contextPath}')"
+									update="#{cc.attrs.toUpdate} :panelHeaderNumberOfTokens"
+									action="#{cc.attrs.submitAssessmentRequestAction}"
+									styleClass="btn btn-green"
+									oncomplete="hideAssesmentDialog('askAssessmentPeer')">
 								<f:param name="page" value="#{facesContext.viewRoot.viewId}"></f:param>
 								<f:param name="learningContext" value="#{cc.attrs.learningContext}"></f:param>
 								<f:param name="service" value="name:ask_for_assessment_dialog"></f:param>
-															Submit
-							</p:commandLink>
+								Submit
+							</utilcomp:singleClickLink>
 							<a href="#" class="btn btn-default" data-dismiss="modal">Close</a>
 						</div>
 					</h:panelGroup>
@@ -228,10 +269,10 @@
 		</div>
 		<p:remoteCommand name="resetAskForAssessmentModal"
 			action="#{cc.attrs.bean.resetAskForAssessmentModal()}"
-			update="selectAssessor randomUserErrorMessage" />
+			update="selectAssessor askForAssessmentPanelContent" />
 
 		<script>
-			$('#askAssessment').on('shown.bs.modal', function() {
+			$('#askAssessmentPeer').on('shown.bs.modal', function() {
 				$('#credential\\:formMain\\:newAssessorName').focus();
 			}).on('hidden.bs.modal', function() {
 				resetAskForAssessmentModal();

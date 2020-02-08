@@ -46,7 +46,7 @@ public class FollowResourceManagerImpl extends AbstractManagerImpl implements Fo
 	public User followUser(long userToFollowId, UserContextData context)
 			throws DbConnectionException, EntityAlreadyExistsException {
 		Result<User> res = self.followUserAndGetEvents(userToFollowId, context);
-		eventFactory.generateEvents(res.getEventQueue());
+		eventFactory.generateAndPublishEvents(res.getEventQueue());
 		return res.getResult();
 	}
 
@@ -160,7 +160,7 @@ public class FollowResourceManagerImpl extends AbstractManagerImpl implements Fo
 	@Override
 	public boolean unfollowUser(long userToUnfollowId, UserContextData context) throws DbConnectionException {
 		Result<Boolean> res = self.unfollowUserAndGetEvents(userToUnfollowId, context);
-		eventFactory.generateEvents(res.getEventQueue());
+		eventFactory.generateAndPublishEvents(res.getEventQueue());
 		return res.getResult();
 	}
 

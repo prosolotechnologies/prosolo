@@ -27,15 +27,16 @@
 		    
 		    <ui:fragment rendered="#{!(cc.attrs.role ne 'USER' or cc.attrs.activity.enrolled or cc.attrs.activity.visibleForUnenrolledStudents)}">
 				<div class="whiteBox activityTextBox activityExternalEnroll">
-	                   <p>Content available only to enrolled students.</p>
-	                   <p:commandLink
-	                   	styleClass="btn btn-green btn-sm item"
-	                   	process="@this"
-	                   	action="#{cc.attrs.bean.enrollInCompetence()}">
-	                   	Start #{msg['label.competence']}
-	                   	<f:param name="context" value="#{cc.attrs.learningContext}" />
-	                   </p:commandLink>
-	            </div>
+					<p>Content available only to enrolled students.</p>
+
+					<p:commandLink
+							styleClass="btn btn-green btn-sm item"
+							process="@this"
+							action="#{cc.attrs.bean.enrollInCompetence()}">
+						Start #{msg['label.competence']}
+						<f:param name="context" value="#{cc.attrs.learningContext}"/>
+					</p:commandLink>
+				</div>
             </ui:fragment>
             
             <ui:fragment rendered="#{cc.attrs.role ne 'USER' or cc.attrs.activity.enrolled or cc.attrs.activity.visibleForUnenrolledStudents}">
@@ -179,7 +180,7 @@
 		                    				'#{facesContext.viewRoot.viewId}', 
 		                    				'#{util:addSubContext(cc.attrs.learningContext, &#34;name:activity_link|id:&#34;.concat(link.id))}', 
 		                    				null);">
-		                    		Open
+		                    		Open1
 			                    </a>
 			                </li>
 		            	</ui:repeat>    
@@ -198,7 +199,7 @@
 		                    				'#{facesContext.viewRoot.viewId}', 
 		                    				'#{util:addSubContext(cc.attrs.learningContext, &#34;name:activity_file|id:&#34;.concat(file.id))}', 
 		                    				null);">
-			                    	Download
+			                    	Download1
 			                    </a>
 			                </li>
 		            	</ui:repeat>    	             

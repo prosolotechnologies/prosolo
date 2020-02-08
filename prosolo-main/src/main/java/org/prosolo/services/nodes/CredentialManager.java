@@ -9,15 +9,16 @@ import org.prosolo.bigdata.common.exceptions.StaleDataException;
 import org.prosolo.common.domainmodel.annotation.Tag;
 import org.prosolo.common.domainmodel.assessment.AssessorAssignmentMethod;
 import org.prosolo.common.domainmodel.credential.*;
+import org.prosolo.common.event.EventQueue;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.search.util.credential.CredentialDeliverySortOption;
 import org.prosolo.search.util.credential.CredentialMembersSearchFilter;
 import org.prosolo.search.util.credential.CredentialSearchFilterManager;
+import org.prosolo.search.util.credential.CredentialStudentsInstructorFilter;
 import org.prosolo.services.assessment.data.AssessmentTypeConfig;
 import org.prosolo.services.common.data.SortOrder;
 import org.prosolo.services.data.Result;
-import org.prosolo.services.event.EventQueue;
 import org.prosolo.services.general.AbstractManager;
 import org.prosolo.services.nodes.config.credential.CredentialLoadConfig;
 import org.prosolo.services.nodes.data.*;
@@ -26,11 +27,13 @@ import org.prosolo.services.nodes.data.credential.*;
 import org.prosolo.services.nodes.data.resourceAccess.*;
 import org.prosolo.services.user.data.StudentData;
 import org.prosolo.services.user.data.UserData;
+import org.prosolo.services.user.data.UserGroupInstructorRemovalMode;
 import org.prosolo.services.user.data.UserLearningProgress;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 public interface CredentialManager extends AbstractManager {
 
@@ -271,12 +274,30 @@ public interface CredentialManager extends AbstractManager {
 	long getTargetCredentialNextCompToLearn(long credId, long userId) throws DbConnectionException;
 	
 	long getNumberOfUsersLearningCredential(long credId) throws DbConnectionException;
-	
-	List<StudentData> getCredentialStudentsData(long credId, int limit) throws DbConnectionException;
+
+	/**
+	 * Returns students enrolled in credential, taking into account {@code limit} (max number of students returned) and instructor filter.
+	 *
+	 * @param credId
+	 * @param instructorFilter
+	 * @param limit
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	List<StudentData> getCredentialStudentsData(long credId, CredentialStudentsInstructorFilter instructorFilter, int limit) throws DbConnectionException;
 
 	StudentData getCredentialStudentsData(long credId, long studentId) throws DbConnectionException;
-	
-	CredentialMembersSearchFilter[] getFiltersWithNumberOfStudentsBelongingToEachCategory(long credId)
+
+	/**
+	 * Returns filters populated with number of students belonging to each filter/category, taking into
+	 * account instructor filter
+	 *
+	 * @param credId
+	 * @param instructorFilter
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	CredentialMembersSearchFilter[] getFiltersWithNumberOfStudentsBelongingToEachCategory(long credId, CredentialStudentsInstructorFilter instructorFilter)
 			throws DbConnectionException;
 	
 	List<Credential1> getAllCredentials(long orgId, Session session) throws DbConnectionException;
@@ -284,13 +305,13 @@ public interface CredentialManager extends AbstractManager {
 	List<TargetCredential1> getTargetCredentialsForCredential(long credentialId, 
 			boolean justUncompleted) throws DbConnectionException;
 	
-	void updateCredentialVisibility(long credId, List<ResourceVisibilityMember> groups, 
-    		List<ResourceVisibilityMember> users, boolean visibleToAll, boolean visibleToAllChanged,
-    		UserContextData context) throws DbConnectionException;
+	void updateCredentialVisibility(long credId, List<ResourceVisibilityMember> groups,
+									List<ResourceVisibilityMember> users, boolean visibleToAll, boolean visibleToAllChanged,
+									Optional<UserGroupInstructorRemovalMode> instructorRemovalMode, UserContextData context) throws DbConnectionException;
 	
 	EventQueue updateCredentialVisibilityAndGetEvents(long credId, List<ResourceVisibilityMember> groups,
-    		List<ResourceVisibilityMember> users, boolean visibleToAll, boolean visibleToAllChanged,
-    		UserContextData context) throws DbConnectionException;
+													  List<ResourceVisibilityMember> users, boolean visibleToAll, boolean visibleToAllChanged,
+													  Optional<UserGroupInstructorRemovalMode> instructorRemovalMode, UserContextData context) throws DbConnectionException;
 	
 	boolean isVisibleToAll(long credId) throws DbConnectionException;
 
@@ -370,6 +391,14 @@ public interface CredentialManager extends AbstractManager {
 	
 	ResourceAccessData getResourceAccessData(long credId, long userId, ResourceAccessRequirements req) 
 			throws DbConnectionException;
+
+	/**
+	 * Returns ids of all competencies that are part of the credential with given id.
+	 * 
+	 * @param credId
+	 * @return
+	 */
+	List<Long> getIdsOfAllCompetencesInACredential(long credId);
 	
 	List<Long> getIdsOfAllCompetencesInACredential(long credId, Session session) throws DbConnectionException;
 	
@@ -414,10 +443,21 @@ public interface CredentialManager extends AbstractManager {
 	PaginatedResult<CredentialData> searchCredentialsForAdmin(long unitId, CredentialSearchFilterManager searchFilter, int limit, int page)
 			throws DbConnectionException, NullPointerException;
 
-	void updateDeliveryStartAndEnd(CredentialData deliveryData, UserContextData context)
+	void updateDeliveryStartAndEnd(CredentialData deliveryData, boolean alwaysAllowDeliveryStartChange, UserContextData context)
 			throws StaleDataException, IllegalDataStateException, DbConnectionException;
 
-	Result<Void> updateDeliveryStartAndEndAndGetEvents(CredentialData deliveryData, UserContextData context)
+	/**
+	 * Updates delivery start and end dates.
+	 *
+	 * @param deliveryData
+	 * @param alwaysAllowDeliveryStartChange - if true, no conditions are checked for delivery start and it is updated; otherwise update is not allowed if delivery has already started.
+	 * @param context
+	 * @return
+	 * @throws StaleDataException
+	 * @throws IllegalDataStateException
+	 * @throws DbConnectionException
+	 */
+	Result<Void> updateDeliveryStartAndEndAndGetEvents(CredentialData deliveryData, boolean alwaysAllowDeliveryStartChange, UserContextData context)
 			throws StaleDataException, IllegalDataStateException, DbConnectionException;
 
 	Long getInstructorUserId(long userId, long credId, Session session) throws DbConnectionException;
@@ -452,11 +492,10 @@ public interface CredentialManager extends AbstractManager {
 	 *
 	 * @param credentialId
 	 * @param studentId
-	 * @param session
 	 * @return
 	 * @throws DbConnectionException
 	 */
-	TargetCredential1 getTargetCredentialForStudentAndCredential(long credentialId, long studentId, Session session);
+	TargetCredential1 getTargetCredentialForStudentAndCredential(long credentialId, long studentId);
 
 	/**
 	 * Returns true if there is at least one competency in credential with evidence learning path enabled
@@ -478,4 +517,37 @@ public interface CredentialManager extends AbstractManager {
 	 */
 	List<CredentialIdData> getCompletedCredentialsBasicDataForCredentialsNotAddedToProfile(long userId);
 
+	/**
+	 * Returns id of the first 'original' credential with given competency for which specified user has
+	 * 'Edit' privilege
+	 *
+	 * @param compId
+	 * @param userId
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	long getIdOfFirstCredentialCompetenceIsAddedToAndUserHasEditPrivilegeFor(long compId, long userId);
+
+	List<Credential1> getDeliveriesWithUserGroupBasedOnStartDate(long userGroupId, boolean started);
+
+	/**
+	 * Returns target credentials of students from given credential assigned to the given instructor (instructor user id)
+	 * with unsubmitted instructor assessment.
+	 *
+	 * @param credId
+	 * @param instructorUserId
+	 * @return
+	 * @throws DbConnectionException
+	 */
+	List<TargetCredential1> getTargetCredentialsWithUnsubmittedInstructorAssessment(long credId, long instructorUserId);
+
+	/**
+	 * Returns true if delivery has started.
+	 *
+	 * @param credId
+	 * @return
+	 * @throws DbConnectionException
+	 * @throws ResourceNotFoundException
+	 */
+	boolean hasDeliveryStarted(long credId);
 }

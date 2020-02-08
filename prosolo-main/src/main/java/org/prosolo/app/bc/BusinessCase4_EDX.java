@@ -6,14 +6,15 @@ import org.prosolo.bigdata.common.exceptions.IllegalDataStateException;
 import org.prosolo.bigdata.common.exceptions.IndexingServiceNotAvailable;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
 import org.prosolo.common.domainmodel.comment.Comment1;
-import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.credential.LearningResourceType;
+import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.events.EventType;
 import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.common.domainmodel.organization.Unit;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
+import org.prosolo.common.event.EventQueue;
 import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.util.date.DateUtil;
@@ -22,19 +23,18 @@ import org.prosolo.services.admin.BulkDataAdministrationService;
 import org.prosolo.services.assessment.data.AssessmentTypeConfig;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventFactory;
-import org.prosolo.services.event.EventQueue;
 import org.prosolo.services.indexing.impl.NodeChangeObserver;
 import org.prosolo.services.interaction.CommentManager;
 import org.prosolo.services.interaction.FollowResourceManager;
 import org.prosolo.services.interaction.data.CommentData;
 import org.prosolo.services.nodes.*;
 import org.prosolo.services.nodes.config.competence.CompetenceLoadConfig;
-import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.data.ActivityResultType;
+import org.prosolo.services.nodes.data.*;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.credential.CredentialData;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceData;
-import org.prosolo.services.nodes.data.organization.OrganizationData;
+import org.prosolo.services.nodes.data.organization.OrganizationBasicData;
 import org.prosolo.services.user.UserManager;
 import org.prosolo.services.user.data.UserData;
 import org.prosolo.services.util.roles.SystemRoleNames;
@@ -59,12 +59,13 @@ import java.util.*;
  * @since 0.5
  */
 @Service
-public class BusinessCase4_EDX {
+public class BusinessCase4_EDX implements BusinessCase {
 
     private static Logger logger = Logger.getLogger(BusinessCase4_EDX.class.getName());
 
 	private SimpleDateFormat dateFormatter = new SimpleDateFormat("dd.MM.yyyy. HH:mm");
 
+	@Override
 	public void initRepository() {
         logger.info("BusinessCaseTest - initRepository() with BC 4");
 
@@ -91,7 +92,7 @@ public class BusinessCase4_EDX {
 				userNickPowell, null, null, params));
 
 		//create organization
-		OrganizationData orgData = new OrganizationData();
+		OrganizationBasicData orgData = new OrganizationBasicData();
 		orgData.setTitle("Desert Winds University");
 		orgData.setAdmins(Arrays.asList(new UserData(userNickPowell)));
 
@@ -510,7 +511,7 @@ public class BusinessCase4_EDX {
 					"analytics interpretation, gephi, learning analytics, sensemaking, social network analysis, tableau", LearningPathType.EVIDENCE);
 
 		} catch (Exception ex) {
-			logger.error(ex);
+			logger.error("error", ex);
 		}
 
 
@@ -621,49 +622,54 @@ public class BusinessCase4_EDX {
 			logger.error(ex);
 		}
 
-		/*
-		 * Commenting on activities/ competences
-		 */
-		CommentData comment1 = commentOnActivity(events, userIdaFritz, act1comp1cred1, null, "10.06.2016. 15:24", "Very good presentation. Well suited for the novices like I am.");
-		CommentData comment2 = commentOnActivity(events, userAnthonyMoore, act1comp1cred1, null, "12.06.2016. 09:50", "The video makes an important point of how individuals lay a data trail of interest that requires parties retrieving this information to proper understand the opportunities and confront “data overload” to best take advantage of this same data.");
-		CommentData comment3 = commentOnActivity(events, userErikaAmes, act1comp1cred1, comment2, "13.06.2016. 13:02", "anthony - I would add to information overload and decision quality, the issue with multitasking and shorter attention spans (a la twitter)");
-		CommentData comment4 = commentOnActivity(events, userKarenWhite, act2comp1cred1, comment2, "05.06.2016. 11:46", "The topics are well presented. Please take in account the fact that during the first week it is necessary for us, as learners, to become familiar with the dual-layer MOOC. This is important so every learner is building himself his knowledge");
-
-
-		CommentData comment5 = commentOnActivity(events, userKevinHall, act1comp1cred1, null, "11.07.2016. 12:37", "Very good video to explain the meaning of learning analytics. Thanks");
-		CommentData comment6 = commentOnActivity(events, userAnnaHallowell, act1comp1cred1, comment5, "11.07.2016. 17:42", "I also found this to be a concise introduction to learning analytics. :)");
-		CommentData comment7 = commentOnActivity(events, userAkikoKido, act1comp1cred1, null, "12.07.2016. 08:17", "Nice video. Thanks.");
-		CommentData comment8 = commentOnActivity(events, userIdaFritz, act1comp1cred1, null, "12.07.2016. 08:37", "Very concise, thanks");
-		CommentData comment9 = commentOnActivity(events, userRichardAnderson, act1comp1cred1, null, "14.07.2016. 15:05", "This is short yet to the point in introducing learning analytics. Thanks");
-		CommentData comment10 = commentOnActivity(events, userPhilArmstrong, act1comp1cred1, null, "12.07.2016. 16:21", "The video makes an important point of how individuals lay a data trail of interest that requires parties retrieving this information to proper understand the opportunities and confront “data overload” to best take advantage of this same data. In support of this point a study by Speier, Valacich, and Vessey (1999) state that “when information overload occurs, it is likely that a reduction in decision quality will occur” (p.338). Reference: Speier, C., Valacich, J. S., & Vessey, I. (1999). The influence of task interruption on individual decision making: An information overload perspective. Decision Sciences, 30(2), 337-360.");
-		CommentData comment11 = commentOnActivity(events, userKevinHall, act1comp1cred1, comment10, "13.07.2016. 10:52", "I would add to information overload and decision quality, the issue with multitasking and shorter attention spans (a la twitter)");
-
-		CommentData comment12 = commentOnActivity(events, userKevinHall, act4comp1cred1, null, "13.07.2016. 14:52", "I'm up to speed on the course design, but I wish I had found this video sooner!");
-		CommentData comment13 = commentOnActivity(events, userPhilArmstrong, act4comp1cred1, null, "14.07.2016. 09:51", "I LIKE the idea of assignment bank. Definitely, each has different learning pace. I LOATHE the idea of group work. That is one thing I always wish to avoid in the university.");
-		CommentData comment14 = commentOnActivity(events, userAnnaHallowell, act4comp1cred1, null, "14.07.2016. 12:43", "The topics are well presented. Please take in account the fact that during the first week it is necessary for us, as learners, to become familiar with the dual-layer MOOC. This is important so every learner is building himself his knowledge. ");
-		CommentData comment15 = commentOnActivity(events, userGeorgeYoung, act4comp1cred1, null, "15.07.2016. 16:22", "Interesting structure. Its taken me a while to orient myself with the course setup, but am quite enjoying the use of prosolo as it helps to integrate the social media, content and course activities. The list of goals and competences (activities) has provided the best structure so far. ");
-		CommentData comment16 = commentOnActivity(events, userKevinHall, act4comp1cred1, comment15, "16.07.2016. 20:37", "Great course.");
-
-		/*
-		 * Liking comments
-		 */
-		String commentContextMessage = "name:competence|id:1|context:/name:activity|id:1|context:/context:/name:comment|id:{0}/|name:target_activity|id:1//";
-
-		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment5.getCommentId(), UserContextData.of(userAkikoKido.getId(), org.getId(), null, null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment5.getCommentId()), null))));
-		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment5.getCommentId(), UserContextData.of(userIdaFritz.getId(), org.getId(), null, null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment5.getCommentId()), null))));
-		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment5.getCommentId(), UserContextData.of(userPhilArmstrong.getId(), org.getId(), null, null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment5.getCommentId()), null))));
-		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment5.getCommentId(), UserContextData.of(userGeorgeYoung.getId(), org.getId(), null, null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment5.getCommentId()), null))));
-		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment5.getCommentId(), UserContextData.of(userAnnaHallowell.getId(), org.getId(), null, null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment5.getCommentId()), null))));
-		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment6.getCommentId(), UserContextData.of(userIdaFritz.getId(), org.getId(), null, null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment6.getCommentId()), null))));
-		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment6.getCommentId(), UserContextData.of(userKevinHall.getId(), org.getId(), null, null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment6.getCommentId()), null))));
-		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment6.getCommentId(), UserContextData.of(userGeorgeYoung.getId(), org.getId(), null, null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment6.getCommentId()), null))));
-		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment9.getCommentId(), UserContextData.of(userPhilArmstrong.getId(), org.getId(), null, null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment9.getCommentId()), null))));
-		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment9.getCommentId(), UserContextData.of(userAnnaHallowell.getId(), org.getId(), null, null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment9.getCommentId()), null))));
-		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment12.getCommentId(), UserContextData.of(userPhilArmstrong.getId(), org.getId(), null, null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment12.getCommentId()), null))));
-		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment12.getCommentId(), UserContextData.of(userAnnaHallowell.getId(), org.getId(), null, null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment12.getCommentId()), null))));
-		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment13.getCommentId(), UserContextData.of(userIdaFritz.getId(), org.getId(), null, null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment13.getCommentId()), null))));
-		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment13.getCommentId(), UserContextData.of(userRichardAnderson.getId(), org.getId(), null, null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment13.getCommentId()), null))));
-		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment14.getCommentId(), UserContextData.of(userGeorgeYoung.getId(), org.getId(), null, null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment14.getCommentId()), null))));
+//		try {
+//			/*
+//			 * Commenting on activities/ competences
+//			 */
+//			CommentData comment1 = commentOnActivity(events, userIdaFritz, act1comp1cred1, null, "10.06.2016. 15:24", "Very good presentation. Well suited for the novices like I am.", cred1.getId());
+//			CommentData comment2 = commentOnActivity(events, userAnthonyMoore, act1comp1cred1, null, "12.06.2016. 09:50", "The video makes an important point of how individuals lay a data trail of interest that requires parties retrieving this information to proper understand the opportunities and confront “data overload” to best take advantage of this same data.", cred1.getId());
+//			CommentData comment3 = commentOnActivity(events, userErikaAmes, act1comp1cred1, comment2, "13.06.2016. 13:02", "anthony - I would add to information overload and decision quality, the issue with multitasking and shorter attention spans (a la twitter)", cred1.getId());
+//			CommentData comment4 = commentOnActivity(events, userKarenWhite, act2comp1cred1, comment2, "05.06.2016. 11:46", "The topics are well presented. Please take in account the fact that during the first week it is necessary for us, as learners, to become familiar with the dual-layer MOOC. This is important so every learner is building himself his knowledge", cred1.getId());
+//
+//
+//			CommentData comment5 = commentOnActivity(events, userKevinHall, act1comp1cred1, null, "11.07.2016. 12:37", "Very good video to explain the meaning of learning analytics. Thanks", cred1.getId());
+//			CommentData comment6 = commentOnActivity(events, userAnnaHallowell, act1comp1cred1, comment5, "11.07.2016. 17:42", "I also found this to be a concise introduction to learning analytics. :)", cred1.getId());
+//			CommentData comment7 = commentOnActivity(events, userAkikoKido, act1comp1cred1, null, "12.07.2016. 08:17", "Nice video. Thanks.", cred1.getId());
+//			CommentData comment8 = commentOnActivity(events, userIdaFritz, act1comp1cred1, null, "12.07.2016. 08:37", "Very concise, thanks", cred1.getId());
+//			CommentData comment9 = commentOnActivity(events, userRichardAnderson, act1comp1cred1, null, "14.07.2016. 15:05", "This is short yet to the point in introducing learning analytics. Thanks", cred1.getId());
+//			CommentData comment10 = commentOnActivity(events, userPhilArmstrong, act1comp1cred1, null, "12.07.2016. 16:21", "The video makes an important point of how individuals lay a data trail of interest that requires parties retrieving this information to proper understand the opportunities and confront “data overload” to best take advantage of this same data. In support of this point a study by Speier, Valacich, and Vessey (1999) state that “when information overload occurs, it is likely that a reduction in decision quality will occur” (p.338). Reference: Speier, C., Valacich, J. S., & Vessey, I. (1999). The influence of task interruption on individual decision making: An information overload perspective. Decision Sciences, 30(2), 337-360.", cred1.getId());
+//			CommentData comment11 = commentOnActivity(events, userKevinHall, act1comp1cred1, comment10, "13.07.2016. 10:52", "I would add to information overload and decision quality, the issue with multitasking and shorter attention spans (a la twitter)", cred1.getId());
+//
+//			CommentData comment12 = commentOnActivity(events, userKevinHall, act4comp1cred1, null, "13.07.2016. 14:52", "I'm up to speed on the course design, but I wish I had found this video sooner!", cred1.getId());
+//			CommentData comment13 = commentOnActivity(events, userPhilArmstrong, act4comp1cred1, null, "14.07.2016. 09:51", "I LIKE the idea of assignment bank. Definitely, each has different learning pace. I LOATHE the idea of group work. That is one thing I always wish to avoid in the university.", cred1.getId());
+//			CommentData comment14 = commentOnActivity(events, userAnnaHallowell, act4comp1cred1, null, "14.07.2016. 12:43", "The topics are well presented. Please take in account the fact that during the first week it is necessary for us, as learners, to become familiar with the dual-layer MOOC. This is important so every learner is building himself his knowledge. ", cred1.getId());
+//			CommentData comment15 = commentOnActivity(events, userGeorgeYoung, act4comp1cred1, null, "15.07.2016. 16:22", "Interesting structure. Its taken me a while to orient myself with the course setup, but am quite enjoying the use of prosolo as it helps to integrate the social media, content and course activities. The list of goals and competences (activities) has provided the best structure so far. ", cred1.getId());
+//			CommentData comment16 = commentOnActivity(events, userKevinHall, act4comp1cred1, comment15, "16.07.2016. 20:37", "Great course.", cred1.getId());
+//
+//			/*
+//			 * Liking comments
+//			 */
+//			String commentContextMessage = "name:competence|id:1|context:/name:activity|id:1|context:/context:/name:comment|id:{0}/|name:target_activity|id:1//";
+//
+//			extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment5.getCommentId(), UserContextData.of(userAkikoKido.getId(), org.getId(), null, null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment5.getCommentId()+""), null))));
+//			extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment5.getCommentId(), UserContextData.of(userIdaFritz.getId(), org.getId(), null, null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment5.getCommentId()+""), null))));
+//			extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment5.getCommentId(), UserContextData.of(userPhilArmstrong.getId(), org.getId(), null, null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment5.getCommentId()+""), null))));
+//			extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment5.getCommentId(), UserContextData.of(userGeorgeYoung.getId(), org.getId(), null, null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment5.getCommentId()+""), null))));
+//			extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment5.getCommentId(), UserContextData.of(userAnnaHallowell.getId(), org.getId(), null, null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment5.getCommentId()+""), null))));
+//			extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment6.getCommentId(), UserContextData.of(userIdaFritz.getId(), org.getId(), null, null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment6.getCommentId()+""), null))));
+//			extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment6.getCommentId(), UserContextData.of(userKevinHall.getId(), org.getId(), null, null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment6.getCommentId()+""), null))));
+//			extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment6.getCommentId(), UserContextData.of(userGeorgeYoung.getId(), org.getId(), null, null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment6.getCommentId()+""), null))));
+//			extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment9.getCommentId(), UserContextData.of(userPhilArmstrong.getId(), org.getId(), null, null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment9.getCommentId()+""), null))));
+//			extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment9.getCommentId(), UserContextData.of(userAnnaHallowell.getId(), org.getId(), null, null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment9.getCommentId()+""), null))));
+//			extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment12.getCommentId(), UserContextData.of(userPhilArmstrong.getId(), org.getId(), null, null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment12.getCommentId()+""), null))));
+//			extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment12.getCommentId(), UserContextData.of(userAnnaHallowell.getId(), org.getId(), null, null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment12.getCommentId()+""), null))));
+//			extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment13.getCommentId(), UserContextData.of(userIdaFritz.getId(), org.getId(), null, null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment13.getCommentId()+""), null))));
+//			extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment13.getCommentId(), UserContextData.of(userRichardAnderson.getId(), org.getId(), null, null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment13.getCommentId()+""), null))));
+//			extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CommentManager.class).likeCommentAndGetEvents(comment14.getCommentId(), UserContextData.of(userGeorgeYoung.getId(), org.getId(), null, null, new PageContextData("/activity.xhtml", MessageFormat.format(commentContextMessage, comment14.getCommentId()+""), null))));
+//		} catch (Exception e) {
+//			logger.error("error", e);
+//			throw new RuntimeException();
+//		}
 
 
 		////////////////////////////////
@@ -688,7 +694,7 @@ public class BusinessCase4_EDX {
 			// Lori starts the first competency
 			List<CompetenceData1> cred1CompetenciesLoriAbner = ServiceLocator.getInstance().getService(Competence1Manager.class).getCompetencesForCredential(cred1Delivery.getId(), userLoriAbner.getId(), new CompetenceLoadConfig.CompetenceLoadConfigBuilder().create());
 
-			TargetCompetence1 cred1Comp1TargetLoriAbner = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(cred1CompetenciesLoriAbner.get(0).getCompetenceId(), userLoriAbner.getId(), createUserContext(userLoriAbner)));
+			TargetCompetence1 cred1Comp1TargetLoriAbner = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(cred1Delivery.getId(), cred1CompetenciesLoriAbner.get(0).getCompetenceId(), userLoriAbner.getId(), createUserContext(userLoriAbner)));
 
 			// enroll other students
 			extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(CredentialManager.class).enrollInCredentialAndGetEvents(cred1Delivery.getId(), userGeorgeYoung.getId(), 0, createUserContext(userGeorgeYoung)));
@@ -718,8 +724,8 @@ public class BusinessCase4_EDX {
 			// Richard starts both competencies
 			List<CompetenceData1> cred4CompetenciesRichardAnderson = ServiceLocator.getInstance().getService(Competence1Manager.class).getCompetencesForCredential(cred4Delivery.getId(), userRichardAnderson.getId(), new CompetenceLoadConfig.CompetenceLoadConfigBuilder().create());
 
-			TargetCompetence1 cred4Comp1TargetRichardAnderson = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(cred4CompetenciesRichardAnderson.get(0).getCompetenceId(), userRichardAnderson.getId(), createUserContext(userRichardAnderson)));
-			TargetCompetence1 cred4Comp2TargetRichardAnderson = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(cred4CompetenciesRichardAnderson.get(1).getCompetenceId(), userRichardAnderson.getId(), createUserContext(userRichardAnderson)));
+			TargetCompetence1 cred4Comp1TargetRichardAnderson = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(cred4Delivery.getId(), cred4CompetenciesRichardAnderson.get(0).getCompetenceId(), userRichardAnderson.getId(), createUserContext(userRichardAnderson)));
+			TargetCompetence1 cred4Comp2TargetRichardAnderson = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(cred4Delivery.getId(), cred4CompetenciesRichardAnderson.get(1).getCompetenceId(), userRichardAnderson.getId(), createUserContext(userRichardAnderson)));
 
 			// Richard completes first competency
 			// create a piece of evidence and add to
@@ -735,8 +741,7 @@ public class BusinessCase4_EDX {
 					cred4Comp1TargetRichardAnderson.getId(), evidence1Data, createUserContext(userRichardAnderson)));
 
 			// mark the competency as completed
-			extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).completeCompetenceAndGetEvents(
-					cred4Comp1TargetRichardAnderson.getId(), createUserContext(userRichardAnderson)));
+			markCompetencyAsCompleted(events, cred4Comp1TargetRichardAnderson.getId(), cred4CompetenciesRichardAnderson.get(0).getCompetenceId(), cred4Delivery.getId(), userRichardAnderson);
 
 			// Richard completes first competency
 			List<ActivityData> cred2Comp2Activities = ServiceLocator.getInstance().getService(Activity1Manager.class).getTargetActivitiesData(cred4Comp2TargetRichardAnderson.getId());
@@ -747,8 +752,7 @@ public class BusinessCase4_EDX {
 					createUserContext(userRichardAnderson)));
 
 			// mark the competency as completed
-			extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).completeCompetenceAndGetEvents(
-					cred4Comp2TargetRichardAnderson.getId(), createUserContext(userRichardAnderson)));
+			markCompetencyAsCompleted(events, cred4Comp2TargetRichardAnderson.getId(), cred4CompetenciesRichardAnderson.get(1).getCompetenceId(), cred4Delivery.getId(), userRichardAnderson);
 
 			// the credential is completed at this point
 
@@ -758,8 +762,8 @@ public class BusinessCase4_EDX {
             // Lori starts both competencies
             List<CompetenceData1> cred4CompetenciesLoriAbner = ServiceLocator.getInstance().getService(Competence1Manager.class).getCompetencesForCredential(cred4Delivery.getId(), userLoriAbner.getId(), new CompetenceLoadConfig.CompetenceLoadConfigBuilder().create());
 
-            TargetCompetence1 cred4Comp1Target = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(cred4CompetenciesLoriAbner.get(0).getCompetenceId(), userLoriAbner.getId(), createUserContext(userLoriAbner)));
-            TargetCompetence1 cred4Comp2Target = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(cred4CompetenciesLoriAbner.get(1).getCompetenceId(), userLoriAbner.getId(), createUserContext(userLoriAbner)));
+            TargetCompetence1 cred4Comp1Target = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(cred4Delivery.getId(), cred4CompetenciesLoriAbner.get(0).getCompetenceId(), userLoriAbner.getId(), createUserContext(userLoriAbner)));
+            TargetCompetence1 cred4Comp2Target = extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).enrollInCompetenceAndGetEvents(cred4Delivery.getId(), cred4CompetenciesLoriAbner.get(1).getCompetenceId(), userLoriAbner.getId(), createUserContext(userLoriAbner)));
 
             // give learn privilege to Akiko Kido
             givePrivilegeToUsersOnDelivery(events, cred4Delivery, UserGroupPrivilege.Learn, userNickPowell, org, Arrays.asList(userAkikoKido));
@@ -803,7 +807,7 @@ public class BusinessCase4_EDX {
 		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(FollowResourceManager.class).followUserAndGetEvents(userSheriLaureano.getId(),  createUserContext(userJosephGarcia)));
 		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(FollowResourceManager.class).followUserAndGetEvents(userKevinHall.getId(),  createUserContext(userAngelicaFallon)));
 
-		ServiceLocator.getInstance().getService(EventFactory.class).generateEvents(events, new Class[]{NodeChangeObserver.class});
+		ServiceLocator.getInstance().getService(EventFactory.class).generateAndPublishEvents(events, new Class[]{NodeChangeObserver.class});
 
 		try {
 			logger.info("Reindexing all indices since we know some observers have failed");
@@ -817,14 +821,19 @@ public class BusinessCase4_EDX {
 		return UserContextData.of(user.getId(), user.getOrganization().getId(), null, null, null);
 	}
 
+	protected UserContextData createUserContext(User user, PageContextData context) {
+		return UserContextData.of(user.getId(), user.getOrganization().getId(), null, null, context);
+	}
+
 	private <T> T extractResultAndAddEvents(EventQueue events, Result<T> result) {
 		events.appendEvents(result.getEventQueue());
 		return result.getResult();
 	}
 
-	private CommentData commentOnActivity(EventQueue events, User userKevinHall, Activity1 act1comp1cred1, CommentData parent, String date, String commentText) {
+	private CommentData commentOnActivity(EventQueue events, User userKevinHall, CommentData parent, String date, String commentText, long credentialId, long competenceId, long targetActivityId, long activityId) throws IllegalDataStateException {
 		CommentData newComment = new CommentData();
-		newComment.setCommentedResourceId(act1comp1cred1.getId());
+		newComment.setCommentedResourceId(activityId);
+		newComment.setCommentedResourceType(CommentedResourceType.Activity);
 		try {
 			newComment.setDateCreated(dateFormatter.parse(date));
 		} catch (ParseException e) {
@@ -834,7 +843,7 @@ public class BusinessCase4_EDX {
 		newComment.setCreator(new UserData(userKevinHall));
 		newComment.setParent(parent);
 
-		String learningContext= MessageFormat.format("name:competence|id:1|context:/name:activity|id:1|context:/context:/name:comment/|name:target_activity|id:1//", act1comp1cred1.getId());
+		String learningContext= MessageFormat.format("name:CREDENTIAL|id:{0}|context:/name:COMPETENCE|id:{1}|context:/name:ACTIVITY|id:{2}|context:/name:TARGET_ACTIVITY|id:{3}///", credentialId+"", competenceId+"", activityId+"", targetActivityId+"");
 
 		PageContextData context = new PageContextData("/activity.xhtml", learningContext, null );
 
@@ -857,7 +866,7 @@ public class BusinessCase4_EDX {
 
         events.appendEvents(ServiceLocator.getInstance().getService(CredentialManager.class).updateCredentialVisibilityAndGetEvents(
                 delivery.getId(), new LinkedList<>(), studentsToAdd,false, false,
-                UserContextData.of(actor.getId(), org.getId(), null, null, null)));
+				Optional.empty(), UserContextData.of(actor.getId(), org.getId(), null, null, null)));
     }
 
     private void givePrivilegeToGroupOnDelivery(EventQueue events, Credential1 delivery, UserGroupPrivilege userGroupPrivilege, User actor, Organization org, List<Long> groupIds) {
@@ -871,7 +880,7 @@ public class BusinessCase4_EDX {
 
         events.appendEvents(ServiceLocator.getInstance().getService(CredentialManager.class).updateCredentialVisibilityAndGetEvents(
                 delivery.getId(), groupsToAdd, new LinkedList<>(), false, false,
-                UserContextData.of(actor.getId(), org.getId(), null, null, null)));
+				Optional.empty(), UserContextData.of(actor.getId(), org.getId(), null, null, null)));
     }
 
 	private long getDaysFromNow(int days) {
@@ -985,7 +994,7 @@ public class BusinessCase4_EDX {
 		AssessmentTypeConfig instructorAssessment = new AssessmentTypeConfig(-1, AssessmentType.INSTRUCTOR_ASSESSMENT, true, true);
 		AssessmentTypeConfig peerAssessment = new AssessmentTypeConfig(-1, AssessmentType.PEER_ASSESSMENT, true, false);
 		AssessmentTypeConfig selfAssessment = new AssessmentTypeConfig(-1, AssessmentType.SELF_ASSESSMENT, true, false);
-		compData.setAssessmentTypes(Arrays.asList(instructorAssessment, peerAssessment, selfAssessment));
+		compData.setAssessmentTypes(Arrays.asList(selfAssessment, peerAssessment, instructorAssessment));
 
 		Competence1 comp;
 		try {
@@ -1016,6 +1025,14 @@ public class BusinessCase4_EDX {
 			logger.error(e.getLocalizedMessage());
 		}
 		return null;
+	}
+
+	protected void markCompetencyAsCompleted(EventQueue events, long targetCompetenceId, long competenceId, long credentialId, User user) {
+		String learningContext= MessageFormat.format("name:CREDENTIAL|id:{0}|context:/name:COMPETENCE|id:{1}|context:/name:TARGET_COMPETENCE|id:{2}//", credentialId+"", competenceId+"", targetCompetenceId+"");
+
+		PageContextData context = new PageContextData("/competence.xhtml", learningContext, null);
+
+		extractResultAndAddEvents(events, ServiceLocator.getInstance().getService(Competence1Manager.class).completeCompetenceAndGetEvents(targetCompetenceId, createUserContext(user, context)));
 	}
 
 }

@@ -1,10 +1,13 @@
 package org.prosolo.web.learningevidence;
 
+import lombok.Getter;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.services.nodes.LearningEvidenceManager;
+import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceData;
 import org.prosolo.services.nodes.data.evidence.LearningEvidenceLoadConfig;
+import org.prosolo.services.nodes.data.organization.EvidenceRepositoryPluginData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.LoggedUserBean;
@@ -36,11 +39,15 @@ public class LearningEvidenceBean implements Serializable {
     @Inject private LearningEvidenceManager learningEvidenceManager;
     @Inject private LoggedUserBean loggedUserBean;
     @Inject private UrlIdEncoder idEncoder;
+    @Inject private OrganizationManager organizationManager;
 
     private String evidenceId;
 
     private LearningEvidenceData evidence;
     private ResourceAccessData access;
+
+    @Getter
+    private EvidenceRepositoryPluginData evidenceRepositoryPluginData;
 
     public void init() {
         try {
@@ -58,6 +65,9 @@ public class LearningEvidenceBean implements Serializable {
                     if (access == null || !access.isCanAccess()) {
                         PageUtil.accessDenied();
                     }
+
+                    // load evidence repository plugin data
+                    evidenceRepositoryPluginData = organizationManager.getOrganizationEvidenceRepositoryPluginData(loggedUserBean.getOrganizationId());
                 }
             } else {
                 PageUtil.notFound();

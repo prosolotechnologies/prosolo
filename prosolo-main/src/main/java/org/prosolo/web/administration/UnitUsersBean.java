@@ -13,6 +13,7 @@ import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.services.util.roles.SystemRoleNames;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.PageAccessRightsResolver;
+import org.prosolo.web.administration.usergroupusers.ImportUsersBean;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.prosolo.web.util.pagination.Paginable;
@@ -66,7 +67,7 @@ public class UnitUsersBean implements Serializable, Paginable {
 	private String organizationTitle;
 	private String unitTitle;
 
-	public void initTeachers() {
+	public void initManagers() {
 		init(SystemRoleNames.MANAGER);
 	}
 

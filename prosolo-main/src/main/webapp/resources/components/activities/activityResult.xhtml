@@ -8,7 +8,9 @@
 		xmlns:post="http://java.sun.com/jsf/composite/components/post"
 		xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
 		xmlns:util="http://www.prosolo.com/util"
-		xmlns:c="http://java.sun.com/jsp/jstl/core">
+		xmlns:c="http://java.sun.com/jsp/jstl/core"
+		xmlns:assessment="http://java.sun.com/jsf/composite/components/assessments"
+>
 
 	<composite:interface>
 		<composite:attribute name="activityTitle" required="true" />
@@ -24,8 +26,9 @@
 		<composite:attribute name="otherResultCommentModalId" default="" />
 		<composite:attribute name="toUpdateOtherResultCommentModal" default="" />
 		<composite:attribute name="privateConvNumberOfMsgsLink" default=""/>
-		<composite:attribute name="assessmentGradeLinkOnComplete" default="" />
+		<composite:attribute name="gradePanelSidebarId" default="" />
 		<composite:attribute name="toUpdateAssessmentGradeModal" default="" />
+		<composite:attribute name="toUpdateReadonlyRubricPanel" default="" />
 		<composite:attribute name="studentCanEditResponse" default="false" />
 		<composite:attribute name="gradeLink" default=""/>
 		<composite:attribute name="credId" default="0" />
@@ -47,9 +50,9 @@
 							fullName="#{cc.attrs.resultData.user.fullName}" />
 						<h3>
 							<c:if test="#{cc.attrs.role eq 'USER'}">
-								<h:link outcome="/profile">
+								<h:link outcome="/profile-legacy">
 									#{cc.attrs.resultData.user.fullName}
-									<f:param name="id" value="#{util:encodeId(cc.attrs.resultData.user.id)}" />
+									<f:param name="studentId" value="#{util:encodeId(cc.attrs.resultData.user.id)}" />
 								</h:link>
 							</c:if>
 							<c:if test="#{cc.attrs.role eq 'MANAGER'}">
@@ -93,63 +96,34 @@
 					</ui:fragment>
 
 					<h:panelGroup layout="block" styleClass="resultOptions" rendered="#{cc.attrs.resultData.assessment.credAssessmentId gt 0}">
-						<span>Assessment Comments:</span>
-						<p:commandLink
-							styleClass="commentsIcon #{cc.attrs.privateConvNumberOfMsgsLink}"
-							onclick="markDiscussionAsSeen('#{cc.attrs.resultData.assessment.encodedActivityAssessmentId}',this.parentElement)"
-							action="#{activityAssessmentBean.prepareLearningResourceAssessmentForCommenting(cc.attrs.resultData.assessment)}"
-							update="#{cc.attrs.toUpdateConvModal}"
-							oncomplete="$('##{cc.attrs.privateConvModalId}').modal('show');">
-							#{cc.attrs.resultData.assessment.numberOfMessages}
-						</p:commandLink>
-
-						<ui:fragment rendered="#{cc.attrs.bean.isCurrentUserAssessor(cc.attrs.resultData)}">
-							<ui:fragment rendered="#{cc.attrs.resultData.assessment.grade.gradingMode ne 'NONGRADED'}">
-								<p:commandLink rendered="#{not cc.attrs.resultData.assessment.compAssessment.approved}"
-										styleClass="grade #{cc.attrs.gradeLink} #{styleUtilBean.getGradeStarClass(cc.attrs.resultData.assessment.grade.getAssessmentStarData())}"
-										action="#{activityAssessmentBean.prepareLearningResourceAssessmentForGrading(cc.attrs.resultData.assessment)}"
-										update="#{cc.attrs.toUpdateAssessmentGradeModal} #{cc.attrs.growlToUpdate}"
-										oncomplete="#{cc.attrs.assessmentGradeLinkOnComplete}">
-									<ui:fragment rendered="#{cc.attrs.resultData.assessment.grade.pointBasedGrading}">
-										#{cc.attrs.resultData.assessment.grade.currentGrade != null and cc.attrs.resultData.assessment.grade.isAssessed() ? cc.attrs.resultData.assessment.grade.currentGrade : '-'}  /
-										#{cc.attrs.resultData.assessment.grade.maxGrade}
-									</ui:fragment>
-								</p:commandLink>
-								<ui:fragment rendered="#{cc.attrs.resultData.assessment.compAssessment.approved}">
-									<a href="javascript:void(0);" class="grade #{styleUtilBean.getGradeStarClass(cc.attrs.resultData.assessment.grade.assessmentStarData)}"
-									   data-html="true"
-									   data-toggle="tooltip"
-									   title="Grade cannot be edited for submitted assessment.&#60;br/&#62;&#60;br/&#62;#{styleUtilBean.getAssessmentStarTooltip(cc.attrs.resultData.assessment.grade, 'ACTIVITY')}">
-										<ui:fragment rendered="#{cc.attrs.resultData.assessment.grade.pointBasedGrading}">
-											#{cc.attrs.resultData.assessment.grade.currentGrade != null and cc.attrs.resultData.assessment.grade.isAssessed() ? cc.attrs.resultData.assessment.grade.currentGrade : '-'}  /
-											#{cc.attrs.resultData.assessment.grade.maxGrade}
-										</ui:fragment>
-										<ui:fragment rendered="#{!cc.attrs.resultData.assessment.grade.pointBasedGrading}">
-											Rubric
-										</ui:fragment>
-									</a>
-								</ui:fragment>
-							</ui:fragment>
-							<ui:fragment rendered="#{cc.attrs.resultData.assessment.grade.gradingMode eq 'NONGRADED'}">
-								<a href="javascript:void(0);" class="grade"
-								   data-toggle="tooltip"
-								   title="Nongraded activity">
-								</a>
-							</ui:fragment>
+						<ui:fragment rendered="#{cc.attrs.bean.isCurrentUserAssessor(cc.attrs.resultData) and cc.attrs.resultData.assessment.privateDiscussionEnabled}">
+							<span>Assessment Comments:</span>
+							<p:commandLink
+								styleClass="commentsIcon #{cc.attrs.privateConvNumberOfMsgsLink}"
+								onclick="markDiscussionAsSeen('#{cc.attrs.resultData.assessment.encodedActivityAssessmentId}',this.parentElement)"
+								action="#{activityAssessmentBean.prepareLearningResourceAssessmentForCommenting(cc.attrs.resultData.assessment)}"
+								update="#{cc.attrs.toUpdateConvModal}"
+								oncomplete="$('##{cc.attrs.privateConvModalId}').modal('show');">
+								#{cc.attrs.resultData.assessment.numberOfMessages}
+								<p:resetInput target="#{cc.attrs.toUpdateConvModal}"/>
+							</p:commandLink>
 						</ui:fragment>
 
-						<ui:fragment rendered="#{not cc.attrs.bean.isCurrentUserAssessor(cc.attrs.resultData)}">
-							<a
-									class="grade #{styleUtilBean.getGradeStarClass(cc.attrs.resultData.assessment.grade.getAssessmentStarData())}"
-									disabled="disabled"
-									data-toggle="tooltip"
-									title="Only assessor can update the grade">
-								<ui:fragment rendered="#{cc.attrs.resultData.assessment.grade.pointBasedGrading}">
-									#{cc.attrs.resultData.assessment.grade.currentGrade != null and cc.attrs.resultData.assessment.grade.isAssessed() ? cc.attrs.resultData.assessment.grade.currentGrade : '-'}  /
-									#{cc.attrs.resultData.assessment.grade.maxGrade}
-								</ui:fragment>
-							</a>
-						</ui:fragment>
+						<assessment:gradeLabel
+								assessment="#{cc.attrs.resultData.assessment}"
+								assessmentBean="#{activityAssessmentBean}"
+								currentUserAssessedStudent="false"
+								currentUserAssessor="#{cc.attrs.bean.isCurrentUserAssessor(cc.attrs.resultData)}"
+								gradeData="#{cc.attrs.resultData.assessment.grade}"
+								userAllowedToSeeRubric="false"
+								gradeLinkSelectorId="#{cc.attrs.gradeLink}"
+								toUpdateGradePanel="#{cc.attrs.toUpdateAssessmentGradeModal}"
+								gradePanelSidebarId="#{cc.attrs.gradePanelSidebarId}"
+								toUpdateReadonlyRubricPanel="#{cc.attrs.toUpdateReadonlyRubricPanel}"
+								growlToUpdate="#{cc.attrs.growlToUpdate}"
+								assessmentStatus="#{cc.attrs.resultData.assessment.compAssessment.status}"
+								learningResource="ACTIVITY"
+						/>
 					</h:panelGroup>
 				</c:if>
 
@@ -211,9 +185,9 @@
 							fullName="#{cc.attrs.resultData.user.fullName}" />
 						<h3>
 							<c:if test="#{cc.attrs.role eq 'USER'}">
-								<h:link outcome="/profile">
+								<h:link outcome="/profile-legacy">
 									#{cc.attrs.resultData.user.fullName}
-									<f:param name="id" value="#{util:encodeId(cc.attrs.resultData.user.id)}" />
+									<f:param name="studentId" value="#{util:encodeId(cc.attrs.resultData.user.id)}" />
 								</h:link>
 							</c:if>
 							<c:if test="#{cc.attrs.role eq 'MANAGER'}">
@@ -256,17 +230,12 @@
 								<h:form>
 									<h:inputTextarea value="#{cc.attrs.resultData.result}" />
 
-									<ui:remove>
-										<div class="contentEditableComment" contenteditable="true"
-											strip-br="true">#{cc.attrs.resultData.result}</div>
-									</ui:remove>
-
 									<p:commandLink styleClass="btn btn-sm btn-green"
-										action="#{activityResultBean.updateTextResponse(cc.attrs.resultData)}"
-										onclick="$('.activityResultTextContent textarea').val(tinyMCE.activeEditor.getContent());"
-										update="#{cc.attrs.regionToUpdate} #{cc.attrs.growlToUpdate}">
-										<f:param name="page" value="#{facesContext.viewRoot.viewId}" />
-										<f:param name="learningContext" value="#{cc.attrs.learningContext}" />
+												   action="#{activityResultBean.updateTextResponse(cc.attrs.resultData)}"
+												   onclick="$('.activityResultTextContent textarea').val(tinyMCE.activeEditor.getContent());"
+												   update="#{cc.attrs.regionToUpdate} #{cc.attrs.growlToUpdate}">
+										<f:param name="page" value="#{facesContext.viewRoot.viewId}"/>
+										<f:param name="learningContext" value="#{cc.attrs.learningContext}"/>
 										Submit
 									</p:commandLink>
 
@@ -297,63 +266,33 @@
 					</ui:fragment>
 
 					<h:panelGroup layout="block" styleClass="resultOptions" rendered="#{cc.attrs.resultData.assessment.credAssessmentId gt 0}">
-						<span>Assessment Comments:</span>
-						<p:commandLink
-							styleClass="commentsIcon #{cc.attrs.privateConvNumberOfMsgsLink}"
-							onclick="markDiscussionAsSeen('#{cc.attrs.resultData.assessment.encodedActivityAssessmentId}',this.parentElement)"
-							action="#{activityAssessmentBean.prepareLearningResourceAssessmentForCommenting(cc.attrs.resultData.assessment)}"
-							update="#{cc.attrs.toUpdateConvModal}"
-							oncomplete="$('##{cc.attrs.privateConvModalId}').modal('show');">
-		                 	#{cc.attrs.resultData.assessment.numberOfMessages}
-						</p:commandLink>
-
-						<ui:fragment rendered="#{cc.attrs.bean.isCurrentUserAssessor(cc.attrs.resultData)}">
-							<ui:fragment rendered="#{cc.attrs.resultData.assessment.grade.gradingMode ne 'NONGRADED'}">
-								<p:commandLink rendered="#{not cc.attrs.resultData.assessment.compAssessment.approved}"
-											   styleClass="grade #{cc.attrs.gradeLink} #{styleUtilBean.getGradeStarClass(cc.attrs.resultData.assessment.grade.getAssessmentStarData())}"
-											   action="#{activityAssessmentBean.prepareLearningResourceAssessmentForGrading(cc.attrs.resultData.assessment)}"
-											   update="#{cc.attrs.toUpdateAssessmentGradeModal} #{cc.attrs.growlToUpdate}"
-											   oncomplete="#{cc.attrs.assessmentGradeLinkOnComplete}">
-									<ui:fragment rendered="#{cc.attrs.resultData.assessment.grade.pointBasedGrading}">
-										#{cc.attrs.resultData.assessment.grade.currentGrade != null and cc.attrs.resultData.assessment.grade.isAssessed() ? cc.attrs.resultData.assessment.grade.currentGrade : '-'}  /
-										#{cc.attrs.resultData.assessment.grade.maxGrade}
-									</ui:fragment>
-								</p:commandLink>
-								<ui:fragment rendered="#{cc.attrs.resultData.assessment.compAssessment.approved}">
-									<a href="javascript:void(0);" class="grade #{styleUtilBean.getGradeStarClass(cc.attrs.resultData.assessment.grade.assessmentStarData)}"
-									   data-html="true"
-									   data-toggle="tooltip"
-									   title="Grade cannot be edited for submitted assessment.&#60;br/&#62;&#60;br/&#62;#{styleUtilBean.getAssessmentStarTooltip(cc.attrs.resultData.assessment.grade, 'ACTIVITY')}">
-										<ui:fragment rendered="#{cc.attrs.resultData.assessment.grade.pointBasedGrading}">
-											#{cc.attrs.resultData.assessment.grade.currentGrade != null and cc.attrs.resultData.assessment.grade.isAssessed() ? cc.attrs.resultData.assessment.grade.currentGrade : '-'}  /
-											#{cc.attrs.resultData.assessment.grade.maxGrade}
-										</ui:fragment>
-										<ui:fragment rendered="#{!cc.attrs.resultData.assessment.grade.pointBasedGrading}">
-											Rubric
-										</ui:fragment>
-									</a>
-								</ui:fragment>
-							</ui:fragment>
-							<ui:fragment rendered="#{cc.attrs.resultData.assessment.grade.gradingMode eq 'NONGRADED'}">
-								<a href="javascript:void(0);" class="grade"
-								   data-toggle="tooltip"
-								   title="Nongraded activity">
-								</a>
-							</ui:fragment>
+						<ui:fragment rendered="#{cc.attrs.bean.isCurrentUserAssessor(cc.attrs.resultData) and cc.attrs.resultData.assessment.privateDiscussionEnabled}">
+							<span>Assessment Comments:</span>
+							<p:commandLink
+								styleClass="commentsIcon #{cc.attrs.privateConvNumberOfMsgsLink}"
+								onclick="markDiscussionAsSeen('#{cc.attrs.resultData.assessment.encodedActivityAssessmentId}',this.parentElement)"
+								action="#{activityAssessmentBean.prepareLearningResourceAssessmentForCommenting(cc.attrs.resultData.assessment)}"
+								update="#{cc.attrs.toUpdateConvModal}"
+								oncomplete="$('##{cc.attrs.privateConvModalId}').modal('show');">
+								#{cc.attrs.resultData.assessment.numberOfMessages}
+								<p:resetInput target="#{cc.attrs.toUpdateConvModal}"/>
+							</p:commandLink>
 						</ui:fragment>
-
-						<ui:fragment rendered="#{not cc.attrs.bean.isCurrentUserAssessor(cc.attrs.resultData)}">
-							<a
-									class="grade #{styleUtilBean.getGradeStarClass(cc.attrs.resultData.assessment.grade.getAssessmentStarData())}"
-									disabled="disabled"
-									data-toggle="tooltip"
-									title="Only assessor can update the grade">
-								<ui:fragment rendered="#{cc.attrs.resultData.assessment.grade.pointBasedGrading}">
-									#{cc.attrs.resultData.assessment.grade.currentGrade != null and cc.attrs.resultData.assessment.grade.isAssessed() ? cc.attrs.resultData.assessment.grade.currentGrade : '-'}  /
-									#{cc.attrs.resultData.assessment.grade.maxGrade}
-								</ui:fragment>
-							</a>
-						</ui:fragment>
+						<assessment:gradeLabel
+								assessment="#{cc.attrs.resultData.assessment}"
+								assessmentBean="#{activityAssessmentBean}"
+								currentUserAssessedStudent="false"
+								currentUserAssessor="#{cc.attrs.bean.isCurrentUserAssessor(cc.attrs.resultData)}"
+								gradeData="#{cc.attrs.resultData.assessment.grade}"
+								userAllowedToSeeRubric="false"
+								gradeLinkSelectorId="#{cc.attrs.gradeLink}"
+								toUpdateGradePanel="#{cc.attrs.toUpdateAssessmentGradeModal}"
+								gradePanelSidebarId="#{cc.attrs.gradePanelSidebarId}"
+								toUpdateReadonlyRubricPanel="#{cc.attrs.toUpdateReadonlyRubricPanel}"
+								growlToUpdate="#{cc.attrs.growlToUpdate}"
+								assessmentStatus="#{cc.attrs.resultData.assessment.compAssessment.status}"
+								learningResource="ACTIVITY"
+						/>
 					</h:panelGroup>
 				</c:if>
 				

@@ -10,9 +10,9 @@ import org.prosolo.common.domainmodel.organization.Organization;
 import org.prosolo.common.domainmodel.rubric.Rubric;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.domainmodel.user.UserGroup;
+import org.prosolo.common.event.Event;
+import org.prosolo.common.event.EventObserver;
 import org.prosolo.core.db.hibernate.HibernateUtil;
-import org.prosolo.services.event.Event;
-import org.prosolo.services.event.EventObserver;
 import org.prosolo.services.indexing.impl.elasticSearchObserver.NodeChangeProcessor;
 import org.prosolo.services.indexing.impl.elasticSearchObserver.NodeChangeProcessorFactory;
 import org.prosolo.services.nodes.DefaultManager;
@@ -81,7 +81,9 @@ public class NodeChangeObserver extends EventObserver {
 			EventType.AssessmentRequested,
 			EventType.ASSESSED_BY_AUTO_GRADING,
 			EventType.GRADE_ADDED,
-			EventType.AssessmentApproved
+			EventType.AssessmentApproved,
+			EventType.ADD_USER_AS_GROUP_INSTRUCTOR,
+			EventType.REMOVE_USER_AS_GROUP_INSTRUCTOR
 		};
 	}
 

@@ -25,14 +25,12 @@
 					</h:link>
 				</li>
 				<ui:fragment rendered="#{cc.attrs.enrolled}">
-					<li role="presentation" class="#{page eq 'competence-instructor-assessments'
-													 or page eq 'competence-instructor-assessment'
+					<li role="presentation" class="#{page eq 'competence-instructor-assessment'
 													 or page eq 'competence-self-assessment'
 													  or page eq 'competence-peer-assessments'
 													  or page eq 'competence-peer-assessment' ? 'active' : ''}">
-						<h:link
-								value="Assessments"
-								outcome="/competence-instructor-assessments">
+						<h:link value="Assessments"
+								outcome="/competence-assessments-root">
 							<f:param name="credId" value="#{util:encodeId(cc.attrs.credId)}" disable="#{cc.attrs.credId eq 0}"></f:param>
 							<f:param name="compId" value="#{util:encodeId(cc.attrs.compId)}" />
 						</h:link>

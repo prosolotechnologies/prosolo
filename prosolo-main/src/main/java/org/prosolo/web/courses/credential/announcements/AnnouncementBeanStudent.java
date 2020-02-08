@@ -1,5 +1,7 @@
 package org.prosolo.web.courses.credential.announcements;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.log4j.Logger;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.services.nodes.AnnouncementManager;
@@ -27,175 +29,177 @@ import java.util.Map;
 @Scope("view")
 public class AnnouncementBeanStudent implements Serializable, Paginable {
 
-	private static final long serialVersionUID = 6993318770664557315L;
-	private static Logger logger = Logger.getLogger(AnnouncementBeanStudent.class);
+    private static final long serialVersionUID = 6993318770664557315L;
+    private static Logger logger = Logger.getLogger(AnnouncementBeanStudent.class);
 
-	@Inject
-	private AnnouncementManager announcementManager;
-	@Inject
-	private UrlIdEncoder idEncoder;
-	@Inject
-	private LoggedUserBean loggedUser;
-	@Inject
-	private CredentialManager credManager;
+    @Inject
+    private AnnouncementManager announcementManager;
+    @Inject
+    private UrlIdEncoder idEncoder;
+    @Inject
+    private LoggedUserBean loggedUser;
+    @Inject
+    private CredentialManager credManager;
 
-	private String credentialId;
-	private long decodedCredentialId;
-	private String announcementId;
-	private AnnouncementData announcementData;
-	private CredentialData credentialData;
-	
+    private String credentialId;
+    private long decodedCredentialId;
+    @Getter
+    @Setter
+    private String announcementId;
+    private AnnouncementData announcementData;
+    private CredentialData credentialData;
 
-	private List<AnnouncementData> announcements = new ArrayList<>();
 
-	private PaginationData paginationData = new PaginationData();
+    private List<AnnouncementData> announcements = new ArrayList<>();
 
-	public void init() {
-		decodedCredentialId = idEncoder.decodeId(credentialId);
+    private PaginationData paginationData = new PaginationData();
 
-		if (decodedCredentialId > 0) {
-			try {
-				boolean userEnrolled = credManager.isUserEnrolled(decodedCredentialId, loggedUser.getUserId());
+    @Getter
+    @Setter
+    private int page;
 
-				if (!userEnrolled) {
-					PageUtil.accessDenied();
-				} else {
-					this.credentialData = credManager
-							.getFullTargetCredentialOrCredentialData(decodedCredentialId, loggedUser.getUserId());
-					initializeCredentialData(this.credentialData);
-				}
-			} catch (Exception e) {
-				PageUtil.fireErrorMessage("Error loading credential data");
-			}
-		} else {
-			PageUtil.notFound();
-		}
-	}
+    public void init() {
+        decodedCredentialId = idEncoder.decodeId(credentialId);
 
-	private void initializeCredentialData(CredentialData credentialData) throws ResourceCouldNotBeLoadedException {
-		announcements = announcementManager
-				.getAllAnnouncementsForCredential(decodedCredentialId, paginationData.getPage() - 1, paginationData.getLimit());
-		paginationData.update(announcementManager.numberOfAnnouncementsForCredential(
-				idEncoder.decodeId(credentialId)));
-	}
-	
-	/**
-	 * Invoked when user navigates to credential/{id}/announcements/{announcementsId} page
-	 */
-	public void initAnnouncement() {
-		decodedCredentialId = idEncoder.decodeId(credentialId);
+        if (decodedCredentialId > 0) {
+            if (page > 0) {
+                paginationData.setPage(page);
+            }
+            try {
+                boolean userEnrolled = credManager.isUserEnrolled(decodedCredentialId, loggedUser.getUserId());
 
-		if (decodedCredentialId > 0) {
-			try {
+                if (!userEnrolled) {
+                    PageUtil.accessDenied();
+                } else {
+                    this.credentialData = credManager
+                            .getFullTargetCredentialOrCredentialData(decodedCredentialId, loggedUser.getUserId());
+                    initializeCredentialData(this.credentialData);
+                }
+            } catch (Exception e) {
+                PageUtil.fireErrorMessage("Error loading credential data");
+            }
+        } else {
+            PageUtil.notFound();
+        }
+    }
 
-				boolean userEnrolled = credManager.isUserEnrolled(decodedCredentialId, loggedUser.getUserId());
+    private void initializeCredentialData(CredentialData credentialData) throws ResourceCouldNotBeLoadedException {
+        announcements = announcementManager
+                .getAllAnnouncementsForCredential(decodedCredentialId, paginationData.getPage() - 1, paginationData.getLimit());
+        paginationData.update(announcementManager.numberOfAnnouncementsForCredential(
+                idEncoder.decodeId(credentialId)));
+    }
 
-				if (!userEnrolled) {
-					PageUtil.accessDenied();
-				} else {
-					// mark announcement as read
-					announcementManager.readAnnouncement(idEncoder.decodeId(announcementId), loggedUser.getUserId());
-					announcementData = announcementManager.getAnnouncement(idEncoder.decodeId(announcementId));
+    /**
+     * Invoked when user navigates to credential/{id}/announcements/{announcementsId} page
+     */
+    public void initAnnouncement() {
+        decodedCredentialId = idEncoder.decodeId(credentialId);
 
-					credentialData = credManager.getFullTargetCredentialOrCredentialData(decodedCredentialId, loggedUser.getUserId());
-				}
-			} catch (Exception e) {
-				PageUtil.fireErrorMessage("Error loading announcement");
-			}
-		} else {
-			PageUtil.notFound();
-		}
-	}
-	
-	/** This method is called when rendering announcement info balloon on credentials page
-	 *  In order to create links etc, some fields are initialized
-	 * @param credentialId
-	 * @return
-	 */
-	public boolean userDidNotReadLastAnnouncement(String credentialId) {
-		try {
-			Long lastAnnouncementSeenId = announcementManager
-					.getLastAnnouncementIdIfNotSeen(idEncoder.decodeId(credentialId), loggedUser.getUserId());
-			//we could not find SeenAnnouncement for last announcement for this credential - user did not see it, or there are no announcements
-			if(lastAnnouncementSeenId == null) {
-				announcementData = announcementManager.getLastAnnouncementForCredential(idEncoder.decodeId(credentialId));
-				if(announcementData != null) {
-					//initialize data so we can use it for components
-					this.credentialId = credentialId;
-					this.announcementId = announcementData.getEncodedId();
-					return true;
-				}
-				else {
-					//there are no announcements for this credential
-					return false;
-				}
+        if (decodedCredentialId > 0) {
+            try {
 
-			}
-		} catch (Exception e) {
-			logger.error("Error fetching las announcement data",e);
-		}
-		return false;
-	}
-	
-	/**
-	 * Created so we can handle 'x' button closing (button with a span does not get rendered well, so we use JS)
-	 */
-	public void markAnnouncementReadFromAjax() {
-		Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
-		String id = params.get("announcementId");
-		try {
-			announcementManager.readAnnouncement(idEncoder.decodeId(id), loggedUser.getUserId());
-			announcementData = announcementManager.getAnnouncement(idEncoder.decodeId(id));
-		} catch (Exception e) {
-			logger.error("Could not mark announcement as read", e);
-		}
-	}
+                boolean userEnrolled = credManager.isUserEnrolled(decodedCredentialId, loggedUser.getUserId());
 
-	@Override
-	public void changePage(int page) {
-		if (paginationData.getPage() != page) {
-			paginationData.setPage(page);
-			init();
-		}
-	}
+                if (!userEnrolled) {
+                    PageUtil.accessDenied();
+                } else {
+                    // mark announcement as read
+                    announcementManager.readAnnouncement(idEncoder.decodeId(announcementId), loggedUser.getUserId());
+                    announcementData = announcementManager.getAnnouncement(idEncoder.decodeId(announcementId));
 
-	public String getCredentialId() {
-		return credentialId;
-	}
+                    credentialData = credManager.getFullTargetCredentialOrCredentialData(decodedCredentialId, loggedUser.getUserId());
+                }
+            } catch (Exception e) {
+                PageUtil.fireErrorMessage("Error loading announcement");
+            }
+        } else {
+            PageUtil.notFound();
+        }
+    }
 
-	public void setCredentialId(String credentialId) {
-		this.credentialId = credentialId;
-	}
+    /**
+     * This method is called when rendering announcement info balloon on credentials page
+     * In order to create links etc, some fields are initialized
+     *
+     * @param credentialId
+     * @return
+     */
+    public boolean userDidNotReadLastAnnouncement(String credentialId) {
+        try {
+            Long lastAnnouncementSeenId = announcementManager
+                    .getLastAnnouncementIdIfNotSeen(idEncoder.decodeId(credentialId), loggedUser.getUserId());
+            //we could not find SeenAnnouncement for last announcement for this credential - user did not see it, or there are no announcements
+            if (lastAnnouncementSeenId == null) {
+                announcementData = announcementManager.getLastAnnouncementForCredential(idEncoder.decodeId(credentialId));
+                if (announcementData != null) {
+                    //initialize data so we can use it for components
+                    this.credentialId = credentialId;
+                    return true;
+                } else {
+                    //there are no announcements for this credential
+                    return false;
+                }
 
-	public String getAnnouncementId() {
-		return announcementId;
-	}
+            }
+        } catch (Exception e) {
+            logger.error("Error fetching las announcement data", e);
+        }
+        return false;
+    }
 
-	public void setAnnouncementId(String announcementId) {
-		this.announcementId = announcementId;
-	}
+    /**
+     * Created so we can handle 'x' button closing (button with a span does not get rendered well, so we use JS)
+     */
+    public void markAnnouncementReadFromAjax() {
+        Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
+        String id = params.get("announcementId");
+        try {
+            announcementManager.readAnnouncement(idEncoder.decodeId(id), loggedUser.getUserId());
+            announcementData = announcementManager.getAnnouncement(idEncoder.decodeId(id));
+        } catch (Exception e) {
+            logger.error("Could not mark announcement as read", e);
+        }
+    }
 
-	public AnnouncementData getAnnouncementData() {
-		return announcementData;
-	}
+    @Override
+    public void changePage(int page) {
+        if (paginationData.getPage() != page) {
+            paginationData.setPage(page);
+            init();
+        }
+    }
 
-	public CredentialData getCredentialData() {
-		return credentialData;
-	}
+    public String getCredentialId() {
+        return credentialId;
+    }
 
-	public List<AnnouncementData> getAnnouncements() {
-		return announcements;
-	}
+    public void setCredentialId(String credentialId) {
+        this.credentialId = credentialId;
+    }
 
-	public PaginationData getPaginationData() {
-		return paginationData;
-	}
+    public AnnouncementData getAnnouncementData() {
+        return announcementData;
+    }
 
-	public void setDecodedCredentialId(long decodedCredentialId) {
-		this.decodedCredentialId = decodedCredentialId;
-	}
+    public CredentialData getCredentialData() {
+        return credentialData;
+    }
 
-	public long getDecodedCredentialId() {
-		return decodedCredentialId;
-	}
+    public List<AnnouncementData> getAnnouncements() {
+        return announcements;
+    }
+
+    public PaginationData getPaginationData() {
+        return paginationData;
+    }
+
+    public void setDecodedCredentialId(long decodedCredentialId) {
+        this.decodedCredentialId = decodedCredentialId;
+    }
+
+    public long getDecodedCredentialId() {
+        return decodedCredentialId;
+    }
+
 }

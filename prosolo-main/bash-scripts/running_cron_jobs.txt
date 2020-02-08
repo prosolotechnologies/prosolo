@@ -1,9 +1,0 @@
-#$ crontab -e
-
-#every 2 hours
-0 */2 * * *  /home/ubuntu/prosolo-development/development/prosolo/bash_mongo.sh
-
-* */3 * * *  /home/ubuntu/prosolo-development/development/prosolo/bash_mongo.sh;  /home/ubuntu/prosolo-development/development/prosolo/bash_mysql.sh
-
-#every 5 minutes
-#0 0 */5 * *  /home/ubuntu/prosolo-development/development/prosolo/bash_mongo.sh

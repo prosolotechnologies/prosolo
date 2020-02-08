@@ -16,7 +16,7 @@ import org.prosolo.common.elasticsearch.ElasticSearchConnector;
 import org.prosolo.common.util.ElasticsearchUtil;
 import org.prosolo.search.UserGroupTextSearch;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
-import org.prosolo.services.indexing.ESIndexer;
+import org.prosolo.services.nodes.data.BasicObjectInfo;
 import org.prosolo.services.nodes.data.ResourceVisibilityMember;
 import org.prosolo.services.user.UserGroupManager;
 import org.prosolo.services.user.data.UserGroupData;
@@ -75,10 +75,7 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 				for (SearchHit hit : sResponse.getHits()) {
 					logger.info("ID: " + hit.getSourceAsMap().get("id"));
 					long id = Long.parseLong(hit.getSourceAsMap().get("id").toString());
-					String name = (String) hit.getSourceAsMap().get("name");
-					UserGroupData group = userGroupManager.getUserCountAndCanBeDeletedGroupData(id);
-					group.setId(id);
-					group.setName(name);
+					UserGroupData group = userGroupManager.getUserGroupDataWithUserCountAndCanBeDeletedInfo(id);
 					response.addFoundNode(group);
 				}
 			}
@@ -89,37 +86,28 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 		return response;
 	}
 
-	/**
-	 * This method is used for /manage/students, but for now we are not using that page
-	 * @deprecated
-	 */
-	@Deprecated
 	@Override
-	public PaginatedResult<UserGroupData> searchUserGroupsForUser (
-			String searchString, long userId, int page, int limit) {
-		
-		PaginatedResult<UserGroupData> response = new PaginatedResult<>();
-		
+	public PaginatedResult<BasicObjectInfo> searchUserGroupsAndReturnBasicInfo(
+			long orgId, long unitId, String searchString, int page, int limit) {
+
+		PaginatedResult<BasicObjectInfo> response = new PaginatedResult<>();
+
 		try {
-			//TODO see what to do with org and unit id
-			SearchResponse sResponse = getUserGroupsSearchResponse(0, null, searchString, page, limit);
-	
+			List<Long> unitIds = Arrays.asList(unitId);
+			SearchResponse sResponse = getUserGroupsSearchResponse(orgId, unitIds, searchString, page, limit);
+
 			if (sResponse != null) {
 				response.setHitsNumber(sResponse.getHits().getTotalHits());
-			
+
 				for (SearchHit hit : sResponse.getHits()) {
-					logger.info("ID: " + hit.getSourceAsMap().get("id"));
 					long id = Long.parseLong(hit.getSourceAsMap().get("id").toString());
 					String name = (String) hit.getSourceAsMap().get("name");
-					boolean isUserInAGroup = userGroupManager.isUserInGroup(id, userId);
-					long userCount = userGroupManager.getNumberOfUsersInAGroup(id);
-					UserGroupData group = new UserGroupData(id, name, userCount, isUserInAGroup);
+					BasicObjectInfo group = new BasicObjectInfo(id, name);
 					response.addFoundNode(group);
 				}
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
-			logger.error(e);
+			logger.error("error", e);
 		}
 		return response;
 	}
@@ -315,7 +303,7 @@ public class UserGroupTextSearchImpl extends AbstractManagerImpl implements User
 					'scoring_boolean' rewrite which would compute scores for all terms matched by the wildcard which can lead to
 					exceptions
 					 */
-					.rewrite("top_terms_50");;
+					.rewrite("top_terms_50");
 			
 			BoolQueryBuilder bqBuilder = QueryBuilders.boolQuery();
 			bqBuilder.must(qb);

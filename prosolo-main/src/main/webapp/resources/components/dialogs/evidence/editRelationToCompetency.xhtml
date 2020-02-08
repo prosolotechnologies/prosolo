@@ -1,0 +1,60 @@
+<ui:component
+		xmlns:h="http://java.sun.com/jsf/html"
+		xmlns:ui="http://java.sun.com/jsf/facelets"
+		xmlns:f="http://java.sun.com/jsf/core"
+		xmlns:p="http://primefaces.org/ui"
+		xmlns:composite="http://java.sun.com/jsf/composite"
+		xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util">
+
+	<composite:interface>
+		<composite:attribute name="toUpdate" required="true" />
+	</composite:interface>
+	
+	<composite:implementation>
+		<h:outputScript library="javascript2" name="autosize.min.js" />
+
+		<utilcomp:messagesBundle var="msg" />
+
+		<h:form id="formEditRelation">
+			<div class="modal fade" id="editRelationModal" tabindex="-1" role="dialog" aria-labelledby="editRelation">
+				<div class="modal-dialog" role="document">
+					<div class="modal-content">
+						<div class="modal-header alignLeft">
+							<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+							<h2 class="modal-title" id="evidenceSummary">Relation to #{msg['label.competence']}</h2>
+						</div>
+						<div class="modal-body alignLeft">
+							<h:inputTextarea id="textareaRelationToCompetency"
+											 label="Relation to #{msg['label.competence'].toLowerCase()} field"
+											 placeholder="How does this evidence show that you have met the requirements of the #{msg['label.competence'].toLowerCase()}?"
+											 required="true"
+											 requiredMessage="Relation to #{msg['label.competence'].toLowerCase()} is required"
+											 value="#{editEvidenceRelationToCompetencyDialogBean.evidenceToEditRelationText}">
+								<f:validateLength maximum="2000"/>
+							</h:inputTextarea>
+							<small class="redText bottom30 displayBlock"><h:message id="textareaRelationToCompetencyValidationMsg" for="textareaRelationToCompetency"></h:message></small>
+
+							<script>
+								autosize($(escapeColons('##{cc.clientId}:formEditRelation:textareaRelationToCompetency')));
+							</script>
+						</div>
+						<div class="modal-footer alignLeft">
+							<utilcomp:singleClickLink styleClass="btn btn-green"
+													  value="Save Changes"
+													  process=":#{cc.clientId}:formEditRelation:textareaRelationToCompetency"
+													  action="#{editEvidenceRelationToCompetencyDialogBean.saveEvidenceRelationToCompetence()}"
+													  update="#{cc.attrs.toUpdate} :#{cc.clientId}:formEditRelation:textareaRelationToCompetencyValidationMsg"
+													  oncomplete="if (args &amp;&amp; !args.validationFailed) { $('#editRelationModal').modal('hide') }" />
+							<a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+						</div>
+					</div>
+				</div>
+			</div>
+			<script>
+				$("#editRelationModal").on('shown.bs.modal', function(){
+					autosize.update($(escapeColons('##{cc.clientId}:formEditRelation:textareaRelationToCompetency')));
+				});
+			</script>
+		</h:form>
+	</composite:implementation>
+</ui:component>

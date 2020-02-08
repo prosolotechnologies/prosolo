@@ -24,10 +24,7 @@ import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
 import java.io.IOException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Zoran Jeremic 2013-06-29
@@ -144,6 +141,7 @@ public class UserEntityESServiceImpl extends AbstractESIndexerImpl implements Us
 				addFollowees(builder, user.getId(), session);
 				addCompetences(builder, user.getId(), session);
 				addGroups(builder, user.getId(),session);
+				addGroupsWithInstructorRole(builder, user.getId());
 
 				builder.endObject();
 				String indexType = ESIndexTypes.ORGANIZATION_USER;
@@ -213,12 +211,12 @@ public class UserEntityESServiceImpl extends AbstractESIndexerImpl implements Us
 			if (date != null) {
 				builder.field("dateEnrolled", ElasticsearchUtil.getDateStringRepresentation(date));
 			}
-			CredentialAssessment instructorAssessment = assessmentManager.getInstructorCredentialAssessment(cd.getIdData().getId(), userId);
+			Optional<CredentialAssessment> instructorAssessment = assessmentManager.getActiveInstructorCredentialAssessment(cd.getIdData().getId(), userId);
 			boolean assessorNotified = false;
 			boolean assessed = false;
-			if (instructorAssessment != null) {
-				assessorNotified = instructorAssessment.isAssessorNotified();
-				assessed = instructorAssessment.isAssessed();
+			if (instructorAssessment.isPresent()) {
+				assessorNotified = instructorAssessment.get().isAssessorNotified();
+				assessed = instructorAssessment.get().isAssessed();
 			}
 			builder.field("assessorNotified", assessorNotified);
 			builder.field("assessed", assessed);
@@ -317,6 +315,17 @@ public class UserEntityESServiceImpl extends AbstractESIndexerImpl implements Us
 		builder.endArray();
 	}
 
+	private void addGroupsWithInstructorRole(XContentBuilder builder, long userId) throws IOException {
+		builder.startArray("groupsWithInstructorRole");
+		List<Long> groups = userGroupManager.getIdsOfUserGroupsWhereUserIsInstructor(userId);
+		for (long id : groups) {
+			builder.startObject();
+			builder.field("id", id);
+			builder.endObject();
+		}
+		builder.endArray();
+	}
+
 	@Override
 	public void updateCredentials(long orgId, long userId, Session session) {
 		try {
@@ -333,14 +342,22 @@ public class UserEntityESServiceImpl extends AbstractESIndexerImpl implements Us
 	}
 	
 	@Override
-	public void assignInstructorToUserInCredential(long orgId, long userId, long credId, long instructorId) {
+	public void assignInstructorToUserInCredential(long orgId, long userId, long credId, long instructorId, Optional<CredentialAssessment> instructorAssessment) {
 		try {
 			String script = "ctx._source.credentials.findAll(it -> it.id == params.credId) " +
-					".each(it -> it.instructorId = params.instructorId)";
+					".each(it -> {it.instructorId = params.instructorId; it.assessed = params.assessed; it.assessorNotified = params.assessorNotified})";
 			
 			Map<String, Object> params = new HashMap<>();
 			params.put("credId", credId);
 			params.put("instructorId", instructorId);
+			boolean assessorNotified = false;
+			boolean assessed = false;
+			if (instructorAssessment.isPresent()) {
+				assessorNotified = instructorAssessment.get().isAssessorNotified();
+				assessed = instructorAssessment.get().isAssessed();
+			}
+			params.put("assessorNotified", assessorNotified);
+			params.put("assessed", assessed);
 			partialUpdateByScript(ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USERS, orgId),
 					ESIndexTypes.ORGANIZATION_USER,userId+"", script, params);
 		} catch(Exception e) {
@@ -480,6 +497,21 @@ public class UserEntityESServiceImpl extends AbstractESIndexerImpl implements Us
 			XContentBuilder builder = XContentFactory.jsonBuilder()
 					.startObject();
 			addGroups(builder, userId,session);
+			builder.endObject();
+
+			partialUpdate(ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USERS, orgId), ESIndexTypes.ORGANIZATION_USER,
+					userId + "", builder);
+		} catch (Exception e) {
+			logger.error("Error", e);
+		}
+	}
+
+	@Override
+	public void updateGroupsWithInstructorRole(long orgId, long userId) {
+		try {
+			XContentBuilder builder = XContentFactory.jsonBuilder()
+					.startObject();
+			addGroupsWithInstructorRole(builder, userId);
 			builder.endObject();
 
 			partialUpdate(ElasticsearchUtil.getOrganizationIndexName(ESIndexNames.INDEX_USERS, orgId), ESIndexTypes.ORGANIZATION_USER,

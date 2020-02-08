@@ -75,7 +75,7 @@ public class SocialActivityViewBean implements Serializable {
 			cd.setInstructor(false);
 			commentBean.loadComments(socialActivity.getComments());
 		} catch(Exception e) {
-			logger.error(e);
+			logger.error("error", e);
 		}
 	}
 	

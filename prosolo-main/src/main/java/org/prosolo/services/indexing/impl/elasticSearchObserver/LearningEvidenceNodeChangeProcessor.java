@@ -4,10 +4,8 @@ import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.prosolo.common.domainmodel.credential.LearningEvidence;
 import org.prosolo.common.domainmodel.events.EventType;
-import org.prosolo.common.domainmodel.rubric.Rubric;
-import org.prosolo.services.event.Event;
+import org.prosolo.common.event.Event;
 import org.prosolo.services.indexing.LearningEvidenceESService;
-import org.prosolo.services.indexing.RubricsESService;
 
 /**
  * @author stefanvuckovic

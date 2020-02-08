@@ -29,7 +29,7 @@
 							<p:remoteCommand name="execSearchInstructors"
 											 process="inputInstructorSearch"
 											 update=":#{cc.clientId}:formAssignInstructor:searchResults"
-											 action="#{assignStudentToInstructorDialogBean.loadCredentialInstructors(cc.attrs.credentialId)}" />
+											 action="#{assignStudentToInstructorDialogBean.searchCredentialInstructors(cc.attrs.credentialId)}" />
 							<h:inputText id="inputInstructorSearch"
 										 type="search"
 										 placeholder="Search #{msg['label.instructor.plural'].toLowerCase()}"

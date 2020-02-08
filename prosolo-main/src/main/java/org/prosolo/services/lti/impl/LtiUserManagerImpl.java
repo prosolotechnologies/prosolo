@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service("org.prosolo.services.lti.LtiUserManager")
@@ -37,16 +38,16 @@ public class LtiUserManagerImpl extends AbstractManagerImpl implements LtiUserMa
 
 	@Override
 	// nt
-	public User getUserForLaunch(long ltiConsumerId, String userId, String name, String lastName, String email, long unitId, String roleName, long userGroupId, UserContextData context)
+	public Optional<String> getUserForLaunch(long ltiConsumerId, String userId, String name, String lastName, String email, long unitId, String roleName, long userGroupId, UserContextData context)
 			throws DbConnectionException {
 		Result<User> res = self.getUserForLaunchAndGetEvents(
 				ltiConsumerId, userId, name, lastName, email, unitId, roleName, userGroupId, context);
 
 		if (res.getResult() != null) {
-			eventFactory.generateEvents(res.getEventQueue());
-			return res.getResult();
+			eventFactory.generateAndPublishEvents(res.getEventQueue());
+			return Optional.ofNullable(res.getResult().getEmail());
 		}
-		return null;
+		return Optional.empty();
 	}
 
 	@Override
@@ -56,7 +57,7 @@ public class LtiUserManagerImpl extends AbstractManagerImpl implements LtiUserMa
 		try {
 			Result<User> result = new Result<>();
 
-			User user = getUser(ltiConsumerId, userId);
+			User user = getUser(ltiConsumerId, email);
 			if (user == null) {
 				long unitRoleId = roleManager.getRoleIdByName(roleName);
 				Result<UserCreationData> userResult = userManager.createNewUserConnectToResourcesAndGetEvents(name, lastName, email, UUID.randomUUID().toString(), null, unitId, unitRoleId, userGroupId, context);
@@ -80,18 +81,18 @@ public class LtiUserManagerImpl extends AbstractManagerImpl implements LtiUserMa
 		}
 	}
 
-	private User getUser(long consumerId, String userId) {
+	private User getUser(long consumerId, String email) {
 		String queryString =
 				"SELECT user " +
-						"FROM LtiUser ltiuser " +
-						"INNER JOIN  ltiuser.user user " +
-						"INNER JOIN ltiuser.consumer c " +
-						"WHERE ltiuser.userId = :userId " +
-						"AND c.id = :id";
+				"FROM LtiUser ltiuser " +
+				"INNER JOIN  ltiuser.user user " +
+				"INNER JOIN ltiuser.consumer c " +
+				"WHERE user.email = :email " +
+				"AND c.id = :id";
 
 		return (User) persistence.currentManager().createQuery(queryString)
 				.setLong("id", consumerId)
-				.setString("userId", userId)
+				.setString("email", email.toLowerCase())
 				.setMaxResults(1)
 				.uniqueResult();
 	}

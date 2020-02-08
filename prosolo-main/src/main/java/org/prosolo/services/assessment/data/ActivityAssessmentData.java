@@ -3,7 +3,6 @@ package org.prosolo.services.assessment.data;
 import org.apache.commons.collections.CollectionUtils;
 import org.prosolo.common.domainmodel.assessment.*;
 import org.prosolo.common.domainmodel.credential.ActivityRubricVisibility;
-import org.prosolo.common.util.Pair;
 import org.prosolo.services.nodes.data.ActivityData;
 import org.prosolo.services.nodes.data.ActivityResultType;
 import org.prosolo.services.nodes.data.ActivityType;
@@ -26,6 +25,7 @@ public class ActivityAssessmentData {
 	private long credentialId;
 	private boolean allRead = true; 	// whether user has read all the messages in the thread
 	private boolean participantInDiscussion; 	// whether user is participant in the discussion
+	private boolean privateDiscussionEnabled;
 	private boolean messagesInitialized;
 	private List<AssessmentDiscussionMessageData> activityDiscussionMessageData = new LinkedList<>();
 	private List<String> downloadResourceUrls;
@@ -45,11 +45,11 @@ public class ActivityAssessmentData {
 	private AssessmentType type;
 
 	//reference to competence assessment
-	private CompetenceAssessmentData compAssessment;
+	private CompetenceAssessmentDataFull compAssessment;
 
 	public static ActivityAssessmentData from(ActivityData actData, CompetenceAssessment compAssessment,
 											  CredentialAssessment credAssessment, AssessmentGradeSummary rubricGradeSummary,
-											  UrlIdEncoder encoder, long userId, boolean loadDiscussion) {
+											  UrlIdEncoder encoder, long userId, boolean loadDiscussion, boolean privateDiscussionEnabled) {
 		ActivityAssessmentData data = new ActivityAssessmentData();
 		populateTypeSpecificData(data, actData);
 		data.setActivityId(actData.getActivityId());
@@ -78,7 +78,8 @@ public class ActivityAssessmentData {
 		data.setActivityAssessmentId(activityDiscussion.getId());
 		data.setEncodedActivityAssessmentId(encoder.encodeId(activityDiscussion.getId()));
 
-		if (loadDiscussion) {
+		data.setPrivateDiscussionEnabled(privateDiscussionEnabled);
+		if (privateDiscussionEnabled && loadDiscussion) {
 			ActivityDiscussionParticipant currentParticipant = activityDiscussion.getParticipantByUserId(userId);
 
 			if (currentParticipant != null) {
@@ -384,11 +385,11 @@ public class ActivityAssessmentData {
 		this.type = type;
 	}
 
-	public CompetenceAssessmentData getCompAssessment() {
+	public CompetenceAssessmentDataFull getCompAssessment() {
 		return compAssessment;
 	}
 
-	public void setCompAssessment(CompetenceAssessmentData compAssessment) {
+	public void setCompAssessment(CompetenceAssessmentDataFull compAssessment) {
 		this.compAssessment = compAssessment;
 	}
 
@@ -400,4 +401,11 @@ public class ActivityAssessmentData {
 		this.rubricVisibilityForStudent = rubricVisibilityForStudent;
 	}
 
+	public void setPrivateDiscussionEnabled(boolean privateDiscussionEnabled) {
+		this.privateDiscussionEnabled = privateDiscussionEnabled;
+	}
+
+	public boolean isPrivateDiscussionEnabled() {
+		return privateDiscussionEnabled;
+	}
 }

@@ -1,14 +1,11 @@
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
                 xmlns:h="http://java.sun.com/jsf/html"
-                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
                 xmlns:ui="http://java.sun.com/jsf/facelets"
                 xmlns:p="http://primefaces.org/ui"
                 template="templates/masterLayout2.xhtml"
-                xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
                 xmlns:org="http://java.sun.com/jsf/composite/components/admin/organization"
-                xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
-                xmlns:c="http://java.sun.com/jsp/jstl/core"
-                xmlns:courses="http://java.sun.com/jsf/composite/components/courses">
+                xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
 
     <ui:define name="windowTitle" >
         #{organizationEditBean.decodedId gt 0 ? 'Settings - '.concat(organizationEditBean.organization.title) : 'New Organization'} - ProSolo
@@ -28,10 +25,12 @@
     </ui:define>
 
     <ui:define name="resourceTitle">
-        <h1>
-            <h:outputText rendered="#{organizationEditBean.decodedId == 0}" value="New Organization" />
-            <h:outputText rendered="#{organizationEditBean.decodedId gt 0}" value="#{organizationEditBean.organization.title}" />
-        </h1>
+        <h:panelGroup id="panelHeaderTitle">
+            <h1>
+                <h:outputText rendered="#{organizationEditBean.decodedId == 0}" value="New Organization" />
+                <h:outputText rendered="#{organizationEditBean.decodedId gt 0}" value="#{organizationEditBean.organization.title}" />
+            </h1>
+        </h:panelGroup>
     </ui:define>
 
     <ui:define name="content">
@@ -46,7 +45,7 @@
 
         <div class="container">
             <div class="row">
-                <div class="container">
+                <h:panelGroup id="panelBreadcrumbs" layout="block" styleClass="container">
                     <ol class="breadcrumb">
                         <ui:fragment rendered="#{loggeduser.hasCapability('admin.advanced')}">
                             <li>
@@ -66,146 +65,295 @@
                             <li class="active">New Organization</li>
                         </ui:fragment>
                     </ol>
-                </div>
+                </h:panelGroup>
 
                 <div class="col-md-12">
                     <div class="whiteBox">
                         <ui:fragment rendered="#{organizationEditBean.decodedId > 0}">
-                            <h2>Settings</h2>
+                            <h2>Organization Details</h2>
                         </ui:fragment>
                         <h:form id="formMain">
-                        <div class="formWrapper editOrgForm">
-                            <div class="formLine">
-                                <label>Name</label>
-                                <div class="formLineRight">
-                                    <h:inputText id="inputTextOrganizationName"
-                                                 autofocus="true"
-                                                 autocomplete="off"
-                                                 required="true"
-                                                 requiredMessage="Organization name is required"
-                                                 value="#{organizationEditBean.organization.title}"/>
-
-                                    <small class="redText"><h:message for="inputTextOrganizationName"></h:message></small>
-
-                                </div>
-                            </div>
-                            <div class="formLine">
-                                <label>Admin(s)</label>
-                                <div class="formLineRight">
-                                        <div class="inputWrapper">
-
-                                            <h:inputText onkeyup="searchListener(execSearchUsers);"
-                                                         value="#{organizationEditBean.searchTerm}" id="newName"
-                                                         placeholder="Type name..." name="newName" autocomplete="off"
-                                                         styleClass="adminSearchFieldSelector"
-                                                         process="@this"/>
-
-                                            <p:remoteCommand name="execSearchUsers" process="newName"
-                                                             action="#{organizationEditBean.resetAndSearch()}"
-                                                             update=":formMain:usersListPanel" />
-
-                                            <h:panelGroup id="usersListPanel">
-                                                <h:panelGroup rendered="#{not empty organizationEditBean.searchTerm and organizationEditBean.admins.size() > 0}">
-                                                    <ul id="usersList" class="dropdown-menu searchResultsDrop panelAdminSearchResultsSelector"
-                                                        style="display: block;">
-                                                        <ui:repeat value="#{organizationEditBean.admins}" var="user"
-                                                                   varStatus="iterator">
-
-                                                            <li>
-                                                                <p:commandLink style="cursor: pointer;"
-                                                                               id="userlink-#{user.id}"
-                                                                               process="@this"
-                                                                               action="#{organizationEditBean.setAdministrator(user)}"
-                                                                               update=":formMain:selectNewOwner"
-                                                                               oncomplete="$('.adminSearchFieldSelector').val(''); $('.panelAdminSearchResultsSelector').first().stop(true, true).slideUp(10);">
-                                                                    <utilcomp:userAvatar avatar="#{user.avatarUrl}"
-                                                                                         fullName="#{user.commaSeparatedFullName}" />
-                                                                    <h3>#{user.commaSeparatedFullName}</h3>
-                                                                </p:commandLink>
-                                                            </li>
-
-                                                        </ui:repeat>
-                                                    </ul>
-                                                </h:panelGroup>
-                                            </h:panelGroup>
-                                        </div>
-                                        <h:panelGroup id="selectNewOwner">
-                                            <h:panelGroup rendered="#{organizationEditBean.isAdminChosenListEmpty()}" id="selectedOwner">
-                                            <ul class="list">
-                                                <ui:repeat value="#{organizationEditBean.organization.admins}" var="admin">
-                                                    <ui:fragment rendered="#{admin.objectStatus ne 'REMOVED'}">
-                                                    <li>
-                                                        <div class="instructorInfo">
-                                                            <utilcomp:userAvatar
-                                                                    avatar="#{admin.avatarUrl}"
-                                                                    fullName="#{admin.commaSeparatedFullName}"
-                                                                    width="48"
-                                                                    height="48"/>
-                                                            <div class="infoWrap">
-                                                                <h3>#{admin.commaSeparatedFullName}</h3>
-                                                                <span>#{admin.position}</span>
-                                                            </div>
-                                                        </div>
-                                                        <div class="assignOpt">
-                                                            <p:commandLink styleClass="removeX"
-                                                                           process="@this"
-                                                                           action="#{organizationEditBean.userReset(admin)}"
-                                                                           update="formMain:selectNewOwner ">Close</p:commandLink>
-                                                        </div>
-                                                    </li>
-                                                    </ui:fragment>
-                                                </ui:repeat>
-                                            </ul>
-                                            </h:panelGroup>
-                                            <h:inputHidden validator="selectUserForOrganizationValidator" value="0"
-                                                           id="hiddenInput"></h:inputHidden>
-
-                                            <small class="redText"><h:message for="hiddenInput"></h:message></small>
-                                        </h:panelGroup>
-                                </div>
-                            </div>
-                            <c:if test="#{organizationEditBean.learningInStagesEnabled}">
+                            <div class="formWrapper editOrgForm">
                                 <div class="formLine">
-                                    <label>Learning in stages</label>
+                                    <label>Name</label>
                                     <div class="formLineRight">
-                                        <div class="checkbox checkLine">
-                                            <h:selectBooleanCheckbox id="checkboxLearningInStages" styleClass="checkboxLearningInStagesSelector"
-                                                onchange="onLearningInStagesChanged()"
-                                                value="#{organizationEditBean.organization.learningInStagesEnabled}"
-                                            />
-                                            <h:outputLabel for="checkboxLearningInStages">Enabled</h:outputLabel>
+                                        <h:inputText id="inputTextOrganizationName"
+                                                     autofocus="true"
+                                                     autocomplete="off"
+                                                     required="true"
+                                                     requiredMessage="Organization name is required"
+                                                     value="#{organizationEditBean.organization.title}"/>
+
+                                        <small class="redText"><h:message for="inputTextOrganizationName"></h:message></small>
+
+                                    </div>
+                                </div>
+
+                                <div class="formLine">
+                                    <label>&#160;</label>
+                                    <div class="formLineRight">
+                                        <p:commandLink styleClass="btn btn-green"
+                                                       value="#{organizationEditBean.decodedId == 0 ? 'Create' : 'Save Changes'}"
+                                                       action="#{organizationEditBean.saveOrganizationBasicInfo()}" update=":formMain :growlMain :panelWindowTitle :panelHeaderTitle :panelBreadcrumbs">
+                                            <f:param name="page" value="#{facesContext.viewRoot.viewId}" />
+                                            <f:param name="learningContext" value="name:organization#{organizationEditBean.decodedId > 0 ? '|id:'.concat(organizationEditBean.decodedId) : ''}" />
+                                        </p:commandLink>
+                                    </div>
+                                </div>
+                            </div>
+                        </h:form>
+                    </div>
+                </div>
+            </div>
+
+            <ui:fragment rendered="#{organizationEditBean.decodedId gt 0}">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="whiteBox">
+                            <h2>Plugin: Learning Stages</h2>
+                            <h:form id="formLearningStages">
+                                <div class="formWrapper editOrgForm">
+                                    <div class="formLine">
+                                        <label>Plugin configuration</label>
+                                        <div class="formLineRight">
+                                            <div class="checkbox checkLine">
+                                                <h:selectBooleanCheckbox id="checkboxLearningInStages" styleClass="checkboxLearningInStagesSelector"
+                                                    onchange="onLearningInStagesChanged()"
+                                                    value="#{organizationEditBean.organization.learningStagesPluginData.enabled}"
+                                                />
+                                                <h:outputLabel for="checkboxLearningInStages">Enabled</h:outputLabel>
+                                            </div>
+                                            <p class="top10 bottom30">Learning in stages mode allows for defining different stages a #{msg['label.credential'].toLowerCase()} or #{msg['label.competence'].toLowerCase()} can be achieved at. Each stage should have specific requirements and learners complete a specific stage one at a time.</p>
+                                            <h:panelGroup id="panelLearningStages">
+                                                <ui:fragment rendered="#{empty organizationEditBean.organization.learningStagesPluginData.learningStages}">
+                                                    <p class="bottom30 italic">No stages added.</p>
+                                                </ui:fragment>
+                                                <ui:fragment rendered="#{not empty organizationEditBean.organization.learningStagesPluginData.learningStages}">
+                                                    <table class="tableSymptoms">
+                                                        <ui:repeat value="#{organizationEditBean.organization.learningStagesPluginData.learningStages}" var="ls" varStatus="lsStatus">
+                                                            <tr class="#{lsStatus.index % 2 eq 1 ? '' : 'rowGrey'}">
+                                                                <td class="col1">
+                                                                    #{ls.title}
+                                                                </td>
+                                                                <td class="col2">
+                                                                    <p:commandLink styleClass="btn btn-green-stroke btn-sm"
+                                                                                   pt:data-toggle="modal"
+                                                                                   process="@this"
+                                                                                   action="#{organizationEditBean.prepareLearningStageForEdit(ls)}"
+                                                                                   update=":formEditLearningStage:panelEditLearningStage"
+                                                                                   oncomplete="$('#modalEditLearningStage').modal('show')">
+                                                                        Rename
+                                                                        <p:resetInput target=":formEditLearningStage:panelEditLearningStage" />
+                                                                    </p:commandLink>
+                                                                    <p:commandLink rendered="#{not ls.used}" styleClass="linkRed"
+                                                                        process="@this"
+                                                                        action="#{organizationEditBean.removeLearningStage(lsStatus.index)}"
+                                                                        update=":formLearningStages:panelLearningStages">
+                                                                        Delete
+                                                                    </p:commandLink>
+                                                                    <ui:fragment rendered="#{ls.used}">
+                                                                        <a href="javascript:void(0);" class="linkRed disabled"
+                                                                           data-toggle="tooltip" title="This learning stage is being used">
+                                                                           Delete
+                                                                        </a>
+                                                                    </ui:fragment>
+                                                                </td>
+                                                            </tr>
+                                                        </ui:repeat>
+                                                    </table>
+                                                </ui:fragment>
+                                                <p:commandLink rendered="#{organizationEditBean.canNewLearningStageBeAdded()}" styleClass="btn btn-green btn-sm" pt:data-toggle="modal"
+                                                    process="@this"
+                                                    action="#{organizationEditBean.prepareAddingNewLearningStage()}"
+                                                    update=":formEditLearningStage:panelEditLearningStage"
+                                                    oncomplete="$('#modalEditLearningStage').modal('show')">
+                                                    Add Learning Stage
+                                                    <p:resetInput target=":formEditLearningStage:panelEditLearningStage" />
+                                                </p:commandLink>
+                                                <ui:fragment rendered="#{not organizationEditBean.canNewLearningStageBeAdded()}">
+                                                    <a href="javascript:void(0);" class="btn btn-green btn-sm"
+                                                        disabled="disabled"
+                                                        data-toggle="tooltip"
+                                                        title="Maximum number of learning stages is reached">
+                                                        Add Learning Stage
+                                                    </a>
+                                                </ui:fragment>
+                                            </h:panelGroup>
                                         </div>
-                                        <p class="bottom30">Learning in stages mode allows for defining different stages a #{msg['label.credential'].toLowerCase()} or #{msg['label.competence'].toLowerCase()} can be achieved at. Each #{msg['label.credential'].toLowerCase()}/#{msg['label.competence'].toLowerCase()} stage should have specific requirements and learners complete a specific stage at a time.</p>
-                                        <h:panelGroup id="panelLearningStages">
-                                            <ui:fragment rendered="#{empty organizationEditBean.organization.learningStages}">
-                                                <p class="bottom30 italic">No stages added.</p>
+                                    </div>
+
+                                    <div class="formLine">
+                                        <label>&#160;</label>
+                                        <div class="formLineRight">
+                                            <a href="javascript:void(0)" class="btn btn-green" onclick="determineSaveAction()">#{ organizationEditBean.decodedId == 0 ? 'Create' : 'Save Changes'}</a>
+                                            <p:commandLink id="saveBtn" styleClass="saveBtnSelector" style="display: none;"
+                                                           action="#{organizationEditBean.updateOrganizationLearningStages()}" update=":formLearningStages :growlMain">
+                                                <f:param name="page" value="#{facesContext.viewRoot.viewId}" />
+                                                <f:param name="learningContext" value="name:organization#{organizationEditBean.decodedId > 0 ? '|id:'.concat(organizationEditBean.decodedId) : ''}" />
+                                            </p:commandLink>
+                                            <div class="modal fade" id="modalSaveChanges" tabindex="-1" role="dialog" aria-labelledby="removeCompetence">
+                                                <div class="modal-dialog" role="document">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+                                                            <h2 class="modal-title" id="removeCompetence1">Save changes</h2>
+                                                        </div>
+
+                                                        <div class="modal-body">
+                                                            <p>By disabling learning in stages, learning stages will be removed from all #{msg['label.credential.plural'].toLowerCase()} and #{msg['label.competence.plural'].toLowerCase()} currently using them. Are you sure you want to continue?<br/></p>
+                                                        </div>
+
+                                                        <div class="modal-footer">
+                                                            <p:commandLink  id="saveBtnModal" styleClass="btn btn-green" value="Save Changes"
+                                                                            action="#{organizationEditBean.updateOrganizationLearningStages()}" update=":formLearningStages :growlMain"
+                                                                            oncomplete="hideModal('modalSaveChanges')">
+                                                                <f:param name="page" value="#{facesContext.viewRoot.viewId}" />
+                                                                <f:param name="learningContext" value="name:organization#{organizationEditBean.decodedId > 0 ? '|id:'.concat(organizationEditBean.decodedId) : ''}" />
+                                                            </p:commandLink>
+                                                            <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <script>
+                                    var learningInStagesChanged = false;
+                                    function onLearningInStagesChanged() {
+                                        learningInStagesChanged = !learningInStagesChanged;
+                                    }
+                                    function determineSaveAction() {
+                                        if (!$('.checkboxLearningInStagesSelector').is(':checked') &amp;&amp; learningInStagesChanged) {
+                                            $('#modalSaveChanges').modal('show');
+                                        } else {
+                                            $('.saveBtnSelector').click();
+                                        }
+                                    }
+                                </script>
+                            </h:form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="whiteBox">
+                            <h2>Plugin: Evidence Repository</h2>
+                            <h:form id="formEvidenceRepository">
+                                <div class="formWrapper editOrgForm">
+                                    <div class="formLine">
+                                        <label>Plugin configuration</label>
+
+                                        <div class="formLineRight">
+                                            <ui:remove>
+                                                <div class="checkbox checkLine">
+                                                    <h:selectBooleanCheckbox id="checkboxEvidenceRepository"
+                                                                             styleClass="checkboxLearningInStagesSelector"
+                                                                             value="#{organizationEditBean.organization.evidenceRepositoryPluginData.enabled}"/>
+                                                    <h:outputLabel for="checkboxEvidenceRepository">Enabled</h:outputLabel>
+                                                </div>
+                                            </ui:remove>
+                                            <!-- EF ENABLED SHOW THIS -->
+                                            <p class="top10 bottom30">Evidence repository plugin enables the new dedicated page 'Evidence' for managing all artefacts that can be used as a piece for evidence for completing a #{msg['label.competence'].toLowerCase()}.</p>
+
+                                            <p>Enable adding keywords to evidence:</p>
+                                            <div class="checkbox checkLine">
+                                                <h:selectBooleanCheckbox id="checkboxEvidenceKeywords"
+                                                                         styleClass="checkboxLearningInStagesSelector"
+                                                                         value="#{organizationEditBean.organization.evidenceRepositoryPluginData.keywordsEnabled}"/>
+                                                <h:outputLabel for="checkboxEvidenceKeywords">Enabled</h:outputLabel>
+                                            </div>
+
+                                            <p class="top10">Select options how a piece of evidence can be created:</p>
+                                            <div class="checkbox checkLine">
+                                                <h:selectBooleanCheckbox id="checkboxCreateFileEvidence"
+                                                                         value="#{organizationEditBean.organization.evidenceRepositoryPluginData.fileEvidenceEnabled}"/>
+                                                <h:outputLabel for="checkboxCreateFileEvidence">Upload file</h:outputLabel>
+                                            </div>
+                                            <div class="checkbox checkLine">
+                                                <h:selectBooleanCheckbox id="checkboxCreateUrlEvidence"
+                                                                         value="#{organizationEditBean.organization.evidenceRepositoryPluginData.urlEvidenceEnabled}"/>
+                                                <h:outputLabel for="checkboxCreateUrlEvidence">Add URL</h:outputLabel>
+                                            </div>
+                                            <div class="checkbox checkLine">
+                                                <h:selectBooleanCheckbox id="checkboxCreateTextEvidence"
+                                                                         value="#{organizationEditBean.organization.evidenceRepositoryPluginData.textEvidenceEnabled}"/>
+                                                <h:outputLabel for="checkboxCreateTextEvidence">Write text</h:outputLabel>
+                                            </div>
+                                            <!-- EF ENABLED SHOW THIS end -->
+                                        </div>
+                                    </div>
+
+                                    <div class="formLine">
+                                        <label>&#160;</label>
+                                        <div class="formLineRight">
+                                            <p:commandLink id="saveEvidenceRepositoryBtn"
+                                                           value="Save Changes"
+                                                           styleClass="btn btn-green"
+                                                           action="#{organizationEditBean.updateEvidenceRepositoryPlugin()}"
+                                                           update=":formEvidenceRepository :growlMain">
+                                                <f:param name="page" value="#{facesContext.viewRoot.viewId}" />
+                                                <f:param name="learningContext" value="name:organization#{organizationEditBean.decodedId > 0 ? '|id:'.concat(organizationEditBean.decodedId) : ''}" />
+                                            </p:commandLink>
+                                        </div>
+                                    </div>
+                                </div>
+                            </h:form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="whiteBox">
+                            <h2>Plugin: #{msg['label.credential']} Categories</h2>
+                            <div class="formWrapper editOrgForm">
+                                <div class="formLine">
+                                    <label>Plugin configuration</label>
+                                    <div class="formLineRight">
+                                        <ui:remove>
+                                            <div class="checkbox checkLine">
+                                                <h:selectBooleanCheckbox id="checkboxCredentialCategories"
+                                                                         styleClass="checkboxLearningInStagesSelector"
+                                                                         value="#{organizationEditBean.organization.credentialCategoriesPluginData.enabled}"/>
+                                                <h:outputLabel for="checkboxCredentialCategories">Enabled</h:outputLabel>
+                                            </div>
+                                        </ui:remove>
+
+                                        <p class="top10 bottom30">Categories are used to group similar #{msg['label.credential.plural'].toLowerCase()} in the #{msg['label.credential']} Library and Student Profile pages. A #{msg['label.credential'].toLowerCase()} can be added only to one category.</p>
+
+                                        <h:panelGroup id="panelCredentialCategories">
+                                            <ui:fragment rendered="#{empty organizationEditBean.organization.credentialCategories}">
+                                                <p class="bottom30 italic">No categories added.</p>
                                             </ui:fragment>
-                                            <ui:fragment rendered="#{not empty organizationEditBean.organization.learningStages}">
+                                            <ui:fragment rendered="#{not empty organizationEditBean.organization.credentialCategories}">
                                                 <table class="tableSymptoms">
-                                                    <ui:repeat value="#{organizationEditBean.organization.learningStages}" var="ls" varStatus="lsStatus">
-                                                        <tr class="#{lsStatus.index % 2 eq 1 ? '' : 'rowGrey'}">
+                                                    <ui:repeat value="#{organizationEditBean.organization.credentialCategories}" var="cat" varStatus="catStatus">
+                                                        <tr class="#{catStatus.index % 2 eq 1 ? '' : 'rowGrey'}">
                                                             <td class="col1">
-                                                                #{ls.title}
+                                                                #{cat.title}
                                                             </td>
                                                             <td class="col2">
                                                                 <p:commandLink styleClass="btn btn-green-stroke btn-sm"
                                                                                pt:data-toggle="modal"
                                                                                process="@this"
-                                                                               action="#{organizationEditBean.prepareLearningStageForEdit(ls)}"
-                                                                               update=":formEditLearningStage:panelEditLearningStage"
-                                                                               oncomplete="$('#modalEditLearningStage').modal('show')">
+                                                                               action="#{organizationEditBean.prepareCredentialCategoryForEdit(cat)}"
+                                                                               update=":formEditCategory:panelEditCategory"
+                                                                               oncomplete="$('#modalEditCategory').modal('show')">
                                                                     Rename
-                                                                    <p:resetInput target=":formEditLearningStage:panelEditLearningStage" />
+                                                                    <p:resetInput target=":formEditCategory:panelEditCategory" />
                                                                 </p:commandLink>
-                                                                <p:commandLink rendered="#{not ls.used}" styleClass="linkRed"
-                                                                    process="@this"
-                                                                    action="#{organizationEditBean.removeLearningStage(lsStatus.index)}"
-                                                                    update=":formMain:panelLearningStages">
+                                                                <p:commandLink rendered="#{not cat.used}" styleClass="linkRed"
+                                                                               process="@this"
+                                                                               action="#{organizationEditBean.removeCredentialCategory(catStatus.index)}"
+                                                                               update=":panelCredentialCategories">
                                                                     Delete
                                                                 </p:commandLink>
-                                                                <ui:fragment rendered="#{ls.used}">
+                                                                <ui:fragment rendered="#{cat.used}">
                                                                     <a href="javascript:void(0);" class="linkRed disabled"
-                                                                       data-toggle="tooltip" title="This learning stage is being used">
+                                                                       data-toggle="tooltip" title="This category is being used in at least one #{msg['label.credential'].toLowerCase()}">
                                                                        Delete
                                                                     </a>
                                                                 </ui:fragment>
@@ -214,158 +362,183 @@
                                                     </ui:repeat>
                                                 </table>
                                             </ui:fragment>
-                                            <p:commandLink rendered="#{organizationEditBean.canNewLearningStageBeAdded()}" styleClass="btn btn-green btn-sm" pt:data-toggle="modal"
-                                                process="@this"
-                                                action="#{organizationEditBean.prepareAddingNewLearningStage()}"
-                                                update=":formEditLearningStage:panelEditLearningStage"
-                                                oncomplete="$('#modalEditLearningStage').modal('show')">
-                                                Add Learning Stage
-                                                <p:resetInput target=":formEditLearningStage:panelEditLearningStage" />
-                                            </p:commandLink>
-                                            <ui:fragment rendered="#{not organizationEditBean.canNewLearningStageBeAdded()}">
-                                                <a href="javascript:void(0);" class="btn btn-green btn-sm"
-                                                    disabled="disabled"
-                                                    data-toggle="tooltip"
-                                                    title="Maximum number of learning stages is reached">
-                                                    Add Learning Stage
-                                                </a>
-                                            </ui:fragment>
                                         </h:panelGroup>
+                                        <p:commandLink styleClass="btn btn-green btn-sm" pt:data-toggle="modal"
+                                                       process="@this"
+                                                       action="#{organizationEditBean.prepareAddingNewCredentialCategory()}"
+                                                       update=":formEditCategory:panelEditCategory"
+                                                       oncomplete="$('#modalEditCategory').modal('show')">
+                                            Add Category
+                                            <p:resetInput target=":formEditCategory:panelEditCategory" />
+                                        </p:commandLink>
                                     </div>
                                 </div>
-                            </c:if>
-                            <div class="formLine">
-                                <label>#{msg['label.credential']} categories</label>
-                                <div class="formLineRight">
-                                    <p class="top10 bottom30">Categories are used to group similar #{msg['label.credential.plural'].toLowerCase()} in the #{msg['label.credential']} Library and Student Profile pages. A #{msg['label.credential'].toLowerCase()} can be a member of only one category.</p>
-
-                                    <h:panelGroup id="panelCredentialCategories">
-                                        <ui:fragment rendered="#{empty organizationEditBean.organization.credentialCategories}">
-                                            <p class="bottom30 italic">No categories added.</p>
-                                        </ui:fragment>
-                                        <ui:fragment rendered="#{not empty organizationEditBean.organization.credentialCategories}">
-                                            <table class="tableSymptoms">
-                                                <ui:repeat value="#{organizationEditBean.organization.credentialCategories}" var="cat" varStatus="catStatus">
-                                                    <tr class="#{catStatus.index % 2 eq 1 ? '' : 'rowGrey'}">
-                                                        <td class="col1">
-                                                            #{cat.title}
-                                                        </td>
-                                                        <td class="col2">
-                                                            <p:commandLink styleClass="btn btn-green-stroke btn-sm"
-                                                                           pt:data-toggle="modal"
-                                                                           process="@this"
-                                                                           action="#{organizationEditBean.prepareCredentialCategoryForEdit(cat)}"
-                                                                           update=":formEditCategory:panelEditCategory"
-                                                                           oncomplete="$('#modalEditCategory').modal('show')">
-                                                                Rename
-                                                                <p:resetInput target=":formEditCategory:panelEditCategory" />
-                                                            </p:commandLink>
-                                                            <p:commandLink rendered="#{not cat.used}" styleClass="linkRed"
-                                                                           process="@this"
-                                                                           action="#{organizationEditBean.removeCredentialCategory(catStatus.index)}"
-                                                                           update=":formMain:panelCredentialCategories">
-                                                                Delete
-                                                            </p:commandLink>
-                                                            <ui:fragment rendered="#{cat.used}">
-                                                                <a href="javascript:void(0);" class="linkRed disabled"
-                                                                   data-toggle="tooltip" title="This category is being used in at least one #{msg['label.credential'].toLowerCase()}">
-                                                                   Delete
-                                                                </a>
-                                                            </ui:fragment>
-                                                        </td>
-                                                    </tr>
-                                                </ui:repeat>
-                                            </table>
-                                        </ui:fragment>
-                                    </h:panelGroup>
-                                    <p:commandLink styleClass="btn btn-green btn-sm" pt:data-toggle="modal"
-                                                   process="@this"
-                                                   action="#{organizationEditBean.prepareAddingNewCredentialCategory()}"
-                                                   update=":formEditCategory:panelEditCategory"
-                                                   oncomplete="$('#modalEditCategory').modal('show')">
-                                        Add Category
-                                        <p:resetInput target=":formEditCategory:panelEditCategory" />
-                                    </p:commandLink>
-                                </div>
-                            </div>
-                            <div class="formLine">
-                                <label>&#160;</label>
-                                <div class="formLineRight">
-                                    <a href="javascript:void(0)" class="btn btn-green" onclick="determineSaveAction()">#{ organizationEditBean.decodedId == 0 ? 'Create' : 'Save Changes'}</a>
-                                    <p:commandLink id="saveBtn" styleClass="saveBtnSelector" style="display: none;"
-                                                    action="#{organizationEditBean.saveOrganization()}" update=":formMain :growlMain">
-                                                    <f:param name="page" value="#{facesContext.viewRoot.viewId}" />
-                                                    <f:param name="learningContext" value="name:organization#{organizationEditBean.decodedId > 0 ? '|id:'.concat(organizationEditBean.decodedId) : ''}" />
-                                    </p:commandLink>
-                                    <div class="modal fade" id="modalSaveChanges" tabindex="-1" role="dialog" aria-labelledby="removeCompetence">
-                                        <div class="modal-dialog" role="document">
-                                            <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
-                                                    <h2 class="modal-title" id="removeCompetence1">Save changes</h2>
-                                                </div>
-
-                                                <div class="modal-body">
-                                                    <p>By disabling learning in stages, learning stages will be removed from all #{msg['label.credential.plural'].toLowerCase()} and #{msg['label.competence.plural'].toLowerCase()} currently using them. Are you sure you want to continue?<br/></p>
-                                                </div>
-
-                                                <div class="modal-footer">
-                                                    <p:commandLink  id="saveBtnModal" styleClass="btn btn-green" value="#{ organizationEditBean.decodedId == 0 ? 'Create' : 'Save Changes'}"
-                                                                    action="#{organizationEditBean.saveOrganization()}" update=":formMain :growlMain"
-                                                                    oncomplete="hideModal('modalSaveChanges')">
-                                                        <f:param name="page" value="#{facesContext.viewRoot.viewId}" />
-                                                        <f:param name="learningContext" value="name:organization#{organizationEditBean.decodedId > 0 ? '|id:'.concat(organizationEditBean.decodedId) : ''}" />
-                                                    </p:commandLink>
-                                                    <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
-                                                </div>
-                                            </div>
-                                        </div>
+                                <div class="formLine">
+                                    <label>&#160;</label>
+                                    <div class="formLineRight">
+                                        <p:commandLink styleClass="btn btn-green" value="Save Changes"
+                                                       action="#{organizationEditBean.updateCredentialCategories()}" update=":panelCredentialCategories :growlMain">
+                                            <f:param name="page" value="#{facesContext.viewRoot.viewId}" />
+                                            <f:param name="learningContext" value="name:organization#{organizationEditBean.decodedId > 0 ? '|id:'.concat(organizationEditBean.decodedId) : ''}" />
+                                        </p:commandLink>
                                     </div>
-                                    <p:defaultCommand target="saveBtn" />
                                 </div>
                             </div>
                         </div>
-                            <script>
-                                var learningInStagesChanged = false;
-                                function onLearningInStagesChanged() {
-                                    learningInStagesChanged = !learningInStagesChanged;
-                                    console.log(learningInStagesChanged);
-                                }
-                                function determineSaveAction() {
-                                    if (!$('.checkboxLearningInStagesSelector').is(':checked') &amp;&amp; learningInStagesChanged) {
-                                        $('#modalSaveChanges').modal('show');
-                                    } else {
-                                        $('.saveBtnSelector').click();
-                                    }
-                                }
-                            </script>
-                        </h:form>
                     </div>
                 </div>
-            </div>
 
-            <ui:fragment rendered="#{organizationEditBean.decodedId > 0}">
                 <div class="row">
                     <div class="col-md-12">
-                        <div class="whiteBox adminIndexesBox">
-                            <h3>Reindex the following resources:</h3>
-                            <p:commandLink value="Users"
-                                           styleClass="btn btn-green"
-                                           action="#{bulkDataAdministration.deleteAndReindexUsers(organizationEditBean.decodedId)}"	/>
-                            <p:commandLink value="Content"
-                                           styleClass="btn btn-green"
-                                           action="#{bulkDataAdministration.deleteAndReindexLearningContent(organizationEditBean.decodedId)}"	/>
-                            <p:commandLink value="#{msg['label.rubric.plural']}"
-                                           styleClass="btn btn-green"
-                                           action="#{bulkDataAdministration.deleteAndReindexRubrics(organizationEditBean.decodedId)}" />
-                            <div class="clear top30"></div>
+                        <div class="whiteBox">
+                            <h2>Plugin: Assessments</h2>
+                            <div class="formWrapper editOrgForm">
+                                <h:form id="formTokens">
+                                    <div class="formLine">
+                                        <label>Plugin configuration</label>
+                                        <div class="formLineRight">
+                                            <div class="checkbox checkLine">
+                                                <h:selectBooleanCheckbox id="checkboxPrivateDiscussion" value="#{organizationEditBean.organization.assessmentTokensPluginData.privateDiscussionEnabled}"/>
+                                                <h:outputLabel for="checkboxPrivateDiscussion" value="Assessment private discussion enabled"/>
+                                            </div>
+                                            <div class="checkbox checkLine">
+                                                <h:selectBooleanCheckbox id="checkboxTokens" value="#{organizationEditBean.organization.assessmentTokensPluginData.assessmentTokensEnabled}"/>
+                                                <h:outputLabel for="checkboxTokens" value="Assessment tokens enabled"/>
+                                            </div>
+                                            <p class="top10 bottom30">Students use Assessment Tokens to make #{msg['label.competence'].toLowerCase()} assessment requests from their peers. To make an assessment request, student spends specified number of Assessment Tokens. Tokens are earned by giving assessments to peers.</p>
+                                            <div><label>Number of tokens spent per one assessment request:</label></div>
+                                            <div>
+                                                <h:inputText id="inputSpentTokens"
+                                                             label="Number of spent tokens"
+                                                             type="number"
+                                                             styleClass="width100 bottom20"
+                                                             value="#{organizationEditBean.organization.assessmentTokensPluginData.numberOfSpentTokensPerRequest}"
+                                                             required="true">
+                                                    <f:validateLongRange minimum="0" maximum="500"/>
+                                                </h:inputText>
+                                            </div>
+                                            <small class="redText bottom10 topMinus20 displayBlock"><h:message for="inputSpentTokens"/></small>
+
+                                            <div><label>Number of tokens earned by giving one assessment:</label></div>
+                                            <div>
+                                                <h:inputText id="inputEarnedTokens"
+                                                             label="Number of earned tokens"
+                                                             type="number"
+                                                             styleClass="width100 bottom20"
+                                                             value="#{organizationEditBean.organization.assessmentTokensPluginData.numberOfEarnedTokensPerAssessment}"
+                                                             required="true">
+                                                    <f:validateLongRange minimum="0" maximum="500"/>
+                                                </h:inputText>
+                                            </div>
+                                            <small class="redText bottom10 topMinus20 displayBlock"><h:message for="inputEarnedTokens"/></small>
+
+                                            <div><label>The initial number of tokens per student:</label></div>
+                                            <div>
+                                                <h:inputText id="inputInitialTokens"
+                                                             label="Initial number of tokens"
+                                                             type="number"
+                                                             styleClass="width100"
+                                                             value="#{organizationEditBean.organization.assessmentTokensPluginData.initialNumberOfTokensGiven}"
+                                                             required="true">
+                                                    <f:validateLongRange minimum="0" maximum="500"/>
+                                                </h:inputText>
+                                            </div>
+                                            <small class="redText displayBlock"><h:message for="inputInitialTokens"/></small>
+                                        </div>
+                                    </div>
+                                    <div class="formLine">
+                                        <label>&#160;</label>
+                                        <div class="formLineRight">
+                                            <p:commandLink
+                                                    value="Save Changes"
+                                                    styleClass="btn btn-green"
+                                                    action="#{organizationEditBean.updateAssessmentTokensPlugin()}"
+                                                    update=":growlMain :formTokens">
+                                                <f:param name="page" value="#{facesContext.viewRoot.viewId}" />
+                                                <f:param name="learningContext" value="name:organization|id:#{organizationEditBean.decodedId}" />
+                                            </p:commandLink>
+                                        </div>
+                                    </div>
+                                </h:form>
+                                <div class="formLine">
+                                    <label>Bulk actions</label>
+                                    <div class="formLineRight">
+                                        <div class="checkbox checkLine">
+                                        </div>
+                                        <p class="bottom30">Bulk actions affecting all students in this organization.</p>
+
+                                        <h:form id="formResetTokens">
+                                            <div><label>Reset number of tokens for all students:</label></div>
+                                            <div>
+                                                <h:inputText id="inputResetTokens"
+                                                             label="Number of tokens"
+                                                             type="number"
+                                                             styleClass="width100 bottom20"
+                                                             required="true"
+                                                             value="#{organizationEditBean.tokensToReset}">
+                                                    <f:validateLongRange minimum="0" maximum="500"/>
+                                                </h:inputText>
+                                                <p:commandLink
+                                                        styleClass="btn btn-green-stroke left10"
+                                                        pt:data-toggle="modal"
+                                                        value="Reset"
+                                                        update=":panelResetTokens :formResetTokens"
+                                                        oncomplete="if (args &amp;&amp; !args.validationFailed) { $('#resetTokensModal').modal('show'); }">
+                                                </p:commandLink>
+                                            </div>
+                                            <small class="redText bottom10 topMinus20 displayBlock"><h:message for="inputResetTokens"/></small>
+                                        </h:form>
+                                        <h:form id="formAddTokens">
+                                            <div><label>Add tokens to all students:</label></div>
+                                            <div>
+                                                <h:inputText id="inputAddTokens"
+                                                             label="Number of tokens"
+                                                             type="number"
+                                                             styleClass="width100 bottom20"
+                                                             required="true"
+                                                             value="#{organizationEditBean.tokensToAdd}">
+                                                    <f:validateLongRange minimum="1" maximum="500"/>
+                                                </h:inputText>
+                                                <p:commandLink
+                                                        styleClass="btn btn-green-stroke left10"
+                                                        pt:data-toggle="modal"
+                                                        value="Add tokens"
+                                                        update=":panelAddTokens :formAddTokens"
+                                                        oncomplete="if (args &amp;&amp; !args.validationFailed) { $('#addTokensModal').modal('show') }">
+                                                </p:commandLink><br/>
+                                            </div>
+                                            <small class="redText bottom10 topMinus20 displayBlock"><h:message for="inputAddTokens"/></small>
+                                        </h:form>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
+
+                <ui:fragment rendered="#{request.isUserInRole('ADMIN.ADVANCED')}">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="whiteBox adminIndexesBox">
+                                <h3>Reindex the following resources:</h3>
+                                <p:commandLink value="Users"
+                                               styleClass="btn btn-green"
+                                               action="#{bulkDataAdministration.deleteAndReindexUsers(organizationEditBean.decodedId)}"	/>
+                                <p:commandLink value="Content"
+                                               styleClass="btn btn-green"
+                                               action="#{bulkDataAdministration.deleteAndReindexLearningContent(organizationEditBean.decodedId)}"	/>
+                                <p:commandLink value="#{msg['label.rubric.plural']}"
+                                               styleClass="btn btn-green"
+                                               action="#{bulkDataAdministration.deleteAndReindexRubrics(organizationEditBean.decodedId)}" />
+                                <div class="clear top30"></div>
+                            </div>
+                        </div>
+                    </div>
+                </ui:fragment>
             </ui:fragment>
         </div>
 
-        <c:if test="#{organizationEditBean.learningInStagesEnabled}">
+        <ui:fragment rendered="#{organizationEditBean.decodedId gt 0}">
             <h:form id="formEditLearningStage">
                 <div class="modal fade newFeedModal" id="modalEditLearningStage" tabindex="-1" role="dialog" aria-labelledby="renLevel1">
                     <div class="modal-dialog">
@@ -386,7 +559,7 @@
                             <div class="modal-footer alignLeft">
                                 <p:commandLink id="btnEditLearningStage" styleClass="btn btn-green"
                                                action="#{organizationEditBean.saveLearningStage()}"
-                                               update="inputLearninStageMsg :formMain:panelLearningStages"
+                                               update="inputLearninStageMsg :formLearningStages:panelLearningStages"
                                                oncomplete="if (args &amp;&amp; !args.validationFailed) {$('#modalEditLearningStage').modal('hide');}">
                                     #{organizationEditBean.createLearningStageUseCase ? 'Add' : 'Save'}
                                 </p:commandLink>
@@ -403,44 +576,97 @@
                 </div>
             </h:form>
 
-        </c:if>
+            <h:form id="formEditCategory">
+                <div class="modal fade newFeedModal" id="modalEditCategory" tabindex="-1" role="dialog" aria-labelledby="renLevel1">
+                    <div class="modal-dialog">
+                        <h:panelGroup layout="block" id="panelEditCategory" styleClass="modal-content">
+                            <div class="modal-header alignLeft">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+                                <h2 class="modal-title">#{organizationEditBean.createCredentialCategoryUseCase? 'Add' : 'Rename'} Category</h2>
+                            </div>
+                            <div class="modal-body alignLeft">
+                                <h:inputText id="inputCategory"
+                                             value="#{organizationEditBean.selectedCategory.title}"
+                                             placeholder="Category name"
+                                             required="true" requiredMessage="Category name is required"
+                                             validator="#{organizationEditBean.validateCredentialCategory}"
+                                             autocomplete="off" />
+                                <small class="redText bottom5 topMinus20 displayBlock"><h:message id="inputCategoryMsg" for="inputCategory"></h:message></small>
+                            </div>
+                            <div class="modal-footer alignLeft">
+                                <p:commandLink id="btnEditCategory" styleClass="btn btn-green"
+                                               action="#{organizationEditBean.saveCredentialCategory()}"
+                                               update="inputCategoryMsg :panelCredentialCategories"
+                                               oncomplete="if (args &amp;&amp; !args.validationFailed) {$('#modalEditCategory').modal('hide');}">
+                                    #{organizationEditBean.createCredentialCategoryUseCase ? 'Add' : 'Save'}
+                                </p:commandLink>
+                                <p:defaultCommand target="btnEditCategory"/>
+                                <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+                            </div>
+                        </h:panelGroup>
+                        <script>
+                            $('#modalEditCategory').on('shown.bs.modal', function () {
+                                $('#modalEditCategory input:first').focus();
+                            })
+                        </script>
+                    </div>
+                </div>
+            </h:form>
 
-        <h:form id="formEditCategory">
-            <div class="modal fade newFeedModal" id="modalEditCategory" tabindex="-1" role="dialog" aria-labelledby="renLevel1">
-                <div class="modal-dialog">
-                    <h:panelGroup layout="block" id="panelEditCategory" styleClass="modal-content">
-                        <div class="modal-header alignLeft">
+            <div class="modal fade" id="resetTokensModal" tabindex="-1" role="dialog" aria-labelledby="resetTokenTitle">
+                <div class="modal-dialog" role="document">
+                    <h:panelGroup layout="block" id="panelResetTokens" styleClass="modal-content">
+                        <div class="modal-header">
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
-                            <h2 class="modal-title">#{organizationEditBean.createCredentialCategoryUseCase? 'Add' : 'Rename'} Category</h2>
+                            <h2 class="modal-title" id="resetTokenTitle">Reset tokens for all students?</h2>
                         </div>
-                        <div class="modal-body alignLeft">
-                            <h:inputText id="inputCategory"
-                                         value="#{organizationEditBean.selectedCategory.title}"
-                                         placeholder="Category name"
-                                         required="true" requiredMessage="Category name is required"
-                                         validator="#{organizationEditBean.validateCredentialCategory}"
-                                         autocomplete="off" />
-                            <small class="redText bottom5 topMinus20 displayBlock"><h:message id="inputCategoryMsg" for="inputCategory"></h:message></small>
+                        <div class="modal-body">
+                            <p>Are you sure you want to reset the number of tokens to #{organizationEditBean.tokensToReset} for each student of this organization? Note that this action is irreversible.</p>
                         </div>
-                        <div class="modal-footer alignLeft">
-                            <p:commandLink id="btnEditCategory" styleClass="btn btn-green"
-                                           action="#{organizationEditBean.saveCredentialCategory()}"
-                                           update="inputCategoryMsg :formMain:panelCredentialCategories"
-                                           oncomplete="if (args &amp;&amp; !args.validationFailed) {$('#modalEditCategory').modal('hide');}">
-                                #{organizationEditBean.createCredentialCategoryUseCase ? 'Add' : 'Save'}
+                        <div class="modal-footer">
+                            <p:commandLink
+                                    styleClass="btn btn-green"
+                                    value="Reset"
+                                    onclick="showLoaderNextToElem(this, '#{request.contextPath}')"
+                                    action="#{organizationEditBean.resetTokensForOrganizationUsers()}"
+                                    update=":growlMain"
+                                    oncomplete="$('#resetTokensModal').modal('hide');">
+                                <f:param name="page" value="#{facesContext.viewRoot.viewId}" />
+                                <f:param name="learningContext" value="name:organization|id:#{organizationEditBean.decodedId}" />
                             </p:commandLink>
-                            <p:defaultCommand target="btnEditCategory"/>
                             <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
                         </div>
                     </h:panelGroup>
-                    <script>
-                        $('#modalEditCategory').on('shown.bs.modal', function () {
-                            $('#modalEditCategory input:first').focus();
-                        })
-                    </script>
                 </div>
             </div>
-        </h:form>
+
+            <div class="modal fade" id="addTokensModal" tabindex="-1" role="dialog" aria-labelledby="addTokensTitle">
+                <div class="modal-dialog" role="document">
+                    <h:panelGroup layout="block" id="panelAddTokens" styleClass="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+                            <h2 class="modal-title" id="addTokensTitle">Add #{organizationEditBean.tokensToAdd} #{organizationEditBean.tokensToAdd eq 1 ? 'token' : 'tokens'} to each student?</h2>
+                        </div>
+                        <div class="modal-body">
+                            <p>Are you sure you want to add #{organizationEditBean.tokensToAdd} #{organizationEditBean.tokensToAdd eq 1 ? 'token' : 'tokens'} to each student of this organization? Note that this action is irreversible.</p>
+                        </div>
+                        <div class="modal-footer">
+                            <p:commandLink
+                                    styleClass="btn btn-green"
+                                    value="Add"
+                                    onclick="showLoaderNextToElem(this, '#{request.contextPath}')"
+                                    action="#{organizationEditBean.addTokensToOrganizationUsers()}"
+                                    update=":growlMain"
+                                    oncomplete="$('#addTokensModal').modal('hide');">
+                                <f:param name="page" value="#{facesContext.viewRoot.viewId}" />
+                                <f:param name="learningContext" value="name:organization|id:#{organizationEditBean.decodedId}" />
+                            </p:commandLink>
+                            <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+                        </div>
+                    </h:panelGroup>
+                </div>
+            </div>
+        </ui:fragment>
     </ui:define>
 
 

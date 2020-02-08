@@ -17,7 +17,7 @@ import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.AnnouncementManager;
 import org.prosolo.services.nodes.data.AnnouncementData;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
-import org.prosolo.web.courses.credential.announcements.AnnouncementPublishMode;
+import org.prosolo.common.domainmodel.credential.AnnouncementPublishMode;
 import org.prosolo.web.util.AvatarUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -58,7 +58,7 @@ public class AnnouncementManagerImpl extends AbstractManagerImpl implements Anno
 			throws ResourceCouldNotBeLoadedException {
 
 		Result<AnnouncementData> result = self.createAnnouncementAndGetEvents(credentialId, title, text, creatorId, mode, context);
-		eventFactory.generateEvents(result.getEventQueue());
+		eventFactory.generateAndPublishEvents(result.getEventQueue());
 		return result.getResult();
 	}
 
@@ -73,6 +73,7 @@ public class AnnouncementManagerImpl extends AbstractManagerImpl implements Anno
 		announcement.setTitle(title);
 		announcement.setText(text);
 		announcement.setDateCreated(new Date());
+		announcement.setPublishMode(publishMode);
 		//create and add creator
 		try {
 			User user = loadResource(User.class, creatorId);
@@ -89,9 +90,9 @@ public class AnnouncementManagerImpl extends AbstractManagerImpl implements Anno
 		Result<AnnouncementData> result = new Result<>();
 		Announcement announcement1 = new Announcement();
 		announcement1.setId(announcement.getId());
+
 		Map<String, String> parameters = new HashMap<>();
 		parameters.put("credentialId", credentialId + "");
-		parameters.put("publishMode", publishMode.getText());
 
 		result.appendEvent(eventFactory.generateEventData(EventType.AnnouncementPublished, context,
 				announcement1, credential, null, parameters));
@@ -211,7 +212,6 @@ public class AnnouncementManagerImpl extends AbstractManagerImpl implements Anno
 		data.setCreatorFullName(original.getCreatedBy().getFullName());
 		data.setCreatorAvatarUrl(AvatarUtils.getAvatarUrlInFormat(original.getCreatedBy(), ImageFormat.size120x120));
 		data.setCreationTime(DateUtil.getMillisFromDate(original.getDateCreated()));
-		data.setEncodedId(idEncoder.encodeId(original.getId()));
 		return data;
 	}
 
@@ -231,5 +231,28 @@ public class AnnouncementManagerImpl extends AbstractManagerImpl implements Anno
 		this.idEncoder = idEncoder;
 	}
 
+	@Override
+	@Transactional(readOnly = true)
+	public Optional<AnnouncementData> loadAnnouncement(long id) {
+		try {
+			String query =
+					"SELECT ann " +
+					"FROM Announcement ann " +
+					"LEFT JOIN FETCH ann.createdBy createdBy " +
+					"WHERE ann.id = :annId";
 
+			Announcement res = (Announcement) persistence.currentManager().createQuery(query)
+					.setLong("annId", id)
+					.uniqueResult();
+
+			if (res != null) {
+				return Optional.of(new AnnouncementData(res, res.getCreatedBy()));
+			}
+
+			return Optional.empty();
+		} catch (Exception e) {
+			logger.error(e);
+			throw new DbConnectionException("Error loading competence tags");
+		}
+	}
 }

@@ -29,10 +29,10 @@
 					 <h:link rendered="#{not (page eq 'organizationUsers' or page eq 'organizationUserEdit')}"
 						 outcome="/admin/organizationUsers">
 						 <f:param name="orgId" value="#{utilcomp:encodeId(cc.attrs.orgId)}" />
-						 People
+						 Accounts
 					 </h:link>
 					 <ui:fragment rendered="#{page eq 'organizationUsers' or page eq 'organizationUserEdit'}">
-						 <a href="javascript:void(0);">People</a>
+						 <a href="javascript:void(0);">Accounts</a>
 					 </ui:fragment>
 				 </li>
 				 <li role="presentation" class="#{page eq 'organization-settings' ? 'active' : ''}">

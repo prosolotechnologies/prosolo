@@ -3,14 +3,20 @@
                 xmlns:ui="http://java.sun.com/jsf/facelets"
                 template="templates/masterLayout2.xhtml"
                 xmlns:util="http://www.prosolo.com/util"
-                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:h="http://java.sun.com/jsf/html"
                 xmlns:assessments="http://java.sun.com/jsf/composite/components/assessments"
-                xmlns:competence="http://java.sun.com/jsf/composite/components/competences">
+                xmlns:competence="http://java.sun.com/jsf/composite/components/competences"
+                xmlns:assessment="http://java.sun.com/jsf/composite/components/assessments">
 
     <ui:param name="bodyClass" value="cbp-spmenu-push"/>
 
     <ui:define name="windowTitle">
-        Assessment - #{competenceAssessmentBean.competenceAssessmentData.title} - ProSolo
+        <assessment:assessmentActorName
+                actorId="#{competenceAssessmentBean.competenceAssessmentData.assessorId}"
+                actorFullName="#{competenceAssessmentBean.competenceAssessmentData.assessorFullName}"
+                blindAssessmentMode="#{competenceAssessmentBean.competenceAssessmentData.blindAssessmentMode}"
+                actorType="ASSESSOR"
+        /> - #{msg['label.assessment.type.PEER_ASSESSMENT.plural']} - #{competenceAssessmentBean.competenceAssessmentData.title} - #{competenceAssessmentBean.credentialTitle} - ProSolo
     </ui:define>
 
     <ui:define name="metadata">
@@ -27,17 +33,60 @@
     </ui:define>
 
     <ui:define name="navLinks">
-        <c:if test="#{competenceAssessmentBean.isUserAssessedStudentInCurrentContext()}">
-            <competence:competenceStudentNavLinks
-                    enrolled="#{true}"
-                    credId="#{util:decodeId(param.credId)}"
-                    compId="#{util:decodeId(param.compId)}"
-            />
-        </c:if>
-    </ui:define>
-    <ui:define name="content">
-        <assessments:competenceAssessmentPreview
-                credentialId="#{util:decodeId(param.credId)}"
+        <competence:competenceStudentNavLinks
+                enrolled="#{true}"
+                credId="#{util:decodeId(param.credId)}"
+                compId="#{util:decodeId(param.compId)}"
         />
+    </ui:define>
+
+    <ui:define name="content">
+        <div class="whiteBar">
+        </div>
+
+        <div class="container">
+            <ol class="breadcrumb">
+                <li>
+                    <h:link value="#{msg['label.credential.plural']}" outcome="credentialLibrary"/>
+                </li>
+                <li>
+                    <h:link value="#{util:shortenAndAddDots(competenceAssessmentBean.credentialTitle)}"
+                            outcome="credential">
+                        <f:param name="id" value="#{param.credId}"></f:param>
+                    </h:link>
+                </li>
+                <li>
+                    <h:link value="#{util:shortenAndAddDots(competenceAssessmentBean.competenceAssessmentData.title)}"
+                            outcome="competence">
+                        <f:param name="credId" value="#{param.credId}"/>
+                        <f:param name="compId" value="#{param.compId}"/>
+                    </h:link>
+                </li>
+                <li>
+                    <h:link value="Assessments" outcome="/competence-assessments-root">
+                        <f:param name="credId" value="#{param.credId}"/>
+                        <f:param name="compId" value="#{param.compId}"/>
+                    </h:link>
+                </li>
+                <li>
+                    <h:link includeViewParams="true"
+                            value="#{msg['label.assessment.type.PEER_ASSESSMENT.short']}"
+                            outcome="/competence-peer-assessments">
+                    </h:link>
+                </li>
+                <li class="active">
+                    <assessment:assessmentActorName
+                            actorId="#{competenceAssessmentBean.competenceAssessmentData.assessorId}"
+                            actorFullName="#{competenceAssessmentBean.competenceAssessmentData.assessorFullName}"
+                            blindAssessmentMode="#{competenceAssessmentBean.competenceAssessmentData.blindAssessmentMode}"
+                            actorType="ASSESSOR"
+                    />
+                </li>
+            </ol>
+        </div>
+
+        <assessments:competenceAssessmentPreview
+                credentialId="#{competenceAssessmentBean.competenceAssessmentData.credentialId}"
+                learningContext="name:CREDENTIAL|id:#{competenceAssessmentBean.decodedCredId}" />
     </ui:define>
 </ui:composition>

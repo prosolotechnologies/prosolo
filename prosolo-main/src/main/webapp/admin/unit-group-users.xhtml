@@ -9,11 +9,13 @@
                 xmlns:util="http://www.prosolo.com/util"
                 xmlns:user="http://java.sun.com/jsf/composite/components/admin/user"
                 xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:org="http://java.sun.com/jsf/composite/components/admin/organization"
+                xmlns:jsf="http://xmlns.jcp.org/jsf"
 >
     <utilcomp:messagesBundle var="msg" />
 
     <ui:define name="windowTitle" >
-        #{groupUsersBean.userGroupTitle} - Student Groups - #{groupUsersBean.unitTitle} - #{groupUsersBean.organizationTitle} - ProSolo
+        #{groupUsersBean.userGroupTitle} - Learning Groups - #{groupUsersBean.unitTitle} - #{groupUsersBean.organizationTitle} - ProSolo
     </ui:define>
 
     <ui:define name="metadata">
@@ -22,6 +24,7 @@
             <f:viewParam name="unitId" value="#{groupUsersBean.unitId}" />
             <f:viewParam name="id" value="#{groupUsersBean.groupId}" />
             <f:viewParam name="p" value="#{groupUsersBean.page}" default="1" />
+            <f:viewParam name="tab" value="#{groupUsersBean.tab}"/>
             <f:viewParam name="error" value="#{groupUsersBean.error}"/>
             <f:viewAction action="#{groupUsersBean.init()}" />
         </f:metadata>
@@ -29,6 +32,10 @@
 
     <ui:define name="resourceTitle" >
         <h1>#{groupUsersBean.userGroupTitle}</h1>
+    </ui:define>
+
+    <ui:define name="navLinks">
+        <org:unitHeaderLinks orgId="#{groupUsersBean.decodedOrgId}" unitId="#{groupUsersBean.decodedUnitId}" />
     </ui:define>
 
     <ui:define name="content">
@@ -42,14 +49,6 @@
             <div class="container">
                 <div class="whiteBarContent">
                     <div class="whiteBarLeft">
-                        <p:commandLink styleClass="btn btn-green btn-sm item"
-                                       pt:data-toggle="modal"
-                                       action="#{groupUsersBean.prepareAddingUsers()}"
-                                       update=":addUsers:panelUsers :addUsers:pagination"
-                                       oncomplete="$('#addUsersModal').modal('show');">
-                            Add Students
-                        </p:commandLink>
-
                         <div class="searchBox">
                             <h:form>
                                 <p:remoteCommand name="execSearchGroupUsers"
@@ -94,7 +93,7 @@
                 </li>
                 <li>
                     <h:link outcome="/admin/unit-groups">
-                        Student Groups
+                        Learning Groups
                         <f:param name="orgId" value="#{param.orgId}" />
                         <f:param name="id" value="#{param.unitId}" />
                     </h:link>
@@ -106,69 +105,110 @@
         <div class="container">
             <div class="row">
                 <div class="col-md-12">
-                    <div class="whiteBox manageVisibility">
-                        <div class="innerWrapper">
-                            <p>
-                                <p:commandLink pt:data-toggle="modal"
-                                              action="#{groupUsersBean.prepareImportingUsers()}"
-                                              update=":importUsers:importUsersForm:importUsersPanel"
-                                              oncomplete="$('#importUsersModal').modal('show');">
-                                    Import students from CSV file
-                                </p:commandLink>
-                            </p>
-                        </div>
-                        <h:panelGroup id="panelUsers">
-                            <ui:fragment rendered="#{empty groupUsersBean.users}">
-                                <div class="noPeopleMessage">
-                                    <p>No students</p>
+                    <div class="whiteBox">
+                        <ul class="nav nav-tabs pageSubmenu" role="tablist">
+                            <li role="presentation" class="#{groupUsersBean.userType eq 'STUDENT' ? 'active' : ''}">
+                                <p:commandLink
+                                        pt:role="tab"
+                                        pt:data-toggle="tab"
+                                        pt:aria-controls="students"
+                                        pt:aria-expanded="#{groupUsersBean.userType eq 'STUDENT' ? 'true' : 'false'}"
+                                        value="Students"
+                                        process="@this"
+                                        action="#{groupUsersBean.setStudentTab()}"
+                                        update=":panelUsersWrapper :growlMain"
+                                        oncomplete="$('#students').tab('show'); setQueryParam('tab','students')"
+                                />
+                            </li>
+                            <li role="presentation" class="#{groupUsersBean.userType eq 'INSTRUCTOR' ? 'active' : ''}">
+                                <p:commandLink
+                                        pt:role="tab"
+                                        pt:data-toggle="tab"
+                                        pt:aria-controls="students"
+                                        pt:aria-expanded="#{groupUsersBean.userType eq 'INSTRUCTOR' ? 'true' : 'false'}"
+                                        value="#{msg['label.instructor.plural']}"
+                                        process="@this"
+                                        action="#{groupUsersBean.setInstructorTab()}"
+                                        update=":panelUsersWrapper :growlMain"
+                                        oncomplete="$('#students').tab('show'); setQueryParam('tab','instructors')"
+                                />
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="tab-content">
+                        <div role="tabpanel" class="tab-pane fade active in" id="students">
+                            <h:panelGroup layout="block" id="panelUsersWrapper" styleClass="whiteBox manageVisibility">
+                                <div class="innerWrapper">
+                                    <h2>#{groupUsersBean.userType eq 'STUDENT' ? 'Students' : msg['label.instructor.plural']}</h2>
+                                    <p:commandLink styleClass="btn btn-green btn-sm item bottom20"
+                                                   pt:data-toggle="modal"
+                                                   action="#{groupUsersBean.prepareAddingUsers()}"
+                                                   update=":addUsers :growlMain"
+                                                   oncomplete="$('#addUsersModal').modal('show');">
+                                        Add #{groupUsersBean.userType eq 'STUDENT' ? 'Students' : msg['label.instructor.plural']}
+                                    </p:commandLink>
+                                    <p:commandLink rendered="#{groupUsersBean.userType eq 'STUDENT'}"
+                                                   pt:data-toggle="modal"
+                                                   styleClass="btn btn-green btn-sm item bottom20 left20"
+                                                   action="#{groupUsersBean.prepareImportingUsers()}"
+                                                   update=":importUsers:importUsersForm:importUsersPanel"
+                                                   oncomplete="$('#importUsersModal').modal('show');">
+                                        Import from CSV file
+                                    </p:commandLink>
                                 </div>
-                            </ui:fragment>
-                            <ui:fragment rendered="#{not empty groupUsersBean.users}">
-                                <ul class="list hasTopBorder">
-                                    <ui:repeat var="user" value="#{groupUsersBean.users}" varStatus="status">
-                                        <li>
-                                            <div class="instructorInfo">
-                                                <utilcomp:userAvatar avatar="#{user.avatarUrl}"
-                                                                     fullName="#{user.fullName}" width="48" height="48" />
+                                <h:panelGroup id="panelUsers">
+                                    <ui:fragment rendered="#{empty groupUsersBean.users}">
+                                        <div class="noPeopleMessage">
+                                            <p>No #{groupUsersBean.userType eq 'STUDENT' ? 'students' : msg['label.instructor.plural'].toLowerCase()}</p>
+                                        </div>
+                                    </ui:fragment>
+                                    <ui:fragment rendered="#{not empty groupUsersBean.users}">
+                                        <ul class="list hasTopBorder">
+                                            <ui:repeat var="user" value="#{groupUsersBean.users}" varStatus="status">
+                                                <li>
+                                                    <div class="instructorInfo">
+                                                        <utilcomp:userAvatar avatar="#{user.avatarUrl}"
+                                                                             fullName="#{user.fullName}" width="48" height="48" />
 
-                                                <div class="infoWrap">
-                                                    <h3>#{user.commaSeparatedFullName}</h3>
-                                                    <span>#{user.position}</span>
-                                                </div>
-                                            </div>
+                                                        <div class="infoWrap">
+                                                            <h3>#{user.commaSeparatedFullName}</h3>
+                                                            <span>#{user.position}</span>
+                                                        </div>
+                                                    </div>
 
-                                            <div class="assignOpt">
-                                                <c:if test="#{loggeduser.hasCapability('login.as')}">
-                                                    <p:commandLink rendered="#{loggeduser.userId != user.id}"
-                                                                   styleClass="loginAs"
-                                                                   pt:data-toggle="modal"
-                                                                   action="#{loggeduser.prepareLoginAsUser(user)}"
-                                                                   update=":loginAs:panelLoginAs"
-                                                                   oncomplete="$('#loginAs').modal('show');">
-                                                        Login as...
-                                                    </p:commandLink>
-                                                </c:if>
+                                                    <div class="assignOpt">
+                                                        <c:if test="#{loggeduser.hasCapability('login.as')}">
+                                                            <p:commandLink rendered="#{loggeduser.userId != user.id}"
+                                                                           styleClass="loginAs"
+                                                                           pt:data-toggle="modal"
+                                                                           action="#{loggeduser.prepareLoginAsUser(user)}"
+                                                                           update=":loginAs:panelLoginAs"
+                                                                           oncomplete="$('#loginAs').modal('show');">
+                                                                Login as...
+                                                            </p:commandLink>
+                                                        </c:if>
 
-                                                <p:commandLink styleClass="removeX" process="@this"
-                                                               action="#{groupUsersBean.removeUserFromGroup(user)}"
-                                                               update=":panelUsers :growlMain">
-                                                    Close
-                                                    <f:param name="page" value="#{facesContext.viewRoot.viewId}" />
-                                                    <f:param name="learningContext"
-                                                             value="#{util:addSubContext(learningContext, 'name:user|id:'.concat(user.id))}" />
-                                                </p:commandLink>
-                                            </div>
-                                        </li>
-                                    </ui:repeat>
-                                </ul>
-                            </ui:fragment>
-                        </h:panelGroup>
+                                                        <p:commandLink styleClass="removeX" process="@this"
+                                                                       value="Remove"
+                                                                       pt:data-toggle="modal"
+                                                                       action="#{groupUsersBean.selectUserForRemoval(user)}"
+                                                                       update=":formRemoveGroupMemberModal"
+                                                                       oncomplete="$('#removeGroupMember').modal('show')"
+                                                        />
+                                                    </div>
+                                                </li>
+                                            </ui:repeat>
+                                        </ul>
+                                    </ui:fragment>
+                                </h:panelGroup>
 
-                        <utilcomp:pagination id="pagination"
-                                             bean="#{groupUsersBean}"
-                                             toUpdate=":panelUsers"
-                                             updateUrl="true"
-                        />
+                                <utilcomp:pagination id="pagination"
+                                                     bean="#{groupUsersBean}"
+                                                     toUpdate=":panelUsers"
+                                                     updateUrl="true"
+                                />
+                            </h:panelGroup>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -186,20 +226,86 @@
 
         <user:addUsers
                 id="addUsers"
-                modalTitle="Add Students to Group"
-                searchPlaceholder="Search Students"
+                modalTitle="Add #{groupUsersBean.userType eq 'STUDENT' ? 'Students' : msg['label.instructor.plural']} to Group"
+                searchPlaceholder="Search #{groupUsersBean.userType eq 'STUDENT' ? 'Students' : msg['label.instructor.plural']}"
                 searchBean="#{groupUserAddBean}"
                 actionBean="#{groupUsersBean}"
                 toUpdate=":panelUsers :pagination :growlMain"
                 userPanelId="panelUsers"
                 paginationPanelId="pagination"
                 learningContext="#{learningContext}"
-                noResultsMessage="No students"
+                noResultsMessage="No #{groupUsersBean.userType eq 'STUDENT' ? 'students' : msg['label.instructor.plural'].toLowerCase()}"
         />
 
         <c:if test="#{loggeduser.hasCapability('login.as')}">
             <user:loginAs id="loginAs" />
         </c:if>
+
+        <h:form id="formRemoveGroupMemberModal">
+            <div class="modal fade #{groupUsersBean.userType eq 'INSTRUCTOR' ? 'removeInstructorModal' : ''}" id="removeGroupMember" tabindex="-1" role="dialog" aria-labelledby="rmGroupMember">
+                <div class="modal-dialog" role="document">
+                    <div id="panelRemoveGroupMember" class="modal-content">
+                        <ui:fragment rendered="#{not empty groupUsersBean.selectedUserForRemoval}">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&#215;</span>
+                                </button>
+                                <h2 class="modal-title" id="rmGroupMember">Remove #{groupUsersBean.userType eq 'STUDENT' ? 'user' : msg['label.instructor'].toLowerCase()}?</h2>
+                            </div>
+
+                            <div class="modal-body">
+                                <ui:fragment rendered="#{groupUsersBean.userType eq 'STUDENT'}">
+                                    <p>Are you sure you want to remove user from the group?</p>
+                                </ui:fragment>
+                                <ui:fragment rendered="#{groupUsersBean.userType eq 'INSTRUCTOR'}">
+                                    <p>The #{msg['label.instructor'].toLowerCase()} will be removed from the learning group. He/she will also be removed from all #{msg['label.credential'].toLowerCase()} #{msg['label.delivery.plural'].toLowerCase()} that are not started yet. Please choose how the removal will affect ongoing #{msg['label.credential'].toLowerCase()} #{msg['label.delivery.plural'].toLowerCase()} (that have already started):</p>
+                                    <div class="radioGroup">
+                                        <div class="radio">
+                                            <input type="radio" jsf:id="removeInstructorRadio1"
+                                                   name="#{hiddenRemoveInstructorRadio.clientId}"
+                                                   value="LEAVE_AS_INSTRUCTOR"
+                                                   jsf:checked="#{groupUsersBean.instructorRemovalMode eq 'LEAVE_AS_INSTRUCTOR' or empty groupUsersBean.instructorRemovalMode  ? true : false}"
+                                            />
+                                            <h:outputLabel for="removeInstructorRadio1">The #{msg['label.instructor'].toLowerCase()} can complete not submitted assessments and students can be assigned to him/her in ongoing #{msg['label.credential'].toLowerCase()} #{msg['label.delivery.plural'].toLowerCase()}.</h:outputLabel>
+                                        </div>
+                                        <div class="radio">
+                                            <input type="radio" jsf:id="removeInstructorRadio2"
+                                                   name="#{hiddenRemoveInstructorRadio.clientId}"
+                                                   value="INACTIVATE"
+                                                   jsf:checked="#{groupUsersBean.instructorRemovalMode eq 'INACTIVATE' ? true : false}"
+                                            />
+                                            <h:outputLabel for="removeInstructorRadio2">The #{msg['label.instructor'].toLowerCase()} can complete not submitted assessments, but no more students can be assigned to him/her in ongoing #{msg['label.credential'].toLowerCase()} #{msg['label.delivery.plural'].toLowerCase()} (the #{msg['label.instructor'].toLowerCase()} will be marked as inactive).</h:outputLabel>
+                                        </div>
+                                        <div class="radio">
+                                            <input type="radio" jsf:id="removeInstructorRadio3"
+                                                   name="#{hiddenRemoveInstructorRadio.clientId}"
+                                                   value="WITHDRAW_FROM_STUDENTS_WITH_UNSUBMITTED_ASSESSMENT_AND_INACTIVATE"
+                                                   jsf:checked="#{groupUsersBean.instructorRemovalMode eq 'WITHDRAW_FROM_STUDENTS_WITH_UNSUBMITTED_ASSESSMENT_AND_INACTIVATE' ? true : false}"
+                                            />
+                                            <h:outputLabel for="removeInstructorRadio3">The #{msg['label.instructor'].toLowerCase()} will be withdrawn from all not submitted assessments, and no more students can be assigned to him/her in ongoing #{msg['label.credential'].toLowerCase()} #{msg['label.delivery.plural'].toLowerCase()} (the #{msg['label.instructor'].toLowerCase()} will be marked as inactive).</h:outputLabel>
+                                        </div>
+                                        <h:inputHidden id="hiddenInputRemoveInstructor" binding="#{hiddenRemoveInstructorRadio}" value="#{groupUsersBean.instructorRemovalMode}"/>
+                                    </div>
+                                </ui:fragment>
+                            </div>
+
+                            <div class="modal-footer">
+                                <utilcomp:singleClickLink
+                                        styleClass="btn btn-red"
+                                        action="#{groupUsersBean.removeUserFromGroup()}"
+                                        update=":panelUsers :pagination :growlMain"
+                                        oncomplete="$('#removeGroupMember').modal('hide')">
+                                    Remove
+                                    <f:param name="page" value="#{facesContext.viewRoot.viewId}" />
+                                    <f:param name="learningContext" value="#{util:addSubContext(learningContext, 'name:user|id:'.concat(groupUsersBean.selectedUserForRemoval.id))}" />
+                                </utilcomp:singleClickLink>
+                                <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+                            </div>
+                        </ui:fragment>
+                    </div>
+                </div>
+            </div>
+        </h:form>
 
     </ui:define>
 </ui:composition>

@@ -19,7 +19,7 @@
 
 	<ui:define name="metadata">
 		<f:metadata>
-			<f:viewParam name="p" value="#{competenceLibraryBeanManager.paginationData.pageString}" default="1" />
+			<f:viewParam name="p" value="#{competenceLibraryBeanManager.page}" default="1" />
 			<f:viewAction action="#{competenceLibraryBeanManager.init()}" />
 		</f:metadata>
 	</ui:define>
@@ -114,6 +114,7 @@
 			                            	<h:link outcome="/manage/competence">
 			                            		#{comp.title}<ui:fragment rendered="#{!comp.published}"><span>#{comp.datePublished == null ? ' (Draft) ' : ' (Unpublished)'}</span></ui:fragment>
 			                            		<f:param name="compId" value="#{util:encodeId(comp.competenceId)}"></f:param>
+												<f:param name="credId" value="#{util:encodeId(comp.credentialId)}"/>
 			                            	</h:link>
 			                            </h2>
 			                            <div class="competenceInfo">
@@ -138,6 +139,7 @@
 			                                    	<h:link outcome="/manage/competence-students">
 			                                    		#{comp.numberOfStudents}
 			                                    		<f:param name="id" value="#{util:encodeId(comp.competenceId)}" />
+														<f:param name="credId" value="#{util:encodeId(comp.credentialId)}"/>
 			                                    	</h:link>
 			                                    </ui:fragment>
 			                                </div>
@@ -147,11 +149,13 @@
 			                            <h:link outcome="/manage/create-competence" styleClass="btn btn-sm btn-green-stroke">
 			                            	Edit
 			                            	<f:param name="id" value="#{util:encodeId(comp.competenceId)}"></f:param>
+											<f:param name="credId" value="#{util:encodeId(comp.credentialId)}"/>
 			                            </h:link>
 			                            
 			                            <h:link outcome="/manage/competence">
 			                            	Preview
 			                            	<f:param name="compId" value="#{util:encodeId(comp.competenceId)}"></f:param>
+											<f:param name="credId" value="#{util:encodeId(comp.credentialId)}"/>
 			                            </h:link>
 			                            
 					                  	

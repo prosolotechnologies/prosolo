@@ -1,21 +1,21 @@
 package org.prosolo.services.assessment.data;
 
+import org.prosolo.common.domainmodel.assessment.AssessmentStatus;
 import org.prosolo.common.domainmodel.assessment.AssessmentType;
-import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
 import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
 import org.prosolo.common.domainmodel.assessment.CredentialAssessmentDiscussionParticipant;
 import org.prosolo.common.domainmodel.credential.BlindAssessmentMode;
 import org.prosolo.common.domainmodel.credential.GradingMode;
 import org.prosolo.common.domainmodel.rubric.RubricType;
 import org.prosolo.common.util.ImageFormat;
+import org.prosolo.common.util.date.DateUtil;
 import org.prosolo.services.assessment.data.grading.GradeData;
 import org.prosolo.services.assessment.data.grading.RubricAssessmentGradeSummary;
-import org.prosolo.services.nodes.data.competence.CompetenceData1;
+import org.prosolo.services.assessment.data.parameterobjects.StudentCompetenceAndAssessmentData;
 import org.prosolo.services.nodes.util.TimeUtil;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.web.util.AvatarUtils;
 
-import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -30,7 +30,7 @@ public class AssessmentDataFull {
 	private String assessorAvatarUrl;
 	private long assessorId;
 	private long assessedStudentId;
-	private String dateValue;
+	private long dateCreated;
 	private String title;
 	private boolean approved;
 	private String encodedId;
@@ -41,7 +41,11 @@ public class AssessmentDataFull {
 	private long targetCredentialId;
 	private long credentialId;
 	private AssessmentType type;
+	private AssessmentStatus status;
+	private long quitDate;
+	private long dateSubmitted;
 	private GradeData gradeData;
+	private boolean privateDiscussionEnabled;
 	private List<AssessmentDiscussionMessageData> messages = new LinkedList<>();
 	private boolean allRead = true; 	// whether user has read all the messages in the thread
 	private boolean participantInDiscussion;
@@ -49,83 +53,99 @@ public class AssessmentDataFull {
 	private boolean messagesInitialized;
 	private String review;
 	private boolean assessorNotified;
+	private long lastAskedForAssessment;
+	private long instructorUserId;
 
 	private BlindAssessmentMode blindAssessmentMode;
 
-	private List<CompetenceAssessmentData> competenceAssessmentData;
+	private List<CompetenceAssessmentDataFull> competenceAssessmentData;
 
-	public static AssessmentDataFull fromAssessment(CredentialAssessment assessment, int credAssessmentPoints, List<CompetenceData1> userComps,
+	public static AssessmentDataFull fromAssessment(CredentialAssessment assessment, boolean privateDiscussionEnabled, UrlIdEncoder encoder) {
+		return fromAssessment(assessment, 0, null, null, null, null, encoder, 0, false, privateDiscussionEnabled);
+	}
+
+	public static AssessmentDataFull fromAssessment(CredentialAssessment assessment, int credAssessmentPoints, List<StudentCompetenceAndAssessmentData> competenceAndAssessmentData,
 													RubricAssessmentGradeSummary credAssessmentGradeSummary, Map<Long, RubricAssessmentGradeSummary> compAssessmentsGradeSummary,
-													Map<Long, RubricAssessmentGradeSummary> actAssessmentsGradeSummary, UrlIdEncoder encoder, long userId, DateFormat dateFormat, boolean loadDiscussion) {
+													Map<Long, RubricAssessmentGradeSummary> actAssessmentsGradeSummary, UrlIdEncoder encoder, long userId, boolean loadDiscussion, boolean privateDiscussionEnabled) {
 		AssessmentDataFull data = new AssessmentDataFull();
 		data.setCredAssessmentId(assessment.getId());
 		data.setAssessedStudentId(assessment.getStudent().getId());
 		data.setStudentFullName(assessment.getStudent().getName()+" "+assessment.getStudent().getLastname());
 		data.setStudentAvatarUrl(AvatarUtils.getAvatarUrlInFormat(assessment.getStudent(), ImageFormat.size120x120));
-		data.setReview(assessment.getReview());
-		data.setAssessorNotified(assessment.isAssessorNotified());
+		data.setInitials(getInitialsFromName(data.getStudentFullName()));
 		if (assessment.getAssessor() != null) {
 			data.setAssessorFullName(assessment.getAssessor().getName()+" "+assessment.getAssessor().getLastname());
 			data.setAssessorAvatarUrl(AvatarUtils.getAvatarUrlInFormat(assessment.getAssessor(), ImageFormat.size120x120));
 			data.setAssessorId(assessment.getAssessor().getId());
 		}
 		data.setBlindAssessmentMode(assessment.getBlindAssessmentMode());
-		data.setDateValue(dateFormat.format(assessment.getDateCreated()));
+		data.setDateCreated(DateUtil.getMillisFromDate(assessment.getDateCreated()));
 		data.setTitle(assessment.getTargetCredential().getCredential().getTitle());
-		data.setApproved(assessment.isApproved());
 		data.setCredentialId(assessment.getTargetCredential().getCredential().getId());
 		data.setEncodedId(encoder.encodeId(assessment.getId()));
-		data.setMandatoryFlow(assessment.getTargetCredential().getCredential().isCompetenceOrderMandatory());
-		data.setDuration(assessment.getTargetCredential().getCredential().getDuration());
-		data.calculateDurationString();
 		data.setTargetCredentialId(assessment.getTargetCredential().getId());
 		data.setType(assessment.getType());
+		data.setStatus(assessment.getStatus());
+		data.setQuitDate(DateUtil.getMillisFromDate(assessment.getQuitDate()));
+		data.setDateSubmitted(DateUtil.getMillisFromDate(assessment.getDateApproved()));
 
-		int maxPoints = 0;
-		List<CompetenceAssessmentData> compDatas = new ArrayList<>();
-		for (CompetenceData1 compData : userComps) {
-			CompetenceAssessment ca = assessment.getCompetenceAssessmentByCompetenceId(compData.getCompetenceId());
-			CompetenceAssessmentData cas = CompetenceAssessmentData.from(compData, ca, assessment,
-					compAssessmentsGradeSummary.get(ca.getId()), actAssessmentsGradeSummary, encoder, userId, null, loadDiscussion);
-			//only for automatic grading max points is sum of competences max points
-			if (assessment.getTargetCredential().getCredential().getGradingMode() == GradingMode.AUTOMATIC) {
-				maxPoints += cas.getGradeData().getMaxGrade();
+		if (data.isAssessmentInitialized()) {
+			data.setAssessorNotified(assessment.isAssessorNotified());
+			data.setLastAskedForAssessment(DateUtil.getMillisFromDate(assessment.getLastAskedForAssessment()));
+			data.setApproved(assessment.getStatus() == AssessmentStatus.SUBMITTED);
+			data.setReview(assessment.getReview());
+			data.setMandatoryFlow(assessment.getTargetCredential().getCredential().isCompetenceOrderMandatory());
+			data.setDuration(assessment.getTargetCredential().getCredential().getDuration());
+			data.calculateDurationString();
+
+			int maxPoints = 0;
+			List<CompetenceAssessmentDataFull> compDatas = new ArrayList<>();
+			for (StudentCompetenceAndAssessmentData competence : competenceAndAssessmentData) {
+				CompetenceAssessmentDataFull cas = CompetenceAssessmentDataFull.from(
+						competence, assessment, compAssessmentsGradeSummary.get(competence.getCompetenceAssessment().getId()), actAssessmentsGradeSummary, encoder, userId, loadDiscussion, privateDiscussionEnabled);
+				//only for automatic grading max points is sum of competences max points
+				if (assessment.getTargetCredential().getCredential().getGradingMode() == GradingMode.AUTOMATIC) {
+					maxPoints += cas.getGradeData().getMaxGrade();
+				}
+				compDatas.add(cas);
 			}
-			compDatas.add(cas);
-		}
-		if (assessment.getTargetCredential().getCredential().getGradingMode() != GradingMode.AUTOMATIC) {
-			maxPoints = assessment.getTargetCredential().getCredential().getMaxPoints();
-		}
-		//set grade data
-		long rubricId = assessment.getTargetCredential().getCredential().getRubric() != null
-				? assessment.getTargetCredential().getCredential().getRubric().getId()
-				: 0;
-		RubricType rubricType = assessment.getTargetCredential().getCredential().getRubric() != null
-				? assessment.getTargetCredential().getCredential().getRubric().getRubricType()
-				: null;
-
-		data.setGradeData(GradeDataFactory.getGradeDataForLearningResource(
-				assessment.getTargetCredential().getCredential().getGradingMode(),
-				maxPoints,
-				credAssessmentPoints,
-				rubricId,
-				rubricType,
-				credAssessmentGradeSummary
-		));
-		data.setCompetenceAssessmentData(compDatas);
-		data.setInitials(getInitialsFromName(data.getStudentFullName()));
-
-		if (loadDiscussion) {
-			data.setNumberOfMessages(assessment.getMessages().size());
-			CredentialAssessmentDiscussionParticipant currentParticipant = assessment.getParticipantByUserId(userId);
-			if (currentParticipant != null) {
-				data.setParticipantInDiscussion(true);
-				data.setAllRead(currentParticipant.isRead());
-			} else {
-				// currentParticipant is null when userId (viewer of the page) is not the participating in this discussion
-				data.setAllRead(false);
-				data.setParticipantInDiscussion(false);
+			if (assessment.getTargetCredential().getCredential().getGradingMode() != GradingMode.AUTOMATIC) {
+				maxPoints = assessment.getTargetCredential().getCredential().getMaxPoints();
 			}
+			//set grade data
+			long rubricId = assessment.getTargetCredential().getCredential().getRubric() != null
+					? assessment.getTargetCredential().getCredential().getRubric().getId()
+					: 0;
+			RubricType rubricType = assessment.getTargetCredential().getCredential().getRubric() != null
+					? assessment.getTargetCredential().getCredential().getRubric().getRubricType()
+					: null;
+
+			data.setGradeData(GradeDataFactory.getGradeDataForLearningResource(
+					assessment.getTargetCredential().getCredential().getGradingMode(),
+					maxPoints,
+					credAssessmentPoints,
+					rubricId,
+					rubricType,
+					credAssessmentGradeSummary
+			));
+			data.setCompetenceAssessmentData(compDatas);
+
+			data.setPrivateDiscussionEnabled(privateDiscussionEnabled);
+			if (privateDiscussionEnabled && loadDiscussion) {
+				data.setNumberOfMessages(assessment.getMessages().size());
+				CredentialAssessmentDiscussionParticipant currentParticipant = assessment.getParticipantByUserId(userId);
+				if (currentParticipant != null) {
+					data.setParticipantInDiscussion(true);
+					data.setAllRead(currentParticipant.isRead());
+				} else {
+					// currentParticipant is null when userId (viewer of the page) is not the participating in this discussion
+					data.setAllRead(false);
+					data.setParticipantInDiscussion(false);
+				}
+			}
+		}
+		if (assessment.getTargetCredential().getInstructor() != null) {
+			data.setInstructorUserId(assessment.getTargetCredential().getInstructor().getUser().getId());
 		}
 
 		return data;
@@ -147,6 +167,11 @@ public class AssessmentDataFull {
 
 	public void calculateDurationString() {
 		durationString = TimeUtil.getHoursAndMinutesInString(this.duration);
+	}
+
+	public void markAssessmentAsSubmitted() {
+		this.approved = true;
+		this.status = AssessmentStatus.SUBMITTED;
 	}
 
 	public String getStudentFullName() {
@@ -181,12 +206,12 @@ public class AssessmentDataFull {
 		this.assessorAvatarUrl = assessorAvatarUrl;
 	}
 
-	public String getDateValue() {
-		return dateValue;
+	public long getDateCreated() {
+		return dateCreated;
 	}
 
-	public void setDateValue(String dateValue) {
-		this.dateValue = dateValue;
+	public void setDateCreated(long dateCreated) {
+		this.dateCreated = dateCreated;
 	}
 
 	public String getTitle() {
@@ -221,11 +246,11 @@ public class AssessmentDataFull {
 		this.initials = initials;
 	}
 
-	public List<CompetenceAssessmentData> getCompetenceAssessmentData() {
+	public List<CompetenceAssessmentDataFull> getCompetenceAssessmentData() {
 		return competenceAssessmentData;
 	}
 
-	public void setCompetenceAssessmentData(List<CompetenceAssessmentData> competenceAssessmentData) {
+	public void setCompetenceAssessmentData(List<CompetenceAssessmentDataFull> competenceAssessmentData) {
 		this.competenceAssessmentData = competenceAssessmentData;
 	}
 
@@ -285,8 +310,8 @@ public class AssessmentDataFull {
 		this.type = type;
 	}
 
-	public CompetenceAssessmentData findCompetenceAssessmentData(long compAssessmentId) {
-		for (CompetenceAssessmentData compAssessment : competenceAssessmentData) {
+	public CompetenceAssessmentDataFull findCompetenceAssessmentData(long compAssessmentId) {
+		for (CompetenceAssessmentDataFull compAssessment : competenceAssessmentData) {
 			if (compAssessment.getCompetenceAssessmentId() == compAssessmentId) {
 				return compAssessment;
 			}
@@ -375,11 +400,74 @@ public class AssessmentDataFull {
 		this.assessorNotified = assessorNotified;
 	}
 
+	public long getLastAskedForAssessment() {
+		return lastAskedForAssessment;
+	}
+
+	public void setLastAskedForAssessment(long lastAskedForAssessment) {
+		this.lastAskedForAssessment = lastAskedForAssessment;
+	}
+
 	public BlindAssessmentMode getBlindAssessmentMode() {
 		return blindAssessmentMode;
 	}
 
 	public void setBlindAssessmentMode(BlindAssessmentMode blindAssessmentMode) {
 		this.blindAssessmentMode = blindAssessmentMode;
+	}
+
+	public AssessmentStatus getStatus() {
+		return status;
+	}
+
+	public void setStatus(AssessmentStatus status) {
+		this.status = status;
+	}
+
+	public boolean isAssessmentInitialized() {
+		return status == AssessmentStatus.PENDING
+				|| status == AssessmentStatus.SUBMITTED
+				|| status == AssessmentStatus.ASSESSMENT_QUIT
+				|| status == AssessmentStatus.SUBMITTED_ASSESSMENT_QUIT;
+	}
+
+	public boolean isAssessmentRequestedOrActive() {
+		return status == AssessmentStatus.REQUESTED || isAssessmentActive();
+	}
+
+	public boolean isAssessmentActive() {
+		return status == AssessmentStatus.PENDING || status == AssessmentStatus.SUBMITTED;
+	}
+
+	public long getQuitDate() {
+		return quitDate;
+	}
+
+	public void setQuitDate(long quitDate) {
+		this.quitDate = quitDate;
+	}
+
+	public long getDateSubmitted() {
+		return dateSubmitted;
+	}
+
+	public void setDateSubmitted(long dateSubmitted) {
+		this.dateSubmitted = dateSubmitted;
+	}
+
+	public long getInstructorUserId() {
+		return instructorUserId;
+	}
+
+	public void setInstructorUserId(long instructorUserId) {
+		this.instructorUserId = instructorUserId;
+	}
+
+	public void setPrivateDiscussionEnabled(boolean privateDiscussionEnabled) {
+		this.privateDiscussionEnabled = privateDiscussionEnabled;
+	}
+
+	public boolean isPrivateDiscussionEnabled() {
+		return privateDiscussionEnabled;
 	}
 }

@@ -3,6 +3,8 @@
  */
 package org.prosolo.web.courses.credential;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
 import org.prosolo.search.UserTextSearch;
@@ -64,11 +66,18 @@ public class CredentialCollaboratorsBean implements Serializable, Paginable {
 	private LearningStatusFilter[] searchFilters;
 	private CredentialMembersSortOption[] sortOptions;
 
+	@Getter
+	@Setter
+	private int page;
+
 	public void init() {
 		sortOptions = CredentialMembersSortOption.values();
 		learningStatusFilter = new LearningStatusFilter(LearningStatus.All, 0);
 		decodedId = idEncoder.decodeId(id);
 		if (decodedId > 0) {
+			if (page > 0) {
+				paginationData.setPage(page);
+			}
 			try {
 				credentialTitle = credManager.getCredentialTitle(decodedId);
 				searchCredentialMembers();
@@ -315,5 +324,5 @@ public class CredentialCollaboratorsBean implements Serializable, Paginable {
 	public void setSearchFilters(LearningStatusFilter[] searchFilters) {
 		this.searchFilters = searchFilters;
 	}
-	
+
 }

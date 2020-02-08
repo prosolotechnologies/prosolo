@@ -37,10 +37,10 @@ function toggleReplyInput(replyBtn) {
     return false;
 }
 
-function showEditComment(editBtn) {
-    $(editBtn).parent().parent().find('.editComment').toggleClass('hidden');
-    $(editBtn).parent().parent().find('.commentText').toggleClass('hidden');
-    $(editBtn).addClass('hidden');
+function showEditComment(commentContainer) {
+    $(commentContainer).find('.editComment').toggleClass('hidden');
+    $(commentContainer).find('.commentText').toggleClass('hidden');
+    $(commentContainer).find('a.edit').addClass('hidden');
     return false;
 }
 
@@ -52,7 +52,7 @@ function hideEditComment(cancelBtn) {
     commentContainer.removeClass('hidden');
 
     var textarea1 = editCommentContainer.find('.contentEditableComment').first();
-    textarea1.html(commentContainer.text());
+    textarea1.val(commentContainer.text());
 
     $(cancelBtn).parent().next('.commentOptions').find('a.edit').removeClass('hidden');
     return false;
@@ -135,7 +135,7 @@ function removeQueryParameterAndGetNewUrl(key) {
 function scrollTo(elementId) {
     $('html, body').animate({
         scrollTop: $("#"+elementId).offset().top
-    }, 2000);
+    }, 1000);
 }
 
 function scrollToNewestComment(hiddenFieldId) {
@@ -153,6 +153,11 @@ function showLoader(elem, context) {
 function showLoaderNextToElem(elem, context) {
     $(elem).after('<img class="loaderSvg" src="' + context + '/resources/images2/loader.svg" width="20" height="20"/>')
 };
+
+function hideLoaderForElem(elemId) {
+    var loader = $("#" + escapeColons(elemId)).parent().find('img.loaderSvg');
+    loader.remove();
+}
 
 function hideLoader(comp) {
 	var loaderContainer = $(comp);

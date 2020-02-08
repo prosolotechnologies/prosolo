@@ -2,6 +2,7 @@ package org.prosolo.services.nodes.data.evidence;
 
 import org.prosolo.common.domainmodel.credential.LearningEvidenceType;
 import org.prosolo.services.nodes.data.BasicObjectInfo;
+import org.prosolo.services.nodes.data.CompetencyBasicObjectInfo;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -33,7 +34,7 @@ public class LearningEvidenceData implements Serializable {
     //date when evidence is added to the current competence
     private long dateAttached;
     //competences with this evidence
-    private List<BasicObjectInfo> competences;
+    private List<CompetencyBasicObjectInfo> competences;
 
     public LearningEvidenceData() {
         competences = new ArrayList<>();
@@ -131,17 +132,21 @@ public class LearningEvidenceData implements Serializable {
         return dateCreated;
     }
 
-    public List<BasicObjectInfo> getCompetences() {
+    public List<CompetencyBasicObjectInfo> getCompetences() {
         return competences;
     }
 
-    public void addCompetence(BasicObjectInfo comp) {
+    public void addCompetence(CompetencyBasicObjectInfo comp) {
         if (comp != null) {
             competences.add(comp);
         }
     }
 
-    public void addCompetences(List<BasicObjectInfo> competences) {
+    public void setCompetences(List<CompetencyBasicObjectInfo> competences) {
+        this.competences = competences;
+    }
+
+    public void addCompetences(List<CompetencyBasicObjectInfo> competences) {
         this.competences.addAll(competences);
     }
 

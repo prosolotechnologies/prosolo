@@ -1,5 +1,7 @@
 package org.prosolo.web.administration;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.log4j.Logger;
 import org.hibernate.exception.ConstraintViolationException;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
@@ -9,19 +11,19 @@ import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.RoleManager;
-import org.prosolo.services.user.UserManager;
 import org.prosolo.services.nodes.data.ObjectStatus;
 import org.prosolo.services.nodes.data.ObjectStatusTransitions;
 import org.prosolo.services.user.data.UserData;
 import org.prosolo.services.nodes.data.organization.CredentialCategoryData;
 import org.prosolo.services.nodes.data.organization.LearningStageData;
 import org.prosolo.services.nodes.data.organization.OrganizationData;
-import org.prosolo.services.nodes.data.organization.factory.OrganizationDataFactory;
 import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.services.util.roles.SystemRoleNames;
 import org.prosolo.web.ApplicationBean;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.PageAccessRightsResolver;
+import org.prosolo.web.administration.data.RoleData;
+import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.prosolo.web.util.page.UseCase;
 import org.springframework.context.annotation.Scope;
@@ -36,6 +38,7 @@ import javax.faces.validator.ValidatorException;
 import javax.inject.Inject;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -58,50 +61,40 @@ public class OrganizationEditBean implements Serializable {
     @Inject
     private OrganizationManager organizationManager;
     @Inject
-    private UserManager userManager;
-    @Inject
-    private UserTextSearch userTextSearch;
-    @Inject
-    private RoleManager roleManager;
-    @Inject
-    private OrganizationDataFactory organizationDataFactory;
-    @Inject
     private PageAccessRightsResolver pageAccessRightsResolver;
     @Inject
     private ApplicationBean appBean;
 
+    @Getter
     private OrganizationData organization;
-    private List<UserData> admins;
+    @Getter @Setter
     private String id;
+    @Getter
     private long decodedId;
-    private String searchTerm;
-    private String[] rolesArray;
-    private List<Role> adminRoles;
-    private List<Long> adminRolesIds = new ArrayList<>();
 
+    @Getter
     private LearningStageData selectedLearningStage;
     private UseCase learningStageUseCase = UseCase.ADD;
 
+    @Getter
     private CredentialCategoryData selectedCategory;
     private UseCase credentialCategoryUseCase = UseCase.ADD;
 
+    @Getter @Setter
+    private int tokensToReset;
+    @Getter @Setter
+    private int tokensToAdd;
+
     public void init() {
         logger.debug("initializing");
-        admins = new ArrayList<>();
         try {
             decodedId = idEncoder.decodeId(id);
 
             if (pageAccessRightsResolver.getAccessRightsForOrganizationPage(decodedId).isCanAccess()) {
-                rolesArray = new String[] {SystemRoleNames.ADMIN, SystemRoleNames.SUPER_ADMIN};
-                adminRoles = roleManager.getRolesByNames(rolesArray);
-                for(Role r : adminRoles){
-                    adminRolesIds.add(r.getId());
-                }
                 if (decodedId > 0) {
                     initOrgData();
                 } else {
                     organization = new OrganizationData();
-                    this.organization.setAdmins(new ArrayList<>());
                 }
             } else {
                 PageUtil.accessDenied();
@@ -113,7 +106,7 @@ public class OrganizationEditBean implements Serializable {
     }
 
     private void initOrgData() {
-        this.organization = organizationManager.getOrganizationForEdit(decodedId, adminRoles);
+        this.organization = organizationManager.getOrganizationForEdit(decodedId);
 
         if (organization == null) {
             this.organization = new OrganizationData();
@@ -121,13 +114,58 @@ public class OrganizationEditBean implements Serializable {
         }
     }
 
-    public boolean isLearningInStagesEnabled() {
-        return appBean.getConfig().application.pluginConfig.learningInStagesPlugin.enabled;
+    public void createNewOrganization(){
+        try {
+            Organization organization = organizationManager.createNewOrganization(this.organization.getBasicData(), loggedUser.getUserContext(decodedId));
+
+            logger.debug("New Organization (" + organization.getTitle() + ")");
+
+            PageUtil.fireSuccessfulInfoMessageAcrossPages("New organization has been created");
+            PageUtil.redirect("/admin/organizations/" + idEncoder.encodeId(organization.getId()) + "/settings");
+        } catch (ConstraintViolationException | DataIntegrityViolationException e) {
+            logger.error("Error", e);
+            FacesContext.getCurrentInstance().validationFailed();
+            /* TODO exception - pay attention to this case - we can have several constraints violated
+               and we don't know which one is actually violated so we can't generate specific, meaningful
+               message. Should we maybe have a specific exception for each constraint
+             */
+            PageUtil.fireErrorMessage("Error creating new organization");
+        } catch (Exception e){
+            logger.error("error", e);
+            PageUtil.fireErrorMessage("Error creating new organization");
+        }
     }
 
+    /*
+     *  Basic info and admins
+     */
+    public void saveOrganizationBasicInfo() {
+        if (this.organization.getId() == 0) {
+            createNewOrganization();
+        } else {
+            updateOrganizationBasicInfo();
+        }
+    }
+
+    public void updateOrganizationBasicInfo() {
+        try {
+            organizationManager.updateOrganizationBasicInfo(organization.getId(), organization.getBasicData(), loggedUser.getUserContext(decodedId));
+
+            logger.debug("Organization (" + organization.getTitle() + ") updated by the user " + loggedUser.getUserId());
+
+            PageUtil.fireSuccessfulInfoMessage("The organization details have been updated");
+        } catch (ConstraintViolationException | DataIntegrityViolationException | DbConnectionException e) {
+            logger.error("Error", e);
+            PageUtil.fireErrorMessage("Error updating the organization details");
+        }
+    }
+
+    /*
+     *  Learning Stages Plugin
+     */
     public boolean canNewLearningStageBeAdded() {
         return appBean.getConfig().application.pluginConfig.learningInStagesPlugin.maxNumberOfLearningStages >
-                organization.getLearningStages().size();
+                organization.getLearningStagesPluginData().getLearningStages().size();
     }
 
     public void prepareLearningStageForEdit(LearningStageData ls) {
@@ -142,7 +180,7 @@ public class OrganizationEditBean implements Serializable {
     }
 
     public void removeLearningStage(int index) {
-        LearningStageData ls = organization.getLearningStages().remove(index);
+        LearningStageData ls = organization.getLearningStagesPluginData().getLearningStages().remove(index);
         ls.setStatus(ObjectStatusTransitions.removeTransition(ls.getStatus()));
         if (ls.getStatus() == ObjectStatus.REMOVED) {
             organization.addLearningStageForDeletion(ls);
@@ -151,9 +189,9 @@ public class OrganizationEditBean implements Serializable {
     }
 
     private void shiftOrderOfLearningStagesUp(int index) {
-        int size = organization.getLearningStages().size();
-        for(int i = index; i < size; i++) {
-            LearningStageData ls = organization.getLearningStages().get(i);
+        int size = organization.getLearningStagesPluginData().getLearningStages().size();
+        for (int i = index; i < size; i++) {
+            LearningStageData ls = organization.getLearningStagesPluginData().getLearningStages().get(i);
             ls.setOrder(ls.getOrder() - 1);
         }
     }
@@ -164,13 +202,51 @@ public class OrganizationEditBean implements Serializable {
 
     public void saveLearningStage() {
         if (learningStageUseCase == UseCase.ADD) {
-            selectedLearningStage.setOrder(organization.getLearningStages().size() + 1);
+            selectedLearningStage.setOrder(organization.getLearningStagesPluginData().getLearningStages().size() + 1);
             organization.addLearningStage(selectedLearningStage);
         }
         this.selectedLearningStage = null;
     }
 
-    //credential categories administration
+    public void updateOrganizationLearningStages() {
+        try {
+            organizationManager.updateLearningStagesPlugin(organization.getId(), organization.getLearningStagesPluginData(), loggedUser.getUserContext(decodedId));
+
+            logger.debug("Organization (" + organization.getTitle() + ") learning stages updated by the user " + loggedUser.getUserId());
+            PageUtil.fireSuccessfulInfoMessage("The Learning Stages plugin has been updated");
+
+            try {
+                List<LearningStageData> learningStages = organizationManager.getOrganizationLearningStagesData(organization.getId());
+                organization.getLearningStagesPluginData().resetLearningStages(learningStages);
+            } catch (Exception e) {
+                PageUtil.fireErrorMessage("Error refreshing the data");
+            }
+        } catch (ConstraintViolationException | DataIntegrityViolationException | DbConnectionException e) {
+            logger.error("Error", e);
+            PageUtil.fireErrorMessage("Error updating the Learning Stages plugin");
+        }
+    }
+
+
+    /*
+     *  Evidence repository plugin
+     */
+    public void updateEvidenceRepositoryPlugin() {
+        try {
+            organizationManager.updateEvidenceRepositoryPlugin(organization.getId(), organization.getEvidenceRepositoryPluginData());
+
+            logger.debug("Organization (" + organization.getTitle() + ") evidence repository plugin is updated by the user " + loggedUser.getUserId());
+
+            PageUtil.fireSuccessfulInfoMessage("Evidence Repository plugin has been updated");
+        } catch (ConstraintViolationException | DataIntegrityViolationException | DbConnectionException e) {
+            logger.error("Error", e);
+            PageUtil.fireErrorMessage("Error updating the Evidence Repository plugin");
+        }
+    }
+
+    /*
+     *  Credential categories plugin
+     */
     public void prepareCredentialCategoryForEdit(CredentialCategoryData category) {
         selectedCategory = category;
         credentialCategoryUseCase = UseCase.EDIT;
@@ -201,132 +277,73 @@ public class OrganizationEditBean implements Serializable {
         this.selectedCategory = null;
     }
 
-    //credential categories administration end
-
-    public void saveOrganization(){
-        if(this.organization.getId() == 0){
-            createNewOrganization();
-        }else{
-            updateOrganization();
-        }
-    }
-
-    public void setAdministrator(UserData userData) {
-
-        Optional<UserData> removedUserOpt = getUserIfPreviouslyRemoved(userData.getId());
-
-        if(removedUserOpt.isPresent()){
-            removedUserOpt.get().setObjectStatus(ObjectStatus.UP_TO_DATE);
-        }else{
-            userData.setObjectStatus(ObjectStatus.CREATED);
-            this.organization.getAdmins().add(userData);
-        }
-        searchTerm = "";
-    }
-
-    public void createNewOrganization(){
+    public void updateCredentialCategories(){
         try {
-            if(this.organization.getAdmins() != null && !this.organization.getAdmins().isEmpty()) {
-                Organization organization = organizationManager.createNewOrganization(this.organization, loggedUser.getUserContext(decodedId));
+            organizationManager.updateCredentialCategoriesPlugin(organization.getId(), organization.getCredentialCategoriesPluginData());
 
-                logger.debug("New Organization (" + organization.getTitle() + ")");
+            logger.debug("Organization (" + organization.getTitle() + ") credential categories updated by the user " + loggedUser.getUserId());
+            PageUtil.fireSuccessfulInfoMessage("The Credential Categories plugin has been updated");
 
-                PageUtil.fireSuccessfulInfoMessageAcrossPages("New organization has been created");
-                PageUtil.redirect("/admin/organizations/" + idEncoder.encodeId(organization.getId()) + "/settings");
-            }else{
-                PageUtil.fireErrorMessage("Error creating the organization");
-            }
-        } catch (ConstraintViolationException | DataIntegrityViolationException e){
-            logger.error("Error", e);
-            FacesContext.getCurrentInstance().validationFailed();
-            /* TODO exception - pay attention to this case - we can have several constraints violated
-               and we don't know which one is actually violated so we can't generate specific, meaningful
-               message. Should we maybe have a specific exception for each constraint
-             */
-            PageUtil.fireErrorMessage("Error creating the organization");
-        } catch (Exception e){
-            logger.error(e);
-            PageUtil.fireErrorMessage("Error creating the organization");
-        }
-    }
-
-    public void updateOrganization(){
-        try {
-            organizationManager.updateOrganization(this.organization, loggedUser.getUserContext(decodedId));
-
-            logger.debug("Organization (" + organization.getTitle() + ") updated by the user " + loggedUser.getUserId());
-
-            PageUtil.fireSuccessfulInfoMessage("The organization has been updated");
             try {
-                initOrgData();
+                List<CredentialCategoryData> categories = organizationManager.getOrganizationCredentialCategoriesData(organization.getId(), true, true);
+                organization.getCredentialCategoriesPluginData().resetCredentialCategories(categories);
             } catch (Exception e) {
                 PageUtil.fireErrorMessage("Error refreshing the data");
             }
-        } catch (ConstraintViolationException | DataIntegrityViolationException e) {
-                logger.error("Error", e);
-                /* TODO exception - pay attention to this case - we can have several constraints violated
-                   and we don't know which one is actually violated so we can't generate specific, meaningful
-                   message. Should we maybe have a specific exception for each constraint
-                 */
-                PageUtil.fireErrorMessage("Error updating the organization");
+        } catch (ConstraintViolationException | DataIntegrityViolationException | DbConnectionException e) {
+            logger.error("Error", e);
+            PageUtil.fireErrorMessage("Error updating the Credential Categories plugin");
+        }
+    }
+
+
+    /*
+     *  Assessment tokens plugin
+     */
+    public void resetTokensForOrganizationUsers() {
+        try {
+            organizationManager.resetTokensForAllOrganizationUsers(organization.getId(), tokensToReset, loggedUser.getUserContext());
+
+            logger.debug("Tokens reset for all users in organization " + organization.getTitle());
+            PageUtil.fireSuccessfulInfoMessage("Assessment Tokens have been reset for all students");
         } catch (DbConnectionException e) {
-            logger.error(e);
-            PageUtil.fireErrorMessage("Error updating the organization");
+            logger.error("error", e);
+            PageUtil.fireErrorMessage("Error resetting Assessment Tokens");
         }
     }
 
-    public void loadUsers() {
-        this.admins = null;
-        if (searchTerm == null || searchTerm.isEmpty()) {
-            admins = null;
-        } else {
-            try {
-                List<UserData> usersToExclude = this.organization.getAdmins().stream()
-                        .filter(userData -> userData.getObjectStatus() != ObjectStatus.REMOVED)
-                        .collect(Collectors.toList());
+    public void addTokensToOrganizationUsers() {
+        try {
+            organizationManager.addTokensToAllOrganizationUsers(organization.getId(), tokensToAdd, loggedUser.getUserContext());
 
-                PaginatedResult<UserData> result = userTextSearch.searchUsers(0, searchTerm, 3, usersToExclude, this.adminRolesIds);
-
-                admins = result.getFoundNodes();
-            } catch (Exception e) {
-                logger.error(e);
-            }
+            logger.debug("Tokens added to all users in organization " + organization.getTitle());
+            PageUtil.fireSuccessfulInfoMessage("Assessment Tokens have been successfully added to students");
+        } catch (DbConnectionException e) {
+            logger.error("error", e);
+            PageUtil.fireErrorMessage("Error adding Assessment Tokens to all students");
         }
     }
 
-    public boolean isAdminChosenListEmpty(){
-        return this.organization.getAdmins().stream()
-                .anyMatch(userData -> userData.getObjectStatus() != ObjectStatus.REMOVED);
-    }
+    public void updateAssessmentTokensPlugin() {
+        try {
+            organizationManager.updateAssessmentTokensPlugin(organization.getAssessmentTokensPluginData());
 
-    public void userReset(UserData admin) {
-        searchTerm = "";
-        removeUser(admin);
-    }
-
-    public Optional<UserData> getUserIfPreviouslyRemoved(long userId) {
-        return this.organization.getAdmins().stream()
-                .filter(user -> user.getObjectStatus() == ObjectStatus.REMOVED && user.getId() == userId)
-                .findFirst();
-    }
-
-    public void removeUser(UserData userData) {
-        userData.setObjectStatus(ObjectStatusTransitions.removeTransition(userData.getObjectStatus()));
-        if (userData.getObjectStatus() != ObjectStatus.REMOVED) {
-            this.organization.getAdmins().remove(userData);
+            logger.debug("Organization (" + organization.getTitle() + ") token info updated by the user " + loggedUser.getUserId());
+            PageUtil.fireSuccessfulInfoMessage("The Assessment Tokens plugin has been updated");
+        } catch (DbConnectionException e) {
+            logger.error("error", e);
+            PageUtil.fireErrorMessage("Error updating the Assessment Tokens plugin");
         }
     }
 
-    public void resetAndSearch() {
-        loadUsers();
-    }
+
 
     //VALIDATORS
 
     //learning stage validator
     public void validateLearningStage(FacesContext context, UIComponent component, Object value) throws ValidatorException {
         String learningStageName = (String) value;
-        for (LearningStageData ls : organization.getLearningStages()) {
+        for (LearningStageData ls : organization.getLearningStagesPluginData().getLearningStages()) {
             if (ls != selectedLearningStage && ls.getTitle().equals(learningStageName)) {
                 FacesMessage msg = new FacesMessage("Learning stage with that name already exists within the organization");
                 msg.setSeverity(FacesMessage.SEVERITY_ERROR);
@@ -344,53 +361,5 @@ public class OrganizationEditBean implements Serializable {
             msg.setSeverity(FacesMessage.SEVERITY_ERROR);
             throw new ValidatorException(msg);
         }
-    }
-
-    public String getSearchTerm() {
-        return searchTerm;
-    }
-
-    public void setSearchTerm(String searchTerm) {
-        this.searchTerm = searchTerm;
-    }
-
-    public OrganizationData getOrganization() {
-        return organization;
-    }
-
-    public void setOrganization(OrganizationData organization) {
-        this.organization = organization;
-    }
-
-    public List<UserData> getAdmins() {
-        return admins;
-    }
-
-    public void setAdmins(List<UserData> admins) {
-        this.admins = admins;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public long getDecodedId() {
-        return decodedId;
-    }
-
-    public void setDecodedId(long decodedId) {
-        this.decodedId = decodedId;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public LearningStageData getSelectedLearningStage() {
-        return selectedLearningStage;
-    }
-
-    public CredentialCategoryData getSelectedCategory() {
-        return selectedCategory;
     }
 }

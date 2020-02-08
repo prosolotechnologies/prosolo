@@ -1,0 +1,152 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="templates/masterLayout2.xhtml"
+                xmlns:org="http://java.sun.com/jsf/composite/components/admin/organization"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:utilcomp="http://java.sun.com/jsf/composite/components/util"
+                xmlns:util="http://www.prosolo.com/util"
+                xmlns:p="http://primefaces.org/ui">
+
+    <utilcomp:messagesBundle var="msg" />
+
+    <ui:define name="windowTitle" >
+        Auto-enrollment - #{ltiExternalToolsBean.unitTitle} - #{ltiExternalToolsBean.organizationTitle} - ProSolo
+    </ui:define>
+
+    <ui:define name="metadata">
+        <f:metadata>
+            <f:viewParam name="orgId" value="#{ltiExternalToolsBean.organizationId}" />
+            <f:viewParam name="unitId" value="#{ltiExternalToolsBean.unitId}" />
+            <f:viewParam name="p" value="#{ltiExternalToolsBean.page}" />
+            <f:viewAction action="#{ltiExternalToolsBean.init()}" />
+        </f:metadata>
+    </ui:define>
+
+    <ui:define name="resourceTitle" >
+        <h1>#{ltiExternalToolsBean.unitTitle}</h1>
+    </ui:define>
+
+    <ui:define name="navLinks">
+        <org:unitHeaderLinks orgId="#{ltiExternalToolsBean.decodedOrganizationId}" unitId="#{ltiExternalToolsBean.decodedUnitId}" />
+    </ui:define>
+
+    <ui:define name="content">
+        <p:growl id="growlMain" showDetail="true" globalOnly="true"/>
+        <div class="whiteBar">
+            <div class="container">
+                <div class="whiteBarContent">
+                    <div class="whiteBarLeft">
+                        <h:link outcome="/admin/organizations-unit-auto-enrollment-edit"
+                                styleClass="btn btn-green btn-sm item"
+                                value="Add Enrollment Link">
+                            <f:param name="orgId" value="#{param.orgId}" />
+                            <f:param name="unitId" value="#{param.unitId}" />
+                        </h:link>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <ol class="breadcrumb">
+                <ui:fragment rendered="#{loggeduser.hasCapability('admin.advanced')}">
+                    <li><h:link outcome="/admin/organizations">Organizations</h:link></li>
+                </ui:fragment>
+                <li>
+                    <h:link outcome="/admin/units">
+                        #{util:shortenAndAddDots(ltiExternalToolsBean.organizationTitle)}
+                        <f:param name="id" value="#{param.orgId}" />
+                    </h:link>
+                </li>
+                <li>
+                    <h:link outcome="/admin/units">
+                        #{msg['label.unit.plural']}
+                        <f:param name="id" value="#{param.orgId}" />
+                    </h:link>
+                </li>
+                <li>
+                    <h:link outcome="/admin/unit-credentials">
+                        #{util:shortenAndAddDots(ltiExternalToolsBean.unitTitle)}
+                        <f:param name="id" value="#{param.orgId}" />
+                        <f:param name="unitId" value="#{param.unitId}" />
+                    </h:link>
+                </li>
+                <li class="active">Auto-enrollment Links</li>
+            </ol>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                <h:panelGroup layout="block" id="panelTools" styleClass="col-md-12 manageVisibility">
+                    <div class="whiteBox">
+                        <div class="innerWrapper">
+                            <h2>Auto-enrollment Links</h2>
+                            <p>
+                                Auto-enrollment links allow automatic user account creation and association with the organization and the organizational #{msg['label.unit'].toLowerCase()}. Optionally, a user account can be joined to a learning group. This feature is based on the LTI protocol (both LTI version 1.0 and 2.0 are supported).
+                            </p>
+                        </div>
+
+                        <ui:fragment rendered="#{empty ltiExternalToolsBean.tools}">
+                            <div class="noContentMessage list hasTopBorder">
+                                <p class="top20">
+                                    No links.
+                                </p>
+                                <div class="clear"></div>
+                            </div>
+                        </ui:fragment>
+
+                        <ui:fragment rendered="#{not empty ltiExternalToolsBean.tools}">
+                            <ul class="peopleList list hasTopBorder">
+                                <ui:repeat value="#{ltiExternalToolsBean.tools}" var="tool">
+                                    <li>
+                                        <div class="peopleListLeft">
+                                            <div>
+                                                <h2>
+                                                    <h:link outcome="/admin/organizations-unit-auto-enrollment-edit"
+                                                            value="#{tool.title}">
+                                                        <f:param name="orgId" value="#{param.orgId}"/>
+                                                        <f:param name="unitId" value="#{param.unitId}"/>
+                                                        <f:param name="toolId" value="#{util:encodeId(tool.toolId)}"/>
+                                                    </h:link>
+                                                </h2>
+                                                <ui:fragment rendered="#{not empty tool.userGroupData}">
+                                                    <span>
+                                                        Learning group:
+                                                        <h:link outcome="/admin/unit-group-users">
+                                                            #{tool.userGroupData.title}
+                                                            <f:param name="orgId" value="#{param.orgId}"/>
+                                                            <f:param name="unitId" value="#{param.unitId}"/>
+                                                            <f:param name="id" value="#{util:encodeId(tool.userGroupData.id)}"/>
+                                                        </h:link>
+                                                    </span>
+                                                </ui:fragment>
+                                            </div>
+                                        </div>
+                                        <div class="peopleListRight">
+                                            <div class="userRole"/>
+                                            <div class="userEditOpt">
+                                                <h:link outcome="/admin/organizations-unit-auto-enrollment-edit"
+                                                        value="Edit">
+                                                    <f:param name="orgId" value="#{param.orgId}"/>
+                                                    <f:param name="unitId" value="#{param.unitId}"/>
+                                                    <f:param name="toolId" value="#{util:encodeId(tool.toolId)}"/>
+                                                </h:link>
+                                            </div>
+                                        </div>
+                                    </li>
+                                </ui:repeat>
+                            </ul>
+                        </ui:fragment>
+                    </div>
+                </h:panelGroup>
+            </div>
+
+            <utilcomp:pagination id="pagination"
+                                 bean="#{ltiExternalToolsBean}"
+                                 updateUrl="true"
+                                 toUpdate=":panelTools :growlMain" />
+        </div>
+
+    </ui:define>
+</ui:composition>

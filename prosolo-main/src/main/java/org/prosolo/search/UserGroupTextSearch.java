@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.general.AbstractManager;
+import org.prosolo.services.nodes.data.BasicObjectInfo;
 import org.prosolo.services.nodes.data.ResourceVisibilityMember;
 import org.prosolo.services.user.data.UserGroupData;
 
@@ -17,12 +18,7 @@ public interface UserGroupTextSearch extends AbstractManager {
 	PaginatedResult<UserGroupData> searchUserGroups (
 			long orgId, long unitId, String searchString, int page, int limit);
 
-	/**
-	 * This method is used for /manage/students, but for now we are not using that page
-	 * @deprecated
-	 */
-	PaginatedResult<UserGroupData> searchUserGroupsForUser (
-			String searchString, long userId, int page, int limit);
+	PaginatedResult<BasicObjectInfo> searchUserGroupsAndReturnBasicInfo(long orgId, long unitId, String searchString, int page, int limit);
 	
 	/**
 	 * Returns combined top {@code limit} users and groups that are not currently assigned to

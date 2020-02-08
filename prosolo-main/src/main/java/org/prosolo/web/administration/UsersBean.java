@@ -1,21 +1,24 @@
 package org.prosolo.web.administration;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.DbConnectionException;
-import org.prosolo.common.domainmodel.organization.Role;
 import org.prosolo.search.UserTextSearch;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.search.util.roles.RoleFilter;
 import org.prosolo.services.authentication.AuthenticationService;
 import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.RoleManager;
+import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.services.user.UserManager;
 import org.prosolo.services.user.data.UserData;
-import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.services.util.roles.SystemRoleNames;
 import org.prosolo.web.LoggedUserBean;
 import org.prosolo.web.PageAccessRightsResolver;
+import org.prosolo.web.administration.data.RoleData;
+import org.prosolo.web.administration.usergroupusers.ImportUsersBean;
 import org.prosolo.web.util.page.PageUtil;
 import org.prosolo.web.util.pagination.Paginable;
 import org.prosolo.web.util.pagination.PaginationData;
@@ -70,17 +73,23 @@ public class UsersBean implements Serializable,Paginable{
 	private String roleId;
 	private List<UserData> users;
 	String[] rolesArray;
-	List<Role> roles;
+	private List<RoleData> roles;
 	private String searchTerm = "";
 	
 	private RoleFilter filter;
 	private List<RoleFilter> filters;
 	
 	private PaginationData paginationData = new PaginationData();
-	
+
+	@Getter
+	@Setter
+	private int page;
 
 	public void initAdmins(){
 		logger.info("initializing users");
+		if (page > 0) {
+			paginationData.setPage(page);
+		}
 		rolesArray = new String[]{SystemRoleNames.ADMIN, SystemRoleNames.SUPER_ADMIN};
 		roles = roleManager.getRolesByNames(rolesArray);
 		filter = getDefaultRoleFilter();
@@ -101,6 +110,9 @@ public class UsersBean implements Serializable,Paginable{
 
 	public void initOrgUsers() {
 		logger.info("initializing organization users");
+		if (page > 0) {
+			paginationData.setPage(page);
+		}
 		decodedOrgId = idEncoder.decodeId(orgId);
 		if (pageAccessRightsResolver.getAccessRightsForOrganizationPage(decodedOrgId).isCanAccess()) {
 			if (decodedOrgId > 0) {
@@ -170,7 +182,7 @@ public class UsersBean implements Serializable,Paginable{
 	public void changePage(int page) {
 		if(this.paginationData.getPage() != page) {
 			this.paginationData.setPage(page);
-			loadUsers();
+			searchUsers();
 		}
 	}
 
@@ -283,4 +295,5 @@ public class UsersBean implements Serializable,Paginable{
 	public void setError(String error) {
 		this.error = error;
 	}
+
 }

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<md:EntityDescriptor xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata" ID="ca.prosolo" entityID="ca.prosolo">
+   <md:SPSSODescriptor AuthnRequestsSigned="true" WantAssertionsSigned="true" protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
+      <md:KeyDescriptor use="signing">
+         <ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+            <ds:X509Data>
+               <ds:X509Certificate>MIIDfTCCAmWgAwIBAgIETXmZYjANBgkqhkiG9w0BAQsFADBvMQswCQYDVQQGEwJS
+UzEPMA0GA1UECBMGU2VyYmlhMREwDwYDVQQHEwhCZWxncmFkZTEQMA4GA1UEChMH
+UHJvc29sbzEQMA4GA1UECxMHUHJvc29sbzEYMBYGA1UEAxMPU3RlZmFuIFZ1Y2tv
+dmljMB4XDTE5MDMwNTEzNDIxN1oXDTIxMDMwNDEzNDIxN1owbzELMAkGA1UEBhMC
+UlMxDzANBgNVBAgTBlNlcmJpYTERMA8GA1UEBxMIQmVsZ3JhZGUxEDAOBgNVBAoT
+B1Byb3NvbG8xEDAOBgNVBAsTB1Byb3NvbG8xGDAWBgNVBAMTD1N0ZWZhbiBWdWNr
+b3ZpYzCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAJFYKMdrn3WRAiOH
+t5j6Hm+oVaab3SlK9k2z8tnmbwbL3KjvBSkZnpA8a4QOJy1Fc7NQHl8X+W16rfNO
+581lCAqcYKwZPeAdOIW0qQsOx1whf5LD5IkLFwRjOPjSHpBz6pTI7k28HssaIEbD
+h/xwjb+X2xJC7ybg4/bwqLYZtHN6u9OOn0kP9oXKnP/Y4Y2/Mv0i3S3+G+x182P4
+Agmrgx8rUZwvAhV9/MgYFz+pqGtdqeGlEVg4FXl1beiUJQ5arwjfn+dJMbzxxJLy
+GSxttdTujL+S0bC3dpGPRBCE1Z2wm0GPPaLfWyjfUAZNvgsbx6MRium1lPhkXhSG
+SF00Ov0CAwEAAaMhMB8wHQYDVR0OBBYEFCil7K0Srxb/R9gBLjyCKLevRbsfMA0G
+CSqGSIb3DQEBCwUAA4IBAQBXLVvjtwoXhUOOG0Y2lfYUS9sPB2TLvcju4og2rqsl
+tgt4NlmyE/Clsx/Im4x2uhYfnvKVHKVtU2hJqykz70JiUctFOS4xpFBh3RHPHYCh
+H/NPOdsJqqZNKw+UJnR5LyP0tN/s4HFnGPyV+AqpWtYPFb2E80MtP+v4+DHrfuCr
+NeqsoXKwQUJoEbKq062p/okYjiWsLg2AS2Xt+yt+TydZ2ah4TQR1BJlsc/WqeQDw
+m2P59e58CKpSI8xgJff72vxoUtP204G65Mwf2wzHoDa7g168kA9nW/7ac8Nc0IZn
+Jb0NbbcNZqGBoWFg9Zf5b9V8V4h0K/Ce5O0G+aPaq1VD</ds:X509Certificate>
+            </ds:X509Data>
+         </ds:KeyInfo>
+      </md:KeyDescriptor>
+      <md:KeyDescriptor use="encryption">
+         <ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+            <ds:X509Data>
+               <ds:X509Certificate>MIIDfTCCAmWgAwIBAgIETXmZYjANBgkqhkiG9w0BAQsFADBvMQswCQYDVQQGEwJS
+UzEPMA0GA1UECBMGU2VyYmlhMREwDwYDVQQHEwhCZWxncmFkZTEQMA4GA1UEChMH
+UHJvc29sbzEQMA4GA1UECxMHUHJvc29sbzEYMBYGA1UEAxMPU3RlZmFuIFZ1Y2tv
+dmljMB4XDTE5MDMwNTEzNDIxN1oXDTIxMDMwNDEzNDIxN1owbzELMAkGA1UEBhMC
+UlMxDzANBgNVBAgTBlNlcmJpYTERMA8GA1UEBxMIQmVsZ3JhZGUxEDAOBgNVBAoT
+B1Byb3NvbG8xEDAOBgNVBAsTB1Byb3NvbG8xGDAWBgNVBAMTD1N0ZWZhbiBWdWNr
+b3ZpYzCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAJFYKMdrn3WRAiOH
+t5j6Hm+oVaab3SlK9k2z8tnmbwbL3KjvBSkZnpA8a4QOJy1Fc7NQHl8X+W16rfNO
+581lCAqcYKwZPeAdOIW0qQsOx1whf5LD5IkLFwRjOPjSHpBz6pTI7k28HssaIEbD
+h/xwjb+X2xJC7ybg4/bwqLYZtHN6u9OOn0kP9oXKnP/Y4Y2/Mv0i3S3+G+x182P4
+Agmrgx8rUZwvAhV9/MgYFz+pqGtdqeGlEVg4FXl1beiUJQ5arwjfn+dJMbzxxJLy
+GSxttdTujL+S0bC3dpGPRBCE1Z2wm0GPPaLfWyjfUAZNvgsbx6MRium1lPhkXhSG
+SF00Ov0CAwEAAaMhMB8wHQYDVR0OBBYEFCil7K0Srxb/R9gBLjyCKLevRbsfMA0G
+CSqGSIb3DQEBCwUAA4IBAQBXLVvjtwoXhUOOG0Y2lfYUS9sPB2TLvcju4og2rqsl
+tgt4NlmyE/Clsx/Im4x2uhYfnvKVHKVtU2hJqykz70JiUctFOS4xpFBh3RHPHYCh
+H/NPOdsJqqZNKw+UJnR5LyP0tN/s4HFnGPyV+AqpWtYPFb2E80MtP+v4+DHrfuCr
+NeqsoXKwQUJoEbKq062p/okYjiWsLg2AS2Xt+yt+TydZ2ah4TQR1BJlsc/WqeQDw
+m2P59e58CKpSI8xgJff72vxoUtP204G65Mwf2wzHoDa7g168kA9nW/7ac8Nc0IZn
+Jb0NbbcNZqGBoWFg9Zf5b9V8V4h0K/Ce5O0G+aPaq1VD</ds:X509Certificate>
+            </ds:X509Data>
+         </ds:KeyInfo>
+      </md:KeyDescriptor>
+      <md:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://beta.prosolo.ca/prosolo/saml/SingleLogout" />
+      <md:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="https://beta.prosolo.ca/prosolo/saml/SingleLogout" />
+      <md:NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress</md:NameIDFormat>
+      <md:NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:transient</md:NameIDFormat>
+      <md:NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:persistent</md:NameIDFormat>
+      <md:NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified</md:NameIDFormat>
+      <md:NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:X509SubjectName</md:NameIDFormat>
+      <md:AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://beta.prosolo.ca/prosolo/saml/SSO" index="0" isDefault="true" />
+      <md:AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact" Location="https://beta.prosolo.ca/prosolo/saml/SSO" index="1" />
+   </md:SPSSODescriptor>
+</md:EntityDescriptor>

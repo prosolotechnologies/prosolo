@@ -11,6 +11,7 @@ import org.prosolo.common.domainmodel.credential.CredentialType;
 import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.common.event.context.data.PageContextData;
 import org.prosolo.search.CompetenceTextSearch;
+import org.prosolo.search.data.SortingOption;
 import org.prosolo.search.impl.PaginatedResult;
 import org.prosolo.services.assessment.data.LearningResourceAssessmentSettings;
 import org.prosolo.services.logging.ComponentName;
@@ -33,7 +34,7 @@ import org.prosolo.services.urlencoding.UrlIdEncoder;
 import org.prosolo.services.util.roles.SystemRoleNames;
 import org.prosolo.web.ApplicationBean;
 import org.prosolo.web.LoggedUserBean;
-import org.prosolo.search.data.SortingOption;
+import org.prosolo.web.courses.userprivilege.CredentialUserPrivilegeBean;
 import org.prosolo.web.util.ResourceBundleUtil;
 import org.prosolo.web.util.page.PageUtil;
 import org.springframework.context.annotation.Scope;
@@ -255,10 +256,6 @@ public class CredentialEditBean extends CompoundLearningResourceAssessmentSettin
 			comp.getCreator().getId() == loggedUser.getUserId();
 	}
 
-	public boolean isLearningInStagesEnabled() {
-		return applicationBean.getConfig().application.pluginConfig.learningInStagesPlugin.enabled;
-	}
-
 	public boolean isLearningStageActive(LearningResourceLearningStage ls) {
 		return ls.getLearningStage().getId() == credentialData.getLearningStage().getId();
 	}
@@ -355,7 +352,7 @@ public class CredentialEditBean extends CompoundLearningResourceAssessmentSettin
 	public void saveAndNavigateToCreateCompetence() {
 		boolean saved = saveCredentialData(false);
 		if (saved) {
-			PageUtil.redirect("/manage/competences/new?credId=" + id);
+			PageUtil.redirect("/manage/credentials/"+id+"/competences/new");
 		}
 	}
 

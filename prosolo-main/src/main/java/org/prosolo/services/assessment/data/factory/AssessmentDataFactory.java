@@ -1,23 +1,21 @@
 package org.prosolo.services.assessment.data.factory;
 
+import org.prosolo.common.domainmodel.assessment.Assessment;
+import org.prosolo.common.domainmodel.assessment.AssessmentStatus;
 import org.prosolo.common.domainmodel.assessment.CompetenceAssessment;
 import org.prosolo.common.domainmodel.assessment.CredentialAssessment;
 import org.prosolo.common.domainmodel.credential.*;
 import org.prosolo.common.domainmodel.user.User;
 import org.prosolo.common.util.ImageFormat;
-import org.prosolo.services.assessment.data.ActivityAssessmentsSummaryData;
-import org.prosolo.services.assessment.data.AssessmentData;
-import org.prosolo.services.assessment.data.CompetenceAssessmentsSummaryData;
-import org.prosolo.services.assessment.data.CredentialAssessmentsSummaryData;
+import org.prosolo.common.util.date.DateUtil;
+import org.prosolo.services.assessment.data.*;
 import org.prosolo.services.nodes.factory.ActivityDataFactory;
 import org.prosolo.web.util.AvatarUtils;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
 import java.io.Serializable;
-import java.text.DateFormat;
 import java.util.Date;
-import java.util.OptionalInt;
 
 /**
  * @author stefanvuckovic
@@ -77,20 +75,20 @@ public class AssessmentDataFactory implements Serializable {
         return activitySummary;
     }
 
-    public AssessmentData getCredentialAssessmentData(CredentialAssessment ca, User student, User assessor, DateFormat dateFormat) {
-        return getAssessmentData(ca.getId(), ca.getDateCreated(), ca.isApproved(), student, assessor, dateFormat, ca.getBlindAssessmentMode());
-    }
-
-    public AssessmentData getCompetenceAssessmentData(CompetenceAssessment ca, User student, User assessor, DateFormat dateFormat) {
-        return getAssessmentData(ca.getId(), ca.getDateCreated(), ca.isApproved(), student, assessor, dateFormat, ca.getBlindAssessmentMode());
-    }
-
-    public AssessmentData getAssessmentData(
-            long assessmentId, Date dateCreated, boolean approved, User student, User assessor, DateFormat dateFormat, BlindAssessmentMode blindAssessmentMode) {
+    public AssessmentData getCredentialAssessmentData(CredentialAssessment assessment, User student, User assessor) {
         AssessmentData data = new AssessmentData();
-        data.setAssessmentId(assessmentId);
-        data.setDateValue(dateFormat.format(dateCreated));
-        data.setApproved(approved);
+        populateAndReturnAssessmentData(data, assessment, student, assessor);
+        return data;
+    }
+
+    private void populateAndReturnAssessmentData(AssessmentData data, Assessment assessment, User student, User assessor) {
+        data.setAssessmentId(assessment.getId());
+        data.setCredentialTitle(assessment.getTargetCredential().getCredential().getTitle());
+        data.setStatus(assessment.getStatus());
+        data.setDateRequested(DateUtil.getMillisFromDate(assessment.getDateCreated()));
+        data.setDateQuit(DateUtil.getMillisFromDate(assessment.getQuitDate()));
+        data.setApproved(assessment.getStatus() == AssessmentStatus.SUBMITTED);
+        data.setDateSubmitted(DateUtil.getMillisFromDate(assessment.getDateApproved()));
         if (student != null) {
             data.setStudentFullName(student.getName() + " " + student.getLastname());
             data.setStudentAvatarUrl(AvatarUtils.getAvatarUrlInFormat(student, ImageFormat.size120x120));
@@ -101,8 +99,15 @@ public class AssessmentDataFactory implements Serializable {
             data.setAssessorAvatarUrl(AvatarUtils.getAvatarUrlInFormat(assessor, ImageFormat.size120x120));
             data.setAssessorId(assessor.getId());
         }
-        data.setBlindAssessmentMode(blindAssessmentMode);
+        data.setBlindAssessmentMode(assessment.getBlindAssessmentMode());
+        data.setCredentialId(assessment.getTargetCredential().getCredential().getId());
+    }
 
+    public CompetenceAssessmentData getCompetenceAssessmentData(CompetenceAssessment assessment, User student, User assessor) {
+        CompetenceAssessmentData data = new CompetenceAssessmentData();
+        data.setCompetenceId(assessment.getCompetence().getId());
+        data.setCompetenceTitle(assessment.getCompetence().getTitle());
+        populateAndReturnAssessmentData(data, assessment, student, assessor);
         return data;
     }
 }

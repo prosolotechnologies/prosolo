@@ -1,5 +1,6 @@
 package org.prosolo.web.courses.competence;
 
+import lombok.Getter;
 import org.apache.log4j.Logger;
 import org.prosolo.bigdata.common.exceptions.AccessDeniedException;
 import org.prosolo.bigdata.common.exceptions.ResourceNotFoundException;
@@ -8,8 +9,10 @@ import org.prosolo.common.domainmodel.user.UserGroupPrivilege;
 import org.prosolo.services.interaction.data.CommentsData;
 import org.prosolo.services.nodes.Competence1Manager;
 import org.prosolo.services.nodes.CredentialManager;
+import org.prosolo.services.nodes.OrganizationManager;
 import org.prosolo.services.nodes.data.competence.CompetenceData1;
 import org.prosolo.services.nodes.data.credential.CredentialIdData;
+import org.prosolo.services.nodes.data.organization.EvidenceRepositoryPluginData;
 import org.prosolo.services.nodes.data.resourceAccess.AccessMode;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessData;
 import org.prosolo.services.nodes.data.resourceAccess.ResourceAccessRequirements;
@@ -39,6 +42,7 @@ public class CompetenceViewBeanManager implements Serializable {
 	@Inject private Competence1Manager competenceManager;
 	@Inject private UrlIdEncoder idEncoder;
 	@Inject private CommentBean commentBean;
+	@Inject private OrganizationManager organizationManager;
 
 	private String credId;
 	private long decodedCredId;
@@ -52,21 +56,27 @@ public class CompetenceViewBeanManager implements Serializable {
 
 	private CredentialIdData credentialIdData;
 
+	@Getter
+	private EvidenceRepositoryPluginData evidenceRepositoryPluginData;
+
 	public void init() {	
 		decodedCompId = idEncoder.decodeId(compId);
-		if (decodedCompId > 0) {
-			if(credId != null) {
-				decodedCredId = idEncoder.decodeId(credId);
-			}
+		decodedCredId = idEncoder.decodeId(credId);
+
+		if (decodedCompId > 0 && decodedCredId > 0) {
 			try {
+				// check if credential and competency are connected
+				competenceManager.checkIfCompetenceIsPartOfACredential(decodedCredId, decodedCompId);
+
 				ResourceAccessRequirements req = ResourceAccessRequirements
 						.of(AccessMode.MANAGER)
 						.addPrivilege(UserGroupPrivilege.Edit)
 						.addPrivilege(UserGroupPrivilege.Instruct);
+
 				RestrictedAccessResult<CompetenceData1> result = competenceManager
-						.getCompetenceDataWithAccessRightsInfo(decodedCredId, decodedCompId, true, false, true, true,
+						.getCompetenceDataWithAccessRightsInfo(decodedCompId, true, false, true, true,
 								loggedUser.getUserId(), req, false);
-				
+
 				unpackResult(result);
 				/*
 				 * if user does not have at least access to resource in read only mode throw access denied exception.
@@ -74,21 +84,27 @@ public class CompetenceViewBeanManager implements Serializable {
 				if (!access.isCanRead()) {
 					throw new AccessDeniedException();
 				}
-				
+
 				/*
 				 * check if user has instructor privilege and if has, we should mark his comments as
 				 * instructor comments
 				 */
-				commentsData = new CommentsData(CommentedResourceType.Competence, 
-						competenceData.getCompetenceId(), access.isCanInstruct(), true);
-				commentsData.setCommentId(idEncoder.decodeId(commentId));
+				commentsData = CommentsData
+						.builder()
+						.resourceType(CommentedResourceType.Competence)
+						.resourceId(competenceData.getCompetenceId())
+						.isInstructor(access.isCanInstruct())
+						.isManagerComment(true)
+						.commentId(idEncoder.decodeId(commentId))
+						.credentialId(decodedCredId)
+						.build();
 				commentBean.loadComments(commentsData);
-//					commentBean.init(CommentedResourceType.Competence, competenceData.getCompetenceId(),
-//							hasInstructorCapability);
-				if (decodedCredId > 0) {
-					credentialIdData = credManager.getCredentialIdData(decodedCredId, null);
-					competenceData.setCredentialId(decodedCredId);
-				}
+
+				credentialIdData = credManager.getCredentialIdData(decodedCredId, null);
+				competenceData.setCredentialId(decodedCredId);
+
+				// load evidence repository plugin data 
+				evidenceRepositoryPluginData = organizationManager.getOrganizationEvidenceRepositoryPluginData(loggedUser.getOrganizationId());
 			} catch (AccessDeniedException ade) {
 				PageUtil.accessDenied();
 			} catch (ResourceNotFoundException rnfe) {

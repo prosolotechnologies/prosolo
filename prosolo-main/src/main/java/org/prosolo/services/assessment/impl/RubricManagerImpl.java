@@ -14,24 +14,27 @@ import org.prosolo.common.domainmodel.rubric.*;
 import org.prosolo.common.domainmodel.rubric.visitor.CriterionVisitor;
 import org.prosolo.common.domainmodel.rubric.visitor.LevelVisitor;
 import org.prosolo.common.domainmodel.user.User;
+import org.prosolo.common.event.EventQueue;
 import org.prosolo.common.event.context.data.UserContextData;
 import org.prosolo.common.exceptions.ResourceCouldNotBeLoadedException;
 import org.prosolo.search.impl.PaginatedResult;
+import org.prosolo.services.assessment.RubricManager;
+import org.prosolo.services.assessment.data.GradeDataFactory;
+import org.prosolo.services.assessment.data.LearningResourceAssessmentSettings;
+import org.prosolo.services.assessment.data.grading.RubricCriteriaGradeData;
+import org.prosolo.services.assessment.data.grading.RubricCriterionGradeData;
 import org.prosolo.services.capability.UserCapabilityUtil;
 import org.prosolo.services.data.Result;
 import org.prosolo.services.event.EventFactory;
-import org.prosolo.services.event.EventQueue;
 import org.prosolo.services.general.impl.AbstractManagerImpl;
 import org.prosolo.services.nodes.Activity1Manager;
 import org.prosolo.services.nodes.RoleManager;
-import org.prosolo.services.assessment.RubricManager;
 import org.prosolo.services.nodes.UnitManager;
-import org.prosolo.services.assessment.data.LearningResourceAssessmentSettings;
 import org.prosolo.services.nodes.data.ObjectStatus;
-import org.prosolo.services.assessment.data.GradeDataFactory;
-import org.prosolo.services.assessment.data.grading.RubricCriteriaGradeData;
-import org.prosolo.services.assessment.data.grading.RubricCriterionGradeData;
-import org.prosolo.services.nodes.data.rubrics.*;
+import org.prosolo.services.nodes.data.rubrics.RubricCriterionData;
+import org.prosolo.services.nodes.data.rubrics.RubricData;
+import org.prosolo.services.nodes.data.rubrics.RubricItemDescriptionData;
+import org.prosolo.services.nodes.data.rubrics.RubricLevelData;
 import org.prosolo.services.nodes.factory.RubricDataFactory;
 import org.prosolo.services.nodes.impl.util.EditMode;
 import org.prosolo.web.util.ResourceBundleUtil;
@@ -71,7 +74,7 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
     public Rubric createNewRubric(String name, UserContextData context) throws DbConnectionException, ConstraintViolationException, DataIntegrityViolationException {
 
         Result<Rubric> res = self.createNewRubricAndGetEvents(name, context);
-        eventFactory.generateEvents(res.getEventQueue());
+        eventFactory.generateAndPublishEvents(res.getEventQueue());
         return res.getResult();
     }
 
@@ -204,7 +207,7 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
     public void deleteRubric(long rubricId, UserContextData context)
             throws DbConnectionException, ConstraintViolationException, DataIntegrityViolationException {
         Result<Void> result = self.deleteRubricAndGetEvents(rubricId, context);
-        eventFactory.generateEvents(result.getEventQueue());
+        eventFactory.generateAndPublishEvents(result.getEventQueue());
     }
 
     @Override
@@ -253,7 +256,7 @@ public class RubricManagerImpl extends AbstractManagerImpl implements RubricMana
     public void updateRubricName(long rubricId, String name, UserContextData context) throws
             DbConnectionException, ConstraintViolationException, DataIntegrityViolationException {
         Result<Void> result = self.updateRubricNameAndGetEvents(rubricId, name, context);
-        eventFactory.generateEvents(result.getEventQueue());
+        eventFactory.generateAndPublishEvents(result.getEventQueue());
     }
 
     @Override
