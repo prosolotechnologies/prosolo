@@ -842,7 +842,6 @@ public class BusinessCase4_EDX implements BusinessCase {
 		newComment.setComment(commentText);
 		newComment.setCreator(new UserData(userKevinHall));
 		newComment.setParent(parent);
-		newComment.setCredentialId(credentialId);
 
 		String learningContext= MessageFormat.format("name:CREDENTIAL|id:{0}|context:/name:COMPETENCE|id:{1}|context:/name:ACTIVITY|id:{2}|context:/name:TARGET_ACTIVITY|id:{3}///", credentialId+"", competenceId+"", activityId+"", targetActivityId+"");
 
