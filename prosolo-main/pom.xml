@@ -25,7 +25,7 @@
 		<jersey2.version>2.27</jersey2.version>
 		<jaxrs.version>2.1.1</jaxrs.version>
 		<resteasy.version>3.0.9.Final</resteasy.version>
-		<spring.version>4.3.8.RELEASE</spring.version>
+		<spring.version>5.2.3.RELEASE</spring.version>
 		<spring.security.version>3.2.5.RELEASE</spring.security.version>
 		<aspectj.version>1.9.2</aspectj.version>
 
