@@ -32,7 +32,7 @@
 		<hibernate-search.version>4.2.0.Final</hibernate-search.version>
 		<jsoup.version>1.7.2</jsoup.version>
 		<junit.version>4.10</junit.version>
-		<quartz.version>2.2.1</quartz.version>
+		<quartz.version>2.3.2</quartz.version>
 		<wro4j.version>1.7.7</wro4j.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<timestamp>${maven.build.timestamp}</timestamp>
