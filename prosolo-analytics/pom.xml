@@ -16,7 +16,7 @@
 		<jersey2.version>2.27</jersey2.version>
 		<jaxrs.version>2.1.1</jaxrs.version>
 		<scala.version>2.11.12</scala.version>
-		<quartz.version>2.2.1</quartz.version>
+		<quartz.version>2.3.2</quartz.version>
 		<twitter4j.version>4.0.7</twitter4j.version>
 		<mahout.version>0.9</mahout.version>
 	</properties>
